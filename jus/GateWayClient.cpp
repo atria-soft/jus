@@ -17,10 +17,11 @@ jus::GateWayClient::~GateWayClient() {
 void jus::GateWayClient::start(const std::string& _ip, uint16_t _port) {
 	m_interfaceClient.propertyIp.set(_ip);
 	m_interfaceClient.propertyPort.set(_port);
-	
+	m_interfaceClient.propertyServer.set(true);
+	m_interfaceClient.connect();
 }
 
 void jus::GateWayClient::stop() {
-	
+	m_interfaceClient.disconnect();
 }
 
