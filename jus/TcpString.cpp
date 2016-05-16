@@ -65,6 +65,8 @@ void jus::TcpString::connect(){
 
 void jus::TcpString::disconnect(){
 	JUS_DEBUG("disconnect [START]");
+	uint32_t size = 0xFFFFFFFF;
+	m_connection.write(&size, 4);
 	if (m_thread != nullptr) {
 		m_threadRunning = false;
 		m_connection.unlink();
@@ -86,21 +88,29 @@ int32_t jus::TcpString::write(const std::string& _data) {
 
 std::string jus::TcpString::read() {
 	// TODO : Do it better with a correct way to check data size ...
+	JUS_WARNING("Read [START]");
 	std::string out;
 	uint32_t size = 0;
 	int32_t len = m_connection.read(&size, 4);
 	if (len != 4) {
 		JUS_ERROR("Protocol error occured ...");
 	} else {
-		out.resize(size);
-		len = m_connection.read(&out[0], size);
-		if (len == 0) {
-			JUS_WARNING("Read No data");
-		} else if (len != size) {
-			// TODO  do it again ...
-			JUS_ERROR("Protocol error occured .2.");
+		if (size == -1) {
+			JUS_WARNING("Remote close connection");
+			m_threadRunning = false;
+			//m_connection.unlink();
+		} else {
+			out.resize(size);
+			len = m_connection.read(&out[0], size);
+			if (len == 0) {
+				JUS_WARNING("Read No data");
+			} else if (len != size) {
+				// TODO  do it again ...
+				JUS_ERROR("Protocol error occured .2.");
+			}
 		}
 	}
+	JUS_WARNING("Read [STOP]");
 	return out;
 }
 
