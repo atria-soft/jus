@@ -5,21 +5,34 @@
  */
 
 #include <appl/debug.h>
-#include <jus/Client.h>
+#include <jus/Service.h>
 #include <etk/etk.h>
 #include <unistd.h>
 
 #include <etk/stdTools.h>
+namespace appl {
+	class Service1 : public jus::Service {
+		private:
+			double mul(const double& _val1, const double& _val2) {
+				return _val1*_val2;
+			}
+		public:
+			Service1() {
+				advertise("mul", &appl::Service1::mul, "simple multiplication to test double IO");
+			}
+	};
+}
+
 
 int main(int _argc, const char *_argv[]) {
 	etk::init(_argc, _argv);
-	jus::Client client1;
+	appl::Service1 service1;
 	for (int32_t iii=0; iii<_argc ; ++iii) {
 		std::string data = _argv[iii];
 		if (etk::start_with(data, "--ip=") == true) {
-			client1.propertyIp.set(std::string(&data[5]));
+			service1.propertyIp.set(std::string(&data[5]));
 		} else if (etk::start_with(data, "--port=") == true) {
-			client1.propertyPort.set(etk::string_to_uint16_t(std::string(&data[7])));
+			service1.propertyPort.set(etk::string_to_uint16_t(std::string(&data[7])));
 		} else if (    data == "-h"
 		            || data == "--help") {
 			APPL_PRINT(etk::getApplicationName() << " - help : ");
@@ -30,35 +43,20 @@ int main(int _argc, const char *_argv[]) {
 		}
 	}
 	APPL_INFO("==================================");
-	APPL_INFO("== JUS test client start        ==");
+	APPL_INFO("== JUS test service1 start      ==");
 	APPL_INFO("==================================");
-	client1.connect();
-	APPL_INFO("    ----------------------------------");
-	APPL_INFO("    -- Get service count            --");
-	APPL_INFO("    ----------------------------------");
-	
-	std::vector<double> tmp;
-	tmp.push_back(1);
-	tmp.push_back(22);
-	tmp.push_back(333);
-	tmp.push_back(4444);
-	int32_t val = client1.call_i("getServiceCount", tmp, "soucou", false);
-	APPL_INFO("Nb services = " << val);
-	std::vector<std::string> val2 = client1.call_vs("getServiceList");
-	APPL_INFO("List services:");
-	for (auto &it: val2) {
-		APPL_INFO("    - " << it);
-	}
-	
+	/*
+	service1.connect();
 	int32_t iii=0;
-	while (iii < 3) {
+	while (true) {
 		usleep(500000);
-		APPL_INFO("Appl in waiting ... " << iii << "/3");
+		APPL_INFO("Appl in waiting ... " << iii << "/inf");
 		iii++;
 	}
-	client1.disconnect();
+	service1.disconnect();
+	*/
 	APPL_INFO("==================================");
-	APPL_INFO("== JUS test client stop        ==");
+	APPL_INFO("== JUS test service1 stop       ==");
 	APPL_INFO("==================================");
 	return 0;
 }

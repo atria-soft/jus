@@ -14,11 +14,13 @@ namespace jus {
 		public:
 			jus::TcpString m_interfaceClient;
 			esignal::Signal<bool> signalIsConnected;
+			esignal::Connection m_dataCallback;
 		public:
 			GateWayClient();
 			virtual ~GateWayClient();
 			void start(const std::string& _ip, uint16_t _port);
 			void stop();
+			void onClientData(const std::string& _value);
 	};
 }
 

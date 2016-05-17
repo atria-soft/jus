@@ -26,7 +26,7 @@ def get_version():
 
 def create(target, module_name):
 	my_module = module.Module(__file__, module_name, get_type())
-	my_module.add_module_depend(['etk', 'enet', 'ememory', 'eproperty', 'esignal'])
+	my_module.add_module_depend(['etk', 'enet', 'ememory', 'eproperty', 'esignal', 'ejson'])
 	my_module.add_src_file([
 	    'jus/debug.cpp'
 	    ])
@@ -48,6 +48,8 @@ def create(target, module_name):
 	    'jus/Service.h',
 	    'jus/TcpString.h',
 	    ])
+	# build in C++ mode
+	my_module.compile_version("c++", 2011)
 	return my_module
 
 

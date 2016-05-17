@@ -6,6 +6,7 @@
 #include <jus/TcpString.h>
 #include <jus/debug.h>
 #include <ethread/tools.h>
+#include <unistd.h>
 
 jus::TcpString::TcpString() :
   m_thread(nullptr),
@@ -34,10 +35,11 @@ void jus::TcpString::threadCallback() {
 	}
 	signalIsConnected.emit(true);
 	// get datas:
-	while (m_threadRunning == true) {
+	while (    m_threadRunning == true
+	        && m_connection.getConnectionStatus() == enet::Tcp::status::link) {
 		// READ section data:
 		std::string data = std::move(read());
-		JUS_WARNING("Receive data: '" << data << "'");
+		JUS_VERBOSE("Receive data: '" << data << "'");
 		if (data.size() != 0) {
 			signalData.emit(data);
 		}
@@ -59,17 +61,27 @@ void jus::TcpString::connect(){
 		JUS_ERROR("creating callback thread!");
 		return;
 	}
+	while (    m_threadRunning == true
+	        && m_connection.getConnectionStatus() != enet::Tcp::status::link) {
+		usleep(50000);
+	}
 	//ethread::setPriority(*m_receiveThread, -6);
 	JUS_DEBUG("connect [STOP]");
 }
 
 void jus::TcpString::disconnect(){
 	JUS_DEBUG("disconnect [START]");
-	uint32_t size = 0xFFFFFFFF;
-	m_connection.write(&size, 4);
+	if (m_connection.getConnectionStatus() == enet::Tcp::status::link) {
+		uint32_t size = 0xFFFFFFFF;
+		m_connection.write(&size, 4);
+	}
 	if (m_thread != nullptr) {
 		m_threadRunning = false;
+	}
+	if (m_connection.getConnectionStatus() != enet::Tcp::status::unlink) {
 		m_connection.unlink();
+	}
+	if (m_thread != nullptr) {
 		m_thread->join();
 		delete m_thread;
 		m_thread = nullptr;
@@ -88,7 +100,7 @@ int32_t jus::TcpString::write(const std::string& _data) {
 
 std::string jus::TcpString::read() {
 	// TODO : Do it better with a correct way to check data size ...
-	JUS_WARNING("Read [START]");
+	JUS_VERBOSE("Read [START]");
 	std::string out;
 	uint32_t size = 0;
 	int32_t len = m_connection.read(&size, 4);
@@ -110,7 +122,7 @@ std::string jus::TcpString::read() {
 			}
 		}
 	}
-	JUS_WARNING("Read [STOP]");
+	JUS_VERBOSE("Read [STOP]");
 	return out;
 }
 

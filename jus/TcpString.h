@@ -28,6 +28,7 @@ namespace jus {
 			void connect();
 			void disconnect();
 			int32_t write(const std::string& _data);
+			std::string asyncRead();
 		private:
 			std::string read();
 		private:
