@@ -87,7 +87,7 @@ namespace jus {
 			void createParam(ejson::Object& _obj, const std::vector<bool>& _param, _ARGS&&... _args) {
 				ejson::Array array = _obj["param"].toArray();
 				ejson::Array array2;
-				for (auto& it : _param) {
+				for (const auto& it : _param) {
 					array2.add(ejson::Boolean(it));
 				}
 				array.add(array2);

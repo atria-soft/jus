@@ -13,7 +13,8 @@
 namespace appl {
 	class Service1 : public jus::Service {
 		private:
-			double mul(const double& _val1, const double& _val2) {
+			double mul(const double& _val1) {//, const double& _val2) {
+				double _val2 = 1.0f;
 				return _val1*_val2;
 			}
 		public:
