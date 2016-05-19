@@ -95,8 +95,6 @@ ejson::Value convertToJson(const JUS_TYPE& _value);
 
 template <class JUS_RETURN, class... JUS_TYPES>
 class TypeList: public CmdBase {
-	protected:
-		//int32_t m_sizeParam;
 	public:
 		using functionType = JUS_RETURN (*)(JUS_TYPES...);
 		functionType m_function;
@@ -106,8 +104,7 @@ class TypeList: public CmdBase {
 		  m_function(_fptr) {
 			
 		}
-		//template <typename std::enable_if<!std::is_same<JUS_RETURN, void>::value>::type >
-		ejson::Value execute2(const ejson::Array& _params) {
+		ejson::Value execute(const ejson::Array& _params) {
 			ejson::Object out;
 			if (_params.size() != m_listParamType.size()) {
 				JUS_ERROR("Wrong number of Parameters ...");
@@ -137,16 +134,10 @@ class TypeList: public CmdBase {
 			out.add("return", retVal);
 			return out;
 		}
-		
-		ejson::Value execute(const ejson::Array& _params) override {
-			return execute2(_params);
-		}
 };
-// Void special case :
+// Void special case:
 template <class... JUS_TYPES>
 class TypeListVoid: public CmdBase {
-	protected:
-		//int32_t m_sizeParam;
 	public:
 		using functionType = void (*)(JUS_TYPES...);
 		functionType m_function;
