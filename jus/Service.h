@@ -122,8 +122,18 @@ class TypeList: public CmdBase {
 				return out;
 			}
 			// TODO : Check params ...
-			int32_t idParam = 0;
-			ejson::Value retVal = convertToJson(m_function(convertJsonTo<JUS_TYPES>(_params[idParam++])...));
+			// Clang and Gcc does not exapnd variadic template at the same way ...
+			#if defined(__clang__)
+				// clang generate a basic warning:
+				//      warning: multiple unsequenced modifications to 'idParam' [-Wunsequenced]
+				int32_t idParam = 0;
+				ejson::Value retVal = convertToJson(m_function(convertJsonTo<JUS_TYPES>(_params[idParam++])...));
+			#elif defined(__GNUC__) || defined(__GNUG__) || defined(_MSC_VER)
+				int32_t idParam = m_listParamType.size()-1;
+				ejson::Value retVal = convertToJson(m_function(convertJsonTo<JUS_TYPES>(_params[idParam--])...));
+			#else
+				#error Must be implemented ...
+			#endif
 			out.add("return", retVal);
 			return out;
 		}
@@ -161,8 +171,18 @@ class TypeListVoid: public CmdBase {
 				return out;
 			}
 			// TODO : Check params ...
-			int32_t idParam = m_listParamType.size()-1;
-			m_function(convertJsonTo<JUS_TYPES>(_params[idParam--])...);
+			// Clang and Gcc does not exapnd variadic template at the same way ...
+			#if defined(__clang__)
+				// clang generate a basic warning:
+				//      warning: multiple unsequenced modifications to 'idParam' [-Wunsequenced]
+				int32_t idParam = 0;
+				m_function(convertJsonTo<JUS_TYPES>(_params[idParam++])...);
+			#elif defined(__GNUC__) || defined(__GNUG__) || defined(_MSC_VER)
+				int32_t idParam = m_listParamType.size()-1;
+				m_function(convertJsonTo<JUS_TYPES>(_params[idParam--])...);
+			#else
+				#error Must be implemented ...
+			#endif
 			out.add("return", ejson::Null());
 			return out;
 		}

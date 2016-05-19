@@ -36,6 +36,7 @@ template<> int64_t convertJsonTo<int64_t>(const ejson::Value& _value) {
 	return int64_t(_value.toNumber().get());
 }
 template<> int32_t convertJsonTo<int32_t>(const ejson::Value& _value) {
+	_value.display();
 	return int32_t(_value.toNumber().get());
 }
 template<> int16_t convertJsonTo<int16_t>(const ejson::Value& _value) {
