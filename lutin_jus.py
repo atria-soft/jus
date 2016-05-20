@@ -48,6 +48,8 @@ def create(target, module_name):
 	    'jus/Service.h',
 	    'jus/TcpString.h',
 	    ])
+	if target.config["compilator"] == "clang":
+		my_module.add_export_flag('c++', "-Wno-unsequenced")
 	# build in C++ mode
 	my_module.compile_version("c++", 2011)
 	return my_module

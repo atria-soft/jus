@@ -52,38 +52,17 @@ class CmdBase {
 			return m_description;
 		}
 	protected:
-		ParamType m_returnType;
-		std::vector<ParamType> m_listParamType;
-	protected:
 		CmdBase(const std::string& _name,
-		        const std::string& _desc,
-		        const ParamType& _retType,
-		        const std::vector<ParamType>& _params):
+		        const std::string& _desc):
 		  m_name(_name),
-		  m_description(_desc),
-		  m_returnType(_retType),
-		  m_listParamType(_params) {
+		  m_description(_desc) {
 			
 		}
 	public:
 		virtual ~CmdBase() {};
 		//virtual bool checkArguments(const std::vector<CmdBase::Variant>& _params) = 0;
 	public:
-		std::string getPrototype() const {
-			std::string ret;
-			ret += m_returnType.getName();
-			ret += " ";
-			ret += m_name;
-			ret += "(";
-			for (size_t iii=0; iii<m_listParamType.size(); ++iii) {
-				if (iii != 0) {
-					ret += ", ";
-				}
-				ret += m_listParamType[iii].getName();
-			}
-			ret += ");";
-			return ret;
-		}
+		virtual std::string getPrototype() const = 0;
 		virtual ejson::Value execute(const ejson::Array& _params) = 0;
 };
 
@@ -95,24 +74,41 @@ ejson::Value convertToJson(const JUS_TYPE& _value);
 
 template <class JUS_RETURN, class... JUS_TYPES>
 class TypeList: public CmdBase {
+	protected:
+		static const ParamType m_returnType;
+		static const ParamType m_paramType[sizeof...(JUS_TYPES)];
+		static const int32_t m_paramCount;
 	public:
 		using functionType = JUS_RETURN (*)(JUS_TYPES...);
 		functionType m_function;
 		TypeList(const std::string& _name, const std::string& _desc, functionType _fptr):
-		  CmdBase(_name, _desc, createType<JUS_RETURN>(), {createType<JUS_TYPES>()...}),
-		  //m_sizeParam(sizeof...(JUS_TYPES)),
+		  CmdBase(_name, _desc),
 		  m_function(_fptr) {
-			
 		}
-		ejson::Value execute(const ejson::Array& _params) {
+		std::string getPrototype() const override {
+			std::string ret;
+			ret += m_returnType.getName();
+			ret += " ";
+			ret += m_name;
+			ret += "(";
+			for (size_t iii=0; iii<m_paramCount; ++iii) {
+				if (iii != 0) {
+					ret += ", ";
+				}
+				ret += m_paramType[iii].getName();
+			}
+			ret += ");";
+			return ret;
+		}
+		ejson::Value execute(const ejson::Array& _params) override {
 			ejson::Object out;
-			if (_params.size() != m_listParamType.size()) {
+			if (_params.size() != m_paramCount) {
 				JUS_ERROR("Wrong number of Parameters ...");
 				out.add("error", ejson::String("WRONG-PARAMETER-NUMBER"));
 				std::string help = "request ";
 				help += etk::to_string(_params.size());
 				help += " parameters and need ";
-				help += etk::to_string(m_listParamType.size());
+				help += etk::to_string(m_paramCount);
 				help += " parameters. prototype function:";
 				help += getPrototype();
 				out.add("error-help", ejson::String(help));
@@ -126,7 +122,7 @@ class TypeList: public CmdBase {
 				int32_t idParam = 0;
 				ejson::Value retVal = convertToJson(m_function(convertJsonTo<JUS_TYPES>(_params[idParam++])...));
 			#elif defined(__GNUC__) || defined(__GNUG__) || defined(_MSC_VER)
-				int32_t idParam = m_listParamType.size()-1;
+				int32_t idParam = m_paramCount-1;
 				ejson::Value retVal = convertToJson(m_function(convertJsonTo<JUS_TYPES>(_params[idParam--])...));
 			#else
 				#error Must be implemented ...
@@ -135,27 +131,54 @@ class TypeList: public CmdBase {
 			return out;
 		}
 };
+
+template <class JUS_RETURN, class... JUS_TYPES>
+const ParamType TypeList<JUS_RETURN, JUS_TYPES...>::m_returnType = createType<JUS_RETURN>();
+
+template <class JUS_RETURN, class... JUS_TYPES>
+const ParamType TypeList<JUS_RETURN, JUS_TYPES...>::m_paramType[sizeof...(JUS_TYPES)] = {createType<JUS_TYPES>()...};
+
+template <class JUS_RETURN, class... JUS_TYPES>
+const int32_t TypeList<JUS_RETURN, JUS_TYPES...>::m_paramCount = sizeof...(JUS_TYPES);
+
 // Void special case:
 template <class... JUS_TYPES>
 class TypeListVoid: public CmdBase {
+	protected:
+		static const ParamType m_paramType[sizeof...(JUS_TYPES)];
+		static const int32_t m_paramCount;
 	public:
 		using functionType = void (*)(JUS_TYPES...);
 		functionType m_function;
 		TypeListVoid(const std::string& _name, const std::string& _desc, functionType _fptr):
-		  CmdBase(_name, _desc, createType<void>(), {createType<JUS_TYPES>()...}),
-		  //m_sizeParam(sizeof...(JUS_TYPES)),
+		  CmdBase(_name, _desc),
 		  m_function(_fptr) {
 			
 		}
+		std::string getPrototype() const override {
+			std::string ret;
+			ret += createType<void>().getName();
+			ret += " ";
+			ret += m_name;
+			ret += "(";
+			for (size_t iii=0; iii<m_paramCount; ++iii) {
+				if (iii != 0) {
+					ret += ", ";
+				}
+				ret += m_paramType[iii].getName();
+			}
+			ret += ");";
+			return ret;
+		}
 		ejson::Value execute(const ejson::Array& _params) override {
 			ejson::Object out;
-			if (_params.size() != m_listParamType.size()) {
+			if (_params.size() != m_paramCount) {
 				JUS_ERROR("Wrong number of Parameters ...");
 				out.add("error", ejson::String("WRONG-PARAMETER-NUMBER"));
 				std::string help = "request ";
 				help += etk::to_string(_params.size());
 				help += " parameters and need ";
-				help += etk::to_string(m_listParamType.size());
+				help += etk::to_string(m_paramCount);
 				help += " parameters. prototype function:";
 				help += getPrototype();
 				out.add("error-help", ejson::String(help));
@@ -178,6 +201,13 @@ class TypeListVoid: public CmdBase {
 			return out;
 		}
 };
+template <class... JUS_TYPES>
+const ParamType TypeListVoid<JUS_TYPES...>::m_paramType[sizeof...(JUS_TYPES)] = {createType<JUS_TYPES>()...};
+
+template <class... JUS_TYPES>
+const int32_t TypeListVoid<JUS_TYPES...>::m_paramCount = sizeof...(JUS_TYPES);
+
+
 
 template <typename JUS_RETURN, typename... JUS_TYPES>
 CmdBase* createCmd(const std::string& _name, const std::string& _desc, JUS_RETURN (*_fffp)(JUS_TYPES...)) {
