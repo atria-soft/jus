@@ -21,6 +21,9 @@ class ParamType {
 		const char* getName() const {
 			return m_typeName;
 		}
+		bool operator == (const ParamType& _obj) const {
+			return m_typeName == _obj.m_typeName;
+		}
 };
 
 template<class JUS_TYPE>
@@ -32,13 +35,6 @@ template<> ParamType createType<_type>() {\
 }
 
 class CmdBase {
-	public:
-		template<typename JUS_TYPE>
-		class Type2String {
-			public:
-				//std::string operator()();
-				static std::string name();
-		};
 	protected:
 		const std::string m_name;
 	public:
@@ -60,17 +56,90 @@ class CmdBase {
 		}
 	public:
 		virtual ~CmdBase() {};
-		//virtual bool checkArguments(const std::vector<CmdBase::Variant>& _params) = 0;
+		bool checkCompatibility(const ParamType& _type, const ejson::Value& _params);
+		bool checkCompatibility(const ParamType& _type, const std::string& _params);
 	public:
 		virtual std::string getPrototype() const = 0;
-		virtual ejson::Value execute(const ejson::Array& _params) = 0;
+		virtual ejson::Value executeJson(const ejson::Array& _params) = 0;
+		virtual std::string executeString(const std::vector<std::string>& _params) = 0;
 };
+
+template<class JUS_TYPE>
+JUS_TYPE convertStringTo(const std::string& _value);
 
 template<class JUS_TYPE>
 JUS_TYPE convertJsonTo(const ejson::Value& _value);
 
 template<class JUS_TYPE>
 ejson::Value convertToJson(const JUS_TYPE& _value);
+
+template <class, class...>
+class TypeList;
+
+template <class JUS_RETURN, class... JUS_TYPES>
+ejson::Value executeCallJson(JUS_RETURN (*_func)(JUS_TYPES...), const ejson::Array& _params) {
+	#if defined(__clang__)
+		// clang generate a basic warning:
+		//      warning: multiple unsequenced modifications to 'idParam' [-Wunsequenced]
+		int32_t idParam = 0;
+		return convertToJson(_func((convertJsonTo<JUS_TYPES>(_params[idParam++]))...));
+	#elif defined(__GNUC__) || defined(__GNUG__) || defined(_MSC_VER)
+		int32_t idParam = m_paramCount-1;
+		return convertToJson(_func(convertJsonTo<JUS_TYPES>(_params[idParam--])...));
+	#else
+		#error Must be implemented ...
+	#endif
+	return ejson::Null();
+}
+
+template <class... JUS_TYPES>
+ejson::Value executeCallJson(void (*_func)(JUS_TYPES...), const ejson::Array& _params) {
+	ejson::Object out;
+	#if defined(__clang__)
+		// clang generate a basic warning:
+		//      warning: multiple unsequenced modifications to 'idParam' [-Wunsequenced]
+		int32_t idParam = 0;
+		_func((convertJsonTo<JUS_TYPES>(_params[idParam++]))...);
+	#elif defined(__GNUC__) || defined(__GNUG__) || defined(_MSC_VER)
+		int32_t idParam = m_paramCount-1;
+		_func(convertJsonTo<JUS_TYPES>(_params[idParam--])...);
+	#else
+		#error Must be implemented ...
+	#endif
+	return ejson::Null();
+}
+
+template <class JUS_RETURN, class... JUS_TYPES>
+std::string executeCallString(JUS_RETURN (*_func)(JUS_TYPES...), const std::vector<std::string>& _params) {
+	#if defined(__clang__)
+		// clang generate a basic warning:
+		//      warning: multiple unsequenced modifications to 'idParam' [-Wunsequenced]
+		int32_t idParam = 0;
+		return etk::to_string(_func((convertStringTo<JUS_TYPES>(_params[idParam++]))...));
+	#elif defined(__GNUC__) || defined(__GNUG__) || defined(_MSC_VER)
+		int32_t idParam = m_paramCount-1;
+		return etk::to_string(_func(convertStringTo<JUS_TYPES>(_params[idParam--])...));
+	#else
+		#error Must be implemented ...
+	#endif
+	return "";
+}
+template <class... JUS_TYPES>
+std::string executeCallString(void (*_func)(JUS_TYPES...), const std::vector<std::string>& _params) {
+	ejson::Object out;
+	#if defined(__clang__)
+		// clang generate a basic warning:
+		//      warning: multiple unsequenced modifications to 'idParam' [-Wunsequenced]
+		int32_t idParam = 0;
+		_func((convertStringTo<JUS_TYPES>(_params[idParam++]))...);
+	#elif defined(__GNUC__) || defined(__GNUG__) || defined(_MSC_VER)
+		int32_t idParam = m_paramCount-1;
+		_func(convertStringTo<JUS_TYPES>(_params[idParam--])...);
+	#else
+		#error Must be implemented ...
+	#endif
+	return "";
+}
 
 template <class JUS_RETURN, class... JUS_TYPES>
 class TypeList: public CmdBase {
@@ -100,8 +169,9 @@ class TypeList: public CmdBase {
 			ret += ");";
 			return ret;
 		}
-		ejson::Value execute(const ejson::Array& _params) override {
+		ejson::Value executeJson(const ejson::Array& _params) override {
 			ejson::Object out;
+			// check parameter number
 			if (_params.size() != m_paramCount) {
 				JUS_ERROR("Wrong number of Parameters ...");
 				out.add("error", ejson::String("WRONG-PARAMETER-NUMBER"));
@@ -114,20 +184,43 @@ class TypeList: public CmdBase {
 				out.add("error-help", ejson::String(help));
 				return out;
 			}
-			// TODO : Check params ...
-			// Clang and Gcc does not exapnd variadic template at the same way ...
-			#if defined(__clang__)
-				// clang generate a basic warning:
-				//      warning: multiple unsequenced modifications to 'idParam' [-Wunsequenced]
-				int32_t idParam = 0;
-				ejson::Value retVal = convertToJson(m_function(convertJsonTo<JUS_TYPES>(_params[idParam++])...));
-			#elif defined(__GNUC__) || defined(__GNUG__) || defined(_MSC_VER)
-				int32_t idParam = m_paramCount-1;
-				ejson::Value retVal = convertToJson(m_function(convertJsonTo<JUS_TYPES>(_params[idParam--])...));
-			#else
-				#error Must be implemented ...
-			#endif
+			// check parameter compatibility
+			for (size_t iii=0; iii<m_paramCount; ++iii) {
+				if (checkCompatibility(m_paramType[iii], _params[iii]) == false) {
+					out.add("error", ejson::String("WRONG-PARAMETER-TYPE"));
+					out.add("error-help", ejson::String("Parameter id " + etk::to_string(iii) + " not compatible with type: '" + m_paramType[iii].getName() + "'"));
+					return out;
+				}
+			}
+			// execute cmd:
+			ejson::Value retVal = executeCallJson(m_function, _params);
 			out.add("return", retVal);
+			return out;
+		}
+		std::string executeString(const std::vector<std::string>& _params) override {
+			std::string out;
+			// check parameter number
+			if (_params.size() != m_paramCount) {
+				JUS_ERROR("Wrong number of Parameters ...");
+				out += "error:WRONG-PARAMETER-NUMBER;";
+				out += "error-help:request ";
+				out += etk::to_string(_params.size());
+				out += " parameters and need ";
+				out += etk::to_string(m_paramCount);
+				out += " parameters. prototype function:";
+				out += getPrototype();
+				return out;
+			}
+			// check parameter compatibility
+			for (size_t iii=0; iii<m_paramCount; ++iii) {
+				if (checkCompatibility(m_paramType[iii], _params[iii]) == false) {
+					out += "error:WRONG-PARAMETER-TYPE;";
+					out += "error-help:Parameter id " + etk::to_string(iii) + " not compatible with type: '" + m_paramType[iii].getName() + "'";
+					return out;
+				}
+			}
+			// execute cmd:
+			out = executeCallString(m_function, _params);
 			return out;
 		}
 };
@@ -141,82 +234,12 @@ const ParamType TypeList<JUS_RETURN, JUS_TYPES...>::m_paramType[sizeof...(JUS_TY
 template <class JUS_RETURN, class... JUS_TYPES>
 const int32_t TypeList<JUS_RETURN, JUS_TYPES...>::m_paramCount = sizeof...(JUS_TYPES);
 
-// Void special case:
-template <class... JUS_TYPES>
-class TypeListVoid: public CmdBase {
-	protected:
-		static const ParamType m_paramType[sizeof...(JUS_TYPES)];
-		static const int32_t m_paramCount;
-	public:
-		using functionType = void (*)(JUS_TYPES...);
-		functionType m_function;
-		TypeListVoid(const std::string& _name, const std::string& _desc, functionType _fptr):
-		  CmdBase(_name, _desc),
-		  m_function(_fptr) {
-			
-		}
-		std::string getPrototype() const override {
-			std::string ret;
-			ret += createType<void>().getName();
-			ret += " ";
-			ret += m_name;
-			ret += "(";
-			for (size_t iii=0; iii<m_paramCount; ++iii) {
-				if (iii != 0) {
-					ret += ", ";
-				}
-				ret += m_paramType[iii].getName();
-			}
-			ret += ");";
-			return ret;
-		}
-		ejson::Value execute(const ejson::Array& _params) override {
-			ejson::Object out;
-			if (_params.size() != m_paramCount) {
-				JUS_ERROR("Wrong number of Parameters ...");
-				out.add("error", ejson::String("WRONG-PARAMETER-NUMBER"));
-				std::string help = "request ";
-				help += etk::to_string(_params.size());
-				help += " parameters and need ";
-				help += etk::to_string(m_paramCount);
-				help += " parameters. prototype function:";
-				help += getPrototype();
-				out.add("error-help", ejson::String(help));
-				return out;
-			}
-			// TODO : Check params ...
-			// Clang and Gcc does not exapnd variadic template at the same way ...
-			#if defined(__clang__)
-				// clang generate a basic warning:
-				//      warning: multiple unsequenced modifications to 'idParam' [-Wunsequenced]
-				int32_t idParam = 0;
-				m_function(convertJsonTo<JUS_TYPES>(_params[idParam++])...);
-			#elif defined(__GNUC__) || defined(__GNUG__) || defined(_MSC_VER)
-				int32_t idParam = m_listParamType.size()-1;
-				m_function(convertJsonTo<JUS_TYPES>(_params[idParam--])...);
-			#else
-				#error Must be implemented ...
-			#endif
-			out.add("return", ejson::Null());
-			return out;
-		}
-};
-template <class... JUS_TYPES>
-const ParamType TypeListVoid<JUS_TYPES...>::m_paramType[sizeof...(JUS_TYPES)] = {createType<JUS_TYPES>()...};
-
-template <class... JUS_TYPES>
-const int32_t TypeListVoid<JUS_TYPES...>::m_paramCount = sizeof...(JUS_TYPES);
-
-
 
 template <typename JUS_RETURN, typename... JUS_TYPES>
 CmdBase* createCmd(const std::string& _name, const std::string& _desc, JUS_RETURN (*_fffp)(JUS_TYPES...)) {
 	return new TypeList<JUS_RETURN, JUS_TYPES...>(_name, _desc, _fffp);
 }
-template <typename... JUS_TYPES>
-CmdBase* createCmd(const std::string& _name, const std::string& _desc, void (*_fffp)(JUS_TYPES...)) {
-	return new TypeListVoid<JUS_TYPES...>(_name, _desc, _fffp);
-}
+
 
 
 static double mulllll(double _val1) {
@@ -231,8 +254,10 @@ static void mulllll2(std::string _value, int32_t _val1) {
 }
 
 static std::string mulllll3(float _value, bool _val1) {
+	JUS_ERROR("Call with parameter : " << _value);
+	JUS_ERROR("          parameter : " << _val1);
 	double _val2 = 1.0f;
-	return "";
+	return "'il fait beau aujoud'hui ...'";
 }
 
 static bool mulllll4() {
@@ -306,7 +331,7 @@ namespace jus {
 				{
 					ejson::Array param;
 					param.add(ejson::Number(58.5));
-					ejson::Value out = tmp->execute(param);
+					ejson::Value out = tmp->executeJson(param);
 					JUS_ERROR("    return: ");
 					out.display();
 				}
@@ -318,12 +343,14 @@ namespace jus {
 					ejson::Array param;
 					param.add(ejson::String("coucou"));
 					param.add(ejson::Number(1563));
-					ejson::Value out = tmp->execute(param);
+					ejson::Value out = tmp->executeJson(param);
 					JUS_ERROR("    return: ");
 					out.display();
 				}
 				tmp = createCmd(_name, "desc", &mulllll3);
 				JUS_ERROR("Signature3 : " << tmp->getPrototype());
+				JUS_ERROR("    return: " << tmp->executeString(etk::split("3.5 false", ' ')));
+				
 				tmp = createCmd(_name, "desc", &mulllll4);
 				JUS_ERROR("Signature4 : " << tmp->getPrototype());
 				/*
