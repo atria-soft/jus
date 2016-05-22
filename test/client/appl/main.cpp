@@ -32,7 +32,7 @@ int main(int _argc, const char *_argv[]) {
 	APPL_INFO("==================================");
 	APPL_INFO("== JUS test client start        ==");
 	APPL_INFO("==================================");
-	client1.connect();
+	client1.connect("userName");
 	APPL_INFO("    ----------------------------------");
 	APPL_INFO("    -- Get service count            --");
 	APPL_INFO("    ----------------------------------");
@@ -50,13 +50,13 @@ int main(int _argc, const char *_argv[]) {
 		APPL_INFO("    - " << it);
 	}
 	// TODO:  add return value
-	bool valConnect = client1.call_b("", "link", "serviceTest1");
+	bool valConnect = client1.call_b("serviceTest1", "link");
 	APPL_INFO("Link service 'serviceTest1' ret=" << valConnect);
 	
 	bool retCall = client1.call_d("serviceTest1", "mul", 13.1, 2.0);
 	APPL_INFO("serviceTest1.mul = " << retCall);
 	
-	valConnect = client1.call_b("", "unlink", "serviceTest1");
+	valConnect = client1.call_b("serviceTest1", "unlink");
 	APPL_INFO("un-Link service 'serviceTest1' ret=" << valConnect);
 	
 	int32_t iii=0;

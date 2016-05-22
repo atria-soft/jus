@@ -23,6 +23,7 @@ namespace jus {
 			ejson::Object m_returnMessage;
 			std::vector<ememory::SharedPtr<jus::GateWayService>> m_listConnectedService;
 			size_t m_uid;
+			std::string m_userConnectionName;
 		public:
 			GateWayClient(jus::GateWay* _gatewayInterface);
 			virtual ~GateWayClient();

@@ -57,25 +57,44 @@ void jus::Service::disconnect(){
 
 ejson::Object jus::Service::callJson(const ejson::Object& _obj) {
 	std::string action = _obj["action"].toString().get();
-	if (action == "new") {
+	#if 0
+		if (action == "new") {
+			uint64_t clientId = etk::string_to_uint64_t(_obj["client-id"].toString().get());
+			std::string userName = _obj["user"].toString().get();
+			clientConnect(clientId, userName);
+			ejson::Object tmpp;
+			tmpp.add("return", ejson::String("OK"));
+			return tmpp;
+		} else if (action == "delete") {
+			uint64_t clientId = etk::string_to_uint64_t(_obj["client-id"].toString().get());
+			clientDisconnect(clientId);
+			ejson::Object tmpp;
+			tmpp.add("return", ejson::String("OK"));
+			return tmpp;
+		} else if (    action == "call"
+		            || action == "") {
+			uint64_t clientId = etk::string_to_uint64_t(_obj["client-id"].toString().get());
+			return callJson2(clientId, _obj);
+		} else {
+			// TODO : ...
+		}
+	#else
 		uint64_t clientId = etk::string_to_uint64_t(_obj["client-id"].toString().get());
-		std::string userName = _obj["user"].toString().get();
-		clientConnect(clientId, userName);
-		ejson::Object tmpp;
-		tmpp.add("return", ejson::String("OK"));
-		return tmpp;
-	} else if (action == "delete") {
-		uint64_t clientId = etk::string_to_uint64_t(_obj["client-id"].toString().get());
-		clientDisconnect(clientId);
-		ejson::Object tmpp;
-		tmpp.add("return", ejson::String("OK"));
-		return tmpp;
-	} else if (    action == "call"
-	            || action == "") {
-		uint64_t clientId = etk::string_to_uint64_t(_obj["client-id"].toString().get());
-		return callJson2(clientId, _obj);
-	} else {
-		// TODO : ...
-	}
+		std::string call = _obj["call"].toString().get();
+		if (call == "link") {
+			std::string userName = _obj["param"].toArray[0].toString().get();
+			clientConnect(clientId, userName);
+			ejson::Object tmpp;
+			tmpp.add("return", ejson::String("OK"));
+			return tmpp;
+		} else if (call == "unlink") {
+			clientDisconnect(clientId);
+			ejson::Object tmpp;
+			tmpp.add("return", ejson::String("OK"));
+			return tmpp;
+		} else {
+			return callJson2(clientId, _obj);
+		}
+	#endif
 	return ejson::Object();
 }

@@ -37,6 +37,18 @@ void jus::GateWayClient::stop() {
 void jus::GateWayClient::onClientData(const std::string& _value) {
 	JUS_DEBUG("On data: " << _value);
 	ejson::Object data(_value);
+	if (m_userConnectionName == "") {
+		if (data.valueExist("connect-to-user") == true) {
+			m_userConnectionName = data["connect-to-user"].toString().get();
+			JUS_WARNING("[" << m_uid << "] Set client connect to user : '" << m_userConnectionName << "'");
+			// TODO : Return something ...
+			return;
+		}
+		JUS_WARNING("[" << m_uid << "] Client must send conection to user name ...");
+		// TODO : Return something ...
+		return;
+	}
+	
 	if (data.valueExist("service") == false) {
 		// add default service
 		data.add("service", ejson::String("ServiceManager"));
@@ -59,21 +71,6 @@ void jus::GateWayClient::onClientData(const std::string& _value) {
 			answer.add("return", listService);
 		} else if (call == "getServiceInformation") {
 			
-		} else if (call == "link") {
-			// first param :
-			std::string serviceName = data["param"].toArray()[0].toString().get();
-			// TODO : check if already connected ...
-			//m_listConnectedService
-			// TODO : check if we have authorisation to connect service
-			ememory::SharedPtr<jus::GateWayService> srv = m_gatewayInterface->get(serviceName);
-			if (srv != nullptr) {
-				m_listConnectedService.push_back(srv);
-				answer.add("return", ejson::Boolean(true));
-			} else {
-				answer.add("return", ejson::Boolean(false));
-			}
-		} else if (call == "unlink") {
-			answer.add("return", ejson::Boolean(false));
 		} else {
 			JUS_ERROR("Function does not exist ... '" << call << "'");
 			answer.add("error", ejson::String("CALL-UNEXISTING"));
@@ -85,14 +82,30 @@ void jus::GateWayClient::onClientData(const std::string& _value) {
 		std::string call = data["call"].toString().get();
 		
 	} else {
-		for (auto &it : m_listConnectedService) {
-			if (it == nullptr) {
+		auto it = m_listConnectedService.begin();
+		while (it != m_listConnectedService.end()) {
+			if (*it == nullptr) {
+				++it;
 				continue;
 			}
-			if (it->getName() != service) {
+			if ((*it)->getName() != service) {
+				++it;
 				continue;
 			}
-			it->SendData(m_uid, data);
+			break;
+		}
+		if (it == m_listConnectedService.end()) {
+			ememory::SharedPtr<jus::GateWayService> srv = m_gatewayInterface->get(service);
+			if (srv != nullptr) {
+				m_listConnectedService.push_back(srv);
+				it = m_listConnectedService.end()-1;
+			} else {
+				// TODO: Return an error ...
+			}
+		}
+		if (it != m_listConnectedService.end()) {
+			JUS_CRITICAL("Add in link the name of the user in parameter ..."
+			(*it)->SendData(m_uid, data);
 			while (m_returnValueOk == false) {
 				JUS_DEBUG("wait Return Value");
 				usleep(20000);
@@ -101,7 +114,6 @@ void jus::GateWayClient::onClientData(const std::string& _value) {
 			JUS_DEBUG("answer: " << valueReturn);
 			m_interfaceClient.write(valueReturn);
 			m_returnValueOk = false;
-			break;
 		}
 	}
 }

@@ -43,6 +43,13 @@ namespace appl {
 			}
 	};
 	class Calculator {
+		public:
+			Calculator() {
+				APPL_WARNING("New Calculator ...");
+			}
+			~Calculator() {
+				APPL_WARNING("delete Calculator ...");
+			}
 		private:
 			ememory::SharedPtr<appl::User> m_user;
 		public:

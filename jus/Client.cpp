@@ -56,9 +56,10 @@ void jus::Client::onPropertyChangePort(){
 }
 
 
-void jus::Client::connect(){
+void jus::Client::connect(const std::string& _remoteUserToConnect){
 	JUS_DEBUG("connect [START]");
 	m_interfaceClient.connect();
+	m_interfaceClient.write(std::string("{\"connect-to-user\":\"") + _remoteUserToConnect + "\", \"client-type:\":\"jus-client\"}");
 	JUS_DEBUG("connect [STOP]");
 }
 

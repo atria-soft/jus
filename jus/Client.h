@@ -23,7 +23,7 @@ namespace jus {
 		public:
 			Client();
 			virtual ~Client();
-			void connect();
+			void connect(const std::string& _remoteUserToConnect);
 			void disconnect();
 		private:
 			void onClientData(const std::string& _value);

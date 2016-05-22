@@ -44,11 +44,13 @@ void jus::GateWayService::onClientData(const std::string& _value) {
 	if (data.valueExist("connect-service") == true) {
 		if (m_name != "") {
 			JUS_WARNING("Service interface ==> try change the servie name after init: '" << data["connect-service"].toString().get());
+			// TODO : Return something ...
 			return;
 		}
 		m_name = data["connect-service"].toString().get();
 		m_interfaceClient.setInterfaceName("srv-" + m_name);
 		JUS_WARNING("Service name configured");
+		// TODO : Return something ...
 		return;
 	}
 	if (data.valueExist("client-id") == false) {
