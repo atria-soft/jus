@@ -32,6 +32,10 @@ def create(target, module_name):
 	    ])
 	my_module.add_path(tools.get_current_path(__file__))
 	my_module.add_src_file([
+	    'jus/AbstractFunction.cpp',
+	    'jus/AbstractFunctionTypeDirect.cpp',
+	    'jus/AbstractFunctionTypeClass.cpp',
+	    'jus/ParamType.cpp',
 	    'jus/Client.cpp',
 	    'jus/GateWay.cpp',
 	    'jus/GateWayService.cpp',
@@ -40,6 +44,10 @@ def create(target, module_name):
 	    'jus/TcpString.cpp',
 	    ])
 	my_module.add_header_file([
+	    'jus/AbstractFunction.h',
+	    'jus/AbstractFunctionTypeDirect.h',
+	    'jus/AbstractFunctionTypeClass.h',
+	    'jus/ParamType.h',
 	    'jus/debug.h',
 	    'jus/Client.h',
 	    'jus/GateWay.h',

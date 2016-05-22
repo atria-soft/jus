@@ -7,15 +7,30 @@
 
 #include <jus/TcpString.h>
 #include <ememory/memory.h>
+#include <esignal/Signal.h>
+#include <ejson/ejson.h>
 
 namespace jus {
+	class GateWay;
 	class GateWayService {
-		public:
-			ememory::SharedPtr<jus::TcpString> m_interfaceService;
+		private:
+			jus::GateWay* m_gatewayInterface;
 			std::string m_name;
 		public:
-			GateWayService(const ememory::SharedPtr<jus::TcpString>& _interface);
+			jus::TcpString m_interfaceClient;
+			esignal::Signal<bool> signalIsConnected;
+			esignal::Connection m_dataCallback;
+		public:
+			GateWayService(jus::GateWay* _gatewayInterface);
 			virtual ~GateWayService();
+			void start(const std::string& _ip, uint16_t _port);
+			void stop();
+			void onClientData(const std::string& _value);
+		public:
+			void SendData(size_t _userSessionId, ejson::Object _data);
+			const std::string& getName() {
+				return m_name;
+			}
 	};
 }
 

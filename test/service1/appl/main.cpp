@@ -11,15 +11,49 @@
 
 #include <etk/stdTools.h>
 namespace appl {
-	class Service1 : public jus::Service {
+	class User {
+		public:
+			User() {
+				APPL_WARNING("new USER");
+			}
+			~User() {
+				APPL_WARNING("delete USER");
+			}
+			
+	};
+	
+	class UserManager {
 		private:
-			double mul(const double& _val1) {//, const double& _val2) {
+			std::map<std::string, ememory::SharedPtr<appl::User>> m_listLoaded;
+		public:
+			UserManager() {
+				
+			}
+			ememory::SharedPtr<appl::User> getUser(const std::string& _userName) {
+				// TODO : Lock ...
+				auto it = m_listLoaded.find(_userName);
+				if (it != m_listLoaded.end()) {
+					// User already loaded:
+					return it->second;
+				}
+				// load New User:
+				ememory::SharedPtr<appl::User> tmp(new appl::User);
+				m_listLoaded.insert(std::make_pair(_userName, tmp));
+				return tmp;
+			}
+	};
+	class Calculator {
+		private:
+			ememory::SharedPtr<appl::User> m_user;
+		public:
+			double mul(double _val1) {//, const double& _val2) {
 				double _val2 = 1.0f;
 				return _val1*_val2;
 			}
 		public:
-			Service1() {
-				advertise("mul", &appl::Service1::mul, "simple multiplication to test double IO");
+			Calculator(ememory::SharedPtr<appl::User> _user) :
+			  m_user(_user) {
+				//advertise("mul", &appl::Service1::mul, "simple multiplication to test double IO");
 			}
 	};
 }
@@ -27,13 +61,15 @@ namespace appl {
 
 int main(int _argc, const char *_argv[]) {
 	etk::init(_argc, _argv);
-	appl::Service1 service1;
+	appl::UserManager userMng;
+	jus::ServiceType<appl::Calculator, appl::UserManager> serviceInterface(userMng);
+	serviceInterface.advertise("mul", &appl::Calculator::mul, "simple multiplication to test double IO");
 	for (int32_t iii=0; iii<_argc ; ++iii) {
 		std::string data = _argv[iii];
 		if (etk::start_with(data, "--ip=") == true) {
-			service1.propertyIp.set(std::string(&data[5]));
+			serviceInterface.propertyIp.set(std::string(&data[5]));
 		} else if (etk::start_with(data, "--port=") == true) {
-			service1.propertyPort.set(etk::string_to_uint16_t(std::string(&data[7])));
+			serviceInterface.propertyPort.set(etk::string_to_uint16_t(std::string(&data[7])));
 		} else if (    data == "-h"
 		            || data == "--help") {
 			APPL_PRINT(etk::getApplicationName() << " - help : ");
@@ -46,16 +82,14 @@ int main(int _argc, const char *_argv[]) {
 	APPL_INFO("==================================");
 	APPL_INFO("== JUS test service1 start      ==");
 	APPL_INFO("==================================");
-	/*
-	service1.connect();
+	serviceInterface.connect("serviceTest1");
 	int32_t iii=0;
 	while (true) {
 		usleep(500000);
-		APPL_INFO("Appl in waiting ... " << iii << "/inf");
+		APPL_INFO("service in waiting ... " << iii << "/inf");
 		iii++;
 	}
-	service1.disconnect();
-	*/
+	serviceInterface.disconnect();
 	APPL_INFO("==================================");
 	APPL_INFO("== JUS test service1 stop       ==");
 	APPL_INFO("==================================");

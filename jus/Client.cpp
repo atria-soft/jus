@@ -68,10 +68,13 @@ void jus::Client::disconnect(){
 	JUS_DEBUG("disconnect [STOP]");
 }
 
-ejson::Object jus::Client::createBaseCall(const std::string& _functionName) {
+ejson::Object jus::Client::createBaseCall(const std::string& _service, const std::string& _functionName) {
 	ejson::Object obj;
+	if (_service.size() != 0) {
+		obj.add("service", ejson::String(_service));
+	}
 	obj.add("call", ejson::String(_functionName));
-	obj.add("transaction-id", ejson::Number(m_id++));
+	obj.add("id", ejson::Number(m_id++));
 	obj.add("param", ejson::Array());
 	return obj;
 }

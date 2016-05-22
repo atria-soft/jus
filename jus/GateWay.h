@@ -10,11 +10,15 @@
 namespace jus {
 	class GateWay : public eproperty::Interface {
 		private:
+			size_t m_clientUID;
+		private:
 			std::vector<ememory::SharedPtr<jus::GateWayService>> m_serviceList; //!< List of all service availlable with their specific connection interface
 			std::vector<ememory::SharedPtr<jus::GateWayClient>> m_clientList; //!< List of all Client interface with their own connection
 			//TODO: std::vector<jus::GateWayServer> m_ServerList; //!< List of all Server connected to this gateway
 			ememory::SharedPtr<jus::GateWayClient> m_clientWaiting;
 			esignal::Connection m_clientConnected;
+			ememory::SharedPtr<jus::GateWayService> m_serviceWaiting;
+			esignal::Connection m_serviceConnected;
 		public:
 			eproperty::Value<std::string> propertyClientIp;
 			eproperty::Value<uint16_t> propertyClientPort;
@@ -27,6 +31,7 @@ namespace jus {
 			virtual ~GateWay();
 			void start();
 			void stop();
+			ememory::SharedPtr<jus::GateWayService> get(const std::string& _serviceName);
 		private:
 			void onPropertyChangeClientIp();
 			void onPropertyChangeClientPort();
@@ -35,6 +40,7 @@ namespace jus {
 			void onPropertyChangeServicePort();
 			void onPropertyChangeServiceMax();
 			void onClientConnect(const bool& _value);
+			void onServiceConnect(const bool& _value);
 	};
 }
 

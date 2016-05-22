@@ -25,6 +25,10 @@ jus::TcpString::~TcpString() {
 	disconnect();
 }
 
+void jus::TcpString::setInterfaceName(const std::string& _name) {
+	ethread::setName(*m_thread, "Tcp-" + _name);
+}
+
 void jus::TcpString::threadCallback() {
 	ethread::setName("TcpString-input");
 	// Connect ...
@@ -52,7 +56,7 @@ void jus::TcpString::threadCallback() {
 	JUS_DEBUG("End of thread");
 }
 
-void jus::TcpString::connect(){
+void jus::TcpString::connect(bool _async){
 	JUS_DEBUG("connect [START]");
 	m_threadRunning = true;
 	m_thread = new std::thread([&](void *){ this->threadCallback();}, nullptr);
@@ -61,12 +65,17 @@ void jus::TcpString::connect(){
 		JUS_ERROR("creating callback thread!");
 		return;
 	}
-	while (    m_threadRunning == true
+	while (    _async == false
+	        && m_threadRunning == true
 	        && m_connection.getConnectionStatus() != enet::Tcp::status::link) {
 		usleep(50000);
 	}
 	//ethread::setPriority(*m_receiveThread, -6);
-	JUS_DEBUG("connect [STOP]");
+	if (_async == true) {
+		JUS_DEBUG("connect [STOP] async mode");
+	} else {
+		JUS_DEBUG("connect [STOP]");
+	}
 }
 
 void jus::TcpString::disconnect(){

@@ -8,239 +8,9 @@
 #include <jus/TcpString.h>
 #include <eproperty/Value.h>
 #include <ejson/ejson.h>
+#include <jus/AbstractFunctionTypeDirect.h>
+#include <jus/AbstractFunctionTypeClass.h>
 #include <jus/debug.h>
-
-class ParamType {
-	protected:
-		const char* m_typeName;
-	public:
-		ParamType(const char* _name = ""):
-		  m_typeName(_name) {
-			
-		}
-		const char* getName() const {
-			return m_typeName;
-		}
-		bool operator == (const ParamType& _obj) const {
-			return m_typeName == _obj.m_typeName;
-		}
-};
-
-template<class JUS_TYPE>
-ParamType createType();
-
-#define generate_basic_type(_type, _name) \
-template<> ParamType createType<_type>() {\
-	return ParamType(_name); \
-}
-
-class CmdBase {
-	protected:
-		const std::string m_name;
-	public:
-		const std::string& getName() const {
-			return m_name;
-		}
-	protected:
-		const std::string m_description;
-	public:
-		const std::string& getDescription() const {
-			return m_description;
-		}
-	protected:
-		CmdBase(const std::string& _name,
-		        const std::string& _desc):
-		  m_name(_name),
-		  m_description(_desc) {
-			
-		}
-	public:
-		virtual ~CmdBase() {};
-		bool checkCompatibility(const ParamType& _type, const ejson::Value& _params);
-		bool checkCompatibility(const ParamType& _type, const std::string& _params);
-	public:
-		virtual std::string getPrototype() const = 0;
-		virtual ejson::Value executeJson(const ejson::Array& _params) = 0;
-		virtual std::string executeString(const std::vector<std::string>& _params) = 0;
-};
-
-template<class JUS_TYPE>
-JUS_TYPE convertStringTo(const std::string& _value);
-
-template<class JUS_TYPE>
-JUS_TYPE convertJsonTo(const ejson::Value& _value);
-
-template<class JUS_TYPE>
-ejson::Value convertToJson(const JUS_TYPE& _value);
-
-template <class, class...>
-class TypeList;
-
-template <class JUS_RETURN, class... JUS_TYPES>
-ejson::Value executeCallJson(JUS_RETURN (*_func)(JUS_TYPES...), const ejson::Array& _params) {
-	#if defined(__clang__)
-		// clang generate a basic warning:
-		//      warning: multiple unsequenced modifications to 'idParam' [-Wunsequenced]
-		int32_t idParam = 0;
-		return convertToJson(_func((convertJsonTo<JUS_TYPES>(_params[idParam++]))...));
-	#elif defined(__GNUC__) || defined(__GNUG__) || defined(_MSC_VER)
-		int32_t idParam = m_paramCount-1;
-		return convertToJson(_func(convertJsonTo<JUS_TYPES>(_params[idParam--])...));
-	#else
-		#error Must be implemented ...
-	#endif
-	return ejson::Null();
-}
-
-template <class... JUS_TYPES>
-ejson::Value executeCallJson(void (*_func)(JUS_TYPES...), const ejson::Array& _params) {
-	ejson::Object out;
-	#if defined(__clang__)
-		// clang generate a basic warning:
-		//      warning: multiple unsequenced modifications to 'idParam' [-Wunsequenced]
-		int32_t idParam = 0;
-		_func((convertJsonTo<JUS_TYPES>(_params[idParam++]))...);
-	#elif defined(__GNUC__) || defined(__GNUG__) || defined(_MSC_VER)
-		int32_t idParam = m_paramCount-1;
-		_func(convertJsonTo<JUS_TYPES>(_params[idParam--])...);
-	#else
-		#error Must be implemented ...
-	#endif
-	return ejson::Null();
-}
-
-template <class JUS_RETURN, class... JUS_TYPES>
-std::string executeCallString(JUS_RETURN (*_func)(JUS_TYPES...), const std::vector<std::string>& _params) {
-	#if defined(__clang__)
-		// clang generate a basic warning:
-		//      warning: multiple unsequenced modifications to 'idParam' [-Wunsequenced]
-		int32_t idParam = 0;
-		return etk::to_string(_func((convertStringTo<JUS_TYPES>(_params[idParam++]))...));
-	#elif defined(__GNUC__) || defined(__GNUG__) || defined(_MSC_VER)
-		int32_t idParam = m_paramCount-1;
-		return etk::to_string(_func(convertStringTo<JUS_TYPES>(_params[idParam--])...));
-	#else
-		#error Must be implemented ...
-	#endif
-	return "";
-}
-template <class... JUS_TYPES>
-std::string executeCallString(void (*_func)(JUS_TYPES...), const std::vector<std::string>& _params) {
-	ejson::Object out;
-	#if defined(__clang__)
-		// clang generate a basic warning:
-		//      warning: multiple unsequenced modifications to 'idParam' [-Wunsequenced]
-		int32_t idParam = 0;
-		_func((convertStringTo<JUS_TYPES>(_params[idParam++]))...);
-	#elif defined(__GNUC__) || defined(__GNUG__) || defined(_MSC_VER)
-		int32_t idParam = m_paramCount-1;
-		_func(convertStringTo<JUS_TYPES>(_params[idParam--])...);
-	#else
-		#error Must be implemented ...
-	#endif
-	return "";
-}
-
-template <class JUS_RETURN, class... JUS_TYPES>
-class TypeList: public CmdBase {
-	protected:
-		static const ParamType m_returnType;
-		static const ParamType m_paramType[sizeof...(JUS_TYPES)];
-		static const int32_t m_paramCount;
-	public:
-		using functionType = JUS_RETURN (*)(JUS_TYPES...);
-		functionType m_function;
-		TypeList(const std::string& _name, const std::string& _desc, functionType _fptr):
-		  CmdBase(_name, _desc),
-		  m_function(_fptr) {
-		}
-		std::string getPrototype() const override {
-			std::string ret;
-			ret += m_returnType.getName();
-			ret += " ";
-			ret += m_name;
-			ret += "(";
-			for (size_t iii=0; iii<m_paramCount; ++iii) {
-				if (iii != 0) {
-					ret += ", ";
-				}
-				ret += m_paramType[iii].getName();
-			}
-			ret += ");";
-			return ret;
-		}
-		ejson::Value executeJson(const ejson::Array& _params) override {
-			ejson::Object out;
-			// check parameter number
-			if (_params.size() != m_paramCount) {
-				JUS_ERROR("Wrong number of Parameters ...");
-				out.add("error", ejson::String("WRONG-PARAMETER-NUMBER"));
-				std::string help = "request ";
-				help += etk::to_string(_params.size());
-				help += " parameters and need ";
-				help += etk::to_string(m_paramCount);
-				help += " parameters. prototype function:";
-				help += getPrototype();
-				out.add("error-help", ejson::String(help));
-				return out;
-			}
-			// check parameter compatibility
-			for (size_t iii=0; iii<m_paramCount; ++iii) {
-				if (checkCompatibility(m_paramType[iii], _params[iii]) == false) {
-					out.add("error", ejson::String("WRONG-PARAMETER-TYPE"));
-					out.add("error-help", ejson::String("Parameter id " + etk::to_string(iii) + " not compatible with type: '" + m_paramType[iii].getName() + "'"));
-					return out;
-				}
-			}
-			// execute cmd:
-			ejson::Value retVal = executeCallJson(m_function, _params);
-			out.add("return", retVal);
-			return out;
-		}
-		std::string executeString(const std::vector<std::string>& _params) override {
-			std::string out;
-			// check parameter number
-			if (_params.size() != m_paramCount) {
-				JUS_ERROR("Wrong number of Parameters ...");
-				out += "error:WRONG-PARAMETER-NUMBER;";
-				out += "error-help:request ";
-				out += etk::to_string(_params.size());
-				out += " parameters and need ";
-				out += etk::to_string(m_paramCount);
-				out += " parameters. prototype function:";
-				out += getPrototype();
-				return out;
-			}
-			// check parameter compatibility
-			for (size_t iii=0; iii<m_paramCount; ++iii) {
-				if (checkCompatibility(m_paramType[iii], _params[iii]) == false) {
-					out += "error:WRONG-PARAMETER-TYPE;";
-					out += "error-help:Parameter id " + etk::to_string(iii) + " not compatible with type: '" + m_paramType[iii].getName() + "'";
-					return out;
-				}
-			}
-			// execute cmd:
-			out = executeCallString(m_function, _params);
-			return out;
-		}
-};
-
-template <class JUS_RETURN, class... JUS_TYPES>
-const ParamType TypeList<JUS_RETURN, JUS_TYPES...>::m_returnType = createType<JUS_RETURN>();
-
-template <class JUS_RETURN, class... JUS_TYPES>
-const ParamType TypeList<JUS_RETURN, JUS_TYPES...>::m_paramType[sizeof...(JUS_TYPES)] = {createType<JUS_TYPES>()...};
-
-template <class JUS_RETURN, class... JUS_TYPES>
-const int32_t TypeList<JUS_RETURN, JUS_TYPES...>::m_paramCount = sizeof...(JUS_TYPES);
-
-
-template <typename JUS_RETURN, typename... JUS_TYPES>
-CmdBase* createCmd(const std::string& _name, const std::string& _desc, JUS_RETURN (*_fffp)(JUS_TYPES...)) {
-	return new TypeList<JUS_RETURN, JUS_TYPES...>(_name, _desc, _fffp);
-}
-
-
 
 static double mulllll(double _val1) {
 	double _val2 = 2.0f;
@@ -278,7 +48,8 @@ namespace jus {
 			virtual ~Service();
 			// Genenric function call:
 			ejson::Object callJson(const ejson::Object& _obj);
-			void connect();
+			virtual ejson::Object callJson2(size_t _clientId, const ejson::Object& _obj) = 0;
+			void connect(const std::string& _serviceName);
 			void disconnect();
 		private:
 			void onClientData(const std::string& _value);
@@ -286,47 +57,14 @@ namespace jus {
 		private:
 			void onPropertyChangeIp();
 			void onPropertyChangePort();
-		protected:
-			
-			void createSignatureInternal(std::vector<std::string>& _signature) {
-				// Finish recursive parse ...
-			}
-			template<class... _ARGS>
-			void createSignatureInternal(std::vector<std::string>& _signature, const std::string& _param, _ARGS&&... _args) {
-				_signature.push_back("string");
-				createSignatureInternal(_signature, std::forward<_ARGS>(_args)...);
-			}
-			template<class... _ARGS>
-			void createSignatureInternal(std::vector<std::string>& _signature, const bool& _param, _ARGS&&... _args) {
-				_signature.push_back("bool");
-				createSignatureInternal(_signature, std::forward<_ARGS>(_args)...);
-			}
-			template<class... _ARGS>
-			void createSignatureInternal(std::vector<std::string>& _signature, const double& _param, _ARGS&&... _args) {
-				_signature.push_back("double");
-				createSignatureInternal(_signature, std::forward<_ARGS>(_args)...);
-			}
-			template<class... _ARGS>
-			void createSignatureInternal(std::vector<std::string>& _signature, const int32_t& _param, _ARGS&&... _args) {
-				_signature.push_back("int32");
-				createSignatureInternal(_signature, std::forward<_ARGS>(_args)...);
-			}
-			template<class... _ARGS>
-			std::vector<std::string> createSignature(_ARGS&&... _args) {
-				std::vector<std::string> signature;
-				createSignatureInternal(signature, std::forward<_ARGS>(_args)...);
-				return signature;
-			}
-			
+		public:
 			template<class JUS_RETURN_VALUE,
-			         class JUS_CLASS_TYPE,
 			         class... JUS_FUNC_ARGS_TYPE>
 			void advertise(const std::string& _name,
-			               JUS_RETURN_VALUE (JUS_CLASS_TYPE::*_func)(const JUS_FUNC_ARGS_TYPE&... _args),
+			               JUS_RETURN_VALUE (*_func)(JUS_FUNC_ARGS_TYPE... _args),
 			               const std::string& _desc) {
-				
-				//CmdBase* tmp = createCmd(_name, &mulllll);
-				CmdBase* tmp = createCmd(_name, "desc", &mulllll);
+				//AbstractFunction* tmp = createAbstractFunctionDirect(_name, &mulllll);
+				AbstractFunction* tmp = createAbstractFunctionDirect(_name, "desc", &mulllll);
 				JUS_ERROR("Signature : " << tmp->getPrototype());
 				{
 					ejson::Array param;
@@ -337,7 +75,7 @@ namespace jus {
 				}
 				
 				
-				tmp = createCmd(_name, "desc", &mulllll2);
+				tmp = createAbstractFunctionDirect(_name, "desc", &mulllll2);
 				JUS_ERROR("Signature2 : " << tmp->getPrototype());
 				{
 					ejson::Array param;
@@ -347,20 +85,80 @@ namespace jus {
 					JUS_ERROR("    return: ");
 					out.display();
 				}
-				tmp = createCmd(_name, "desc", &mulllll3);
+				tmp = createAbstractFunctionDirect(_name, "desc", &mulllll3);
 				JUS_ERROR("Signature3 : " << tmp->getPrototype());
 				JUS_ERROR("    return: " << tmp->executeString(etk::split("3.5 false", ' ')));
 				
-				tmp = createCmd(_name, "desc", &mulllll4);
+				tmp = createAbstractFunctionDirect(_name, "desc", &mulllll4);
 				JUS_ERROR("Signature4 : " << tmp->getPrototype());
-				/*
-				std::vector<std::string> plop = createSignature(_args):
-				JUS_ERROR("signature:");
-				for (auto& it : plop) {
-					JUS_ERROR("    - " << it);
+			}
+			/**
+			 * @brief A extern client connect on specific user
+			 * @param[in] _clientSessionID Source session Id on the client
+			 * @param[in] _userName User name of the client to connect
+			 * @todo Set a relur like ==> service not availlable / service close / service maintenance / service right reject
+			 */
+			virtual void clientConnect(size_t _clientSessionID, const std::string& _userName) = 0;
+			virtual void clientDisconnect(size_t _clientSessionID) = 0;
+	};
+	template<class JUS_TYPE_SERVICE, class JUS_USER_ACCESS>
+	class ServiceType : public jus::Service {
+		private:
+			JUS_USER_ACCESS& m_getUserInterface;
+			// no need of shared_ptr or unique_ptr (if service die all is lost and is client die, the gateway notify us...)
+			std::map<size_t, JUS_TYPE_SERVICE*> m_interface;
+			std::vector<AbstractFunction*> m_listFunction;
+		public:
+			template<class JUS_RETURN_VALUE,
+			         class JUS_CLASS_TYPE,
+			         class... JUS_FUNC_ARGS_TYPE>
+			void advertise(const std::string& _name,
+			               JUS_RETURN_VALUE (JUS_CLASS_TYPE::*_func)(JUS_FUNC_ARGS_TYPE... _args),
+			               const std::string& _desc) {
+				// TODO: check if fucntion does not exist ...
+				AbstractFunction* tmp = createAbstractFunctionClass(_name, _desc, _func);
+				m_listFunction.push_back(tmp);
+			}
+			ServiceType(JUS_USER_ACCESS& _interface):
+			  m_getUserInterface(_interface) {
+				
+			}
+			void clientConnect(size_t _clientSessionID, const std::string& _userName) {
+				// TODO : Set a mutex ...
+				m_interface.insert(std::make_pair(_clientSessionID, new JUS_TYPE_SERVICE(m_getUserInterface.getUser(_userName))));
+			}
+			void clientDisconnect(size_t _clientSessionID) {
+				auto it = m_interface.find(_clientSessionID);
+				if (it != m_interface.end()) {
+					// noting to do ==> user never conected.
+					return;
 				}
-				*/
+				// TODO : Set a mutex ...
+				m_interface.erase(it);
+			}
+			ejson::Object callJson2(size_t _clientSessionID, const ejson::Object& _obj) {
+				ejson::Object out;
+				auto it = m_interface.find(_clientSessionID);
+				if (it == m_interface.end()) {
+					out.add("error", ejson::String("CLIENT-UNKNOW"));
+					return out;
+				}
+				std::string call = _obj["call"].toString().get();
+				const ejson::Array param = _obj["param"].toArray();
+				for (auto &it2 : m_listFunction) {
+					if (it2 == nullptr) {
+						continue;
+					}
+					if (it2->getName() != call) {
+						continue;
+					}
+					JUS_TYPE_SERVICE* elem = it->second;
+					return it2->executeJson(param, (void*)elem).toObject();
+				}
+				out.add("error", ejson::String("FUNCTION-UNKNOW"));
+				return out;
 			}
 	};
 }
+
 

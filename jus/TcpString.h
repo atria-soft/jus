@@ -25,8 +25,9 @@ namespace jus {
 		public:
 			TcpString();
 			virtual ~TcpString();
-			void connect();
+			void connect(bool _async = false);
 			void disconnect();
+			void setInterfaceName(const std::string& _name);
 			int32_t write(const std::string& _data);
 			std::string asyncRead();
 		private:
