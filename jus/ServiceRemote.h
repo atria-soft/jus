@@ -12,30 +12,17 @@
 #include <jus/ServiceRemote.h>
 
 namespace jus {
-	class Client : public eproperty::Interface {
-		friend class ServiceRemote;
-		public:
-			eproperty::Value<std::string> propertyIp;
-			eproperty::Value<uint16_t> propertyPort;
+	class Client;
+	class ServiceRemote {
 		private:
-			jus::TcpString m_interfaceClient;
-			uint32_t m_id;
-			esignal::Connection m_dataCallback;
-			std::vector<std::string> m_newData;
+			jus::Client* m_clientInterface;
+			std::string m_name;
 		public:
-			Client();
-			virtual ~Client();
-			void connect(const std::string& _remoteUserToConnect);
-			void disconnect();
-		public:
-			jus::ServiceRemote getService(const std::string& _serviceName);
-			void link(const std::string& _serviceName);
-			void unlink(const std::string& _serviceName);
+			ServiceRemote(jus::Client* _clientInterface, const std::string& _name);
+			~ServiceRemote();
 		private:
-			void onClientData(const std::string& _value);
-			std::string asyncRead();
 			ejson::Object callJson(const ejson::Object& _obj);
-			ejson::Object createBaseCall(const std::string& _functionName, const std::string& _service="");
+			ejson::Object createBaseCall(const std::string& _functionName);
 			void createParam(ejson::Object& _obj) {
 				// Finish recursive parse ...
 			}
@@ -339,23 +326,6 @@ namespace jus {
 				}
 				return out;
 			}
-		private:
-			void onPropertyChangeIp();
-			void onPropertyChangePort();
 	};
-	/*
-	template<class RETURN_TYPE>
-	RETURN_TYPE Client::call(const std::string& _functionName) {
-		ejson::Object callElem = ejson::Object(std::string("{ 'call':'") + _functionName + "'}");
-		ejson::Object obj = callJson(callElem);
-		return 256;
-	}
-	template<class RETURN_TYPE>
-	RETURN_TYPE Client::call(const std::string& _functionName) {
-		ejson::Object callElem = ejson::Object(std::string("{ 'call':'") + _functionName + "'}");
-		ejson::Object obj = callJson(callElem);
-		return std::vector<std::string>();
-	}
-	*/
 }
 

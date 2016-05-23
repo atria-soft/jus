@@ -4,6 +4,7 @@
  * @license APACHE v2.0 (see license file)
  */
 
+#include <enet/TcpClient.h>
 #include <jus/Client.h>
 #include <jus/debug.h>
 
@@ -13,9 +14,6 @@ jus::Client::Client() :
   propertyIp(this, "ip", "127.0.0.1", "Ip to connect server", &jus::Client::onPropertyChangeIp),
   propertyPort(this, "port", 1983, "Port to connect server", &jus::Client::onPropertyChangePort),
   m_id(0) {
-	m_interfaceClient.propertyIp.set(*propertyIp);
-	m_interfaceClient.propertyPort.set(*propertyPort);
-	m_interfaceClient.propertyServer.set(false);
 	m_dataCallback = m_interfaceClient.signalData.connect(this, &jus::Client::onClientData);
 }
 
@@ -25,6 +23,25 @@ jus::Client::~Client() {
 
 void jus::Client::onClientData(const std::string& _value) {
 	m_newData.push_back(_value);
+}
+
+jus::ServiceRemote jus::Client::getService(const std::string& _name) {
+	return jus::ServiceRemote(this, _name);
+}
+
+void jus::Client::link(const std::string& _serviceName) {
+	// TODO : Check the number of connection of this service ...
+	bool ret = call_b("link", _serviceName);
+	if (ret == false) {
+		JUS_ERROR("Can not link with the service named: '" << _serviceName << "'");
+	}
+}
+
+void jus::Client::unlink(const std::string& _serviceName) {
+	bool ret = call_b("unlink", _serviceName);
+	if (ret == false) {
+		JUS_ERROR("Can not unlink with the service named: '" << _serviceName << "'");
+	}
 }
 
 std::string jus::Client::asyncRead() {
@@ -48,28 +65,31 @@ std::string jus::Client::asyncRead() {
 }
 
 void jus::Client::onPropertyChangeIp() {
-	m_interfaceClient.propertyIp.set(*propertyIp);
+	disconnect();
 }
 
 void jus::Client::onPropertyChangePort(){
-	m_interfaceClient.propertyPort.set(*propertyPort);
+	disconnect();
 }
 
 
 void jus::Client::connect(const std::string& _remoteUserToConnect){
+	disconnect();
 	JUS_DEBUG("connect [START]");
+	enet::Tcp connection = std::move(enet::connectTcpClient(*propertyIp, *propertyPort));
+	m_interfaceClient.setInterface(std::move(connection));
 	m_interfaceClient.connect();
 	m_interfaceClient.write(std::string("{\"connect-to-user\":\"") + _remoteUserToConnect + "\", \"client-type:\":\"jus-client\"}");
 	JUS_DEBUG("connect [STOP]");
 }
 
-void jus::Client::disconnect(){
+void jus::Client::disconnect() {
 	JUS_DEBUG("disconnect [START]");
 	m_interfaceClient.disconnect();
 	JUS_DEBUG("disconnect [STOP]");
 }
 
-ejson::Object jus::Client::createBaseCall(const std::string& _service, const std::string& _functionName) {
+ejson::Object jus::Client::createBaseCall(const std::string& _functionName, const std::string& _service) {
 	ejson::Object obj;
 	if (_service.size() != 0) {
 		obj.add("service", ejson::String(_service));

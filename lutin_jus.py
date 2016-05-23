@@ -41,6 +41,7 @@ def create(target, module_name):
 	    'jus/GateWayService.cpp',
 	    'jus/GateWayClient.cpp',
 	    'jus/Service.cpp',
+	    'jus/ServiceRemote.cpp',
 	    'jus/TcpString.cpp',
 	    ])
 	my_module.add_header_file([
@@ -54,6 +55,7 @@ def create(target, module_name):
 	    'jus/GateWayService.h',
 	    'jus/GateWayClient.h',
 	    'jus/Service.h',
+	    'jus/ServiceRemote.h',
 	    'jus/TcpString.h',
 	    ])
 	if target.config["compilator"] == "clang":

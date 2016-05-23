@@ -15,19 +15,19 @@ namespace jus {
 	class GateWayService {
 		private:
 			jus::GateWay* m_gatewayInterface;
+			jus::TcpString m_interfaceClient;
 			std::string m_name;
 		public:
-			jus::TcpString m_interfaceClient;
 			esignal::Signal<bool> signalIsConnected;
 			esignal::Connection m_dataCallback;
 		public:
-			GateWayService(jus::GateWay* _gatewayInterface);
+			GateWayService(enet::Tcp _connection, jus::GateWay* _gatewayInterface);
 			virtual ~GateWayService();
-			void start(const std::string& _ip, uint16_t _port);
+			void start();
 			void stop();
-			void onClientData(const std::string& _value);
+			void onServiceData(const std::string& _value);
 		public:
-			void SendData(size_t _userSessionId, ejson::Object _data);
+			void SendData(size_t _userSessionId, ejson::Object _data, const std::string& _action="call");
 			const std::string& getName() {
 				return m_name;
 			}

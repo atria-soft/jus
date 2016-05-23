@@ -10,21 +10,19 @@
 #include <jus/GateWay.h>
 #include <unistd.h>
 
-jus::GateWayClient::GateWayClient(jus::GateWay* _gatewayInterface) :
+jus::GateWayClient::GateWayClient(enet::Tcp _connection, jus::GateWay* _gatewayInterface) :
   m_gatewayInterface(_gatewayInterface),
+  m_interfaceClient(std::move(_connection)),
   m_returnValueOk(false) {
 	
 }
 
 jus::GateWayClient::~GateWayClient() {
-	
+	JUS_TODO("Call All unlink ...");
 }
 
-void jus::GateWayClient::start(const std::string& _ip, uint16_t _port, size_t _uid) {
-	m_interfaceClient.propertyIp.set(_ip);
-	m_interfaceClient.propertyPort.set(_port);
+void jus::GateWayClient::start(size_t _uid) {
 	m_uid = _uid;
-	m_interfaceClient.propertyServer.set(true);
 	m_interfaceClient.connect(true);
 	m_interfaceClient.setInterfaceName("cli-" + etk::to_string(m_uid));
 	m_dataCallback = m_interfaceClient.signalData.connect(this, &jus::GateWayClient::onClientData);
@@ -71,6 +69,82 @@ void jus::GateWayClient::onClientData(const std::string& _value) {
 			answer.add("return", listService);
 		} else if (call == "getServiceInformation") {
 			
+		} else if (call == "link") {
+			// first param:
+			std::string serviceName = data["param"].toArray()[0].toString().get();
+			// Check if service already link:
+			auto it = m_listConnectedService.begin();
+			while (it != m_listConnectedService.end()) {
+				if (*it == nullptr) {
+					++it;
+					continue;
+				}
+				if ((*it)->getName() != service) {
+					++it;
+					continue;
+				}
+				break;
+			}
+			if (it == m_listConnectedService.end()) {
+				// TODO : check if we have authorisation to connect service
+				ememory::SharedPtr<jus::GateWayService> srv = m_gatewayInterface->get(serviceName);
+				if (srv != nullptr) {
+					ejson::Object linkService;
+					linkService.add("user", ejson::String(m_userConnectionName));
+					srv->SendData(m_uid, linkService, "new");
+					while (m_returnValueOk == false) {
+						JUS_DEBUG("wait Return Value (LINK)");
+						usleep(20000);
+					}
+					JUS_DEBUG("new answer: " << m_returnMessage.generate());
+					if (m_returnMessage["return"].toString().get() == "OK") {
+						m_listConnectedService.push_back(srv);
+						answer.add("return", ejson::Boolean(true));
+					} else {
+						answer.add("return", ejson::Boolean(false));
+					}
+					m_returnValueOk = false;
+				} else {
+					answer.add("return", ejson::Boolean(false));
+				}
+			} else {
+				// TODO : Service already connected;
+				answer.add("return", ejson::Boolean(false));
+			}
+		} else if (call == "unlink") {
+			// first param:
+			std::string serviceName = data["param"].toArray()[0].toString().get();
+			// Check if service already link:
+			auto it = m_listConnectedService.begin();
+			while (it != m_listConnectedService.end()) {
+				if (*it == nullptr) {
+					++it;
+					continue;
+				}
+				if ((*it)->getName() != service) {
+					++it;
+					continue;
+				}
+				break;
+			}
+			if (it == m_listConnectedService.end()) {
+				// TODO : Service already unlink;
+				answer.add("return", ejson::Boolean(false));
+			} else {
+				(*it)->SendData(m_uid, ejson::Object(), "delete");
+				while (m_returnValueOk == false) {
+					JUS_DEBUG("wait Return Value (UNLINK)");
+					usleep(20000);
+				}
+				JUS_DEBUG("new answer: " << m_returnMessage.generate());
+				if (m_returnMessage["return"].toString().get() == "OK") {
+					m_listConnectedService.erase(it);
+					answer.add("return", ejson::Boolean(true));
+				} else {
+					answer.add("return", ejson::Boolean(false));
+				}
+				m_returnValueOk = false;
+			}
 		} else {
 			JUS_ERROR("Function does not exist ... '" << call << "'");
 			answer.add("error", ejson::String("CALL-UNEXISTING"));
@@ -95,16 +169,18 @@ void jus::GateWayClient::onClientData(const std::string& _value) {
 			break;
 		}
 		if (it == m_listConnectedService.end()) {
-			ememory::SharedPtr<jus::GateWayService> srv = m_gatewayInterface->get(service);
-			if (srv != nullptr) {
-				m_listConnectedService.push_back(srv);
-				it = m_listConnectedService.end()-1;
-			} else {
-				// TODO: Return an error ...
-			}
-		}
-		if (it != m_listConnectedService.end()) {
-			JUS_CRITICAL("Add in link the name of the user in parameter ..."
+			// TODO : Generate an ERROR...
+			ejson::Object answer;
+			answer.add("from-service", ejson::String("ServiceManager"));
+			answer.add("id", data["id"]);
+			JUS_ERROR("Service not linked ... " << service);
+			answer.add("error", ejson::String("SERVICE-NOT-LINK"));
+			std::string valueReturn = answer.generate();
+			JUS_DEBUG("answer: " << valueReturn);
+			m_interfaceClient.write(valueReturn);
+		} else {
+			JUS_ERROR("Add in link the name of the user in parameter ...");
+			data.remove("service");
 			(*it)->SendData(m_uid, data);
 			while (m_returnValueOk == false) {
 				JUS_DEBUG("wait Return Value");

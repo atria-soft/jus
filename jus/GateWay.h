@@ -6,8 +6,10 @@
 #pragma once
 #include <jus/GateWayService.h>
 #include <jus/GateWayClient.h>
+#include <ejson/ejson.h>
 
 namespace jus {
+	class TcpServerInput;
 	class GateWay : public eproperty::Interface {
 		private:
 			size_t m_clientUID;
@@ -15,10 +17,8 @@ namespace jus {
 			std::vector<ememory::SharedPtr<jus::GateWayService>> m_serviceList; //!< List of all service availlable with their specific connection interface
 			std::vector<ememory::SharedPtr<jus::GateWayClient>> m_clientList; //!< List of all Client interface with their own connection
 			//TODO: std::vector<jus::GateWayServer> m_ServerList; //!< List of all Server connected to this gateway
-			ememory::SharedPtr<jus::GateWayClient> m_clientWaiting;
-			esignal::Connection m_clientConnected;
-			ememory::SharedPtr<jus::GateWayService> m_serviceWaiting;
-			esignal::Connection m_serviceConnected;
+			ememory::SharedPtr<jus::TcpServerInput> m_interfaceClientServer;
+			ememory::SharedPtr<jus::TcpServerInput> m_interfaceServiceServer;
 		public:
 			eproperty::Value<std::string> propertyClientIp;
 			eproperty::Value<uint16_t> propertyClientPort;
@@ -32,6 +32,9 @@ namespace jus {
 			void start();
 			void stop();
 			ememory::SharedPtr<jus::GateWayService> get(const std::string& _serviceName);
+			void answer(uint64_t _userSessionId, ejson::Object _data);
+			void newService(enet::Tcp _connection);
+			void newClient(enet::Tcp _connection);
 		private:
 			void onPropertyChangeClientIp();
 			void onPropertyChangeClientPort();

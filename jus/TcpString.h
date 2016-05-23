@@ -17,14 +17,13 @@ namespace jus {
 			std::thread* m_thread;
 			bool m_threadRunning;
 		public:
-			eproperty::Value<std::string> propertyIp;
-			eproperty::Value<uint16_t> propertyPort;
-			eproperty::Value<bool> propertyServer;
 			esignal::Signal<bool> signalIsConnected;
 			esignal::Signal<std::string> signalData;
 		public:
 			TcpString();
+			TcpString(enet::Tcp _connection);
 			virtual ~TcpString();
+			void setInterface(enet::Tcp _connection);
 			void connect(bool _async = false);
 			void disconnect();
 			void setInterfaceName(const std::string& _name);
@@ -33,9 +32,6 @@ namespace jus {
 		private:
 			std::string read();
 		private:
-			void onPropertyChangeIp();
-			void onPropertyChangePort();
-			void onPropertyChangeServer();
 			void threadCallback();
 	};
 }

@@ -15,8 +15,8 @@ namespace jus {
 	class GateWayClient {
 		private:
 			jus::GateWay* m_gatewayInterface;
-		public:
 			jus::TcpString m_interfaceClient;
+		public:
 			esignal::Signal<bool> signalIsConnected;
 			esignal::Connection m_dataCallback;
 			bool m_returnValueOk;
@@ -25,12 +25,15 @@ namespace jus {
 			size_t m_uid;
 			std::string m_userConnectionName;
 		public:
-			GateWayClient(jus::GateWay* _gatewayInterface);
+			GateWayClient(enet::Tcp _connection, jus::GateWay* _gatewayInterface);
 			virtual ~GateWayClient();
-			void start(const std::string& _ip, uint16_t _port, size_t _uid);
+			void start(size_t _uid);
 			void stop();
 			void onClientData(const std::string& _value);
 			void returnMessage(ejson::Object _data);
+			size_t getId() const {
+				return m_uid;
+			}
 	};
 }
 

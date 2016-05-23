@@ -53,8 +53,7 @@ namespace appl {
 		private:
 			ememory::SharedPtr<appl::User> m_user;
 		public:
-			double mul(double _val1) {//, const double& _val2) {
-				double _val2 = 1.0f;
+			double mul(double _val1, double _val2) {
 				return _val1*_val2;
 			}
 		public:

@@ -6,6 +6,7 @@
 
 #include <appl/debug.h>
 #include <jus/Client.h>
+#include <jus/ServiceRemote.h>
 #include <etk/etk.h>
 #include <unistd.h>
 
@@ -42,22 +43,17 @@ int main(int _argc, const char *_argv[]) {
 	tmp.push_back(22);
 	tmp.push_back(333);
 	tmp.push_back(4444);
-	int32_t val = client1.call_i("", "getServiceCount", tmp, "coucou", false);
+	int32_t val = client1.call_i("getServiceCount", tmp, "coucou", false);
 	APPL_INFO("Nb services = " << val);
-	std::vector<std::string> val2 = client1.call_vs("", "getServiceList");
+	std::vector<std::string> val2 = client1.call_vs("getServiceList");
 	APPL_INFO("List services:");
 	for (auto &it: val2) {
 		APPL_INFO("    - " << it);
 	}
-	// TODO:  add return value
-	bool valConnect = client1.call_b("serviceTest1", "link");
-	APPL_INFO("Link service 'serviceTest1' ret=" << valConnect);
+	jus::ServiceRemote localService = client1.getService("serviceTest1");
 	
-	bool retCall = client1.call_d("serviceTest1", "mul", 13.1, 2.0);
+	double retCall = localService.call_d("mul", 13.1, 2.0);
 	APPL_INFO("serviceTest1.mul = " << retCall);
-	
-	valConnect = client1.call_b("serviceTest1", "unlink");
-	APPL_INFO("un-Link service 'serviceTest1' ret=" << valConnect);
 	
 	int32_t iii=0;
 	while (iii < 3) {

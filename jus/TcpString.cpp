@@ -8,17 +8,24 @@
 #include <ethread/tools.h>
 #include <unistd.h>
 
-jus::TcpString::TcpString() :
+jus::TcpString::TcpString(enet::Tcp _connection) :
+  m_connection(std::move(_connection)),
   m_thread(nullptr),
-  propertyIp(this, "ip", "127.0.0.1", "ip to open or connect server", &jus::TcpString::onPropertyChangeIp),
-  propertyPort(this, "port", 1983, "Connection port of the server", &jus::TcpString::onPropertyChangePort),
-  propertyServer(this, "server", false, "is a server or not", &jus::TcpString::onPropertyChangeServer),
   signalIsConnected(),
   signalData() {
-	m_connection.setHostNane(*propertyIp);
-	m_connection.setPort(*propertyPort);
-	m_connection.setServer(*propertyServer);
 	m_threadRunning = false;
+}
+
+jus::TcpString::TcpString() :
+  m_connection(),
+  m_thread(nullptr),
+  signalIsConnected(),
+  signalData() {
+	m_threadRunning = false;
+}
+
+void jus::TcpString::setInterface(enet::Tcp _connection) {
+	m_connection = std::move(_connection);
 }
 
 jus::TcpString::~TcpString() {
@@ -31,13 +38,6 @@ void jus::TcpString::setInterfaceName(const std::string& _name) {
 
 void jus::TcpString::threadCallback() {
 	ethread::setName("TcpString-input");
-	// Connect ...
-	if (m_connection.link() == false) {
-		JUS_ERROR("can not connect to the socket...");
-		signalIsConnected.emit(false);
-		return;
-	}
-	signalIsConnected.emit(true);
 	// get datas:
 	while (    m_threadRunning == true
 	        && m_connection.getConnectionStatus() == enet::Tcp::status::link) {
@@ -48,11 +48,6 @@ void jus::TcpString::threadCallback() {
 			signalData.emit(data);
 		}
 	}
-	// disconnect ...
-	if (m_connection.unlink() == false) {
-		JUS_ERROR("can not disconnect to the socket...");
-	}
-	signalIsConnected.emit(false);
 	JUS_DEBUG("End of thread");
 }
 
@@ -133,17 +128,5 @@ std::string jus::TcpString::read() {
 	}
 	JUS_VERBOSE("Read [STOP]");
 	return out;
-}
-
-void jus::TcpString::onPropertyChangeIp() {
-	m_connection.setHostNane(*propertyIp);
-}
-
-void jus::TcpString::onPropertyChangePort() {
-	m_connection.setPort(*propertyPort);
-}
-
-void jus::TcpString::onPropertyChangeServer() {
-	m_connection.setServer(*propertyServer);
 }
 
