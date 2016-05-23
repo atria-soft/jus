@@ -7,6 +7,21 @@
 #include <jus/ParamType.h>
 #include <jus/debug.h>
 
+
+jus::ParamType::ParamType(const char* _name):
+  m_typeName(_name) {
+	
+}
+
+const char* jus::ParamType::getName() const {
+	return m_typeName;
+}
+
+bool jus::ParamType::operator == (const ParamType& _obj) const {
+	return m_typeName == _obj.m_typeName;
+}
+
+
 #define generate_basic_type(_type, _name) \
 template<> ParamType createType<_type>() {\
 	return ParamType(_name); \

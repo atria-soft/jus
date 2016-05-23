@@ -19,13 +19,14 @@ jus::GateWayClient::GateWayClient(enet::Tcp _connection, jus::GateWay* _gatewayI
 
 jus::GateWayClient::~GateWayClient() {
 	JUS_TODO("Call All unlink ...");
+	
 }
 
 void jus::GateWayClient::start(size_t _uid) {
 	m_uid = _uid;
+	m_dataCallback = m_interfaceClient.signalData.connect(this, &jus::GateWayClient::onClientData);
 	m_interfaceClient.connect(true);
 	m_interfaceClient.setInterfaceName("cli-" + etk::to_string(m_uid));
-	m_dataCallback = m_interfaceClient.signalData.connect(this, &jus::GateWayClient::onClientData);
 }
 
 void jus::GateWayClient::stop() {

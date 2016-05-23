@@ -9,16 +9,9 @@ class ParamType {
 	protected:
 		const char* m_typeName;
 	public:
-		ParamType(const char* _name = ""):
-		  m_typeName(_name) {
-			
-		}
-		const char* getName() const {
-			return m_typeName;
-		}
-		bool operator == (const ParamType& _obj) const {
-			return m_typeName == _obj.m_typeName;
-		}
+		ParamType(const char* _name = "");
+		const char* getName() const;
+		bool operator == (const ParamType& _obj) const;
 };
 
 

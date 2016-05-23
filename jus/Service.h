@@ -12,27 +12,6 @@
 #include <jus/AbstractFunctionTypeClass.h>
 #include <jus/debug.h>
 
-static double mulllll(double _val1) {
-	double _val2 = 2.0f;
-	JUS_ERROR("Call with parameter : " << _val1);
-	return _val1*_val2;
-}
-
-static void mulllll2(std::string _value, int32_t _val1) {
-	JUS_ERROR("Call with parameter : " << _value);
-	JUS_ERROR("          parameter : " << _val1);
-}
-
-static std::string mulllll3(float _value, bool _val1) {
-	JUS_ERROR("Call with parameter : " << _value);
-	JUS_ERROR("          parameter : " << _val1);
-	double _val2 = 1.0f;
-	return "'il fait beau aujoud'hui ...'";
-}
-
-static bool mulllll4() {
-	return false;
-}
 namespace jus {
 	class Service : public eproperty::Interface {
 		public:
@@ -63,34 +42,7 @@ namespace jus {
 			void advertise(const std::string& _name,
 			               JUS_RETURN_VALUE (*_func)(JUS_FUNC_ARGS_TYPE... _args),
 			               const std::string& _desc) {
-				//AbstractFunction* tmp = createAbstractFunctionDirect(_name, &mulllll);
-				AbstractFunction* tmp = createAbstractFunctionDirect(_name, "desc", &mulllll);
-				JUS_ERROR("Signature : " << tmp->getPrototype());
-				{
-					ejson::Array param;
-					param.add(ejson::Number(58.5));
-					ejson::Value out = tmp->executeJson(param);
-					JUS_ERROR("    return: ");
-					out.display();
-				}
-				
-				
-				tmp = createAbstractFunctionDirect(_name, "desc", &mulllll2);
-				JUS_ERROR("Signature2 : " << tmp->getPrototype());
-				{
-					ejson::Array param;
-					param.add(ejson::String("coucou"));
-					param.add(ejson::Number(1563));
-					ejson::Value out = tmp->executeJson(param);
-					JUS_ERROR("    return: ");
-					out.display();
-				}
-				tmp = createAbstractFunctionDirect(_name, "desc", &mulllll3);
-				JUS_ERROR("Signature3 : " << tmp->getPrototype());
-				JUS_ERROR("    return: " << tmp->executeString(etk::split("3.5 false", ' ')));
-				
-				tmp = createAbstractFunctionDirect(_name, "desc", &mulllll4);
-				JUS_ERROR("Signature4 : " << tmp->getPrototype());
+				AbstractFunction* tmp = createAbstractFunctionDirect(_name, _desc, _func);
 			}
 			/**
 			 * @brief A extern client connect on specific user

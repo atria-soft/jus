@@ -20,9 +20,9 @@ jus::GateWayService::~GateWayService() {
 }
 
 void jus::GateWayService::start() {
+	m_dataCallback = m_interfaceClient.signalData.connect(this, &jus::GateWayService::onServiceData);
 	m_interfaceClient.connect();
 	m_interfaceClient.setInterfaceName("srv-?");
-	m_dataCallback = m_interfaceClient.signalData.connect(this, &jus::GateWayService::onServiceData);
 }
 
 void jus::GateWayService::stop() {
