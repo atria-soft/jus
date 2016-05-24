@@ -35,6 +35,7 @@ namespace jus {
 			void answer(uint64_t _userSessionId, ejson::Object _data);
 			void newService(enet::Tcp _connection);
 			void newClient(enet::Tcp _connection);
+			void cleanIO();
 		private:
 			void onPropertyChangeClientIp();
 			void onPropertyChangeClientPort();

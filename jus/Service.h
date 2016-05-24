@@ -11,9 +11,10 @@
 #include <jus/AbstractFunctionTypeDirect.h>
 #include <jus/AbstractFunctionTypeClass.h>
 #include <jus/debug.h>
+#include <jus/RemoteProcessCall.h>
 
 namespace jus {
-	class Service : public eproperty::Interface {
+	class Service : public eproperty::Interface, public jus::RemoteProcessCall {
 		public:
 			eproperty::Value<std::string> propertyIp;
 			eproperty::Value<uint16_t> propertyPort;
@@ -25,25 +26,16 @@ namespace jus {
 		public:
 			Service();
 			virtual ~Service();
-			// Genenric function call:
-			ejson::Object callJson(const ejson::Object& _obj);
-			virtual ejson::Object callJson2(size_t _clientId, const ejson::Object& _obj) = 0;
 			void connect(const std::string& _serviceName);
 			void disconnect();
 		private:
 			void onClientData(const std::string& _value);
 			std::string asyncRead();
+		public:
+			void pingIsAlive();
 		private:
 			void onPropertyChangeIp();
 			void onPropertyChangePort();
-		public:
-			template<class JUS_RETURN_VALUE,
-			         class... JUS_FUNC_ARGS_TYPE>
-			void advertise(const std::string& _name,
-			               JUS_RETURN_VALUE (*_func)(JUS_FUNC_ARGS_TYPE... _args),
-			               const std::string& _desc) {
-				AbstractFunction* tmp = createAbstractFunctionDirect(_name, _desc, _func);
-			}
 			/**
 			 * @brief A extern client connect on specific user
 			 * @param[in] _clientSessionID Source session Id on the client
@@ -52,6 +44,9 @@ namespace jus {
 			 */
 			virtual void clientConnect(size_t _clientSessionID, const std::string& _userName) = 0;
 			virtual void clientDisconnect(size_t _clientSessionID) = 0;
+			// Genenric function call:
+			ejson::Value callJson(const ejson::Object& _obj);
+			virtual ejson::Object callJson2(size_t _clientId, const ejson::Object& _obj) = 0;
 	};
 	template<class JUS_TYPE_SERVICE, class JUS_USER_ACCESS>
 	class ServiceType : public jus::Service {
@@ -59,15 +54,23 @@ namespace jus {
 			JUS_USER_ACCESS& m_getUserInterface;
 			// no need of shared_ptr or unique_ptr (if service die all is lost and is client die, the gateway notify us...)
 			std::map<size_t, JUS_TYPE_SERVICE*> m_interface;
-			std::vector<AbstractFunction*> m_listFunction;
+			
 		public:
 			template<class JUS_RETURN_VALUE,
 			         class JUS_CLASS_TYPE,
 			         class... JUS_FUNC_ARGS_TYPE>
 			void advertise(const std::string& _name,
 			               JUS_RETURN_VALUE (JUS_CLASS_TYPE::*_func)(JUS_FUNC_ARGS_TYPE... _args),
-			               const std::string& _desc) {
-				// TODO: check if fucntion does not exist ...
+			               const std::string& _desc = "") {
+				for (auto &it : m_listFunction) {
+					if (it == nullptr) {
+						continue;
+					}
+					if (it->getName() == _name) {
+						JUS_ERROR("Advertise function already bind .. ==> can not be done...: '" << _name << "'");
+						return;
+					}
+				}
 				AbstractFunction* tmp = createAbstractFunctionClass(_name, _desc, _func);
 				m_listFunction.push_back(tmp);
 			}

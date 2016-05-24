@@ -26,6 +26,7 @@ namespace jus {
 			void setInterface(enet::Tcp _connection);
 			void connect(bool _async = false);
 			void disconnect();
+			bool isActive() const;
 			void setInterfaceName(const std::string& _name);
 			int32_t write(const std::string& _data);
 			std::string asyncRead();

@@ -4,18 +4,18 @@
  * @license APACHE v2.0 (see license file)
  */
 #pragma once
-
-class ParamType {
-	protected:
-		const char* m_typeName;
-	public:
-		ParamType(const char* _name = "");
-		const char* getName() const;
-		bool operator == (const ParamType& _obj) const;
-};
-
-
-template<class JUS_TYPE>
-ParamType createType();
-
+namespace jus {
+	class ParamType {
+		protected:
+			const char* m_typeName;
+		public:
+			ParamType(const char* _name = "");
+			const char* getName() const;
+			bool operator == (const ParamType& _obj) const;
+	};
+	
+	
+	template<class JUS_TYPE>
+	ParamType createType();
+}
 

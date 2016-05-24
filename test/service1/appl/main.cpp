@@ -69,7 +69,13 @@ int main(int _argc, const char *_argv[]) {
 	etk::init(_argc, _argv);
 	appl::UserManager userMng;
 	jus::ServiceType<appl::Calculator, appl::UserManager> serviceInterface(userMng);
-	serviceInterface.advertise("mul", &appl::Calculator::mul, "simple multiplication to test double IO");
+	serviceInterface.setDescription("Calculator interface");
+	serviceInterface.setVersion("0.1.1");
+	serviceInterface.addAuthor("Heero Yui", "yui.heero@gmail.com");
+	serviceInterface.advertise("mul", &appl::Calculator::mul);
+	serviceInterface.setLastFuncDesc("simple multiplication to test double IO");
+	serviceInterface.addLastFuncParam("val1", "First Parameter To multiply");
+	serviceInterface.addLastFuncParam("val2", "Second Parameter To multiply");
 	for (int32_t iii=0; iii<_argc ; ++iii) {
 		std::string data = _argv[iii];
 		if (etk::start_with(data, "--ip=") == true) {
@@ -91,7 +97,8 @@ int main(int _argc, const char *_argv[]) {
 	serviceInterface.connect("serviceTest1");
 	int32_t iii=0;
 	while (true) {
-		usleep(500000);
+		usleep(1000000);
+		serviceInterface.pingIsAlive();
 		APPL_INFO("service in waiting ... " << iii << "/inf");
 		iii++;
 	}

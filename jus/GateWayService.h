@@ -31,6 +31,7 @@ namespace jus {
 			const std::string& getName() {
 				return m_name;
 			}
+			bool isAlive();
 	};
 }
 

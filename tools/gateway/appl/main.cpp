@@ -46,8 +46,10 @@ int main(int _argc, const char *_argv[]) {
 	APPL_INFO("==================================");
 	basicGateway.start();
 	while (true) {
-		usleep(200000);
+		usleep(100000);
+		basicGateway.cleanIO();
 	}
+	basicGateway.stop();
 	APPL_INFO("==================================");
 	APPL_INFO("== JUS gateway stop             ==");
 	APPL_INFO("==================================");

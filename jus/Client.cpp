@@ -45,6 +45,9 @@ void jus::Client::unlink(const std::string& _serviceName) {
 }
 
 std::string jus::Client::asyncRead() {
+	if (m_interfaceClient.isActive() == false) {
+		return "";
+	}
 	int32_t iii = 5000;
 	while (iii>0) {
 		usleep(10000);
@@ -102,9 +105,11 @@ ejson::Object jus::Client::createBaseCall(const std::string& _functionName, cons
 
 ejson::Object jus::Client::callJson(const ejson::Object& _obj) {
 	JUS_VERBOSE("Call JSON [START] ");
-	std::string tmpVal = _obj.generate();
-	JUS_DEBUG("Call JSON '" << tmpVal << "'");
-	m_interfaceClient.write(_obj.generate());
+	if (m_interfaceClient.isActive() == false) {
+		return ejson::Object();
+	}
+	JUS_DEBUG("Call JSON '" << _obj.generateHumanString() << "'");
+	m_interfaceClient.write(_obj.generateMachineString());
 	std::string ret = asyncRead();
 	JUS_VERBOSE("Call JSON [STOP]");
 	return ejson::Object(ret);

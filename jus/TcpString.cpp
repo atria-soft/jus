@@ -48,7 +48,12 @@ void jus::TcpString::threadCallback() {
 			signalData.emit(data);
 		}
 	}
+	m_threadRunning = false;
 	JUS_DEBUG("End of thread");
+}
+
+bool jus::TcpString::isActive() const {
+	return m_threadRunning;
 }
 
 void jus::TcpString::connect(bool _async){
@@ -75,12 +80,12 @@ void jus::TcpString::connect(bool _async){
 
 void jus::TcpString::disconnect(){
 	JUS_DEBUG("disconnect [START]");
+	if (m_thread != nullptr) {
+		m_threadRunning = false;
+	}
 	if (m_connection.getConnectionStatus() == enet::Tcp::status::link) {
 		uint32_t size = 0xFFFFFFFF;
 		m_connection.write(&size, 4);
-	}
-	if (m_thread != nullptr) {
-		m_threadRunning = false;
 	}
 	if (m_connection.getConnectionStatus() != enet::Tcp::status::unlink) {
 		m_connection.unlink();
@@ -94,6 +99,9 @@ void jus::TcpString::disconnect(){
 }
 
 int32_t jus::TcpString::write(const std::string& _data) {
+	if (m_threadRunning == false) {
+		return -2;
+	}
 	if (_data.size() == 0) {
 		return 0;
 	}
@@ -103,6 +111,11 @@ int32_t jus::TcpString::write(const std::string& _data) {
 }
 
 std::string jus::TcpString::read() {
+	JUS_VERBOSE("Read [START]");
+	if (m_threadRunning == false) {
+		JUS_DEBUG("Read [END] Disconected");
+		return "";
+	}
 	// TODO : Do it better with a correct way to check data size ...
 	JUS_VERBOSE("Read [START]");
 	std::string out;

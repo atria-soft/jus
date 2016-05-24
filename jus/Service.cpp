@@ -27,10 +27,12 @@ jus::Service::~Service() {
 void jus::Service::onClientData(const std::string& _value) {
 	ejson::Object request(_value);
 	JUS_INFO("Request: " << _value);
-	ejson::Object answer = callJson(request);
-	std::string answerString = answer.generate();
-	JUS_INFO("Answer: " << answerString);
-	m_interfaceClient.write(answerString);
+	ejson::Value answer = callJson(request);
+	// check if an answer is needed
+	if (answer.isNull() == false) {
+		JUS_INFO("Answer: " << answer.generateHumanString());
+		m_interfaceClient.write(answer.generateMachineString());
+	}
 }
 
 void jus::Service::onPropertyChangeIp() {
@@ -58,33 +60,44 @@ void jus::Service::disconnect(){
 	JUS_DEBUG("disconnect [STOP]");
 }
 
-ejson::Object jus::Service::callJson(const ejson::Object& _obj) {
+
+void jus::Service::pingIsAlive() {
+	m_interfaceClient.write("{\"event\":\"IS-ALIVE\"}");
+}
+
+ejson::Value jus::Service::callJson(const ejson::Object& _obj) {
 	std::string action = _obj["action"].toString().get();
 	if (action == "new") {
 		uint64_t clientId = etk::string_to_uint64_t(_obj["client-id"].toString().get());
 		std::string userName = _obj["user"].toString().get();
 		clientConnect(clientId, userName);
+		/*
 		ejson::Object tmpp;
 		tmpp.add("client-id", ejson::String(etk::to_string(clientId)));
 		tmpp.add("return", ejson::String("OK"));
-		return tmpp;
-	} else if (action == "delete") {
+		return tmpp
+		*/
+		return ejson::Null();
+	}
+	if (action == "delete") {
 		uint64_t clientId = etk::string_to_uint64_t(_obj["client-id"].toString().get());
 		clientDisconnect(clientId);
+		/*
 		ejson::Object tmpp;
 		tmpp.add("client-id", ejson::String(etk::to_string(clientId)));
 		tmpp.add("return", ejson::String("OK"));
 		return tmpp;
-	} else if (    action == "call"
-	            || action == "") {
+		*/
+		return ejson::Null();
+	}
+	if (    action == "call"
+	     || action == "") {
 		uint64_t clientId = etk::string_to_uint64_t(_obj["client-id"].toString().get());
 		ejson::Object tmpp = callJson2(clientId, _obj);
 		tmpp.add("client-id", ejson::String(etk::to_string(clientId)));
 		return tmpp;
-	} else {
-		ejson::Object tmpp;
-		tmpp.add("error", ejson::String("NOT-IMPLEMENTED-ACTION"));
-		return tmpp;
 	}
-	return ejson::Object();
+	ejson::Object tmpp;
+	tmpp.add("error", ejson::String("NOT-IMPLEMENTED-ACTION"));
+	return tmpp;
 }

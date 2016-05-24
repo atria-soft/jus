@@ -130,6 +130,37 @@ void jus::GateWay::answer(uint64_t _userSessionId, ejson::Object _data) {
 	}
 }
 
+void jus::GateWay::cleanIO() {
+	
+	auto it = m_serviceList.begin();
+	while (it != m_serviceList.end()) {
+		if (*it != nullptr) {
+			if ((*it)->isAlive() == false) {
+				it = m_serviceList.erase(it);
+				continue;
+			}
+		} else {
+			it = m_serviceList.erase(it);
+			continue;
+		}
+		++it;
+	}
+	
+	auto it2 = m_clientList.begin();
+	while (it2 != m_clientList.end()) {
+		if (*it2 != nullptr) {
+			if ((*it2)->isAlive() == false) {
+				it2 = m_clientList.erase(it2);
+				continue;
+			}
+		} else {
+			it2 = m_clientList.erase(it2);
+			continue;
+		}
+		++it2;
+	}
+}
+
 void jus::GateWay::onClientConnect(const bool& _value) {
 	JUS_TODO("Client connection: " << _value);
 }

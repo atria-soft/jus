@@ -19,8 +19,6 @@ namespace jus {
 		public:
 			esignal::Signal<bool> signalIsConnected;
 			esignal::Connection m_dataCallback;
-			bool m_returnValueOk;
-			ejson::Object m_returnMessage;
 			std::vector<ememory::SharedPtr<jus::GateWayService>> m_listConnectedService;
 			size_t m_uid;
 			std::string m_userConnectionName;
@@ -34,6 +32,7 @@ namespace jus {
 			size_t getId() const {
 				return m_uid;
 			}
+			bool isAlive();
 	};
 }
 
