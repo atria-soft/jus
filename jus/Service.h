@@ -21,7 +21,6 @@ namespace jus {
 		private:
 			jus::TcpString m_interfaceClient;
 			uint32_t m_id;
-			esignal::Connection m_dataCallback;
 			std::vector<std::string> m_newData;
 		public:
 			Service();
@@ -29,7 +28,7 @@ namespace jus {
 			void connect(const std::string& _serviceName);
 			void disconnect();
 		private:
-			void onClientData(const std::string& _value);
+			void onClientData(std::string _value);
 			std::string asyncRead();
 		public:
 			void pingIsAlive();

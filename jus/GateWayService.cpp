@@ -29,7 +29,7 @@ bool jus::GateWayService::isAlive() {
 }
 
 void jus::GateWayService::start() {
-	m_dataCallback = m_interfaceClient.signalData.connect(this, &jus::GateWayService::onServiceData);
+	m_interfaceClient.connect(this, &jus::GateWayService::onServiceData);
 	m_interfaceClient.connect();
 	m_interfaceClient.setInterfaceName("srv-?");
 }
@@ -45,7 +45,7 @@ void jus::GateWayService::SendData(size_t _userSessionId, ejson::Object _data, c
 	m_interfaceClient.write(_data.generateMachineString());
 }
 
-void jus::GateWayService::onServiceData(const std::string& _value) {
+void jus::GateWayService::onServiceData(std::string _value) {
 	JUS_DEBUG("On service data: " << _value);
 	ejson::Object data(_value);
 	if (data.valueExist("event") == true) {

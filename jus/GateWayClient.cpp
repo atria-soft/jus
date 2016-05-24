@@ -28,7 +28,7 @@ jus::GateWayClient::~GateWayClient() {
 
 void jus::GateWayClient::start(size_t _uid) {
 	m_uid = _uid;
-	m_dataCallback = m_interfaceClient.signalData.connect(this, &jus::GateWayClient::onClientData);
+	m_interfaceClient.connect(this, &jus::GateWayClient::onClientData);
 	m_interfaceClient.connect(true);
 	m_interfaceClient.setInterfaceName("cli-" + etk::to_string(m_uid));
 }
@@ -48,7 +48,7 @@ bool jus::GateWayClient::isAlive() {
 	return m_interfaceClient.isActive();
 }
 
-void jus::GateWayClient::onClientData(const std::string& _value) {
+void jus::GateWayClient::onClientData(std::string _value) {
 	JUS_DEBUG("On data: " << _value);
 	ejson::Object data(_value);
 	if (m_userConnectionName == "") {

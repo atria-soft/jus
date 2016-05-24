@@ -11,16 +11,14 @@
 jus::TcpString::TcpString(enet::Tcp _connection) :
   m_connection(std::move(_connection)),
   m_thread(nullptr),
-  signalIsConnected(),
-  signalData() {
+  m_obsercerElement(nullptr) {
 	m_threadRunning = false;
 }
 
 jus::TcpString::TcpString() :
   m_connection(),
   m_thread(nullptr),
-  signalIsConnected(),
-  signalData() {
+  m_obsercerElement(nullptr) {
 	m_threadRunning = false;
 }
 
@@ -45,7 +43,9 @@ void jus::TcpString::threadCallback() {
 		std::string data = std::move(read());
 		JUS_VERBOSE("Receive data: '" << data << "'");
 		if (data.size() != 0) {
-			signalData.emit(data);
+			if (m_obsercerElement != nullptr) {
+				m_obsercerElement(std::move(data));
+			}
 		}
 	}
 	m_threadRunning = false;

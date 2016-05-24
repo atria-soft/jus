@@ -18,7 +18,6 @@ namespace jus {
 			jus::TcpString m_interfaceClient;
 		public:
 			esignal::Signal<bool> signalIsConnected;
-			esignal::Connection m_dataCallback;
 			std::vector<ememory::SharedPtr<jus::GateWayService>> m_listConnectedService;
 			size_t m_uid;
 			std::string m_userConnectionName;
@@ -27,7 +26,7 @@ namespace jus {
 			virtual ~GateWayClient();
 			void start(size_t _uid);
 			void stop();
-			void onClientData(const std::string& _value);
+			void onClientData(std::string _value);
 			void returnMessage(ejson::Object _data);
 			size_t getId() const {
 				return m_uid;

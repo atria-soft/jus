@@ -14,15 +14,15 @@ jus::Client::Client() :
   propertyIp(this, "ip", "127.0.0.1", "Ip to connect server", &jus::Client::onPropertyChangeIp),
   propertyPort(this, "port", 1983, "Port to connect server", &jus::Client::onPropertyChangePort),
   m_id(0) {
-	m_dataCallback = m_interfaceClient.signalData.connect(this, &jus::Client::onClientData);
+	m_interfaceClient.connect(this, &jus::Client::onClientData);
 }
 
 jus::Client::~Client() {
 	
 }
 
-void jus::Client::onClientData(const std::string& _value) {
-	m_newData.push_back(_value);
+void jus::Client::onClientData(std::string _value) {
+	m_newData.push_back(std::move(_value));
 }
 
 jus::ServiceRemote jus::Client::getService(const std::string& _name) {

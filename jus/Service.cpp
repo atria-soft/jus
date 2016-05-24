@@ -17,14 +17,14 @@
 jus::Service::Service() :
   propertyIp(this, "ip", "127.0.0.1", "Ip to connect server", &jus::Service::onPropertyChangeIp),
   propertyPort(this, "port", 1982, "Port to connect server", &jus::Service::onPropertyChangePort) {
-	m_dataCallback = m_interfaceClient.signalData.connect(this, &jus::Service::onClientData);
+	m_interfaceClient.connect(this, &jus::Service::onClientData);
 }
 
 jus::Service::~Service() {
 	
 }
 
-void jus::Service::onClientData(const std::string& _value) {
+void jus::Service::onClientData(std::string _value) {
 	ejson::Object request(_value);
 	JUS_INFO("Request: " << _value);
 	ejson::Value answer = callJson(request);

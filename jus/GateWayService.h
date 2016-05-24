@@ -19,13 +19,12 @@ namespace jus {
 			std::string m_name;
 		public:
 			esignal::Signal<bool> signalIsConnected;
-			esignal::Connection m_dataCallback;
 		public:
 			GateWayService(enet::Tcp _connection, jus::GateWay* _gatewayInterface);
 			virtual ~GateWayService();
 			void start();
 			void stop();
-			void onServiceData(const std::string& _value);
+			void onServiceData(std::string _value);
 		public:
 			void SendData(size_t _userSessionId, ejson::Object _data, const std::string& _action="call");
 			const std::string& getName() {

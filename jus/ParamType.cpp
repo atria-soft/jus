@@ -23,8 +23,10 @@ bool jus::ParamType::operator == (const ParamType& _obj) const {
 
 
 #define generate_basic_type(_type, _name) \
-template<> jus::ParamType jus::createType<_type>() {\
-	return jus::ParamType(_name); \
+namespace jus { \
+	template<> jus::ParamType createType<_type>() {\
+		return jus::ParamType(_name); \
+	} \
 }
 
 generate_basic_type(void, "void");

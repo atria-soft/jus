@@ -17,8 +17,20 @@ namespace jus {
 			std::thread* m_thread;
 			bool m_threadRunning;
 		public:
-			esignal::Signal<bool> signalIsConnected;
-			esignal::Signal<std::string> signalData;
+			using Observer = std::function<void(std::string)>; //!< Define an Observer: function pointer
+			Observer m_obsercerElement;
+			/**
+			 * @brief Connect an function member on the signal with the shared_ptr object.
+			 * @param[in] _class shared_ptr Object on whe we need to call ==> the object is get in keeped in weak_ptr.
+			 * @param[in] _func Function to call.
+			 * @param[in] _args Argument optinnal the user want to add.
+			 */
+			template<class CLASS_TYPE>
+			void connect(CLASS_TYPE* _class, void (CLASS_TYPE::*_func)(std::string)) {
+				m_obsercerElement = [=](std::string _value){
+					(*_class.*_func)(std::move(_value));
+				};
+			}
 		public:
 			TcpString();
 			TcpString(enet::Tcp _connection);

@@ -20,7 +20,6 @@ namespace jus {
 		private:
 			jus::TcpString m_interfaceClient;
 			uint32_t m_id;
-			esignal::Connection m_dataCallback;
 			std::vector<std::string> m_newData;
 		public:
 			Client();
@@ -32,7 +31,7 @@ namespace jus {
 			void link(const std::string& _serviceName);
 			void unlink(const std::string& _serviceName);
 		private:
-			void onClientData(const std::string& _value);
+			void onClientData(std::string _value);
 			std::string asyncRead();
 			ejson::Object callJson(const ejson::Object& _obj);
 			ejson::Object createBaseCall(const std::string& _functionName, const std::string& _service="");
