@@ -33,11 +33,17 @@ int main(int _argc, const char *_argv[]) {
 	APPL_INFO("==================================");
 	APPL_INFO("== JUS test client start        ==");
 	APPL_INFO("==================================");
-	client1.connect("userName");
+	client1.connect("test1#atria-soft.com");
+	// Connect that is not us
+	//client1.identify("clientTest1#atria-soft.com", "QSDQSDGQSF54HSXWVCSQDJ654URTDJ654NBXCDFDGAEZ51968");
+	bool retIdentify = client1.call_b("identify", "clientTest1#atria-soft.com", "QSDQSDGQSF54HSXWVCSQDJ654URTDJ654NBXCDFDGAEZ51968");
+	// Connect to ourself:
+	//client1.authentificate("coucou");
+	//bool retAuthentify = client1.call_b("authentify", "coucou");
 	APPL_INFO("    ----------------------------------");
 	APPL_INFO("    -- Get service count            --");
 	APPL_INFO("    ----------------------------------");
-	
+	/*
 	std::vector<double> tmp;
 	tmp.push_back(1);
 	tmp.push_back(22);
@@ -51,10 +57,17 @@ int main(int _argc, const char *_argv[]) {
 		APPL_INFO("    - " << it);
 	}
 	jus::ServiceRemote localService = client1.getService("serviceTest1");
+	if (localService.exist() == true) {
+		double retCall = localService.call_d("mul", 13.1, 2.0);
+		APPL_INFO("serviceTest1.mul = " << retCall);
+	}
+	*/
 	
-	double retCall = localService.call_d("mul", 13.1, 2.0);
-	APPL_INFO("serviceTest1.mul = " << retCall);
-	
+	jus::ServiceRemote remoteServiceUser = client1.getService("system-user");
+	if (remoteServiceUser.exist() == true) {
+		std::vector<std::string> retCall = remoteServiceUser.call_vs("getClientGroups");
+		APPL_INFO("system-user.getClientGroups() = " << retCall);
+	}
 	int32_t iii=0;
 	while (iii < 3) {
 		usleep(500000);

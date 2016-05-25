@@ -26,10 +26,13 @@ jus::Service::~Service() {
 
 void jus::Service::onClientData(std::string _value) {
 	ejson::Object request(_value);
+	ejson::Value tmpID = request["id"];
+	request.remove("id");
 	JUS_INFO("Request: " << _value);
 	ejson::Value answer = callJson(request);
 	// check if an answer is needed
 	if (answer.isNull() == false) {
+		answer.toObject().add("id", tmpID);
 		JUS_INFO("Answer: " << answer.generateHumanString());
 		m_interfaceClient.write(answer.generateMachineString());
 	}
@@ -44,10 +47,14 @@ void jus::Service::onPropertyChangePort(){
 }
 
 
-void jus::Service::connect(const std::string& _serviceName){
+void jus::Service::connect(const std::string& _serviceName, uint32_t _numberRetry){
 	disconnect();
 	JUS_DEBUG("connect [START]");
-	enet::Tcp connection = std::move(enet::connectTcpClient(*propertyIp, *propertyPort));
+	enet::Tcp connection = std::move(enet::connectTcpClient(*propertyIp, *propertyPort, _numberRetry));
+	if (connection.getConnectionStatus() != enet::Tcp::status::link) {
+		JUS_DEBUG("connect [STOP] ==> can not connect");
+		return;
+	}
 	m_interfaceClient.setInterface(std::move(connection));
 	m_interfaceClient.connect();
 	m_interfaceClient.write(std::string("{\"connect-service\":\"") + _serviceName + "\"}");
@@ -60,39 +67,36 @@ void jus::Service::disconnect(){
 	JUS_DEBUG("disconnect [STOP]");
 }
 
+bool jus::Service::GateWayAlive() {
+	return m_interfaceClient.isActive();
+}
 
 void jus::Service::pingIsAlive() {
-	m_interfaceClient.write("{\"event\":\"IS-ALIVE\"}");
+	if (std::chrono::steady_clock::now() - m_interfaceClient.getLastTimeSend() >= std::chrono::seconds(30)) {
+		m_interfaceClient.write("{\"event\":\"IS-ALIVE\"}");
+	}
 }
 
 ejson::Value jus::Service::callJson(const ejson::Object& _obj) {
-	std::string action = _obj["action"].toString().get();
-	if (action == "new") {
-		uint64_t clientId = etk::string_to_uint64_t(_obj["client-id"].toString().get());
-		std::string userName = _obj["user"].toString().get();
-		clientConnect(clientId, userName);
-		/*
-		ejson::Object tmpp;
-		tmpp.add("client-id", ejson::String(etk::to_string(clientId)));
-		tmpp.add("return", ejson::String("OK"));
-		return tmpp
-		*/
+	if (_obj.valueExist("event") == true) {
+		std::string event = _obj["event"].toString().get();
+		if (event == "IS-ALIVE") {
+			// Gateway just aswer a keep alive information ...
+			// Nothing to do ...
+		} else if (event == "new") {
+			int64_t clientId = etk::string_to_int64_t(_obj["client-id"].toString().get());
+			std::string userName = _obj["user"].toString().get();
+			clientConnect(clientId, userName);
+		} else if (event == "delete") {
+			int64_t clientId = etk::string_to_int64_t(_obj["client-id"].toString().get());
+			clientDisconnect(clientId);
+		} else {
+			JUS_ERROR("Unknow event: '" << event << "'");
+		}
 		return ejson::Null();
 	}
-	if (action == "delete") {
-		uint64_t clientId = etk::string_to_uint64_t(_obj["client-id"].toString().get());
-		clientDisconnect(clientId);
-		/*
-		ejson::Object tmpp;
-		tmpp.add("client-id", ejson::String(etk::to_string(clientId)));
-		tmpp.add("return", ejson::String("OK"));
-		return tmpp;
-		*/
-		return ejson::Null();
-	}
-	if (    action == "call"
-	     || action == "") {
-		uint64_t clientId = etk::string_to_uint64_t(_obj["client-id"].toString().get());
+	if (_obj.valueExist("call") == true) {
+		int64_t clientId = etk::string_to_int64_t(_obj["client-id"].toString().get());
 		ejson::Object tmpp = callJson2(clientId, _obj);
 		tmpp.add("client-id", ejson::String(etk::to_string(clientId)));
 		return tmpp;

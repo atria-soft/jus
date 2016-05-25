@@ -13,7 +13,7 @@
 jus::Client::Client() :
   propertyIp(this, "ip", "127.0.0.1", "Ip to connect server", &jus::Client::onPropertyChangeIp),
   propertyPort(this, "port", 1983, "Port to connect server", &jus::Client::onPropertyChangePort),
-  m_id(0) {
+  m_id(1) {
 	m_interfaceClient.connect(this, &jus::Client::onClientData);
 }
 
@@ -29,12 +29,13 @@ jus::ServiceRemote jus::Client::getService(const std::string& _name) {
 	return jus::ServiceRemote(this, _name);
 }
 
-void jus::Client::link(const std::string& _serviceName) {
+bool jus::Client::link(const std::string& _serviceName) {
 	// TODO : Check the number of connection of this service ...
 	bool ret = call_b("link", _serviceName);
 	if (ret == false) {
 		JUS_ERROR("Can not link with the service named: '" << _serviceName << "'");
 	}
+	return ret;
 }
 
 void jus::Client::unlink(const std::string& _serviceName) {

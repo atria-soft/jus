@@ -122,7 +122,7 @@ void jus::GateWay::answer(uint64_t _userSessionId, ejson::Object _data) {
 		if (it == nullptr) {
 			continue;
 		}
-		if (it->getId() != _userSessionId) {
+		if (it->getId() != std::abs(_userSessionId)) {
 			continue;
 		}
 		it->returnMessage(_data);

@@ -32,6 +32,7 @@ def create(target, module_name):
 	    'appl/debug.cpp',
 	    'appl/main.cpp'
 	    ])
+	my_module.add_export_flag('c++', "-DSERVICE_NAME=\"\\\"" + module_name[4:] + "\\\"\"")
 	return my_module
 
 

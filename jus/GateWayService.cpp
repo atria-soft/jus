@@ -38,9 +38,8 @@ void jus::GateWayService::stop() {
 	m_interfaceClient.disconnect();
 }
 
-void jus::GateWayService::SendData(size_t _userSessionId, ejson::Object _data, const std::string& _action) {
+void jus::GateWayService::SendData(int32_t _userSessionId, ejson::Object _data) {
 	_data.add("client-id", ejson::String(etk::to_string(_userSessionId)));
-	_data.add("action", ejson::String(_action));
 	JUS_DEBUG("Send Service: " << _data.generateHumanString());
 	m_interfaceClient.write(_data.generateMachineString());
 }
@@ -48,9 +47,14 @@ void jus::GateWayService::SendData(size_t _userSessionId, ejson::Object _data, c
 void jus::GateWayService::onServiceData(std::string _value) {
 	JUS_DEBUG("On service data: " << _value);
 	ejson::Object data(_value);
+	data.add("from-service", ejson::String(m_name));
 	if (data.valueExist("event") == true) {
+		// No need to have a user ID ...
 		if (data["event"].toString().get() == "IS-ALIVE") {
-			JUS_INFO("Service Alive ...");
+			JUS_VERBOSE("Service Alive ...");
+			if (std::chrono::steady_clock::now() - m_interfaceClient.getLastTimeSend() >= std::chrono::seconds(20)) {
+				m_interfaceClient.write("{\"event\":\"IS-ALIVE\"}");
+			}
 		} else {
 			JUS_INFO("Unknow service event: '" << data["event"].toString().get() << "'");
 		}

@@ -28,8 +28,13 @@ namespace jus {
 			void disconnect();
 		public:
 			jus::ServiceRemote getService(const std::string& _serviceName);
-			void link(const std::string& _serviceName);
+			bool link(const std::string& _serviceName);
 			void unlink(const std::string& _serviceName);
+			
+			// Connect that is not us
+			//bool identify("clientTest1#atria-soft.com", "QSDQSDGQSF54HSXWVCSQDJ654URTDJ654NBXCDFDGAEZ51968");
+			// Connect to ourself:
+			//client1.authentificate("coucou");
 		private:
 			void onClientData(std::string _value);
 			std::string asyncRead();

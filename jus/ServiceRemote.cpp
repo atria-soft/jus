@@ -10,13 +10,19 @@
 jus::ServiceRemote::ServiceRemote(jus::Client* _clientInterface, const std::string& _name):
   m_clientInterface(_clientInterface),
   m_name(_name) {
-	m_clientInterface->link(_name);
+	m_isLinked = m_clientInterface->link(_name);
 }
 
 jus::ServiceRemote::~ServiceRemote() {
-	m_clientInterface->unlink(m_name);
+	if (m_isLinked == true) {
+		m_clientInterface->unlink(m_name);
+		m_isLinked = false;
+	}
 }
 
+bool jus::ServiceRemote::exist() {
+	return m_isLinked;
+}
 
 ejson::Object jus::ServiceRemote::createBaseCall(const std::string& _functionName) {
 	return m_clientInterface->createBaseCall(_functionName, m_name);

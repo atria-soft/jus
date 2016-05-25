@@ -17,9 +17,11 @@ namespace jus {
 		private:
 			jus::Client* m_clientInterface;
 			std::string m_name;
+			bool m_isLinked;
 		public:
 			ServiceRemote(jus::Client* _clientInterface, const std::string& _name);
 			~ServiceRemote();
+			bool exist();
 		private:
 			ejson::Object callJson(const ejson::Object& _obj);
 			ejson::Object createBaseCall(const std::string& _functionName);

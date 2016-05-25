@@ -43,3 +43,16 @@ generate_basic_type(uint16_t, "uint16");
 generate_basic_type(uint8_t, "uint8");
 generate_basic_type(std::string, "string");
 
+
+generate_basic_type(std::vector<bool>, "vector:bool");
+generate_basic_type(std::vector<float>, "vector:float");
+generate_basic_type(std::vector<double>, "vector:double");
+generate_basic_type(std::vector<int64_t>, "vector:int64");
+generate_basic_type(std::vector<int32_t>, "vector:int32");
+generate_basic_type(std::vector<int16_t>, "vector:int16");
+generate_basic_type(std::vector<int8_t>, "vector:int8");
+generate_basic_type(std::vector<uint64_t>, "vector:uint64");
+generate_basic_type(std::vector<uint32_t>, "vector:uint32");
+generate_basic_type(std::vector<uint16_t>, "vector:uint16");
+generate_basic_type(std::vector<uint8_t>, "vector:uint8");
+generate_basic_type(std::vector<std::string>, "vector:string");

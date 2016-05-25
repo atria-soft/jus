@@ -14,7 +14,33 @@
 #include <jus/RemoteProcessCall.h>
 
 namespace jus {
+	class ClientProperty {
+		public:
+			ClientProperty() {}
+		private:
+			std::string m_name;
+		public:
+			void setName(const std::string& _name) {
+				m_name = _name;
+			}
+			const std::string& getName() {
+				return m_name;
+			}
+		private:
+			std::vector<std::string> m_groups;
+		public:
+			void setGroups(std::vector<std::string> _groups) {
+				m_groups = _groups;
+			}
+			const std::vector<std::string>& getGroups() {
+				return m_groups;
+			}
+	};
+}
+namespace jus {
 	class Service : public eproperty::Interface, public jus::RemoteProcessCall {
+		protected:
+			std::mutex m_mutex;
 		public:
 			eproperty::Value<std::string> propertyIp;
 			eproperty::Value<uint16_t> propertyPort;
@@ -25,13 +51,14 @@ namespace jus {
 		public:
 			Service();
 			virtual ~Service();
-			void connect(const std::string& _serviceName);
+			void connect(const std::string& _serviceName, uint32_t _numberRetry = 1);
 			void disconnect();
 		private:
 			void onClientData(std::string _value);
 			std::string asyncRead();
 		public:
 			void pingIsAlive();
+			bool GateWayAlive();
 		private:
 			void onPropertyChangeIp();
 			void onPropertyChangePort();
@@ -52,7 +79,7 @@ namespace jus {
 		private:
 			JUS_USER_ACCESS& m_getUserInterface;
 			// no need of shared_ptr or unique_ptr (if service die all is lost and is client die, the gateway notify us...)
-			std::map<size_t, JUS_TYPE_SERVICE*> m_interface;
+			std::map<int64_t, std::pair<ememory::SharedPtr<ClientProperty>, ememory::SharedPtr<JUS_TYPE_SERVICE>>> m_interface;
 			
 		public:
 			template<class JUS_RETURN_VALUE,
@@ -78,17 +105,40 @@ namespace jus {
 				
 			}
 			void clientConnect(size_t _clientSessionID, const std::string& _userName) {
-				// TODO : Set a mutex ...
-				m_interface.insert(std::make_pair(_clientSessionID, new JUS_TYPE_SERVICE(m_getUserInterface.getUser(_userName))));
+				std::unique_lock<std::mutex> lock(m_mutex);
+				JUS_DEBUG("connect : " << _clientSessionID << " to '" << _userName << "'");
+				ememory::SharedPtr<ClientProperty> tmpProperty = std::make_shared<ClientProperty>();
+				ememory::SharedPtr<JUS_TYPE_SERVICE> tmpSrv = std::make_shared<JUS_TYPE_SERVICE>(m_getUserInterface.getUser(_userName), tmpProperty);
+				m_interface.insert(std::make_pair(_clientSessionID, std::make_pair(tmpProperty, tmpSrv)));
 			}
 			void clientDisconnect(size_t _clientSessionID) {
+				std::unique_lock<std::mutex> lock(m_mutex);
+				JUS_DEBUG("disconnect: " << _clientSessionID);
 				auto it = m_interface.find(_clientSessionID);
-				if (it != m_interface.end()) {
+				if (it == m_interface.end()) {
+					JUS_WARNING("disconnect ==> Not find Client ID " << _clientSessionID);
 					// noting to do ==> user never conected.
 					return;
 				}
-				// TODO : Set a mutex ...
 				m_interface.erase(it);
+			}
+			void clientSetName(size_t _clientSessionID, const std::string& _clientName) {
+				std::unique_lock<std::mutex> lock(m_mutex);
+				auto it = m_interface.find(_clientSessionID);
+				if (it == m_interface.end()) {
+					JUS_ERROR("Change the client property but client was not created ...");
+					return;
+				}
+				it->second.first->setName(_clientName);
+			}
+			void clientSetGroup(size_t _clientSessionID, const std::vector<std::string>& _clientGroups) {
+				std::unique_lock<std::mutex> lock(m_mutex);
+				auto it = m_interface.find(_clientSessionID);
+				if (it == m_interface.end()) {
+					JUS_ERROR("Change the client property but client was not created ...");
+					return;
+				}
+				it->second.first->setGroups(_clientGroups);
 			}
 			ejson::Object callJson2(size_t _clientSessionID, const ejson::Object& _obj) {
 				ejson::Object out;
@@ -106,7 +156,7 @@ namespace jus {
 					if (it2->getName() != call) {
 						continue;
 					}
-					JUS_TYPE_SERVICE* elem = it->second;
+					JUS_TYPE_SERVICE* elem = it->second.second.get();
 					return it2->executeJson(param, (void*)elem).toObject();
 				}
 				out.add("error", ejson::String("FUNCTION-UNKNOW"));

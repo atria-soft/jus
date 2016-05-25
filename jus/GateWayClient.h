@@ -10,17 +10,26 @@
 #include <esignal/Signal.h>
 #include <jus/GateWayService.h>
 
+
+
 namespace jus {
 	class GateWay;
 	class GateWayClient {
+		using Observer = std::function<void(ejson::Object& _data)>;
 		private:
 			jus::GateWay* m_gatewayInterface;
 			jus::TcpString m_interfaceClient;
 		public:
 			esignal::Signal<bool> signalIsConnected;
+			ememory::SharedPtr<jus::GateWayService> m_userService;
 			std::vector<ememory::SharedPtr<jus::GateWayService>> m_listConnectedService;
 			size_t m_uid;
 			std::string m_userConnectionName;
+			std::string m_clientName;
+			std::vector<std::string> m_clientgroups;
+			std::mutex m_mutex;
+			std::vector<std::pair<int32_t, Observer>> m_actions;
+			int32_t m_transactionLocalId;
 		public:
 			GateWayClient(enet::Tcp _connection, jus::GateWay* _gatewayInterface);
 			virtual ~GateWayClient();

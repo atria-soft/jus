@@ -26,7 +26,7 @@ namespace jus {
 			void stop();
 			void onServiceData(std::string _value);
 		public:
-			void SendData(size_t _userSessionId, ejson::Object _data, const std::string& _action="call");
+			void SendData(int32_t _userSessionId, ejson::Object _data);
 			const std::string& getName() {
 				return m_name;
 			}

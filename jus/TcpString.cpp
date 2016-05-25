@@ -43,6 +43,7 @@ void jus::TcpString::threadCallback() {
 		std::string data = std::move(read());
 		JUS_VERBOSE("Receive data: '" << data << "'");
 		if (data.size() != 0) {
+			m_lastReceive = std::chrono::steady_clock::now();
 			if (m_obsercerElement != nullptr) {
 				m_obsercerElement(std::move(data));
 			}
@@ -106,6 +107,7 @@ int32_t jus::TcpString::write(const std::string& _data) {
 		return 0;
 	}
 	uint32_t size = _data.size();
+	m_lastSend = std::chrono::steady_clock::now();
 	m_connection.write(&size, 4);
 	return m_connection.write(_data.c_str(), _data.size());
 }

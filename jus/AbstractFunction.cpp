@@ -9,6 +9,13 @@ namespace jus {
 	template<> bool convertJsonTo<bool>(const ejson::Value& _value) {
 		return _value.toBoolean().get();
 	}
+	template<> std::vector<bool> convertJsonTo<std::vector<bool>>(const ejson::Value& _value) {
+		std::vector<bool> out;
+		for (const auto it : _value.toArray()) {
+			out.push_back(convertJsonTo<bool>(it));
+		}
+		return out;
+	}
 	template<> float convertJsonTo<float>(const ejson::Value& _value) {
 		return _value.toNumber().get();
 	}
@@ -19,7 +26,6 @@ namespace jus {
 		return int64_t(_value.toNumber().get());
 	}
 	template<> int32_t convertJsonTo<int32_t>(const ejson::Value& _value) {
-		//_value.display();
 		return int32_t(_value.toNumber().get());
 	}
 	template<> int16_t convertJsonTo<int16_t>(const ejson::Value& _value) {
@@ -41,12 +47,25 @@ namespace jus {
 		return uint8_t(_value.toNumber().get());
 	}
 	template<> std::string convertJsonTo<std::string>(const ejson::Value& _value) {
-		//_value.display();
 		return _value.toString().get();
+	}
+	template<> std::vector<std::string> convertJsonTo<std::vector<std::string>>(const ejson::Value& _value) {
+		std::vector<std::string> out;
+		for (const auto it : _value.toArray()) {
+			out.push_back(convertJsonTo<std::string>(it));
+		}
+		return out;
 	}
 	
 	template<> ejson::Value convertToJson<bool>(const bool& _value) {
 		return ejson::Boolean(_value);
+	}
+	template<> ejson::Value convertToJson<std::vector<bool>>(const std::vector<bool>& _value) {
+		ejson::Array out;
+		for (const auto &it : _value) {
+			out.add(ejson::Boolean(it));
+		}
+		return out;
 	}
 	template<> ejson::Value convertToJson<float>(const float& _value) {
 		return ejson::Number(_value);
@@ -80,6 +99,13 @@ namespace jus {
 	}
 	template<> ejson::Value convertToJson<std::string>(const std::string& _value) {
 		return ejson::String(_value);
+	}
+	template<> ejson::Value convertToJson<std::vector<std::string>>(const std::vector<std::string>& _value) {
+		ejson::Array out;
+		for (auto &it : _value) {
+			out.add(ejson::String(it));
+		}
+		return out;
 	}
 	
 	template<> bool convertStringTo<bool>(const std::string& _value) {
@@ -118,6 +144,12 @@ namespace jus {
 	template<> std::string convertStringTo<std::string>(const std::string& _value) {
 		return _value;
 	}
+	template<> std::vector<std::string> convertStringTo<std::vector<std::string>>(const std::string& _value) {
+		std::vector<std::string> out;
+		JUS_TODO("Convert string to vs");
+		return out;
+	}
+	
 }
 
 const std::string& jus::AbstractFunction::getName() const {

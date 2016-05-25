@@ -16,6 +16,8 @@ namespace jus {
 			enet::Tcp m_connection;
 			std::thread* m_thread;
 			bool m_threadRunning;
+			std::chrono::steady_clock::time_point m_lastReceive;
+			std::chrono::steady_clock::time_point m_lastSend;
 		public:
 			using Observer = std::function<void(std::string)>; //!< Define an Observer: function pointer
 			Observer m_obsercerElement;
@@ -46,6 +48,13 @@ namespace jus {
 			std::string read();
 		private:
 			void threadCallback();
+		public:
+			const std::chrono::steady_clock::time_point& getLastTimeReceive() {
+				return m_lastReceive;
+			}
+			const std::chrono::steady_clock::time_point& getLastTimeSend() {
+				return m_lastSend;
+			}
 	};
 }
 
