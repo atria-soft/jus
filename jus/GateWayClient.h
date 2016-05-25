@@ -15,10 +15,21 @@
 namespace jus {
 	class GateWay;
 	class GateWayClient {
-		using Observer = std::function<void(ejson::Object& _data)>;
+		private:
+			using Observer = std::function<void(ejson::Object& _data)>;
+			enum class state {
+				unconnect, // starting sate
+				connect, // just get a TCP connection
+				userIdentify, // client set the user it want to access
+				clientIdentify, // client defien the mode of the acces (anonymous,client/user)
+				disconnect // client is dead or loal disconnection
+			};
+			enum state m_state; // state machine ...
 		private:
 			jus::GateWay* m_gatewayInterface;
 			jus::TcpString m_interfaceClient;
+			void protocolError(const std::string& _errorHelp);
+			void returnBool(int32_t _transactionId, bool _value);
 		public:
 			esignal::Signal<bool> signalIsConnected;
 			ememory::SharedPtr<jus::GateWayService> m_userService;

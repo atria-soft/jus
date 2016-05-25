@@ -83,7 +83,10 @@ void jus::Client::connect(const std::string& _remoteUserToConnect){
 	enet::Tcp connection = std::move(enet::connectTcpClient(*propertyIp, *propertyPort));
 	m_interfaceClient.setInterface(std::move(connection));
 	m_interfaceClient.connect();
-	m_interfaceClient.write(std::string("{\"connect-to-user\":\"") + _remoteUserToConnect + "\", \"client-type:\":\"jus-client\"}");
+	bool ret = call_b("connectToUser", _remoteUserToConnect, "jus-client");
+	if (ret == false) {
+		JUS_ERROR("Connection error");
+	}
 	JUS_DEBUG("connect [STOP]");
 }
 

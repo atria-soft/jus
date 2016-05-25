@@ -39,7 +39,7 @@ namespace jus {
 			virtual ~TcpString();
 			void setInterface(enet::Tcp _connection);
 			void connect(bool _async = false);
-			void disconnect();
+			void disconnect(bool _inThreadStop = false);
 			bool isActive() const;
 			void setInterfaceName(const std::string& _name);
 			int32_t write(const std::string& _data);

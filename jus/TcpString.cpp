@@ -79,7 +79,7 @@ void jus::TcpString::connect(bool _async){
 	}
 }
 
-void jus::TcpString::disconnect(){
+void jus::TcpString::disconnect(bool _inThreadStop){
 	JUS_DEBUG("disconnect [START]");
 	if (m_thread != nullptr) {
 		m_threadRunning = false;
@@ -91,10 +91,12 @@ void jus::TcpString::disconnect(){
 	if (m_connection.getConnectionStatus() != enet::Tcp::status::unlink) {
 		m_connection.unlink();
 	}
-	if (m_thread != nullptr) {
-		m_thread->join();
-		delete m_thread;
-		m_thread = nullptr;
+	if (_inThreadStop == false) {
+		if (m_thread != nullptr) {
+			m_thread->join();
+			delete m_thread;
+			m_thread = nullptr;
+		}
 	}
 	JUS_DEBUG("disconnect [STOP]");
 }
