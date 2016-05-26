@@ -38,6 +38,9 @@ namespace appl {
 				}
 				APPL_WARNING("delete USER [STOP]");
 			}
+			const std::string& getName() {
+				return m_userName;
+			}
 			std::vector<std::string> getGroups(const std::string& _clientName) {
 				std::unique_lock<std::mutex> lock(m_mutex);
 				std::vector<std::string> out;
@@ -119,7 +122,7 @@ namespace appl {
 				APPL_WARNING("delete SystemService ...");
 			}
 		public:
-			std::vector<std::string> getClientGroups() {
+			std::vector<std::string> getGroups(std::string _clientName) {
 				std::vector<std::string> out;
 				if (m_client == nullptr) {
 					return out;
@@ -134,8 +137,15 @@ namespace appl {
 				}
 				return out;
 			}
-			std::vector<std::string> getClientServices() {
-				return std::vector<std::string>();
+			std::vector<std::string> getServices(std::string _clientName) {
+				std::vector<std::string> out;
+				if (m_user == nullptr) {
+					return out;
+				}
+				if (_clientName == m_user->getName()) {
+					out.push_back(SERVICE_NAME);
+				}
+				return out;
 			}
 			bool checkTocken(std::string _clientName, std::string _tocken) {
 				return m_user->checkTocken(_clientName, _tocken);
@@ -151,10 +161,11 @@ int main(int _argc, const char *_argv[]) {
 	serviceInterface.setDescription("user interface management");
 	serviceInterface.setVersion("0.1.0");
 	serviceInterface.addAuthor("Heero Yui", "yui.heero@gmail.com");
-	serviceInterface.advertise("getClientGroups", &appl::SystemService::getClientGroups);
+	serviceInterface.advertise("getGroups", &appl::SystemService::getGroups);
 	serviceInterface.setLastFuncDesc("Get list of group availlable for a client name");
 	serviceInterface.addLastFuncParam("clientName", "Name of the client");
 	serviceInterface.advertise("checkTocken", &appl::SystemService::checkTocken);
+	serviceInterface.advertise("checkTocken", &appl::SystemService::getServices);
 	for (int32_t iii=0; iii<_argc ; ++iii) {
 		std::string data = _argv[iii];
 		if (etk::start_with(data, "--ip=") == true) {

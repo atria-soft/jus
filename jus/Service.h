@@ -79,7 +79,7 @@ namespace jus {
 		private:
 			JUS_USER_ACCESS& m_getUserInterface;
 			// no need of shared_ptr or unique_ptr (if service die all is lost and is client die, the gateway notify us...)
-			std::map<int64_t, std::pair<ememory::SharedPtr<ClientProperty>, ememory::SharedPtr<JUS_TYPE_SERVICE>>> m_interface;
+			std::map<uint64_t, std::pair<ememory::SharedPtr<ClientProperty>, ememory::SharedPtr<JUS_TYPE_SERVICE>>> m_interface;
 			
 		public:
 			template<class JUS_RETURN_VALUE,
@@ -104,14 +104,14 @@ namespace jus {
 			  m_getUserInterface(_interface) {
 				
 			}
-			void clientConnect(size_t _clientSessionID, const std::string& _userName) {
+			void clientConnect(uint64_t _clientSessionID, const std::string& _userName) {
 				std::unique_lock<std::mutex> lock(m_mutex);
 				JUS_DEBUG("connect : " << _clientSessionID << " to '" << _userName << "'");
 				ememory::SharedPtr<ClientProperty> tmpProperty = std::make_shared<ClientProperty>();
 				ememory::SharedPtr<JUS_TYPE_SERVICE> tmpSrv = std::make_shared<JUS_TYPE_SERVICE>(m_getUserInterface.getUser(_userName), tmpProperty);
 				m_interface.insert(std::make_pair(_clientSessionID, std::make_pair(tmpProperty, tmpSrv)));
 			}
-			void clientDisconnect(size_t _clientSessionID) {
+			void clientDisconnect(uint64_t _clientSessionID) {
 				std::unique_lock<std::mutex> lock(m_mutex);
 				JUS_DEBUG("disconnect: " << _clientSessionID);
 				auto it = m_interface.find(_clientSessionID);
@@ -122,7 +122,7 @@ namespace jus {
 				}
 				m_interface.erase(it);
 			}
-			void clientSetName(size_t _clientSessionID, const std::string& _clientName) {
+			void clientSetName(uint64_t _clientSessionID, const std::string& _clientName) {
 				std::unique_lock<std::mutex> lock(m_mutex);
 				auto it = m_interface.find(_clientSessionID);
 				if (it == m_interface.end()) {
@@ -131,7 +131,7 @@ namespace jus {
 				}
 				it->second.first->setName(_clientName);
 			}
-			void clientSetGroup(size_t _clientSessionID, const std::vector<std::string>& _clientGroups) {
+			void clientSetGroup(uint64_t _clientSessionID, const std::vector<std::string>& _clientGroups) {
 				std::unique_lock<std::mutex> lock(m_mutex);
 				auto it = m_interface.find(_clientSessionID);
 				if (it == m_interface.end()) {
@@ -140,7 +140,7 @@ namespace jus {
 				}
 				it->second.first->setGroups(_clientGroups);
 			}
-			ejson::Object callJson2(size_t _clientSessionID, const ejson::Object& _obj) {
+			ejson::Object callJson2(uint64_t _clientSessionID, const ejson::Object& _obj) {
 				ejson::Object out;
 				auto it = m_interface.find(_clientSessionID);
 				if (it == m_interface.end()) {

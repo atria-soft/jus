@@ -12,7 +12,7 @@ namespace jus {
 	class TcpServerInput;
 	class GateWay : public eproperty::Interface {
 		private:
-			size_t m_clientUID;
+			uint64_t m_clientUID;
 		private:
 			std::vector<ememory::SharedPtr<jus::GateWayService>> m_serviceList; //!< List of all service availlable with their specific connection interface
 			std::vector<ememory::SharedPtr<jus::GateWayClient>> m_clientList; //!< List of all Client interface with their own connection

@@ -22,7 +22,37 @@ jus::Client::~Client() {
 }
 
 void jus::Client::onClientData(std::string _value) {
-	m_newData.push_back(std::move(_value));
+	ejson::Object obj(_value);
+	jus::FutureBase future;
+	{
+		uint64_t tid = etk::string_to_uint64_t(obj["id"].toString().get());
+		if (tid == 0) {
+			JUS_ERROR("call with no ID ==> error ...");
+			return;
+		}
+		std::unique_lock<std::mutex> lock(m_mutex);
+		auto it = m_pendingCall.begin();
+		while (it != m_pendingCall.end()) {
+			if (it->isValid() == false) {
+				it = m_pendingCall.erase(it);
+				continue;
+			}
+			if (it->getTransactionId() != tid) {
+				++it;
+				continue;
+			}
+			future = *it;
+			it = m_pendingCall.erase(it);
+			return;
+		}
+	}
+	if (future.isValid() == false) {
+		JUS_TODO("manage this event better ...");
+		m_newData.push_back(std::move(_value));
+		return;
+	}
+	// TODO : Call future ...
+	
 }
 
 jus::ServiceRemote jus::Client::getService(const std::string& _name) {
@@ -96,15 +126,8 @@ void jus::Client::disconnect() {
 	JUS_DEBUG("disconnect [STOP]");
 }
 
-ejson::Object jus::Client::createBaseCall(const std::string& _functionName, const std::string& _service) {
-	ejson::Object obj;
-	if (_service.size() != 0) {
-		obj.add("service", ejson::String(_service));
-	}
-	obj.add("call", ejson::String(_functionName));
-	obj.add("id", ejson::Number(m_id++));
-	obj.add("param", ejson::Array());
-	return obj;
+uint64_t jus::Client::getId() {
+	return m_id++;
 }
 
 ejson::Object jus::Client::callJson(const ejson::Object& _obj) {
@@ -118,3 +141,42 @@ ejson::Object jus::Client::callJson(const ejson::Object& _obj) {
 	JUS_VERBOSE("Call JSON [STOP]");
 	return ejson::Object(ret);
 }
+
+
+jus::FutureBase jus::Client::sendJson(uint64_t _transactionId, const ejson::Object& _obj) {
+	JUS_VERBOSE("Send JSON [START] ");
+	if (m_interfaceClient.isActive() == false) {
+		ejson::Object obj;
+		obj.add("error", ejson::String("NOT-CONNECTED"));
+		obj.add("error-help", ejson::String("Client interface not connected (no TCP)"));
+		return jus::FutureBase(_transactionId, true, obj);
+	}
+	jus::FutureBase tmpFuture(_transactionId);
+	{
+		std::unique_lock<std::mutex> lock(m_mutex);
+		m_pendingCall.push_back(tmpFuture);
+	}
+	JUS_DEBUG("Send JSON '" << _obj.generateHumanString() << "'");
+	m_interfaceClient.write(_obj.generateMachineString());
+	JUS_VERBOSE("Send JSON [STOP]");
+	return tmpFuture;
+}
+namespace jus {
+	template<>
+	bool jus::Future<bool>::get() {
+		if (m_data == nullptr) {
+			return false;
+		}
+		ejson::Value val = m_data->m_returnData["return"];
+		if (val.exist() == false) {
+			JUS_WARNING("No Return value ...");
+			return false;
+		}
+		if (val.isBoolean() == false) {
+			JUS_WARNING("Wrong return Type get '" << val.getType() << " instead of 'Boolean'");
+			return false;
+		}
+		return val.toBoolean().get();
+	}
+}
+

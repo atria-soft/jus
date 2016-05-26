@@ -36,7 +36,10 @@ int main(int _argc, const char *_argv[]) {
 	client1.connect("test1#atria-soft.com");
 	// Connect that is not us
 	//client1.identify("clientTest1#atria-soft.com", "QSDQSDGQSF54HSXWVCSQDJ654URTDJ654NBXCDFDGAEZ51968");
-	bool retIdentify = client1.call_b("identify", "clientTest1#atria-soft.com", "QSDQSDGQSF54HSXWVCSQDJ654URTDJ654NBXCDFDGAEZ51968");
+	jus::Future<bool> retIdentify = client1.callAsync<bool>("identify", "clientTest1#atria-soft.com", "QSDQSDGQSF54HSXWVCSQDJ654URTDJ654NBXCDFDGAEZ51968");
+	retIdentify.wait();
+	//bool retIdentify = client1.call_b("identify", "clientTest1#atria-soft.com", "QSDQSDGQSF54HSXWVCSQDJ654URTDJ654NBXCDFDGAEZ51968");
+	
 	// Connect to ourself:
 	//client1.authentificate("coucou");
 	//bool retAuthentify = client1.call_b("authentify", "coucou");

@@ -75,7 +75,7 @@ void jus::GateWay::newService(enet::Tcp _connection) {
 void jus::GateWay::newClient(enet::Tcp _connection) {
 	JUS_WARNING("New TCP connection (client)");
 	ememory::SharedPtr<jus::GateWayClient> tmp = std::make_shared<jus::GateWayClient>(std::move(_connection), this);
-	tmp->start(m_clientUID++);
+	tmp->start(m_clientUID++, m_clientUID++);
 	m_clientList.push_back(tmp);
 }
 
@@ -122,7 +122,7 @@ void jus::GateWay::answer(uint64_t _userSessionId, ejson::Object _data) {
 		if (it == nullptr) {
 			continue;
 		}
-		if (it->getId() != std::abs(_userSessionId)) {
+		if (it->checkId(_userSessionId) == false) {
 			continue;
 		}
 		it->returnMessage(_data);

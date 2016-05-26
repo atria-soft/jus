@@ -10,13 +10,127 @@
 #include <ejson/ejson.h>
 #include <jus/debug.h>
 #include <jus/ServiceRemote.h>
+#include <chrono>
+#include <unistd.h>
 
 namespace jus {
+	class FutureData {
+		public:
+			uint64_t m_transactionId;
+			bool m_isFinished;
+			ejson::Object m_returnData;
+	};
+	class FutureBase {
+		public: // TODO: Do it better ..
+			ememory::SharedPtr<jus::FutureData> m_data;
+		public:
+			FutureBase() {
+				m_data = nullptr;
+			}
+			FutureBase(uint64_t _transactionId) {
+				m_data = std::make_shared<jus::FutureData>();
+				if (m_data == nullptr) {
+					return;
+				}
+				m_data->m_transactionId = _transactionId;
+				m_data->m_isFinished = false;
+			}
+			FutureBase(uint64_t _transactionId, bool _isFinished, ejson::Object _returnData) {
+				m_data = std::make_shared<jus::FutureData>();
+				if (m_data == nullptr) {
+					return;
+				}
+				m_data->m_transactionId = _transactionId;
+				m_data->m_isFinished = _isFinished;
+				m_data->m_returnData = _returnData;
+			}
+			jus::FutureBase operator= (const jus::FutureBase& _base) {
+				m_data = _base.m_data;
+				return *this;
+			}
+			void setAnswer(const ejson::Object& _returnValue) {
+				if (m_data == nullptr) {
+					JUS_ERROR(" Not a valid future ...");
+					return;
+				}
+				m_data->m_returnData = _returnValue;
+				m_data->m_isFinished = true;
+			}
+			uint64_t getTransactionId() {
+				if (m_data == nullptr) {
+					return 0;
+				}
+				return m_data->m_transactionId;
+			}
+			bool hasError() {
+				if (m_data == nullptr) {
+					return true;
+				}
+				return m_data->m_returnData.valueExist("error");
+			}
+			std::string getErrorType() {
+				if (m_data == nullptr) {
+					return "NULL_PTR";
+				}
+				return m_data->m_returnData["error"].toString().get();
+			}
+			std::string getErrorHelp() {
+				if (m_data == nullptr) {
+					return "Thsi is a nullptr future";
+				}
+				return m_data->m_returnData["error-help"].toString().get();
+			}
+			bool isValid() {
+				return m_data != nullptr;
+			}
+			bool isFinished() {
+				if (m_data == nullptr) {
+					return true;
+				}
+				return m_data->m_isFinished;
+			}
+			void wait() {
+				while (isFinished() == false) {
+					// TODO : Do it better ... like messaging/mutex_locked ...
+					usleep(10000);
+				}
+			}
+			bool waitFor(std::chrono::microseconds _delta) {
+				std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
+				while (    std::chrono::steady_clock::now() - start < _delta
+				        && isFinished() == false) {
+					// TODO : Do it better ... like messaging/mutex_locked ...
+					usleep(10000);
+				}
+				return isFinished();
+			}
+			bool waitUntile(std::chrono::steady_clock::time_point _endTime) {
+				while (    std::chrono::steady_clock::now() < _endTime
+				        && isFinished() == false) {
+					// TODO : Do it better ... like messaging/mutex_locked ...
+					usleep(10000);
+				}
+				return isFinished();
+			}
+	};
+	
+	template<class JUS_RETURN>
+	class Future : public jus::FutureBase {
+		public:
+			jus::Future<JUS_RETURN>& operator= (const jus::FutureBase& _base) {
+				m_data = _base.m_data;
+				return *this;
+			}
+			JUS_RETURN get();
+	};
+
 	class Client : public eproperty::Interface {
 		friend class ServiceRemote;
 		public:
 			eproperty::Value<std::string> propertyIp;
 			eproperty::Value<uint16_t> propertyPort;
+			std::mutex m_mutex;
+			std::vector<jus::FutureBase> m_pendingCall;
 		private:
 			jus::TcpString m_interfaceClient;
 			uint32_t m_id;
@@ -39,105 +153,21 @@ namespace jus {
 			void onClientData(std::string _value);
 			std::string asyncRead();
 			ejson::Object callJson(const ejson::Object& _obj);
-			ejson::Object createBaseCall(const std::string& _functionName, const std::string& _service="");
-			void createParam(ejson::Object& _obj) {
-				// Finish recursive parse ...
-			}
-			template<class... _ARGS>
-			void createParam(ejson::Object& _obj, const char* _param, _ARGS&&... _args) {
-				ejson::Array array = _obj["param"].toArray();
-				if (_param == nullptr) {
-					array.add(ejson::String());
-				} else {
-					array.add(ejson::String(_param));
-				}
-				createParam(_obj, std::forward<_ARGS>(_args)...);
-			}
-			template<class... _ARGS>
-			void createParam(ejson::Object& _obj, const std::string& _param, _ARGS&&... _args) {
-				ejson::Array array = _obj["param"].toArray();
-				array.add(ejson::String(_param));
-				createParam(_obj, std::forward<_ARGS>(_args)...);
-			}
-			template<class... _ARGS>
-			void createParam(ejson::Object& _obj, const bool& _param, _ARGS&&... _args) {
-				ejson::Array array = _obj["param"].toArray();
-				array.add(ejson::Boolean(_param));
-				createParam(_obj, std::forward<_ARGS>(_args)...);
-			}
-			template<class... _ARGS>
-			void createParam(ejson::Object& _obj, const int32_t& _param, _ARGS&&... _args) {
-				ejson::Array array = _obj["param"].toArray();
-				array.add(ejson::Number(_param));
-				createParam(_obj, std::forward<_ARGS>(_args)...);
-			}
-			template<class... _ARGS>
-			void createParam(ejson::Object& _obj, const double& _param, _ARGS&&... _args) {
-				ejson::Array array = _obj["param"].toArray();
-				array.add(ejson::Number(_param));
-				createParam(_obj, std::forward<_ARGS>(_args)...);
-			}
-			template<class... _ARGS>
-			void createParam(ejson::Object& _obj, const float& _param, _ARGS&&... _args) {
-				ejson::Array array = _obj["param"].toArray();
-				array.add(ejson::Number(_param));
-				createParam(_obj, std::forward<_ARGS>(_args)...);
-			}
-			template<class... _ARGS>
-			void createParam(ejson::Object& _obj, const std::vector<std::string>& _param, _ARGS&&... _args) {
-				ejson::Array array = _obj["param"].toArray();
-				ejson::Array array2;
-				for (auto& it : _param) {
-					array2.add(ejson::String(it));
-				}
-				array.add(array2);
-				createParam(_obj, std::forward<_ARGS>(_args)...);
-			}
-			template<class... _ARGS>
-			void createParam(ejson::Object& _obj, const std::vector<bool>& _param, _ARGS&&... _args) {
-				ejson::Array array = _obj["param"].toArray();
-				ejson::Array array2;
-				for (const auto& it : _param) {
-					array2.add(ejson::Boolean(it));
-				}
-				array.add(array2);
-				createParam(_obj, std::forward<_ARGS>(_args)...);
-			}
-			template<class... _ARGS>
-			void createParam(ejson::Object& _obj, const std::vector<int32_t>& _param, _ARGS&&... _args) {
-				ejson::Array array = _obj["param"].toArray();
-				ejson::Array array2;
-				for (auto& it : _param) {
-					array2.add(ejson::Number(it));
-				}
-				array.add(array2);
-				createParam(_obj, std::forward<_ARGS>(_args)...);
-			}
-			template<class... _ARGS>
-			void createParam(ejson::Object& _obj, const std::vector<double>& _param, _ARGS&&... _args) {
-				ejson::Array array = _obj["param"].toArray();
-				ejson::Array array2;
-				for (auto& it : _param) {
-					array2.add(ejson::Number(it));
-				}
-				array.add(array2);
-				createParam(_obj, std::forward<_ARGS>(_args)...);
-			}
-			template<class... _ARGS>
-			void createParam(ejson::Object& _obj, const std::vector<float>& _param, _ARGS&&... _args) {
-				ejson::Array array = _obj["param"].toArray();
-				ejson::Array array2;
-				for (auto& it : _param) {
-					array2.add(ejson::Number(it));
-				}
-				array.add(array2);
-				createParam(_obj, std::forward<_ARGS>(_args)...);
-			}
+			jus::FutureBase sendJson(uint64_t _transactionId, const ejson::Object& _obj);
 		public:
+		
+			uint64_t getId();
+			template<class JUS_RETURN, class... _ARGS>
+			jus::Future<JUS_RETURN> callAsync(const std::string& _functionName, _ARGS&&... _args) {
+				uint64_t id = getId();
+				ejson::Object callElem = jus::createCall(id, _functionName, std::forward<_ARGS>(_args)...);
+				jus::Future<JUS_RETURN> out = sendJson(id, callElem);
+				return out;
+			}
+			
 			template<class... _ARGS>
 			void call(const std::string& _functionName, _ARGS&&... _args) {
-				ejson::Object callElem = createBaseCall(_functionName);
-				createParam(callElem, std::forward<_ARGS>(_args)...);
+				ejson::Object callElem = jus::createCall(getId(), _functionName, std::forward<_ARGS>(_args)...);
 				ejson::Object obj = callJson(callElem);
 				if (obj.valueExist("error") == true) {
 					JUS_WARNING("call error: " << obj["error"]);
@@ -145,8 +175,7 @@ namespace jus {
 			}
 			template<class... _ARGS>
 			int32_t call_i(const std::string& _functionName, _ARGS&&... _args) {
-				ejson::Object callElem = createBaseCall(_functionName);
-				createParam(callElem, std::forward<_ARGS>(_args)...);
+				ejson::Object callElem = jus::createCall(getId(), _functionName, std::forward<_ARGS>(_args)...);
 				ejson::Object obj = callJson(callElem);
 				if (obj.valueExist("error") == true) {
 					JUS_WARNING("call error: " << obj["error"]);
@@ -164,8 +193,7 @@ namespace jus {
 			}
 			template<class... _ARGS>
 			double call_d(const std::string& _functionName, _ARGS&&... _args) {
-				ejson::Object callElem = createBaseCall(_functionName);
-				createParam(callElem, std::forward<_ARGS>(_args)...);
+				ejson::Object callElem = jus::createCall(getId(), _functionName, std::forward<_ARGS>(_args)...);
 				ejson::Object obj = callJson(callElem);
 				if (obj.valueExist("error") == true) {
 					JUS_WARNING("call error: " << obj["error"]);
@@ -183,8 +211,7 @@ namespace jus {
 			}
 			template<class... _ARGS>
 			std::string call_s(const std::string& _functionName, _ARGS&&... _args) {
-				ejson::Object callElem = createBaseCall(_functionName);
-				createParam(callElem, std::forward<_ARGS>(_args)...);
+				ejson::Object callElem = jus::createCall(getId(), _functionName, std::forward<_ARGS>(_args)...);
 				ejson::Object obj = callJson(callElem);
 				if (obj.valueExist("error") == true) {
 					JUS_WARNING("call error: " << obj["error"]);
@@ -202,8 +229,7 @@ namespace jus {
 			}
 			template<class... _ARGS>
 			bool call_b(const std::string& _functionName, _ARGS&&... _args) {
-				ejson::Object callElem = createBaseCall(_functionName);
-				createParam(callElem, std::forward<_ARGS>(_args)...);
+				ejson::Object callElem = jus::createCall(getId(), _functionName, std::forward<_ARGS>(_args)...);
 				ejson::Object obj = callJson(callElem);
 				if (obj.valueExist("error") == true) {
 					JUS_WARNING("call error: " << obj["error"]);
@@ -221,8 +247,7 @@ namespace jus {
 			}
 			template<class... _ARGS>
 			std::vector<int32_t> call_vi(const std::string& _functionName, _ARGS&&... _args) {
-				ejson::Object callElem = createBaseCall(_functionName);
-				createParam(callElem, std::forward<_ARGS>(_args)...);
+				ejson::Object callElem = jus::createCall(getId(), _functionName, std::forward<_ARGS>(_args)...);
 				ejson::Object obj = callJson(callElem);
 				if (obj.valueExist("error") == true) {
 					JUS_WARNING("call error: " << obj["error"]);
@@ -252,8 +277,7 @@ namespace jus {
 			}
 			template<class... _ARGS>
 			std::vector<double> call_vd(const std::string& _functionName, _ARGS&&... _args) {
-				ejson::Object callElem = createBaseCall(_functionName);
-				createParam(callElem, std::forward<_ARGS>(_args)...);
+				ejson::Object callElem = jus::createCall(getId(), _functionName, std::forward<_ARGS>(_args)...);
 				ejson::Object obj = callJson(callElem);
 				if (obj.valueExist("error") == true) {
 					JUS_WARNING("call error: " << obj["error"]);
@@ -283,8 +307,7 @@ namespace jus {
 			}
 			template<class... _ARGS>
 			std::vector<std::string> call_vs(const std::string& _functionName, _ARGS&&... _args) {
-				ejson::Object callElem = createBaseCall(_functionName);
-				createParam(callElem, std::forward<_ARGS>(_args)...);
+				ejson::Object callElem = jus::createCall(getId(), _functionName, std::forward<_ARGS>(_args)...);
 				ejson::Object obj = callJson(callElem);
 				if (obj.valueExist("error") == true) {
 					JUS_WARNING("call error: " << obj["error"]);
@@ -314,8 +337,7 @@ namespace jus {
 			}
 			template<class... _ARGS>
 			std::vector<bool> call_vb(const std::string& _functionName, _ARGS&&... _args) {
-				ejson::Object callElem = createBaseCall(_functionName);
-				createParam(callElem, std::forward<_ARGS>(_args)...);
+				ejson::Object callElem = jus::createCall(getId(), _functionName, std::forward<_ARGS>(_args)...);
 				ejson::Object obj = callJson(callElem);
 				if (obj.valueExist("error") == true) {
 					JUS_WARNING("call error: " << obj["error"]);

@@ -9,6 +9,7 @@
 #include <eproperty/Value.h>
 #include <ejson/ejson.h>
 #include <jus/debug.h>
+#include <jus/AbstractFunction.h>
 #include <jus/ServiceRemote.h>
 
 namespace jus {
@@ -24,105 +25,11 @@ namespace jus {
 			bool exist();
 		private:
 			ejson::Object callJson(const ejson::Object& _obj);
-			ejson::Object createBaseCall(const std::string& _functionName);
-			void createParam(ejson::Object& _obj) {
-				// Finish recursive parse ...
-			}
-			template<class... _ARGS>
-			void createParam(ejson::Object& _obj, const char* _param, _ARGS&&... _args) {
-				ejson::Array array = _obj["param"].toArray();
-				if (_param == nullptr) {
-					array.add(ejson::String());
-				} else {
-					array.add(ejson::String(_param));
-				}
-				createParam(_obj, std::forward<_ARGS>(_args)...);
-			}
-			template<class... _ARGS>
-			void createParam(ejson::Object& _obj, const std::string& _param, _ARGS&&... _args) {
-				ejson::Array array = _obj["param"].toArray();
-				array.add(ejson::String(_param));
-				createParam(_obj, std::forward<_ARGS>(_args)...);
-			}
-			template<class... _ARGS>
-			void createParam(ejson::Object& _obj, const bool& _param, _ARGS&&... _args) {
-				ejson::Array array = _obj["param"].toArray();
-				array.add(ejson::Boolean(_param));
-				createParam(_obj, std::forward<_ARGS>(_args)...);
-			}
-			template<class... _ARGS>
-			void createParam(ejson::Object& _obj, const int32_t& _param, _ARGS&&... _args) {
-				ejson::Array array = _obj["param"].toArray();
-				array.add(ejson::Number(_param));
-				createParam(_obj, std::forward<_ARGS>(_args)...);
-			}
-			template<class... _ARGS>
-			void createParam(ejson::Object& _obj, const double& _param, _ARGS&&... _args) {
-				ejson::Array array = _obj["param"].toArray();
-				array.add(ejson::Number(_param));
-				createParam(_obj, std::forward<_ARGS>(_args)...);
-			}
-			template<class... _ARGS>
-			void createParam(ejson::Object& _obj, const float& _param, _ARGS&&... _args) {
-				ejson::Array array = _obj["param"].toArray();
-				array.add(ejson::Number(_param));
-				createParam(_obj, std::forward<_ARGS>(_args)...);
-			}
-			template<class... _ARGS>
-			void createParam(ejson::Object& _obj, const std::vector<std::string>& _param, _ARGS&&... _args) {
-				ejson::Array array = _obj["param"].toArray();
-				ejson::Array array2;
-				for (auto& it : _param) {
-					array2.add(ejson::String(it));
-				}
-				array.add(array2);
-				createParam(_obj, std::forward<_ARGS>(_args)...);
-			}
-			template<class... _ARGS>
-			void createParam(ejson::Object& _obj, const std::vector<bool>& _param, _ARGS&&... _args) {
-				ejson::Array array = _obj["param"].toArray();
-				ejson::Array array2;
-				for (const auto& it : _param) {
-					array2.add(ejson::Boolean(it));
-				}
-				array.add(array2);
-				createParam(_obj, std::forward<_ARGS>(_args)...);
-			}
-			template<class... _ARGS>
-			void createParam(ejson::Object& _obj, const std::vector<int32_t>& _param, _ARGS&&... _args) {
-				ejson::Array array = _obj["param"].toArray();
-				ejson::Array array2;
-				for (auto& it : _param) {
-					array2.add(ejson::Number(it));
-				}
-				array.add(array2);
-				createParam(_obj, std::forward<_ARGS>(_args)...);
-			}
-			template<class... _ARGS>
-			void createParam(ejson::Object& _obj, const std::vector<double>& _param, _ARGS&&... _args) {
-				ejson::Array array = _obj["param"].toArray();
-				ejson::Array array2;
-				for (auto& it : _param) {
-					array2.add(ejson::Number(it));
-				}
-				array.add(array2);
-				createParam(_obj, std::forward<_ARGS>(_args)...);
-			}
-			template<class... _ARGS>
-			void createParam(ejson::Object& _obj, const std::vector<float>& _param, _ARGS&&... _args) {
-				ejson::Array array = _obj["param"].toArray();
-				ejson::Array array2;
-				for (auto& it : _param) {
-					array2.add(ejson::Number(it));
-				}
-				array.add(array2);
-				createParam(_obj, std::forward<_ARGS>(_args)...);
-			}
+			uint64_t getId();
 		public:
 			template<class... _ARGS>
 			void call(const std::string& _functionName, _ARGS&&... _args) {
-				ejson::Object callElem = createBaseCall(_functionName);
-				createParam(callElem, std::forward<_ARGS>(_args)...);
+				ejson::Object callElem = jus::createCallService(getId(), m_name, _functionName, std::forward<_ARGS>(_args)...);
 				ejson::Object obj = callJson(callElem);
 				if (obj.valueExist("error") == true) {
 					JUS_WARNING("call error: " << obj["error"]);
@@ -130,8 +37,7 @@ namespace jus {
 			}
 			template<class... _ARGS>
 			int32_t call_i(const std::string& _functionName, _ARGS&&... _args) {
-				ejson::Object callElem = createBaseCall(_functionName);
-				createParam(callElem, std::forward<_ARGS>(_args)...);
+				ejson::Object callElem = jus::createCallService(getId(), m_name, _functionName, std::forward<_ARGS>(_args)...);
 				ejson::Object obj = callJson(callElem);
 				if (obj.valueExist("error") == true) {
 					JUS_WARNING("call error: " << obj["error"]);
@@ -149,8 +55,7 @@ namespace jus {
 			}
 			template<class... _ARGS>
 			double call_d(const std::string& _functionName, _ARGS&&... _args) {
-				ejson::Object callElem = createBaseCall(_functionName);
-				createParam(callElem, std::forward<_ARGS>(_args)...);
+				ejson::Object callElem = jus::createCallService(getId(), m_name, _functionName, std::forward<_ARGS>(_args)...);
 				ejson::Object obj = callJson(callElem);
 				if (obj.valueExist("error") == true) {
 					JUS_WARNING("call error: " << obj["error"]);
@@ -168,8 +73,7 @@ namespace jus {
 			}
 			template<class... _ARGS>
 			std::string call_s(const std::string& _functionName, _ARGS&&... _args) {
-				ejson::Object callElem = createBaseCall(_functionName);
-				createParam(callElem, std::forward<_ARGS>(_args)...);
+				ejson::Object callElem = jus::createCallService(getId(), m_name, _functionName, std::forward<_ARGS>(_args)...);
 				ejson::Object obj = callJson(callElem);
 				if (obj.valueExist("error") == true) {
 					JUS_WARNING("call error: " << obj["error"]);
@@ -187,8 +91,7 @@ namespace jus {
 			}
 			template<class... _ARGS>
 			bool call_b(const std::string& _functionName, _ARGS&&... _args) {
-				ejson::Object callElem = createBaseCall(_functionName);
-				createParam(callElem, std::forward<_ARGS>(_args)...);
+				ejson::Object callElem = jus::createCallService(getId(), m_name, _functionName, std::forward<_ARGS>(_args)...);
 				ejson::Object obj = callJson(callElem);
 				if (obj.valueExist("error") == true) {
 					JUS_WARNING("call error: " << obj["error"]);
@@ -206,8 +109,7 @@ namespace jus {
 			}
 			template<class... _ARGS>
 			std::vector<int32_t> call_vi(const std::string& _functionName, _ARGS&&... _args) {
-				ejson::Object callElem = createBaseCall(_functionName);
-				createParam(callElem, std::forward<_ARGS>(_args)...);
+				ejson::Object callElem = jus::createCallService(getId(), m_name, _functionName, std::forward<_ARGS>(_args)...);
 				ejson::Object obj = callJson(callElem);
 				if (obj.valueExist("error") == true) {
 					JUS_WARNING("call error: " << obj["error"]);
@@ -237,8 +139,7 @@ namespace jus {
 			}
 			template<class... _ARGS>
 			std::vector<double> call_vd(const std::string& _functionName, _ARGS&&... _args) {
-				ejson::Object callElem = createBaseCall(_functionName);
-				createParam(callElem, std::forward<_ARGS>(_args)...);
+				ejson::Object callElem = jus::createCallService(getId(), m_name, _functionName, std::forward<_ARGS>(_args)...);
 				ejson::Object obj = callJson(callElem);
 				if (obj.valueExist("error") == true) {
 					JUS_WARNING("call error: " << obj["error"]);
@@ -268,8 +169,7 @@ namespace jus {
 			}
 			template<class... _ARGS>
 			std::vector<std::string> call_vs(const std::string& _functionName, _ARGS&&... _args) {
-				ejson::Object callElem = createBaseCall(_functionName);
-				createParam(callElem, std::forward<_ARGS>(_args)...);
+				ejson::Object callElem = jus::createCallService(getId(), m_name, _functionName, std::forward<_ARGS>(_args)...);
 				ejson::Object obj = callJson(callElem);
 				if (obj.valueExist("error") == true) {
 					JUS_WARNING("call error: " << obj["error"]);
@@ -299,8 +199,7 @@ namespace jus {
 			}
 			template<class... _ARGS>
 			std::vector<bool> call_vb(const std::string& _functionName, _ARGS&&... _args) {
-				ejson::Object callElem = createBaseCall(_functionName);
-				createParam(callElem, std::forward<_ARGS>(_args)...);
+				ejson::Object callElem = jus::createCallService(getId(), m_name, _functionName, std::forward<_ARGS>(_args)...);
 				ejson::Object obj = callJson(callElem);
 				if (obj.valueExist("error") == true) {
 					JUS_WARNING("call error: " << obj["error"]);

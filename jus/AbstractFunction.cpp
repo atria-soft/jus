@@ -152,6 +152,19 @@ namespace jus {
 	
 }
 
+ejson::Object jus::createBaseCall(uint64_t _transactionId, const std::string& _functionName, const std::string& _service) {
+	ejson::Object obj;
+	if (_service.size() != 0) {
+		obj.add("service", ejson::String(_service));
+	}
+	obj.add("call", ejson::String(_functionName));
+	obj.add("id", ejson::Number(_transactionId));
+	return obj;
+}
+void jus::createParam(ejson::Object& _obj) {
+	// Finish recursive parse ...
+}
+
 const std::string& jus::AbstractFunction::getName() const {
 	return m_name;
 }

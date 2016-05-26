@@ -10,6 +10,8 @@
 #include <jus/GateWay.h>
 #include <unistd.h>
 
+#include <jus/AbstractFunction.h>
+
 jus::GateWayClient::GateWayClient(enet::Tcp _connection, jus::GateWay* _gatewayInterface) :
   m_state(jus::GateWayClient::state::unconnect),
   m_gatewayInterface(_gatewayInterface),
@@ -28,8 +30,9 @@ jus::GateWayClient::~GateWayClient() {
 	JUS_INFO("-------------------");
 }
 
-void jus::GateWayClient::start(size_t _uid) {
+void jus::GateWayClient::start(uint64_t _uid, uint64_t _uid2) {
 	m_uid = _uid;
+	m_uid2 = _uid2;
 	m_state = jus::GateWayClient::state::connect;
 	m_interfaceClient.connect(this, &jus::GateWayClient::onClientData);
 	m_interfaceClient.connect(true);
@@ -48,7 +51,7 @@ void jus::GateWayClient::stop() {
 	if (m_userService != nullptr) {
 		ejson::Object linkService;
 		linkService.add("event", ejson::String("delete"));
-		m_userService->SendData(-m_uid, linkService);
+		m_userService->SendData(m_uid2, linkService);
 		m_userService = nullptr;
 	}
 	m_listConnectedService.clear();
@@ -87,6 +90,7 @@ void jus::GateWayClient::onClientData(std::string _value) {
 		return;
 	}
 	switch (m_state) {
+		case jus::GateWayClient::state::disconnect:
 		case jus::GateWayClient::state::unconnect:
 			{
 				JUS_ERROR("Must never appear");
@@ -101,19 +105,23 @@ void jus::GateWayClient::onClientData(std::string _value) {
 				}
 				std::string call = data["call"].toString().get();
 				if (call == "connectToUser") {
-					m_userConnectionName = data["connect-to-user"].toString().get();
-					JUS_WARNING("[" << m_uid << "] Set client connect to user : '" << m_userConnectionName << "'");
-					
-					m_userService = m_gatewayInterface->get("system-user");
-					if (m_userService == nullptr) {
-						protocolError("Gateway internal error 'No user interface'");
+					m_userConnectionName = data["param"].toArray()[0].toString().get();
+					if (m_userConnectionName == "") {
+						protocolError("Call connectToUser with no parameter 'user'");
 					} else {
-						ejson::Object linkService;
-						linkService.add("event", ejson::String("new"));
-						linkService.add("user", ejson::String(m_userConnectionName));
-						m_userService->SendData(-m_uid, linkService);
-						m_state = jus::GateWayClient::state::userIdentify;
-						returnBool(transactionId, true);
+						JUS_WARNING("[" << m_uid << "] Set client connect to user : '" << m_userConnectionName << "'");
+						
+						m_userService = m_gatewayInterface->get("system-user");
+						if (m_userService == nullptr) {
+							protocolError("Gateway internal error 'No user interface'");
+						} else {
+							ejson::Object linkService;
+							linkService.add("event", ejson::String("new"));
+							linkService.add("user", ejson::String(m_userConnectionName));
+							m_userService->SendData(m_uid2, linkService);
+							m_state = jus::GateWayClient::state::userIdentify;
+							returnBool(transactionId, true);
+						}
 					}
 					return;
 				}
@@ -143,15 +151,38 @@ void jus::GateWayClient::onClientData(std::string _value) {
 						    	if (_data["return"].toBoolean().get() == true) {
 						    		m_clientName = clientName;
 						    		m_clientgroups.clear();
-						    		// TODO : Update all service name and group ...
-						    		returnBool(transactionId, true);
+						    		ejson::Object gwCall;
+						    		int32_t tmpID = m_transactionLocalId--;
+						    		gwCall.add("id", ejson::Number(tmpID));
+						    		gwCall.add("call", ejson::String("getGroups"));
+						    		ejson::Array gwParam;
+						    		gwParam.add(ejson::String(clientName));
+						    		gwCall.add("param", gwParam);
+						    		{
+						    			std::unique_lock<std::mutex> lock(m_mutex);
+						    			m_actions.push_back(std::make_pair(tmpID,
+						    			    [=](ejson::Object& _data) {
+						    			    	JUS_ERROR("    ==> group get return ...");
+						    			    	if (_data["return"].isArray() == false) {
+						    			    		returnBool(transactionId, false);
+						    			    	} else {
+						    			    		m_clientgroups = convertJsonTo<std::vector<std::string>>(_data["return"]);
+						    			    		returnBool(transactionId, true);
+						    			    	}
+						    			    }));
+						    		}
+						    		if (m_userService != nullptr) {
+						    			m_userService->SendData(m_uid2, gwCall);
+						    		} else {
+						    			protocolError("gateWay internal error 3");
+						    		}
 						    	} else {
 						    		returnBool(transactionId, false);
 						    	}
 						    }));
 					}
 					if (m_userService != nullptr) {
-						m_userService->SendData(-m_uid, gwCall);
+						m_userService->SendData(m_uid2, gwCall);
 					} else {
 						protocolError("gateWay internal error 3");
 					}
@@ -218,6 +249,8 @@ void jus::GateWayClient::onClientData(std::string _value) {
 								ejson::Object linkService;
 								linkService.add("event", ejson::String("new"));
 								linkService.add("user", ejson::String(m_userConnectionName));
+								linkService.add("client", ejson::String(m_clientName));
+								linkService.add("groups", convertToJson(m_clientgroups));
 								srv->SendData(m_uid, linkService);
 								m_listConnectedService.push_back(srv);
 								answer.add("return", ejson::Boolean(true));

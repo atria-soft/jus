@@ -34,7 +34,8 @@ namespace jus {
 			esignal::Signal<bool> signalIsConnected;
 			ememory::SharedPtr<jus::GateWayService> m_userService;
 			std::vector<ememory::SharedPtr<jus::GateWayService>> m_listConnectedService;
-			size_t m_uid;
+			uint64_t m_uid;
+			uint64_t m_uid2;
 			std::string m_userConnectionName;
 			std::string m_clientName;
 			std::vector<std::string> m_clientgroups;
@@ -44,12 +45,13 @@ namespace jus {
 		public:
 			GateWayClient(enet::Tcp _connection, jus::GateWay* _gatewayInterface);
 			virtual ~GateWayClient();
-			void start(size_t _uid);
+			void start(uint64_t _uid, uint64_t _uid2);
 			void stop();
 			void onClientData(std::string _value);
 			void returnMessage(ejson::Object _data);
-			size_t getId() const {
-				return m_uid;
+			bool checkId(uint64_t _id) const {
+				return    m_uid == _id
+				       || m_uid2 == _id;
 			}
 			bool isAlive();
 	};

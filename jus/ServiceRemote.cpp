@@ -24,8 +24,8 @@ bool jus::ServiceRemote::exist() {
 	return m_isLinked;
 }
 
-ejson::Object jus::ServiceRemote::createBaseCall(const std::string& _functionName) {
-	return m_clientInterface->createBaseCall(_functionName, m_name);
+uint64_t jus::ServiceRemote::getId() {
+	return m_clientInterface->getId();
 }
 
 ejson::Object jus::ServiceRemote::callJson(const ejson::Object& _obj) {
