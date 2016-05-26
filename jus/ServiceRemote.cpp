@@ -28,6 +28,7 @@ uint64_t jus::ServiceRemote::getId() {
 	return m_clientInterface->getId();
 }
 
-ejson::Object jus::ServiceRemote::callJson(const ejson::Object& _obj) {
-	return m_clientInterface->callJson(_obj);
+jus::FutureBase jus::ServiceRemote::callJson(uint64_t _transactionId, const ejson::Object& _obj) {
+	return m_clientInterface->callJson(_transactionId, _obj);
 }
+

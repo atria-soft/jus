@@ -165,7 +165,7 @@ int main(int _argc, const char *_argv[]) {
 	serviceInterface.setLastFuncDesc("Get list of group availlable for a client name");
 	serviceInterface.addLastFuncParam("clientName", "Name of the client");
 	serviceInterface.advertise("checkTocken", &appl::SystemService::checkTocken);
-	serviceInterface.advertise("checkTocken", &appl::SystemService::getServices);
+	serviceInterface.advertise("getServices", &appl::SystemService::getServices);
 	for (int32_t iii=0; iii<_argc ; ++iii) {
 		std::string data = _argv[iii];
 		if (etk::start_with(data, "--ip=") == true) {

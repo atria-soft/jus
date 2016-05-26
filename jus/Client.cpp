@@ -25,7 +25,7 @@ void jus::Client::onClientData(std::string _value) {
 	ejson::Object obj(_value);
 	jus::FutureBase future;
 	{
-		uint64_t tid = etk::string_to_uint64_t(obj["id"].toString().get());
+		uint64_t tid = obj["id"].toNumber().get();
 		if (tid == 0) {
 			JUS_ERROR("call with no ID ==> error ...");
 			return;
@@ -43,7 +43,7 @@ void jus::Client::onClientData(std::string _value) {
 			}
 			future = *it;
 			it = m_pendingCall.erase(it);
-			return;
+			break;
 		}
 	}
 	if (future.isValid() == false) {
@@ -51,8 +51,7 @@ void jus::Client::onClientData(std::string _value) {
 		m_newData.push_back(std::move(_value));
 		return;
 	}
-	// TODO : Call future ...
-	
+	future.setAnswer(obj);
 }
 
 jus::ServiceRemote jus::Client::getService(const std::string& _name) {
@@ -61,18 +60,23 @@ jus::ServiceRemote jus::Client::getService(const std::string& _name) {
 
 bool jus::Client::link(const std::string& _serviceName) {
 	// TODO : Check the number of connection of this service ...
-	bool ret = call_b("link", _serviceName);
-	if (ret == false) {
-		JUS_ERROR("Can not link with the service named: '" << _serviceName << "'");
+	jus::Future<bool> ret = call("link", _serviceName);
+	ret.wait();
+	if (ret.hasError() == true) {
+		JUS_WARNING("Can not link with the service named: '" << _serviceName << "' ==> link error");
+		return false;
 	}
-	return ret;
+	return ret.get();
 }
 
-void jus::Client::unlink(const std::string& _serviceName) {
-	bool ret = call_b("unlink", _serviceName);
-	if (ret == false) {
-		JUS_ERROR("Can not unlink with the service named: '" << _serviceName << "'");
+bool jus::Client::unlink(const std::string& _serviceName) {
+	jus::Future<bool> ret = call("unlink", _serviceName);
+	ret.wait();
+	if (ret.hasError() == true) {
+		JUS_WARNING("Can not unlink with the service named: '" << _serviceName << "' ==> link error");
+		return false;
 	}
+	return ret.get();
 }
 
 std::string jus::Client::asyncRead() {
@@ -107,17 +111,19 @@ void jus::Client::onPropertyChangePort(){
 }
 
 
-void jus::Client::connect(const std::string& _remoteUserToConnect){
+bool jus::Client::connect(const std::string& _remoteUserToConnect){
 	disconnect();
 	JUS_DEBUG("connect [START]");
 	enet::Tcp connection = std::move(enet::connectTcpClient(*propertyIp, *propertyPort));
 	m_interfaceClient.setInterface(std::move(connection));
 	m_interfaceClient.connect();
-	bool ret = call_b("connectToUser", _remoteUserToConnect, "jus-client");
-	if (ret == false) {
-		JUS_ERROR("Connection error");
+	jus::Future<bool> ret = call("connectToUser",  _remoteUserToConnect, "jus-client");
+	ret.wait();
+	if (ret.hasError() == true) {
+		JUS_WARNING("Can not connect to user named: '" << _remoteUserToConnect << "' ==> return error");
+		return false;
 	}
-	JUS_DEBUG("connect [STOP]");
+	return ret.get();
 }
 
 void jus::Client::disconnect() {
@@ -130,20 +136,7 @@ uint64_t jus::Client::getId() {
 	return m_id++;
 }
 
-ejson::Object jus::Client::callJson(const ejson::Object& _obj) {
-	JUS_VERBOSE("Call JSON [START] ");
-	if (m_interfaceClient.isActive() == false) {
-		return ejson::Object();
-	}
-	JUS_DEBUG("Call JSON '" << _obj.generateHumanString() << "'");
-	m_interfaceClient.write(_obj.generateMachineString());
-	std::string ret = asyncRead();
-	JUS_VERBOSE("Call JSON [STOP]");
-	return ejson::Object(ret);
-}
-
-
-jus::FutureBase jus::Client::sendJson(uint64_t _transactionId, const ejson::Object& _obj) {
+jus::FutureBase jus::Client::callJson(uint64_t _transactionId, const ejson::Object& _obj) {
 	JUS_VERBOSE("Send JSON [START] ");
 	if (m_interfaceClient.isActive() == false) {
 		ejson::Object obj;
@@ -160,23 +153,5 @@ jus::FutureBase jus::Client::sendJson(uint64_t _transactionId, const ejson::Obje
 	m_interfaceClient.write(_obj.generateMachineString());
 	JUS_VERBOSE("Send JSON [STOP]");
 	return tmpFuture;
-}
-namespace jus {
-	template<>
-	bool jus::Future<bool>::get() {
-		if (m_data == nullptr) {
-			return false;
-		}
-		ejson::Value val = m_data->m_returnData["return"];
-		if (val.exist() == false) {
-			JUS_WARNING("No Return value ...");
-			return false;
-		}
-		if (val.isBoolean() == false) {
-			JUS_WARNING("Wrong return Type get '" << val.getType() << " instead of 'Boolean'");
-			return false;
-		}
-		return val.toBoolean().get();
-	}
 }
 

@@ -36,7 +36,7 @@ int main(int _argc, const char *_argv[]) {
 	client1.connect("test1#atria-soft.com");
 	// Connect that is not us
 	//client1.identify("clientTest1#atria-soft.com", "QSDQSDGQSF54HSXWVCSQDJ654URTDJ654NBXCDFDGAEZ51968");
-	jus::Future<bool> retIdentify = client1.callAsync<bool>("identify", "clientTest1#atria-soft.com", "QSDQSDGQSF54HSXWVCSQDJ654URTDJ654NBXCDFDGAEZ51968");
+	jus::Future<bool> retIdentify = client1.call("identify", "clientTest1#atria-soft.com", "QSDQSDGQSF54HSXWVCSQDJ654URTDJ654NBXCDFDGAEZ51968");
 	retIdentify.wait();
 	//bool retIdentify = client1.call_b("identify", "clientTest1#atria-soft.com", "QSDQSDGQSF54HSXWVCSQDJ654URTDJ654NBXCDFDGAEZ51968");
 	
@@ -68,8 +68,9 @@ int main(int _argc, const char *_argv[]) {
 	
 	jus::ServiceRemote remoteServiceUser = client1.getService("system-user");
 	if (remoteServiceUser.exist() == true) {
-		std::vector<std::string> retCall = remoteServiceUser.call_vs("getClientGroups");
-		APPL_INFO("system-user.getClientGroups() = " << retCall);
+		jus::Future<std::vector<std::string>> retCall = client1.call("getClientGroups", "clientTest1#atria-soft.com");
+		retCall.wait();
+		APPL_INFO("system-user.getClientGroups() = " << retCall.get());
 	}
 	int32_t iii=0;
 	while (iii < 3) {
