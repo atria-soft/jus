@@ -43,7 +43,7 @@ namespace jus {
 		private:
 			void onClientData(std::string _value);
 			std::string asyncRead();
-			jus::FutureBase callJson(uint64_t _transactionId, const ejson::Object& _obj);
+			jus::FutureBase callJson(uint64_t _transactionId, const ejson::Object& _obj, jus::FutureData::ObserverFinish _callback=nullptr);
 		public:
 			uint64_t getId();
 			template<class... _ARGS>
@@ -51,6 +51,12 @@ namespace jus {
 				uint64_t id = getId();
 				ejson::Object callElem = jus::createCall(id, _functionName, std::forward<_ARGS>(_args)...);
 				return callJson(id, callElem);
+			}
+			template<class... _ARGS>
+			jus::FutureBase callAction(const std::string& _functionName, _ARGS&&... _args, jus::FutureData::ObserverFinish _callback) {
+				uint64_t id = getId();
+				ejson::Object callElem = jus::createCall(id, _functionName, std::forward<_ARGS>(_args)...);
+				return callJson(id, callElem, _callback);
 			}
 		private:
 			void onPropertyChangeIp();

@@ -117,6 +117,18 @@ ememory::SharedPtr<jus::GateWayService> jus::GateWay::get(const std::string& _se
 	return nullptr;
 }
 
+std::vector<std::string> jus::GateWay::getAllServiceName() {
+	std::vector<std::string> out;
+	for (auto &it : m_serviceList) {
+		if (it == nullptr) {
+			continue;
+		}
+		out.push_back(it->getName());
+	}
+	return out;
+}
+
+
 void jus::GateWay::answer(uint64_t _userSessionId, ejson::Object _data) {
 	for (auto &it : m_clientList) {
 		if (it == nullptr) {

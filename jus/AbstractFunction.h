@@ -52,6 +52,30 @@ namespace jus {
 	ejson::Object createBaseCall(uint64_t _transactionId, const std::string& _functionName, const std::string& _service="");
 	
 	void createParam(ejson::Object& _obj);
+	
+	template<class... _ARGS>
+	void createParam(ejson::Object& _obj, const char* _param, _ARGS&&... _args);
+	template<class... _ARGS>
+	void createParam(ejson::Object& _obj, const std::string& _param, _ARGS&&... _args);
+	template<class... _ARGS>
+	void createParam(ejson::Object& _obj, const bool& _param, _ARGS&&... _args);
+	template<class... _ARGS>
+	void createParam(ejson::Object& _obj, const int32_t& _param, _ARGS&&... _args);
+	template<class... _ARGS>
+	void createParam(ejson::Object& _obj, const double& _param, _ARGS&&... _args);
+	template<class... _ARGS>
+	void createParam(ejson::Object& _obj, const float& _param, _ARGS&&... _args);
+	template<class... _ARGS>
+	void createParam(ejson::Object& _obj, const std::vector<std::string>& _param, _ARGS&&... _args);
+	template<class... _ARGS>
+	void createParam(ejson::Object& _obj, const std::vector<bool>& _param, _ARGS&&... _args);
+	template<class... _ARGS>
+	void createParam(ejson::Object& _obj, const std::vector<int32_t>& _param, _ARGS&&... _args);
+	template<class... _ARGS>
+	void createParam(ejson::Object& _obj, const std::vector<double>& _param, _ARGS&&... _args);
+	template<class... _ARGS>
+	void createParam(ejson::Object& _obj, const std::vector<float>& _param, _ARGS&&... _args);
+	
 	template<class... _ARGS>
 	void createParam(ejson::Object& _obj, const char* _param, _ARGS&&... _args) {
 		if (_obj.valueExist("param") == false) {
@@ -188,7 +212,7 @@ namespace jus {
 		createParam(callElem, std::forward<_ARGS>(_args)...);
 		return callElem;
 	}
-	
+	ejson::Object createCallJson(uint64_t _transactionId, const std::string& _functionName, ejson::Array _params);
 	
 }
 

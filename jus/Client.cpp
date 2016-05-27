@@ -22,12 +22,25 @@ jus::Client::~Client() {
 }
 
 void jus::Client::onClientData(std::string _value) {
+	JUS_DEBUG("Get answer : " << _value);
 	ejson::Object obj(_value);
 	jus::FutureBase future;
 	{
 		uint64_t tid = obj["id"].toNumber().get();
 		if (tid == 0) {
-			JUS_ERROR("call with no ID ==> error ...");
+			if (obj["error"].toString().get() == "PROTOCOL-ERROR") {
+				JUS_ERROR("Get a Protocol error ...");
+				std::unique_lock<std::mutex> lock(m_mutex);
+				for (auto &it : m_pendingCall) {
+					if (it.isValid() == false) {
+						continue;
+					}
+					it.setAnswer(obj);
+				}
+				m_pendingCall.clear();
+			} else {
+				JUS_ERROR("call with no ID ==> error ...");
+			}
 			return;
 		}
 		std::unique_lock<std::mutex> lock(m_mutex);
@@ -136,15 +149,15 @@ uint64_t jus::Client::getId() {
 	return m_id++;
 }
 
-jus::FutureBase jus::Client::callJson(uint64_t _transactionId, const ejson::Object& _obj) {
+jus::FutureBase jus::Client::callJson(uint64_t _transactionId, const ejson::Object& _obj, jus::FutureData::ObserverFinish _callback) {
 	JUS_VERBOSE("Send JSON [START] ");
 	if (m_interfaceClient.isActive() == false) {
 		ejson::Object obj;
 		obj.add("error", ejson::String("NOT-CONNECTED"));
 		obj.add("error-help", ejson::String("Client interface not connected (no TCP)"));
-		return jus::FutureBase(_transactionId, true, obj);
+		return jus::FutureBase(_transactionId, true, obj, _callback);
 	}
-	jus::FutureBase tmpFuture(_transactionId);
+	jus::FutureBase tmpFuture(_transactionId, _callback);
 	{
 		std::unique_lock<std::mutex> lock(m_mutex);
 		m_pendingCall.push_back(tmpFuture);

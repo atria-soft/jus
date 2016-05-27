@@ -84,11 +84,11 @@ ejson::Value jus::Service::callJson(const ejson::Object& _obj) {
 			// Gateway just aswer a keep alive information ...
 			// Nothing to do ...
 		} else if (event == "new") {
-			uint64_t clientId = etk::string_to_uint64_t(_obj["client-id"].toString().get());
+			uint64_t clientId = _obj["client-id"].toNumber().getU64();
 			std::string userName = _obj["user"].toString().get();
 			clientConnect(clientId, userName);
 		} else if (event == "delete") {
-			uint64_t clientId = etk::string_to_uint64_t(_obj["client-id"].toString().get());
+			uint64_t clientId = _obj["client-id"].toNumber().getU64();
 			clientDisconnect(clientId);
 		} else {
 			JUS_ERROR("Unknow event: '" << event << "'");
@@ -96,9 +96,9 @@ ejson::Value jus::Service::callJson(const ejson::Object& _obj) {
 		return ejson::Null();
 	}
 	if (_obj.valueExist("call") == true) {
-		uint64_t clientId = etk::string_to_uint64_t(_obj["client-id"].toString().get());
+		uint64_t clientId = _obj["client-id"].toNumber().getU64();
 		ejson::Object tmpp = callJson2(clientId, _obj);
-		tmpp.add("client-id", ejson::String(etk::to_string(clientId)));
+		tmpp.add("client-id", ejson::Number(clientId));
 		return tmpp;
 	}
 	ejson::Object tmpp;

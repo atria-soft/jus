@@ -54,6 +54,9 @@ namespace appl {
 					// No specificity for this client (in case it have no special right)
 					return out;
 				}
+				if (client["tocken"].toString().get() != "") {
+					out.push_back("connected");
+				}
 				// TODO: check banishing ...
 				ejson::Array groups = client["group"].toArray();
 				for (auto it : groups) {
@@ -80,6 +83,24 @@ namespace appl {
 					return true;
 				}
 				return false;
+			}
+			bool checkAuth(const std::string& _password) {
+				std::unique_lock<std::mutex> lock(m_mutex);
+				std::string pass = m_database["password"].toString().get();
+				if (pass == "") {
+					// pb password
+					return false;
+				}
+				if (pass == _password) {
+					return true;
+				}
+				return false;
+			}
+			std::vector<std::string> filterServices(const std::string& _clientName, std::vector<std::string> _inputList) {
+				std::unique_lock<std::mutex> lock(m_mutex);
+				std::vector<std::string> out;
+				// TODO: ...
+				return out;
 			}
 	};
 	
@@ -137,18 +158,14 @@ namespace appl {
 				}
 				return out;
 			}
-			std::vector<std::string> getServices(std::string _clientName) {
-				std::vector<std::string> out;
-				if (m_user == nullptr) {
-					return out;
-				}
-				if (_clientName == m_user->getName()) {
-					out.push_back(SERVICE_NAME);
-				}
-				return out;
-			}
 			bool checkTocken(std::string _clientName, std::string _tocken) {
 				return m_user->checkTocken(_clientName, _tocken);
+			}
+			bool checkAuth(std::string _password) {
+				return m_user->checkAuth(_password);
+			}
+			std::vector<std::string> filterServices(std::string _clientName, std::vector<std::string> _currentList) {
+				return m_user->filterServices(_clientName, _currentList);
 			}
 	};
 }
@@ -156,22 +173,14 @@ namespace appl {
 
 int main(int _argc, const char *_argv[]) {
 	etk::init(_argc, _argv);
-	appl::UserManager userMng;
-	jus::ServiceType<appl::SystemService, appl::UserManager> serviceInterface(userMng);
-	serviceInterface.setDescription("user interface management");
-	serviceInterface.setVersion("0.1.0");
-	serviceInterface.addAuthor("Heero Yui", "yui.heero@gmail.com");
-	serviceInterface.advertise("getGroups", &appl::SystemService::getGroups);
-	serviceInterface.setLastFuncDesc("Get list of group availlable for a client name");
-	serviceInterface.addLastFuncParam("clientName", "Name of the client");
-	serviceInterface.advertise("checkTocken", &appl::SystemService::checkTocken);
-	serviceInterface.advertise("getServices", &appl::SystemService::getServices);
+	std::string ip;
+	uint16_t port = 0;
 	for (int32_t iii=0; iii<_argc ; ++iii) {
 		std::string data = _argv[iii];
 		if (etk::start_with(data, "--ip=") == true) {
-			serviceInterface.propertyIp.set(std::string(&data[5]));
+			ip = std::string(&data[5]);
 		} else if (etk::start_with(data, "--port=") == true) {
-			serviceInterface.propertyPort.set(etk::string_to_uint16_t(std::string(&data[7])));
+			port = etk::string_to_uint16_t(std::string(&data[7]));
 		} else if (    data == "-h"
 		            || data == "--help") {
 			APPL_PRINT(etk::getApplicationName() << " - help : ");
@@ -183,7 +192,35 @@ int main(int _argc, const char *_argv[]) {
 	}
 	while (true) {
 		APPL_INFO("===========================================================");
-		APPL_INFO("== JUS service: " << SERVICE_NAME << " [START]");
+		APPL_INFO("== JUS instanciate service: " << SERVICE_NAME << " [START]");
+		APPL_INFO("===========================================================");
+		appl::UserManager userMng;
+		jus::ServiceType<appl::SystemService, appl::UserManager> serviceInterface(userMng);
+		if (ip != "") {
+			serviceInterface.propertyIp.set(ip);
+		}
+		if (port != 0) {
+			serviceInterface.propertyPort.set(port);
+		}
+		serviceInterface.setDescription("user interface management");
+		serviceInterface.setVersion("0.1.0");
+		serviceInterface.addAuthor("Heero Yui", "yui.heero@gmail.com");
+		serviceInterface.advertise("checkTocken", &appl::SystemService::checkTocken);
+		serviceInterface.setLastFuncDesc("Check if a user tocken is correct or not");
+		serviceInterface.addLastFuncParam("clientName", "Name of the client");
+		serviceInterface.addLastFuncParam("tocken", "String containing the Tocken");
+		serviceInterface.advertise("checkAuth", &appl::SystemService::checkAuth);
+		serviceInterface.setLastFuncDesc("Check the password of the curent user");
+		serviceInterface.addLastFuncParam("password", "client/user password");
+		serviceInterface.advertise("getGroups", &appl::SystemService::getGroups);
+		serviceInterface.setLastFuncDesc("Get list of group availlable for a client name");
+		serviceInterface.addLastFuncParam("clientName", "Name of the client");
+		serviceInterface.advertise("filterServices", &appl::SystemService::filterServices);
+		serviceInterface.setLastFuncDesc("Filter a list of service with the cuurent profile of the user (restrict area)");
+		serviceInterface.addLastFuncParam("clientName", "Name of the client");
+		serviceInterface.addLastFuncParam("currentList", "Vector of name of the services");
+		APPL_INFO("===========================================================");
+		APPL_INFO("== JUS service: " << SERVICE_NAME << " [service instanciate]");
 		APPL_INFO("===========================================================");
 		serviceInterface.connect(SERVICE_NAME);
 		if (serviceInterface.GateWayAlive() == false) {

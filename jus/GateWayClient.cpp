@@ -16,7 +16,7 @@ jus::GateWayClient::GateWayClient(enet::Tcp _connection, jus::GateWay* _gatewayI
   m_state(jus::GateWayClient::state::unconnect),
   m_gatewayInterface(_gatewayInterface),
   m_interfaceClient(std::move(_connection)),
-  m_transactionLocalId(-1) {
+  m_transactionLocalId(1) {
 	JUS_INFO("----------------");
 	JUS_INFO("-- NEW Client --");
 	JUS_INFO("----------------");
@@ -131,73 +131,89 @@ void jus::GateWayClient::onClientData(std::string _value) {
 			}
 		case jus::GateWayClient::state::userIdentify:
 			{
-				std::string call = data["call"].toString().get();
-				if (call == "identify") {
+				std::string callFunction = data["call"].toString().get();
+				m_clientServices.clear();
+				m_clientgroups.clear();
+				m_clientName.clear();
+				
+				if (    callFunction != "identify"
+				     && callFunction != "auth"
+				     && callFunction != "anonymous") {
+					protocolError("Client must call: identify/auth/anonymous");
+					return;
+				}
+				if (callFunction == "identify") {
 					std::string clientName = data["param"].toArray()[0].toString().get();
 					std::string clientTocken = data["param"].toArray()[1].toString().get();
-					ejson::Object gwCall;
-					int32_t tmpID = m_transactionLocalId--;
-					gwCall.add("id", ejson::Number(tmpID));
-					gwCall.add("call", ejson::String("checkTocken"));
-					ejson::Array gwParam;
-					gwParam.add(ejson::String(clientName));
-					gwParam.add(ejson::String(clientTocken));
-					gwCall.add("param", gwParam);
-					{
-						std::unique_lock<std::mutex> lock(m_mutex);
-						m_actions.push_back(std::make_pair(tmpID,
-						    [=](ejson::Object& _data) {
-						    	JUS_ERROR("    ==> Tocken ckeck return ...");
-						    	if (_data["return"].toBoolean().get() == true) {
-						    		m_clientName = clientName;
-						    		m_clientgroups.clear();
-						    		ejson::Object gwCall;
-						    		int32_t tmpID = m_transactionLocalId--;
-						    		gwCall.add("id", ejson::Number(tmpID));
-						    		gwCall.add("call", ejson::String("getGroups"));
-						    		ejson::Array gwParam;
-						    		gwParam.add(ejson::String(clientName));
-						    		gwCall.add("param", gwParam);
-						    		{
-						    			std::unique_lock<std::mutex> lock(m_mutex);
-						    			m_actions.push_back(std::make_pair(tmpID,
-						    			    [=](ejson::Object& _data) {
-						    			    	JUS_ERROR("    ==> group get return ...");
-						    			    	if (_data["return"].isArray() == false) {
-						    			    		returnBool(transactionId, false);
-						    			    	} else {
-						    			    		m_clientgroups = convertJsonTo<std::vector<std::string>>(_data["return"]);
-						    			    		returnBool(transactionId, true);
-						    			    	}
-						    			    }));
-						    		}
-						    		if (m_userService != nullptr) {
-						    			m_userService->SendData(m_uid2, gwCall);
-						    		} else {
-						    			protocolError("gateWay internal error 3");
-						    		}
-						    	} else {
-						    		returnBool(transactionId, false);
-						    	}
-						    }));
-					}
-					if (m_userService != nullptr) {
-						m_userService->SendData(m_uid2, gwCall);
-					} else {
+					if (m_userService == nullptr) {
 						protocolError("gateWay internal error 3");
+						return;
 					}
-					return;
+					jus::Future<bool> fut = call(m_uid2, m_userService, "checkTocken", clientName, clientTocken);
+					fut.wait(); // TODO: Set timeout ...
+					if (fut.hasError() == true) {
+						JUS_ERROR("Get error from the service ...");
+						returnBool(transactionId, false);
+						protocolError("connection refused 1");
+						return;
+					} else if (fut.get() == false) {
+						returnBool(transactionId, false);
+						protocolError("connection refused 2");
+						return;
+					}
+					m_clientName = clientName;
 				}
-				if (call == "auth") {
+				if (callFunction == "auth") {
 					std::string password = data["param"].toArray()[0].toString().get();
-					protocolError("Not implemented");
+					jus::Future<bool> fut = call(m_uid2, m_userService, "auth", password);
+					fut.wait(); // TODO: Set timeout ...
+					if (fut.hasError() == true) {
+						JUS_ERROR("Get error from the service ...");
+						returnBool(transactionId, false);
+						protocolError("connection refused 1");
+						return;
+					} else if (fut.get() == false) {
+						returnBool(transactionId, false);
+						protocolError("connection refused 2");
+						return;
+					}
+					m_clientName = m_userConnectionName;
+				}
+				if (callFunction == "anonymous") {
+					m_clientName = "";
+				}
+				// --------------------------------
+				// -- Get groups:
+				// --------------------------------
+				jus::Future<std::vector<std::string>> futGroup = call(m_uid2, m_userService, "getGroups", m_clientName);
+				futGroup.wait(); // TODO: Set timeout ...
+				if (futGroup.hasError() == true) {
+					JUS_ERROR("Get error from the service ...");
+					returnBool(transactionId, false);
+					protocolError("grouping error");
 					return;
 				}
-				if (call == "anonymous") {
-					protocolError("Not implemented");
+				m_clientgroups = futGroup.get();
+				// --------------------------------
+				// -- Get services:
+				// --------------------------------
+				std::vector<std::string> currentServices = m_gatewayInterface->getAllServiceName();
+				jus::Future<std::vector<std::string>> futServices = call(m_uid2, m_userService, "filterServices", m_clientName, currentServices);
+				futServices.wait(); // TODO: Set timeout ...
+				if (futServices.hasError() == true) {
+					JUS_ERROR("Get error from the service ...");
+					returnBool(transactionId, false);
+					protocolError("service filtering error");
 					return;
 				}
-				protocolError("Client must call: identify/auth/anonymous");
+				m_clientServices = futServices.get();
+				JUS_WARNING("Connection of: '" << m_clientName << "' to '" << m_userConnectionName << "'");
+				JUS_WARNING("       groups: " << etk::to_string(m_clientgroups));
+				JUS_WARNING("     services: " << etk::to_string(m_clientServices));
+				
+				
+				returnBool(transactionId, true);
+				m_state = jus::GateWayClient::state::clientIdentify;
 				return;
 			}
 			break;
@@ -206,18 +222,18 @@ void jus::GateWayClient::onClientData(std::string _value) {
 				std::string service = data["service"].toString().get();
 				// Thsi is 2 default service for the cient interface that manage the authorisation of view:
 				if (service == "") {
-					std::string call = data["call"].toString().get();
+					std::string callFunction = data["call"].toString().get();
 					ejson::Object answer;
 					//answer.add("from-service", ejson::String(""));
 					answer.add("id", data["id"]);
-					if (call == "getServiceCount") {
+					if (callFunction == "getServiceCount") {
 						// TODO : Do it better:
 						answer.add("return", ejson::Number(2));
 						JUS_DEBUG("answer: " << answer.generateHumanString());
 						m_interfaceClient.write(answer.generateMachineString());
 						return;
 					}
-					if (call == "getServiceList") {
+					if (callFunction == "getServiceList") {
 						ejson::Array listService;
 						listService.add(ejson::String("ServiceManager/v0.1.0"));
 						listService.add(ejson::String("getServiceInformation/v0.1.0"));
@@ -226,7 +242,7 @@ void jus::GateWayClient::onClientData(std::string _value) {
 						m_interfaceClient.write(answer.generateMachineString());
 						return;
 					}
-					if (call == "link") {
+					if (callFunction == "link") {
 						// first param:
 						std::string serviceName = data["param"].toArray()[0].toString().get();
 						// Check if service already link:
@@ -265,7 +281,7 @@ void jus::GateWayClient::onClientData(std::string _value) {
 						m_interfaceClient.write(answer.generateMachineString());
 						return;
 					}
-					if (call == "unlink") {
+					if (callFunction == "unlink") {
 						// first param:
 						std::string serviceName = data["param"].toArray()[0].toString().get();
 						// Check if service already link:
@@ -294,7 +310,7 @@ void jus::GateWayClient::onClientData(std::string _value) {
 						m_interfaceClient.write(answer.generateMachineString());
 						return;
 					}
-					JUS_ERROR("Function does not exist ... '" << call << "'");
+					JUS_ERROR("Function does not exist ... '" << callFunction << "'");
 					answer.add("error", ejson::String("CALL-UNEXISTING"));
 					JUS_DEBUG("answer: " << answer.generateHumanString());
 					m_interfaceClient.write(answer.generateMachineString());
@@ -323,8 +339,19 @@ void jus::GateWayClient::onClientData(std::string _value) {
 					m_interfaceClient.write(answer.generateMachineString());
 				} else {
 					JUS_ERROR("Add in link the name of the user in parameter ...");
-					data.remove("service");
-					{
+					//data.remove("service");
+					//transactionId
+					callActionForward(m_uid,
+					           *it,
+					           data["call"].toString().get(),
+					           data["param"].toArray(),
+					           [=](jus::FutureBase _ret) {
+					           		ejson::Object tmpp = _ret.getRaw();
+					           		tmpp["id"] = data["id"];
+					           		JUS_DEBUG("    ==> transmit");
+					           		m_interfaceClient.write(tmpp.generateMachineString());
+					           });
+					/*
 						std::unique_lock<std::mutex> lock(m_mutex);
 						m_actions.push_back(std::make_pair(transactionId,
 						    [=](ejson::Object& _data) {
@@ -333,41 +360,82 @@ void jus::GateWayClient::onClientData(std::string _value) {
 						    }));
 					}
 					(*it)->SendData(m_uid, data);
+					*/
 				}
 			}
 	}
 }
 
-void jus::GateWayClient::returnMessage(ejson::Object _data) {
-	JUS_DEBUG("answer: " << _data.generateHumanString());
-	int32_t id = _data["id"].toNumber().get();
-	if (id == 0) {
-		JUS_ERROR("gateway reject transaction ... ==> No 'id' or 'id' == 0");
-		return;
+jus::FutureBase jus::GateWayClient::callActionForward(uint64_t _callerId, ememory::SharedPtr<jus::GateWayService> _srv, const std::string& _functionName, ejson::Array _params, jus::FutureData::ObserverFinish _callback) {
+	uint64_t id = getId();
+	ejson::Object callElem = jus::createCallJson(id, _functionName, _params);
+	return callJson(_callerId, _srv, id, callElem, _callback);
+}
+
+uint64_t jus::GateWayClient::getId() {
+	return m_transactionLocalId++;
+}
+
+jus::FutureBase jus::GateWayClient::callJson(uint64_t _callerId, ememory::SharedPtr<jus::GateWayService> _srv, uint64_t _transactionId, const ejson::Object& _obj, jus::FutureData::ObserverFinish _callback) {
+	JUS_VERBOSE("Send JSON [START] ");
+	if (_srv == nullptr) {
+		ejson::Object obj;
+		obj.add("error", ejson::String("NOT-CONNECTED"));
+		obj.add("error-help", ejson::String("Client interface not connected (no TCP)"));
+		return jus::FutureBase(_transactionId, true, obj, _callback);
 	}
-	jus::GateWayClient::Observer obs;
-	ejson::Object localData;
+	jus::FutureBase tmpFuture(_transactionId, _callback);
 	{
 		std::unique_lock<std::mutex> lock(m_mutex);
-		auto it = m_actions.begin();
-		while (it != m_actions.end()) {
-			if (it->first != id) {
+		m_pendingCall.push_back(tmpFuture);
+	}
+	_srv->SendData(_callerId, _obj);
+	JUS_VERBOSE("Send JSON [STOP]");
+	return tmpFuture;
+}
+
+
+
+void jus::GateWayClient::returnMessage(ejson::Object _data) {
+	jus::FutureBase future;
+	{
+		uint64_t tid = _data["id"].toNumber().get();
+		if (tid == 0) {
+			if (_data["error"].toString().get() == "PROTOCOL-ERROR") {
+				JUS_ERROR("Get a Protocol error ...");
+				std::unique_lock<std::mutex> lock(m_mutex);
+				for (auto &it : m_pendingCall) {
+					if (it.isValid() == false) {
+						continue;
+					}
+					it.setAnswer(_data);
+				}
+				m_pendingCall.clear();
+			} else {
+				JUS_ERROR("call with no ID ==> error ...");
+			}
+			return;
+		}
+		std::unique_lock<std::mutex> lock(m_mutex);
+		auto it = m_pendingCall.begin();
+		while (it != m_pendingCall.end()) {
+			if (it->isValid() == false) {
+				it = m_pendingCall.erase(it);
+				continue;
+			}
+			if (it->getTransactionId() != tid) {
 				++it;
 				continue;
 			}
-			obs = (*it).second;
-			m_actions.erase(it);
+			future = *it;
+			it = m_pendingCall.erase(it);
 			break;
 		}
-		if (obs == nullptr) {
-			JUS_ERROR("gateway reject transaction ... (not find answer)" << _data.generateHumanString());
-			return;
-		}
 	}
-	obs(_data);
-	if (id >= 0) {
-		m_interfaceClient.write(_data.generateMachineString());
-	} else {
+	if (future.isValid() == false) {
 		JUS_WARNING("Action to do ...");
+		return;
 	}
+	future.setAnswer(_data);
 }
+

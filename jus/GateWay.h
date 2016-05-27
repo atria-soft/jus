@@ -32,6 +32,7 @@ namespace jus {
 			void start();
 			void stop();
 			ememory::SharedPtr<jus::GateWayService> get(const std::string& _serviceName);
+			std::vector<std::string> getAllServiceName();
 			void answer(uint64_t _userSessionId, ejson::Object _data);
 			void newService(enet::Tcp _connection);
 			void newClient(enet::Tcp _connection);

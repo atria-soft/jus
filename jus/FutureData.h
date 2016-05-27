@@ -9,11 +9,15 @@
 #include <ejson/ejson.h>
 
 namespace jus {
+	class FutureBase;
 	class FutureData {
+		public:
+			using ObserverFinish = std::function<void(jus::FutureBase)>; //!< Define an Observer: function pointer
 		public:
 			uint64_t m_transactionId;
 			bool m_isFinished;
 			ejson::Object m_returnData;
+			ObserverFinish m_callbackFinish;
 	};
 }
 

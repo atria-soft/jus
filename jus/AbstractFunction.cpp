@@ -152,6 +152,12 @@ namespace jus {
 	
 }
 
+ejson::Object jus::createCallJson(uint64_t _transactionId, const std::string& _functionName, ejson::Array _params) {
+	ejson::Object callElem = createBaseCall(_transactionId, _functionName);
+	callElem.add("param", _params);
+	return callElem;
+}
+
 ejson::Object jus::createBaseCall(uint64_t _transactionId, const std::string& _functionName, const std::string& _service) {
 	ejson::Object obj;
 	if (_service.size() != 0) {
@@ -206,6 +212,26 @@ bool jus::AbstractFunction::checkCompatibility(const ParamType& _type, const ejs
 	     || createType<float>() == _type
 	     || createType<double>() == _type) {
 		return _params.isNumber();
+	}
+	if (createType<std::vector<std::string>>() == _type) {
+		return _params.isArray();
+	}
+	if (    createType<std::vector<bool>>() == _type
+	     || createType<std::vector<int64_t>>() == _type
+	     || createType<std::vector<int32_t>>() == _type
+	     || createType<std::vector<int16_t>>() == _type
+	     || createType<std::vector<int8_t>>() == _type
+	     || createType<std::vector<uint64_t>>() == _type
+	     || createType<std::vector<uint32_t>>() == _type
+	     || createType<std::vector<uint16_t>>() == _type
+	     || createType<std::vector<uint8_t>>() == _type
+	     || createType<std::vector<float>>() == _type
+	     || createType<std::vector<double>>() == _type) {
+		if (_params.isObject()) {
+			JUS_TODO("Special case of packaging of the data");
+			return false;
+		}
+		return _params.isArray();
 	}
 	if (createType<std::string>() == _type) {
 		return _params.isString();

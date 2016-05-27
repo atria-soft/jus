@@ -25,7 +25,7 @@ namespace jus {
 			~ServiceRemote();
 			bool exist();
 		private:
-			jus::FutureBase callJson(uint64_t _transactionId, const ejson::Object& _obj);
+			jus::FutureBase callJson(uint64_t _transactionId, const ejson::Object& _obj, jus::FutureData::ObserverFinish _callback=nullptr);
 			uint64_t getId();
 		public:
 			template<class... _ARGS>
@@ -33,6 +33,12 @@ namespace jus {
 				uint64_t id = getId();
 				ejson::Object callElem = jus::createCall(id, _functionName, std::forward<_ARGS>(_args)...);
 				return callJson(id, callElem);
+			}
+			template<class... _ARGS>
+			jus::FutureBase callAction(const std::string& _functionName, _ARGS&&... _args, jus::FutureData::ObserverFinish _callback) {
+				uint64_t id = getId();
+				ejson::Object callElem = jus::createCall(id, _functionName, std::forward<_ARGS>(_args)...);
+				return callJson(id, callElem, _callback);
 			}
 	};
 }

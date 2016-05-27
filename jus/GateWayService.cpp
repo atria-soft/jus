@@ -38,8 +38,8 @@ void jus::GateWayService::stop() {
 	m_interfaceClient.disconnect();
 }
 
-void jus::GateWayService::SendData(int32_t _userSessionId, ejson::Object _data) {
-	_data.add("client-id", ejson::String(etk::to_string(_userSessionId)));
+void jus::GateWayService::SendData(uint64_t _userSessionId, ejson::Object _data) {
+	_data.add("client-id", ejson::Number(_userSessionId));
 	JUS_DEBUG("Send Service: " << _data.generateHumanString());
 	m_interfaceClient.write(_data.generateMachineString());
 }
@@ -76,7 +76,7 @@ void jus::GateWayService::onServiceData(std::string _value) {
 		JUS_ERROR("Service interface ==> wrong service answer ==> missing 'client-id'");
 		return;
 	}
-	uint64_t userSessionId = etk::string_to_uint64_t(data["client-id"].toString().get());
+	uint64_t userSessionId = data["client-id"].toNumber().getU64();
 	data.remove("client-id");
 	data.remove("action");
 	m_gatewayInterface->answer(userSessionId, data);
