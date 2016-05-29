@@ -31,13 +31,13 @@ namespace jus {
 			template<class... _ARGS>
 			jus::FutureBase call(const std::string& _functionName, _ARGS&&... _args) {
 				uint64_t id = getId();
-				ejson::Object callElem = jus::createCall(id, _functionName, std::forward<_ARGS>(_args)...);
+				ejson::Object callElem = jus::createCallService(id, m_name, _functionName, std::forward<_ARGS>(_args)...);
 				return callJson(id, callElem);
 			}
 			template<class... _ARGS>
 			jus::FutureBase callAction(const std::string& _functionName, _ARGS&&... _args, jus::FutureData::ObserverFinish _callback) {
 				uint64_t id = getId();
-				ejson::Object callElem = jus::createCall(id, _functionName, std::forward<_ARGS>(_args)...);
+				ejson::Object callElem = jus::createCallService(id, m_name, _functionName, std::forward<_ARGS>(_args)...);
 				return callJson(id, callElem, _callback);
 			}
 	};

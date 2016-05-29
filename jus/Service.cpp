@@ -86,7 +86,9 @@ ejson::Value jus::Service::callJson(const ejson::Object& _obj) {
 		} else if (event == "new") {
 			uint64_t clientId = _obj["client-id"].toNumber().getU64();
 			std::string userName = _obj["user"].toString().get();
-			clientConnect(clientId, userName);
+			std::string clientName = _obj["client"].toString().get();
+			std::vector<std::string> clientGroup = convertJsonTo<std::vector<std::string>>(_obj["groups"]);
+			clientConnect(clientId, userName, clientName, clientGroup);
 		} else if (event == "delete") {
 			uint64_t clientId = _obj["client-id"].toNumber().getU64();
 			clientDisconnect(clientId);
@@ -95,13 +97,18 @@ ejson::Value jus::Service::callJson(const ejson::Object& _obj) {
 		}
 		return ejson::Null();
 	}
+	ejson::Object tmpp;
 	if (_obj.valueExist("call") == true) {
 		uint64_t clientId = _obj["client-id"].toNumber().getU64();
-		ejson::Object tmpp = callJson2(clientId, _obj);
+		std::string call = _obj["call"].toString().get();
+		if (etk::start_with(call, "srv.") == true) {
+			tmpp.add("error", ejson::String("NOT-IMPLEMENTED-ACTION **"));
+		} else {
+			tmpp = callJson2(clientId, _obj);
+		}
 		tmpp.add("client-id", ejson::Number(clientId));
 		return tmpp;
 	}
-	ejson::Object tmpp;
 	tmpp.add("error", ejson::String("NOT-IMPLEMENTED-ACTION"));
 	return tmpp;
 }

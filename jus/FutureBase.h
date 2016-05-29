@@ -24,9 +24,9 @@ namespace jus {
 			std::string getErrorHelp();
 			bool isValid();
 			bool isFinished();
-			void wait();
-			bool waitFor(std::chrono::microseconds _delta);
-			bool waitUntil(std::chrono::steady_clock::time_point _endTime);
+			FutureBase& wait();
+			FutureBase& waitFor(std::chrono::microseconds _delta = std::chrono::seconds(30));
+			FutureBase& waitUntil(std::chrono::steady_clock::time_point _endTime);
 			ejson::Object getRaw();
 	};
 }

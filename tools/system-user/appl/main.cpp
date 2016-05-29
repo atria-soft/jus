@@ -98,8 +98,12 @@ namespace appl {
 			}
 			std::vector<std::string> filterServices(const std::string& _clientName, std::vector<std::string> _inputList) {
 				std::unique_lock<std::mutex> lock(m_mutex);
+				// When connected to our session ==> we have no control access ...
+				if (_clientName == m_userName) {
+					return _inputList;
+				}
 				std::vector<std::string> out;
-				// TODO: ...
+				APPL_TODO("Filter service list ==> not implemented...");
 				return out;
 			}
 	};

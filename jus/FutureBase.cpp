@@ -104,29 +104,31 @@ bool jus::FutureBase::isFinished() {
 	return m_data->m_isFinished;
 }
 
-void jus::FutureBase::wait() {
+jus::FutureBase& jus::FutureBase::wait() {
 	while (isFinished() == false) {
 		// TODO : Do it better ... like messaging/mutex_locked ...
 		usleep(10000);
 	}
+	return *this;
 }
 
-bool jus::FutureBase::waitFor(std::chrono::microseconds _delta) {
+jus::FutureBase& jus::FutureBase::waitFor(std::chrono::microseconds _delta) {
 	std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
 	while (    std::chrono::steady_clock::now() - start < _delta
 	        && isFinished() == false) {
 		// TODO : Do it better ... like messaging/mutex_locked ...
 		usleep(10000);
+		start = std::chrono::steady_clock::now();
 	}
-	return isFinished();
+	return *this;
 }
 
-bool jus::FutureBase::waitUntil(std::chrono::steady_clock::time_point _endTime) {
+jus::FutureBase& jus::FutureBase::waitUntil(std::chrono::steady_clock::time_point _endTime) {
 	while (    std::chrono::steady_clock::now() < _endTime
 	        && isFinished() == false) {
 		// TODO : Do it better ... like messaging/mutex_locked ...
 		usleep(10000);
 	}
-	return isFinished();
+	return *this;
 }
 

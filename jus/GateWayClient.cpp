@@ -118,6 +118,8 @@ void jus::GateWayClient::onClientData(std::string _value) {
 							ejson::Object linkService;
 							linkService.add("event", ejson::String("new"));
 							linkService.add("user", ejson::String(m_userConnectionName));
+							linkService.add("client", ejson::String("**Gateway**"));
+							linkService.add("groups", ejson::Array());
 							m_userService->SendData(m_uid2, linkService);
 							m_state = jus::GateWayClient::state::userIdentify;
 							returnBool(transactionId, true);
@@ -165,7 +167,7 @@ void jus::GateWayClient::onClientData(std::string _value) {
 				}
 				if (callFunction == "auth") {
 					std::string password = data["param"].toArray()[0].toString().get();
-					jus::Future<bool> fut = call(m_uid2, m_userService, "auth", password);
+					jus::Future<bool> fut = call(m_uid2, m_userService, "checkAuth", password);
 					fut.wait(); // TODO: Set timeout ...
 					if (fut.hasError() == true) {
 						JUS_ERROR("Get error from the service ...");
@@ -219,24 +221,24 @@ void jus::GateWayClient::onClientData(std::string _value) {
 			break;
 		case jus::GateWayClient::state::clientIdentify:
 			{
-				std::string service = data["service"].toString().get();
-				// Thsi is 2 default service for the cient interface that manage the authorisation of view:
-				if (service == "") {
+				// This is 2 default service for the cient interface that manage the authorisation of view:
+				if (data.valueExist("service") == false) {
 					std::string callFunction = data["call"].toString().get();
 					ejson::Object answer;
 					//answer.add("from-service", ejson::String(""));
 					answer.add("id", data["id"]);
 					if (callFunction == "getServiceCount") {
-						// TODO : Do it better:
-						answer.add("return", ejson::Number(2));
+						answer.add("return", ejson::Number(m_clientServices.size()));
 						JUS_DEBUG("answer: " << answer.generateHumanString());
 						m_interfaceClient.write(answer.generateMachineString());
 						return;
 					}
 					if (callFunction == "getServiceList") {
 						ejson::Array listService;
-						listService.add(ejson::String("ServiceManager/v0.1.0"));
-						listService.add(ejson::String("getServiceInformation/v0.1.0"));
+						for (auto &it : m_clientServices) {
+							listService.add(ejson::String(it));
+						}
+						//listService.add(ejson::String("ServiceManager/v0.1.0"));
 						answer.add("return", listService);
 						JUS_DEBUG("answer: " << answer.generateHumanString());
 						m_interfaceClient.write(answer.generateMachineString());
@@ -252,14 +254,20 @@ void jus::GateWayClient::onClientData(std::string _value) {
 								++it;
 								continue;
 							}
-							if ((*it)->getName() != service) {
+							if ((*it)->getName() != serviceName) {
 								++it;
 								continue;
 							}
 							break;
 						}
 						if (it == m_listConnectedService.end()) {
-							// TODO : check if we have authorisation to connect service
+							// check if service is connectable ...
+							if (std::find(m_clientServices.begin(), m_clientServices.end(), serviceName) == m_clientServices.end()) {
+								answer.add("return", ejson::Boolean(false));
+								JUS_DEBUG("answer: (NOT authorized service) " << answer.generateHumanString());
+								m_interfaceClient.write(answer.generateMachineString());
+								return;
+							}
 							ememory::SharedPtr<jus::GateWayService> srv = m_gatewayInterface->get(serviceName);
 							if (srv != nullptr) {
 								ejson::Object linkService;
@@ -291,7 +299,7 @@ void jus::GateWayClient::onClientData(std::string _value) {
 								++it;
 								continue;
 							}
-							if ((*it)->getName() != service) {
+							if ((*it)->getName() != serviceName) {
 								++it;
 								continue;
 							}
@@ -314,6 +322,11 @@ void jus::GateWayClient::onClientData(std::string _value) {
 					answer.add("error", ejson::String("CALL-UNEXISTING"));
 					JUS_DEBUG("answer: " << answer.generateHumanString());
 					m_interfaceClient.write(answer.generateMachineString());
+					return;
+				}
+				std::string service = data["service"].toString().get();
+				if (service == "") {
+					protocolError("call with \"service\"=\"\" ==> not permited");
 					return;
 				}
 				auto it = m_listConnectedService.begin();
@@ -347,20 +360,12 @@ void jus::GateWayClient::onClientData(std::string _value) {
 					           data["param"].toArray(),
 					           [=](jus::FutureBase _ret) {
 					           		ejson::Object tmpp = _ret.getRaw();
-					           		tmpp["id"] = data["id"];
-					           		JUS_DEBUG("    ==> transmit");
+					           		JUS_VERBOSE("    ==> transmit : " << tmpp["id"].toNumber().getU64() << " -> " << data["id"].toNumber().getU64());
+					           		JUS_VERBOSE("    msg=" << tmpp.generateMachineString());
+					           		tmpp["id"].toNumber().set(data["id"].toNumber().getU64());
+					           		JUS_VERBOSE("    msg=" << tmpp.generateMachineString());
 					           		m_interfaceClient.write(tmpp.generateMachineString());
 					           });
-					/*
-						std::unique_lock<std::mutex> lock(m_mutex);
-						m_actions.push_back(std::make_pair(transactionId,
-						    [=](ejson::Object& _data) {
-						    	JUS_DEBUG("    ==> transmit");
-						    	m_interfaceClient.write(_data.generateMachineString());
-						    }));
-					}
-					(*it)->SendData(m_uid, data);
-					*/
 				}
 			}
 	}

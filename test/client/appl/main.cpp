@@ -34,43 +34,84 @@ int main(int _argc, const char *_argv[]) {
 	APPL_INFO("== JUS test client start        ==");
 	APPL_INFO("==================================");
 	client1.connect("test1#atria-soft.com");
-	// Connect that is not us
-	//client1.identify("clientTest1#atria-soft.com", "QSDQSDGQSF54HSXWVCSQDJ654URTDJ654NBXCDFDGAEZ51968");
-	jus::Future<bool> retIdentify = client1.call("identify", "clientTest1#atria-soft.com", "QSDQSDGQSF54HSXWVCSQDJ654URTDJ654NBXCDFDGAEZ51968");
-	retIdentify.wait();
-	//bool retIdentify = client1.call_b("identify", "clientTest1#atria-soft.com", "QSDQSDGQSF54HSXWVCSQDJ654URTDJ654NBXCDFDGAEZ51968");
-	
+	if (false) {
+		jus::Future<bool> retIdentify = client1.call("identify", "clientTest1#atria-soft.com", "QSDQSDGQSF54HSXWVCSQDJ654URTDJ654NBXCDFDGAEZ51968");
+		retIdentify.wait();
+		if (retIdentify.get() == false) {
+			APPL_ERROR("    ==> NOT Connected with 'clientTest1#atria-soft.com'");
+			return -1;
+		} else {
+			APPL_INFO("    ==> Connected with 'clientTest1#atria-soft.com'");
+		}
+	} else if (true) {
+		jus::Future<bool> retIdentify = client1.call("auth", "coucou");
+		retIdentify.wait();
+		if (retIdentify.get() == false) {
+			APPL_ERROR("    ==> NOT Authentify with 'test1#atria-soft.com'");
+			return -1;
+		} else {
+			APPL_INFO("    ==> Authentify with 'test1#atria-soft.com'");
+		}
+	} else {
+		jus::Future<bool> retIdentify = client1.call("anonymous");
+		retIdentify.wait();
+		if (retIdentify.get() == false) {
+			APPL_ERROR("    ==> NOT Connected with 'anonymous'");
+			return -1;
+		} else {
+			APPL_INFO("    ==> Connected with 'anonymous'");
+		}
+	}
 	// Connect to ourself:
 	//client1.authentificate("coucou");
 	//bool retAuthentify = client1.call_b("authentify", "coucou");
 	APPL_INFO("    ----------------------------------");
-	APPL_INFO("    -- Get service count            --");
+	APPL_INFO("    -- Get service count");
 	APPL_INFO("    ----------------------------------");
-	/*
-	std::vector<double> tmp;
-	tmp.push_back(1);
-	tmp.push_back(22);
-	tmp.push_back(333);
-	tmp.push_back(4444);
-	int32_t val = client1.call_i("getServiceCount", tmp, "coucou", false);
-	APPL_INFO("Nb services = " << val);
-	std::vector<std::string> val2 = client1.call_vs("getServiceList");
+	jus::Future<int32_t> retNbService = client1.call("getServiceCount");
+	retNbService.wait();
+	APPL_INFO("Nb services = " << retNbService.get());
+	jus::Future<std::vector<std::string>> retServiceList = client1.call("getServiceList");
+	retServiceList.wait();
 	APPL_INFO("List services:");
-	for (auto &it: val2) {
+	for (auto &it: retServiceList.get()) {
 		APPL_INFO("    - " << it);
 	}
+	/*
 	jus::ServiceRemote localService = client1.getService("serviceTest1");
 	if (localService.exist() == true) {
 		double retCall = localService.call_d("mul", 13.1, 2.0);
 		APPL_INFO("serviceTest1.mul = " << retCall);
 	}
 	*/
+	APPL_INFO("    ----------------------------------");
+	APPL_INFO("    -- Get service system-user");
+	APPL_INFO("    ----------------------------------");
 	
 	jus::ServiceRemote remoteServiceUser = client1.getService("system-user");
 	if (remoteServiceUser.exist() == true) {
-		jus::Future<std::vector<std::string>> retCall = client1.call("getClientGroups", "clientTest1#atria-soft.com");
+		jus::Future<std::vector<std::string>> retCall = remoteServiceUser.call("getGroups", "clientTest1#atria-soft.com");
 		retCall.wait();
+		APPL_INFO("system-user.getGroups() = " << retCall.get());
+		jus::Future<std::string> retVersion = remoteServiceUser.call("srv.getVersion");
+		jus::Future<std::string> retType = remoteServiceUser.call("srv.getType");
+		jus::Future<std::vector<std::string>> retExtention = remoteServiceUser.call("srv.getExtention");
+		jus::Future<std::vector<std::string>> retMaintainer = remoteServiceUser.call("srv.getMaintainer");
+		jus::Future<std::vector<std::string>> retFuctions = remoteServiceUser.call("srv.getFunctions");
+		jus::Future<std::vector<std::string>> retFunctionSignature = remoteServiceUser.call("srv.getFunctionSignature", "filterServices");
+		jus::Future<std::string> retFunctionPrototype = remoteServiceUser.call("srv.getFunctionPrototype", "filterServices");
+		jus::Future<std::string> retFunctionHelp = remoteServiceUser.call("srv.getFunctionHelp", "filterServices");
+		retVersion.wait();
+		retType.wait();
+		retExtention.wait();
+		retMaintainer.wait();
+		retFuctions.wait();
+		retFunctionSignature.wait();
+		retFunctionPrototype.wait();
+		retFunctionHelp.wait();
+		
 		APPL_INFO("system-user.getClientGroups() = " << retCall.get());
+		
 	}
 	int32_t iii=0;
 	while (iii < 3) {
@@ -80,7 +121,7 @@ int main(int _argc, const char *_argv[]) {
 	}
 	client1.disconnect();
 	APPL_INFO("==================================");
-	APPL_INFO("== JUS test client stop        ==");
+	APPL_INFO("== JUS test client stop");
 	APPL_INFO("==================================");
 	return 0;
 }

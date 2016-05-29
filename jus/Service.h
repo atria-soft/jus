@@ -16,7 +16,11 @@
 namespace jus {
 	class ClientProperty {
 		public:
-			ClientProperty() {}
+			ClientProperty(const std::string& _clientName="", const std::vector<std::string>& _groups = std::vector<std::string>()) :
+			  m_name(_clientName),
+			  m_groups(_groups) {
+				
+			}
 		private:
 			std::string m_name;
 		public:
@@ -68,7 +72,7 @@ namespace jus {
 			 * @param[in] _userName User name of the client to connect
 			 * @todo Set a relur like ==> service not availlable / service close / service maintenance / service right reject
 			 */
-			virtual void clientConnect(size_t _clientSessionID, const std::string& _userName) = 0;
+			virtual void clientConnect(size_t _clientSessionID, const std::string& _userName, const std::string& _clientName, const std::vector<std::string>& _groups) = 0;
 			virtual void clientDisconnect(size_t _clientSessionID) = 0;
 			// Genenric function call:
 			ejson::Value callJson(const ejson::Object& _obj);
@@ -104,10 +108,12 @@ namespace jus {
 			  m_getUserInterface(_interface) {
 				
 			}
-			void clientConnect(uint64_t _clientSessionID, const std::string& _userName) {
+			void clientConnect(uint64_t _clientSessionID, const std::string& _userName, const std::string& _clientName, const std::vector<std::string>& _groups) {
 				std::unique_lock<std::mutex> lock(m_mutex);
-				JUS_DEBUG("connect : " << _clientSessionID << " to '" << _userName << "'");
-				ememory::SharedPtr<ClientProperty> tmpProperty = std::make_shared<ClientProperty>();
+				JUS_DEBUG("connect: " << _clientSessionID << " to '" << _userName << "'");
+				JUS_DEBUG("    client name='" << _clientName << "'");
+				JUS_DEBUG("    groups=" << etk::to_string(_groups));
+				ememory::SharedPtr<ClientProperty> tmpProperty = std::make_shared<ClientProperty>(_clientName, _groups);
 				ememory::SharedPtr<JUS_TYPE_SERVICE> tmpSrv = std::make_shared<JUS_TYPE_SERVICE>(m_getUserInterface.getUser(_userName), tmpProperty);
 				m_interface.insert(std::make_pair(_clientSessionID, std::make_pair(tmpProperty, tmpSrv)));
 			}
