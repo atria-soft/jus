@@ -39,6 +39,15 @@ namespace jus {
 			const std::vector<std::string>& getGroups() {
 				return m_groups;
 			}
+		private:
+			std::vector<std::string> m_listAthorizedFunction;
+		public:
+			void addAuthorized(const std::string& _funcName) {
+				m_listAthorizedFunction.push_back(_funcName);
+			}
+			bool isFunctionAuthorized(const std::string& _funcName) {
+				return std::find(m_listAthorizedFunction.begin(), m_listAthorizedFunction.end(), _funcName) != m_listAthorizedFunction.end();
+			}
 	};
 }
 namespace jus {
@@ -77,21 +86,16 @@ namespace jus {
 			// Genenric function call:
 			ejson::Value callJson(const ejson::Object& _obj);
 			virtual ejson::Object callJson2(size_t _clientId, const ejson::Object& _obj) = 0;
-	};
-	template<class JUS_TYPE_SERVICE, class JUS_USER_ACCESS>
-	class ServiceType : public jus::Service {
-		private:
-			JUS_USER_ACCESS& m_getUserInterface;
-			// no need of shared_ptr or unique_ptr (if service die all is lost and is client die, the gateway notify us...)
-			std::map<uint64_t, std::pair<ememory::SharedPtr<ClientProperty>, ememory::SharedPtr<JUS_TYPE_SERVICE>>> m_interface;
-			
+			std::vector<std::string> getExtention();
 		public:
+			// Add Local fuction (depend on this class)
 			template<class JUS_RETURN_VALUE,
 			         class JUS_CLASS_TYPE,
 			         class... JUS_FUNC_ARGS_TYPE>
-			void advertise(const std::string& _name,
+			void advertise(std::string _name,
 			               JUS_RETURN_VALUE (JUS_CLASS_TYPE::*_func)(JUS_FUNC_ARGS_TYPE... _args),
 			               const std::string& _desc = "") {
+				_name = "srv." + _name;
 				for (auto &it : m_listFunction) {
 					if (it == nullptr) {
 						continue;
@@ -102,11 +106,60 @@ namespace jus {
 					}
 				}
 				AbstractFunction* tmp = createAbstractFunctionClass(_name, _desc, _func);
+				if (tmp == nullptr) {
+					JUS_ERROR("can not create abstract function ... '" << _name << "'");
+					return;
+				}
+				tmp->setType(jus::AbstractFunction::type::service);
+				JUS_INFO("Add function '" << _name << "' in local mode");
+				m_listFunction.push_back(tmp);
+			}
+	};
+	template<class JUS_TYPE_SERVICE, class JUS_USER_ACCESS>
+	class ServiceType : public jus::Service {
+		private:
+			JUS_USER_ACCESS& m_getUserInterface;
+			// no need of shared_ptr or unique_ptr (if service die all is lost and is client die, the gateway notify us...)
+			std::map<uint64_t, std::pair<ememory::SharedPtr<ClientProperty>, ememory::SharedPtr<JUS_TYPE_SERVICE>>> m_interface;
+		public:
+			template<class JUS_RETURN_VALUE,
+			         class JUS_CLASS_TYPE,
+			         class... JUS_FUNC_ARGS_TYPE>
+			void advertise(const std::string& _name,
+			               JUS_RETURN_VALUE (JUS_CLASS_TYPE::*_func)(JUS_FUNC_ARGS_TYPE... _args),
+			               const std::string& _desc = "") {
+				if (etk::start_with(_name, "srv.") == true) {
+					JUS_ERROR("Advertise function start with 'srv.' is not permited ==> only allow for internal service: '" << _name << "'");
+					return;
+				}
+				for (auto &it : m_listFunction) {
+					if (it == nullptr) {
+						continue;
+					}
+					if (it->getName() == _name) {
+						JUS_ERROR("Advertise function already bind .. ==> can not be done...: '" << _name << "'");
+						return;
+					}
+				}
+				AbstractFunction* tmp = createAbstractFunctionClass(_name, _desc, _func);
+				if (tmp == nullptr) {
+					JUS_ERROR("can not create abstract function ... '" << _name << "'");
+					return;
+				}
+				tmp->setType(jus::AbstractFunction::type::object);
+				JUS_INFO("Add function '" << _name << "' in object mode");
 				m_listFunction.push_back(tmp);
 			}
 			ServiceType(JUS_USER_ACCESS& _interface):
 			  m_getUserInterface(_interface) {
 				
+			}
+			bool isFunctionAuthorized(uint64_t _clientSessionID, const std::string& _funcName) {
+				auto it = m_interface.find(_clientSessionID);
+				if (it == m_interface.end()) {
+					return false;
+				}
+				return it->second.first->isFunctionAuthorized(_funcName);
 			}
 			void clientConnect(uint64_t _clientSessionID, const std::string& _userName, const std::string& _clientName, const std::vector<std::string>& _groups) {
 				std::unique_lock<std::mutex> lock(m_mutex);
@@ -116,6 +169,13 @@ namespace jus {
 				ememory::SharedPtr<ClientProperty> tmpProperty = std::make_shared<ClientProperty>(_clientName, _groups);
 				ememory::SharedPtr<JUS_TYPE_SERVICE> tmpSrv = std::make_shared<JUS_TYPE_SERVICE>(m_getUserInterface.getUser(_userName), tmpProperty);
 				m_interface.insert(std::make_pair(_clientSessionID, std::make_pair(tmpProperty, tmpSrv)));
+				// enable list of function availlable: 
+				for (auto &it : m_listFunction) {
+					if (it == nullptr) {
+						continue;
+					}
+					tmpProperty->addAuthorized(it->getName());
+				}
 			}
 			void clientDisconnect(uint64_t _clientSessionID) {
 				std::unique_lock<std::mutex> lock(m_mutex);
@@ -162,8 +222,24 @@ namespace jus {
 					if (it2->getName() != call) {
 						continue;
 					}
-					JUS_TYPE_SERVICE* elem = it->second.second.get();
-					return it2->executeJson(param, (void*)elem).toObject();
+					switch (it2->getType()) {
+						case jus::AbstractFunction::type::object: {
+							JUS_TYPE_SERVICE* elem = it->second.second.get();
+							return it2->executeJson(param, (void*)elem).toObject();
+						}
+						case jus::AbstractFunction::type::local: {
+							return it2->executeJson(param, (void*)((RemoteProcessCall*)this)).toObject();
+						}
+						case jus::AbstractFunction::type::service: {
+							return it2->executeJson(param, (void*)this).toObject();
+						}
+						case jus::AbstractFunction::type::global: {
+							return it2->executeJson(param, nullptr).toObject();
+						}
+						case jus::AbstractFunction::type::unknow:
+							JUS_ERROR("Can not call unknow type ...");
+							break;
+					}
 				}
 				out.add("error", ejson::String("FUNCTION-UNKNOW"));
 				return out;

@@ -18,6 +18,8 @@ namespace jus {
 			bool m_isFinished;
 			ejson::Object m_returnData;
 			ObserverFinish m_callbackFinish;
+			std::chrono::steady_clock::time_point m_sendTime;
+			std::chrono::steady_clock::time_point m_receiveTime;
 	};
 }
 

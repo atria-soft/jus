@@ -171,6 +171,14 @@ void jus::createParam(ejson::Object& _obj) {
 	// Finish recursive parse ...
 }
 
+enum jus::AbstractFunction::type jus::AbstractFunction::getType() const {
+	return m_type;
+}
+
+void jus::AbstractFunction::setType(enum jus::AbstractFunction::type _type) {
+	m_type = _type;
+}
+
 const std::string& jus::AbstractFunction::getName() const {
 	return m_name;
 }
@@ -191,8 +199,33 @@ void jus::AbstractFunction::addParam(const std::string& _name, const std::string
 	m_paramsDescription.push_back(std::make_pair(_name, _desc));
 }
 
+void jus::AbstractFunction::setReturn(const std::string& _desc) {
+	m_returnDescription = _desc;
+}
+
+std::string jus::AbstractFunction::getPrototypeFull() const {
+	std::string out = getPrototypeReturn();
+	out += " ";
+	out += m_name;
+	out += "(";
+	std::vector<std::string> tmp = getPrototypeParam();
+	for (size_t iii=0; iii<tmp.size(); ++iii) {
+		if (iii != 0) {
+			out += ", ";
+		}
+		out += tmp[iii];
+		if (iii < m_paramsDescription.size()) {
+			out += " " + m_paramsDescription[iii].first;
+		}
+	}
+	out += ");";
+	return out;
+}
+
+
 jus::AbstractFunction::AbstractFunction(const std::string& _name,
                                         const std::string& _desc):
+  m_type(jus::AbstractFunction::type::unknow),
   m_name(_name),
   m_description(_desc) {
 	

@@ -208,6 +208,7 @@ int main(int _argc, const char *_argv[]) {
 		}
 		serviceInterface.setDescription("user interface management");
 		serviceInterface.setVersion("0.1.0");
+		serviceInterface.setType("USER", 1);
 		serviceInterface.addAuthor("Heero Yui", "yui.heero@gmail.com");
 		serviceInterface.advertise("checkTocken", &appl::SystemService::checkTocken);
 		serviceInterface.setLastFuncDesc("Check if a user tocken is correct or not");

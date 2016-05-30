@@ -21,6 +21,7 @@ jus::FutureBase::FutureBase(uint64_t _transactionId, jus::FutureData::ObserverFi
 	if (m_data == nullptr) {
 		return;
 	}
+	m_data->m_sendTime = std::chrono::steady_clock::now();
 	m_data->m_transactionId = _transactionId;
 	m_data->m_isFinished = false;
 	m_data->m_callbackFinish = _callback;
@@ -38,14 +39,27 @@ jus::FutureBase::FutureBase(uint64_t _transactionId, bool _isFinished, ejson::Ob
 	if (m_data == nullptr) {
 		return;
 	}
+	m_data->m_sendTime = std::chrono::steady_clock::now();
 	m_data->m_transactionId = _transactionId;
 	m_data->m_isFinished = _isFinished;
 	m_data->m_returnData = _returnData;
 	m_data->m_callbackFinish = _callback;
-	if (    m_data->m_isFinished == true
-	     && m_data->m_callbackFinish != nullptr) {
-		m_data->m_callbackFinish(*this);
+	if (m_data->m_isFinished == true) {
+		m_data->m_receiveTime = std::chrono::steady_clock::now();
+		if (m_data->m_callbackFinish != nullptr) {
+			m_data->m_callbackFinish(*this);
+		}
 	}
+}
+
+std::chrono::nanoseconds jus::FutureBase::getTransmitionTime() {
+	if (m_data == nullptr) {
+		return std::chrono::nanoseconds(0);
+	}
+	if (m_data->m_isFinished == false) {
+		return std::chrono::nanoseconds(0);
+	}
+	return m_data->m_receiveTime - m_data->m_sendTime;
 }
 
 jus::FutureBase jus::FutureBase::operator= (const jus::FutureBase& _base) {
@@ -58,6 +72,7 @@ void jus::FutureBase::setAnswer(const ejson::Object& _returnValue) {
 		JUS_ERROR(" Not a valid future ...");
 		return;
 	}
+	m_data->m_receiveTime = std::chrono::steady_clock::now();
 	m_data->m_returnData = _returnValue;
 	m_data->m_isFinished = true;
 	if (m_data->m_callbackFinish != nullptr) {

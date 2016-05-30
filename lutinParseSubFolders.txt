@@ -1,4 +1,5 @@
-tools/system-gateway
 tools/system-user
+tools/system-gateway
+tools/picture
 test/client
 test/service1

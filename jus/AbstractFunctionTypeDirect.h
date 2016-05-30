@@ -103,6 +103,16 @@ namespace jus {
 				ret += ");";
 				return ret;
 			}
+			std::string getPrototypeReturn() const override {
+				return m_returnType.getName();
+			}
+			std::vector<std::string> getPrototypeParam() const override {
+				std::vector<std::string> out;
+				for (size_t iii=0; iii<sizeof...(JUS_TYPES); ++iii) {
+					out.push_back(m_paramType[iii].getName());
+				}
+				return out;
+			}
 			ejson::Value executeJson(const ejson::Array& _params, void* _class) override {
 				ejson::Object out;
 				// check parameter number

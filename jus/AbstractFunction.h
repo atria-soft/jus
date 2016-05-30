@@ -12,6 +12,19 @@
 #include <jus/ParamType.h>
 namespace jus {
 	class AbstractFunction {
+		public:
+			enum class type {
+				unknow,
+				global,
+				local,
+				service,
+				object,
+			};
+		protected:
+			enum type m_type;
+		public:
+			enum type getType() const;
+			void setType(enum type _type);
 		protected:
 			std::string m_name;
 		public:
@@ -27,6 +40,10 @@ namespace jus {
 			void setParam(int32_t _idParam, const std::string& _name, const std::string& _desc);
 			void addParam(const std::string& _name, const std::string& _desc);
 		protected:
+			std::string m_returnDescription;
+		public:
+			void setReturn(const std::string& _desc);
+		protected:
 			AbstractFunction(const std::string& _name, const std::string& _desc="");
 		public:
 			virtual ~AbstractFunction() {};
@@ -34,7 +51,10 @@ namespace jus {
 			bool checkCompatibility(const ParamType& _type, const ejson::Value& _params);
 			bool checkCompatibility(const ParamType& _type, const std::string& _params);
 		public:
+			std::string getPrototypeFull() const;
 			virtual std::string getPrototype() const = 0;
+			virtual std::string getPrototypeReturn() const = 0;
+			virtual std::vector<std::string> getPrototypeParam() const = 0;
 			virtual ejson::Value executeJson(const ejson::Array& _params, void* _class=nullptr) = 0;
 			virtual std::string executeString(const std::vector<std::string>& _params, void* _class=nullptr) = 0;
 	};

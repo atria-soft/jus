@@ -12,17 +12,26 @@
 
 #include <unistd.h>
 
-
-
 jus::Service::Service() :
   propertyIp(this, "ip", "127.0.0.1", "Ip to connect server", &jus::Service::onPropertyChangeIp),
   propertyPort(this, "port", 1982, "Port to connect server", &jus::Service::onPropertyChangePort) {
 	m_interfaceClient.connect(this, &jus::Service::onClientData);
+	
+	advertise("getExtention", &jus::Service::getExtention);
+	setLastFuncDesc("Get List of availlable extention of this service");
+	addLastFuncReturn("A list of extention register in the service");
+	
 }
 
 jus::Service::~Service() {
 	
 }
+
+
+std::vector<std::string> jus::Service::getExtention() {
+	return std::vector<std::string>();
+}
+
 
 void jus::Service::onClientData(std::string _value) {
 	ejson::Object request(_value);
@@ -98,17 +107,19 @@ ejson::Value jus::Service::callJson(const ejson::Object& _obj) {
 		return ejson::Null();
 	}
 	ejson::Object tmpp;
+	uint64_t clientId = _obj["client-id"].toNumber().getU64();
 	if (_obj.valueExist("call") == true) {
-		uint64_t clientId = _obj["client-id"].toNumber().getU64();
 		std::string call = _obj["call"].toString().get();
-		if (etk::start_with(call, "srv.") == true) {
-			tmpp.add("error", ejson::String("NOT-IMPLEMENTED-ACTION **"));
-		} else {
+		if (isFunctionAuthorized(clientId, call) == true) {
 			tmpp = callJson2(clientId, _obj);
+			tmpp.add("client-id", ejson::Number(clientId));
+			return tmpp;
+		} else {
+			tmpp.add("error", ejson::String("NOT-AUTHORIZED-FUNCTION"));
 		}
-		tmpp.add("client-id", ejson::Number(clientId));
-		return tmpp;
+	} else {
+		tmpp.add("error", ejson::String("NOT-IMPLEMENTED-FUNCTION"));
 	}
-	tmpp.add("error", ejson::String("NOT-IMPLEMENTED-ACTION"));
+	tmpp.add("client-id", ejson::Number(clientId));
 	return tmpp;
 }

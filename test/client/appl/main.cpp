@@ -93,25 +93,71 @@ int main(int _argc, const char *_argv[]) {
 		jus::Future<std::vector<std::string>> retCall = remoteServiceUser.call("getGroups", "clientTest1#atria-soft.com");
 		retCall.wait();
 		APPL_INFO("system-user.getGroups() = " << retCall.get());
-		jus::Future<std::string> retVersion = remoteServiceUser.call("srv.getVersion");
-		jus::Future<std::string> retType = remoteServiceUser.call("srv.getType");
+		jus::Future<std::string> retDesc = remoteServiceUser.call("sys.getDescription");
+		jus::Future<std::string> retVersion = remoteServiceUser.call("sys.getVersion");
+		jus::Future<std::string> retType = remoteServiceUser.call("sys.getType");
 		jus::Future<std::vector<std::string>> retExtention = remoteServiceUser.call("srv.getExtention");
-		jus::Future<std::vector<std::string>> retMaintainer = remoteServiceUser.call("srv.getMaintainer");
-		jus::Future<std::vector<std::string>> retFuctions = remoteServiceUser.call("srv.getFunctions");
-		jus::Future<std::vector<std::string>> retFunctionSignature = remoteServiceUser.call("srv.getFunctionSignature", "filterServices");
-		jus::Future<std::string> retFunctionPrototype = remoteServiceUser.call("srv.getFunctionPrototype", "filterServices");
-		jus::Future<std::string> retFunctionHelp = remoteServiceUser.call("srv.getFunctionHelp", "filterServices");
+		jus::Future<std::vector<std::string>> retMaintainer = remoteServiceUser.call("sys.getAuthors");
+		retDesc.wait();
 		retVersion.wait();
 		retType.wait();
 		retExtention.wait();
 		retMaintainer.wait();
-		retFuctions.wait();
-		retFunctionSignature.wait();
-		retFunctionPrototype.wait();
-		retFunctionHelp.wait();
-		
-		APPL_INFO("system-user.getClientGroups() = " << retCall.get());
-		
+		APPL_INFO("Service: system-user");
+		APPL_INFO("    version   : " << retVersion.get());
+		APPL_INFO("    type      : " << retType.get());
+		APPL_INFO("    Extention : " << retExtention.get().size());
+		for (auto &it : retExtention.get()) {
+			APPL_INFO("        - " << it);
+		}
+		APPL_INFO("    maintainer: " << retMaintainer.get().size());
+		for (auto &it : retMaintainer.get()) {
+			APPL_INFO("        - " << it);
+		}
+		APPL_INFO("    description:");
+		APPL_INFO("        " << retDesc.get());
+		APPL_INFO("    Function List:");
+		jus::Future<std::vector<std::string>> retFuctions = remoteServiceUser.call("sys.getFunctions").wait();
+		for (auto it : retFuctions.get()) {
+			std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
+			jus::Future<std::string> retFunctionPrototype = remoteServiceUser.call("sys.getFunctionPrototype", it);
+			jus::Future<std::string> retFunctionHelp = remoteServiceUser.call("sys.getFunctionDescription", it);
+			retFunctionPrototype.wait();
+			retFunctionHelp.wait();
+			std::chrono::steady_clock::time_point stop = std::chrono::steady_clock::now();
+			APPL_INFO("        - " << retFunctionPrototype.get());
+			APPL_INFO("            " << retFunctionHelp.get());
+			APPL_INFO("          IO1=" << int64_t(retFunctionPrototype.getTransmitionTime().count()/1000)/1000.0 << " ms");
+			APPL_INFO("          IO2=" << int64_t(retFunctionHelp.getTransmitionTime().count()/1000)/1000.0 << " ms");
+			APPL_INFO("          IO*=" << int64_t((stop-start).count()/1000)/1000.0 << " ms");
+		}
+	}
+	
+	APPL_INFO("    ----------------------------------");
+	APPL_INFO("    -- Get service picture");
+	APPL_INFO("    ----------------------------------");
+	
+	jus::ServiceRemote remoteServicePicture = client1.getService("picture");
+	if (remoteServicePicture.exist() == true) {
+		jus::Future<std::vector<std::string>> retCall = remoteServicePicture.call("getAlbums").wait();
+		APPL_INFO("    album list: ");
+		for (auto &it : retCall.get()) {
+			jus::Future<uint32_t> retCount = remoteServicePicture.call("getAlbumCount", it).wait();
+			if (retCount.get() != 0) {
+				APPL_INFO("        - " << it << " / " << retCount.get() << " images");
+			} else {
+				APPL_INFO("        - " << it);
+			}
+			jus::Future<std::vector<std::string>> retCall2 = remoteServicePicture.call("getSubAlbums", it).wait();
+			for (auto &it2 : retCall2.get()) {
+				jus::Future<uint32_t> retCount2 = remoteServicePicture.call("getAlbumCount", it2).wait();
+				if (retCount2.get() != 0) {
+					APPL_INFO("            - " << it2 << " / " << retCount2.get() << " images");
+				} else {
+					APPL_INFO("            - " << it2);
+				}
+			}
+		}
 	}
 	int32_t iii=0;
 	while (iii < 3) {

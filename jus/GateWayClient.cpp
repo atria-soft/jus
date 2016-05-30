@@ -351,21 +351,18 @@ void jus::GateWayClient::onClientData(std::string _value) {
 					JUS_DEBUG("answer: " << answer.generateHumanString());
 					m_interfaceClient.write(answer.generateMachineString());
 				} else {
-					JUS_ERROR("Add in link the name of the user in parameter ...");
-					//data.remove("service");
-					//transactionId
 					callActionForward(m_uid,
-					           *it,
-					           data["call"].toString().get(),
-					           data["param"].toArray(),
-					           [=](jus::FutureBase _ret) {
-					           		ejson::Object tmpp = _ret.getRaw();
-					           		JUS_VERBOSE("    ==> transmit : " << tmpp["id"].toNumber().getU64() << " -> " << data["id"].toNumber().getU64());
-					           		JUS_VERBOSE("    msg=" << tmpp.generateMachineString());
-					           		tmpp["id"].toNumber().set(data["id"].toNumber().getU64());
-					           		JUS_VERBOSE("    msg=" << tmpp.generateMachineString());
-					           		m_interfaceClient.write(tmpp.generateMachineString());
-					           });
+					                  *it,
+					                  data["call"].toString().get(),
+					                  data["param"].toArray(),
+					                  [=](jus::FutureBase _ret) {
+					                  		ejson::Object tmpp = _ret.getRaw();
+					                  		JUS_VERBOSE("    ==> transmit : " << tmpp["id"].toNumber().getU64() << " -> " << data["id"].toNumber().getU64());
+					                  		JUS_VERBOSE("    msg=" << tmpp.generateMachineString());
+					                  		tmpp["id"].toNumber().set(data["id"].toNumber().getU64());
+					                  		JUS_VERBOSE("    msg=" << tmpp.generateMachineString());
+					                  		m_interfaceClient.write(tmpp.generateMachineString());
+					                  });
 				}
 			}
 	}
