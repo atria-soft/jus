@@ -6,6 +6,7 @@
 #include <jus/Future.h>
 #include <jus/debug.h>
 #include <unistd.h>
+#include <jus/File.h>
 
 namespace jus {
 	template<>
@@ -486,6 +487,33 @@ namespace jus {
 			}
 			out.push_back(it.toBoolean().get());
 		}
+		return out;
+	}
+	template<>
+	jus::File jus::Future<jus::File>::get() {
+		jus::File out;
+		if (m_data == nullptr) {
+			return out;
+		}
+		// TODO :...
+		/*
+		ejson::Value val = m_data->m_returnData["return"];
+		if (val.exist() == false) {
+			JUS_WARNING("No Return value ...");
+			return out;
+		}
+		if (val.isArray() == false) {
+			JUS_WARNING("Wrong return Type get '" << val.getType() << " instead of 'Array'");
+			return out;
+		}
+		for (auto it : val.toArray()) {
+			if (it.isBoolean() == false) {
+				JUS_WARNING("Wrong return Type (part of array) get '" << it.getType() << " instead of 'Boolean'");
+				continue;
+			}
+			out.push_back(it.toBoolean().get());
+		}
+		*/
 		return out;
 	}
 }

@@ -10,6 +10,7 @@
 #include <ejson/ejson.h>
 #include <jus/debug.h>
 #include <jus/ParamType.h>
+#include <jus/File.h>
 namespace jus {
 	class AbstractFunction {
 		public:
@@ -55,7 +56,7 @@ namespace jus {
 			virtual std::string getPrototype() const = 0;
 			virtual std::string getPrototypeReturn() const = 0;
 			virtual std::vector<std::string> getPrototypeParam() const = 0;
-			virtual ejson::Value executeJson(const ejson::Array& _params, void* _class=nullptr) = 0;
+			virtual void executeJson(const ememory::SharedPtr<jus::TcpString>& _interfaceClient, uint64_t _transactionId, uint64_t _clientId, const ejson::Array& _params, void* _class=nullptr) = 0;
 			virtual std::string executeString(const std::vector<std::string>& _params, void* _class=nullptr) = 0;
 	};
 	

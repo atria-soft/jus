@@ -55,6 +55,19 @@ namespace jus {
 			const std::chrono::steady_clock::time_point& getLastTimeSend() {
 				return m_lastSend;
 			}
+		private:
+			using ActionAsync = std::function<bool(TcpString* _interface)>; 
+			std::mutex m_threadAsyncMutex;
+			std::thread* m_threadAsync;
+			bool m_threadAsyncRunning;
+			std::vector<ActionAsync> m_threadAsyncList;
+		private:
+			void threadAsyncCallback();
+		public:
+			void addAsync(ActionAsync _elem) {
+				std::unique_lock<std::mutex> lock(m_threadAsyncMutex);
+				m_threadAsyncList.push_back(_elem);
+			}
 	};
 }
 

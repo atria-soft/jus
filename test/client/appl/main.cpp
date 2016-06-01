@@ -145,6 +145,10 @@ int main(int _argc, const char *_argv[]) {
 			jus::Future<uint32_t> retCount = remoteServicePicture.call("getAlbumCount", it).wait();
 			if (retCount.get() != 0) {
 				APPL_INFO("        - " << it << " / " << retCount.get() << " images");
+				jus::Future<std::vector<std::string>> retListImage = remoteServicePicture.call("getAlbumListPicture", it).wait();
+				for (auto &it3 : retListImage.get()) {
+					APPL_INFO("                - " << it3);
+				}
 			} else {
 				APPL_INFO("        - " << it);
 			}
@@ -153,6 +157,14 @@ int main(int _argc, const char *_argv[]) {
 				jus::Future<uint32_t> retCount2 = remoteServicePicture.call("getAlbumCount", it2).wait();
 				if (retCount2.get() != 0) {
 					APPL_INFO("            - " << it2 << " / " << retCount2.get() << " images");
+					jus::Future<std::vector<std::string>> retListImage = remoteServicePicture.call("getAlbumListPicture", it2).wait();
+					for (auto &it3 : retListImage.get()) {
+						APPL_INFO("                - " << it3);
+						jus::Future<jus::File> retListImage = remoteServicePicture.call("getAlbumPicture", it3).wait();
+						jus::File tmpFile = retListImage.get();
+						APPL_INFO("                    mine-type: " << tmpFile.getMineType());
+						APPL_INFO("                    size: " << tmpFile.getData().size());
+					}
 				} else {
 					APPL_INFO("            - " << it2);
 				}

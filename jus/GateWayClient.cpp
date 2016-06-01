@@ -362,6 +362,14 @@ void jus::GateWayClient::onClientData(std::string _value) {
 					                  		tmpp["id"].toNumber().set(data["id"].toNumber().getU64());
 					                  		JUS_VERBOSE("    msg=" << tmpp.generateMachineString());
 					                  		m_interfaceClient.write(tmpp.generateMachineString());
+					                  		if (tmpp.valueExist("part") == true) {
+					                  			// multiple send element ...
+					                  			if (tmpp.valueExist("finish") == true) {
+					                  				return tmpp["finish"].toBoolean().get();
+					                  			}
+					                  			return false;
+					                  		}
+					                  		return true;
 					                  });
 				}
 			}
@@ -371,7 +379,9 @@ void jus::GateWayClient::onClientData(std::string _value) {
 jus::FutureBase jus::GateWayClient::callActionForward(uint64_t _callerId, ememory::SharedPtr<jus::GateWayService> _srv, const std::string& _functionName, ejson::Array _params, jus::FutureData::ObserverFinish _callback) {
 	uint64_t id = getId();
 	ejson::Object callElem = jus::createCallJson(id, _functionName, _params);
-	return callJson(_callerId, _srv, id, callElem, _callback);
+	jus::FutureBase ret = callJson(_callerId, _srv, id, callElem, _callback);
+	ret.setSynchronous();
+	return ret;
 }
 
 uint64_t jus::GateWayClient::getId() {
@@ -400,24 +410,24 @@ jus::FutureBase jus::GateWayClient::callJson(uint64_t _callerId, ememory::Shared
 
 void jus::GateWayClient::returnMessage(ejson::Object _data) {
 	jus::FutureBase future;
-	{
-		uint64_t tid = _data["id"].toNumber().get();
-		if (tid == 0) {
-			if (_data["error"].toString().get() == "PROTOCOL-ERROR") {
-				JUS_ERROR("Get a Protocol error ...");
-				std::unique_lock<std::mutex> lock(m_mutex);
-				for (auto &it : m_pendingCall) {
-					if (it.isValid() == false) {
-						continue;
-					}
-					it.setAnswer(_data);
+	uint64_t tid = _data["id"].toNumber().get();
+	if (tid == 0) {
+		if (_data["error"].toString().get() == "PROTOCOL-ERROR") {
+			JUS_ERROR("Get a Protocol error ...");
+			std::unique_lock<std::mutex> lock(m_mutex);
+			for (auto &it : m_pendingCall) {
+				if (it.isValid() == false) {
+					continue;
 				}
-				m_pendingCall.clear();
-			} else {
-				JUS_ERROR("call with no ID ==> error ...");
+				it.setAnswer(_data);
 			}
-			return;
+			m_pendingCall.clear();
+		} else {
+			JUS_ERROR("call with no ID ==> error ...");
 		}
+		return;
+	}
+	{
 		std::unique_lock<std::mutex> lock(m_mutex);
 		auto it = m_pendingCall.begin();
 		while (it != m_pendingCall.end()) {
@@ -429,8 +439,8 @@ void jus::GateWayClient::returnMessage(ejson::Object _data) {
 				++it;
 				continue;
 			}
+			// TODO : Do it better ...
 			future = *it;
-			it = m_pendingCall.erase(it);
 			break;
 		}
 	}
@@ -438,6 +448,22 @@ void jus::GateWayClient::returnMessage(ejson::Object _data) {
 		JUS_WARNING("Action to do ...");
 		return;
 	}
-	future.setAnswer(_data);
+	bool ret = future.setAnswer(_data);
+	if (ret == true) {
+		std::unique_lock<std::mutex> lock(m_mutex);
+		auto it = m_pendingCall.begin();
+		while (it != m_pendingCall.end()) {
+			if (it->isValid() == false) {
+				it = m_pendingCall.erase(it);
+				continue;
+			}
+			if (it->getTransactionId() != tid) {
+				++it;
+				continue;
+			}
+			it = m_pendingCall.erase(it);
+			break;
+		}
+	}
 }
 

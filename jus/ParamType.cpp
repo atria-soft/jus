@@ -6,6 +6,7 @@
 
 #include <jus/ParamType.h>
 #include <jus/debug.h>
+#include <jus/File.h>
 
 
 jus::ParamType::ParamType(const char* _name):
@@ -56,3 +57,9 @@ generate_basic_type(std::vector<uint32_t>, "vector:uint32");
 generate_basic_type(std::vector<uint16_t>, "vector:uint16");
 generate_basic_type(std::vector<uint8_t>, "vector:uint8");
 generate_basic_type(std::vector<std::string>, "vector:string");
+
+
+generate_basic_type(jus::File, "file");
+generate_basic_type(jus::FileServer, "file");
+
+

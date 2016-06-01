@@ -12,11 +12,13 @@ namespace jus {
 	class FutureBase;
 	class FutureData {
 		public:
-			using ObserverFinish = std::function<void(jus::FutureBase)>; //!< Define an Observer: function pointer
+			using ObserverFinish = std::function<bool(jus::FutureBase)>; //!< Define an Observer: function pointer
 		public:
 			uint64_t m_transactionId;
+			bool m_isSynchronous;
 			bool m_isFinished;
 			ejson::Object m_returnData;
+			std::vector<ejson::Value> m_returnDataPart;
 			ObserverFinish m_callbackFinish;
 			std::chrono::steady_clock::time_point m_sendTime;
 			std::chrono::steady_clock::time_point m_receiveTime;

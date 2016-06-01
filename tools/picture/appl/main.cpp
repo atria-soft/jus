@@ -6,6 +6,7 @@
 
 #include <appl/debug.h>
 #include <jus/Service.h>
+#include <jus/File.h>
 #include <etk/etk.h>
 #include <unistd.h>
 #include <mutex>
@@ -19,46 +20,23 @@ namespace appl {
 			std::mutex m_mutex;
 			std::string m_userName;
 			std::string m_basePath;
+			ejson::Document m_database;
+			std::map<uint64_t,std::string> m_listFile;
 		public:
 			User(const std::string& _userName) :
 			  m_userName(_userName) {
 				std::unique_lock<std::mutex> lock(m_mutex);
-				APPL_WARNING("new USER: " << m_userName);
+				APPL_WARNING("new USER: " << m_userName << " [START]");
 				m_basePath = std::string("USERDATA:") + m_userName + "/";
-			}
-			~User() {
-				std::unique_lock<std::mutex> lock(m_mutex);
-				APPL_WARNING("delete USER [START]");
-				APPL_WARNING("delete USER [STOP]");
-			}
-			// Return the list of root albums
-			std::vector<std::string> getAlbums() {
-				return getSubAlbums("");
-			}
-			// Get the list of sub album
-			std::vector<std::string> getSubAlbums(const std::string& _parrentAlbum) {
-				std::unique_lock<std::mutex> lock(m_mutex);
-				std::vector<std::string> out;
-				etk::FSNode node(m_basePath + _parrentAlbum);
-				std::vector<etk::FSNode*> tmpList = node.folderGetSubList(false, true, false, false);
-				for (auto &it : tmpList) {
-					if (it == nullptr) {
-						continue;
-					}
-					if (    _parrentAlbum.size() == 0
-					     || _parrentAlbum[_parrentAlbum.size()-1] == '/') {
-						out.push_back(_parrentAlbum + it->getNameFile());
-					} else {
-						out.push_back(_parrentAlbum + "/" + it->getNameFile());
-					}
+				APPL_WARNING("new USER: " << m_userName);
+				bool ret = m_database.load(m_basePath + "database.json");
+				if (ret == false) {
+					APPL_WARNING("    ==> LOAD error");
 				}
-				return out;
-			}
-			uint32_t getAlbumCount(const std::string& _album) {
-				std::unique_lock<std::mutex> lock(m_mutex);
-				etk::FSNode node(m_basePath + _album);
+				// Load all files (image and video ...)
+				etk::FSNode node(m_basePath);
 				std::vector<etk::FSNode*> tmpList = node.folderGetSubList(false, false, true, false);
-				uint32_t nbElem = 0;
+				APPL_WARNING("Find " << tmpList.size() << " files");
 				for (auto &it : tmpList) {
 					if (it == nullptr) {
 						continue;
@@ -66,24 +44,163 @@ namespace appl {
 					if (    etk::end_with(it->getNameFile(), ".svg", false) == true
 					     || etk::end_with(it->getNameFile(), ".bmp", false) == true
 					     || etk::end_with(it->getNameFile(), ".png", false) == true
-					     || etk::end_with(it->getNameFile(), ".jpg", false) == true) {
-						nbElem++;
+					     || etk::end_with(it->getNameFile(), ".jpg", false) == true
+					     || etk::end_with(it->getNameFile(), ".tga", false) == true
+					     || etk::end_with(it->getNameFile(), ".mp4", false) == true
+					     || etk::end_with(it->getNameFile(), ".avi", false) == true
+					     || etk::end_with(it->getNameFile(), ".mov", false) == true
+					     || etk::end_with(it->getNameFile(), ".mkv", false) == true) {
+						// TODO : Do it better (proto ..)
+						std::string idString = it->getNameFile();
+						idString.resize(idString.size()-4);
+						uint64_t id = 0;
+						std::stringstream ss;
+						ss << std::hex << idString;
+						ss >> id;
+						if (id <= 1024) {
+							APPL_WARNING("    ==> REJECTED file " << it->getNameFile() << " with ID = " << id);
+						} else {
+							m_listFile.insert(std::make_pair(id, it->getNameFile()));
+							APPL_WARNING("    ==> load file " << it->getNameFile() << " with ID = " << id);
+						}
+					} else {
+						APPL_WARNING("    ==> REJECT file " << it->getNameFile());
 					}
 				}
-				return nbElem;
+				APPL_WARNING("new USER: " << m_userName << " [STOP]");
 			}
-			// Return the list of the album files
-			std::vector<std::string> getAlbumListPicture(const std::string& _album, uint32_t _startId, uint32_t _stopId) {
+			~User() {
+				std::unique_lock<std::mutex> lock(m_mutex);
+				APPL_WARNING("delete USER [START]");
+				APPL_DEBUG("Store User Info:");
+				bool ret = m_database.storeSafe(m_basePath + "database.json");
+				if (ret == false) {
+					APPL_WARNING("    ==> Store error");
+				}
+				APPL_WARNING("delete USER [STOP]");
+			}
+			// Return the list of root albums
+			std::vector<std::string> getAlbums() {
 				std::unique_lock<std::mutex> lock(m_mutex);
 				std::vector<std::string> out;
-				return std::vector<std::string>();
+				ejson::Array globalGroups = m_database["group-global"].toArray();
+				if (globalGroups.exist() == false) {
+					return out;
+				}
+				ejson::Object groups = m_database["groups"].toObject();
+				if (groups.exist() == false) {
+					return out;
+				}
+				for (auto it: globalGroups) {
+					std::string tmpString = it.toString().get();
+					if (tmpString == "") {
+						continue;
+					}
+					out.push_back(tmpString);
+				}
+				return out;
+				/*
+				ejson::Object groups = m_database["groups"].toObject();
+				if (groups.exist() == false) {
+					return std::vector<std::string>();
+				}
+				groups
+				return getSubAlbums("");
+				*/
+			}
+			// Get the list of sub album
+			std::vector<std::string> getSubAlbums(const std::string& _album) {
+				std::unique_lock<std::mutex> lock(m_mutex);
+				std::vector<std::string> out;
+				ejson::Object groups = m_database["groups"].toObject();
+				if (groups.exist() == false) {
+					return out;
+				}
+				// find parrentAlbum ==> to get sub group
+				/*
+				for (size_t iii=0; iii<groups.size(); ++iii) {
+					//ejson::Object group = groups[iii].toObject()["sub"];
+					if (groups.getKey(iii) != _parrentAlbum) {
+						continue;
+					}
+				}
+				*/
+				ejson::Object group = groups[_album].toObject();
+				if (group.exist() == false) {
+					return out;
+				}
+				ejson::Array groupSubs = group["sub"].toArray();
+				for (auto it: groupSubs) {
+					std::string tmpString = it.toString().get();
+					if (tmpString == "") {
+						continue;
+					}
+					out.push_back(tmpString);
+				}
+				// TODO: Check right
+				return out;
+			}
+			uint32_t getAlbumCount(const std::string& _album) {
+				std::unique_lock<std::mutex> lock(m_mutex);
+				ejson::Object groups = m_database["groups"].toObject();
+				if (groups.exist() == false) {
+					// TODO : Throw an error ...
+					return 0;
+				}
+				ejson::Object group = groups[_album].toObject();
+				if (group.exist() == false) {
+					// TODO : Throw an error ...
+					return 0;
+				}
+				ejson::Array groupSubs = group["files"].toArray();
+				// TODO: Check right
+				return groupSubs.size();
+				/*
+				for (auto it: groupSubs) {
+					uint64_t id = it.toNumber().getU64();
+					if (id == 0) {
+						continue;
+					}
+					out.push_back(id);
+				}
+				*/
+			}
+			// Return the list of the album files
+			std::vector<std::string> getAlbumListPicture(const std::string& _album) {//, uint32_t _startId, uint32_t _stopId) {
+				std::unique_lock<std::mutex> lock(m_mutex);
+				std::vector<std::string> out;
+				ejson::Object groups = m_database["groups"].toObject();
+				if (groups.exist() == false) {
+					// TODO : Throw an error ...
+					return out;
+				}
+				ejson::Object group = groups[_album].toObject();
+				if (group.exist() == false) {
+					// TODO : Throw an error ...
+					return out;
+				}
+				ejson::Array groupSubs = group["files"].toArray();
+				
+				for (auto it: groupSubs) {
+					uint64_t id = it.toNumber().getU64();
+					/*
+					auto itImage = m_listFile.find(id);
+					if (itImage == m_listFile.end()) {
+						
+					}*/
+					if (id == 0) {
+						continue;
+					}
+					out.push_back(etk::to_string(id));
+				}
+				return out;
+			}
+			// Return a File Data (might be a picture .tiff/.png/.jpg)
+			jus::FileServer getAlbumPicture(const std::string& _pictureName) {
+				std::unique_lock<std::mutex> lock(m_mutex);
+				return jus::FileServer();
 			}
 			/*
-			// Return a File Data (might be a picture .tiff/.png/.jpg)
-			jus::File getAlbumPicture(const std::string& _pictureName) {
-				std::unique_lock<std::mutex> lock(m_mutex);
-				return jus::File();
-			}
 			// Return a global UTC time
 			jus::Time getAlbumPictureTime(const std::string& _pictureName) {
 				std::unique_lock<std::mutex> lock(m_mutex);
@@ -93,6 +210,11 @@ namespace appl {
 			jus::Geo getAlbumPictureGeoLocalization(const std::string& _pictureName) {
 				std::unique_lock<std::mutex> lock(m_mutex);
 				return jus::Geo();
+			}
+			jus::FileId addElement(const jus::File& _file) {
+				std::unique_lock<std::mutex> lock(m_mutex);
+				std::vector<std::string> out;
+				return std::vector<std::string>();
 			}
 			*/
 	};
@@ -148,14 +270,14 @@ namespace appl {
 				return m_user->getAlbumCount(_album);
 			}
 			// Return the list of the album files
-			std::vector<std::string> getAlbumListPicture(std::string _album, uint32_t _startId, uint32_t _stopId) {
-				return m_user->getAlbumListPicture(_album, _startId, _stopId);
+			std::vector<std::string> getAlbumListPicture(std::string _album) {//, uint32_t _startId, uint32_t _stopId) {
+				return m_user->getAlbumListPicture(_album);//, _startId, _stopId);
 			}
-			/*
 			// Return a File Data (might be a picture .tiff/.png/.jpg)
-			jus::File getAlbumPicture(std::string _pictureName) {
+			jus::FileServer getAlbumPicture(std::string _pictureName) {
 				return m_user->getAlbumPicture(_pictureName);
 			}
+			/*
 			// Return a global UTC time
 			jus::Time getAlbumPictureTime(std::string _pictureName) {
 				return m_user->getAlbumPictureTime(_pictureName);
@@ -209,6 +331,7 @@ int main(int _argc, const char *_argv[]) {
 		serviceInterface.advertise("getSubAlbums", &appl::PictureService::getSubAlbums);
 		serviceInterface.advertise("getAlbumCount", &appl::PictureService::getAlbumCount);
 		serviceInterface.advertise("getAlbumListPicture", &appl::PictureService::getAlbumListPicture);
+		serviceInterface.advertise("getAlbumPicture", &appl::PictureService::getAlbumPicture);
 		/*
 		serviceInterface.advertise("getAlbumPicture", &appl::PictureService::getAlbumPicture);
 		serviceInterface.advertise("getAlbumPictureTime", &appl::PictureService::getAlbumPictureTime);

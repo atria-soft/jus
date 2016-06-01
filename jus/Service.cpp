@@ -15,7 +15,8 @@
 jus::Service::Service() :
   propertyIp(this, "ip", "127.0.0.1", "Ip to connect server", &jus::Service::onPropertyChangeIp),
   propertyPort(this, "port", 1982, "Port to connect server", &jus::Service::onPropertyChangePort) {
-	m_interfaceClient.connect(this, &jus::Service::onClientData);
+	m_interfaceClient = std::make_shared<jus::TcpString>();
+	m_interfaceClient->connect(this, &jus::Service::onClientData);
 	
 	advertise("getExtention", &jus::Service::getExtention);
 	setLastFuncDesc("Get List of availlable extention of this service");
@@ -35,16 +36,18 @@ std::vector<std::string> jus::Service::getExtention() {
 
 void jus::Service::onClientData(std::string _value) {
 	ejson::Object request(_value);
-	ejson::Value tmpID = request["id"];
-	request.remove("id");
+	uint64_t tmpID = request["id"].toNumber().getU64();
+	//request.remove("id");
 	JUS_INFO("Request: " << _value);
-	ejson::Value answer = callJson(request);
+	callJson(tmpID, request);
+	/*
 	// check if an answer is needed
 	if (answer.isNull() == false) {
 		answer.toObject().add("id", tmpID);
 		JUS_INFO("Answer: " << answer.generateHumanString());
-		m_interfaceClient.write(answer.generateMachineString());
+		m_interfaceClient->write(answer.generateMachineString());
 	}
+	*/
 }
 
 void jus::Service::onPropertyChangeIp() {
@@ -64,29 +67,29 @@ void jus::Service::connect(const std::string& _serviceName, uint32_t _numberRetr
 		JUS_DEBUG("connect [STOP] ==> can not connect");
 		return;
 	}
-	m_interfaceClient.setInterface(std::move(connection));
-	m_interfaceClient.connect();
-	m_interfaceClient.write(std::string("{\"connect-service\":\"") + _serviceName + "\"}");
+	m_interfaceClient->setInterface(std::move(connection));
+	m_interfaceClient->connect();
+	m_interfaceClient->write(std::string("{\"connect-service\":\"") + _serviceName + "\"}");
 	JUS_DEBUG("connect [STOP]");
 }
 
 void jus::Service::disconnect(){
 	JUS_DEBUG("disconnect [START]");
-	m_interfaceClient.disconnect();
+	m_interfaceClient->disconnect();
 	JUS_DEBUG("disconnect [STOP]");
 }
 
 bool jus::Service::GateWayAlive() {
-	return m_interfaceClient.isActive();
+	return m_interfaceClient->isActive();
 }
 
 void jus::Service::pingIsAlive() {
-	if (std::chrono::steady_clock::now() - m_interfaceClient.getLastTimeSend() >= std::chrono::seconds(30)) {
-		m_interfaceClient.write("{\"event\":\"IS-ALIVE\"}");
+	if (std::chrono::steady_clock::now() - m_interfaceClient->getLastTimeSend() >= std::chrono::seconds(30)) {
+		m_interfaceClient->write("{\"event\":\"IS-ALIVE\"}");
 	}
 }
 
-ejson::Value jus::Service::callJson(const ejson::Object& _obj) {
+void jus::Service::callJson(uint64_t _transactionId, const ejson::Object& _obj) {
 	if (_obj.valueExist("event") == true) {
 		std::string event = _obj["event"].toString().get();
 		if (event == "IS-ALIVE") {
@@ -104,22 +107,27 @@ ejson::Value jus::Service::callJson(const ejson::Object& _obj) {
 		} else {
 			JUS_ERROR("Unknow event: '" << event << "'");
 		}
-		return ejson::Null();
+		return;
 	}
-	ejson::Object tmpp;
+	ejson::Object answer;
 	uint64_t clientId = _obj["client-id"].toNumber().getU64();
 	if (_obj.valueExist("call") == true) {
 		std::string call = _obj["call"].toString().get();
 		if (isFunctionAuthorized(clientId, call) == true) {
-			tmpp = callJson2(clientId, _obj);
-			tmpp.add("client-id", ejson::Number(clientId));
-			return tmpp;
+			callJson2(_transactionId, clientId, call, _obj["param"].toArray());
+			return;
 		} else {
-			tmpp.add("error", ejson::String("NOT-AUTHORIZED-FUNCTION"));
+			answer.add("id", ejson::Number(_transactionId));
+			answer.add("client-id", ejson::Number(clientId));
+			answer.add("error", ejson::String("NOT-AUTHORIZED-FUNCTION"));
+			JUS_INFO("Answer: " << answer.generateHumanString());
+			m_interfaceClient->write(answer.generateMachineString());
+			return;
 		}
-	} else {
-		tmpp.add("error", ejson::String("NOT-IMPLEMENTED-FUNCTION"));
 	}
-	tmpp.add("client-id", ejson::Number(clientId));
-	return tmpp;
+	answer.add("id", ejson::Number(_transactionId));
+	answer.add("client-id", ejson::Number(clientId));
+	answer.add("error", ejson::String("NOT-IMPLEMENTED-FUNCTION"));
+	JUS_INFO("Answer: " << answer.generateHumanString());
+	m_interfaceClient->write(answer.generateMachineString());
 }

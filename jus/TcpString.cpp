@@ -11,15 +11,19 @@
 jus::TcpString::TcpString(enet::Tcp _connection) :
   m_connection(std::move(_connection)),
   m_thread(nullptr),
-  m_obsercerElement(nullptr) {
+  m_obsercerElement(nullptr),
+  m_threadAsync(nullptr) {
 	m_threadRunning = false;
+	m_threadAsyncRunning = false;
 }
 
 jus::TcpString::TcpString() :
   m_connection(),
   m_thread(nullptr),
-  m_obsercerElement(nullptr) {
+  m_obsercerElement(nullptr),
+  m_threadAsync(nullptr) {
 	m_threadRunning = false;
+	m_threadAsyncRunning = false;
 }
 
 void jus::TcpString::setInterface(enet::Tcp _connection) {
@@ -66,6 +70,14 @@ void jus::TcpString::connect(bool _async){
 		JUS_ERROR("creating callback thread!");
 		return;
 	}
+	m_threadAsyncRunning = true;
+	m_threadAsync = new std::thread([&](void *){ this->threadAsyncCallback();}, nullptr);
+	if (m_threadAsync == nullptr) {
+		m_threadAsyncRunning = false;
+		JUS_ERROR("creating async sender thread!");
+		return;
+	}
+	
 	while (    _async == false
 	        && m_threadRunning == true
 	        && m_connection.getConnectionStatus() != enet::Tcp::status::link) {
@@ -81,15 +93,19 @@ void jus::TcpString::connect(bool _async){
 
 void jus::TcpString::disconnect(bool _inThreadStop){
 	JUS_DEBUG("disconnect [START]");
-	if (m_thread != nullptr) {
-		m_threadRunning = false;
-	}
+	m_threadRunning = false;
+	m_threadAsyncRunning = false;
 	if (m_connection.getConnectionStatus() == enet::Tcp::status::link) {
 		uint32_t size = 0xFFFFFFFF;
 		m_connection.write(&size, 4);
 	}
 	if (m_connection.getConnectionStatus() != enet::Tcp::status::unlink) {
 		m_connection.unlink();
+	}
+	if (m_threadAsync != nullptr) {
+		m_threadAsync->join();
+		delete m_threadAsync;
+		m_threadAsync = nullptr;
 	}
 	if (_inThreadStop == false) {
 		if (m_thread != nullptr) {
@@ -145,5 +161,38 @@ std::string jus::TcpString::read() {
 	}
 	JUS_VERBOSE("Read [STOP]");
 	return out;
+}
+
+
+void jus::TcpString::threadAsyncCallback() {
+	ethread::setName("Async-sender");
+	// get datas:
+	while (    m_threadAsyncRunning == true
+	        && m_connection.getConnectionStatus() == enet::Tcp::status::link) {
+		if (m_threadAsyncList.size() == 0) {
+			usleep(10000);
+			continue;
+		}
+		std::unique_lock<std::mutex> lock(m_threadAsyncMutex);
+		auto it = m_threadAsyncList.begin();
+		while (it != m_threadAsyncList.end()) {
+			bool ret = m_threadAsyncList(this);
+			if (ret == true) {
+				// Remove it ...
+				it = m_threadAsyncList.erase(it);
+			} else {
+				++it;
+			}
+		}
+		JUS_VERBOSE("Receive data: '" << data << "'");
+		if (data.size() != 0) {
+			m_lastReceive = std::chrono::steady_clock::now();
+			if (m_obsercerElement != nullptr) {
+				m_obsercerElement(std::move(data));
+			}
+		}
+	}
+	m_threadRunning = false;
+	JUS_DEBUG("End of thread");
 }
 

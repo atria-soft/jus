@@ -57,8 +57,8 @@ namespace jus {
 		public:
 			eproperty::Value<std::string> propertyIp;
 			eproperty::Value<uint16_t> propertyPort;
-		private:
-			jus::TcpString m_interfaceClient;
+		protected:
+			ememory::SharedPtr<jus::TcpString> m_interfaceClient;
 			uint32_t m_id;
 			std::vector<std::string> m_newData;
 		public:
@@ -77,15 +77,15 @@ namespace jus {
 			void onPropertyChangePort();
 			/**
 			 * @brief A extern client connect on specific user
-			 * @param[in] _clientSessionID Source session Id on the client
+			 * @param[in] _clientId Source session Id on the client
 			 * @param[in] _userName User name of the client to connect
 			 * @todo Set a relur like ==> service not availlable / service close / service maintenance / service right reject
 			 */
-			virtual void clientConnect(size_t _clientSessionID, const std::string& _userName, const std::string& _clientName, const std::vector<std::string>& _groups) = 0;
-			virtual void clientDisconnect(size_t _clientSessionID) = 0;
+			virtual void clientConnect(uint64_t _clientId, const std::string& _userName, const std::string& _clientName, const std::vector<std::string>& _groups) = 0;
+			virtual void clientDisconnect(uint64_t _clientId) = 0;
 			// Genenric function call:
-			ejson::Value callJson(const ejson::Object& _obj);
-			virtual ejson::Object callJson2(size_t _clientId, const ejson::Object& _obj) = 0;
+			void callJson(uint64_t _transactionId, const ejson::Object& _obj);
+			virtual void callJson2(uint64_t _transactionId, uint64_t _clientId, const std::string& _call, const ejson::Array& _obj) = 0;
 			std::vector<std::string> getExtention();
 		public:
 			// Add Local fuction (depend on this class)
@@ -154,21 +154,21 @@ namespace jus {
 			  m_getUserInterface(_interface) {
 				
 			}
-			bool isFunctionAuthorized(uint64_t _clientSessionID, const std::string& _funcName) {
-				auto it = m_interface.find(_clientSessionID);
+			bool isFunctionAuthorized(uint64_t _clientId, const std::string& _funcName) {
+				auto it = m_interface.find(_clientId);
 				if (it == m_interface.end()) {
 					return false;
 				}
 				return it->second.first->isFunctionAuthorized(_funcName);
 			}
-			void clientConnect(uint64_t _clientSessionID, const std::string& _userName, const std::string& _clientName, const std::vector<std::string>& _groups) {
+			void clientConnect(uint64_t _clientId, const std::string& _userName, const std::string& _clientName, const std::vector<std::string>& _groups) {
 				std::unique_lock<std::mutex> lock(m_mutex);
-				JUS_DEBUG("connect: " << _clientSessionID << " to '" << _userName << "'");
+				JUS_DEBUG("connect: " << _clientId << " to '" << _userName << "'");
 				JUS_DEBUG("    client name='" << _clientName << "'");
 				JUS_DEBUG("    groups=" << etk::to_string(_groups));
 				ememory::SharedPtr<ClientProperty> tmpProperty = std::make_shared<ClientProperty>(_clientName, _groups);
 				ememory::SharedPtr<JUS_TYPE_SERVICE> tmpSrv = std::make_shared<JUS_TYPE_SERVICE>(m_getUserInterface.getUser(_userName), tmpProperty);
-				m_interface.insert(std::make_pair(_clientSessionID, std::make_pair(tmpProperty, tmpSrv)));
+				m_interface.insert(std::make_pair(_clientId, std::make_pair(tmpProperty, tmpSrv)));
 				// enable list of function availlable: 
 				for (auto &it : m_listFunction) {
 					if (it == nullptr) {
@@ -177,72 +177,85 @@ namespace jus {
 					tmpProperty->addAuthorized(it->getName());
 				}
 			}
-			void clientDisconnect(uint64_t _clientSessionID) {
+			void clientDisconnect(uint64_t _clientId) {
 				std::unique_lock<std::mutex> lock(m_mutex);
-				JUS_DEBUG("disconnect: " << _clientSessionID);
-				auto it = m_interface.find(_clientSessionID);
+				JUS_DEBUG("disconnect: " << _clientId);
+				auto it = m_interface.find(_clientId);
 				if (it == m_interface.end()) {
-					JUS_WARNING("disconnect ==> Not find Client ID " << _clientSessionID);
+					JUS_WARNING("disconnect ==> Not find Client ID " << _clientId);
 					// noting to do ==> user never conected.
 					return;
 				}
 				m_interface.erase(it);
 			}
-			void clientSetName(uint64_t _clientSessionID, const std::string& _clientName) {
+			void clientSetName(uint64_t _clientId, const std::string& _clientName) {
 				std::unique_lock<std::mutex> lock(m_mutex);
-				auto it = m_interface.find(_clientSessionID);
+				auto it = m_interface.find(_clientId);
 				if (it == m_interface.end()) {
 					JUS_ERROR("Change the client property but client was not created ...");
 					return;
 				}
 				it->second.first->setName(_clientName);
 			}
-			void clientSetGroup(uint64_t _clientSessionID, const std::vector<std::string>& _clientGroups) {
+			void clientSetGroup(uint64_t _clientId, const std::vector<std::string>& _clientGroups) {
 				std::unique_lock<std::mutex> lock(m_mutex);
-				auto it = m_interface.find(_clientSessionID);
+				auto it = m_interface.find(_clientId);
 				if (it == m_interface.end()) {
 					JUS_ERROR("Change the client property but client was not created ...");
 					return;
 				}
 				it->second.first->setGroups(_clientGroups);
 			}
-			ejson::Object callJson2(uint64_t _clientSessionID, const ejson::Object& _obj) {
-				ejson::Object out;
-				auto it = m_interface.find(_clientSessionID);
+			void callJson2(uint64_t _transactionId, uint64_t _clientId, const std::string& _call, const ejson::Array& _params) {
+				auto it = m_interface.find(_clientId);
 				if (it == m_interface.end()) {
-					out.add("error", ejson::String("CLIENT-UNKNOW"));
-					return out;
+					ejson::Object answer;
+					answer.add("id", ejson::Number(_transactionId));
+					answer.add("client-id", ejson::Number(_clientId));
+					answer.add("error", ejson::String("CLIENT-UNKNOW"));
+					JUS_INFO("Answer: " << answer.generateHumanString());
+					m_interfaceClient->write(answer.generateMachineString());
+					return;
 				}
-				std::string call = _obj["call"].toString().get();
-				const ejson::Array param = _obj["param"].toArray();
 				for (auto &it2 : m_listFunction) {
 					if (it2 == nullptr) {
 						continue;
 					}
-					if (it2->getName() != call) {
+					if (it2->getName() != _call) {
 						continue;
 					}
 					switch (it2->getType()) {
 						case jus::AbstractFunction::type::object: {
 							JUS_TYPE_SERVICE* elem = it->second.second.get();
-							return it2->executeJson(param, (void*)elem).toObject();
+							it2->executeJson(m_interfaceClient, _transactionId, _clientId, _params, (void*)elem);
+							return;
 						}
 						case jus::AbstractFunction::type::local: {
-							return it2->executeJson(param, (void*)((RemoteProcessCall*)this)).toObject();
+							it2->executeJson(m_interfaceClient, _transactionId, _clientId, _params, (void*)((RemoteProcessCall*)this));
+							return;
 						}
 						case jus::AbstractFunction::type::service: {
-							return it2->executeJson(param, (void*)this).toObject();
+							it2->executeJson(m_interfaceClient, _transactionId, _clientId, _params, (void*)this);
+							return;
 						}
 						case jus::AbstractFunction::type::global: {
-							return it2->executeJson(param, nullptr).toObject();
+							it2->executeJson(m_interfaceClient, _transactionId, _clientId, _params, nullptr);
+							return;
 						}
 						case jus::AbstractFunction::type::unknow:
 							JUS_ERROR("Can not call unknow type ...");
 							break;
 					}
 				}
-				out.add("error", ejson::String("FUNCTION-UNKNOW"));
-				return out;
+				{
+					ejson::Object answer;
+					answer.add("id", ejson::Number(_transactionId));
+					answer.add("client-id", ejson::Number(_clientId));
+					answer.add("error", ejson::String("FUNCTION-UNKNOW"));
+					JUS_INFO("Answer: " << answer.generateHumanString());
+					m_interfaceClient->write(answer.generateMachineString());
+				}
+				return;
 			}
 	};
 }

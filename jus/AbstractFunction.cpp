@@ -107,6 +107,15 @@ namespace jus {
 		}
 		return out;
 	}
+	template<> ejson::Value convertToJson<jus::FileServer>(const jus::FileServer& _value) {
+		ejson::Array out;
+		/*
+		for (auto &it : _value) {
+			out.add(ejson::String(it));
+		}
+		*/
+		return out;
+	}
 	
 	template<> bool convertStringTo<bool>(const std::string& _value) {
 		return etk::string_to_bool(_value);
@@ -148,6 +157,9 @@ namespace jus {
 		std::vector<std::string> out;
 		JUS_TODO("Convert string to vs");
 		return out;
+	}
+	template<> jus::FileServer convertStringTo<jus::FileServer>(const std::string& _value) {
+		return jus::FileServer();
 	}
 	
 }

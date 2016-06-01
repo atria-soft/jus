@@ -12,23 +12,37 @@
 #include <jus/AbstractFunction.h>
 namespace jus {
 	template <class JUS_RETURN, class... JUS_TYPES>
-	ejson::Value executeCallJson(JUS_RETURN (*_func)(JUS_TYPES...), const ejson::Array& _params) {
+	void executeCallJson(const ememory::SharedPtr<jus::TcpString>& _interfaceClient,
+	                     uint64_t _transactionId,
+	                     uint64_t _clientId,
+	                     JUS_RETURN (*_func)(JUS_TYPES...),
+	                     const ejson::Array& _params) {
 		#if defined(__clang__)
 			// clang generate a basic warning:
 			//      warning: multiple unsequenced modifications to 'idParam' [-Wunsequenced]
 			int32_t idParam = 0;
-			return convertToJson(_func((convertJsonTo<JUS_TYPES>(_params[idParam++]))...));
+			ejson::Value ret = convertToJson(_func((convertJsonTo<JUS_TYPES>(_params[idParam++]))...));
 		#elif defined(__GNUC__) || defined(__GNUG__) || defined(_MSC_VER)
 			int32_t idParam = int32_t(sizeof...(JUS_TYPES))-1;
-			return convertToJson(_func(convertJsonTo<JUS_TYPES>(_params[idParam--])...));
+			ejson::Value ret = convertToJson(_func(convertJsonTo<JUS_TYPES>(_params[idParam--])...));
 		#else
 			#error Must be implemented ...
+			ejson::Value ret = ejson::Null();
 		#endif
-		return ejson::Null();
+		ejson::Object answer;
+		answer.add("id", ejson::Number(_transactionId));
+		answer.add("client-id", ejson::Number(_clientId));
+		answer.add("return", ret);
+		JUS_INFO("Answer: " << answer.generateHumanString());
+		_interfaceClient->write(answer.generateMachineString());
 	}
 	
 	template <class... JUS_TYPES>
-	ejson::Value executeCallJson(void (*_func)(JUS_TYPES...), const ejson::Array& _params) {
+	void executeCallJson(const ememory::SharedPtr<jus::TcpString>& _interfaceClient,
+	                     uint64_t _transactionId,
+	                     uint64_t _clientId,
+	                     void (*_func)(JUS_TYPES...),
+	                     const ejson::Array& _params) {
 		ejson::Object out;
 		#if defined(__clang__)
 			// clang generate a basic warning:
@@ -41,7 +55,16 @@ namespace jus {
 		#else
 			#error Must be implemented ...
 		#endif
-		return ejson::Null();
+		_interfaceClient->addAsync([=](TcpString* _interface) {
+			ejson::Object answer;
+			answer.add("id", ejson::Number(_transactionId));
+			answer.add("client-id", ejson::Number(_clientId));
+			answer.add("return", ejson::Null());
+			JUS_INFO("Answer: " << answer.generateHumanString());
+			_interface->write(answer.generateMachineString());
+			return true;
+			});
+		}
 	}
 	
 	template <class JUS_RETURN, class... JUS_TYPES>
@@ -113,33 +136,43 @@ namespace jus {
 				}
 				return out;
 			}
-			ejson::Value executeJson(const ejson::Array& _params, void* _class) override {
-				ejson::Object out;
+			void executeJson(const ememory::SharedPtr<jus::TcpString>& _interfaceClient,
+			                 uint64_t _transactionId,
+			                 uint64_t _clientId,
+			                 const ejson::Array& _params,
+			                 void* _class) override {
 				// check parameter number
 				if (_params.size() != sizeof...(JUS_TYPES)) {
-					JUS_ERROR("Wrong number of Parameters ...");
-					out.add("error", ejson::String("WRONG-PARAMETER-NUMBER"));
+					ejson::Object answer;
+					answer.add("id", ejson::Number(_transactionId));
+					answer.add("client-id", ejson::Number(_clientId));
+					answer.add("error", ejson::String("WRONG-PARAMETER-NUMBER"));
 					std::string help = "request ";
 					help += etk::to_string(_params.size());
 					help += " parameters and need ";
 					help += etk::to_string(sizeof...(JUS_TYPES));
 					help += " parameters. prototype function:";
 					help += getPrototype();
-					out.add("error-help", ejson::String(help));
-					return out;
+					answer.add("error-help", ejson::String(help));
+					JUS_INFO("Answer: " << answer.generateHumanString());
+					_interfaceClient->write(answer.generateMachineString());
+					return;
 				}
 				// check parameter compatibility
 				for (size_t iii=0; iii<sizeof...(JUS_TYPES); ++iii) {
 					if (checkCompatibility(m_paramType[iii], _params[iii]) == false) {
-						out.add("error", ejson::String("WRONG-PARAMETER-TYPE"));
-						out.add("error-help", ejson::String("Parameter id " + etk::to_string(iii) + " not compatible with type: '" + m_paramType[iii].getName() + "'"));
-						return out;
+						ejson::Object answer;
+						answer.add("id", ejson::Number(_transactionId));
+						answer.add("client-id", ejson::Number(_clientId));
+						answer.add("error", ejson::String("WRONG-PARAMETER-TYPE"));
+						answer.add("error-help", ejson::String("Parameter id " + etk::to_string(iii) + " not compatible with type: '" + m_paramType[iii].getName() + "'"));
+						JUS_INFO("Answer: " << answer.generateHumanString());
+						_interfaceClient->write(answer.generateMachineString());
+						return;
 					}
 				}
 				// execute cmd:
-				ejson::Value retVal = jus::executeCallJson(m_function, _params);
-				out.add("return", retVal);
-				return out;
+				jus::executeCallJson(_interfaceClient, _transactionId, _clientId, m_function, _params);
 			}
 			std::string executeString(const std::vector<std::string>& _params, void* _class) override {
 				std::string out;
