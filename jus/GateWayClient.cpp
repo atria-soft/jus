@@ -360,7 +360,7 @@ void jus::GateWayClient::onClientData(std::string _value) {
 					                  		JUS_VERBOSE("    ==> transmit : " << tmpp["id"].toNumber().getU64() << " -> " << data["id"].toNumber().getU64());
 					                  		JUS_VERBOSE("    msg=" << tmpp.generateMachineString());
 					                  		tmpp["id"].toNumber().set(data["id"].toNumber().getU64());
-					                  		JUS_VERBOSE("    msg=" << tmpp.generateMachineString());
+					                  		JUS_DEBUG("transmit=" << tmpp.generateMachineString());
 					                  		m_interfaceClient.write(tmpp.generateMachineString());
 					                  		if (tmpp.valueExist("part") == true) {
 					                  			// multiple send element ...

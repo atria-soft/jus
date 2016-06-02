@@ -21,10 +21,10 @@ namespace jus {
 			// clang generate a basic warning:
 			//      warning: multiple unsequenced modifications to 'idParam' [-Wunsequenced]
 			int32_t idParam = 0;
-			ejson::Value ret = convertToJson(_func((convertJsonTo<JUS_TYPES>(_params[idParam++]))...));
+			ejson::Value ret = jus::convertToJson(_func((jus::convertJsonTo<JUS_TYPES>(_params[idParam++]))...));
 		#elif defined(__GNUC__) || defined(__GNUG__) || defined(_MSC_VER)
 			int32_t idParam = int32_t(sizeof...(JUS_TYPES))-1;
-			ejson::Value ret = convertToJson(_func(convertJsonTo<JUS_TYPES>(_params[idParam--])...));
+			ejson::Value ret = jus::convertToJson(_func(jus::convertJsonTo<JUS_TYPES>(_params[idParam--])...));
 		#else
 			#error Must be implemented ...
 			ejson::Value ret = ejson::Null();
@@ -48,10 +48,10 @@ namespace jus {
 			// clang generate a basic warning:
 			//      warning: multiple unsequenced modifications to 'idParam' [-Wunsequenced]
 			int32_t idParam = 0;
-			_func((convertJsonTo<JUS_TYPES>(_params[idParam++]))...);
+			_func((jus::convertJsonTo<JUS_TYPES>(_params[idParam++]))...);
 		#elif defined(__GNUC__) || defined(__GNUG__) || defined(_MSC_VER)
 			int32_t idParam = int32_t(sizeof...(JUS_TYPES))-1;
-			_func(convertJsonTo<JUS_TYPES>(_params[idParam--])...);
+			_func(jus::convertJsonTo<JUS_TYPES>(_params[idParam--])...);
 		#else
 			#error Must be implemented ...
 		#endif
@@ -64,7 +64,6 @@ namespace jus {
 			_interface->write(answer.generateMachineString());
 			return true;
 			});
-		}
 	}
 	
 	template <class JUS_RETURN, class... JUS_TYPES>
@@ -73,10 +72,10 @@ namespace jus {
 			// clang generate a basic warning:
 			//      warning: multiple unsequenced modifications to 'idParam' [-Wunsequenced]
 			int32_t idParam = 0;
-			return etk::to_string(_func((convertStringTo<JUS_TYPES>(_params[idParam++]))...));
+			return etk::to_string(_func((jus::convertStringTo<JUS_TYPES>(_params[idParam++]))...));
 		#elif defined(__GNUC__) || defined(__GNUG__) || defined(_MSC_VER)
 			int32_t idParam = int32_t(sizeof...(JUS_TYPES))-1;
-			return etk::to_string(_func(convertStringTo<JUS_TYPES>(_params[idParam--])...));
+			return etk::to_string(_func(jus::convertStringTo<JUS_TYPES>(_params[idParam--])...));
 		#else
 			#error Must be implemented ...
 		#endif
@@ -89,10 +88,10 @@ namespace jus {
 			// clang generate a basic warning:
 			//      warning: multiple unsequenced modifications to 'idParam' [-Wunsequenced]
 			int32_t idParam = 0;
-			_func((convertStringTo<JUS_TYPES>(_params[idParam++]))...);
+			_func((jus::convertStringTo<JUS_TYPES>(_params[idParam++]))...);
 		#elif defined(__GNUC__) || defined(__GNUG__) || defined(_MSC_VER)
 			int32_t idParam = int32_t(sizeof...(JUS_TYPES))-1;
-			_func(convertStringTo<JUS_TYPES>(_params[idParam--])...);
+			_func(jus::convertStringTo<JUS_TYPES>(_params[idParam--])...);
 		#else
 			#error Must be implemented ...
 		#endif

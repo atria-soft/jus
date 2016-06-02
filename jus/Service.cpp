@@ -35,19 +35,29 @@ std::vector<std::string> jus::Service::getExtention() {
 
 
 void jus::Service::onClientData(std::string _value) {
+	JUS_INFO("Request: " << _value);
 	ejson::Object request(_value);
 	uint64_t tmpID = request["id"].toNumber().getU64();
-	//request.remove("id");
-	JUS_INFO("Request: " << _value);
-	callJson(tmpID, request);
-	/*
-	// check if an answer is needed
-	if (answer.isNull() == false) {
-		answer.toObject().add("id", tmpID);
-		JUS_INFO("Answer: " << answer.generateHumanString());
-		m_interfaceClient->write(answer.generateMachineString());
+	uint64_t clientId = request["client-id"].toNumber().getU64();
+	auto it = m_callMultiData.begin();
+	while (it != m_callMultiData.end()) {
+		if (    it->getTransactionId() == tmpID
+		     && it->getClientId() == clientId) {
+			it->appendData(request);
+			if (it->isFinished() == true) {
+				callJson(tmpID, it->getRaw());
+				it = m_callMultiData.erase(it);
+			}
+			return;
+		}
+		++it;
 	}
-	*/
+	jus::FutureCall futCall(clientId, tmpID, request);
+	if (futCall.isFinished() == true) {
+		callJson(tmpID, futCall.getRaw());
+	} else {
+		m_callMultiData.push_back(futCall);
+	}
 }
 
 void jus::Service::onPropertyChangeIp() {

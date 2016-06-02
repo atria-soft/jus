@@ -198,7 +198,45 @@ namespace appl {
 			// Return a File Data (might be a picture .tiff/.png/.jpg)
 			jus::FileServer getAlbumPicture(const std::string& _pictureName) {
 				std::unique_lock<std::mutex> lock(m_mutex);
+				// TODO : Check right ...
+				uint64_t id = etk::string_to_uint64_t(_pictureName);
+				APPL_WARNING("try to get file : " << _pictureName << " with id=" << id);
+				{
+					auto it = m_listFile.find(id);
+					if (it != m_listFile.end()) {
+						return jus::FileServer(m_basePath + it->second);
+					}
+				}
+				for (auto &it : m_listFile) {
+					APPL_WARNING("compare: " << it.first << " with " << id << " " << it.second);
+					if (it.first == id) {
+						return jus::FileServer(m_basePath + it.second);
+					}
+				}
+				APPL_ERROR("    ==> Not find ...");
 				return jus::FileServer();
+			}
+			std::string addFile(const jus::File& _dataFile) {
+				std::unique_lock<std::mutex> lock(m_mutex);
+				// TODO : Check right ...
+				/*
+				uint64_t id = etk::string_to_uint64_t(_pictureName);
+				APPL_WARNING("try to get file : " << _pictureName << " with id=" << id);
+				{
+					auto it = m_listFile.find(id);
+					if (it != m_listFile.end()) {
+						return jus::FileServer(m_basePath + it->second);
+					}
+				}
+				for (auto &it : m_listFile) {
+					APPL_WARNING("compare: " << it.first << " with " << id << " " << it.second);
+					if (it.first == id) {
+						return jus::FileServer(m_basePath + it.second);
+					}
+				}
+				*/
+				APPL_ERROR("    ==> Receive FILE " << _dataFile.getMineType());
+				return "54654654654654";//jus::FileServer();
 			}
 			/*
 			// Return a global UTC time
@@ -277,6 +315,9 @@ namespace appl {
 			jus::FileServer getAlbumPicture(std::string _pictureName) {
 				return m_user->getAlbumPicture(_pictureName);
 			}
+			std::string addFile(jus::File _dataFile) {
+				return m_user->addFile(_dataFile);
+			}
 			/*
 			// Return a global UTC time
 			jus::Time getAlbumPictureTime(std::string _pictureName) {
@@ -332,6 +373,7 @@ int main(int _argc, const char *_argv[]) {
 		serviceInterface.advertise("getAlbumCount", &appl::PictureService::getAlbumCount);
 		serviceInterface.advertise("getAlbumListPicture", &appl::PictureService::getAlbumListPicture);
 		serviceInterface.advertise("getAlbumPicture", &appl::PictureService::getAlbumPicture);
+		serviceInterface.advertise("addFile", &appl::PictureService::addFile);
 		/*
 		serviceInterface.advertise("getAlbumPicture", &appl::PictureService::getAlbumPicture);
 		serviceInterface.advertise("getAlbumPictureTime", &appl::PictureService::getAlbumPictureTime);

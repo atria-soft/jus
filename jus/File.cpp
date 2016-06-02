@@ -17,14 +17,24 @@ jus::File::File(const std::string& _filename) {
 	
 }
 
-jus::File::File(const std::string& _mineType, std::vector<uint8_t> _data) {
+jus::File::File(const std::string& _mineType, std::vector<uint8_t> _data):
+  m_mineType(_mineType),
+  m_data(_data) {
 	
 }
+
+void jus::File::setData(uint64_t _offset, const std::vector<uint8_t>& _data) {
+	// TODO : Check size/offset before set
+	memcpy(&m_data[_offset], &_data[0], _data.size());
+}
+
+
 jus::FileServer::FileServer() {
 	
 }
-jus::FileServer::FileServer(const std::string& _filename) {
-	m_name = _filename;
+jus::FileServer::FileServer(const std::string& _filename) :
+  m_name(_filename) {
+	
 }
 
 

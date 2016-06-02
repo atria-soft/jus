@@ -96,6 +96,8 @@ namespace jus {
 	void createParam(ejson::Object& _obj, const std::vector<double>& _param, _ARGS&&... _args);
 	template<class... _ARGS>
 	void createParam(ejson::Object& _obj, const std::vector<float>& _param, _ARGS&&... _args);
+	template<class... _ARGS>
+	void createParam(ejson::Object& _obj, const jus::File& _param, _ARGS&&... _args);
 	
 	template<class... _ARGS>
 	void createParam(ejson::Object& _obj, const char* _param, _ARGS&&... _args) {
@@ -218,6 +220,15 @@ namespace jus {
 			array2.add(ejson::Number(it));
 		}
 		array.add(array2);
+		createParam(_obj, std::forward<_ARGS>(_args)...);
+	}
+	template<class... _ARGS>
+	void createParam(ejson::Object& _obj, const jus::File& _param, _ARGS&&... _args) {
+		if (_obj.valueExist("param") == false) {
+			_obj.add("param", ejson::Array());
+		}
+		ejson::Array array = _obj["param"].toArray();
+		array.add(convertToJson<jus::File>(_param));
 		createParam(_obj, std::forward<_ARGS>(_args)...);
 	}
 	

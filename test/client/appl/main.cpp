@@ -7,7 +7,9 @@
 #include <appl/debug.h>
 #include <jus/Client.h>
 #include <jus/ServiceRemote.h>
+#include <jus/mineType.h>
 #include <etk/etk.h>
+#include <etk/os/FSNode.h>
 #include <unistd.h>
 
 #include <etk/stdTools.h>
@@ -164,12 +166,22 @@ int main(int _argc, const char *_argv[]) {
 						jus::File tmpFile = retListImage.get();
 						APPL_INFO("                    mine-type: " << tmpFile.getMineType());
 						APPL_INFO("                    size: " << tmpFile.getData().size());
+						APPL_INFO("                    receive in =" << int64_t(retListImage.getTransmitionTime().count()/1000)/1000.0 << " ms");
+						std::string tmpFileName = std::string("./out/") + it + "_" + it2 + "_" + it3 + "." + jus::getExtention(tmpFile.getMineType());
+						APPL_INFO("                    store in: " << tmpFileName);
+						etk::FSNode node(tmpFileName);
+						node.fileOpenWrite();
+						node.fileWrite(&tmpFile.getData()[0], 1, tmpFile.getData().size());
+						node.fileClose();
 					}
 				} else {
 					APPL_INFO("            - " << it2);
 				}
 			}
 		}
+		jus::File tmp("image/jpg", {0,5,2,6,7,5,8,4,5,2,1,5,65,5,2,6,85,4,6,6,54,65,88,64,14,6,4,64,51,3,16,4});
+		jus::FutureBase retSendImage = remoteServicePicture.call("addFile", tmp).wait();
+		
 	}
 	int32_t iii=0;
 	while (iii < 3) {

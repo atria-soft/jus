@@ -10,6 +10,11 @@
 #include <ejson/ejson.h>
 #include <jus/debug.h>
 #include <jus/AbstractFunction.h>
+#include <jus/mineType.h>
+#include <etk/os/FSNode.h>
+#include <ejson/base64.h>
+
+
 namespace jus {
 	template <class JUS_CLASS_TYPE, class JUS_RETURN, class... JUS_TYPES>
 	void executeClassCallJson(const ememory::SharedPtr<jus::TcpString>& _interfaceClient,
@@ -38,8 +43,71 @@ namespace jus {
 		JUS_INFO("Answer: " << answer.generateHumanString());
 		_interfaceClient->write(answer.generateMachineString());
 	}
-	
-	template <class JUS_CLASS_TYPE, class JUS_RETURN, class... JUS_TYPES>
+	class SendFile {
+		private:
+			jus::FileServer m_data;
+			uint64_t m_transactionId;
+			uint64_t m_clientId;
+			uint32_t m_partId;
+			etk::FSNode m_node;
+			uint64_t m_size;
+		public:
+			SendFile(jus::FileServer _data,
+			         uint64_t _transactionId,
+			         uint64_t _clientId) :
+			  m_data(_data),
+			  m_transactionId(_transactionId),
+			  m_clientId(_clientId),
+			  m_partId(0),
+			  m_node(_data.getFileName()),
+			  m_size(0) {
+				
+			}
+			~SendFile() {
+				//m_node.fileClose();
+			}
+			bool operator() (TcpString* _interface) {
+				ejson::Object answer;
+				answer.add("id", ejson::Number(m_transactionId));
+				answer.add("client-id", ejson::Number(m_clientId));
+				answer.add("part", ejson::Number(m_partId));
+				if (m_partId == 0) {
+					m_node.fileOpenRead();
+					ejson::Object file;
+					file.add("type", ejson::String("file"));
+					std::string extention = std::string(m_data.getFileName().begin()+m_data.getFileName().size() -3, m_data.getFileName().end());
+					JUS_WARNING("send file: '" << m_data.getFileName() << "' with extention: '" << extention << "'");
+					file.add("mine-type", ejson::String(jus::getMineType(extention)));
+					m_size = m_node.fileSize();
+					file.add("size", ejson::Number(m_size));
+					answer.add("return", file);
+					JUS_INFO("Answer: " << answer.generateHumanString());
+					_interface->write(answer.generateMachineString());
+					m_partId++;
+					return false;
+				}
+				int32_t tmpSize = 1024;
+				if (m_size < 1024) {
+					tmpSize = m_size;
+				}
+				uint8_t tmpData[1024];
+				m_node.fileRead(tmpData, 1, tmpSize);
+				answer.add("data", ejson::String(ejson::base64::encode(tmpData, tmpSize)));
+				m_size -= tmpSize;
+				if (m_size <= 0) {
+					answer.add("finish", ejson::Boolean(true));
+					m_node.fileClose();
+				}
+				JUS_INFO("Answer: " << answer.generateHumanString());
+				_interface->write(answer.generateMachineString());
+				m_partId++;
+				if (m_size <= 0) {
+					return true;
+				}
+				return false;
+			}
+	};
+	template <class JUS_CLASS_TYPE, class... JUS_TYPES>
 	void executeClassCallJson(const ememory::SharedPtr<jus::TcpString>& _interfaceClient,
 	                          uint64_t _transactionId,
 	                          uint64_t _clientId,
@@ -59,7 +127,7 @@ namespace jus {
 			jus::FileServer tmpElem;
 			return;
 		#endif
-		JUS_ERROR("Must be implemented in a worker ...");
+		_interfaceClient->addAsync(SendFile(tmpElem, _transactionId, _clientId));
 	}
 	
 	template <class JUS_CLASS_TYPE, class... JUS_TYPES>

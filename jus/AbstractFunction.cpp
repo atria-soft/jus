@@ -56,6 +56,15 @@ namespace jus {
 		}
 		return out;
 	}
+	template<> jus::File convertJsonTo<jus::File>(const ejson::Value& _value) {
+		ejson::Object obj = _value.toObject();
+		jus::File out;
+		out.setMineType(obj["mine-type"].toString().get());
+		out.preSetDataSize(obj["size"].toNumber().getU64());
+		//out.add("type", ejson::String("file"));
+		// TODO : Add extended datas ...
+		return out;
+	}
 	
 	template<> ejson::Value convertToJson<bool>(const bool& _value) {
 		return ejson::Boolean(_value);
@@ -116,6 +125,14 @@ namespace jus {
 		*/
 		return out;
 	}
+	template<> ejson::Value convertToJson<jus::File>(const jus::File& _value) {
+		ejson::Object out;
+		out.add("type", ejson::String("file"));
+		out.add("mine-type", ejson::String(_value.getMineType()));
+		out.add("size", ejson::Number(_value.getData().size()));
+		// TODO : Add extended datas ...
+		return out;
+	}
 	
 	template<> bool convertStringTo<bool>(const std::string& _value) {
 		return etk::string_to_bool(_value);
@@ -160,6 +177,9 @@ namespace jus {
 	}
 	template<> jus::FileServer convertStringTo<jus::FileServer>(const std::string& _value) {
 		return jus::FileServer();
+	}
+	template<> jus::File convertStringTo<jus::File>(const std::string& _value) {
+		return jus::File();
 	}
 	
 }
@@ -277,6 +297,14 @@ bool jus::AbstractFunction::checkCompatibility(const ParamType& _type, const ejs
 			return false;
 		}
 		return _params.isArray();
+	}
+	if (createType<jus::File>() == _type) {
+		if (_params.isObject()) {
+			if (_params.toObject()["type"].toString().get() == "file") {
+				return true;
+			}
+		}
+		return false;
 	}
 	if (createType<std::string>() == _type) {
 		return _params.isString();

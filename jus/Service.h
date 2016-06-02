@@ -12,6 +12,7 @@
 #include <jus/AbstractFunctionTypeClass.h>
 #include <jus/debug.h>
 #include <jus/RemoteProcessCall.h>
+#include <jus/Future.h>
 
 namespace jus {
 	class ClientProperty {
@@ -61,6 +62,7 @@ namespace jus {
 			ememory::SharedPtr<jus::TcpString> m_interfaceClient;
 			uint32_t m_id;
 			std::vector<std::string> m_newData;
+			std::vector<jus::FutureCall> m_callMultiData;
 		public:
 			Service();
 			virtual ~Service();

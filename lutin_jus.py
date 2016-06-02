@@ -47,6 +47,7 @@ def create(target, module_name):
 	    'jus/Service.cpp',
 	    'jus/ServiceRemote.cpp',
 	    'jus/TcpString.cpp',
+	    'jus/mineType.cpp',
 	    ])
 	my_module.add_header_file([
 	    'jus/AbstractFunction.h',
@@ -66,6 +67,7 @@ def create(target, module_name):
 	    'jus/Service.h',
 	    'jus/ServiceRemote.h',
 	    'jus/TcpString.h',
+	    'jus/mineType.h',
 	    ])
 	if target.config["compilator"] == "clang":
 		my_module.add_export_flag('c++', "-Wno-unsequenced")

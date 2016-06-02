@@ -31,5 +31,22 @@ namespace jus {
 			ejson::Object getRaw();
 			std::chrono::nanoseconds getTransmitionTime();
 	};
+	class FutureCall {
+		private:
+			uint64_t m_transactionId;
+			uint64_t m_clientId;
+			bool m_isFinished;
+			ejson::Object m_data;
+			std::chrono::steady_clock::time_point m_receiveTime;
+			std::chrono::steady_clock::time_point m_answerTime;
+		public:
+			FutureCall(uint64_t _clientId, uint64_t _transactionId, const ejson::Object& _callValue);
+			void appendData(const ejson::Object& _callValue);
+			uint64_t getTransactionId();
+			uint64_t getClientId();
+			bool isFinished();
+			std::chrono::nanoseconds getTransmitionTime();
+			ejson::Object getRaw();
+	};
 }
 

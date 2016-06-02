@@ -149,13 +149,20 @@ std::string jus::TcpString::read() {
 			m_threadRunning = false;
 			//m_connection.unlink();
 		} else {
+			int64_t offset = 0;
 			out.resize(size);
-			len = m_connection.read(&out[0], size);
-			if (len == 0) {
-				JUS_WARNING("Read No data");
-			} else if (len != size) {
-				// TODO  do it again ...
-				JUS_ERROR("Protocol error occured .2.");
+			while (offset != size) {
+				len = m_connection.read(&out[offset], size-offset);
+				offset += len;
+				if (len == 0) {
+					JUS_WARNING("Read No data");
+					//break;
+				}
+				/*
+				else if (size != offset) {
+					JUS_ERROR("Protocol error occured .2. ==> concat (offset=" << offset << " size=" << size);
+				}
+				*/
 			}
 		}
 	}
@@ -176,19 +183,12 @@ void jus::TcpString::threadAsyncCallback() {
 		std::unique_lock<std::mutex> lock(m_threadAsyncMutex);
 		auto it = m_threadAsyncList.begin();
 		while (it != m_threadAsyncList.end()) {
-			bool ret = m_threadAsyncList(this);
+			bool ret = (*it)(this);
 			if (ret == true) {
 				// Remove it ...
 				it = m_threadAsyncList.erase(it);
 			} else {
 				++it;
-			}
-		}
-		JUS_VERBOSE("Receive data: '" << data << "'");
-		if (data.size() != 0) {
-			m_lastReceive = std::chrono::steady_clock::now();
-			if (m_obsercerElement != nullptr) {
-				m_obsercerElement(std::move(data));
 			}
 		}
 	}

@@ -182,3 +182,69 @@ jus::FutureBase& jus::FutureBase::waitUntil(std::chrono::steady_clock::time_poin
 	return *this;
 }
 
+
+jus::FutureCall::FutureCall(uint64_t _clientId, uint64_t _transactionId, const ejson::Object& _callValue) :
+  m_transactionId(_transactionId),
+  m_clientId(_clientId),
+  m_isFinished(false) {
+	m_data = _callValue;
+	if (m_data.valueExist("part") == true) {
+		if (m_data.valueExist("finish") == true) {
+			if (m_data["finish"].toBoolean().get() == true) {
+				m_isFinished = true;
+			}
+		}
+	} else {
+		m_isFinished = true;
+	}
+}
+
+void jus::FutureCall::appendData(const ejson::Object& _callValue) {
+	uint64_t paramID = _callValue["param-id"].toNumber().getU64();
+	// get the previous element parameters
+	ejson::Array params = m_data["param"].toArray();
+	if (params.exist() == false) {
+		JUS_ERROR("try to add element on an inexistand parameter ...==> bad case");
+		m_isFinished = true;
+		return;
+	}
+	// Get the specific parameter
+	ejson::Object param = params[paramID].toObject();
+	if (param.exist() == false) {
+		JUS_ERROR("the parameter is not an object ==> bad case");
+		m_isFinished = true;
+		return;
+	}
+	// check if section data
+	if (param.valueExist("data") == false) {
+		param.add("data", ejson::Array());
+	}
+	// add data in the array
+	param["data"].toArray().add(_callValue["data"]);
+	
+	if (_callValue.valueExist("finish") == true) {
+		if (_callValue["finish"].toBoolean().get() == true) {
+			m_isFinished = true;
+		}
+	}
+}
+
+uint64_t jus::FutureCall::getTransactionId() {
+	return m_transactionId;
+}
+
+uint64_t jus::FutureCall::getClientId() {
+	return m_clientId;
+}
+
+bool jus::FutureCall::isFinished() {
+	return m_isFinished;
+}
+
+ejson::Object jus::FutureCall::getRaw() {
+	return m_data;
+}
+
+std::chrono::nanoseconds jus::FutureCall::getTransmitionTime() {
+	return m_answerTime - m_receiveTime;
+}

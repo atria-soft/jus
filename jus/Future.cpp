@@ -7,6 +7,7 @@
 #include <jus/debug.h>
 #include <unistd.h>
 #include <jus/File.h>
+#include <ejson/base64.h>
 
 namespace jus {
 	template<>
@@ -495,25 +496,32 @@ namespace jus {
 		if (m_data == nullptr) {
 			return out;
 		}
-		// TODO :...
-		/*
 		ejson::Value val = m_data->m_returnData["return"];
 		if (val.exist() == false) {
 			JUS_WARNING("No Return value ...");
 			return out;
 		}
-		if (val.isArray() == false) {
-			JUS_WARNING("Wrong return Type get '" << val.getType() << " instead of 'Array'");
+		if (val.isObject() == false) {
+			JUS_WARNING("Wrong return Type get '" << val.getType() << " instead of 'Object'");
 			return out;
 		}
-		for (auto it : val.toArray()) {
-			if (it.isBoolean() == false) {
-				JUS_WARNING("Wrong return Type (part of array) get '" << it.getType() << " instead of 'Boolean'");
-				continue;
-			}
-			out.push_back(it.toBoolean().get());
+		ejson::Object retVal = val.toObject();
+		if (retVal["type"].toString().get() != "file") {
+			JUS_WARNING("Wrong return object-type get '" << retVal["type"].toString().get() << " instead of 'file'");
+			return out;
 		}
-		*/
+		out.setMineType(retVal["mine-type"].toString().get());
+		out.preSetDataSize(retVal["size"].toNumber().getU64());
+		// no data might be stored in the first packet ...
+		
+		uint64_t offset = 0;
+		// TODO: check part ID
+		for (auto &it : m_data->m_returnDataPart) {
+			ejson::String valData = it.toString();
+			std::vector<uint8_t> tmpData = ejson::base64::decode(valData.get());
+			out.setData(offset, tmpData);
+			offset += tmpData.size();
+		}
 		return out;
 	}
 }
