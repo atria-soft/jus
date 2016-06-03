@@ -43,8 +43,10 @@ void jus::Service::onClientData(std::string _value) {
 	while (it != m_callMultiData.end()) {
 		if (    it->getTransactionId() == tmpID
 		     && it->getClientId() == clientId) {
+			JUS_WARNING("Append data ... " << tmpID);
 			it->appendData(request);
 			if (it->isFinished() == true) {
+				JUS_WARNING("CALL Function ...");
 				callJson(tmpID, it->getRaw());
 				it = m_callMultiData.erase(it);
 			}

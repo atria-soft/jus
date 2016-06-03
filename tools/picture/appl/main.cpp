@@ -235,7 +235,8 @@ namespace appl {
 					}
 				}
 				*/
-				APPL_ERROR("    ==> Receive FILE " << _dataFile.getMineType());
+				APPL_ERROR("    ==> Receive FILE " << _dataFile.getMineType() << " size=" << _dataFile.getData().size());
+				_dataFile.storeIn("plopppp.bmp");
 				return "54654654654654";//jus::FileServer();
 			}
 			/*

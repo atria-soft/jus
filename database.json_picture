@@ -1,0 +1,29 @@
+{
+	"default-view": { },
+	"right-group": [ "public" ],
+	"right-user": [ ],
+	"group-global": [ "photo", "drawing" ],
+	"groups": {
+		"photo": {
+			"right-herited": false,
+			"right-group": [ "famille" ],
+			"right-user": [ "camille#atria-soft.com" ],
+			"sub": [ "2015", "2016" ],
+			"files": [ 22641, 34695 ]
+		},
+		"drawing": {
+			"right-herited": true,
+			"files": [ 33913, 262464 ]
+		},
+		"2015": {
+			"right-herited": true,
+			"sub": [ ],
+			"files": [ 33913 ]
+		},
+		"2016": {
+			"right-herited": true,
+			"sub": [ ],
+			"files": [ 33913, 262464 ]
+		}
+	}
+}

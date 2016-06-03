@@ -23,19 +23,23 @@ namespace jus {
 	                          JUS_CLASS_TYPE* _pointer,
 	                          JUS_RETURN (JUS_CLASS_TYPE::*_func)(JUS_TYPES...),
 	                          const ejson::Array& _params) {
+		std::vector<ActionAsyncClient> asyncAction;
 		#if defined(__clang__)
 			// clang generate a basic warning:
 			//      warning: multiple unsequenced modifications to 'idParam' [-Wunsequenced]
 			int32_t idParam = 0;
-			ejson::Value ret = convertToJson((*_pointer.*_func)((convertJsonTo<JUS_TYPES>(_params[idParam++]))...));
+			ejson::Value ret = convertToJson(asyncAction, -1, (*_pointer.*_func)((convertJsonTo<JUS_TYPES>(_params[idParam++]))...));
 		#elif defined(__GNUC__) || defined(__GNUG__) || defined(_MSC_VER)
 			int32_t idParam = int32_t(sizeof...(JUS_TYPES))-1;
-			ejson::Value ret = convertToJson((*_pointer.*_func)(convertJsonTo<JUS_TYPES>(_params[idParam--])...));
+			ejson::Value ret = convertToJson(asyncAction, -1, (*_pointer.*_func)(convertJsonTo<JUS_TYPES>(_params[idParam--])...));
 		#else
 			#error Must be implemented ...
 			ejson::Value ret = ejson::Null();
 			return;
 		#endif
+		if (asyncAction.size() != 0) {
+			JUS_ERROR("Missing send async messages");
+		}
 		ejson::Object answer;
 		answer.add("id", ejson::Number(_transactionId));
 		answer.add("client-id", ejson::Number(_clientId));

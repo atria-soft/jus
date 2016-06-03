@@ -56,7 +56,7 @@ namespace jus {
 				return m_lastSend;
 			}
 		private:
-			using ActionAsync = std::function<bool(TcpString* _interface)>; 
+			using ActionAsync = std::function<bool(TcpString* _interface)>;
 			std::mutex m_threadAsyncMutex;
 			std::thread* m_threadAsync;
 			bool m_threadAsyncRunning;

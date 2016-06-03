@@ -219,9 +219,10 @@ void jus::FutureCall::appendData(const ejson::Object& _callValue) {
 	if (param.valueExist("data") == false) {
 		param.add("data", ejson::Array());
 	}
-	// add data in the array
-	param["data"].toArray().add(_callValue["data"]);
-	
+	// add data in the array (only if we have local data ...
+	if (_callValue.valueExist("data") == true) {
+		param["data"].toArray().add(_callValue["data"]);
+	}
 	if (_callValue.valueExist("finish") == true) {
 		if (_callValue["finish"].toBoolean().get() == true) {
 			m_isFinished = true;

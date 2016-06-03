@@ -60,6 +60,9 @@ namespace jus {
 			virtual std::string executeString(const std::vector<std::string>& _params, void* _class=nullptr) = 0;
 	};
 	
+	// define basic async call element ...
+	using ActionAsyncClient = std::function<bool(TcpString* _interface, const std::string& _service, uint64_t _transactionId, uint64_t _part)>;
+	
 	template<class JUS_TYPE>
 	JUS_TYPE convertStringTo(const std::string& _value);
 	
@@ -67,181 +70,51 @@ namespace jus {
 	JUS_TYPE convertJsonTo(const ejson::Value& _value);
 	
 	template<class JUS_TYPE>
-	ejson::Value convertToJson(const JUS_TYPE& _value);
+	ejson::Value convertToJson(std::vector<ActionAsyncClient>& _asyncAction, int32_t _paramId, const JUS_TYPE& _value);
+	//ejson::Value convertToJson(std::vector<ActionAsyncClient>& _asyncAction, int32_t _paramId, const char* _value);
 	
 	
 	ejson::Object createBaseCall(uint64_t _transactionId, const std::string& _functionName, const std::string& _service="");
 	
-	void createParam(ejson::Object& _obj);
+	void createParam(std::vector<ActionAsyncClient>& _asyncAction,
+	                 int32_t _paramId,
+	                 ejson::Object& _obj);
 	
-	template<class... _ARGS>
-	void createParam(ejson::Object& _obj, const char* _param, _ARGS&&... _args);
-	template<class... _ARGS>
-	void createParam(ejson::Object& _obj, const std::string& _param, _ARGS&&... _args);
-	template<class... _ARGS>
-	void createParam(ejson::Object& _obj, const bool& _param, _ARGS&&... _args);
-	template<class... _ARGS>
-	void createParam(ejson::Object& _obj, const int32_t& _param, _ARGS&&... _args);
-	template<class... _ARGS>
-	void createParam(ejson::Object& _obj, const double& _param, _ARGS&&... _args);
-	template<class... _ARGS>
-	void createParam(ejson::Object& _obj, const float& _param, _ARGS&&... _args);
-	template<class... _ARGS>
-	void createParam(ejson::Object& _obj, const std::vector<std::string>& _param, _ARGS&&... _args);
-	template<class... _ARGS>
-	void createParam(ejson::Object& _obj, const std::vector<bool>& _param, _ARGS&&... _args);
-	template<class... _ARGS>
-	void createParam(ejson::Object& _obj, const std::vector<int32_t>& _param, _ARGS&&... _args);
-	template<class... _ARGS>
-	void createParam(ejson::Object& _obj, const std::vector<double>& _param, _ARGS&&... _args);
-	template<class... _ARGS>
-	void createParam(ejson::Object& _obj, const std::vector<float>& _param, _ARGS&&... _args);
-	template<class... _ARGS>
-	void createParam(ejson::Object& _obj, const jus::File& _param, _ARGS&&... _args);
-	
-	template<class... _ARGS>
-	void createParam(ejson::Object& _obj, const char* _param, _ARGS&&... _args) {
+	template<class JUS_TYPE, class... _ARGS>
+	void createParam(std::vector<ActionAsyncClient>& _asyncAction,
+	                 int32_t _paramId,
+	                 ejson::Object& _obj,
+	                 const JUS_TYPE& _param,
+	                 _ARGS&&... _args) {
 		if (_obj.valueExist("param") == false) {
 			_obj.add("param", ejson::Array());
 		}
 		ejson::Array array = _obj["param"].toArray();
-		if (_param == nullptr) {
-			array.add(ejson::String());
-		} else {
-			array.add(ejson::String(_param));
-		}
-		createParam(_obj, std::forward<_ARGS>(_args)...);
+		array.add(convertToJson<JUS_TYPE>(_asyncAction, _paramId, _param));
+		_paramId++;
+		createParam(_asyncAction, _paramId, _obj, std::forward<_ARGS>(_args)...);
 	}
+	// convert const char in std::string ...
 	template<class... _ARGS>
-	void createParam(ejson::Object& _obj, const std::string& _param, _ARGS&&... _args) {
-		if (_obj.valueExist("param") == false) {
-			_obj.add("param", ejson::Array());
-		}
-		ejson::Array array = _obj["param"].toArray();
-		array.add(ejson::String(_param));
-		createParam(_obj, std::forward<_ARGS>(_args)...);
-	}
-	template<class... _ARGS>
-	void createParam(ejson::Object& _obj, const bool& _param, _ARGS&&... _args) {
-		if (_obj.valueExist("param") == false) {
-			_obj.add("param", ejson::Array());
-		}
-		ejson::Array array = _obj["param"].toArray();
-		array.add(ejson::Boolean(_param));
-		createParam(_obj, std::forward<_ARGS>(_args)...);
-	}
-	template<class... _ARGS>
-	void createParam(ejson::Object& _obj, const int32_t& _param, _ARGS&&... _args) {
-		if (_obj.valueExist("param") == false) {
-			_obj.add("param", ejson::Array());
-		}
-		ejson::Array array = _obj["param"].toArray();
-		array.add(ejson::Number(_param));
-		createParam(_obj, std::forward<_ARGS>(_args)...);
-	}
-	template<class... _ARGS>
-	void createParam(ejson::Object& _obj, const double& _param, _ARGS&&... _args) {
-		if (_obj.valueExist("param") == false) {
-			_obj.add("param", ejson::Array());
-		}
-		ejson::Array array = _obj["param"].toArray();
-		array.add(ejson::Number(_param));
-		createParam(_obj, std::forward<_ARGS>(_args)...);
-	}
-	template<class... _ARGS>
-	void createParam(ejson::Object& _obj, const float& _param, _ARGS&&... _args) {
-		if (_obj.valueExist("param") == false) {
-			_obj.add("param", ejson::Array());
-		}
-		ejson::Array array = _obj["param"].toArray();
-		array.add(ejson::Number(_param));
-		createParam(_obj, std::forward<_ARGS>(_args)...);
-	}
-	template<class... _ARGS>
-	void createParam(ejson::Object& _obj, const std::vector<std::string>& _param, _ARGS&&... _args) {
-		if (_obj.valueExist("param") == false) {
-			_obj.add("param", ejson::Array());
-		}
-		ejson::Array array = _obj["param"].toArray();
-		ejson::Array array2;
-		for (auto& it : _param) {
-			array2.add(ejson::String(it));
-		}
-		array.add(array2);
-		createParam(_obj, std::forward<_ARGS>(_args)...);
-	}
-	template<class... _ARGS>
-	void createParam(ejson::Object& _obj, const std::vector<bool>& _param, _ARGS&&... _args) {
-		if (_obj.valueExist("param") == false) {
-			_obj.add("param", ejson::Array());
-		}
-		ejson::Array array = _obj["param"].toArray();
-		ejson::Array array2;
-		for (const auto& it : _param) {
-			array2.add(ejson::Boolean(it));
-		}
-		array.add(array2);
-		createParam(_obj, std::forward<_ARGS>(_args)...);
-	}
-	template<class... _ARGS>
-	void createParam(ejson::Object& _obj, const std::vector<int32_t>& _param, _ARGS&&... _args) {
-		if (_obj.valueExist("param") == false) {
-			_obj.add("param", ejson::Array());
-		}
-		ejson::Array array = _obj["param"].toArray();
-		ejson::Array array2;
-		for (auto& it : _param) {
-			array2.add(ejson::Number(it));
-		}
-		array.add(array2);
-		createParam(_obj, std::forward<_ARGS>(_args)...);
-	}
-	template<class... _ARGS>
-	void createParam(ejson::Object& _obj, const std::vector<double>& _param, _ARGS&&... _args) {
-		if (_obj.valueExist("param") == false) {
-			_obj.add("param", ejson::Array());
-		}
-		ejson::Array array = _obj["param"].toArray();
-		ejson::Array array2;
-		for (auto& it : _param) {
-			array2.add(ejson::Number(it));
-		}
-		array.add(array2);
-		createParam(_obj, std::forward<_ARGS>(_args)...);
-	}
-	template<class... _ARGS>
-	void createParam(ejson::Object& _obj, const std::vector<float>& _param, _ARGS&&... _args) {
-		if (_obj.valueExist("param") == false) {
-			_obj.add("param", ejson::Array());
-		}
-		ejson::Array array = _obj["param"].toArray();
-		ejson::Array array2;
-		for (auto& it : _param) {
-			array2.add(ejson::Number(it));
-		}
-		array.add(array2);
-		createParam(_obj, std::forward<_ARGS>(_args)...);
-	}
-	template<class... _ARGS>
-	void createParam(ejson::Object& _obj, const jus::File& _param, _ARGS&&... _args) {
-		if (_obj.valueExist("param") == false) {
-			_obj.add("param", ejson::Array());
-		}
-		ejson::Array array = _obj["param"].toArray();
-		array.add(convertToJson<jus::File>(_param));
-		createParam(_obj, std::forward<_ARGS>(_args)...);
+	void createParam(std::vector<ActionAsyncClient>& _asyncAction,
+	                 int32_t _paramId,
+	                 ejson::Object& _obj,
+	                 const char* _param,
+	                 _ARGS&&... _args) {
+		createParam(_asyncAction, _paramId, _obj, std::string(_param), std::forward<_ARGS>(_args)...);
 	}
 	
+	
 	template<class... _ARGS>
-	ejson::Object createCall(uint64_t _transactionId, const std::string& _functionName, _ARGS&&... _args) {
+	ejson::Object createCall(std::vector<ActionAsyncClient>& _asyncAction, uint64_t _transactionId, const std::string& _functionName, _ARGS&&... _args) {
 		ejson::Object callElem = createBaseCall(_transactionId, _functionName);
-		createParam(callElem, std::forward<_ARGS>(_args)...);
+		createParam(_asyncAction, 0, callElem, std::forward<_ARGS>(_args)...);
 		return callElem;
 	}
 	template<class... _ARGS>
-	ejson::Object createCallService(uint64_t _transactionId, const std::string& _serviceName, const std::string& _functionName, _ARGS&&... _args) {
+	ejson::Object createCallService(std::vector<ActionAsyncClient>& _asyncAction, uint64_t _transactionId, const std::string& _serviceName, const std::string& _functionName, _ARGS&&... _args) {
 		ejson::Object callElem = createBaseCall(_transactionId, _functionName, _serviceName);
-		createParam(callElem, std::forward<_ARGS>(_args)...);
+		createParam(_asyncAction, 0, callElem, std::forward<_ARGS>(_args)...);
 		return callElem;
 	}
 	ejson::Object createCallJson(uint64_t _transactionId, const std::string& _functionName, ejson::Array _params);

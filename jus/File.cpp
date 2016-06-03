@@ -4,8 +4,11 @@
  * @license APACHE v2.0 (see license file)
  */
 #include <jus/File.h>
+#include <jus/debug.h>
 #include <etk/types.h>
 #include <etk/stdTools.h>
+#include <jus/mineType.h>
+#include <etk/os/FSNode.h>
 
 
 
@@ -14,7 +17,14 @@ jus::File::File() {
 }
 
 jus::File::File(const std::string& _filename) {
-	
+	m_data = etk::FSNodeReadAllDataType<uint8_t>(_filename);
+	std::string extention = std::string(_filename.begin()+_filename.size() -3, _filename.end());
+	JUS_WARNING("send file: '" << _filename << "' with extention: '" << extention << "'");
+	m_mineType = jus::getMineType(extention);
+}
+
+void jus::File::storeIn(const std::string& _filename) const {
+	etk::FSNodeWriteAllDataType(_filename, m_data);
 }
 
 jus::File::File(const std::string& _mineType, std::vector<uint8_t> _data):

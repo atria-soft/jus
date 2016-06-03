@@ -25,20 +25,22 @@ namespace jus {
 			~ServiceRemote();
 			bool exist();
 		private:
-			jus::FutureBase callJson(uint64_t _transactionId, const ejson::Object& _obj, jus::FutureData::ObserverFinish _callback=nullptr);
+			jus::FutureBase callJson(uint64_t _transactionId, const ejson::Object& _obj, const std::vector<ActionAsyncClient>& _async, jus::FutureData::ObserverFinish _callback=nullptr);
 			uint64_t getId();
 		public:
 			template<class... _ARGS>
 			jus::FutureBase call(const std::string& _functionName, _ARGS&&... _args) {
 				uint64_t id = getId();
-				ejson::Object callElem = jus::createCallService(id, m_name, _functionName, std::forward<_ARGS>(_args)...);
-				return callJson(id, callElem);
+				std::vector<ActionAsyncClient> asyncActionToDo;
+				ejson::Object callElem = jus::createCallService(asyncActionToDo, id, m_name, _functionName, std::forward<_ARGS>(_args)...);
+				return callJson(id, callElem, asyncActionToDo);
 			}
 			template<class... _ARGS>
 			jus::FutureBase callAction(const std::string& _functionName, _ARGS&&... _args, jus::FutureData::ObserverFinish _callback) {
 				uint64_t id = getId();
-				ejson::Object callElem = jus::createCallService(id, m_name, _functionName, std::forward<_ARGS>(_args)...);
-				return callJson(id, callElem, _callback);
+				std::vector<ActionAsyncClient> asyncActionToDo;
+				ejson::Object callElem = jus::createCallService(asyncActionToDo, id, m_name, _functionName, std::forward<_ARGS>(_args)...);
+				return callJson(id, callElem, asyncActionToDo, _callback);
 			}
 	};
 }

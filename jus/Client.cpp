@@ -164,7 +164,53 @@ uint64_t jus::Client::getId() {
 	return m_id++;
 }
 
-jus::FutureBase jus::Client::callJson(uint64_t _transactionId, const ejson::Object& _obj, jus::FutureData::ObserverFinish _callback) {
+class SendAsync {
+	private:
+		std::vector<jus::ActionAsyncClient> m_async;
+		uint64_t m_transactionId;
+		std::string m_service;
+		uint32_t m_partId;
+	public:
+		SendAsync(uint64_t _transactionId, const std::string& _service, const std::vector<jus::ActionAsyncClient>& _async) :
+		  m_async(_async),
+		  m_transactionId(_transactionId),
+		  m_service(_service),
+		  m_partId(1) {
+			
+		}
+		bool operator() (jus::TcpString* _interface){
+			auto it = m_async.begin();
+			while (it != m_async.end()) {
+				bool ret = (*it)(_interface, m_service, m_transactionId, m_partId);
+				if (ret == true) {
+					// Remove it ...
+					it = m_async.erase(it);
+				} else {
+					++it;
+				}
+				m_partId++;
+			}
+			if (m_async.size() == 0) {
+				ejson::Object obj;
+				if (m_service != "") {
+					obj.add("service", ejson::String(m_service));
+				}
+				obj.add("id", ejson::Number(m_transactionId));
+				obj.add("part", ejson::Number(m_partId));
+				obj.add("finish", ejson::Boolean(true));
+				JUS_DEBUG("Send JSON '" << obj.generateHumanString() << "'");
+				_interface->write(obj.generateMachineString());
+				return true;
+			}
+			return false;
+		}
+};
+
+jus::FutureBase jus::Client::callJson(uint64_t _transactionId,
+                                      ejson::Object _obj,
+                                      const std::vector<ActionAsyncClient>& _async,
+                                      jus::FutureData::ObserverFinish _callback,
+                                      const std::string& _service) {
 	JUS_VERBOSE("Send JSON [START] ");
 	if (m_interfaceClient.isActive() == false) {
 		ejson::Object obj;
@@ -177,8 +223,15 @@ jus::FutureBase jus::Client::callJson(uint64_t _transactionId, const ejson::Obje
 		std::unique_lock<std::mutex> lock(m_mutex);
 		m_pendingCall.push_back(tmpFuture);
 	}
+	if (_async.size() != 0) {
+		_obj.add("part", ejson::Number(0));
+	}
 	JUS_DEBUG("Send JSON '" << _obj.generateHumanString() << "'");
 	m_interfaceClient.write(_obj.generateMachineString());
+	
+	if (_async.size() != 0) {
+		m_interfaceClient.addAsync(SendAsync(_transactionId, _service, _async));
+	}
 	JUS_VERBOSE("Send JSON [STOP]");
 	return tmpFuture;
 }

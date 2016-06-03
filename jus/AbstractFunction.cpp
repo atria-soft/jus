@@ -5,6 +5,8 @@
  */
 #include <jus/AbstractFunction.h>
 #include <jus/debug.h>
+#include <etk/os/FSNode.h>
+#include <ejson/base64.h>
 namespace jus {
 	template<> bool convertJsonTo<bool>(const ejson::Value& _value) {
 		return _value.toBoolean().get();
@@ -62,61 +64,78 @@ namespace jus {
 		out.setMineType(obj["mine-type"].toString().get());
 		out.preSetDataSize(obj["size"].toNumber().getU64());
 		//out.add("type", ejson::String("file"));
-		// TODO : Add extended datas ...
+		
+		uint64_t offset = 0;
+		for (auto it : obj["data"].toArray()) {
+			ejson::String valData = it.toString();
+			if (valData.get().size() != 0) {
+				std::vector<uint8_t> tmpData = ejson::base64::decode(valData.get());
+				out.setData(offset, tmpData);
+				offset += tmpData.size();
+			}
+		}
 		return out;
 	}
 	
-	template<> ejson::Value convertToJson<bool>(const bool& _value) {
+	// ----------------------------------------------------------------------------------------------------
+	
+	template<> ejson::Value convertToJson<bool>(std::vector<ActionAsyncClient>& _asyncAction, int32_t _paramId, const bool& _value) {
 		return ejson::Boolean(_value);
 	}
-	template<> ejson::Value convertToJson<std::vector<bool>>(const std::vector<bool>& _value) {
+	template<> ejson::Value convertToJson<std::vector<bool>>(std::vector<ActionAsyncClient>& _asyncAction, int32_t _paramId, const std::vector<bool>& _value) {
 		ejson::Array out;
 		for (const auto &it : _value) {
 			out.add(ejson::Boolean(it));
 		}
 		return out;
 	}
-	template<> ejson::Value convertToJson<float>(const float& _value) {
+	template<> ejson::Value convertToJson<float>(std::vector<ActionAsyncClient>& _asyncAction, int32_t _paramId, const float& _value) {
 		return ejson::Number(_value);
 	}
-	template<> ejson::Value convertToJson<double>(const double& _value) {
+	template<> ejson::Value convertToJson<double>(std::vector<ActionAsyncClient>& _asyncAction, int32_t _paramId, const double& _value) {
 		return ejson::Number(_value);
 	}
-	template<> ejson::Value convertToJson<int64_t>(const int64_t& _value) {
+	template<> ejson::Value convertToJson<int64_t>(std::vector<ActionAsyncClient>& _asyncAction, int32_t _paramId, const int64_t& _value) {
 		return ejson::Number(_value);
 	}
-	template<> ejson::Value convertToJson<int32_t>(const int32_t& _value) {
+	template<> ejson::Value convertToJson<int32_t>(std::vector<ActionAsyncClient>& _asyncAction, int32_t _paramId, const int32_t& _value) {
 		return ejson::Number(_value);
 	}
-	template<> ejson::Value convertToJson<int16_t>(const int16_t& _value) {
+	template<> ejson::Value convertToJson<int16_t>(std::vector<ActionAsyncClient>& _asyncAction, int32_t _paramId, const int16_t& _value) {
 		return ejson::Number(_value);
 	}
-	template<> ejson::Value convertToJson<int8_t>(const int8_t& _value) {
+	template<> ejson::Value convertToJson<int8_t>(std::vector<ActionAsyncClient>& _asyncAction, int32_t _paramId, const int8_t& _value) {
 		return ejson::Number(_value);
 	}
-	template<> ejson::Value convertToJson<uint64_t>(const uint64_t& _value) {
+	template<> ejson::Value convertToJson<uint64_t>(std::vector<ActionAsyncClient>& _asyncAction, int32_t _paramId, const uint64_t& _value) {
 		return ejson::Number(_value);
 	}
-	template<> ejson::Value convertToJson<uint32_t>(const uint32_t& _value) {
+	template<> ejson::Value convertToJson<uint32_t>(std::vector<ActionAsyncClient>& _asyncAction, int32_t _paramId, const uint32_t& _value) {
 		return ejson::Number(_value);
 	}
-	template<> ejson::Value convertToJson<uint16_t>(const uint16_t& _value) {
+	template<> ejson::Value convertToJson<uint16_t>(std::vector<ActionAsyncClient>& _asyncAction, int32_t _paramId, const uint16_t& _value) {
 		return ejson::Number(_value);
 	}
-	template<> ejson::Value convertToJson<uint8_t>(const uint8_t& _value) {
+	template<> ejson::Value convertToJson<uint8_t>(std::vector<ActionAsyncClient>& _asyncAction, int32_t _paramId, const uint8_t& _value) {
 		return ejson::Number(_value);
 	}
-	template<> ejson::Value convertToJson<std::string>(const std::string& _value) {
+	template<> ejson::Value convertToJson<std::string>(std::vector<ActionAsyncClient>& _asyncAction, int32_t _paramId, const std::string& _value) {
 		return ejson::String(_value);
 	}
-	template<> ejson::Value convertToJson<std::vector<std::string>>(const std::vector<std::string>& _value) {
+	template<> ejson::Value convertToJson<char*>(std::vector<ActionAsyncClient>& _asyncAction, int32_t _paramId, char* const & _value) {
+		if (_value == nullptr) {
+			return ejson::String();
+		}
+		return ejson::String(_value);
+	}
+	template<> ejson::Value convertToJson<std::vector<std::string>>(std::vector<ActionAsyncClient>& _asyncAction, int32_t _paramId, const std::vector<std::string>& _value) {
 		ejson::Array out;
 		for (auto &it : _value) {
 			out.add(ejson::String(it));
 		}
 		return out;
 	}
-	template<> ejson::Value convertToJson<jus::FileServer>(const jus::FileServer& _value) {
+	template<> ejson::Value convertToJson<jus::FileServer>(std::vector<ActionAsyncClient>& _asyncAction, int32_t _paramId, const jus::FileServer& _value) {
 		ejson::Array out;
 		/*
 		for (auto &it : _value) {
@@ -125,14 +144,62 @@ namespace jus {
 		*/
 		return out;
 	}
-	template<> ejson::Value convertToJson<jus::File>(const jus::File& _value) {
+	
+	class SenderJusFile {
+		private:
+			jus::File m_data;
+			uint64_t m_size;
+			uint64_t m_offset;
+			int32_t m_paramID;
+		public:
+			SenderJusFile(jus::File _data, int32_t _paramID) :
+			  m_data(_data),
+			  m_size(m_data.getData().size()),
+			  m_offset(0),
+			  m_paramID(_paramID) {
+				
+			}
+			~SenderJusFile() {
+				
+			}
+			bool operator() (TcpString* _interface, const std::string& _service, uint64_t _transactionId, uint64_t _part) {
+				ejson::Object answer;
+				if (_service != "") {
+					answer.add("service", ejson::String(_service));
+				}
+				answer.add("id", ejson::Number(_transactionId));
+				answer.add("part", ejson::Number(_part));
+				if (m_paramID >= 0) {
+					answer.add("param-id", ejson::Number(m_paramID));
+				}
+				int32_t tmpSize = 1023;
+				if (m_size < 1023) {
+					tmpSize = m_size;
+				}
+				uint8_t tmpData[1023];
+				answer.add("data", ejson::String(ejson::base64::encode(&m_data.getData()[m_offset], tmpSize)));
+				m_offset += tmpSize;
+				m_size -= tmpSize;
+				JUS_INFO("data: " << answer.generateHumanString());
+				_interface->write(answer.generateMachineString());
+				if (m_size <= 0) {
+					return true;
+				}
+				return false;
+			}
+	};
+	template<> ejson::Value convertToJson<jus::File>(std::vector<ActionAsyncClient>& _asyncAction, int32_t _paramId, const jus::File& _value) {
 		ejson::Object out;
 		out.add("type", ejson::String("file"));
 		out.add("mine-type", ejson::String(_value.getMineType()));
 		out.add("size", ejson::Number(_value.getData().size()));
-		// TODO : Add extended datas ...
+		if (_value.getData().size() != 0) {
+			_asyncAction.push_back(SenderJusFile(_value, _paramId));
+		}
 		return out;
 	}
+	
+	// ----------------------------------------------------------------------------------------------------
 	
 	template<> bool convertStringTo<bool>(const std::string& _value) {
 		return etk::string_to_bool(_value);
@@ -199,7 +266,7 @@ ejson::Object jus::createBaseCall(uint64_t _transactionId, const std::string& _f
 	obj.add("id", ejson::Number(_transactionId));
 	return obj;
 }
-void jus::createParam(ejson::Object& _obj) {
+void jus::createParam(std::vector<ActionAsyncClient>& _asyncAction, int32_t _paramId, ejson::Object& _obj) {
 	// Finish recursive parse ...
 }
 

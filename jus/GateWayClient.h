@@ -57,24 +57,39 @@ namespace jus {
 			
 		private:
 			std::mutex m_mutex;
-			std::vector<jus::FutureBase> m_pendingCall;
+			std::vector<std::pair<uint64_t, jus::FutureBase>> m_pendingCall;
 			int32_t m_transactionLocalId;
-			jus::FutureBase callJson(uint64_t _callerId, ememory::SharedPtr<jus::GateWayService> _srv, uint64_t _transactionId, const ejson::Object& _obj, jus::FutureData::ObserverFinish _callback=nullptr);
+			jus::FutureBase callJson(uint64_t _callerId, ememory::SharedPtr<jus::GateWayService> _srv, uint64_t _clientTransactionId, uint64_t _transactionId, const ejson::Object& _obj, jus::FutureData::ObserverFinish _callback=nullptr);
 			uint64_t getId();
 		public:
 			template<class... _ARGS>
 			jus::FutureBase call(uint64_t _callerId, ememory::SharedPtr<jus::GateWayService> _srv, const std::string& _functionName, _ARGS&&... _args) {
 				uint64_t id = getId();
-				ejson::Object callElem = jus::createCall(id, _functionName, std::forward<_ARGS>(_args)...);
-				return callJson(_callerId, _srv, id, callElem);
+				std::vector<ActionAsyncClient> asyncAction;
+				ejson::Object callElem = jus::createCall(asyncAction, id, _functionName, std::forward<_ARGS>(_args)...);
+				if (asyncAction.size() != 0) {
+					JUS_ERROR("Missing send async messages");
+				}
+				return callJson(_callerId, _srv, 0, id, callElem);
 			}
 			template<class... _ARGS>
 			jus::FutureBase callAction(uint64_t _callerId, ememory::SharedPtr<jus::GateWayService> _srv, const std::string& _functionName, _ARGS&&... _args, jus::FutureData::ObserverFinish _callback) {
 				uint64_t id = getId();
-				ejson::Object callElem = jus::createCall(id, _functionName, std::forward<_ARGS>(_args)...);
-				return callJson(_callerId, _srv, id, callElem, _callback);
+				std::vector<ActionAsyncClient> asyncAction;
+				ejson::Object callElem = jus::createCall(asyncAction, id, _functionName, std::forward<_ARGS>(_args)...);
+				if (asyncAction.size() != 0) {
+					JUS_ERROR("Missing send async messages");
+				}
+				return callJson(_callerId, _srv, 0, id, callElem, _callback);
 			}
-			jus::FutureBase callActionForward(uint64_t _callerId, ememory::SharedPtr<jus::GateWayService> _srv, const std::string& _functionName, ejson::Array _params, jus::FutureData::ObserverFinish _callback);
+			jus::FutureBase callActionForward(uint64_t _callerId,
+			                                  uint64_t _clientTransactionId,
+			                                  ememory::SharedPtr<jus::GateWayService> _srv,
+			                                  const std::string& _functionName,
+			                                  ejson::Array _params,
+			                                  jus::FutureData::ObserverFinish _callback,
+			                                  int64_t _part,
+			                                  bool _finish);
 	};
 }
 

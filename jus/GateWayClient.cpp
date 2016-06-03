@@ -83,7 +83,7 @@ void jus::GateWayClient::returnBool(int32_t _transactionId, bool _value) {
 void jus::GateWayClient::onClientData(std::string _value) {
 	JUS_DEBUG("On data: " << _value);
 	ejson::Object data(_value);
-	int32_t transactionId = data["id"].toNumber().get();
+	uint64_t transactionId = data["id"].toNumber().getU64();
 	if (transactionId == 0) {
 		JUS_ERROR("Protocol error ==>missing id");
 		protocolError("missing parameter: 'id'");
@@ -274,7 +274,12 @@ void jus::GateWayClient::onClientData(std::string _value) {
 								linkService.add("event", ejson::String("new"));
 								linkService.add("user", ejson::String(m_userConnectionName));
 								linkService.add("client", ejson::String(m_clientName));
-								linkService.add("groups", convertToJson(m_clientgroups));
+								// TODO ==> remove events ...
+								std::vector<ActionAsyncClient> asyncAction;
+								linkService.add("groups", convertToJson(asyncAction, 0, m_clientgroups));
+								if (asyncAction.size() != 0) {
+									JUS_ERROR("Missing send async messages");
+								}
 								srv->SendData(m_uid, linkService);
 								m_listConnectedService.push_back(srv);
 								answer.add("return", ejson::Boolean(true));
@@ -351,7 +356,43 @@ void jus::GateWayClient::onClientData(std::string _value) {
 					JUS_DEBUG("answer: " << answer.generateHumanString());
 					m_interfaceClient.write(answer.generateMachineString());
 				} else {
+					bool finish = false;
+					if (data.valueExist("finish") == true) {
+						finish = data["finish"].toBoolean().get();
+					}
+					int64_t partTmp = -1;
+					if (data.valueExist("part") == true) {
+						uint64_t part = data["part"].toNumber().getU64();
+						partTmp = part;
+						if (part != 0) {
+							// subMessage ... ==> try to forward message:
+							std::unique_lock<std::mutex> lock(m_mutex);
+							for (auto &itCall : m_pendingCall) {
+								JUS_INFO(" compare : " << itCall.first << " =?= " << transactionId);
+								if (itCall.first == transactionId) {
+									// Find element ==> transit it ...
+									if (*it == nullptr) {
+										// TODO ...
+									} else {
+										ejson::Object obj;
+										obj.add("id", ejson::Number(itCall.second.getTransactionId()));
+										obj.add("param-id", data["param-id"]);
+										obj.add("part", ejson::Number(part));
+										obj.add("data", data["data"]);
+										if (finish == true) {
+											obj.add("finish", ejson::Boolean(true));
+										}
+										(*it)->SendData(m_uid, obj);
+									}
+									return;
+								}
+							}
+							JUS_ERROR("Can not transfer part of a message ...");
+							return;
+						}
+					}
 					callActionForward(m_uid,
+					                  transactionId,
 					                  *it,
 					                  data["call"].toString().get(),
 					                  data["param"].toArray(),
@@ -359,7 +400,7 @@ void jus::GateWayClient::onClientData(std::string _value) {
 					                  		ejson::Object tmpp = _ret.getRaw();
 					                  		JUS_VERBOSE("    ==> transmit : " << tmpp["id"].toNumber().getU64() << " -> " << data["id"].toNumber().getU64());
 					                  		JUS_VERBOSE("    msg=" << tmpp.generateMachineString());
-					                  		tmpp["id"].toNumber().set(data["id"].toNumber().getU64());
+					                  		tmpp["id"].toNumber().set(transactionId);
 					                  		JUS_DEBUG("transmit=" << tmpp.generateMachineString());
 					                  		m_interfaceClient.write(tmpp.generateMachineString());
 					                  		if (tmpp.valueExist("part") == true) {
@@ -370,16 +411,31 @@ void jus::GateWayClient::onClientData(std::string _value) {
 					                  			return false;
 					                  		}
 					                  		return true;
-					                  });
+					                  },
+					                  partTmp,
+					                  finish);
 				}
 			}
 	}
 }
 
-jus::FutureBase jus::GateWayClient::callActionForward(uint64_t _callerId, ememory::SharedPtr<jus::GateWayService> _srv, const std::string& _functionName, ejson::Array _params, jus::FutureData::ObserverFinish _callback) {
+jus::FutureBase jus::GateWayClient::callActionForward(uint64_t _callerId,
+                                                      uint64_t _clientTransactionId,
+                                                      ememory::SharedPtr<jus::GateWayService> _srv,
+                                                      const std::string& _functionName,
+                                                      ejson::Array _params,
+                                                      jus::FutureData::ObserverFinish _callback,
+                                                      int64_t _part,
+                                                      bool _finish) {
 	uint64_t id = getId();
 	ejson::Object callElem = jus::createCallJson(id, _functionName, _params);
-	jus::FutureBase ret = callJson(_callerId, _srv, id, callElem, _callback);
+	if (_part != -1) {
+		callElem.add("part", ejson::Number(uint64_t(_part)));
+	}
+	if (_finish == true) {
+		callElem.add("finish", ejson::Boolean(true));
+	}
+	jus::FutureBase ret = callJson(_callerId, _srv, _clientTransactionId, id, callElem, _callback);
 	ret.setSynchronous();
 	return ret;
 }
@@ -388,7 +444,7 @@ uint64_t jus::GateWayClient::getId() {
 	return m_transactionLocalId++;
 }
 
-jus::FutureBase jus::GateWayClient::callJson(uint64_t _callerId, ememory::SharedPtr<jus::GateWayService> _srv, uint64_t _transactionId, const ejson::Object& _obj, jus::FutureData::ObserverFinish _callback) {
+jus::FutureBase jus::GateWayClient::callJson(uint64_t _callerId, ememory::SharedPtr<jus::GateWayService> _srv, uint64_t _clientTransactionId, uint64_t _transactionId, const ejson::Object& _obj, jus::FutureData::ObserverFinish _callback) {
 	JUS_VERBOSE("Send JSON [START] ");
 	if (_srv == nullptr) {
 		ejson::Object obj;
@@ -399,7 +455,7 @@ jus::FutureBase jus::GateWayClient::callJson(uint64_t _callerId, ememory::Shared
 	jus::FutureBase tmpFuture(_transactionId, _callback);
 	{
 		std::unique_lock<std::mutex> lock(m_mutex);
-		m_pendingCall.push_back(tmpFuture);
+		m_pendingCall.push_back(std::make_pair(_clientTransactionId, tmpFuture));
 	}
 	_srv->SendData(_callerId, _obj);
 	JUS_VERBOSE("Send JSON [STOP]");
@@ -416,10 +472,10 @@ void jus::GateWayClient::returnMessage(ejson::Object _data) {
 			JUS_ERROR("Get a Protocol error ...");
 			std::unique_lock<std::mutex> lock(m_mutex);
 			for (auto &it : m_pendingCall) {
-				if (it.isValid() == false) {
+				if (it.second.isValid() == false) {
 					continue;
 				}
-				it.setAnswer(_data);
+				it.second.setAnswer(_data);
 			}
 			m_pendingCall.clear();
 		} else {
@@ -431,16 +487,16 @@ void jus::GateWayClient::returnMessage(ejson::Object _data) {
 		std::unique_lock<std::mutex> lock(m_mutex);
 		auto it = m_pendingCall.begin();
 		while (it != m_pendingCall.end()) {
-			if (it->isValid() == false) {
+			if (it->second.isValid() == false) {
 				it = m_pendingCall.erase(it);
 				continue;
 			}
-			if (it->getTransactionId() != tid) {
+			if (it->second.getTransactionId() != tid) {
 				++it;
 				continue;
 			}
 			// TODO : Do it better ...
-			future = *it;
+			future = it->second;
 			break;
 		}
 	}
@@ -453,11 +509,11 @@ void jus::GateWayClient::returnMessage(ejson::Object _data) {
 		std::unique_lock<std::mutex> lock(m_mutex);
 		auto it = m_pendingCall.begin();
 		while (it != m_pendingCall.end()) {
-			if (it->isValid() == false) {
+			if (it->second.isValid() == false) {
 				it = m_pendingCall.erase(it);
 				continue;
 			}
-			if (it->getTransactionId() != tid) {
+			if (it->second.getTransactionId() != tid) {
 				++it;
 				continue;
 			}

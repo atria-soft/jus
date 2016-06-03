@@ -15,6 +15,7 @@ namespace jus {
 			File();
 			File(const std::string& _filename);
 			File(const std::string& _mineType, std::vector<uint8_t> _data);
+			void storeIn(const std::string& _filename) const;
 			const std::string& getMineType() const {
 				return m_mineType;
 			}
