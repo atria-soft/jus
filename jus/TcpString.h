@@ -20,7 +20,9 @@ namespace jus {
 			std::chrono::steady_clock::time_point m_lastSend;
 		public:
 			using Observer = std::function<void(std::string)>; //!< Define an Observer: function pointer
-			Observer m_obsercerElement;
+			using ObserverRaw = std::function<void(const jus::Buffer&)>; //!< Define an Observer: function pointer
+			Observer m_observerElement;
+			ObserverRaw m_observerRawElement;
 			/**
 			 * @brief Connect an function member on the signal with the shared_ptr object.
 			 * @param[in] _class shared_ptr Object on whe we need to call ==> the object is get in keeped in weak_ptr.
@@ -29,9 +31,21 @@ namespace jus {
 			 */
 			template<class CLASS_TYPE>
 			void connect(CLASS_TYPE* _class, void (CLASS_TYPE::*_func)(std::string)) {
-				m_obsercerElement = [=](std::string _value){
+				m_observerElement = [=](std::string _value){
 					(*_class.*_func)(std::move(_value));
 				};
+			}
+			void connectClean() {
+				m_observerElement = nullptr;
+			}
+			template<class CLASS_TYPE>
+			void connectRaw(CLASS_TYPE* _class, void (CLASS_TYPE::*_func)(const jus::Buffer&)) {
+				m_observerRawElement = [=](const jus::Buffer& _value){
+					(*_class.*_func)(std::move(_value));
+				};
+			}
+			void connectRawClean() {
+				m_observerRawElement = nullptr;
 			}
 		public:
 			TcpString();

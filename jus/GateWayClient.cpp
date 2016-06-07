@@ -80,6 +80,10 @@ void jus::GateWayClient::returnBool(int32_t _transactionId, bool _value) {
 	m_interfaceClient.write(answer.generateMachineString());
 }
 
+void jus::GateWayClient::onClientDataRaw(jus::Buffer _value) {
+	
+}
+
 void jus::GateWayClient::onClientData(std::string _value) {
 	JUS_DEBUG("On data: " << _value);
 	ejson::Object data(_value);
@@ -104,7 +108,26 @@ void jus::GateWayClient::onClientData(std::string _value) {
 					return;
 				}
 				std::string call = data["call"].toString().get();
-				if (call == "connectToUser") {
+				if (call == "setMode") {
+					std::string mode = data["param"].toArray()[0].toString().get();
+					if (mode == "JSON") {
+						JUS_WARNING("[" << m_uid << "] Change mode in: JSON");
+						connectCleanRaw();
+						m_interfaceClient.connect(this, &jus::GateWayClient::onClientData);
+						returnBool(transactionId, true);
+					} else if (mode == "BIN") {
+						JUS_WARNING("[" << m_uid << "] Change mode in: BINARY");
+						connectClean();
+						m_interfaceClient.connectRaw(this, &jus::GateWayClient::onClientDataRaw);
+						returnBool(transactionId, true);
+					} else if (mode == "XML") {
+						JUS_WARNING("[" << m_uid << "] Change mode in: XML");
+						returnBool(transactionId, false);
+					} else {
+						protocolError("Call setMode with unknow argument : '" << mode << "' supported [JSON/XML/BIN]");
+					}
+					return;
+				} else if (call == "connectToUser") {
 					m_userConnectionName = data["param"].toArray()[0].toString().get();
 					if (m_userConnectionName == "") {
 						protocolError("Call connectToUser with no parameter 'user'");
@@ -221,8 +244,10 @@ void jus::GateWayClient::onClientData(std::string _value) {
 			break;
 		case jus::GateWayClient::state::clientIdentify:
 			{
-				// This is 2 default service for the cient interface that manage the authorisation of view:
-				if (data.valueExist("service") == false) {
+				ejson::Number numService = data["service"].toNumber();
+				if (    numService.exist() == false
+				     || numService.getU64() == 0) {
+					// This is 2 default service for the cient interface that manage the authorisation of view:
 					std::string callFunction = data["call"].toString().get();
 					ejson::Object answer;
 					//answer.add("from-service", ejson::String(""));
@@ -263,7 +288,7 @@ void jus::GateWayClient::onClientData(std::string _value) {
 						if (it == m_listConnectedService.end()) {
 							// check if service is connectable ...
 							if (std::find(m_clientServices.begin(), m_clientServices.end(), serviceName) == m_clientServices.end()) {
-								answer.add("return", ejson::Boolean(false));
+								answer.add("error", ejson::String("UN-AUTHORIZED-SERVICE"));
 								JUS_DEBUG("answer: (NOT authorized service) " << answer.generateHumanString());
 								m_interfaceClient.write(answer.generateMachineString());
 								return;
@@ -282,9 +307,9 @@ void jus::GateWayClient::onClientData(std::string _value) {
 								}
 								srv->SendData(m_uid, linkService);
 								m_listConnectedService.push_back(srv);
-								answer.add("return", ejson::Boolean(true));
+								answer.add("return", ejson::Number(m_listConnectedService.size()-1));
 							} else {
-								answer.add("return", ejson::Boolean(false));
+								answer.add("error", ejson::String("CAN-NOT-CONNECT-SERVICE"));
 							}
 						} else {
 							// TODO : Service already connected;
@@ -296,29 +321,20 @@ void jus::GateWayClient::onClientData(std::string _value) {
 					}
 					if (callFunction == "unlink") {
 						// first param:
-						std::string serviceName = data["param"].toArray()[0].toString().get();
+						int64_t localServiceID = data["param"].toArray()[0].toNumber().getI64();
 						// Check if service already link:
-						auto it = m_listConnectedService.begin();
-						while (it != m_listConnectedService.end()) {
-							if (*it == nullptr) {
-								++it;
-								continue;
-							}
-							if ((*it)->getName() != serviceName) {
-								++it;
-								continue;
-							}
-							break;
+						if (localServiceID >= m_listConnectedService.end()) {
+							answer.add("error", ejson::String("NOT-CONNECTED-SERVICE"));
+							JUS_DEBUG("answer: " << answer.generateHumanString());
+							m_interfaceClient.write(answer.generateMachineString());
+							return;
 						}
-						if (it == m_listConnectedService.end()) {
-							answer.add("return", ejson::Boolean(false));
-						} else {
-							ejson::Object linkService;
-							linkService.add("event", ejson::String("delete"));
-							(*it)->SendData(m_uid, linkService);
-							m_listConnectedService.erase(it);
-							answer.add("return", ejson::Boolean(true));
-						}
+						ejson::Object linkService;
+						// TODO : Change event in call ...
+						linkService.add("event", ejson::String("delete"));
+						(*it)->SendData(m_uid, linkService);
+						m_listConnectedService[localServiceID] = nullptr;
+						answer.add("return", ejson::Boolean(true));
 						JUS_DEBUG("answer: " << answer.generateHumanString());
 						m_interfaceClient.write(answer.generateMachineString());
 						return;
@@ -329,32 +345,13 @@ void jus::GateWayClient::onClientData(std::string _value) {
 					m_interfaceClient.write(answer.generateMachineString());
 					return;
 				}
-				std::string service = data["service"].toString().get();
-				if (service == "") {
-					protocolError("call with \"service\"=\"\" ==> not permited");
-					return;
-				}
-				auto it = m_listConnectedService.begin();
-				while (it != m_listConnectedService.end()) {
-					if (*it == nullptr) {
-						++it;
-						continue;
-					}
-					if ((*it)->getName() != service) {
-						++it;
-						continue;
-					}
-					break;
-				}
-				if (it == m_listConnectedService.end()) {
-					// TODO : Generate an ERROR...
-					ejson::Object answer;
-					answer.add("from-service", ejson::String("ServiceManager"));
-					answer.add("id", data["id"]);
-					JUS_ERROR("Service not linked ... " << service);
-					answer.add("error", ejson::String("SERVICE-NOT-LINK"));
+				
+				uint64_t serviceId = numService.getU64();
+				if (serviceId >= m_listConnectedService.end()) {
+					answer.add("error", ejson::String("NOT-CONNECTED-SERVICE"));
 					JUS_DEBUG("answer: " << answer.generateHumanString());
 					m_interfaceClient.write(answer.generateMachineString());
+					return;
 				} else {
 					bool finish = false;
 					if (data.valueExist("finish") == true) {
@@ -371,7 +368,7 @@ void jus::GateWayClient::onClientData(std::string _value) {
 								JUS_INFO(" compare : " << itCall.first << " =?= " << transactionId);
 								if (itCall.first == transactionId) {
 									// Find element ==> transit it ...
-									if (*it == nullptr) {
+									if (m_listConnectedService[serviceId] == nullptr) {
 										// TODO ...
 									} else {
 										ejson::Object obj;
@@ -382,7 +379,7 @@ void jus::GateWayClient::onClientData(std::string _value) {
 										if (finish == true) {
 											obj.add("finish", ejson::Boolean(true));
 										}
-										(*it)->SendData(m_uid, obj);
+										m_listConnectedService[serviceId]->SendData(m_uid, obj);
 									}
 									return;
 								}
@@ -393,7 +390,7 @@ void jus::GateWayClient::onClientData(std::string _value) {
 					}
 					callActionForward(m_uid,
 					                  transactionId,
-					                  *it,
+					                  m_listConnectedService[serviceId],
 					                  data["call"].toString().get(),
 					                  data["param"].toArray(),
 					                  [=](jus::FutureBase _ret) {

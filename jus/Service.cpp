@@ -107,15 +107,6 @@ void jus::Service::callJson(uint64_t _transactionId, const ejson::Object& _obj) 
 		if (event == "IS-ALIVE") {
 			// Gateway just aswer a keep alive information ...
 			// Nothing to do ...
-		} else if (event == "new") {
-			uint64_t clientId = _obj["client-id"].toNumber().getU64();
-			std::string userName = _obj["user"].toString().get();
-			std::string clientName = _obj["client"].toString().get();
-			std::vector<std::string> clientGroup = convertJsonTo<std::vector<std::string>>(_obj["groups"]);
-			clientConnect(clientId, userName, clientName, clientGroup);
-		} else if (event == "delete") {
-			uint64_t clientId = _obj["client-id"].toNumber().getU64();
-			clientDisconnect(clientId);
 		} else {
 			JUS_ERROR("Unknow event: '" << event << "'");
 		}
@@ -125,8 +116,18 @@ void jus::Service::callJson(uint64_t _transactionId, const ejson::Object& _obj) 
 	uint64_t clientId = _obj["client-id"].toNumber().getU64();
 	if (_obj.valueExist("call") == true) {
 		std::string call = _obj["call"].toString().get();
-		if (isFunctionAuthorized(clientId, call) == true) {
-			callJson2(_transactionId, clientId, call, _obj["param"].toArray());
+		ejson::Array params = _obj["param"].toArray()
+		if (call[0] == '_') {
+			if (call == "_new") {
+				std::string userName = params[0].toString().get();
+				std::string clientName = params[1].toString().get();
+				std::vector<std::string> clientGroup = convertJsonTo<std::vector<std::string>>(params[2]);
+				clientConnect(clientId, userName, clientName, clientGroup);
+			} else if (call == "_delete") {
+				clientDisconnect(clientId);
+			}
+		} else if (isFunctionAuthorized(clientId, call) == true) {
+			callJson2(_transactionId, clientId, call, params);
 			return;
 		} else {
 			answer.add("id", ejson::Number(_transactionId));

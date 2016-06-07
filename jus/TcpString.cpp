@@ -11,7 +11,8 @@
 jus::TcpString::TcpString(enet::Tcp _connection) :
   m_connection(std::move(_connection)),
   m_thread(nullptr),
-  m_obsercerElement(nullptr),
+  m_observerElement(nullptr),
+  m_observerRawElement(nullptr),
   m_threadAsync(nullptr) {
 	m_threadRunning = false;
 	m_threadAsyncRunning = false;
@@ -20,7 +21,8 @@ jus::TcpString::TcpString(enet::Tcp _connection) :
 jus::TcpString::TcpString() :
   m_connection(),
   m_thread(nullptr),
-  m_obsercerElement(nullptr),
+  m_observerElement(nullptr),
+  m_observerRawElement(nullptr),
   m_threadAsync(nullptr) {
 	m_threadRunning = false;
 	m_threadAsyncRunning = false;
@@ -44,12 +46,17 @@ void jus::TcpString::threadCallback() {
 	while (    m_threadRunning == true
 	        && m_connection.getConnectionStatus() == enet::Tcp::status::link) {
 		// READ section data:
-		std::string data = std::move(read());
-		JUS_VERBOSE("Receive data: '" << data << "'");
-		if (data.size() != 0) {
-			m_lastReceive = std::chrono::steady_clock::now();
-			if (m_obsercerElement != nullptr) {
-				m_obsercerElement(std::move(data));
+		if (m_observerElement != nullptr) {
+			std::string data = std::move(read());
+			JUS_VERBOSE("Receive data: '" << data << "'");
+			if (data.size() != 0) {
+				m_lastReceive = std::chrono::steady_clock::now();
+				m_observerElement(std::move(data));
+			}
+		} else if (m_observerRawElement != nullptr) {
+			jus::Buffer data = std::move(readRaw());
+			if (data.size() != 0) {
+				m_observerRawElement(std::move(data));
 			}
 		}
 	}
