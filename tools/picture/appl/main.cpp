@@ -12,6 +12,7 @@
 #include <mutex>
 #include <ejson/ejson.h>
 #include <etk/os/FSNode.h>
+#include <sstream>
 
 #include <etk/stdTools.h>
 namespace appl {
@@ -22,9 +23,11 @@ namespace appl {
 			std::string m_basePath;
 			ejson::Document m_database;
 			std::map<uint64_t,std::string> m_listFile;
+			uint64_t m_lastMaxId;
 		public:
 			User(const std::string& _userName) :
-			  m_userName(_userName) {
+			  m_userName(_userName),
+			  m_lastMaxId(1024) {
 				std::unique_lock<std::mutex> lock(m_mutex);
 				APPL_WARNING("new USER: " << m_userName << " [START]");
 				m_basePath = std::string("USERDATA:") + m_userName + "/";
@@ -61,6 +64,7 @@ namespace appl {
 							APPL_WARNING("    ==> REJECTED file " << it->getNameFile() << " with ID = " << id);
 						} else {
 							m_listFile.insert(std::make_pair(id, it->getNameFile()));
+							m_lastMaxId = std::max(m_lastMaxId,id);
 							APPL_WARNING("    ==> load file " << it->getNameFile() << " with ID = " << id);
 						}
 					} else {
@@ -219,43 +223,74 @@ namespace appl {
 			std::string addFile(const jus::File& _dataFile) {
 				std::unique_lock<std::mutex> lock(m_mutex);
 				// TODO : Check right ...
-				/*
-				uint64_t id = etk::string_to_uint64_t(_pictureName);
-				APPL_WARNING("try to get file : " << _pictureName << " with id=" << id);
-				{
-					auto it = m_listFile.find(id);
-					if (it != m_listFile.end()) {
-						return jus::FileServer(m_basePath + it->second);
-					}
-				}
-				for (auto &it : m_listFile) {
-					APPL_WARNING("compare: " << it.first << " with " << id << " " << it.second);
-					if (it.first == id) {
-						return jus::FileServer(m_basePath + it.second);
-					}
-				}
-				*/
 				APPL_ERROR("    ==> Receive FILE " << _dataFile.getMineType() << " size=" << _dataFile.getData().size());
-				_dataFile.storeIn("plopppp.bmp");
-				return "54654654654654";//jus::FileServer();
+				uint64_t id = createFileID();
+				std::stringstream val;
+				val << std::hex << std::setw(16) << std::setfill('0') << id;
+				std::string filename = val.str();
+				filename += ".";
+				filename += jus::getExtention(_dataFile.getMineType());
+				_dataFile.storeIn(m_basePath + filename);
+				m_listFile.insert(std::make_pair(id, filename));
+				return etk::to_string(id);//jus::FileServer();
+			}
+			bool removeFile(const std::string& _file) {
+				std::unique_lock<std::mutex> lock(m_mutex);
+				// TODO : Check right ...
+				return false;
+			}
+			
+			std::string createAlbum(const std::string& _name) {
+				std::unique_lock<std::mutex> lock(m_mutex);
+				// TODO : Check right ...
+				return "";
+			}
+			bool removeAlbum(const std::string& _name) {
+				std::unique_lock<std::mutex> lock(m_mutex);
+				// TODO : Check right ...
+				return false;
+			}
+			bool setAlbumDescription(const std::string& _name, const std::string& _desc) {
+				std::unique_lock<std::mutex> lock(m_mutex);
+				// TODO : Check right ...
+				return false;
+			}
+			std::string getAlbumDescription(const std::string& _name) {
+				std::unique_lock<std::mutex> lock(m_mutex);
+				// TODO : Check right ...
+				return "";
+			}
+			
+			
+			bool addInAlbum(const std::string& _nameAlbum, const std::string& _nameElement) {
+				std::unique_lock<std::mutex> lock(m_mutex);
+				// TODO : Check right ...
+				return false;
+			}
+			bool removeFromAlbum(const std::string& _nameAlbum, const std::string& _nameElement) {
+				std::unique_lock<std::mutex> lock(m_mutex);
+				// TODO : Check right ...
+				return false;
 			}
 			/*
 			// Return a global UTC time
 			jus::Time getAlbumPictureTime(const std::string& _pictureName) {
 				std::unique_lock<std::mutex> lock(m_mutex);
+				// TODO : Check right ...
 				return jus::Time();
 			}
 			// Return a Geolocalization information (latitude, longitude)
 			jus::Geo getAlbumPictureGeoLocalization(const std::string& _pictureName) {
 				std::unique_lock<std::mutex> lock(m_mutex);
+				// TODO : Check right ...
 				return jus::Geo();
 			}
-			jus::FileId addElement(const jus::File& _file) {
-				std::unique_lock<std::mutex> lock(m_mutex);
-				std::vector<std::string> out;
-				return std::vector<std::string>();
-			}
 			*/
+		private:
+			uint64_t createFileID() {
+				m_lastMaxId++;
+				return m_lastMaxId;
+			}
 	};
 	
 	class UserManager {
@@ -396,6 +431,10 @@ int main(int _argc, const char *_argv[]) {
 		while (serviceInterface.GateWayAlive() == true) {
 			usleep(1000000);
 			serviceInterface.pingIsAlive();
+			/*
+			serviceInterface.store();
+			serviceInterface.clean();
+			*/
 			APPL_INFO("service in waiting ... " << iii << "/inf");
 			iii++;
 		}

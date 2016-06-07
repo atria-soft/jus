@@ -145,6 +145,7 @@ namespace jus {
 		return out;
 	}
 	
+	static const int32_t BASE_SIZE_TRANSFER = 4096;
 	class SenderJusFile {
 		private:
 			jus::File m_data;
@@ -172,11 +173,11 @@ namespace jus {
 				if (m_paramID >= 0) {
 					answer.add("param-id", ejson::Number(m_paramID));
 				}
-				int32_t tmpSize = 1023;
-				if (m_size < 1023) {
+				int32_t tmpSize = BASE_SIZE_TRANSFER;
+				if (m_size < BASE_SIZE_TRANSFER) {
 					tmpSize = m_size;
 				}
-				uint8_t tmpData[1023];
+				uint8_t tmpData[BASE_SIZE_TRANSFER];
 				answer.add("data", ejson::String(ejson::base64::encode(&m_data.getData()[m_offset], tmpSize)));
 				m_offset += tmpSize;
 				m_size -= tmpSize;
