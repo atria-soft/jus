@@ -13,6 +13,7 @@
 jus::Client::Client() :
   propertyIp(this, "ip", "127.0.0.1", "Ip to connect server", &jus::Client::onPropertyChangeIp),
   propertyPort(this, "port", 1983, "Port to connect server", &jus::Client::onPropertyChangePort),
+  m_interfaceMode(jus::connectionMode::modeJson),
   m_id(1) {
 	m_interfaceClient.connect(this, &jus::Client::onClientData);
 }
@@ -86,9 +87,9 @@ jus::ServiceRemote jus::Client::getService(const std::string& _name) {
 	return jus::ServiceRemote(this, _name);
 }
 
-bool jus::Client::link(const std::string& _serviceName) {
+int32_t jus::Client::link(const std::string& _serviceName) {
 	// TODO : Check the number of connection of this service ...
-	jus::Future<bool> ret = call("link", _serviceName);
+	jus::Future<int32_t> ret = call("link", _serviceName);
 	ret.wait();
 	if (ret.hasError() == true) {
 		JUS_WARNING("Can not link with the service named: '" << _serviceName << "' ==> link error");
@@ -97,11 +98,11 @@ bool jus::Client::link(const std::string& _serviceName) {
 	return ret.get();
 }
 
-bool jus::Client::unlink(const std::string& _serviceName) {
-	jus::Future<bool> ret = call("unlink", _serviceName);
+bool jus::Client::unlink(const uint32_t& _serviceId) {
+	jus::Future<bool> ret = call("unlink", _serviceId);
 	ret.wait();
 	if (ret.hasError() == true) {
-		JUS_WARNING("Can not unlink with the service named: '" << _serviceName << "' ==> link error");
+		JUS_WARNING("Can not unlink with the service id: '" << _serviceId << "' ==> link error");
 		return false;
 	}
 	return ret.get();
@@ -164,24 +165,24 @@ uint64_t jus::Client::getId() {
 	return m_id++;
 }
 
-class SendAsync {
+class SendAsyncJson {
 	private:
 		std::vector<jus::ActionAsyncClient> m_async;
 		uint64_t m_transactionId;
-		std::string m_service;
+		uint32_t m_serviceId;
 		uint32_t m_partId;
 	public:
-		SendAsync(uint64_t _transactionId, const std::string& _service, const std::vector<jus::ActionAsyncClient>& _async) :
+		SendAsyncJson(uint64_t _transactionId, const uint32_t& _serviceId, const std::vector<jus::ActionAsyncClient>& _async) :
 		  m_async(_async),
 		  m_transactionId(_transactionId),
-		  m_service(_service),
+		  m_serviceId(_serviceId),
 		  m_partId(1) {
 			
 		}
 		bool operator() (jus::TcpString* _interface){
 			auto it = m_async.begin();
 			while (it != m_async.end()) {
-				bool ret = (*it)(_interface, m_service, m_transactionId, m_partId);
+				bool ret = (*it)(_interface, m_serviceId, m_transactionId, m_partId);
 				if (ret == true) {
 					// Remove it ...
 					it = m_async.erase(it);
@@ -192,8 +193,8 @@ class SendAsync {
 			}
 			if (m_async.size() == 0) {
 				ejson::Object obj;
-				if (m_service != "") {
-					obj.add("service", ejson::String(m_service));
+				if (m_serviceId != 0) {
+					obj.add("service", ejson::Number(m_serviceId));
 				}
 				obj.add("id", ejson::Number(m_transactionId));
 				obj.add("part", ejson::Number(m_partId));
@@ -210,7 +211,7 @@ jus::FutureBase jus::Client::callJson(uint64_t _transactionId,
                                       ejson::Object _obj,
                                       const std::vector<ActionAsyncClient>& _async,
                                       jus::FutureData::ObserverFinish _callback,
-                                      const std::string& _service) {
+                                      const uint32_t& _serviceId) {
 	JUS_VERBOSE("Send JSON [START] ");
 	if (m_interfaceClient.isActive() == false) {
 		ejson::Object obj;
@@ -230,9 +231,82 @@ jus::FutureBase jus::Client::callJson(uint64_t _transactionId,
 	m_interfaceClient.write(_obj.generateMachineString());
 	
 	if (_async.size() != 0) {
-		m_interfaceClient.addAsync(SendAsync(_transactionId, _service, _async));
+		m_interfaceClient.addAsync(SendAsyncJson(_transactionId, _serviceId, _async));
 	}
 	JUS_VERBOSE("Send JSON [STOP]");
 	return tmpFuture;
 }
 
+
+class SendAsyncBinary {
+	private:
+		std::vector<jus::ActionAsyncClient> m_async;
+		uint64_t m_transactionId;
+		uint32_t m_serviceId;
+		uint32_t m_partId;
+	public:
+		SendAsyncBinary(uint64_t _transactionId, const uint32_t& _serviceId, const std::vector<jus::ActionAsyncClient>& _async) :
+		  m_async(_async),
+		  m_transactionId(_transactionId),
+		  m_serviceId(_serviceId),
+		  m_partId(1) {
+			
+		}
+		bool operator() (jus::TcpString* _interface){
+			auto it = m_async.begin();
+			while (it != m_async.end()) {
+				bool ret = (*it)(_interface, m_serviceId, m_transactionId, m_partId);
+				if (ret == true) {
+					// Remove it ...
+					it = m_async.erase(it);
+				} else {
+					++it;
+				}
+				m_partId++;
+			}
+			if (m_async.size() == 0) {
+				jus::Buffer obj;
+				obj.setServiceId(m_serviceId);
+				obj.setTransactionId(m_transactionId);
+				obj.setPartId(m_partId);
+				obj.setPartFinish(true);
+				JUS_DEBUG("Send BINARY '" << obj.generateHumanString() << "'");
+				_interface->writeBinary(obj);
+				return true;
+			}
+			return false;
+		}
+};
+
+jus::FutureBase jus::Client::callBinary(uint64_t _transactionId,
+                                        jus::Buffer& _obj,
+                                        const std::vector<ActionAsyncClient>& _async,
+                                        jus::FutureData::ObserverFinish _callback,
+                                        const uint32_t& _serviceId) {
+	JUS_VERBOSE("Send Binary [START] ");
+	if (m_interfaceClient.isActive() == false) {
+		jus::Buffer obj;
+		JUS_TODO("SEt error answer ...");
+		//obj.add("error", ejson::String("NOT-CONNECTED"));
+		//obj.add("error-help", ejson::String("Client interface not connected (no TCP)"));
+		return jus::FutureBase(_transactionId, true, obj, _callback);
+	}
+	jus::FutureBase tmpFuture(_transactionId, _callback);
+	{
+		std::unique_lock<std::mutex> lock(m_mutex);
+		m_pendingCall.push_back(tmpFuture);
+	}
+	if (_async.size() != 0) {
+		_obj.setPartFinish(false);
+	} else {
+		_obj.setPartFinish(true);
+	}
+	JUS_DEBUG("Send Binary '" << _obj.generateHumanString() << "'");
+	m_interfaceClient.writeBinary(_obj);
+	
+	if (_async.size() != 0) {
+		m_interfaceClient.addAsync(SendAsyncBinary(_transactionId, _serviceId, _async));
+	}
+	JUS_VERBOSE("Send Binary [STOP]");
+	return tmpFuture;
+}

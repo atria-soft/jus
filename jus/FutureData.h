@@ -7,6 +7,8 @@
 
 #include <etk/types.h>
 #include <ejson/ejson.h>
+#include <jus/Buffer.h>
+
 
 namespace jus {
 	class FutureBase;
@@ -18,6 +20,7 @@ namespace jus {
 			bool m_isSynchronous;
 			bool m_isFinished;
 			ejson::Object m_returnData;
+			jus::Buffer m_returnDataBinary;
 			std::vector<ejson::Value> m_returnDataPart;
 			ObserverFinish m_callbackFinish;
 			std::chrono::steady_clock::time_point m_sendTime;

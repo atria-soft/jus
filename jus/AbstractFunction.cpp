@@ -163,10 +163,10 @@ namespace jus {
 			~SenderJusFile() {
 				
 			}
-			bool operator() (TcpString* _interface, const std::string& _service, uint64_t _transactionId, uint64_t _part) {
+			bool operator() (TcpString* _interface, const uint32_t& _serviceId, uint64_t _transactionId, uint64_t _part) {
 				ejson::Object answer;
-				if (_service != "") {
-					answer.add("service", ejson::String(_service));
+				if (_serviceId != 0) {
+					answer.add("service", ejson::Number(_serviceId));
 				}
 				answer.add("id", ejson::Number(_transactionId));
 				answer.add("part", ejson::Number(_part));
@@ -251,6 +251,9 @@ namespace jus {
 	}
 	
 }
+// ============================================================
+// == JSON
+// ============================================================
 
 ejson::Object jus::createCallJson(uint64_t _transactionId, const std::string& _functionName, ejson::Array _params) {
 	ejson::Object callElem = createBaseCall(_transactionId, _functionName);
@@ -268,6 +271,28 @@ ejson::Object jus::createBaseCall(uint64_t _transactionId, const std::string& _f
 	return obj;
 }
 void jus::createParam(std::vector<ActionAsyncClient>& _asyncAction, int32_t _paramId, ejson::Object& _obj) {
+	// Finish recursive parse ...
+}
+
+
+// ============================================================
+// == Binary
+// ============================================================
+jus::Buffer jus::createBinaryCall(uint64_t _transactionId, const std::string& _functionName, const jus::Buffer& _params) {
+	jus::Buffer callElem = createBinaryBaseCall(_transactionId, _functionName);
+	//callElem.add("param", _params);
+	return callElem;
+}
+
+jus::Buffer jus::createBinaryBaseCall(uint64_t _transactionId, const std::string& _functionName, const uint32_t& _serviceId) {
+	jus::Buffer obj;
+	obj.setServiceId(_serviceId);
+	obj.setCall(_functionName);
+	obj.setTransactionId(_transactionId);
+	return obj;
+}
+
+void jus::createBinaryParam(std::vector<ActionAsyncClient>& _asyncAction, int32_t _paramId, jus::Buffer& _obj) {
 	// Finish recursive parse ...
 }
 

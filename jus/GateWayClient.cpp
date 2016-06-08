@@ -80,7 +80,7 @@ void jus::GateWayClient::returnBool(int32_t _transactionId, bool _value) {
 	m_interfaceClient.write(answer.generateMachineString());
 }
 
-void jus::GateWayClient::onClientDataRaw(jus::Buffer _value) {
+void jus::GateWayClient::onClientDataRaw(const jus::Buffer& _value) {
 	
 }
 
@@ -112,19 +112,19 @@ void jus::GateWayClient::onClientData(std::string _value) {
 					std::string mode = data["param"].toArray()[0].toString().get();
 					if (mode == "JSON") {
 						JUS_WARNING("[" << m_uid << "] Change mode in: JSON");
-						connectCleanRaw();
+						m_interfaceClient.connectCleanRaw();
 						m_interfaceClient.connect(this, &jus::GateWayClient::onClientData);
 						returnBool(transactionId, true);
 					} else if (mode == "BIN") {
 						JUS_WARNING("[" << m_uid << "] Change mode in: BINARY");
-						connectClean();
+						m_interfaceClient.connectClean();
 						m_interfaceClient.connectRaw(this, &jus::GateWayClient::onClientDataRaw);
 						returnBool(transactionId, true);
 					} else if (mode == "XML") {
 						JUS_WARNING("[" << m_uid << "] Change mode in: XML");
 						returnBool(transactionId, false);
 					} else {
-						protocolError("Call setMode with unknow argument : '" << mode << "' supported [JSON/XML/BIN]");
+						protocolError(std::string("Call setMode with unknow argument : '") /*+ etk::to_string(int32_t(mode))*/ + "' supported [JSON/XML/BIN]");
 					}
 					return;
 				} else if (call == "connectToUser") {
@@ -323,7 +323,7 @@ void jus::GateWayClient::onClientData(std::string _value) {
 						// first param:
 						int64_t localServiceID = data["param"].toArray()[0].toNumber().getI64();
 						// Check if service already link:
-						if (localServiceID >= m_listConnectedService.end()) {
+						if (localServiceID >= m_listConnectedService.size()) {
 							answer.add("error", ejson::String("NOT-CONNECTED-SERVICE"));
 							JUS_DEBUG("answer: " << answer.generateHumanString());
 							m_interfaceClient.write(answer.generateMachineString());
@@ -331,8 +331,8 @@ void jus::GateWayClient::onClientData(std::string _value) {
 						}
 						ejson::Object linkService;
 						// TODO : Change event in call ...
-						linkService.add("event", ejson::String("delete"));
-						(*it)->SendData(m_uid, linkService);
+						linkService.add("event", ejson::String("delete")); // TODO : **************************************************
+						m_listConnectedService[localServiceID]->SendData(m_uid, linkService);
 						m_listConnectedService[localServiceID] = nullptr;
 						answer.add("return", ejson::Boolean(true));
 						JUS_DEBUG("answer: " << answer.generateHumanString());
@@ -347,7 +347,7 @@ void jus::GateWayClient::onClientData(std::string _value) {
 				}
 				
 				uint64_t serviceId = numService.getU64();
-				if (serviceId >= m_listConnectedService.end()) {
+				if (serviceId >= m_listConnectedService.size()) {
 					answer.add("error", ejson::String("NOT-CONNECTED-SERVICE"));
 					JUS_DEBUG("answer: " << answer.generateHumanString());
 					m_interfaceClient.write(answer.generateMachineString());

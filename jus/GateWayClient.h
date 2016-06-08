@@ -46,6 +46,7 @@ namespace jus {
 			virtual ~GateWayClient();
 			void start(uint64_t _uid, uint64_t _uid2);
 			void stop();
+			void onClientDataRaw(const jus::Buffer& _value);
 			void onClientData(std::string _value);
 			void returnMessage(ejson::Object _data);
 			bool checkId(uint64_t _id) const {

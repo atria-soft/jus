@@ -13,6 +13,7 @@
 #include <chrono>
 #include <unistd.h>
 #include <jus/Future.h>
+#include <jus/connectionMode.h>
 
 namespace jus {
 	class Client : public eproperty::Interface {
@@ -22,6 +23,10 @@ namespace jus {
 			eproperty::Value<uint16_t> propertyPort;
 			std::mutex m_mutex;
 			std::vector<jus::FutureBase> m_pendingCall;
+		protected:
+			enum jus::connectionMode m_interfaceMode;
+		public:
+			enum jus::connectionMode getMode() { return m_interfaceMode; }
 		private:
 			jus::TcpString m_interfaceClient;
 			uint32_t m_id;
@@ -33,8 +38,8 @@ namespace jus {
 			void disconnect();
 		public:
 			jus::ServiceRemote getService(const std::string& _serviceName);
-			bool link(const std::string& _serviceName);
-			bool unlink(const std::string& _serviceName);
+			int32_t link(const std::string& _serviceName);
+			bool unlink(const uint32_t& _serviceId);
 			
 			// Connect that is not us
 			//bool identify("clientTest1#atria-soft.com", "QSDQSDGQSF54HSXWVCSQDJ654URTDJ654NBXCDFDGAEZ51968");
@@ -47,22 +52,37 @@ namespace jus {
 			                         ejson::Object _obj,
 			                         const std::vector<ActionAsyncClient>& _async,
 			                         jus::FutureData::ObserverFinish _callback=nullptr,
-			                         const std::string& _service="");
+			                         const uint32_t& _service=0);
+			jus::FutureBase callBinary(uint64_t _transactionId,
+			                           jus::Buffer& _obj,
+			                           const std::vector<ActionAsyncClient>& _async,
+			                           jus::FutureData::ObserverFinish _callback=nullptr,
+			                           const uint32_t& _service=0);
 		public:
 			uint64_t getId();
 			template<class... _ARGS>
 			jus::FutureBase call(const std::string& _functionName, _ARGS&&... _args) {
 				uint64_t id = getId();
 				std::vector<ActionAsyncClient> asyncAction;
-				ejson::Object callElem = jus::createCall(asyncAction, id, _functionName, std::forward<_ARGS>(_args)...);
-				return callJson(id, callElem, asyncAction);
+				if (getMode() == jus::connectionMode::modeJson) {
+					ejson::Object callElem = jus::createCall(asyncAction, id, _functionName, std::forward<_ARGS>(_args)...);
+					return callJson(id, callElem, asyncAction);
+				} else {
+					jus::Buffer callElem = jus::createBinaryCall(asyncAction, id, _functionName, std::forward<_ARGS>(_args)...);
+					return callBinary(id, callElem, asyncAction);
+				}
 			}
 			template<class... _ARGS>
 			jus::FutureBase callAction(const std::string& _functionName, _ARGS&&... _args, jus::FutureData::ObserverFinish _callback) {
 				uint64_t id = getId();
 				std::vector<ActionAsyncClient> asyncAction;
-				ejson::Object callElem = jus::createCall(asyncAction, id, _functionName, std::forward<_ARGS>(_args)...);
-				return callJson(id, callElem, asyncAction, _callback);
+				if (getMode() == jus::connectionMode::modeJson) {
+					ejson::Object callElem = jus::createCall(asyncAction, id, _functionName, std::forward<_ARGS>(_args)...);
+					return callJson(id, callElem, asyncAction, _callback);
+				} else {
+					jus::Buffer callElem = jus::createBinaryCall(asyncAction, id, _functionName, std::forward<_ARGS>(_args)...);
+					return callBinary(id, callElem, asyncAction, _callback);
+				}
 			}
 		private:
 			void onPropertyChangeIp();

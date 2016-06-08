@@ -7,14 +7,24 @@
 #include <etk/types.h>
 
 namespace jus {
+	//U32 message lenght
+	struct headerBin {
+		uint32_t lenght;
+		uint16_t versionProtocol; // protocol Version (might be 1)
+		uint32_t transactionID;
+		uint32_t clientID; // same as sevice ID
+		int16_t partID; // if < 0 the partId ifs the last (start at 0 if multiple or 0x8000 if single message)
+		uint16_t typeMessage; //TypeMessgae (1:call, 2:Answer, 4:event)
+		void clear() {
+			lenght = 0;
+			versionProtocol = 1;
+			transactionID = 1;
+			clientID = 0;
+			partID = 0x8000;
+			typeMessage = 1;
+		}
+	};
 	/*
-	 U32 message lenght
-	 U16 protocol Version (might be 1)
-	 U32 transactionID;
-	 U32 clientID; ==> sevice ID
-	 U1  finish part
-	 U15 partID;
-	 U16 TypeMessgae (1:call, 2:Answer, 4:event)
 	 // not needed ==> can be deduced with parameter number ... U16 Offset String call Name (start of the buffer) end with \0
 	 ======================
 	 == call
@@ -73,10 +83,13 @@ namespace jus {
 	*/
 	class Buffer {
 		private:
+			headerBin m_header;
+			std::vector<uint16_t> m_paramOffset;
 			std::vector<uint8_t> m_data;
 		public:
 			Buffer();
-			clear();
+			std::string generateHumanString();
+			void clear();
 			uint16_t getProtocalVersion();
 			void setProtocolVersion(uint16_t _value);
 			uint32_t getTransactionId();
@@ -98,12 +111,15 @@ namespace jus {
 				call = 0x0001,
 				answer = 0x0002,
 				event = 0x0004,
-			}
+			};
 			enum typeMessage getType();
 			void setType(enum typeMessage _value);
 		// ===============================================
 		// == Section call
 		// ===============================================
+		private:
+			template<class JUS_TYPE_DATA>
+			JUS_TYPE_DATA internalGetParameter(int32_t _id);
 		public:
 			std::string getCall();
 			void setCall(std::string _value);
@@ -111,6 +127,12 @@ namespace jus {
 			
 			template<class JUS_TYPE_DATA>
 			void addParameter(const JUS_TYPE_DATA& _value);
+			
+			template<class JUS_TYPE_DATA>
+			JUS_TYPE_DATA getParameter(int32_t _id) {
+				return internalGetParameter<JUS_TYPE_DATA>(_id+1);
+			}
+			
 			
 		// ===============================================
 		// == Section Answer

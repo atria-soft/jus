@@ -6,6 +6,7 @@
 #pragma once
 #include <eproperty/Value.h>
 #include <esignal/Signal.h>
+#include <jus/Buffer.h>
 #include <enet/Tcp.h>
 #include <thread>
 #include <memory>
@@ -44,7 +45,7 @@ namespace jus {
 					(*_class.*_func)(std::move(_value));
 				};
 			}
-			void connectRawClean() {
+			void connectCleanRaw() {
 				m_observerRawElement = nullptr;
 			}
 		public:
@@ -57,6 +58,7 @@ namespace jus {
 			bool isActive() const;
 			void setInterfaceName(const std::string& _name);
 			int32_t write(const std::string& _data);
+			int32_t writeBinary(const jus::Buffer& _data);
 			std::string asyncRead();
 		private:
 			std::string read();

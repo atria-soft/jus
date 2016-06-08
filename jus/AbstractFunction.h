@@ -61,7 +61,7 @@ namespace jus {
 	};
 	
 	// define basic async call element ...
-	using ActionAsyncClient = std::function<bool(TcpString* _interface, const std::string& _service, uint64_t _transactionId, uint64_t _part)>;
+	using ActionAsyncClient = std::function<bool(TcpString* _interface, const uint32_t& _serviceId, uint64_t _transactionId, uint64_t _part)>;
 	
 	template<class JUS_TYPE>
 	JUS_TYPE convertStringTo(const std::string& _value);
@@ -74,6 +74,9 @@ namespace jus {
 	//ejson::Value convertToJson(std::vector<ActionAsyncClient>& _asyncAction, int32_t _paramId, const char* _value);
 	
 	
+	// ============================================================
+	// == JSON
+	// ============================================================
 	ejson::Object createBaseCall(uint64_t _transactionId, const std::string& _functionName, const std::string& _service="");
 	
 	void createParam(std::vector<ActionAsyncClient>& _asyncAction,
@@ -103,8 +106,6 @@ namespace jus {
 	                 _ARGS&&... _args) {
 		createParam(_asyncAction, _paramId, _obj, std::string(_param), std::forward<_ARGS>(_args)...);
 	}
-	
-	
 	template<class... _ARGS>
 	ejson::Object createCall(std::vector<ActionAsyncClient>& _asyncAction, uint64_t _transactionId, const std::string& _functionName, _ARGS&&... _args) {
 		ejson::Object callElem = createBaseCall(_transactionId, _functionName);
@@ -118,6 +119,48 @@ namespace jus {
 		return callElem;
 	}
 	ejson::Object createCallJson(uint64_t _transactionId, const std::string& _functionName, ejson::Array _params);
+	
+	// ============================================================
+	// == Binary
+	// ============================================================
+	jus::Buffer createBinaryBaseCall(uint64_t _transactionId, const std::string& _functionName, const uint32_t& _serviceId=0);
+	void createBinaryParam(std::vector<ActionAsyncClient>& _asyncAction,
+	                       int32_t _paramId,
+	                       jus::Buffer& _obj);
+	
+	template<class JUS_TYPE, class... _ARGS>
+	void createBinaryParam(std::vector<ActionAsyncClient>& _asyncAction,
+	                       int32_t _paramId,
+	                       jus::Buffer& _obj,
+	                       const JUS_TYPE& _param,
+	                       _ARGS&&... _args) {
+		_obj.addParameter<JUS_TYPE>(/*_asyncAction, _paramId,*/ _param);
+		_paramId++;
+		createBinaryParam(_asyncAction, _paramId, _obj, std::forward<_ARGS>(_args)...);
+	}
+	// convert const char in std::string ...
+	template<class... _ARGS>
+	void createBinaryParam(std::vector<ActionAsyncClient>& _asyncAction,
+	                       int32_t _paramId,
+	                       jus::Buffer& _obj,
+	                       const char* _param,
+	                       _ARGS&&... _args) {
+		createBinaryParam(_asyncAction, _paramId, _obj, std::string(_param), std::forward<_ARGS>(_args)...);
+	}
+	
+	template<class... _ARGS>
+	jus::Buffer createBinaryCall(std::vector<ActionAsyncClient>& _asyncAction, uint64_t _transactionId, const std::string& _functionName, _ARGS&&... _args) {
+		jus::Buffer callElem = createBinaryBaseCall(_transactionId, _functionName);
+		createBinaryParam(_asyncAction, 0, callElem, std::forward<_ARGS>(_args)...);
+		return callElem;
+	}
+	template<class... _ARGS>
+	jus::Buffer createBinaryCallService(std::vector<ActionAsyncClient>& _asyncAction, uint64_t _transactionId, const uint32_t& _serviceName, const std::string& _functionName, _ARGS&&... _args) {
+		jus::Buffer callElem = createBinaryBaseCall(_transactionId, _functionName, _serviceName);
+		createBinaryParam(_asyncAction, 0, callElem, std::forward<_ARGS>(_args)...);
+		return callElem;
+	}
+	jus::Buffer createBinaryCall(uint64_t _transactionId, const std::string& _functionName, const jus::Buffer& _params);
 	
 }
 
