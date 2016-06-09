@@ -116,7 +116,7 @@ void jus::Service::callJson(uint64_t _transactionId, const ejson::Object& _obj) 
 	uint64_t clientId = _obj["client-id"].toNumber().getU64();
 	if (_obj.valueExist("call") == true) {
 		std::string call = _obj["call"].toString().get();
-		ejson::Array params = _obj["param"].toArray()
+		ejson::Array params = _obj["param"].toArray();
 		if (call[0] == '_') {
 			if (call == "_new") {
 				std::string userName = params[0].toString().get();
@@ -126,6 +126,13 @@ void jus::Service::callJson(uint64_t _transactionId, const ejson::Object& _obj) 
 			} else if (call == "_delete") {
 				clientDisconnect(clientId);
 			}
+			// TODO : Do it better ...
+			answer.add("id", ejson::Number(_transactionId));
+			answer.add("client-id", ejson::Number(clientId));
+			answer.add("return", ejson::Boolean(true));
+			JUS_INFO("Answer: " << answer.generateHumanString());
+			m_interfaceClient->write(answer.generateMachineString());
+			return;
 		} else if (isFunctionAuthorized(clientId, call) == true) {
 			callJson2(_transactionId, clientId, call, params);
 			return;

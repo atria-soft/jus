@@ -12,10 +12,14 @@
 
 #include <jus/AbstractFunction.h>
 
+
+static const std::string protocolError = "PROTOCOL-ERROR";
+
 jus::GateWayClient::GateWayClient(enet::Tcp _connection, jus::GateWay* _gatewayInterface) :
   m_state(jus::GateWayClient::state::unconnect),
   m_gatewayInterface(_gatewayInterface),
   m_interfaceClient(std::move(_connection)),
+  m_interfaceMode(jus::connectionMode::modeJson),
   m_transactionLocalId(1) {
 	JUS_INFO("----------------");
 	JUS_INFO("-- NEW Client --");
@@ -45,12 +49,16 @@ void jus::GateWayClient::stop() {
 			continue;
 		}
 		ejson::Object linkService;
-		linkService.add("event", ejson::String("delete"));
+		linkService.add("call", ejson::String("_delete"));
+		linkService.add("id", ejson::Number(m_transactionLocalId++));
+		linkService.add("param", ejson::Array());
 		it->SendData(m_uid, linkService);
 	}
 	if (m_userService != nullptr) {
 		ejson::Object linkService;
-		linkService.add("event", ejson::String("delete"));
+		linkService.add("call", ejson::String("_delete"));
+		linkService.add("id", ejson::Number(m_transactionLocalId++));
+		linkService.add("param", ejson::Array());
 		m_userService->SendData(m_uid2, linkService);
 		m_userService = nullptr;
 	}
@@ -62,22 +70,41 @@ bool jus::GateWayClient::isAlive() {
 	return m_interfaceClient.isActive();
 }
 
-void jus::GateWayClient::protocolError(const std::string& _errorHelp) {
-	ejson::Object answer;
-	answer.add("error", ejson::String("PROTOCOL-ERROR"));
-	answer.add("error-help", ejson::String(_errorHelp));
-	JUS_DEBUG("answer: " << answer.generateHumanString());
-	m_interfaceClient.write(answer.generateMachineString());
+void jus::GateWayClient::answerProtocolError(uint32_t _transactionId, const std::string& _errorHelp) {
+	answerError(_transactionId, protocolError, _errorHelp);
 	m_state = jus::GateWayClient::state::disconnect;
 	m_interfaceClient.disconnect(true);
 }
-
-void jus::GateWayClient::returnBool(int32_t _transactionId, bool _value) {
+/*
+void jus::GateWayClient::answerValue(int32_t _transactionId, bool _value) {
 	ejson::Object answer;
 	answer.add("id", ejson::Number(_transactionId));
 	answer.add("return", ejson::Boolean(_value));
 	JUS_DEBUG("answer: " << answer.generateHumanString());
 	m_interfaceClient.write(answer.generateMachineString());
+}
+*/
+
+void jus::GateWayClient::answerError(uint64_t _clientTransactionId, const std::string& _errorValue, const std::string& _errorHelp) {
+	if (m_interfaceMode == jus::connectionMode::modeJson) {
+		ejson::Object answer;
+		answer.add("error", ejson::String(protocolError));
+		answer.add("id", ejson::Number(_clientTransactionId));
+		answer.add("error-help", ejson::String(_errorHelp));
+		JUS_DEBUG("answer: " << answer.generateHumanString());
+		m_interfaceClient.write(answer.generateMachineString());
+	} else if (m_interfaceMode == jus::connectionMode::modeBinary) {
+		jus::Buffer answer;
+		answer.setType(jus::Buffer::typeMessage::answer);
+		answer.setTransactionId(_clientTransactionId);
+		answer.addError(protocolError, _errorHelp);
+		JUS_DEBUG("answer: " << answer.generateHumanString());
+		m_interfaceClient.writeBinary(answer);
+	} else if (m_interfaceMode == jus::connectionMode::modeXml) {
+		JUS_ERROR("TODO ... ");
+	} else {
+		JUS_ERROR("wrong type of communication");
+	}
 }
 
 void jus::GateWayClient::onClientDataRaw(const jus::Buffer& _value) {
@@ -90,7 +117,7 @@ void jus::GateWayClient::onClientData(std::string _value) {
 	uint64_t transactionId = data["id"].toNumber().getU64();
 	if (transactionId == 0) {
 		JUS_ERROR("Protocol error ==>missing id");
-		protocolError("missing parameter: 'id'");
+		answerProtocolError(transactionId, "missing parameter: 'id'");
 		return;
 	}
 	switch (m_state) {
@@ -98,13 +125,13 @@ void jus::GateWayClient::onClientData(std::string _value) {
 		case jus::GateWayClient::state::unconnect:
 			{
 				JUS_ERROR("Must never appear");
-				protocolError("Gateway internal error");
+				answerProtocolError(transactionId, "Gateway internal error");
 				return;
 			}
 		case jus::GateWayClient::state::connect:
 			{
 				if (m_userConnectionName != "") {
-					protocolError("Gateway internal error 2");
+					answerProtocolError(transactionId, "Gateway internal error 2");
 					return;
 				}
 				std::string call = data["call"].toString().get();
@@ -112,46 +139,52 @@ void jus::GateWayClient::onClientData(std::string _value) {
 					std::string mode = data["param"].toArray()[0].toString().get();
 					if (mode == "JSON") {
 						JUS_WARNING("[" << m_uid << "] Change mode in: JSON");
+						m_interfaceMode = jus::connectionMode::modeJson;
 						m_interfaceClient.connectCleanRaw();
 						m_interfaceClient.connect(this, &jus::GateWayClient::onClientData);
-						returnBool(transactionId, true);
+						answerValue(transactionId, true);
 					} else if (mode == "BIN") {
 						JUS_WARNING("[" << m_uid << "] Change mode in: BINARY");
+						m_interfaceMode = jus::connectionMode::modeBinary;
 						m_interfaceClient.connectClean();
 						m_interfaceClient.connectRaw(this, &jus::GateWayClient::onClientDataRaw);
-						returnBool(transactionId, true);
+						answerValue(transactionId, true);
 					} else if (mode == "XML") {
 						JUS_WARNING("[" << m_uid << "] Change mode in: XML");
-						returnBool(transactionId, false);
+						//m_interfaceMode = jus::connectionMode::modeXml;
+						answerValue(transactionId, false);
 					} else {
-						protocolError(std::string("Call setMode with unknow argument : '") /*+ etk::to_string(int32_t(mode))*/ + "' supported [JSON/XML/BIN]");
+						answerProtocolError(transactionId, std::string("Call setMode with unknow argument : '") /*+ etk::to_string(int32_t(mode))*/ + "' supported [JSON/XML/BIN]");
 					}
 					return;
 				} else if (call == "connectToUser") {
 					m_userConnectionName = data["param"].toArray()[0].toString().get();
 					if (m_userConnectionName == "") {
-						protocolError("Call connectToUser with no parameter 'user'");
+						answerProtocolError(transactionId, "Call connectToUser with no parameter 'user'");
 					} else {
 						JUS_WARNING("[" << m_uid << "] Set client connect to user : '" << m_userConnectionName << "'");
 						
 						m_userService = m_gatewayInterface->get("system-user");
 						if (m_userService == nullptr) {
-							protocolError("Gateway internal error 'No user interface'");
+							answerProtocolError(transactionId, "Gateway internal error 'No user interface'");
 						} else {
 							ejson::Object linkService;
-							linkService.add("event", ejson::String("new"));
-							linkService.add("user", ejson::String(m_userConnectionName));
-							linkService.add("client", ejson::String("**Gateway**"));
-							linkService.add("groups", ejson::Array());
+							linkService.add("call", ejson::String("_new"));
+							linkService.add("id", ejson::Number(m_transactionLocalId++));
+							ejson::Array params;
+							params.add(ejson::String(m_userConnectionName));
+							params.add(ejson::String("**Gateway**"));
+							params.add(ejson::Array());
+							linkService.add("param", params);
 							m_userService->SendData(m_uid2, linkService);
 							m_state = jus::GateWayClient::state::userIdentify;
-							returnBool(transactionId, true);
+							answerValue(transactionId, true);
 						}
 					}
 					return;
 				}
 				JUS_WARNING("[" << m_uid << "] Client must send conection to user name ...");
-				protocolError("Missing call of connectToUser");
+				answerProtocolError(transactionId, "Missing call of connectToUser");
 				return;
 			}
 		case jus::GateWayClient::state::userIdentify:
@@ -164,26 +197,26 @@ void jus::GateWayClient::onClientData(std::string _value) {
 				if (    callFunction != "identify"
 				     && callFunction != "auth"
 				     && callFunction != "anonymous") {
-					protocolError("Client must call: identify/auth/anonymous");
+					answerProtocolError(transactionId, "Client must call: identify/auth/anonymous");
 					return;
 				}
 				if (callFunction == "identify") {
 					std::string clientName = data["param"].toArray()[0].toString().get();
 					std::string clientTocken = data["param"].toArray()[1].toString().get();
 					if (m_userService == nullptr) {
-						protocolError("gateWay internal error 3");
+						answerProtocolError(transactionId, "gateWay internal error 3");
 						return;
 					}
 					jus::Future<bool> fut = call(m_uid2, m_userService, "checkTocken", clientName, clientTocken);
 					fut.wait(); // TODO: Set timeout ...
 					if (fut.hasError() == true) {
 						JUS_ERROR("Get error from the service ...");
-						returnBool(transactionId, false);
-						protocolError("connection refused 1");
+						answerValue(transactionId, false);
+						answerProtocolError(transactionId, "connection refused 1");
 						return;
 					} else if (fut.get() == false) {
-						returnBool(transactionId, false);
-						protocolError("connection refused 2");
+						answerValue(transactionId, false);
+						answerProtocolError(transactionId, "connection refused 2");
 						return;
 					}
 					m_clientName = clientName;
@@ -194,12 +227,12 @@ void jus::GateWayClient::onClientData(std::string _value) {
 					fut.wait(); // TODO: Set timeout ...
 					if (fut.hasError() == true) {
 						JUS_ERROR("Get error from the service ...");
-						returnBool(transactionId, false);
-						protocolError("connection refused 1");
+						answerValue(transactionId, false);
+						answerProtocolError(transactionId, "connection refused 1");
 						return;
 					} else if (fut.get() == false) {
-						returnBool(transactionId, false);
-						protocolError("connection refused 2");
+						answerValue(transactionId, false);
+						answerProtocolError(transactionId, "connection refused 2");
 						return;
 					}
 					m_clientName = m_userConnectionName;
@@ -214,8 +247,8 @@ void jus::GateWayClient::onClientData(std::string _value) {
 				futGroup.wait(); // TODO: Set timeout ...
 				if (futGroup.hasError() == true) {
 					JUS_ERROR("Get error from the service ...");
-					returnBool(transactionId, false);
-					protocolError("grouping error");
+					answerValue(transactionId, false);
+					answerProtocolError(transactionId, "grouping error");
 					return;
 				}
 				m_clientgroups = futGroup.get();
@@ -227,8 +260,8 @@ void jus::GateWayClient::onClientData(std::string _value) {
 				futServices.wait(); // TODO: Set timeout ...
 				if (futServices.hasError() == true) {
 					JUS_ERROR("Get error from the service ...");
-					returnBool(transactionId, false);
-					protocolError("service filtering error");
+					answerValue(transactionId, false);
+					answerProtocolError(transactionId, "service filtering error");
 					return;
 				}
 				m_clientServices = futServices.get();
@@ -237,7 +270,7 @@ void jus::GateWayClient::onClientData(std::string _value) {
 				JUS_WARNING("     services: " << etk::to_string(m_clientServices));
 				
 				
-				returnBool(transactionId, true);
+				answerValue(transactionId, true);
 				m_state = jus::GateWayClient::state::clientIdentify;
 				return;
 			}
@@ -250,7 +283,6 @@ void jus::GateWayClient::onClientData(std::string _value) {
 					// This is 2 default service for the cient interface that manage the authorisation of view:
 					std::string callFunction = data["call"].toString().get();
 					ejson::Object answer;
-					//answer.add("from-service", ejson::String(""));
 					answer.add("id", data["id"]);
 					if (callFunction == "getServiceCount") {
 						answer.add("return", ejson::Number(m_clientServices.size()));
@@ -296,18 +328,21 @@ void jus::GateWayClient::onClientData(std::string _value) {
 							ememory::SharedPtr<jus::GateWayService> srv = m_gatewayInterface->get(serviceName);
 							if (srv != nullptr) {
 								ejson::Object linkService;
-								linkService.add("event", ejson::String("new"));
-								linkService.add("user", ejson::String(m_userConnectionName));
-								linkService.add("client", ejson::String(m_clientName));
+								linkService.add("call", ejson::String("_new"));
+								linkService.add("id", ejson::Number(m_transactionLocalId++));
+								ejson::Array params;
+								params.add(ejson::String(m_userConnectionName));
+								params.add(ejson::String(m_clientName));
 								// TODO ==> remove events ...
 								std::vector<ActionAsyncClient> asyncAction;
-								linkService.add("groups", convertToJson(asyncAction, 0, m_clientgroups));
+								params.add(convertToJson(asyncAction, 0, m_clientgroups));
+								linkService.add("param", params);
 								if (asyncAction.size() != 0) {
 									JUS_ERROR("Missing send async messages");
 								}
 								srv->SendData(m_uid, linkService);
 								m_listConnectedService.push_back(srv);
-								answer.add("return", ejson::Number(m_listConnectedService.size()-1));
+								answer.add("return", ejson::Number(m_listConnectedService.size()));
 							} else {
 								answer.add("error", ejson::String("CAN-NOT-CONNECT-SERVICE"));
 							}
@@ -321,7 +356,7 @@ void jus::GateWayClient::onClientData(std::string _value) {
 					}
 					if (callFunction == "unlink") {
 						// first param:
-						int64_t localServiceID = data["param"].toArray()[0].toNumber().getI64();
+						int64_t localServiceID = data["param"].toArray()[0].toNumber().getI64()-1;
 						// Check if service already link:
 						if (localServiceID >= m_listConnectedService.size()) {
 							answer.add("error", ejson::String("NOT-CONNECTED-SERVICE"));
@@ -330,8 +365,10 @@ void jus::GateWayClient::onClientData(std::string _value) {
 							return;
 						}
 						ejson::Object linkService;
-						// TODO : Change event in call ...
-						linkService.add("event", ejson::String("delete")); // TODO : **************************************************
+						linkService.add("call", ejson::String("_delete"));
+						linkService.add("id", ejson::Number(m_transactionLocalId++));
+						ejson::Array params;
+						linkService.add("param", params);
 						m_listConnectedService[localServiceID]->SendData(m_uid, linkService);
 						m_listConnectedService[localServiceID] = nullptr;
 						answer.add("return", ejson::Boolean(true));
@@ -346,8 +383,10 @@ void jus::GateWayClient::onClientData(std::string _value) {
 					return;
 				}
 				
-				uint64_t serviceId = numService.getU64();
+				uint64_t serviceId = numService.getU64()-1;
 				if (serviceId >= m_listConnectedService.size()) {
+					ejson::Object answer;
+					answer.add("id", data["id"]);
 					answer.add("error", ejson::String("NOT-CONNECTED-SERVICE"));
 					JUS_DEBUG("answer: " << answer.generateHumanString());
 					m_interfaceClient.write(answer.generateMachineString());

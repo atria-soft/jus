@@ -48,7 +48,7 @@ jus::FutureBase jus::ServiceRemote::callJson(uint64_t _transactionId,
 }
 
 jus::FutureBase jus::ServiceRemote::callBinary(uint64_t _transactionId,
-                                               const jus::Buffer& _obj,
+                                               jus::Buffer& _obj,
                                                const std::vector<ActionAsyncClient>& _async,
                                                jus::FutureData::ObserverFinish _callback) {
 	return m_clientInterface->callBinary(_transactionId, _obj, _async, _callback, m_serviceId);

@@ -62,6 +62,8 @@ namespace jus {
 			std::string asyncRead();
 		private:
 			std::string read();
+			jus::Buffer readRaw();
+			std::vector<uint8_t> m_buffer;
 		private:
 			void threadCallback();
 		public:

@@ -55,9 +55,7 @@ void jus::TcpString::threadCallback() {
 			}
 		} else if (m_observerRawElement != nullptr) {
 			jus::Buffer data = std::move(readRaw());
-			if (data.size() != 0) {
-				m_observerRawElement(std::move(data));
-			}
+			m_observerRawElement(std::move(data));
 		}
 	}
 	m_threadRunning = false;
@@ -136,6 +134,28 @@ int32_t jus::TcpString::write(const std::string& _data) {
 	m_connection.write(&size, 4);
 	return m_connection.write(_data.c_str(), _data.size());
 }
+int32_t jus::TcpString::writeBinary(const jus::Buffer& _data) {
+	if (m_threadRunning == false) {
+		return -2;
+	}
+	/*
+	if (_data.size() == 0) {
+		return 0;
+	}
+	*/
+	//uint32_t size = _data.size();
+	m_lastSend = std::chrono::steady_clock::now();
+	const uint8_t* data = _data.getHeader();
+	uint32_t dataSize = _data.getHeaderSize();
+	m_connection.write(data, dataSize);
+	data = _data.getParam();
+	dataSize = _data.getParamSize();
+	m_connection.write(data, dataSize);
+	data = _data.getData();
+	dataSize = _data.getDataSize();
+	m_connection.write(data, dataSize);
+	return 1;
+}
 
 std::string jus::TcpString::read() {
 	JUS_VERBOSE("Read [START]");
@@ -177,6 +197,45 @@ std::string jus::TcpString::read() {
 	return out;
 }
 
+jus::Buffer jus::TcpString::readRaw() {
+	jus::Buffer out;
+	JUS_VERBOSE("ReadRaw [START]");
+	if (m_threadRunning == false) {
+		JUS_DEBUG("Read [END] Disconected");
+		return out;
+	}
+	JUS_VERBOSE("ReadRaw [START]");
+	uint32_t size = 0;
+	int32_t len = m_connection.read(&size, 4);
+	if (len != 4) {
+		JUS_ERROR("Protocol error occured ...");
+	} else {
+		if (size == -1) {
+			JUS_WARNING("Remote close connection");
+			m_threadRunning = false;
+			//m_connection.unlink();
+		} else {
+			int64_t offset = 0;
+			m_buffer.resize(size);
+			while (offset != size) {
+				len = m_connection.read(&m_buffer[offset], size-offset);
+				offset += len;
+				if (len == 0) {
+					JUS_WARNING("Read No data");
+					//break;
+				}
+				/*
+				else if (size != offset) {
+					JUS_ERROR("Protocol error occured .2. ==> concat (offset=" << offset << " size=" << size);
+				}
+				*/
+			}
+			out.composeWith(m_buffer);
+		}
+	}
+	JUS_VERBOSE("ReadRaw [STOP]");
+	return out;
+}
 
 void jus::TcpString::threadAsyncCallback() {
 	ethread::setName("Async-sender");

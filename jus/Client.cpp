@@ -146,6 +146,15 @@ bool jus::Client::connect(const std::string& _remoteUserToConnect){
 	enet::Tcp connection = std::move(enet::connectTcpClient(*propertyIp, *propertyPort));
 	m_interfaceClient.setInterface(std::move(connection));
 	m_interfaceClient.connect();
+	// Force mode binary:
+	jus::Future<bool> retBin = call("setMode", "BIN").wait();
+	if (retBin.get() == true) {
+		m_interfaceMode = jus::connectionMode::modeBinary;
+		JUS_INFO("Connection jump in BINARY ...");
+	} else {
+		// stay in JSON
+	}
+	
 	jus::Future<bool> ret = call("connectToUser",  _remoteUserToConnect, "jus-client");
 	ret.wait();
 	if (ret.hasError() == true) {

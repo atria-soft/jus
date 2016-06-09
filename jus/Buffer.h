@@ -29,6 +29,7 @@ namespace jus {
 	 ======================
 	 == call
 	 ======================
+	 U16 param count
 	 U16[param count] parameters offset (first offset is the "callName" and limit size of the number of parameter
 	 CALL Name (funtion name)
 	 [param 1]
@@ -38,8 +39,11 @@ namespace jus {
 	 ======================
 	 == Answer
 	 ======================
-	 U16 ErrorOffset
-	 [return value 1]
+	 U16 param count = 3
+	 U16[param count]
+	 [param 1] (return value)
+	 [param 2] (error value)
+	 [param 3] (error help)
 	 [error] (constituated with 2 strings (error type and comment)
 	 ======================
 	 == event
@@ -87,7 +91,27 @@ namespace jus {
 			std::vector<uint16_t> m_paramOffset;
 			std::vector<uint8_t> m_data;
 		public:
+			const uint8_t* getHeader() const {
+				return reinterpret_cast<const uint8_t*>(&m_header);
+			}
+			uint32_t getHeaderSize() const {
+				return sizeof(headerBin);
+			}
+			const uint8_t* getParam() const {
+				return reinterpret_cast<const uint8_t*>(&m_paramOffset[0]);
+			}
+			uint32_t getParamSize() const {
+				return m_paramOffset.size() * 2;
+			}
+			const uint8_t* getData() const {
+				return &m_data[0];
+			}
+			uint32_t getDataSize() const {
+				return m_data.size();
+			}
+		public:
 			Buffer();
+			void composeWith(const std::vector<uint8_t>& _buffer);
 			std::string generateHumanString();
 			void clear();
 			uint16_t getProtocalVersion();
@@ -114,6 +138,7 @@ namespace jus {
 			};
 			enum typeMessage getType();
 			void setType(enum typeMessage _value);
+			
 		// ===============================================
 		// == Section call
 		// ===============================================
@@ -127,6 +152,7 @@ namespace jus {
 			
 			template<class JUS_TYPE_DATA>
 			void addParameter(const JUS_TYPE_DATA& _value);
+			void addParameter();
 			
 			template<class JUS_TYPE_DATA>
 			JUS_TYPE_DATA getParameter(int32_t _id) {
@@ -139,7 +165,11 @@ namespace jus {
 		// ===============================================
 		public:
 			template<class JUS_TYPE_DATA>
-			void addAnswer(const JUS_TYPE_DATA& _value);
+			void addAnswer(const JUS_TYPE_DATA& _value) {
+				addParameter(_value);
+			}
+			void addError(const std::string& _value, const std::string& _comment);
 	};
+	std::ostream& operator <<(std::ostream& _os, const std::vector<enum jus::Buffer::typeMessage>& _value);
 }
 

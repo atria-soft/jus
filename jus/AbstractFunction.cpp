@@ -261,10 +261,10 @@ ejson::Object jus::createCallJson(uint64_t _transactionId, const std::string& _f
 	return callElem;
 }
 
-ejson::Object jus::createBaseCall(uint64_t _transactionId, const std::string& _functionName, const std::string& _service) {
+ejson::Object jus::createBaseCall(uint64_t _transactionId, const std::string& _functionName, const uint32_t& _serviceId) {
 	ejson::Object obj;
-	if (_service.size() != 0) {
-		obj.add("service", ejson::String(_service));
+	if (_serviceId != 0) {
+		obj.add("service", ejson::Number(_serviceId));
 	}
 	obj.add("call", ejson::String(_functionName));
 	obj.add("id", ejson::Number(_transactionId));

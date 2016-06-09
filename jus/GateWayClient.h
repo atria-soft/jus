@@ -11,6 +11,7 @@
 #include <jus/GateWayService.h>
 #include <jus/Future.h>
 #include <jus/AbstractFunction.h>
+#include <jus/connectionMode.h>
 
 
 
@@ -29,8 +30,10 @@ namespace jus {
 		private:
 			jus::GateWay* m_gatewayInterface;
 			jus::TcpString m_interfaceClient;
-			void protocolError(const std::string& _errorHelp);
-			void returnBool(int32_t _transactionId, bool _value);
+		protected:
+			enum jus::connectionMode m_interfaceMode;
+		public:
+			enum jus::connectionMode getMode() { return m_interfaceMode; }
 		public:
 			esignal::Signal<bool> signalIsConnected;
 			ememory::SharedPtr<jus::GateWayService> m_userService;
@@ -91,6 +94,38 @@ namespace jus {
 			                                  jus::FutureData::ObserverFinish _callback,
 			                                  int64_t _part,
 			                                  bool _finish);
+			
+			void answerProtocolError(uint32_t _transactionId, const std::string& _errorHelp);
+			
+			template<class JUS_ARG>
+			void answerValue(uint64_t _clientTransactionId, JUS_ARG _value) {
+				if (m_interfaceMode == jus::connectionMode::modeJson) {
+					ejson::Object answer;
+					answer.add("id", ejson::Number(_clientTransactionId));
+					std::vector<ActionAsyncClient> asyncAction;
+					answer.add("return", jus::convertToJson(asyncAction, -1, _value));
+					if (asyncAction.size() != 0) {
+						JUS_ERROR("ASYNC datas ... TODO ///");
+					}
+					JUS_DEBUG("answer: " << answer.generateHumanString());
+					m_interfaceClient.write(answer.generateMachineString());
+				} else if (m_interfaceMode == jus::connectionMode::modeBinary) {
+					jus::Buffer answer;
+					answer.setType(jus::Buffer::typeMessage::answer);
+					answer.setTransactionId(_clientTransactionId);
+					answer.addAnswer(_value);
+					JUS_DEBUG("answer: " << answer.generateHumanString());
+					m_interfaceClient.writeBinary(answer);
+				} else if (m_interfaceMode == jus::connectionMode::modeXml) {
+					JUS_ERROR("TODO ... ");
+				} else {
+					JUS_ERROR("wrong type of communication");
+				}
+			}
+			
+			void answerError(uint64_t _clientTransactionId, const std::string& _errorValue, const std::string& _errorComment="");
+			
+			
 	};
 }
 

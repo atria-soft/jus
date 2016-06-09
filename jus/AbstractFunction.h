@@ -77,7 +77,7 @@ namespace jus {
 	// ============================================================
 	// == JSON
 	// ============================================================
-	ejson::Object createBaseCall(uint64_t _transactionId, const std::string& _functionName, const std::string& _service="");
+	ejson::Object createBaseCall(uint64_t _transactionId, const std::string& _functionName, const uint32_t& _serviceId=0);
 	
 	void createParam(std::vector<ActionAsyncClient>& _asyncAction,
 	                 int32_t _paramId,
@@ -113,8 +113,8 @@ namespace jus {
 		return callElem;
 	}
 	template<class... _ARGS>
-	ejson::Object createCallService(std::vector<ActionAsyncClient>& _asyncAction, uint64_t _transactionId, const std::string& _serviceName, const std::string& _functionName, _ARGS&&... _args) {
-		ejson::Object callElem = createBaseCall(_transactionId, _functionName, _serviceName);
+	ejson::Object createCallService(std::vector<ActionAsyncClient>& _asyncAction, uint64_t _transactionId, const uint32_t& _serviceId, const std::string& _functionName, _ARGS&&... _args) {
+		ejson::Object callElem = createBaseCall(_transactionId, _functionName, _serviceId);
 		createParam(_asyncAction, 0, callElem, std::forward<_ARGS>(_args)...);
 		return callElem;
 	}

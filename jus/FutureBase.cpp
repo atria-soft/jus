@@ -25,6 +25,7 @@ jus::FutureBase::FutureBase(uint64_t _transactionId, jus::FutureData::ObserverFi
 	m_data->m_transactionId = _transactionId;
 	m_data->m_isFinished = false;
 	m_data->m_isSynchronous = false;
+	m_data->m_mode = false;
 	m_data->m_callbackFinish = _callback;
 }
 
@@ -44,6 +45,7 @@ jus::FutureBase::FutureBase(uint64_t _transactionId, bool _isFinished, ejson::Ob
 	m_data->m_transactionId = _transactionId;
 	m_data->m_isFinished = _isFinished;
 	m_data->m_isSynchronous = false;
+	m_data->m_mode = false;
 	m_data->m_returnData = _returnData;
 	m_data->m_callbackFinish = _callback;
 	if (m_data->m_isFinished == true) {
@@ -54,6 +56,25 @@ jus::FutureBase::FutureBase(uint64_t _transactionId, bool _isFinished, ejson::Ob
 	}
 }
 
+jus::FutureBase::FutureBase(uint64_t _transactionId, bool _isFinished, jus::Buffer _returnData, jus::FutureData::ObserverFinish _callback) {
+	m_data = std::make_shared<jus::FutureData>();
+	if (m_data == nullptr) {
+		return;
+	}
+	m_data->m_sendTime = std::chrono::steady_clock::now();
+	m_data->m_transactionId = _transactionId;
+	m_data->m_isFinished = _isFinished;
+	m_data->m_isSynchronous = false;
+	m_data->m_mode = true;
+	m_data->m_returnDataBinary = _returnData;
+	m_data->m_callbackFinish = _callback;
+	if (m_data->m_isFinished == true) {
+		m_data->m_receiveTime = std::chrono::steady_clock::now();
+		if (m_data->m_callbackFinish != nullptr) {
+			m_data->m_callbackFinish(*this);
+		}
+	}
+}
 std::chrono::nanoseconds jus::FutureBase::getTransmitionTime() {
 	if (m_data == nullptr) {
 		return std::chrono::nanoseconds(0);
@@ -74,6 +95,7 @@ bool jus::FutureBase::setAnswer(const ejson::Object& _returnValue) {
 		JUS_ERROR(" Not a valid future ...");
 		return true;
 	}
+	m_data->m_mode = false;
 	m_data->m_receiveTime = std::chrono::steady_clock::now();
 	if (m_data->m_isSynchronous == true) {
 		m_data->m_returnData = _returnValue;
@@ -106,6 +128,48 @@ bool jus::FutureBase::setAnswer(const ejson::Object& _returnValue) {
 	if (m_data->m_callbackFinish != nullptr) {
 		return m_data->m_callbackFinish(*this);
 	}
+	return true;
+}
+bool jus::FutureBase::setAnswer(const jus::Buffer& _returnValue) {
+	if (m_data == nullptr) {
+		JUS_ERROR(" Not a valid future ...");
+		return true;
+	}
+	m_data->m_mode = true;
+	m_data->m_receiveTime = std::chrono::steady_clock::now();
+	if (m_data->m_isSynchronous == true) {
+		m_data->m_returnDataBinary = _returnValue;
+		if (m_data->m_callbackFinish != nullptr) {
+			return m_data->m_callbackFinish(*this);
+		}
+		return true;
+	}
+	/* TODO : ...
+	if (_returnValue.valueExist("part") == true) {
+		uint64_t idPart = _returnValue["part"].toNumber().getU64();
+		if (idPart == 0) {
+			m_data->m_returnData = _returnValue;
+		} else {
+			m_data->m_returnDataPart.push_back(_returnValue["data"]);
+		}
+		if (_returnValue.valueExist("finish") == true) {
+			if (_returnValue["finish"].toBoolean().get() == true) {
+				m_data->m_isFinished = true;
+				if (m_data->m_callbackFinish != nullptr) {
+					return m_data->m_callbackFinish(*this);
+				}
+				return true;
+			}
+			// finish is false ==> normal case ...
+		}
+		return false;
+	}
+	m_data->m_returnData = _returnValue;
+	m_data->m_isFinished = true;
+	if (m_data->m_callbackFinish != nullptr) {
+		return m_data->m_callbackFinish(*this);
+	}
+	*/
 	return true;
 }
 void jus::FutureBase::setSynchronous() {

@@ -28,7 +28,7 @@ namespace jus {
 			bool exist();
 		private:
 			jus::FutureBase callJson(uint64_t _transactionId, const ejson::Object& _obj, const std::vector<ActionAsyncClient>& _async, jus::FutureData::ObserverFinish _callback=nullptr);
-			jus::FutureBase callBinary(uint64_t _transactionId, const jus::Buffer& _obj, const std::vector<ActionAsyncClient>& _async, jus::FutureData::ObserverFinish _callback=nullptr);
+			jus::FutureBase callBinary(uint64_t _transactionId, jus::Buffer& _obj, const std::vector<ActionAsyncClient>& _async, jus::FutureData::ObserverFinish _callback=nullptr);
 			uint64_t getId();
 			enum jus::connectionMode getMode();
 		public:

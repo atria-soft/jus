@@ -7,8 +7,53 @@
 #include <jus/Buffer.h>
 #include <jus/debug.h>
 
+namespace etk {
+	template<> std::string to_string<enum jus::Buffer::typeMessage>(const enum jus::Buffer::typeMessage& _value) {
+		switch (_value) {
+			case jus::Buffer::typeMessage::call:
+				return "call";
+			case jus::Buffer::typeMessage::answer:
+				return "answer";
+			case jus::Buffer::typeMessage::event:
+				return "event";
+		}
+		return "???";
+	}
+}
+std::ostream& jus::operator <<(std::ostream& _os, const std::vector<enum jus::Buffer::typeMessage>& _value) {
+	_os << etk::to_string(_value);
+	return _os;
+}
+
+static enum jus::Buffer::typeMessage getTypeType(uint16_t _value) {
+	switch (_value) {
+		case 1:
+			return jus::Buffer::typeMessage::call;
+		case 2:
+			return jus::Buffer::typeMessage::answer;
+		case 4:
+			return jus::Buffer::typeMessage::event;
+	}
+	return jus::Buffer::typeMessage::call;
+}
+
 jus::Buffer::Buffer() {
 	clear();
+}
+
+void jus::Buffer::composeWith(const std::vector<uint8_t>& _buffer) {
+	clear();
+	m_header.lenght = _buffer.size();
+	memcpy(&m_header + 4, &_buffer[0], sizeof(headerBin)-4);
+	JUS_INFO("Get binary message : ");
+	JUS_INFO("    lenght = " << m_header.lenght);
+	JUS_INFO("    versionProtocol = " << m_header.versionProtocol);
+	JUS_INFO("    transactionID = " << m_header.transactionID);
+	JUS_INFO("    clientID = " << m_header.clientID);
+	JUS_INFO("    partID = " << m_header.partID);
+	enum jus::Buffer::typeMessage ttype = getTypeType(m_header.typeMessage);
+	JUS_INFO("    typeMessage = " << ttype);
+	JUS_TODO("    ...");
 }
 
 void jus::Buffer::clear() {
@@ -17,7 +62,15 @@ void jus::Buffer::clear() {
 	m_header.clear();
 }
 std::string jus::Buffer::generateHumanString() {
-	return "jus::Buffer ...";
+	std::string out = "jus::Buffer Lenght=: ";
+	out += etk::to_string(m_header.lenght);
+	out += " v=" + etk::to_string(m_header.versionProtocol);
+	out += " id=" + etk::to_string(m_header.transactionID);
+	out += " cId=" + etk::to_string(m_header.clientID);
+	out += " pId=" + etk::to_string(m_header.partID);
+	enum jus::Buffer::typeMessage type = getTypeType(m_header.typeMessage);
+	out += " type=" + etk::to_string(type);
+	return out;
 }
 
 uint16_t jus::Buffer::getProtocalVersion() {
@@ -78,6 +131,15 @@ uint16_t jus::Buffer::getNumberParameter() {
 }
 
 
+void jus::Buffer::addParameter() {
+	int32_t currentOffset = m_data.size();
+	m_paramOffset.push_back(currentOffset);
+	m_data.push_back('v');
+	m_data.push_back('o');
+	m_data.push_back('i');
+	m_data.push_back('d');
+	m_data.push_back('\0');
+}
 template<>
 void jus::Buffer::addParameter<std::string>(const std::string& _value) {
 	int32_t currentOffset = m_data.size();
@@ -223,6 +285,21 @@ void jus::Buffer::addParameter<double>(const double& _value) {
 	m_data.resize(m_data.size()+8);
 	memcpy(&m_data[currentOffset], &_value, 8);
 }
+template<>
+void jus::Buffer::addParameter<bool>(const bool& _value) {
+	int32_t currentOffset = m_data.size();
+	m_paramOffset.push_back(currentOffset);
+	m_data.push_back('b');
+	m_data.push_back('o');
+	m_data.push_back('o');
+	m_data.push_back('l');
+	m_data.push_back('\0');
+	if (_value == true) {
+		m_data.push_back('T');
+	} else {
+		m_data.push_back('F');
+	}
+}
 
 template<>
 std::string jus::Buffer::internalGetParameter<std::string>(int32_t _id) {
@@ -302,7 +379,11 @@ int8_t jus::Buffer::internalGetParameter<int8_t>(int32_t _id) {
 }
 
 
-
+void jus::Buffer::addError(const std::string& _value, const std::string& _comment) {
+	addParameter();
+	addParameter(_value);
+	addParameter(_comment);
+}
 
 std::string jus::Buffer::getCall() {
 	std::string out;

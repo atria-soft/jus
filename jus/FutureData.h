@@ -19,6 +19,7 @@ namespace jus {
 			uint64_t m_transactionId;
 			bool m_isSynchronous;
 			bool m_isFinished;
+			bool m_mode;
 			ejson::Object m_returnData;
 			jus::Buffer m_returnDataBinary;
 			std::vector<ejson::Value> m_returnDataPart;
