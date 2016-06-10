@@ -13,6 +13,7 @@ namespace jus {
 
 #define JUS_BASE(info,data) ELOG_BASE(jus::getLogId(),info,data)
 
+#define JUS_PRINT(data)         JUS_BASE(-1, data)
 #define JUS_CRITICAL(data)      JUS_BASE(1, data)
 #define JUS_ERROR(data)         JUS_BASE(2, data)
 #define JUS_WARNING(data)       JUS_BASE(3, data)

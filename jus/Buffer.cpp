@@ -42,9 +42,9 @@ jus::Buffer::Buffer() {
 	clear();
 }
 
-void jus::Buffer::composeWith(const std::vector<uint8_t>& _buffer) {
+void jus::Buffer::internalComposeWith(const uint8_t* _buffer, uint32_t _lenght) {
 	clear();
-	m_header.lenght = _buffer.size();
+	m_header.lenght = _lenght;
 	uint32_t offset = 0;
 	memcpy(reinterpret_cast<char*>(&m_header) + sizeof(uint32_t), &_buffer[offset], sizeof(headerBin)-sizeof(uint32_t));
 	offset += sizeof(headerBin)-sizeof(uint32_t);
@@ -52,13 +52,21 @@ void jus::Buffer::composeWith(const std::vector<uint8_t>& _buffer) {
 		m_paramOffset.resize(m_header.numberOfParameter);
 		memcpy(&m_paramOffset[0], &_buffer[offset], m_header.numberOfParameter * sizeof(uint16_t));
 		offset += m_header.numberOfParameter * sizeof(uint16_t);
-		m_data.resize(_buffer.size() - offset);
+		m_data.resize(_lenght - offset);
 		memcpy(&m_data[0], &_buffer[offset], m_data.size());
 	} else {
 		// TODO : check size ...
 	}
 	JUS_INFO("Get binary messages " << generateHumanString());
 }
+
+void jus::Buffer::composeWith(const std::vector<uint8_t>& _buffer) {
+	internalComposeWith(&_buffer[0], _buffer.size());
+}
+void jus::Buffer::composeWith(const std::string& _buffer) {
+	internalComposeWith(reinterpret_cast<const uint8_t*>(&_buffer[0]), _buffer.size());
+}
+
 
 void jus::Buffer::clear() {
 	JUS_WARNING("clear buffer");
@@ -85,13 +93,14 @@ std::string jus::Buffer::generateHumanString() {
 	switch (type) {
 		case jus::Buffer::typeMessage::call:
 			out += " nbParam=" + etk::to_string(getNumberParameter());
+			out += " call='" + getCall() + "'";
 			break;
 		case jus::Buffer::typeMessage::answer:
-			if (getNumberParameter() == 1) {
+			if (m_paramOffset.size() == 1) {
 				out += " mode=Value";
-			} else if (getNumberParameter() == 2) {
+			} else if (m_paramOffset.size() == 2) {
 				out += " mode=Error";
-			} else if (getNumberParameter() == 3) {
+			} else if (m_paramOffset.size() == 3) {
 				out += " mode=Value+Error";
 			} else {
 				out += " mode=???";
@@ -228,6 +237,7 @@ uint32_t jus::Buffer::internalGetParameterSize(int32_t _id) const {
 	startPos += strlen(type) + 1;
 	// get real data size
 	out = endPos - startPos;
+	out --;
 	if (out < 0) {
 		JUS_ERROR("Get size < 0 : " << out);
 		out = 0;
@@ -262,6 +272,41 @@ void jus::Buffer::addParameter<std::string>(const std::string& _value) {
 	currentOffset = m_data.size();
 	m_data.resize(m_data.size()+_value.size()+1);
 	memcpy(&m_data[currentOffset], &_value[0], _value.size());
+}
+template<>
+void jus::Buffer::addParameter<std::vector<std::string>>(const std::vector<std::string>& _value) {
+	int32_t currentOffset = m_data.size();
+	m_paramOffset.push_back(currentOffset);
+	m_data.push_back('v');
+	m_data.push_back('e');
+	m_data.push_back('c');
+	m_data.push_back('t');
+	m_data.push_back('o');
+	m_data.push_back('r');
+	m_data.push_back(':');
+	m_data.push_back('s');
+	m_data.push_back('t');
+	m_data.push_back('r');
+	m_data.push_back('i');
+	m_data.push_back('n');
+	m_data.push_back('g');
+	m_data.push_back('\0');
+	// count all datas:
+	uint32_t size = 0;
+	for (auto &it : _value) {
+		size+=it.size()+1;
+	}
+	uint16_t nb = _value.size();
+	currentOffset = m_data.size();
+	m_data.resize(m_data.size()+size+2);
+	memcpy(&m_data[currentOffset], &nb, sizeof(uint16_t));
+	currentOffset += sizeof(uint16_t);
+	for (auto &it : _value) {
+		memcpy(&m_data[currentOffset], &it[0], it.size());
+		currentOffset += it.size();
+		m_data[currentOffset] = '\0';
+		currentOffset++;
+	}
 }
 template<>
 void jus::Buffer::addParameter<int8_t>(const int8_t& _value) {
@@ -418,49 +463,39 @@ void jus::Buffer::addParameter<bool>(const bool& _value) {
 	}
 }
 
+
+template<>
+bool jus::Buffer::internalGetParameter<bool>(int32_t _id) const {
+	std::string type = internalGetParameterType(_id);
+	const uint8_t* pointer = internalGetParameterPointer(_id);
+	uint32_t dataSize = internalGetParameterSize(_id);
+	if (createType<bool>() != type) {
+		return 0;
+	}
+	const char* pointer2 = reinterpret_cast<const char*>(pointer);
+	if (*pointer2 == 'T') {
+		return true;
+	}
+	return false;
+}
+
 template<>
 std::string jus::Buffer::internalGetParameter<std::string>(int32_t _id) const {
 	std::string out;
-	if (m_paramOffset.size() <= _id) {
-		JUS_ERROR("out of range Id for parameter ... " << _id << " have " << m_paramOffset.size());
-		return out;
-	}
-	int32_t startPos = m_paramOffset[_id];
-	int32_t endPos = m_data.size();
-	if (m_paramOffset.size() > _id+1) {
-		endPos = m_paramOffset[_id+1];
-	}
-	// First get type:
-	const char* type = reinterpret_cast<const char*>(&m_data[startPos]); // Will be stop with \0 ...
-	if (strcmp(type, "string") == 0) {
-		// OK
-		// move in the buffer pos
-		startPos += strlen(type) + 1;
-		// get real data size
-		int32_t dataSize = endPos - startPos;
-		if (dataSize < 0) {
-			JUS_ERROR("Get size < 0 : " << dataSize);
-		} else if (dataSize < 0) {
-			// nothing to do ...
-		} else {
-			// Allocate data
-			out.resize(dataSize, ' ');
-			memcpy(&out[0], &m_data[startPos], dataSize);
-		}
-	} else {
-		//wrong type ...
-		JUS_ERROR("Can not convert '" << type << "' into 'string'");
-	}
-	
+	std::string type = internalGetParameterType(_id);
+	const uint8_t* pointer = internalGetParameterPointer(_id);
+	uint32_t dataSize = internalGetParameterSize(_id);
+	out.resize(dataSize, 0);
+	memcpy(&out[0], pointer, out.size());
 	return out;
 }
 
 
 template<>
 int8_t jus::Buffer::internalGetParameter<int8_t>(int32_t _id) const {
-	std::string type = getParameterType(_id);
-	const uint8_t* pointer = getParameterPointer(_id);
-	uint32_t dataSize = getParameterSize(_id);
+	std::string type = internalGetParameterType(_id);
+	const uint8_t* pointer = internalGetParameterPointer(_id);
+	uint32_t dataSize = internalGetParameterSize(_id);
 	if (createType<int8_t>() != type) {
 		return 0;
 	}
@@ -469,14 +504,38 @@ int8_t jus::Buffer::internalGetParameter<int8_t>(int32_t _id) const {
 }
 
 template<>
+int16_t jus::Buffer::internalGetParameter<int16_t>(int32_t _id) const {
+	std::string type = internalGetParameterType(_id);
+	const uint8_t* pointer = internalGetParameterPointer(_id);
+	uint32_t dataSize = internalGetParameterSize(_id);
+	if (createType<int16_t>() != type) {
+		return 0;
+	}
+	const int16_t* pointer2 = reinterpret_cast<const int16_t*>(pointer);
+	return *pointer2;
+}
+
+template<>
 int32_t jus::Buffer::internalGetParameter<int32_t>(int32_t _id) const {
-	std::string type = getParameterType(_id);
-	const uint8_t* pointer = getParameterPointer(_id);
-	uint32_t dataSize = getParameterSize(_id);
+	std::string type = internalGetParameterType(_id);
+	const uint8_t* pointer = internalGetParameterPointer(_id);
+	uint32_t dataSize = internalGetParameterSize(_id);
 	if (createType<int32_t>() != type) {
 		return 0;
 	}
 	const int32_t* pointer2 = reinterpret_cast<const int32_t*>(pointer);
+	return *pointer2;
+}
+
+template<>
+int64_t jus::Buffer::internalGetParameter<int64_t>(int32_t _id) const {
+	std::string type = internalGetParameterType(_id);
+	const uint8_t* pointer = internalGetParameterPointer(_id);
+	uint32_t dataSize = internalGetParameterSize(_id);
+	if (createType<int64_t>() != type) {
+		return 0;
+	}
+	const int64_t* pointer2 = reinterpret_cast<const int64_t*>(pointer);
 	return *pointer2;
 }
 

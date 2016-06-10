@@ -47,6 +47,7 @@ namespace jus {
 			//client1.authentificate("coucou");
 		private:
 			void onClientData(std::string _value);
+			void onClientDataRaw(jus::Buffer& _value);
 			std::string asyncRead();
 			jus::FutureBase callJson(uint64_t _transactionId,
 			                         ejson::Object _obj,

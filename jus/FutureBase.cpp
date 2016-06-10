@@ -163,13 +163,12 @@ bool jus::FutureBase::setAnswer(const jus::Buffer& _returnValue) {
 			// finish is false ==> normal case ...
 		}
 		return false;
-	}
-	m_data->m_returnData = _returnValue;
+	}*/
+	m_data->m_returnDataBinary = _returnValue;
 	m_data->m_isFinished = true;
 	if (m_data->m_callbackFinish != nullptr) {
 		return m_data->m_callbackFinish(*this);
 	}
-	*/
 	return true;
 }
 void jus::FutureBase::setSynchronous() {

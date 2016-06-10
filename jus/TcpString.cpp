@@ -39,7 +39,7 @@ jus::TcpString::~TcpString() {
 void jus::TcpString::setInterfaceName(const std::string& _name) {
 	ethread::setName(*m_thread, "Tcp-" + _name);
 }
-
+// TODO : Do it better :
 void jus::TcpString::threadCallback() {
 	ethread::setName("TcpString-input");
 	// get datas:
@@ -47,15 +47,29 @@ void jus::TcpString::threadCallback() {
 	        && m_connection.getConnectionStatus() == enet::Tcp::status::link) {
 		// READ section data:
 		if (m_observerElement != nullptr) {
+			JUS_PRINT("Call String ...");
 			std::string data = std::move(read());
-			JUS_VERBOSE("Receive data: '" << data << "'");
+			JUS_PRINT("Receive data: '" << data << "'");
 			if (data.size() != 0) {
 				m_lastReceive = std::chrono::steady_clock::now();
-				m_observerElement(std::move(data));
+				JUS_PRINT("    Call function ... 1");
+				if (m_observerElement != nullptr) {
+					m_observerElement(std::move(data));
+				} else if (m_observerRawElement != nullptr) {
+					jus::Buffer dataRaw;
+					dataRaw.composeWith(data);
+					m_observerRawElement(dataRaw);
+				} else {
+					JUS_ERROR("Lose DATA ...");
+				}
+				JUS_PRINT("    Call function ... 1 (done)");
 			}
 		} else if (m_observerRawElement != nullptr) {
-			jus::Buffer data = std::move(readRaw());
+			JUS_PRINT("Call Raw ...");
+			jus::Buffer data = readRaw();
+			JUS_PRINT("    Call function ... 2");
 			m_observerRawElement(data);
+			JUS_PRINT("    Call function ... 2 (done)");
 		}
 	}
 	m_threadRunning = false;

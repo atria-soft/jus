@@ -105,9 +105,12 @@ namespace jus {
 			uint32_t getDataSize() const {
 				return m_data.size();
 			}
+		private:
+			void internalComposeWith(const uint8_t* _buffer, uint32_t _lenght);
 		public:
 			Buffer();
 			void composeWith(const std::vector<uint8_t>& _buffer);
+			void composeWith(const std::string& _buffer);
 			std::string generateHumanString();
 			void clear();
 			uint16_t getProtocalVersion() const;
@@ -169,6 +172,11 @@ namespace jus {
 			template<class JUS_TYPE_DATA>
 			void addAnswer(const JUS_TYPE_DATA& _value) {
 				addParameter(_value);
+			}
+			// TODO : Do it better check error ... ==> can be good ...
+			template<class JUS_TYPE_DATA>
+			JUS_TYPE_DATA getAnswer() const {
+				return internalGetParameter<JUS_TYPE_DATA>(0);
 			}
 			void addError(const std::string& _value, const std::string& _comment);
 		

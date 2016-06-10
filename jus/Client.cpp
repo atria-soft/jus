@@ -22,6 +22,69 @@ jus::Client::~Client() {
 	
 }
 
+void jus::Client::onClientDataRaw(jus::Buffer& _value) {
+	JUS_DEBUG("Get answer RAW : "/* << _value*/);
+	jus::FutureBase future;
+	uint64_t tid = _value.getTransactionId();
+	if (tid == 0) {
+		JUS_ERROR("Get a Protocol error ... No ID ...");
+		/*
+		if (obj["error"].toString().get() == "PROTOCOL-ERROR") {
+			JUS_ERROR("Get a Protocol error ...");
+			std::unique_lock<std::mutex> lock(m_mutex);
+			for (auto &it : m_pendingCall) {
+				if (it.isValid() == false) {
+					continue;
+				}
+				it.setAnswer(obj);
+			}
+			m_pendingCall.clear();
+		} else {
+			JUS_ERROR("call with no ID ==> error ...");
+		}
+		*/
+		return;
+	}
+	{
+		std::unique_lock<std::mutex> lock(m_mutex);
+		auto it = m_pendingCall.begin();
+		while (it != m_pendingCall.end()) {
+			if (it->isValid() == false) {
+				it = m_pendingCall.erase(it);
+				continue;
+			}
+			if (it->getTransactionId() != tid) {
+				++it;
+				continue;
+			}
+			future = *it;
+			break;
+		}
+	}
+	if (future.isValid() == false) {
+		JUS_TODO("manage this event better ...");
+		//m_newData.push_back(std::move(_value));
+		return;
+	}
+	bool ret = future.setAnswer(_value);
+	if (ret == true) {
+		std::unique_lock<std::mutex> lock(m_mutex);
+		auto it = m_pendingCall.begin();
+		while (it != m_pendingCall.end()) {
+			if (it->isValid() == false) {
+				it = m_pendingCall.erase(it);
+				continue;
+			}
+			if (it->getTransactionId() != tid) {
+				++it;
+				continue;
+			}
+			it = m_pendingCall.erase(it);
+			break;
+		}
+	}
+}
+
 void jus::Client::onClientData(std::string _value) {
 	JUS_DEBUG("Get answer : " << _value);
 	ejson::Object obj(_value);
@@ -147,19 +210,29 @@ bool jus::Client::connect(const std::string& _remoteUserToConnect){
 	m_interfaceClient.setInterface(std::move(connection));
 	m_interfaceClient.connect();
 	// Force mode binary:
+	JUS_WARNING("Request change in mode Binary");
 	jus::Future<bool> retBin = call("setMode", "BIN").wait();
 	if (retBin.get() == true) {
+		JUS_WARNING("    ==> accepted binary");
 		m_interfaceMode = jus::connectionMode::modeBinary;
+		m_interfaceClient.connectClean();
+		m_interfaceClient.connectRaw(this, &jus::Client::onClientDataRaw);
 		JUS_INFO("Connection jump in BINARY ...");
 	} else {
 		// stay in JSON
 	}
 	
-	jus::Future<bool> ret = call("connectToUser",  _remoteUserToConnect, "jus-client");
+	JUS_WARNING("Request connect user " << _remoteUserToConnect);
+	jus::Future<bool> ret = call("connectToUser", _remoteUserToConnect, "jus-client");
 	ret.wait();
 	if (ret.hasError() == true) {
 		JUS_WARNING("Can not connect to user named: '" << _remoteUserToConnect << "' ==> return error");
 		return false;
+	}
+	if (ret.get() == true) {
+		JUS_WARNING("    ==> accepted connection");
+	} else {
+		JUS_WARNING("    ==> Refuse connection");
 	}
 	return ret.get();
 }
@@ -317,3 +390,7 @@ jus::FutureBase jus::Client::callBinary(uint64_t _transactionId,
 	JUS_VERBOSE("Send Binary [STOP]");
 	return tmpFuture;
 }
+
+
+
+

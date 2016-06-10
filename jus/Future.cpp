@@ -15,32 +15,42 @@ namespace jus {
 		if (m_data == nullptr) {
 			return false;
 		}
-		ejson::Value val = m_data->m_returnData["return"];
-		if (val.exist() == false) {
-			JUS_WARNING("No Return value ...");
-			return false;
+		// JSON mode
+		if (m_data->m_mode == false) {
+			ejson::Value val = m_data->m_returnData["return"];
+			if (val.exist() == false) {
+				JUS_WARNING("No Return value ...");
+				return false;
+			}
+			if (val.isBoolean() == false) {
+				JUS_WARNING("Wrong return Type get '" << val.getType() << " instead of 'Boolean'");
+				return false;
+			}
+			return val.toBoolean().get();
 		}
-		if (val.isBoolean() == false) {
-			JUS_WARNING("Wrong return Type get '" << val.getType() << " instead of 'Boolean'");
-			return false;
-		}
-		return val.toBoolean().get();
+		// binary mode:
+		return m_data->m_returnDataBinary.getAnswer<bool>();
 	}
 	template<>
 	int64_t jus::Future<int64_t>::get() {
 		if (m_data == nullptr) {
 			return 0;
 		}
-		ejson::Value val = m_data->m_returnData["return"];
-		if (val.exist() == false) {
-			JUS_WARNING("No Return value ...");
-			return 0;
+		// JSON mode
+		if (m_data->m_mode == false) {
+			ejson::Value val = m_data->m_returnData["return"];
+			if (val.exist() == false) {
+				JUS_WARNING("No Return value ...");
+				return 0;
+			}
+			if (val.isNumber() == false) {
+				JUS_WARNING("Wrong return Type get '" << val.getType() << " instead of 'Number'");
+				return 0;
+			}
+			return int64_t(val.toNumber().get());
 		}
-		if (val.isNumber() == false) {
-			JUS_WARNING("Wrong return Type get '" << val.getType() << " instead of 'Number'");
-			return 0;
-		}
-		return int64_t(val.toNumber().get());
+		// binary mode:
+		return m_data->m_returnDataBinary.getAnswer<bool>();
 	}
 	template<>
 	int32_t jus::Future<int32_t>::get() {
