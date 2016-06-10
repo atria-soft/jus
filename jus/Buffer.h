@@ -5,9 +5,11 @@
  */
 #pragma once
 #include <etk/types.h>
+#include <ejson/ejson.h>
 
 namespace jus {
 	//U32 message lenght
+	#pragma pack(push,1)
 	struct headerBin {
 		uint32_t lenght;
 		uint16_t versionProtocol; // protocol Version (might be 1)
@@ -15,15 +17,9 @@ namespace jus {
 		uint32_t clientID; // same as sevice ID
 		int16_t partID; // if < 0 the partId ifs the last (start at 0 if multiple or 0x8000 if single message)
 		uint16_t typeMessage; //TypeMessgae (1:call, 2:Answer, 4:event)
-		void clear() {
-			lenght = 0;
-			versionProtocol = 1;
-			transactionID = 1;
-			clientID = 0;
-			partID = 0x8000;
-			typeMessage = 1;
-		}
+		uint16_t numberOfParameter; //TypeMessgae (1:call, 2:Answer, 4:event)
 	};
+	#pragma pack(pop)
 	/*
 	 // not needed ==> can be deduced with parameter number ... U16 Offset String call Name (start of the buffer) end with \0
 	 ======================
@@ -114,29 +110,29 @@ namespace jus {
 			void composeWith(const std::vector<uint8_t>& _buffer);
 			std::string generateHumanString();
 			void clear();
-			uint16_t getProtocalVersion();
+			uint16_t getProtocalVersion() const;
 			void setProtocolVersion(uint16_t _value);
-			uint32_t getTransactionId();
+			uint32_t getTransactionId() const;
 			void setTransactionId(uint32_t _value);
-			uint32_t getClientId();// this is the same as serviceId
+			uint32_t getClientId() const;// this is the same as serviceId
 			void setClientId(uint32_t _value);
-			uint32_t getServiceId() {
+			uint32_t getServiceId() const {
 				return getClientId();
 			}
 			void setServiceId(uint32_t _value) {
 				setClientId(_value);
 			}
 			// note limited 15 bits
-			uint16_t getPartId();
+			uint16_t getPartId() const;
 			void setPartId(uint16_t _value);
-			bool getPartFinish();
+			bool getPartFinish() const;
 			void setPartFinish(bool _value);
 			enum class typeMessage {
 				call = 0x0001,
 				answer = 0x0002,
 				event = 0x0004,
 			};
-			enum typeMessage getType();
+			enum typeMessage getType() const;
 			void setType(enum typeMessage _value);
 			
 		// ===============================================
@@ -144,18 +140,24 @@ namespace jus {
 		// ===============================================
 		private:
 			template<class JUS_TYPE_DATA>
-			JUS_TYPE_DATA internalGetParameter(int32_t _id);
+			JUS_TYPE_DATA internalGetParameter(int32_t _id) const;
+			std::string internalGetParameterType(int32_t _id) const;
+			const uint8_t* internalGetParameterPointer(int32_t _id) const;
+			uint32_t internalGetParameterSize(int32_t _id) const;
 		public:
-			std::string getCall();
+			std::string getCall() const;
 			void setCall(std::string _value);
-			uint16_t getNumberParameter();
+			uint16_t getNumberParameter() const;
+			std::string getParameterType(int32_t _id) const;
+			const uint8_t* getParameterPointer(int32_t _id) const;
+			uint32_t getParameterSize(int32_t _id) const;
 			
 			template<class JUS_TYPE_DATA>
 			void addParameter(const JUS_TYPE_DATA& _value);
 			void addParameter();
 			
 			template<class JUS_TYPE_DATA>
-			JUS_TYPE_DATA getParameter(int32_t _id) {
+			JUS_TYPE_DATA getParameter(int32_t _id) const {
 				return internalGetParameter<JUS_TYPE_DATA>(_id+1);
 			}
 			
@@ -169,7 +171,14 @@ namespace jus {
 				addParameter(_value);
 			}
 			void addError(const std::string& _value, const std::string& _comment);
+		
+		
+			void prepare();
+			ejson::Object toJson() const;
 	};
-	std::ostream& operator <<(std::ostream& _os, const std::vector<enum jus::Buffer::typeMessage>& _value);
+	std::ostream& operator <<(std::ostream& _os, enum jus::Buffer::typeMessage _value);
+	
+	template<class JUS_TYPE>
+	ejson::Value convertBinaryToJson(const uint8_t* _data, uint32_t _size);
 }
 

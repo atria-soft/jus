@@ -4,6 +4,9 @@
  * @license APACHE v2.0 (see license file)
  */
 #pragma once
+
+#include <string>
+
 namespace jus {
 	class ParamType {
 		protected:
@@ -12,6 +15,8 @@ namespace jus {
 			ParamType(const char* _name = "");
 			const char* getName() const;
 			bool operator == (const ParamType& _obj) const;
+			bool operator == (const std::string& _value) const;
+			bool operator != (const std::string& _value) const;
 	};
 	
 	

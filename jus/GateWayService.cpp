@@ -11,7 +11,8 @@
 
 jus::GateWayService::GateWayService(enet::Tcp _connection, jus::GateWay* _gatewayInterface) :
   m_gatewayInterface(_gatewayInterface),
-  m_interfaceClient(std::move(_connection)) {
+  m_interfaceClient(std::move(_connection)),
+  m_interfaceMode(jus::connectionMode::modeJson) {
 	JUS_INFO("-----------------");
 	JUS_INFO("-- NEW Service --");
 	JUS_INFO("-----------------");
@@ -42,6 +43,22 @@ void jus::GateWayService::SendData(uint64_t _userSessionId, ejson::Object _data)
 	_data.add("client-id", ejson::Number(_userSessionId));
 	JUS_DEBUG("Send Service: " << _data.generateHumanString());
 	m_interfaceClient.write(_data.generateMachineString());
+}
+void jus::GateWayService::SendData(uint64_t _userSessionId, jus::Buffer& _data) {
+	_data.setClientId(_userSessionId);
+	_data.prepare();
+	if (m_interfaceMode == jus::connectionMode::modeJson) {
+		JUS_ERROR("NOT manage transcriptioon binary to JSON ... ");
+		ejson::Object obj = _data.toJson();
+		JUS_DEBUG("Send Service: " << obj.generateHumanString());
+		m_interfaceClient.write(obj.generateMachineString());
+	} else if (m_interfaceMode == jus::connectionMode::modeXml) {
+		JUS_ERROR("NOT manage transcriptioon binary to XML ... ");
+	} else if (m_interfaceMode == jus::connectionMode::modeBinary) {
+		m_interfaceClient.writeBinary(_data);
+	} else {
+		JUS_ERROR("NOT manage transcriptioon binary to ??? mode ... ");
+	}
 }
 
 void jus::GateWayService::onServiceData(std::string _value) {

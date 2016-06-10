@@ -9,6 +9,7 @@
 #include <ememory/memory.h>
 #include <esignal/Signal.h>
 #include <ejson/ejson.h>
+#include <jus/connectionMode.h>
 
 namespace jus {
 	class GateWay;
@@ -17,6 +18,7 @@ namespace jus {
 			jus::GateWay* m_gatewayInterface;
 			jus::TcpString m_interfaceClient;
 			std::string m_name;
+			enum jus::connectionMode m_interfaceMode;
 		public:
 			esignal::Signal<bool> signalIsConnected;
 		public:
@@ -27,6 +29,7 @@ namespace jus {
 			void onServiceData(std::string _value);
 		public:
 			void SendData(uint64_t _userSessionId, ejson::Object _data);
+			void SendData(uint64_t _userSessionId, jus::Buffer& _data);
 			const std::string& getName() {
 				return m_name;
 			}

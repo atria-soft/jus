@@ -279,7 +279,6 @@ class SendAsyncBinary {
 				obj.setTransactionId(m_transactionId);
 				obj.setPartId(m_partId);
 				obj.setPartFinish(true);
-				JUS_DEBUG("Send BINARY '" << obj.generateHumanString() << "'");
 				_interface->writeBinary(obj);
 				return true;
 			}
@@ -310,7 +309,6 @@ jus::FutureBase jus::Client::callBinary(uint64_t _transactionId,
 	} else {
 		_obj.setPartFinish(true);
 	}
-	JUS_DEBUG("Send Binary '" << _obj.generateHumanString() << "'");
 	m_interfaceClient.writeBinary(_obj);
 	
 	if (_async.size() != 0) {

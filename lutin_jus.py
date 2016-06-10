@@ -39,6 +39,7 @@ def create(target, module_name):
 	    'jus/Future.cpp',
 	    'jus/File.cpp',
 	    'jus/Buffer.cpp',
+	    'jus/BufferConvertBinaryToJson.cpp',
 	    'jus/ParamType.cpp',
 	    'jus/Client.cpp',
 	    'jus/GateWay.cpp',

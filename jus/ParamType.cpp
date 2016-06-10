@@ -22,6 +22,12 @@ bool jus::ParamType::operator == (const ParamType& _obj) const {
 	return m_typeName == _obj.m_typeName;
 }
 
+bool jus::ParamType::operator == (const std::string& _value) const {
+	return _value == m_typeName;
+}
+bool jus::ParamType::operator != (const std::string& _value) const {
+	return _value != m_typeName;
+}
 
 #define generate_basic_type(_type, _name) \
 namespace jus { \

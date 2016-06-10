@@ -55,7 +55,7 @@ void jus::TcpString::threadCallback() {
 			}
 		} else if (m_observerRawElement != nullptr) {
 			jus::Buffer data = std::move(readRaw());
-			m_observerRawElement(std::move(data));
+			m_observerRawElement(data);
 		}
 	}
 	m_threadRunning = false;
@@ -134,7 +134,9 @@ int32_t jus::TcpString::write(const std::string& _data) {
 	m_connection.write(&size, 4);
 	return m_connection.write(_data.c_str(), _data.size());
 }
-int32_t jus::TcpString::writeBinary(const jus::Buffer& _data) {
+int32_t jus::TcpString::writeBinary(jus::Buffer& _data) {
+	_data.prepare();
+	JUS_DEBUG("Send BINARY '" << _data.generateHumanString() << "'");
 	if (m_threadRunning == false) {
 		return -2;
 	}
@@ -144,9 +146,11 @@ int32_t jus::TcpString::writeBinary(const jus::Buffer& _data) {
 	}
 	*/
 	//uint32_t size = _data.size();
+	const uint8_t* data = nullptr;
+	uint32_t dataSize = 0;
 	m_lastSend = std::chrono::steady_clock::now();
-	const uint8_t* data = _data.getHeader();
-	uint32_t dataSize = _data.getHeaderSize();
+	data = _data.getHeader();
+	dataSize = _data.getHeaderSize();
 	m_connection.write(data, dataSize);
 	data = _data.getParam();
 	dataSize = _data.getParamSize();

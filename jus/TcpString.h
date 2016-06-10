@@ -21,7 +21,7 @@ namespace jus {
 			std::chrono::steady_clock::time_point m_lastSend;
 		public:
 			using Observer = std::function<void(std::string)>; //!< Define an Observer: function pointer
-			using ObserverRaw = std::function<void(const jus::Buffer&)>; //!< Define an Observer: function pointer
+			using ObserverRaw = std::function<void(jus::Buffer&)>; //!< Define an Observer: function pointer
 			Observer m_observerElement;
 			ObserverRaw m_observerRawElement;
 			/**
@@ -40,9 +40,9 @@ namespace jus {
 				m_observerElement = nullptr;
 			}
 			template<class CLASS_TYPE>
-			void connectRaw(CLASS_TYPE* _class, void (CLASS_TYPE::*_func)(const jus::Buffer&)) {
-				m_observerRawElement = [=](const jus::Buffer& _value){
-					(*_class.*_func)(std::move(_value));
+			void connectRaw(CLASS_TYPE* _class, void (CLASS_TYPE::*_func)(jus::Buffer&)) {
+				m_observerRawElement = [=](jus::Buffer& _value){
+					(*_class.*_func)(_value);
 				};
 			}
 			void connectCleanRaw() {
@@ -58,7 +58,7 @@ namespace jus {
 			bool isActive() const;
 			void setInterfaceName(const std::string& _name);
 			int32_t write(const std::string& _data);
-			int32_t writeBinary(const jus::Buffer& _data);
+			int32_t writeBinary(jus::Buffer& _data);
 			std::string asyncRead();
 		private:
 			std::string read();

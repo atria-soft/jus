@@ -49,7 +49,7 @@ namespace jus {
 			virtual ~GateWayClient();
 			void start(uint64_t _uid, uint64_t _uid2);
 			void stop();
-			void onClientDataRaw(const jus::Buffer& _value);
+			void onClientDataRaw(jus::Buffer& _value);
 			void onClientData(std::string _value);
 			void returnMessage(ejson::Object _data);
 			bool checkId(uint64_t _id) const {
@@ -64,6 +64,12 @@ namespace jus {
 			std::vector<std::pair<uint64_t, jus::FutureBase>> m_pendingCall;
 			int32_t m_transactionLocalId;
 			jus::FutureBase callJson(uint64_t _callerId, ememory::SharedPtr<jus::GateWayService> _srv, uint64_t _clientTransactionId, uint64_t _transactionId, const ejson::Object& _obj, jus::FutureData::ObserverFinish _callback=nullptr);
+			jus::FutureBase callBinary(uint64_t _callerId,
+			                           ememory::SharedPtr<jus::GateWayService> _srv,
+			                           uint64_t _clientTransactionId,
+			                           uint64_t _transactionId,
+			                           jus::Buffer& _obj,
+			                           jus::FutureData::ObserverFinish _callback=nullptr);
 			uint64_t getId();
 		public:
 			template<class... _ARGS>
@@ -125,6 +131,9 @@ namespace jus {
 			
 			void answerError(uint64_t _clientTransactionId, const std::string& _errorValue, const std::string& _errorComment="");
 			
+			jus::FutureBase callActionForward(ememory::SharedPtr<jus::GateWayService> _srv,
+			                                  jus::Buffer& _Buffer,
+			                                  jus::FutureData::ObserverFinish _callback);
 			
 	};
 }
