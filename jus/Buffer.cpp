@@ -473,7 +473,9 @@ bool jus::Buffer::internalGetParameter<bool>(int32_t _id) const {
 		return 0;
 	}
 	const char* pointer2 = reinterpret_cast<const char*>(pointer);
-	if (*pointer2 == 'T') {
+	if (    *pointer2 == 'T'
+	     || *pointer2 == '1'
+	     || *pointer2 == 1) {
 		return true;
 	}
 	return false;
@@ -496,7 +498,80 @@ int8_t jus::Buffer::internalGetParameter<int8_t>(int32_t _id) const {
 	std::string type = internalGetParameterType(_id);
 	const uint8_t* pointer = internalGetParameterPointer(_id);
 	uint32_t dataSize = internalGetParameterSize(_id);
+	// TODO : Check size ...
 	if (createType<int8_t>() != type) {
+		// check coverion case:
+		if (createType<uint8_t>() == type) {
+			const uint8_t* tmp = reinterpret_cast<const uint8_t*>(pointer);
+			if (tmp>= 127) {
+				return 127;
+			}
+			return tmp;
+		} else if (createType<uint16_t>() == type) {
+			const uint16_t* tmp = reinterpret_cast<const uint16_t*>(pointer);
+			if (tmp>= 127) {
+				return 127;
+			}
+			return tmp;
+		} else if (createType<uint32_t>() == type) {
+			const uint32_t* tmp = reinterpret_cast<const uint32_t*>(pointer);
+			if (tmp>= 127) {
+				return 127;
+			}
+			return tmp;
+		} else if (createType<uint64_t>() == type) {
+			const uint64_t* tmp = reinterpret_cast<const uint64_t*>(pointer);
+			if (tmp>= 127) {
+				return 127;
+			}
+			return tmp;
+		} else if (createType<int16_t>() == type) {
+			const int16_t* tmp = reinterpret_cast<const int16_t*>(pointer);
+			if (tmp>= 127) {
+				return 127;
+			}
+			if (tmp<= 0) {
+				return 0;
+			}
+			return tmp;
+		} else if (createType<int32_t>() == type) {
+			const int32_t* tmp = reinterpret_cast<const int32_t*>(pointer);
+			if (tmp>= 127) {
+				return 127;
+			}
+			if (tmp<= 0) {
+				return 0;
+			}
+			return tmp;
+		} else if (createType<int64_t>() == type) {
+			const int64_t* tmp = reinterpret_cast<const int64_t*>(pointer);
+			if (tmp>= 127) {
+				return 127;
+			}
+			if (tmp<= 0) {
+				return 0;
+			}
+			return tmp;
+		} else if (createType<float>() == type) {
+			const float* tmp = reinterpret_cast<const float*>(pointer);
+			if (tmp>= 127.0) {
+				return 127;
+			}
+			if (tmp<= 0.0) {
+				return 0;
+			}
+			return int8_t(tmp);
+		} else if (createType<double>() == type) {
+			const double* tmp = reinterpret_cast<const double*>(pointer);
+			if (tmp>= 127.0) {
+				return 127;
+			}
+			if (tmp<= 0.0) {
+				return 0;
+			}
+			return int8_t(tmp);
+		}
+		JUS_ERROR("Can not get type from '" << type << "'");
 		return 0;
 	}
 	const int8_t* pointer2 = reinterpret_cast<const int8_t*>(pointer);
