@@ -25,13 +25,13 @@ jus::FutureBase::FutureBase(uint64_t _transactionId, jus::FutureData::ObserverFi
 	m_data->m_transactionId = _transactionId;
 	m_data->m_isFinished = false;
 	m_data->m_isSynchronous = false;
-	m_data->m_mode = false;
 	m_data->m_callbackFinish = _callback;
 }
 
-ejson::Object jus::FutureBase::getRaw() {
+const jus::Buffer& jus::FutureBase::getRaw() {
 	if (m_data == nullptr) {
-		return ejson::Object();
+		static jus::Buffer tmpp;
+		return tmpp;
 	}
 	return m_data->m_returnData;
 }
@@ -45,8 +45,7 @@ jus::FutureBase::FutureBase(uint64_t _transactionId, bool _isFinished, ejson::Ob
 	m_data->m_transactionId = _transactionId;
 	m_data->m_isFinished = _isFinished;
 	m_data->m_isSynchronous = false;
-	m_data->m_mode = false;
-	m_data->m_returnData = _returnData;
+	m_data->m_returnData.fromJson(_returnData);
 	m_data->m_callbackFinish = _callback;
 	if (m_data->m_isFinished == true) {
 		m_data->m_receiveTime = std::chrono::steady_clock::now();
@@ -65,8 +64,7 @@ jus::FutureBase::FutureBase(uint64_t _transactionId, bool _isFinished, jus::Buff
 	m_data->m_transactionId = _transactionId;
 	m_data->m_isFinished = _isFinished;
 	m_data->m_isSynchronous = false;
-	m_data->m_mode = true;
-	m_data->m_returnDataBinary = _returnData;
+	m_data->m_returnData = _returnData;
 	m_data->m_callbackFinish = _callback;
 	if (m_data->m_isFinished == true) {
 		m_data->m_receiveTime = std::chrono::steady_clock::now();
@@ -91,54 +89,18 @@ jus::FutureBase jus::FutureBase::operator= (const jus::FutureBase& _base) {
 }
 
 bool jus::FutureBase::setAnswer(const ejson::Object& _returnValue) {
-	if (m_data == nullptr) {
-		JUS_ERROR(" Not a valid future ...");
-		return true;
-	}
-	m_data->m_mode = false;
-	m_data->m_receiveTime = std::chrono::steady_clock::now();
-	if (m_data->m_isSynchronous == true) {
-		m_data->m_returnData = _returnValue;
-		if (m_data->m_callbackFinish != nullptr) {
-			return m_data->m_callbackFinish(*this);
-		}
-		return true;
-	}
-	if (_returnValue.valueExist("part") == true) {
-		uint64_t idPart = _returnValue["part"].toNumber().getU64();
-		if (idPart == 0) {
-			m_data->m_returnData = _returnValue;
-		} else {
-			m_data->m_returnDataPart.push_back(_returnValue["data"]);
-		}
-		if (_returnValue.valueExist("finish") == true) {
-			if (_returnValue["finish"].toBoolean().get() == true) {
-				m_data->m_isFinished = true;
-				if (m_data->m_callbackFinish != nullptr) {
-					return m_data->m_callbackFinish(*this);
-				}
-				return true;
-			}
-			// finish is false ==> normal case ...
-		}
-		return false;
-	}
-	m_data->m_returnData = _returnValue;
-	m_data->m_isFinished = true;
-	if (m_data->m_callbackFinish != nullptr) {
-		return m_data->m_callbackFinish(*this);
-	}
-	return true;
+	jus::Buffer tmp;
+	tmp.fromJson(_returnValue);
+	return setAnswer(tmp);
 }
 bool jus::FutureBase::setAnswer(const jus::Buffer& _returnValue) {
 	if (m_data == nullptr) {
 		JUS_ERROR(" Not a valid future ...");
 		return true;
 	}
-	m_data->m_mode = true;
 	m_data->m_receiveTime = std::chrono::steady_clock::now();
 	if (m_data->m_isSynchronous == true) {
-		m_data->m_returnDataBinary = _returnValue;
+		m_data->m_returnData = _returnValue;
 		if (m_data->m_callbackFinish != nullptr) {
 			return m_data->m_callbackFinish(*this);
 		}
@@ -164,7 +126,7 @@ bool jus::FutureBase::setAnswer(const jus::Buffer& _returnValue) {
 		}
 		return false;
 	}*/
-	m_data->m_returnDataBinary = _returnValue;
+	m_data->m_returnData = _returnValue;
 	m_data->m_isFinished = true;
 	if (m_data->m_callbackFinish != nullptr) {
 		return m_data->m_callbackFinish(*this);
@@ -189,21 +151,21 @@ bool jus::FutureBase::hasError() {
 	if (m_data == nullptr) {
 		return true;
 	}
-	return m_data->m_returnData.valueExist("error");
+	return m_data->m_returnData.hasError();
 }
 
 std::string jus::FutureBase::getErrorType() {
 	if (m_data == nullptr) {
 		return "NULL_PTR";
 	}
-	return m_data->m_returnData["error"].toString().get();
+	return m_data->m_returnData.getError();
 }
 
 std::string jus::FutureBase::getErrorHelp() {
 	if (m_data == nullptr) {
 		return "Thsi is a nullptr future";
 	}
-	return m_data->m_returnData["error-help"].toString().get();
+	return m_data->m_returnData.getErrorHelp();
 }
 
 bool jus::FutureBase::isValid() {

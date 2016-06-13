@@ -30,7 +30,7 @@ namespace jus {
 			FutureBase& wait();
 			FutureBase& waitFor(std::chrono::microseconds _delta = std::chrono::seconds(30));
 			FutureBase& waitUntil(std::chrono::steady_clock::time_point _endTime);
-			ejson::Object getRaw();
+			const jus::Buffer& getRaw();
 			std::chrono::nanoseconds getTransmitionTime();
 	};
 	class FutureCall {

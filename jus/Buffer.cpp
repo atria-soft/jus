@@ -7,6 +7,9 @@
 #include <jus/Buffer.h>
 #include <jus/debug.h>
 #include <jus/ParamType.h>
+#include <etk/stdTools.h>
+#include <jus/AbstractFunction.h>
+#include <climits>
 
 namespace etk {
 	template<> std::string to_string<enum jus::Buffer::typeMessage>(const enum jus::Buffer::typeMessage& _value) {
@@ -258,6 +261,23 @@ void jus::Buffer::addParameter() {
 	m_data.push_back('d');
 	m_data.push_back('\0');
 }
+void jus::Buffer::addParameterEmptyVector() {
+	int32_t currentOffset = m_data.size();
+	m_paramOffset.push_back(currentOffset);
+	m_data.push_back('v');
+	m_data.push_back('e');
+	m_data.push_back('c');
+	m_data.push_back('t');
+	m_data.push_back('o');
+	m_data.push_back('r');
+	m_data.push_back(':');
+	m_data.push_back('e');
+	m_data.push_back('m');
+	m_data.push_back('p');
+	m_data.push_back('t');
+	m_data.push_back('y');
+	m_data.push_back('\0');
+}
 template<>
 void jus::Buffer::addParameter<std::string>(const std::string& _value) {
 	int32_t currentOffset = m_data.size();
@@ -308,6 +328,264 @@ void jus::Buffer::addParameter<std::vector<std::string>>(const std::vector<std::
 		currentOffset++;
 	}
 }
+
+template<>
+void jus::Buffer::addParameter<std::vector<bool>>(const std::vector<bool>& _value) {
+	int32_t currentOffset = m_data.size();
+	m_paramOffset.push_back(currentOffset);
+	m_data.push_back('v');
+	m_data.push_back('e');
+	m_data.push_back('c');
+	m_data.push_back('t');
+	m_data.push_back('o');
+	m_data.push_back('r');
+	m_data.push_back(':');
+	m_data.push_back('b');
+	m_data.push_back('o');
+	m_data.push_back('o');
+	m_data.push_back('l');
+	m_data.push_back('\0');
+	// add size:
+	uint16_t nb = _value.size();
+	currentOffset = m_data.size();
+	m_data.resize(m_data.size()+_value.size());
+	for (const auto &it : _value) {
+		if (it == true) {
+			m_data[currentOffset] = 'T';
+		} else {
+			m_data[currentOffset] = 'F';
+		}
+		currentOffset++;
+	}
+}
+
+template<>
+void jus::Buffer::addParameter<std::vector<int8_t>>(const std::vector<int8_t>& _value) {
+	int32_t currentOffset = m_data.size();
+	m_paramOffset.push_back(currentOffset);
+	m_data.push_back('v');
+	m_data.push_back('e');
+	m_data.push_back('c');
+	m_data.push_back('t');
+	m_data.push_back('o');
+	m_data.push_back('r');
+	m_data.push_back(':');
+	m_data.push_back('i');
+	m_data.push_back('n');
+	m_data.push_back('t');
+	m_data.push_back('8');
+	m_data.push_back('\0');
+	// add size:
+	currentOffset = m_data.size();
+	m_data.resize(m_data.size()+_value.size());
+	memcpy(&m_data[currentOffset], &_value[0], sizeof(int8_t)*_value.size());
+}
+template<>
+void jus::Buffer::addParameter<std::vector<int16_t>>(const std::vector<int16_t>& _value) {
+	int32_t currentOffset = m_data.size();
+	m_paramOffset.push_back(currentOffset);
+	m_data.push_back('v');
+	m_data.push_back('e');
+	m_data.push_back('c');
+	m_data.push_back('t');
+	m_data.push_back('o');
+	m_data.push_back('r');
+	m_data.push_back(':');
+	m_data.push_back('i');
+	m_data.push_back('n');
+	m_data.push_back('t');
+	m_data.push_back('1');
+	m_data.push_back('6');
+	m_data.push_back('\0');
+	// add size:
+	currentOffset = m_data.size();
+	m_data.resize(m_data.size()+_value.size());
+	memcpy(&m_data[currentOffset], &_value[0], sizeof(int16_t)*_value.size());
+}
+template<>
+void jus::Buffer::addParameter<std::vector<int32_t>>(const std::vector<int32_t>& _value) {
+	int32_t currentOffset = m_data.size();
+	m_paramOffset.push_back(currentOffset);
+	m_data.push_back('v');
+	m_data.push_back('e');
+	m_data.push_back('c');
+	m_data.push_back('t');
+	m_data.push_back('o');
+	m_data.push_back('r');
+	m_data.push_back(':');
+	m_data.push_back('i');
+	m_data.push_back('n');
+	m_data.push_back('t');
+	m_data.push_back('3');
+	m_data.push_back('2');
+	m_data.push_back('\0');
+	// add size:
+	currentOffset = m_data.size();
+	m_data.resize(m_data.size()+_value.size());
+	memcpy(&m_data[currentOffset], &_value[0], sizeof(int32_t)*_value.size());
+}
+template<>
+void jus::Buffer::addParameter<std::vector<int64_t>>(const std::vector<int64_t>& _value) {
+	int32_t currentOffset = m_data.size();
+	m_paramOffset.push_back(currentOffset);
+	m_data.push_back('v');
+	m_data.push_back('e');
+	m_data.push_back('c');
+	m_data.push_back('t');
+	m_data.push_back('o');
+	m_data.push_back('r');
+	m_data.push_back(':');
+	m_data.push_back('i');
+	m_data.push_back('n');
+	m_data.push_back('t');
+	m_data.push_back('6');
+	m_data.push_back('4');
+	m_data.push_back('\0');
+	// add size:
+	currentOffset = m_data.size();
+	m_data.resize(m_data.size()+_value.size());
+	memcpy(&m_data[currentOffset], &_value[0], sizeof(int64_t)*_value.size());
+}
+
+template<>
+void jus::Buffer::addParameter<std::vector<uint8_t>>(const std::vector<uint8_t>& _value) {
+	int32_t currentOffset = m_data.size();
+	m_paramOffset.push_back(currentOffset);
+	m_data.push_back('v');
+	m_data.push_back('e');
+	m_data.push_back('c');
+	m_data.push_back('t');
+	m_data.push_back('o');
+	m_data.push_back('r');
+	m_data.push_back(':');
+	m_data.push_back('u');
+	m_data.push_back('i');
+	m_data.push_back('n');
+	m_data.push_back('t');
+	m_data.push_back('8');
+	m_data.push_back('\0');
+	// add size:
+	currentOffset = m_data.size();
+	m_data.resize(m_data.size()+_value.size());
+	memcpy(&m_data[currentOffset], &_value[0], sizeof(uint8_t)*_value.size());
+}
+template<>
+void jus::Buffer::addParameter<std::vector<uint16_t>>(const std::vector<uint16_t>& _value) {
+	int32_t currentOffset = m_data.size();
+	m_paramOffset.push_back(currentOffset);
+	m_data.push_back('v');
+	m_data.push_back('e');
+	m_data.push_back('c');
+	m_data.push_back('t');
+	m_data.push_back('o');
+	m_data.push_back('r');
+	m_data.push_back(':');
+	m_data.push_back('u');
+	m_data.push_back('i');
+	m_data.push_back('n');
+	m_data.push_back('t');
+	m_data.push_back('1');
+	m_data.push_back('6');
+	m_data.push_back('\0');
+	// add size:
+	currentOffset = m_data.size();
+	m_data.resize(m_data.size()+_value.size());
+	memcpy(&m_data[currentOffset], &_value[0], sizeof(uint16_t)*_value.size());
+}
+template<>
+void jus::Buffer::addParameter<std::vector<uint32_t>>(const std::vector<uint32_t>& _value) {
+	int32_t currentOffset = m_data.size();
+	m_paramOffset.push_back(currentOffset);
+	m_data.push_back('v');
+	m_data.push_back('e');
+	m_data.push_back('c');
+	m_data.push_back('t');
+	m_data.push_back('o');
+	m_data.push_back('r');
+	m_data.push_back(':');
+	m_data.push_back('u');
+	m_data.push_back('i');
+	m_data.push_back('n');
+	m_data.push_back('t');
+	m_data.push_back('3');
+	m_data.push_back('2');
+	m_data.push_back('\0');
+	// add size:
+	currentOffset = m_data.size();
+	m_data.resize(m_data.size()+_value.size());
+	memcpy(&m_data[currentOffset], &_value[0], sizeof(uint32_t)*_value.size());
+}
+template<>
+void jus::Buffer::addParameter<std::vector<uint64_t>>(const std::vector<uint64_t>& _value) {
+	int32_t currentOffset = m_data.size();
+	m_paramOffset.push_back(currentOffset);
+	m_data.push_back('v');
+	m_data.push_back('e');
+	m_data.push_back('c');
+	m_data.push_back('t');
+	m_data.push_back('o');
+	m_data.push_back('r');
+	m_data.push_back(':');
+	m_data.push_back('u');
+	m_data.push_back('i');
+	m_data.push_back('n');
+	m_data.push_back('t');
+	m_data.push_back('6');
+	m_data.push_back('4');
+	m_data.push_back('\0');
+	// add size:
+	currentOffset = m_data.size();
+	m_data.resize(m_data.size()+_value.size());
+	memcpy(&m_data[currentOffset], &_value[0], sizeof(uint64_t)*_value.size());
+}
+
+template<>
+void jus::Buffer::addParameter<std::vector<float>>(const std::vector<float>& _value) {
+	int32_t currentOffset = m_data.size();
+	m_paramOffset.push_back(currentOffset);
+	m_data.push_back('v');
+	m_data.push_back('e');
+	m_data.push_back('c');
+	m_data.push_back('t');
+	m_data.push_back('o');
+	m_data.push_back('r');
+	m_data.push_back(':');
+	m_data.push_back('f');
+	m_data.push_back('l');
+	m_data.push_back('o');
+	m_data.push_back('a');
+	m_data.push_back('t');
+	m_data.push_back('\0');
+	// add size:
+	currentOffset = m_data.size();
+	m_data.resize(m_data.size()+_value.size());
+	memcpy(&m_data[currentOffset], &_value[0], sizeof(float)*_value.size());
+}
+
+template<>
+void jus::Buffer::addParameter<std::vector<double>>(const std::vector<double>& _value) {
+	int32_t currentOffset = m_data.size();
+	m_paramOffset.push_back(currentOffset);
+	m_data.push_back('v');
+	m_data.push_back('e');
+	m_data.push_back('c');
+	m_data.push_back('t');
+	m_data.push_back('o');
+	m_data.push_back('r');
+	m_data.push_back(':');
+	m_data.push_back('d');
+	m_data.push_back('o');
+	m_data.push_back('u');
+	m_data.push_back('b');
+	m_data.push_back('l');
+	m_data.push_back('e');
+	m_data.push_back('\0');
+	// add size:
+	currentOffset = m_data.size();
+	m_data.resize(m_data.size()+_value.size());
+	memcpy(&m_data[currentOffset], &_value[0], sizeof(double)*_value.size());
+}
+
 template<>
 void jus::Buffer::addParameter<int8_t>(const int8_t& _value) {
 	int32_t currentOffset = m_data.size();
@@ -494,88 +772,207 @@ std::string jus::Buffer::internalGetParameter<std::string>(int32_t _id) const {
 
 
 template<>
+uint8_t jus::Buffer::internalGetParameter<uint8_t>(int32_t _id) const {
+	std::string type = internalGetParameterType(_id);
+	const uint8_t* pointer = internalGetParameterPointer(_id);
+	uint32_t dataSize = internalGetParameterSize(_id);
+	// TODO : Check size ...
+	if (createType<uint8_t>() == type) {
+		const uint8_t* tmp = reinterpret_cast<const uint8_t*>(pointer);
+		return *tmp;
+	} else if (createType<uint16_t>() == type) {
+		const uint16_t* tmp = reinterpret_cast<const uint16_t*>(pointer);
+		return std::min(*tmp, uint16_t(UCHAR_MAX));
+	} else if (createType<uint32_t>() == type) {
+		const uint32_t* tmp = reinterpret_cast<const uint32_t*>(pointer);
+		return std::min(*tmp, uint32_t(UCHAR_MAX));
+	} else if (createType<uint64_t>() == type) {
+		const uint64_t* tmp = reinterpret_cast<const uint64_t*>(pointer);
+		return std::min(*tmp, uint64_t(UCHAR_MAX));
+	} else if (createType<int8_t>() == type) {
+		const int8_t* tmp = reinterpret_cast<const int8_t*>(pointer);
+		return std::max(int8_t(0), *tmp);
+	} else if (createType<int16_t>() == type) {
+		const int16_t* tmp = reinterpret_cast<const int16_t*>(pointer);
+		return etk::avg(int16_t(0), *tmp, int16_t(UCHAR_MAX));
+	} else if (createType<int32_t>() == type) {
+		const int32_t* tmp = reinterpret_cast<const int32_t*>(pointer);
+		return etk::avg(int32_t(0), *tmp, int32_t(UCHAR_MAX));
+	} else if (createType<int64_t>() == type) {
+		const int64_t* tmp = reinterpret_cast<const int64_t*>(pointer);
+		return etk::avg(int64_t(0), *tmp, int64_t(UCHAR_MAX));
+	} else if (createType<float>() == type) {
+		const float* tmp = reinterpret_cast<const float*>(pointer);
+		return uint8_t(etk::avg(float(0), *tmp, float(UCHAR_MAX)));
+	} else if (createType<double>() == type) {
+		const double* tmp = reinterpret_cast<const double*>(pointer);
+		return uint8_t(etk::avg(double(0), *tmp, double(UCHAR_MAX)));
+	}
+	JUS_ERROR("Can not get type from '" << type << "'");
+	return 0;
+}
+template<>
+uint16_t jus::Buffer::internalGetParameter<uint16_t>(int32_t _id) const {
+	std::string type = internalGetParameterType(_id);
+	const uint8_t* pointer = internalGetParameterPointer(_id);
+	uint32_t dataSize = internalGetParameterSize(_id);
+	// TODO : Check size ...
+	if (createType<uint8_t>() == type) {
+		const uint8_t* tmp = reinterpret_cast<const uint8_t*>(pointer);
+		return *tmp;
+	} else if (createType<uint16_t>() == type) {
+		const uint16_t* tmp = reinterpret_cast<const uint16_t*>(pointer);
+		return *tmp;
+	} else if (createType<uint32_t>() == type) {
+		const uint32_t* tmp = reinterpret_cast<const uint32_t*>(pointer);
+		return std::min(*tmp, uint32_t(USHRT_MAX));
+	} else if (createType<uint64_t>() == type) {
+		const uint64_t* tmp = reinterpret_cast<const uint64_t*>(pointer);
+		return std::min(*tmp, uint64_t(USHRT_MAX));
+	} else if (createType<int8_t>() == type) {
+		const int8_t* tmp = reinterpret_cast<const int8_t*>(pointer);
+		return std::max(int8_t(0), *tmp);
+	} else if (createType<int16_t>() == type) {
+		const int16_t* tmp = reinterpret_cast<const int16_t*>(pointer);
+		return std::max(int16_t(0), *tmp);
+	} else if (createType<int32_t>() == type) {
+		const int32_t* tmp = reinterpret_cast<const int32_t*>(pointer);
+		return etk::avg(int32_t(0), *tmp, int32_t(USHRT_MAX));
+	} else if (createType<int64_t>() == type) {
+		const int64_t* tmp = reinterpret_cast<const int64_t*>(pointer);
+		return etk::avg(int64_t(0), *tmp, int64_t(USHRT_MAX));
+	} else if (createType<float>() == type) {
+		const float* tmp = reinterpret_cast<const float*>(pointer);
+		return uint16_t(etk::avg(float(0), *tmp, float(USHRT_MAX)));
+	} else if (createType<double>() == type) {
+		const double* tmp = reinterpret_cast<const double*>(pointer);
+		return uint16_t(etk::avg(double(0), *tmp, double(USHRT_MAX)));
+	}
+	JUS_ERROR("Can not get type from '" << type << "'");
+	return 0;
+}
+
+template<>
+uint32_t jus::Buffer::internalGetParameter<uint32_t>(int32_t _id) const {
+	std::string type = internalGetParameterType(_id);
+	const uint8_t* pointer = internalGetParameterPointer(_id);
+	uint32_t dataSize = internalGetParameterSize(_id);
+	// TODO : Check size ...
+	if (createType<uint8_t>() == type) {
+		const uint8_t* tmp = reinterpret_cast<const uint8_t*>(pointer);
+		return *tmp;
+	} else if (createType<uint16_t>() == type) {
+		const uint16_t* tmp = reinterpret_cast<const uint16_t*>(pointer);
+		return *tmp;
+	} else if (createType<uint32_t>() == type) {
+		const uint32_t* tmp = reinterpret_cast<const uint32_t*>(pointer);
+		return *tmp;
+	} else if (createType<uint64_t>() == type) {
+		const uint64_t* tmp = reinterpret_cast<const uint64_t*>(pointer);
+		return std::min(*tmp, uint64_t(ULONG_MAX));
+	} else if (createType<int8_t>() == type) {
+		const int8_t* tmp = reinterpret_cast<const int8_t*>(pointer);
+		return std::max(int8_t(0), *tmp);
+	} else if (createType<int16_t>() == type) {
+		const int16_t* tmp = reinterpret_cast<const int16_t*>(pointer);
+		return std::max(int16_t(0), *tmp);
+	} else if (createType<int32_t>() == type) {
+		const int32_t* tmp = reinterpret_cast<const int32_t*>(pointer);
+		return std::max(int32_t(0), *tmp);
+	} else if (createType<int64_t>() == type) {
+		const int64_t* tmp = reinterpret_cast<const int64_t*>(pointer);
+		return etk::avg(int64_t(0), *tmp, int64_t(ULONG_MAX));
+	} else if (createType<float>() == type) {
+		const float* tmp = reinterpret_cast<const float*>(pointer);
+		return uint32_t(etk::avg(float(0), *tmp, float(ULONG_MAX)));
+	} else if (createType<double>() == type) {
+		const double* tmp = reinterpret_cast<const double*>(pointer);
+		return uint32_t(etk::avg(double(0), *tmp, double(ULONG_MAX)));
+	}
+	JUS_ERROR("Can not get type from '" << type << "'");
+	return 0;
+}
+
+template<>
+uint64_t jus::Buffer::internalGetParameter<uint64_t>(int32_t _id) const {
+	std::string type = internalGetParameterType(_id);
+	const uint8_t* pointer = internalGetParameterPointer(_id);
+	uint32_t dataSize = internalGetParameterSize(_id);
+	// TODO : Check size ...
+	if (createType<uint8_t>() == type) {
+		const uint8_t* tmp = reinterpret_cast<const uint8_t*>(pointer);
+		return *tmp;
+	} else if (createType<uint16_t>() == type) {
+		const uint16_t* tmp = reinterpret_cast<const uint16_t*>(pointer);
+		return *tmp;
+	} else if (createType<uint32_t>() == type) {
+		const uint32_t* tmp = reinterpret_cast<const uint32_t*>(pointer);
+		return *tmp;
+	} else if (createType<uint64_t>() == type) {
+		const uint64_t* tmp = reinterpret_cast<const uint64_t*>(pointer);
+		return *tmp;
+	} else if (createType<int8_t>() == type) {
+		const int8_t* tmp = reinterpret_cast<const int8_t*>(pointer);
+		return std::max(int8_t(0), *tmp);
+	} else if (createType<int16_t>() == type) {
+		const int16_t* tmp = reinterpret_cast<const int16_t*>(pointer);
+		return std::max(int16_t(0), *tmp);
+	} else if (createType<int32_t>() == type) {
+		const int32_t* tmp = reinterpret_cast<const int32_t*>(pointer);
+		return std::max(int32_t(0), *tmp);
+	} else if (createType<int64_t>() == type) {
+		const int64_t* tmp = reinterpret_cast<const int64_t*>(pointer);
+		return std::max(int64_t(0), *tmp);
+	} else if (createType<float>() == type) {
+		const float* tmp = reinterpret_cast<const float*>(pointer);
+		return uint64_t(etk::avg(float(0), *tmp, float(ULONG_MAX)));
+	} else if (createType<double>() == type) {
+		const double* tmp = reinterpret_cast<const double*>(pointer);
+		return uint64_t(etk::avg(double(0), *tmp, double(ULONG_MAX)));
+	}
+	JUS_ERROR("Can not get type from '" << type << "'");
+	return 0;
+}
+
+template<>
 int8_t jus::Buffer::internalGetParameter<int8_t>(int32_t _id) const {
 	std::string type = internalGetParameterType(_id);
 	const uint8_t* pointer = internalGetParameterPointer(_id);
 	uint32_t dataSize = internalGetParameterSize(_id);
 	// TODO : Check size ...
-	if (createType<int8_t>() != type) {
-		// check coverion case:
-		if (createType<uint8_t>() == type) {
-			const uint8_t* tmp = reinterpret_cast<const uint8_t*>(pointer);
-			if (tmp>= 127) {
-				return 127;
-			}
-			return tmp;
-		} else if (createType<uint16_t>() == type) {
-			const uint16_t* tmp = reinterpret_cast<const uint16_t*>(pointer);
-			if (tmp>= 127) {
-				return 127;
-			}
-			return tmp;
-		} else if (createType<uint32_t>() == type) {
-			const uint32_t* tmp = reinterpret_cast<const uint32_t*>(pointer);
-			if (tmp>= 127) {
-				return 127;
-			}
-			return tmp;
-		} else if (createType<uint64_t>() == type) {
-			const uint64_t* tmp = reinterpret_cast<const uint64_t*>(pointer);
-			if (tmp>= 127) {
-				return 127;
-			}
-			return tmp;
-		} else if (createType<int16_t>() == type) {
-			const int16_t* tmp = reinterpret_cast<const int16_t*>(pointer);
-			if (tmp>= 127) {
-				return 127;
-			}
-			if (tmp<= 0) {
-				return 0;
-			}
-			return tmp;
-		} else if (createType<int32_t>() == type) {
-			const int32_t* tmp = reinterpret_cast<const int32_t*>(pointer);
-			if (tmp>= 127) {
-				return 127;
-			}
-			if (tmp<= 0) {
-				return 0;
-			}
-			return tmp;
-		} else if (createType<int64_t>() == type) {
-			const int64_t* tmp = reinterpret_cast<const int64_t*>(pointer);
-			if (tmp>= 127) {
-				return 127;
-			}
-			if (tmp<= 0) {
-				return 0;
-			}
-			return tmp;
-		} else if (createType<float>() == type) {
-			const float* tmp = reinterpret_cast<const float*>(pointer);
-			if (tmp>= 127.0) {
-				return 127;
-			}
-			if (tmp<= 0.0) {
-				return 0;
-			}
-			return int8_t(tmp);
-		} else if (createType<double>() == type) {
-			const double* tmp = reinterpret_cast<const double*>(pointer);
-			if (tmp>= 127.0) {
-				return 127;
-			}
-			if (tmp<= 0.0) {
-				return 0;
-			}
-			return int8_t(tmp);
-		}
-		JUS_ERROR("Can not get type from '" << type << "'");
-		return 0;
+	if (createType<uint8_t>() == type) {
+		const uint8_t* tmp = reinterpret_cast<const uint8_t*>(pointer);
+		return std::min(*tmp, uint8_t(SCHAR_MAX));
+	} else if (createType<uint16_t>() == type) {
+		const uint16_t* tmp = reinterpret_cast<const uint16_t*>(pointer);
+		return std::min(*tmp, uint16_t(SCHAR_MAX));
+	} else if (createType<uint32_t>() == type) {
+		const uint32_t* tmp = reinterpret_cast<const uint32_t*>(pointer);
+		return std::min(*tmp, uint32_t(SCHAR_MAX));
+	} else if (createType<uint64_t>() == type) {
+		const uint64_t* tmp = reinterpret_cast<const uint64_t*>(pointer);
+		return std::min(*tmp, uint64_t(SCHAR_MAX));
+	} else if (createType<int8_t>() == type) {
+		const int8_t* tmp = reinterpret_cast<const int8_t*>(pointer);
+		return *tmp;
+	} else if (createType<int16_t>() == type) {
+		const int16_t* tmp = reinterpret_cast<const int16_t*>(pointer);
+		return etk::avg(int16_t(SCHAR_MIN), *tmp, int16_t(SCHAR_MAX));
+	} else if (createType<int32_t>() == type) {
+		const int32_t* tmp = reinterpret_cast<const int32_t*>(pointer);
+		return etk::avg(int32_t(SCHAR_MIN), *tmp, int32_t(SCHAR_MAX));
+	} else if (createType<int64_t>() == type) {
+		const int64_t* tmp = reinterpret_cast<const int64_t*>(pointer);
+		return etk::avg(int64_t(SCHAR_MIN), *tmp, int64_t(SCHAR_MAX));
+	} else if (createType<float>() == type) {
+		const float* tmp = reinterpret_cast<const float*>(pointer);
+		return int8_t(etk::avg(float(SCHAR_MIN), *tmp, float(SCHAR_MAX)));
+	} else if (createType<double>() == type) {
+		const double* tmp = reinterpret_cast<const double*>(pointer);
+		return int8_t(etk::avg(double(SCHAR_MIN), *tmp, double(SCHAR_MAX)));
 	}
-	const int8_t* pointer2 = reinterpret_cast<const int8_t*>(pointer);
-	return *pointer2;
+	JUS_ERROR("Can not get type from '" << type << "'");
+	return 0;
 }
 
 template<>
@@ -583,11 +980,40 @@ int16_t jus::Buffer::internalGetParameter<int16_t>(int32_t _id) const {
 	std::string type = internalGetParameterType(_id);
 	const uint8_t* pointer = internalGetParameterPointer(_id);
 	uint32_t dataSize = internalGetParameterSize(_id);
-	if (createType<int16_t>() != type) {
-		return 0;
+	// TODO : Check size ...
+	if (createType<uint8_t>() == type) {
+		const uint8_t* tmp = reinterpret_cast<const uint8_t*>(pointer);
+		return *tmp;
+	} else if (createType<uint16_t>() == type) {
+		const uint16_t* tmp = reinterpret_cast<const uint16_t*>(pointer);
+		return std::min(*tmp, uint16_t(SHRT_MAX));
+	} else if (createType<uint32_t>() == type) {
+		const uint32_t* tmp = reinterpret_cast<const uint32_t*>(pointer);
+		return std::min(*tmp, uint32_t(SHRT_MAX));
+	} else if (createType<uint64_t>() == type) {
+		const uint64_t* tmp = reinterpret_cast<const uint64_t*>(pointer);
+		return std::min(*tmp, uint64_t(SHRT_MAX));
+	} else if (createType<int8_t>() == type) {
+		const int8_t* tmp = reinterpret_cast<const int8_t*>(pointer);
+		return *tmp;
+	} else if (createType<int16_t>() == type) {
+		const int16_t* tmp = reinterpret_cast<const int16_t*>(pointer);
+		return *tmp;
+	} else if (createType<int32_t>() == type) {
+		const int32_t* tmp = reinterpret_cast<const int32_t*>(pointer);
+		return etk::avg(int32_t(SHRT_MIN), *tmp, int32_t(SHRT_MAX));
+	} else if (createType<int64_t>() == type) {
+		const int64_t* tmp = reinterpret_cast<const int64_t*>(pointer);
+		return etk::avg(int64_t(SHRT_MIN), *tmp, int64_t(SHRT_MAX));
+	} else if (createType<float>() == type) {
+		const float* tmp = reinterpret_cast<const float*>(pointer);
+		return int16_t(etk::avg(float(SHRT_MIN), *tmp, float(SHRT_MAX)));
+	} else if (createType<double>() == type) {
+		const double* tmp = reinterpret_cast<const double*>(pointer);
+		return int16_t(etk::avg(double(SHRT_MIN), *tmp, double(SHRT_MAX)));
 	}
-	const int16_t* pointer2 = reinterpret_cast<const int16_t*>(pointer);
-	return *pointer2;
+	JUS_ERROR("Can not get type from '" << type << "'");
+	return 0;
 }
 
 template<>
@@ -595,11 +1021,40 @@ int32_t jus::Buffer::internalGetParameter<int32_t>(int32_t _id) const {
 	std::string type = internalGetParameterType(_id);
 	const uint8_t* pointer = internalGetParameterPointer(_id);
 	uint32_t dataSize = internalGetParameterSize(_id);
-	if (createType<int32_t>() != type) {
-		return 0;
+	// TODO : Check size ...
+	if (createType<uint8_t>() == type) {
+		const uint8_t* tmp = reinterpret_cast<const uint8_t*>(pointer);
+		return *tmp;
+	} else if (createType<uint16_t>() == type) {
+		const uint16_t* tmp = reinterpret_cast<const uint16_t*>(pointer);
+		return *tmp;
+	} else if (createType<uint32_t>() == type) {
+		const uint32_t* tmp = reinterpret_cast<const uint32_t*>(pointer);
+		return std::min(*tmp, uint32_t(LONG_MAX));
+	} else if (createType<uint64_t>() == type) {
+		const uint64_t* tmp = reinterpret_cast<const uint64_t*>(pointer);
+		return std::min(*tmp, uint64_t(LONG_MAX));
+	} else if (createType<int8_t>() == type) {
+		const int8_t* tmp = reinterpret_cast<const int8_t*>(pointer);
+		return *tmp;
+	} else if (createType<int16_t>() == type) {
+		const int16_t* tmp = reinterpret_cast<const int16_t*>(pointer);
+		return *tmp;
+	} else if (createType<int32_t>() == type) {
+		const int32_t* tmp = reinterpret_cast<const int32_t*>(pointer);
+		return *tmp;
+	} else if (createType<int64_t>() == type) {
+		const int64_t* tmp = reinterpret_cast<const int64_t*>(pointer);
+		return etk::avg(int64_t(LONG_MIN), *tmp, int64_t(LONG_MAX));
+	} else if (createType<float>() == type) {
+		const float* tmp = reinterpret_cast<const float*>(pointer);
+		return int32_t(etk::avg(float(LONG_MIN), *tmp, float(LONG_MAX)));
+	} else if (createType<double>() == type) {
+		const double* tmp = reinterpret_cast<const double*>(pointer);
+		return int32_t(etk::avg(double(LONG_MIN), *tmp, double(LONG_MAX)));
 	}
-	const int32_t* pointer2 = reinterpret_cast<const int32_t*>(pointer);
-	return *pointer2;
+	JUS_ERROR("Can not get type from '" << type << "'");
+	return 0;
 }
 
 template<>
@@ -607,12 +1062,1141 @@ int64_t jus::Buffer::internalGetParameter<int64_t>(int32_t _id) const {
 	std::string type = internalGetParameterType(_id);
 	const uint8_t* pointer = internalGetParameterPointer(_id);
 	uint32_t dataSize = internalGetParameterSize(_id);
-	if (createType<int64_t>() != type) {
-		return 0;
+	// TODO : Check size ...
+	if (createType<uint8_t>() == type) {
+		const uint8_t* tmp = reinterpret_cast<const uint8_t*>(pointer);
+		return *tmp;
+	} else if (createType<uint16_t>() == type) {
+		const uint16_t* tmp = reinterpret_cast<const uint16_t*>(pointer);
+		return *tmp;
+	} else if (createType<uint32_t>() == type) {
+		const uint32_t* tmp = reinterpret_cast<const uint32_t*>(pointer);
+		return *tmp;
+	} else if (createType<uint64_t>() == type) {
+		const uint64_t* tmp = reinterpret_cast<const uint64_t*>(pointer);
+		return std::min(*tmp, uint64_t(LLONG_MAX));
+	} else if (createType<int8_t>() == type) {
+		const int8_t* tmp = reinterpret_cast<const int8_t*>(pointer);
+		return *tmp;
+	} else if (createType<int16_t>() == type) {
+		const int16_t* tmp = reinterpret_cast<const int16_t*>(pointer);
+		return *tmp;
+	} else if (createType<int32_t>() == type) {
+		const int32_t* tmp = reinterpret_cast<const int32_t*>(pointer);
+		return *tmp;
+	} else if (createType<int64_t>() == type) {
+		const int64_t* tmp = reinterpret_cast<const int64_t*>(pointer);
+		return *tmp;
+	} else if (createType<float>() == type) {
+		const float* tmp = reinterpret_cast<const float*>(pointer);
+		return int64_t(etk::avg(float(LLONG_MIN), *tmp, float(LLONG_MAX)));
+	} else if (createType<double>() == type) {
+		const double* tmp = reinterpret_cast<const double*>(pointer);
+		return int64_t(etk::avg(double(LLONG_MIN), *tmp, double(LLONG_MAX)));
 	}
-	const int64_t* pointer2 = reinterpret_cast<const int64_t*>(pointer);
-	return *pointer2;
+	JUS_ERROR("Can not get type from '" << type << "'");
+	return 0;
 }
+
+template<>
+float jus::Buffer::internalGetParameter<float>(int32_t _id) const {
+	std::string type = internalGetParameterType(_id);
+	const uint8_t* pointer = internalGetParameterPointer(_id);
+	uint32_t dataSize = internalGetParameterSize(_id);
+	// TODO : Check size ...
+	if (createType<uint8_t>() == type) {
+		const uint8_t* tmp = reinterpret_cast<const uint8_t*>(pointer);
+		return *tmp;
+	} else if (createType<uint16_t>() == type) {
+		const uint16_t* tmp = reinterpret_cast<const uint16_t*>(pointer);
+		return *tmp;
+	} else if (createType<uint32_t>() == type) {
+		const uint32_t* tmp = reinterpret_cast<const uint32_t*>(pointer);
+		return *tmp;
+	} else if (createType<uint64_t>() == type) {
+		const uint64_t* tmp = reinterpret_cast<const uint64_t*>(pointer);
+		return *tmp;
+	} else if (createType<int8_t>() == type) {
+		const int8_t* tmp = reinterpret_cast<const int8_t*>(pointer);
+		return *tmp;
+	} else if (createType<int16_t>() == type) {
+		const int16_t* tmp = reinterpret_cast<const int16_t*>(pointer);
+		return *tmp;
+	} else if (createType<int32_t>() == type) {
+		const int32_t* tmp = reinterpret_cast<const int32_t*>(pointer);
+		return *tmp;
+	} else if (createType<int64_t>() == type) {
+		const int64_t* tmp = reinterpret_cast<const int64_t*>(pointer);
+		return *tmp;
+	} else if (createType<float>() == type) {
+		const float* tmp = reinterpret_cast<const float*>(pointer);
+		return *tmp;
+	} else if (createType<double>() == type) {
+		const double* tmp = reinterpret_cast<const double*>(pointer);
+		return *tmp;
+	}
+	JUS_ERROR("Can not get type from '" << type << "'");
+	return 0.0f;
+}
+template<>
+double jus::Buffer::internalGetParameter<double>(int32_t _id) const {
+	std::string type = internalGetParameterType(_id);
+	const uint8_t* pointer = internalGetParameterPointer(_id);
+	uint32_t dataSize = internalGetParameterSize(_id);
+	// TODO : Check size ...
+	if (createType<uint8_t>() == type) {
+		const uint8_t* tmp = reinterpret_cast<const uint8_t*>(pointer);
+		return *tmp;
+	} else if (createType<uint16_t>() == type) {
+		const uint16_t* tmp = reinterpret_cast<const uint16_t*>(pointer);
+		return *tmp;
+	} else if (createType<uint32_t>() == type) {
+		const uint32_t* tmp = reinterpret_cast<const uint32_t*>(pointer);
+		return *tmp;
+	} else if (createType<uint64_t>() == type) {
+		const uint64_t* tmp = reinterpret_cast<const uint64_t*>(pointer);
+		return *tmp;
+	} else if (createType<int8_t>() == type) {
+		const int8_t* tmp = reinterpret_cast<const int8_t*>(pointer);
+		return *tmp;
+	} else if (createType<int16_t>() == type) {
+		const int16_t* tmp = reinterpret_cast<const int16_t*>(pointer);
+		return *tmp;
+	} else if (createType<int32_t>() == type) {
+		const int32_t* tmp = reinterpret_cast<const int32_t*>(pointer);
+		return *tmp;
+	} else if (createType<int64_t>() == type) {
+		const int64_t* tmp = reinterpret_cast<const int64_t*>(pointer);
+		return *tmp;
+	} else if (createType<float>() == type) {
+		const float* tmp = reinterpret_cast<const float*>(pointer);
+		return *tmp;
+	} else if (createType<double>() == type) {
+		const double* tmp = reinterpret_cast<const double*>(pointer);
+		return *tmp;
+	}
+	JUS_ERROR("Can not get type from '" << type << "'");
+	return 0.0;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+template<>
+std::vector<uint8_t> jus::Buffer::internalGetParameter<std::vector<uint8_t>>(int32_t _id) const {
+	std::vector<uint8_t> out;
+	std::string type = internalGetParameterType(_id);
+	const uint8_t* pointer = internalGetParameterPointer(_id);
+	uint32_t dataSize = internalGetParameterSize(_id);
+	// TODO : Check size ...
+	if (type == "vector:empty") {
+		return out;
+	} else if (createType<std::vector<uint8_t>>() == type) {
+		int32_t nbElement = dataSize / sizeof(uint8_t);
+		out.resize(nbElement);
+		memcpy(&out, pointer, nbElement * sizeof(uint8_t));
+		return out;
+	} else if (createType<std::vector<uint16_t>>() == type) {
+		const uint16_t* tmp = reinterpret_cast<const uint16_t*>(pointer);
+		int32_t nbElement = dataSize / sizeof(uint16_t);
+		out.resize(nbElement);
+		for (size_t iii=0; iii<nbElement; ++iii) {
+			out[iii] = std::min(tmp[iii], uint16_t(UCHAR_MAX));
+		}
+		return out;
+	} else if (createType<std::vector<uint32_t>>() == type) {
+		const uint32_t* tmp = reinterpret_cast<const uint32_t*>(pointer);
+		int32_t nbElement = dataSize / sizeof(uint32_t);
+		out.resize(nbElement);
+		for (size_t iii=0; iii<nbElement; ++iii) {
+			out[iii] = std::min(tmp[iii], uint32_t(UCHAR_MAX));
+		}
+		return out;
+	} else if (createType<std::vector<uint64_t>>() == type) {
+		const uint64_t* tmp = reinterpret_cast<const uint64_t*>(pointer);
+		int32_t nbElement = dataSize / sizeof(uint64_t);
+		out.resize(nbElement);
+		for (size_t iii=0; iii<nbElement; ++iii) {
+			out[iii] = std::min(tmp[iii], uint64_t(UCHAR_MAX));
+		}
+		return out;
+	} else if (createType<std::vector<int8_t>>() == type) {
+		const int8_t* tmp = reinterpret_cast<const int8_t*>(pointer);
+		int32_t nbElement = dataSize / sizeof(int8_t);
+		out.resize(nbElement);
+		for (size_t iii=0; iii<nbElement; ++iii) {
+			out[iii] = std::max(int8_t(0), tmp[iii]);
+		}
+		return out;
+	} else if (createType<std::vector<int16_t>>() == type) {
+		const int16_t* tmp = reinterpret_cast<const int16_t*>(pointer);
+		int32_t nbElement = dataSize / sizeof(int16_t);
+		out.resize(nbElement);
+		for (size_t iii=0; iii<nbElement; ++iii) {
+			out[iii] = etk::avg(int16_t(0), tmp[iii], int16_t(UCHAR_MAX));
+		}
+		return out;
+	} else if (createType<std::vector<int32_t>>() == type) {
+		const int32_t* tmp = reinterpret_cast<const int32_t*>(pointer);
+		int32_t nbElement = dataSize / sizeof(int32_t);
+		out.resize(nbElement);
+		for (size_t iii=0; iii<nbElement; ++iii) {
+			out[iii] = etk::avg(int32_t(0), tmp[iii], int32_t(UCHAR_MAX));
+		}
+		return out;
+	} else if (createType<std::vector<int64_t>>() == type) {
+		const int64_t* tmp = reinterpret_cast<const int64_t*>(pointer);
+		int32_t nbElement = dataSize / sizeof(int64_t);
+		out.resize(nbElement);
+		for (size_t iii=0; iii<nbElement; ++iii) {
+			out[iii] = etk::avg(int64_t(0), tmp[iii], int64_t(UCHAR_MAX));
+		}
+		return out;
+	} else if (createType<std::vector<float>>() == type) {
+		const float* tmp = reinterpret_cast<const float*>(pointer);
+		int32_t nbElement = dataSize / sizeof(float);
+		out.resize(nbElement);
+		for (size_t iii=0; iii<nbElement; ++iii) {
+			out[iii] = uint8_t(etk::avg(float(0), tmp[iii], float(UCHAR_MAX)));
+		}
+		return out;
+	} else if (createType<std::vector<double>>() == type) {
+		const double* tmp = reinterpret_cast<const double*>(pointer);
+		int32_t nbElement = dataSize / sizeof(double);
+		out.resize(nbElement);
+		for (size_t iii=0; iii<nbElement; ++iii) {
+			out[iii] = uint8_t(etk::avg(double(0), tmp[iii], double(UCHAR_MAX)));
+		}
+		return out;
+	}
+	JUS_ERROR("Can not get type from '" << type << "'");
+	return out;
+}
+template<>
+std::vector<uint16_t> jus::Buffer::internalGetParameter<std::vector<uint16_t>>(int32_t _id) const {
+	std::vector<uint16_t> out;
+	std::string type = internalGetParameterType(_id);
+	const uint8_t* pointer = internalGetParameterPointer(_id);
+	uint32_t dataSize = internalGetParameterSize(_id);
+	// TODO : Check size ...
+	if (type == "vector:empty") {
+		return out;
+	} else if (createType<std::vector<uint8_t>>() == type) {
+		const uint8_t* tmp = reinterpret_cast<const uint8_t*>(pointer);
+		int32_t nbElement = dataSize / sizeof(uint8_t);
+		out.resize(nbElement);
+		for (size_t iii=0; iii<nbElement; ++iii) {
+			out[iii] = tmp[iii];
+		}
+		return out;
+	} else if (createType<std::vector<uint16_t>>() == type) {
+		int32_t nbElement = dataSize / sizeof(uint16_t);
+		out.resize(nbElement);
+		memcpy(&out, pointer, nbElement * sizeof(uint16_t));
+		return out;
+	} else if (createType<std::vector<uint32_t>>() == type) {
+		const uint32_t* tmp = reinterpret_cast<const uint32_t*>(pointer);
+		int32_t nbElement = dataSize / sizeof(uint32_t);
+		out.resize(nbElement);
+		for (size_t iii=0; iii<nbElement; ++iii) {
+			out[iii] = std::min(tmp[iii], uint32_t(USHRT_MAX));
+		}
+		return out;
+	} else if (createType<std::vector<uint64_t>>() == type) {
+		const uint64_t* tmp = reinterpret_cast<const uint64_t*>(pointer);
+		int32_t nbElement = dataSize / sizeof(uint64_t);
+		out.resize(nbElement);
+		for (size_t iii=0; iii<nbElement; ++iii) {
+			out[iii] = std::min(tmp[iii], uint64_t(USHRT_MAX));
+		}
+		return out;
+	} else if (createType<std::vector<int8_t>>() == type) {
+		const int8_t* tmp = reinterpret_cast<const int8_t*>(pointer);
+		int32_t nbElement = dataSize / sizeof(int8_t);
+		out.resize(nbElement);
+		for (size_t iii=0; iii<nbElement; ++iii) {
+			out[iii] = std::max(int8_t(0), tmp[iii]);
+		}
+		return out;
+	} else if (createType<std::vector<int16_t>>() == type) {
+		const int16_t* tmp = reinterpret_cast<const int16_t*>(pointer);
+		int32_t nbElement = dataSize / sizeof(int16_t);
+		out.resize(nbElement);
+		for (size_t iii=0; iii<nbElement; ++iii) {
+			out[iii] = std::max(int16_t(0), tmp[iii]);
+		}
+		return out;
+	} else if (createType<std::vector<int32_t>>() == type) {
+		const int32_t* tmp = reinterpret_cast<const int32_t*>(pointer);
+		int32_t nbElement = dataSize / sizeof(int32_t);
+		out.resize(nbElement);
+		for (size_t iii=0; iii<nbElement; ++iii) {
+			out[iii] = etk::avg(int32_t(0), tmp[iii], int32_t(USHRT_MAX));
+		}
+		return out;
+	} else if (createType<std::vector<int64_t>>() == type) {
+		const int64_t* tmp = reinterpret_cast<const int64_t*>(pointer);
+		int32_t nbElement = dataSize / sizeof(int64_t);
+		out.resize(nbElement);
+		for (size_t iii=0; iii<nbElement; ++iii) {
+			out[iii] = etk::avg(int64_t(0), tmp[iii], int64_t(USHRT_MAX));
+		}
+		return out;
+	} else if (createType<std::vector<float>>() == type) {
+		const float* tmp = reinterpret_cast<const float*>(pointer);
+		int32_t nbElement = dataSize / sizeof(float);
+		out.resize(nbElement);
+		for (size_t iii=0; iii<nbElement; ++iii) {
+			out[iii] = uint16_t(etk::avg(float(0), tmp[iii], float(USHRT_MAX)));
+		}
+		return out;
+	} else if (createType<std::vector<double>>() == type) {
+		const double* tmp = reinterpret_cast<const double*>(pointer);
+		int32_t nbElement = dataSize / sizeof(double);
+		out.resize(nbElement);
+		for (size_t iii=0; iii<nbElement; ++iii) {
+			out[iii] = uint16_t(etk::avg(double(0), tmp[iii], double(USHRT_MAX)));
+		}
+		return out;
+	}
+	JUS_ERROR("Can not get type from '" << type << "'");
+	return out;
+}
+
+template<>
+std::vector<uint32_t> jus::Buffer::internalGetParameter<std::vector<uint32_t>>(int32_t _id) const {
+	std::vector<uint32_t> out;
+	std::string type = internalGetParameterType(_id);
+	const uint8_t* pointer = internalGetParameterPointer(_id);
+	uint32_t dataSize = internalGetParameterSize(_id);
+	// TODO : Check size ...
+	if (type == "vector:empty") {
+		return out;
+	} else if (createType<std::vector<uint8_t>>() == type) {
+		const uint8_t* tmp = reinterpret_cast<const uint8_t*>(pointer);
+		int32_t nbElement = dataSize / sizeof(uint8_t);
+		out.resize(nbElement);
+		for (size_t iii=0; iii<nbElement; ++iii) {
+			out[iii] = tmp[iii];
+		}
+		return out;
+	} else if (createType<std::vector<uint16_t>>() == type) {
+		const uint16_t* tmp = reinterpret_cast<const uint16_t*>(pointer);
+		int32_t nbElement = dataSize / sizeof(uint16_t);
+		out.resize(nbElement);
+		for (size_t iii=0; iii<nbElement; ++iii) {
+			out[iii] = tmp[iii];
+		}
+		return out;
+	} else if (createType<std::vector<uint32_t>>() == type) {
+		int32_t nbElement = dataSize / sizeof(uint32_t);
+		out.resize(nbElement);
+		memcpy(&out, pointer, nbElement * sizeof(uint32_t));
+		return out;
+	} else if (createType<std::vector<uint64_t>>() == type) {
+		const uint64_t* tmp = reinterpret_cast<const uint64_t*>(pointer);
+		int32_t nbElement = dataSize / sizeof(uint64_t);
+		out.resize(nbElement);
+		for (size_t iii=0; iii<nbElement; ++iii) {
+			out[iii] = std::min(tmp[iii], uint64_t(ULONG_MAX));
+		}
+		return out;
+	} else if (createType<std::vector<int8_t>>() == type) {
+		const int8_t* tmp = reinterpret_cast<const int8_t*>(pointer);
+		int32_t nbElement = dataSize / sizeof(int8_t);
+		out.resize(nbElement);
+		for (size_t iii=0; iii<nbElement; ++iii) {
+			out[iii] = std::max(int8_t(0), tmp[iii]);
+		}
+		return out;
+	} else if (createType<std::vector<int16_t>>() == type) {
+		const int16_t* tmp = reinterpret_cast<const int16_t*>(pointer);
+		int32_t nbElement = dataSize / sizeof(int16_t);
+		out.resize(nbElement);
+		for (size_t iii=0; iii<nbElement; ++iii) {
+			out[iii] = std::max(int16_t(0), tmp[iii]);
+		}
+		return out;
+	} else if (createType<std::vector<int32_t>>() == type) {
+		const int32_t* tmp = reinterpret_cast<const int32_t*>(pointer);
+		int32_t nbElement = dataSize / sizeof(int32_t);
+		out.resize(nbElement);
+		for (size_t iii=0; iii<nbElement; ++iii) {
+			out[iii] = std::max(int32_t(0), tmp[iii]);
+		}
+		return out;
+	} else if (createType<std::vector<int64_t>>() == type) {
+		const int64_t* tmp = reinterpret_cast<const int64_t*>(pointer);
+		int32_t nbElement = dataSize / sizeof(int64_t);
+		out.resize(nbElement);
+		for (size_t iii=0; iii<nbElement; ++iii) {
+			out[iii] = etk::avg(int64_t(0), tmp[iii], int64_t(ULONG_MAX));
+		}
+		return out;
+	} else if (createType<std::vector<float>>() == type) {
+		const float* tmp = reinterpret_cast<const float*>(pointer);
+		int32_t nbElement = dataSize / sizeof(float);
+		out.resize(nbElement);
+		for (size_t iii=0; iii<nbElement; ++iii) {
+			out[iii] = uint32_t(etk::avg(float(0), tmp[iii], float(ULONG_MAX)));
+		}
+		return out;
+	} else if (createType<std::vector<double>>() == type) {
+		const double* tmp = reinterpret_cast<const double*>(pointer);
+		int32_t nbElement = dataSize / sizeof(double);
+		out.resize(nbElement);
+		for (size_t iii=0; iii<nbElement; ++iii) {
+			out[iii] = uint32_t(etk::avg(double(0), tmp[iii], double(ULONG_MAX)));
+		}
+		return out;
+	}
+	JUS_ERROR("Can not get type from '" << type << "'");
+	return out;
+}
+
+template<>
+std::vector<uint64_t> jus::Buffer::internalGetParameter<std::vector<uint64_t>>(int32_t _id) const {
+	std::vector<uint64_t> out;
+	std::string type = internalGetParameterType(_id);
+	const uint8_t* pointer = internalGetParameterPointer(_id);
+	uint32_t dataSize = internalGetParameterSize(_id);
+	// TODO : Check size ...
+	if (type == "vector:empty") {
+		return out;
+	} else if (createType<std::vector<uint8_t>>() == type) {
+		const uint8_t* tmp = reinterpret_cast<const uint8_t*>(pointer);
+		int32_t nbElement = dataSize / sizeof(uint8_t);
+		out.resize(nbElement);
+		for (size_t iii=0; iii<nbElement; ++iii) {
+			out[iii] = tmp[iii];
+		}
+		return out;
+	} else if (createType<std::vector<uint16_t>>() == type) {
+		const uint16_t* tmp = reinterpret_cast<const uint16_t*>(pointer);
+		int32_t nbElement = dataSize / sizeof(uint16_t);
+		out.resize(nbElement);
+		for (size_t iii=0; iii<nbElement; ++iii) {
+			out[iii] = tmp[iii];
+		}
+		return out;
+	} else if (createType<std::vector<uint32_t>>() == type) {
+		const uint32_t* tmp = reinterpret_cast<const uint32_t*>(pointer);
+		int32_t nbElement = dataSize / sizeof(uint32_t);
+		out.resize(nbElement);
+		for (size_t iii=0; iii<nbElement; ++iii) {
+			out[iii] = tmp[iii];
+		}
+		return out;
+	} else if (createType<std::vector<uint64_t>>() == type) {
+		int32_t nbElement = dataSize / sizeof(uint64_t);
+		out.resize(nbElement);
+		memcpy(&out, pointer, nbElement * sizeof(uint64_t));
+		return out;
+	} else if (createType<std::vector<int8_t>>() == type) {
+		const int8_t* tmp = reinterpret_cast<const int8_t*>(pointer);
+		int32_t nbElement = dataSize / sizeof(int8_t);
+		out.resize(nbElement);
+		for (size_t iii=0; iii<nbElement; ++iii) {
+			out[iii] = std::max(int8_t(0), tmp[iii]);
+		}
+		return out;
+	} else if (createType<std::vector<int16_t>>() == type) {
+		const int16_t* tmp = reinterpret_cast<const int16_t*>(pointer);
+		int32_t nbElement = dataSize / sizeof(int16_t);
+		out.resize(nbElement);
+		for (size_t iii=0; iii<nbElement; ++iii) {
+			out[iii] = std::max(int16_t(0), tmp[iii]);
+		}
+		return out;
+	} else if (createType<std::vector<int32_t>>() == type) {
+		const int32_t* tmp = reinterpret_cast<const int32_t*>(pointer);
+		int32_t nbElement = dataSize / sizeof(int32_t);
+		out.resize(nbElement);
+		for (size_t iii=0; iii<nbElement; ++iii) {
+			out[iii] = std::max(int32_t(0), tmp[iii]);
+		}
+		return out;
+	} else if (createType<std::vector<int64_t>>() == type) {
+		const int64_t* tmp = reinterpret_cast<const int64_t*>(pointer);
+		int32_t nbElement = dataSize / sizeof(int64_t);
+		out.resize(nbElement);
+		for (size_t iii=0; iii<nbElement; ++iii) {
+			out[iii] = std::max(int64_t(0), tmp[iii]);
+		}
+		return out;
+	} else if (createType<std::vector<float>>() == type) {
+		const float* tmp = reinterpret_cast<const float*>(pointer);
+		int32_t nbElement = dataSize / sizeof(float);
+		out.resize(nbElement);
+		for (size_t iii=0; iii<nbElement; ++iii) {
+			out[iii] = uint64_t(etk::avg(float(0), tmp[iii], float(ULONG_MAX)));
+		}
+		return out;
+	} else if (createType<std::vector<double>>() == type) {
+		const double* tmp = reinterpret_cast<const double*>(pointer);
+		int32_t nbElement = dataSize / sizeof(double);
+		out.resize(nbElement);
+		for (size_t iii=0; iii<nbElement; ++iii) {
+			out[iii] = uint64_t(etk::avg(double(0), tmp[iii], double(ULONG_MAX)));
+		}
+		return out;
+	}
+	JUS_ERROR("Can not get type from '" << type << "'");
+	return out;
+}
+
+template<>
+std::vector<int8_t> jus::Buffer::internalGetParameter<std::vector<int8_t>>(int32_t _id) const {
+	std::vector<int8_t> out;
+	std::string type = internalGetParameterType(_id);
+	const uint8_t* pointer = internalGetParameterPointer(_id);
+	uint32_t dataSize = internalGetParameterSize(_id);
+	// TODO : Check size ...
+	if (type == "vector:empty") {
+		return out;
+	} else if (createType<std::vector<uint8_t>>() == type) {
+		const uint8_t* tmp = reinterpret_cast<const uint8_t*>(pointer);
+		int32_t nbElement = dataSize / sizeof(uint8_t);
+		out.resize(nbElement);
+		for (size_t iii=0; iii<nbElement; ++iii) {
+			out[iii] = std::min(tmp[iii], uint8_t(SCHAR_MAX));
+		}
+		return out;
+	} else if (createType<std::vector<uint16_t>>() == type) {
+		const uint16_t* tmp = reinterpret_cast<const uint16_t*>(pointer);
+		int32_t nbElement = dataSize / sizeof(uint16_t);
+		out.resize(nbElement);
+		for (size_t iii=0; iii<nbElement; ++iii) {
+			out[iii] = std::min(tmp[iii], uint16_t(SCHAR_MAX));
+		}
+		return out;
+	} else if (createType<std::vector<uint32_t>>() == type) {
+		const uint32_t* tmp = reinterpret_cast<const uint32_t*>(pointer);
+		int32_t nbElement = dataSize / sizeof(uint32_t);
+		out.resize(nbElement);
+		for (size_t iii=0; iii<nbElement; ++iii) {
+			out[iii] = std::min(tmp[iii], uint32_t(SCHAR_MAX));
+		}
+		return out;
+	} else if (createType<std::vector<uint64_t>>() == type) {
+		const uint64_t* tmp = reinterpret_cast<const uint64_t*>(pointer);
+		int32_t nbElement = dataSize / sizeof(uint64_t);
+		out.resize(nbElement);
+		for (size_t iii=0; iii<nbElement; ++iii) {
+			out[iii] = std::min(tmp[iii], uint64_t(SCHAR_MAX));
+		}
+		return out;
+	} else if (createType<std::vector<int8_t>>() == type) {
+		int32_t nbElement = dataSize / sizeof(int8_t);
+		out.resize(nbElement);
+		memcpy(&out, pointer, nbElement * sizeof(int8_t));
+		return out;
+	} else if (createType<std::vector<int16_t>>() == type) {
+		const int16_t* tmp = reinterpret_cast<const int16_t*>(pointer);
+		int32_t nbElement = dataSize / sizeof(int16_t);
+		out.resize(nbElement);
+		for (size_t iii=0; iii<nbElement; ++iii) {
+			out[iii] = etk::avg(int16_t(SCHAR_MIN), tmp[iii], int16_t(SCHAR_MAX));
+		}
+		return out;
+	} else if (createType<std::vector<int32_t>>() == type) {
+		const int32_t* tmp = reinterpret_cast<const int32_t*>(pointer);
+		int32_t nbElement = dataSize / sizeof(int32_t);
+		out.resize(nbElement);
+		for (size_t iii=0; iii<nbElement; ++iii) {
+			out[iii] = etk::avg(int32_t(SCHAR_MIN), tmp[iii], int32_t(SCHAR_MAX));
+		}
+		return out;
+	} else if (createType<std::vector<int64_t>>() == type) {
+		const int64_t* tmp = reinterpret_cast<const int64_t*>(pointer);
+		int32_t nbElement = dataSize / sizeof(int64_t);
+		out.resize(nbElement);
+		for (size_t iii=0; iii<nbElement; ++iii) {
+			out[iii] = etk::avg(int64_t(SCHAR_MIN), tmp[iii], int64_t(SCHAR_MAX));
+		}
+		return out;
+	} else if (createType<std::vector<float>>() == type) {
+		const float* tmp = reinterpret_cast<const float*>(pointer);
+		int32_t nbElement = dataSize / sizeof(float);
+		out.resize(nbElement);
+		for (size_t iii=0; iii<nbElement; ++iii) {
+			out[iii] = int8_t(etk::avg(float(SCHAR_MIN), tmp[iii], float(SCHAR_MAX)));
+		}
+		return out;
+	} else if (createType<std::vector<double>>() == type) {
+		const double* tmp = reinterpret_cast<const double*>(pointer);
+		int32_t nbElement = dataSize / sizeof(double);
+		out.resize(nbElement);
+		for (size_t iii=0; iii<nbElement; ++iii) {
+			out[iii] = int8_t(etk::avg(double(SCHAR_MIN), tmp[iii], double(SCHAR_MAX)));
+		}
+		return out;
+	}
+	JUS_ERROR("Can not get type from '" << type << "'");
+	return out;
+}
+
+template<>
+std::vector<int16_t> jus::Buffer::internalGetParameter<std::vector<int16_t>>(int32_t _id) const {
+	std::vector<int16_t> out;
+	std::string type = internalGetParameterType(_id);
+	const uint8_t* pointer = internalGetParameterPointer(_id);
+	uint32_t dataSize = internalGetParameterSize(_id);
+	// TODO : Check size ...
+	if (type == "vector:empty") {
+		return out;
+	} else if (createType<std::vector<uint8_t>>() == type) {
+		const uint8_t* tmp = reinterpret_cast<const uint8_t*>(pointer);
+		int32_t nbElement = dataSize / sizeof(uint8_t);
+		out.resize(nbElement);
+		for (size_t iii=0; iii<nbElement; ++iii) {
+			out[iii] = tmp[iii];
+		}
+		return out;
+	} else if (createType<std::vector<uint16_t>>() == type) {
+		const uint16_t* tmp = reinterpret_cast<const uint16_t*>(pointer);
+		int32_t nbElement = dataSize / sizeof(uint16_t);
+		out.resize(nbElement);
+		for (size_t iii=0; iii<nbElement; ++iii) {
+			out[iii] = std::min(tmp[iii], uint16_t(SHRT_MAX));
+		}
+		return out;
+	} else if (createType<std::vector<uint32_t>>() == type) {
+		const uint32_t* tmp = reinterpret_cast<const uint32_t*>(pointer);
+		int32_t nbElement = dataSize / sizeof(uint32_t);
+		out.resize(nbElement);
+		for (size_t iii=0; iii<nbElement; ++iii) {
+			out[iii] = std::min(tmp[iii], uint32_t(SHRT_MAX));
+		}
+		return out;
+	} else if (createType<std::vector<uint64_t>>() == type) {
+		const uint64_t* tmp = reinterpret_cast<const uint64_t*>(pointer);
+		int32_t nbElement = dataSize / sizeof(uint64_t);
+		out.resize(nbElement);
+		for (size_t iii=0; iii<nbElement; ++iii) {
+			out[iii] = std::min(tmp[iii], uint64_t(SHRT_MAX));
+		}
+		return out;
+	} else if (createType<std::vector<int8_t>>() == type) {
+		const int8_t* tmp = reinterpret_cast<const int8_t*>(pointer);
+		int32_t nbElement = dataSize / sizeof(int8_t);
+		out.resize(nbElement);
+		for (size_t iii=0; iii<nbElement; ++iii) {
+			out[iii] = tmp[iii];
+		}
+		return out;
+	} else if (createType<std::vector<int16_t>>() == type) {
+		int32_t nbElement = dataSize / sizeof(int16_t);
+		out.resize(nbElement);
+		memcpy(&out, pointer, nbElement * sizeof(int16_t));
+		return out;
+	} else if (createType<std::vector<int32_t>>() == type) {
+		const int32_t* tmp = reinterpret_cast<const int32_t*>(pointer);
+		int32_t nbElement = dataSize / sizeof(int32_t);
+		out.resize(nbElement);
+		for (size_t iii=0; iii<nbElement; ++iii) {
+			out[iii] = etk::avg(int32_t(SHRT_MIN), tmp[iii], int32_t(SHRT_MAX));
+		}
+		return out;
+	} else if (createType<std::vector<int64_t>>() == type) {
+		const int64_t* tmp = reinterpret_cast<const int64_t*>(pointer);
+		int32_t nbElement = dataSize / sizeof(int64_t);
+		out.resize(nbElement);
+		for (size_t iii=0; iii<nbElement; ++iii) {
+			out[iii] = etk::avg(int64_t(SHRT_MIN), tmp[iii], int64_t(SHRT_MAX));
+		}
+		return out;
+	} else if (createType<std::vector<float>>() == type) {
+		const float* tmp = reinterpret_cast<const float*>(pointer);
+		int32_t nbElement = dataSize / sizeof(float);
+		out.resize(nbElement);
+		for (size_t iii=0; iii<nbElement; ++iii) {
+			out[iii] = int16_t(etk::avg(float(SHRT_MIN), tmp[iii], float(SHRT_MAX)));
+		}
+		return out;
+	} else if (createType<std::vector<double>>() == type) {
+		const double* tmp = reinterpret_cast<const double*>(pointer);
+		int32_t nbElement = dataSize / sizeof(double);
+		out.resize(nbElement);
+		for (size_t iii=0; iii<nbElement; ++iii) {
+			out[iii] = int16_t(etk::avg(double(SHRT_MIN), tmp[iii], double(SHRT_MAX)));
+		}
+		return out;
+	}
+	JUS_ERROR("Can not get type from '" << type << "'");
+	return out;
+}
+
+template<>
+std::vector<int32_t> jus::Buffer::internalGetParameter<std::vector<int32_t>>(int32_t _id) const {
+	std::vector<int32_t> out;
+	std::string type = internalGetParameterType(_id);
+	const uint8_t* pointer = internalGetParameterPointer(_id);
+	uint32_t dataSize = internalGetParameterSize(_id);
+	// TODO : Check size ...
+	if (type == "vector:empty") {
+		return out;
+	} else if (createType<std::vector<uint8_t>>() == type) {
+		const uint8_t* tmp = reinterpret_cast<const uint8_t*>(pointer);
+		int32_t nbElement = dataSize / sizeof(uint8_t);
+		out.resize(nbElement);
+		for (size_t iii=0; iii<nbElement; ++iii) {
+			out[iii] = tmp[iii];
+		}
+		return out;
+	} else if (createType<std::vector<uint16_t>>() == type) {
+		const uint16_t* tmp = reinterpret_cast<const uint16_t*>(pointer);
+		int32_t nbElement = dataSize / sizeof(uint16_t);
+		out.resize(nbElement);
+		for (size_t iii=0; iii<nbElement; ++iii) {
+			out[iii] = tmp[iii];
+		}
+		return out;
+	} else if (createType<std::vector<uint32_t>>() == type) {
+		const uint32_t* tmp = reinterpret_cast<const uint32_t*>(pointer);
+		int32_t nbElement = dataSize / sizeof(uint32_t);
+		out.resize(nbElement);
+		for (size_t iii=0; iii<nbElement; ++iii) {
+			out[iii] = std::min(tmp[iii], uint32_t(LONG_MAX));
+		}
+		return out;
+	} else if (createType<std::vector<uint64_t>>() == type) {
+		const uint64_t* tmp = reinterpret_cast<const uint64_t*>(pointer);
+		int32_t nbElement = dataSize / sizeof(uint64_t);
+		out.resize(nbElement);
+		for (size_t iii=0; iii<nbElement; ++iii) {
+			out[iii] = std::min(tmp[iii], uint64_t(LONG_MAX));
+		}
+		return out;
+	} else if (createType<std::vector<int8_t>>() == type) {
+		const int8_t* tmp = reinterpret_cast<const int8_t*>(pointer);
+		int32_t nbElement = dataSize / sizeof(int8_t);
+		out.resize(nbElement);
+		for (size_t iii=0; iii<nbElement; ++iii) {
+			out[iii] = tmp[iii];
+		}
+		return out;
+	} else if (createType<std::vector<int16_t>>() == type) {
+		const int16_t* tmp = reinterpret_cast<const int16_t*>(pointer);
+		int32_t nbElement = dataSize / sizeof(int16_t);
+		out.resize(nbElement);
+		for (size_t iii=0; iii<nbElement; ++iii) {
+			out[iii] = tmp[iii];
+		}
+		return out;
+	} else if (createType<std::vector<int32_t>>() == type) {
+		int32_t nbElement = dataSize / sizeof(int32_t);
+		out.resize(nbElement);
+		memcpy(&out, pointer, nbElement * sizeof(int32_t));
+		return out;
+	} else if (createType<std::vector<int64_t>>() == type) {
+		const int64_t* tmp = reinterpret_cast<const int64_t*>(pointer);
+		int32_t nbElement = dataSize / sizeof(int64_t);
+		out.resize(nbElement);
+		for (size_t iii=0; iii<nbElement; ++iii) {
+			out[iii] = etk::avg(int64_t(LONG_MIN), tmp[iii], int64_t(LONG_MAX));
+		}
+		return out;
+	} else if (createType<std::vector<float>>() == type) {
+		const float* tmp = reinterpret_cast<const float*>(pointer);
+		int32_t nbElement = dataSize / sizeof(float);
+		out.resize(nbElement);
+		for (size_t iii=0; iii<nbElement; ++iii) {
+			out[iii] = int32_t(etk::avg(float(LONG_MIN), tmp[iii], float(LONG_MAX)));
+		}
+		return out;
+	} else if (createType<std::vector<double>>() == type) {
+		const double* tmp = reinterpret_cast<const double*>(pointer);
+		int32_t nbElement = dataSize / sizeof(double);
+		out.resize(nbElement);
+		for (size_t iii=0; iii<nbElement; ++iii) {
+			out[iii] = int32_t(etk::avg(double(LONG_MIN), tmp[iii], double(LONG_MAX)));
+		}
+		return out;
+	}
+	JUS_ERROR("Can not get type from '" << type << "'");
+	return out;
+}
+
+template<>
+std::vector<int64_t> jus::Buffer::internalGetParameter<std::vector<int64_t>>(int32_t _id) const {
+	std::vector<int64_t> out;
+	std::string type = internalGetParameterType(_id);
+	const uint8_t* pointer = internalGetParameterPointer(_id);
+	uint32_t dataSize = internalGetParameterSize(_id);
+	// TODO : Check size ...
+	if (type == "vector:empty") {
+		return out;
+	} else if (createType<std::vector<uint8_t>>() == type) {
+		const uint8_t* tmp = reinterpret_cast<const uint8_t*>(pointer);
+		int32_t nbElement = dataSize / sizeof(uint8_t);
+		out.resize(nbElement);
+		for (size_t iii=0; iii<nbElement; ++iii) {
+			out[iii] = tmp[iii];
+		}
+		return out;
+	} else if (createType<std::vector<uint16_t>>() == type) {
+		const uint16_t* tmp = reinterpret_cast<const uint16_t*>(pointer);
+		int32_t nbElement = dataSize / sizeof(uint16_t);
+		out.resize(nbElement);
+		for (size_t iii=0; iii<nbElement; ++iii) {
+			out[iii] = tmp[iii];
+		}
+		return out;
+	} else if (createType<std::vector<uint32_t>>() == type) {
+		const uint32_t* tmp = reinterpret_cast<const uint32_t*>(pointer);
+		int32_t nbElement = dataSize / sizeof(uint32_t);
+		out.resize(nbElement);
+		for (size_t iii=0; iii<nbElement; ++iii) {
+			out[iii] = tmp[iii];
+		}
+		return out;
+	} else if (createType<std::vector<uint64_t>>() == type) {
+		const uint64_t* tmp = reinterpret_cast<const uint64_t*>(pointer);
+		int32_t nbElement = dataSize / sizeof(uint64_t);
+		out.resize(nbElement);
+		for (size_t iii=0; iii<nbElement; ++iii) {
+			out[iii] = std::min(tmp[iii], uint64_t(LLONG_MAX));
+		}
+		return out;
+	} else if (createType<std::vector<int8_t>>() == type) {
+		const int8_t* tmp = reinterpret_cast<const int8_t*>(pointer);
+		int32_t nbElement = dataSize / sizeof(int8_t);
+		out.resize(nbElement);
+		for (size_t iii=0; iii<nbElement; ++iii) {
+			out[iii] = tmp[iii];
+		}
+		return out;
+	} else if (createType<std::vector<int16_t>>() == type) {
+		const int16_t* tmp = reinterpret_cast<const int16_t*>(pointer);
+		int32_t nbElement = dataSize / sizeof(int16_t);
+		out.resize(nbElement);
+		for (size_t iii=0; iii<nbElement; ++iii) {
+			out[iii] = tmp[iii];
+		}
+		return out;
+	} else if (createType<std::vector<int32_t>>() == type) {
+		const int32_t* tmp = reinterpret_cast<const int32_t*>(pointer);
+		int32_t nbElement = dataSize / sizeof(int32_t);
+		out.resize(nbElement);
+		for (size_t iii=0; iii<nbElement; ++iii) {
+			out[iii] = tmp[iii];
+		}
+		return out;
+	} else if (createType<std::vector<int64_t>>() == type) {
+		int32_t nbElement = dataSize / sizeof(int64_t);
+		out.resize(nbElement);
+		memcpy(&out, pointer, nbElement * sizeof(int64_t));
+		return out;
+	} else if (createType<std::vector<float>>() == type) {
+		const float* tmp = reinterpret_cast<const float*>(pointer);
+		int32_t nbElement = dataSize / sizeof(float);
+		out.resize(nbElement);
+		for (size_t iii=0; iii<nbElement; ++iii) {
+			out[iii] = int64_t(etk::avg(float(LLONG_MIN), tmp[iii], float(LLONG_MAX)));
+		}
+		return out;
+	} else if (createType<std::vector<double>>() == type) {
+		const double* tmp = reinterpret_cast<const double*>(pointer);
+		int32_t nbElement = dataSize / sizeof(double);
+		out.resize(nbElement);
+		for (size_t iii=0; iii<nbElement; ++iii) {
+			out[iii] = int64_t(etk::avg(double(LLONG_MIN), tmp[iii], double(LLONG_MAX)));
+		}
+		return out;
+	}
+	JUS_ERROR("Can not get type from '" << type << "'");
+	return out;
+}
+
+template<>
+std::vector<float> jus::Buffer::internalGetParameter<std::vector<float>>(int32_t _id) const {
+	std::vector<float> out;
+	std::string type = internalGetParameterType(_id);
+	const uint8_t* pointer = internalGetParameterPointer(_id);
+	uint32_t dataSize = internalGetParameterSize(_id);
+	// TODO : Check size ...
+	if (type == "vector:empty") {
+		return out;
+	} else if (createType<std::vector<uint8_t>>() == type) {
+		const uint8_t* tmp = reinterpret_cast<const uint8_t*>(pointer);
+		int32_t nbElement = dataSize / sizeof(uint8_t);
+		out.resize(nbElement);
+		for (size_t iii=0; iii<nbElement; ++iii) {
+			out[iii] = tmp[iii];
+		}
+		return out;
+	} else if (createType<std::vector<uint16_t>>() == type) {
+		const uint16_t* tmp = reinterpret_cast<const uint16_t*>(pointer);
+		int32_t nbElement = dataSize / sizeof(uint16_t);
+		out.resize(nbElement);
+		for (size_t iii=0; iii<nbElement; ++iii) {
+			out[iii] = tmp[iii];
+		}
+		return out;
+	} else if (createType<std::vector<uint32_t>>() == type) {
+		const uint32_t* tmp = reinterpret_cast<const uint32_t*>(pointer);
+		int32_t nbElement = dataSize / sizeof(uint32_t);
+		out.resize(nbElement);
+		for (size_t iii=0; iii<nbElement; ++iii) {
+			out[iii] = tmp[iii];
+		}
+		return out;
+	} else if (createType<std::vector<uint64_t>>() == type) {
+		const uint64_t* tmp = reinterpret_cast<const uint64_t*>(pointer);
+		int32_t nbElement = dataSize / sizeof(uint64_t);
+		out.resize(nbElement);
+		for (size_t iii=0; iii<nbElement; ++iii) {
+			out[iii] = tmp[iii];
+		}
+		return out;
+	} else if (createType<std::vector<int8_t>>() == type) {
+		const int8_t* tmp = reinterpret_cast<const int8_t*>(pointer);
+		int32_t nbElement = dataSize / sizeof(int8_t);
+		out.resize(nbElement);
+		for (size_t iii=0; iii<nbElement; ++iii) {
+			out[iii] = tmp[iii];
+		}
+		return out;
+	} else if (createType<std::vector<int16_t>>() == type) {
+		const int16_t* tmp = reinterpret_cast<const int16_t*>(pointer);
+		int32_t nbElement = dataSize / sizeof(int16_t);
+		out.resize(nbElement);
+		for (size_t iii=0; iii<nbElement; ++iii) {
+			out[iii] = tmp[iii];
+		}
+		return out;
+	} else if (createType<std::vector<int32_t>>() == type) {
+		const int32_t* tmp = reinterpret_cast<const int32_t*>(pointer);
+		int32_t nbElement = dataSize / sizeof(int32_t);
+		out.resize(nbElement);
+		for (size_t iii=0; iii<nbElement; ++iii) {
+			out[iii] = tmp[iii];
+		}
+		return out;
+	} else if (createType<std::vector<int64_t>>() == type) {
+		const int64_t* tmp = reinterpret_cast<const int64_t*>(pointer);
+		int32_t nbElement = dataSize / sizeof(int64_t);
+		out.resize(nbElement);
+		for (size_t iii=0; iii<nbElement; ++iii) {
+			out[iii] = tmp[iii];
+		}
+		return out;
+	} else if (createType<std::vector<float>>() == type) {
+		int32_t nbElement = dataSize / sizeof(float);
+		out.resize(nbElement);
+		memcpy(&out, pointer, nbElement * sizeof(float));
+		return out;
+	} else if (createType<std::vector<double>>() == type) {
+		const double* tmp = reinterpret_cast<const double*>(pointer);
+		int32_t nbElement = dataSize / sizeof(double);
+		out.resize(nbElement);
+		for (size_t iii=0; iii<nbElement; ++iii) {
+			out[iii] = tmp[iii];
+		}
+		return out;
+	}
+	JUS_ERROR("Can not get type from '" << type << "'");
+	return out;
+}
+
+template<>
+std::vector<double> jus::Buffer::internalGetParameter<std::vector<double>>(int32_t _id) const {
+	std::vector<double> out;
+	std::string type = internalGetParameterType(_id);
+	const uint8_t* pointer = internalGetParameterPointer(_id);
+	uint32_t dataSize = internalGetParameterSize(_id);
+	// TODO : Check size ...
+	if (type == "vector:empty") {
+		return out;
+	} else if (createType<std::vector<uint8_t>>() == type) {
+		const uint8_t* tmp = reinterpret_cast<const uint8_t*>(pointer);
+		int32_t nbElement = dataSize / sizeof(uint8_t);
+		out.resize(nbElement);
+		for (size_t iii=0; iii<nbElement; ++iii) {
+			out[iii] = tmp[iii];
+		}
+		return out;
+	} else if (createType<std::vector<uint16_t>>() == type) {
+		const uint16_t* tmp = reinterpret_cast<const uint16_t*>(pointer);
+		int32_t nbElement = dataSize / sizeof(uint16_t);
+		out.resize(nbElement);
+		for (size_t iii=0; iii<nbElement; ++iii) {
+			out[iii] = tmp[iii];
+		}
+		return out;
+	} else if (createType<std::vector<uint32_t>>() == type) {
+		const uint32_t* tmp = reinterpret_cast<const uint32_t*>(pointer);
+		int32_t nbElement = dataSize / sizeof(uint32_t);
+		out.resize(nbElement);
+		for (size_t iii=0; iii<nbElement; ++iii) {
+			out[iii] = tmp[iii];
+		}
+		return out;
+	} else if (createType<std::vector<uint64_t>>() == type) {
+		const uint64_t* tmp = reinterpret_cast<const uint64_t*>(pointer);
+		int32_t nbElement = dataSize / sizeof(uint64_t);
+		out.resize(nbElement);
+		for (size_t iii=0; iii<nbElement; ++iii) {
+			out[iii] = tmp[iii];
+		}
+		return out;
+	} else if (createType<std::vector<int8_t>>() == type) {
+		const int8_t* tmp = reinterpret_cast<const int8_t*>(pointer);
+		int32_t nbElement = dataSize / sizeof(int8_t);
+		out.resize(nbElement);
+		for (size_t iii=0; iii<nbElement; ++iii) {
+			out[iii] = tmp[iii];
+		}
+		return out;
+	} else if (createType<std::vector<int16_t>>() == type) {
+		const int16_t* tmp = reinterpret_cast<const int16_t*>(pointer);
+		int32_t nbElement = dataSize / sizeof(int16_t);
+		out.resize(nbElement);
+		for (size_t iii=0; iii<nbElement; ++iii) {
+			out[iii] = tmp[iii];
+		}
+		return out;
+	} else if (createType<std::vector<int32_t>>() == type) {
+		const int32_t* tmp = reinterpret_cast<const int32_t*>(pointer);
+		int32_t nbElement = dataSize / sizeof(int32_t);
+		out.resize(nbElement);
+		for (size_t iii=0; iii<nbElement; ++iii) {
+			out[iii] = tmp[iii];
+		}
+		return out;
+	} else if (createType<std::vector<int64_t>>() == type) {
+		const int64_t* tmp = reinterpret_cast<const int64_t*>(pointer);
+		int32_t nbElement = dataSize / sizeof(int64_t);
+		out.resize(nbElement);
+		for (size_t iii=0; iii<nbElement; ++iii) {
+			out[iii] = tmp[iii];
+		}
+		return out;
+	} else if (createType<std::vector<float>>() == type) {
+		const float* tmp = reinterpret_cast<const float*>(pointer);
+		int32_t nbElement = dataSize / sizeof(float);
+		out.resize(nbElement);
+		for (size_t iii=0; iii<nbElement; ++iii) {
+			out[iii] = tmp[iii];
+		}
+		return out;
+	} else if (createType<std::vector<double>>() == type) {
+		int32_t nbElement = dataSize / sizeof(double);
+		out.resize(nbElement);
+		memcpy(&out, pointer, nbElement * sizeof(double));
+		return out;
+	}
+	JUS_ERROR("Can not get type from '" << type << "'");
+	return out;
+}
+
+template<>
+std::vector<bool> jus::Buffer::internalGetParameter<std::vector<bool>>(int32_t _id) const {
+	std::vector<bool> out;
+	std::string type = internalGetParameterType(_id);
+	const uint8_t* pointer = internalGetParameterPointer(_id);
+	uint32_t dataSize = internalGetParameterSize(_id);
+	// TODO : Check size ...
+	if (type == "vector:empty") {
+		return out;
+	} else if (createType<std::vector<bool>>() == type) {
+		const uint8_t* tmp = reinterpret_cast<const uint8_t*>(pointer);
+		int32_t nbElement = dataSize / sizeof(uint8_t);
+		out.resize(nbElement);
+		for (size_t iii=0; iii<nbElement; ++iii) {
+			out[iii] = tmp[iii] == 'T';
+		}
+		return out;
+	}
+	JUS_ERROR("Can not get type from '" << type << "'");
+	return out;
+}
+
+template<>
+std::vector<std::string> jus::Buffer::internalGetParameter<std::vector<std::string>>(int32_t _id) const {
+	std::vector<std::string> out;
+	std::string type = internalGetParameterType(_id);
+	const uint8_t* pointer = internalGetParameterPointer(_id);
+	uint32_t dataSize = internalGetParameterSize(_id);
+	if (type == "vector:empty") {
+		return out;
+	} else if (createType<std::vector<std::string>>() == type) {
+		// first element is the number of elements:
+		const uint16_t* tmp = reinterpret_cast<const uint16_t*>(pointer);
+		out.resize(*tmp);
+		pointer += sizeof(uint16_t);
+		JUS_DEBUG("Parse list of string: Find " << out.size() << " elements");
+		//each string is separated with a \0:
+		for (int32_t iii=0; iii<out.size(); ++iii) {
+			const char* tmp2 = reinterpret_cast<const char*>(pointer);
+			out[iii] = tmp2;
+			pointer += out[iii].size() + 1;
+			JUS_DEBUG("    value: '" << out[iii] << "'");
+		}
+		
+		
+		
+		// TODO : ...
+		JUS_TODO("parse list of string ...");
+		/*
+		const uint8_t* tmp = reinterpret_cast<const uint8_t*>(pointer);
+		int32_t nbElement = dataSize / sizeof(uint8_t);
+		out.resize(nbElement);
+		for (size_t iii=0; iii<nbElement; ++iii) {
+			out[iii] = tmp[iii] == 'T';
+		}
+		*/
+		return out;
+	}
+	JUS_ERROR("Can not get type from '" << type << "'");
+	return out;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 void jus::Buffer::addError(const std::string& _value, const std::string& _comment) {
@@ -653,6 +2237,42 @@ void jus::Buffer::prepare() {
 	m_header.lenght = sizeof(headerBin) - sizeof(uint32_t);
 	m_header.lenght += m_paramOffset.size() * sizeof(uint16_t); // param list
 	m_header.lenght += m_data.size();
+}
+
+bool jus::Buffer::hasError() {
+	if (getType() != jus::Buffer::typeMessage::answer) {
+		return false;
+	}
+	if (m_paramOffset.size() == 2) {
+		return true;
+	} else if (m_paramOffset.size() == 3) {
+		return true;
+	}
+	return false;
+}
+
+std::string jus::Buffer::getError() {
+	if (getType() != jus::Buffer::typeMessage::answer) {
+		return "";
+	}
+	if (m_paramOffset.size() == 2) {
+		return getParameter<std::string>(0);
+	} else if (m_paramOffset.size() == 3) {
+		return getParameter<std::string>(1);
+	}
+	return "";
+}
+
+std::string jus::Buffer::getErrorHelp() {
+	if (getType() != jus::Buffer::typeMessage::answer) {
+		return "";
+	}
+	if (m_paramOffset.size() == 2) {
+		return getParameter<std::string>(1);
+	} else if (m_paramOffset.size() == 3) {
+		return getParameter<std::string>(2);
+	}
+	return "";
 }
 
 ejson::Object jus::Buffer::toJson() const {
@@ -738,4 +2358,240 @@ ejson::Object jus::Buffer::toJson() const {
 		JUS_ERROR("Unknow TYPE ...");
 	}
 	return out;
+}
+
+// TODO : Add protocl ERROR ...
+void jus::Buffer::fromJson(const std::string& _data) {
+	return fromJson(ejson::Object(_data));
+}
+
+void jus::Buffer::fromJson(const ejson::Object& _data) {
+	clear();
+	uint32_t valueClientId = 0;
+	uint16_t partId = 0;
+	bool partFinish = true;
+	{
+		ejson::Value val = _data["id"];
+		if (val.exist() == false) {
+			// TODO...
+			return;
+		}
+		ejson::Number valNumber = val.toNumber();
+		if (valNumber.exist() == false) {
+			// TODO...
+			return;
+		}
+		uint64_t value = valNumber.getU64();
+		if (value > 0xFFFFFFFFLU) {
+			// TODO...
+			return;
+		}
+		if (value == 0) {
+			// TODO...
+			return;
+		}
+		setTransactionId(value);
+	}
+	{
+		// can be null (==> access at the gateway ...)
+		ejson::Value val = _data["client-id"];
+		if (val.exist() == true) {
+			ejson::Number valNumber = val.toNumber();
+			if (valNumber.exist() == false) {
+				// TODO...
+				return;
+			}
+			uint64_t value = valNumber.getU64();
+			if (value > 0xFFFFFFFFLU) {
+				// TODO...
+				return;
+			}
+			if (value == 0) {
+				// TODO...
+				return;
+			}
+			setClientId(value);
+		}
+	}
+	{
+		// can be null (==> access at the gateway ...)
+		ejson::Value val = _data["part"];
+		if (val.exist() == true) {
+			ejson::Number valNumber = val.toNumber();
+			if (valNumber.exist() == false) {
+				// TODO...
+				return;
+			}
+			uint64_t value = valNumber.getU64();
+			if (value > 0xFFFFLU) {
+				// TODO...
+				return;
+			}
+			if (value == 0) {
+				// TODO...
+				return;
+			}
+			setPartId(value);
+		}
+	}
+	{
+		// can be null (==> access at the gateway ...)
+		ejson::Value val = _data["finish"];
+		if (val.exist() == true) {
+			ejson::Boolean valBoolean = val.toBoolean();
+			if (valBoolean.exist() == false) {
+				// TODO...
+				return;
+			}
+			bool value = valBoolean.get();
+			setPartFinish(value);
+		}
+	}
+	// call mode
+	{
+		// can be null (==> access at the gateway ...)
+		ejson::Value val = _data["call"];
+		if (val.exist() == true) {
+			setType(jus::Buffer::typeMessage::call);
+			addParameter(val);
+			val = _data["param"];
+			if (val.exist() == true) {
+				ejson::Array list = val.toArray();
+				if (list.exist() == false) {
+					// TODO: Error
+					return;
+				}
+				for (auto it : list) {
+					addParameter(it);
+				}
+			}
+			return;
+		}
+	}
+	// event mode
+	{
+		// can be null (==> access at the gateway ...)
+		ejson::Value val = _data["event"];
+		if (val.exist() == true) {
+			setType(jus::Buffer::typeMessage::event);
+			addParameter(val);
+			return;
+		}
+	}
+	// answer mode
+	{
+		// can be null (==> access at the gateway ...)
+		ejson::Value val = _data["return"];
+		if (val.exist() == true) {
+			setType(jus::Buffer::typeMessage::answer);
+			addParameter(val);
+		}
+		// check error
+		val = _data["error"];
+		if (val.exist() == true) {
+			ejson::String valError = val.toString();
+			if (valError.exist() == false) {
+				// TODO...
+				return;
+			}
+			if (getType() != jus::Buffer::typeMessage::answer) {
+				setType(jus::Buffer::typeMessage::answer);
+			}
+			val = _data["error-help"];
+			if (val.exist() == true) {
+				ejson::String valErrorHelp = val.toString();
+				if (valErrorHelp.exist() == false) {
+					// TODO...
+					return;
+				}
+				addError(valError.get(), valErrorHelp.get());
+			} else {
+				addError(valError.get(), "");
+			}
+		}
+		return;
+	}
+	JUS_ERROR("Unknow message type");
+	// TODO ...
+}
+
+
+void jus::Buffer::addParameter(ejson::Value _value) {
+	if (_value.isBoolean() == true) {
+		addParameter(_value.toBoolean().get());
+		return;
+	}
+	if (_value.isNumber() == true) {
+		ejson::Number num = _value.toNumber();
+		if (num.getType() == ejson::internal::Number::type::tDouble) {
+			addParameter(num.get());
+		} else if (num.getType() == ejson::internal::Number::type::tInt) {
+			int64_t val = num.getI64();
+			if (val<-2147483648) {
+				addParameter(int64_t(val));
+			} else if (val>2147483647) {
+				addParameter(int64_t(val));
+			} else if (val<-65338) {
+				addParameter(int32_t(val));
+			} else if (val>65337) {
+				addParameter(int32_t(val));
+			} else if (val<-128) {
+				addParameter(int16_t(val));
+			} else if (val>127) {
+				addParameter(int16_t(val));
+			} else {
+				addParameter(int8_t(val));
+			}
+		} else {
+			uint64_t val = num.getU64();
+			if (val>4294967295) {
+				addParameter(int64_t(val));
+			} else if (val>65535) {
+				addParameter(int32_t(val));
+			} else if (val>256) {
+				addParameter(int16_t(val));
+			} else {
+				addParameter(int8_t(val));
+			}
+		}
+		return;
+	}
+	if (_value.isString() == true) {
+		addParameter(_value.toString().get());
+		return;
+	}
+	if (_value.isArray() == true) {
+		ejson::Array elementArray = _value.toArray();
+		if (elementArray.size() == 0) {
+			addParameterEmptyVector();
+			return;
+		}
+		if (elementArray[0].isBoolean() == true) {
+			std::vector<bool> tmp;
+			for (auto it : elementArray) {
+				tmp.push_back(jus::convertJsonTo<bool>(it));
+			}
+			addParameter(tmp);
+		} else if (elementArray[0].isNumber() == true) {
+			std::vector<int64_t> tmp;
+			for (auto it : elementArray) {
+				tmp.push_back(jus::convertJsonTo<int64_t>(it));
+			}
+			addParameter(tmp);
+		} else if (elementArray[0].isString() == true) {
+			std::vector<std::string> tmp;
+			for (auto it : elementArray) {
+				tmp.push_back(jus::convertJsonTo<std::string>(it));
+			}
+			addParameter(tmp);
+		} else {
+			JUS_ERROR("Array of object or array is not managed ...");
+		}
+		return;
+	}
+	if (_value.isObject() == true) {
+		JUS_ERROR("Not manage element Object");
+		return;
+	}
+	JUS_ERROR("Unknow TYPE ...");
 }

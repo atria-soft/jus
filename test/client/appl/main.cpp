@@ -86,6 +86,7 @@ int main(int _argc, const char *_argv[]) {
 		APPL_INFO("serviceTest1.mul = " << retCall);
 	}
 	*/
+	
 	if (true) {
 		APPL_INFO("    ----------------------------------");
 		APPL_INFO("    -- Get service system-user");
@@ -139,59 +140,60 @@ int main(int _argc, const char *_argv[]) {
 	APPL_INFO("    ----------------------------------");
 	APPL_INFO("    -- Get service picture");
 	APPL_INFO("    ----------------------------------");
-	
-	jus::ServiceRemote remoteServicePicture = client1.getService("picture");
-	if (remoteServicePicture.exist() == true) {
-		/*
-		jus::Future<std::vector<std::string>> retCall = remoteServicePicture.call("getAlbums").wait();
-		APPL_INFO("    album list: ");
-		for (auto &it : retCall.get()) {
-			jus::Future<uint32_t> retCount = remoteServicePicture.call("getAlbumCount", it).wait();
-			if (retCount.get() != 0) {
-				APPL_INFO("        - " << it << " / " << retCount.get() << " images");
-				jus::Future<std::vector<std::string>> retListImage = remoteServicePicture.call("getAlbumListPicture", it).wait();
-				for (auto &it3 : retListImage.get()) {
-					APPL_INFO("                - " << it3);
-				}
-			} else {
-				APPL_INFO("        - " << it);
-			}
-			jus::Future<std::vector<std::string>> retCall2 = remoteServicePicture.call("getSubAlbums", it).wait();
-			for (auto &it2 : retCall2.get()) {
-				jus::Future<uint32_t> retCount2 = remoteServicePicture.call("getAlbumCount", it2).wait();
-				if (retCount2.get() != 0) {
-					APPL_INFO("            - " << it2 << " / " << retCount2.get() << " images");
-					jus::Future<std::vector<std::string>> retListImage = remoteServicePicture.call("getAlbumListPicture", it2).wait();
+	if (false) {
+		jus::ServiceRemote remoteServicePicture = client1.getService("picture");
+		if (remoteServicePicture.exist() == true) {
+			/*
+			jus::Future<std::vector<std::string>> retCall = remoteServicePicture.call("getAlbums").wait();
+			APPL_INFO("    album list: ");
+			for (auto &it : retCall.get()) {
+				jus::Future<uint32_t> retCount = remoteServicePicture.call("getAlbumCount", it).wait();
+				if (retCount.get() != 0) {
+					APPL_INFO("        - " << it << " / " << retCount.get() << " images");
+					jus::Future<std::vector<std::string>> retListImage = remoteServicePicture.call("getAlbumListPicture", it).wait();
 					for (auto &it3 : retListImage.get()) {
 						APPL_INFO("                - " << it3);
-						jus::Future<jus::File> retListImage = remoteServicePicture.call("getAlbumPicture", it3).wait();
-						jus::File tmpFile = retListImage.get();
-						APPL_INFO("                    mine-type: " << tmpFile.getMineType());
-						APPL_INFO("                    size: " << tmpFile.getData().size());
-						APPL_INFO("                    receive in =" << int64_t(retListImage.getTransmitionTime().count()/1000)/1000.0 << " ms");
-						std::string tmpFileName = std::string("./out/") + it + "_" + it2 + "_" + it3 + "." + jus::getExtention(tmpFile.getMineType());
-						APPL_INFO("                    store in: " << tmpFileName);
-						etk::FSNode node(tmpFileName);
-						node.fileOpenWrite();
-						node.fileWrite(&tmpFile.getData()[0], 1, tmpFile.getData().size());
-						node.fileClose();
 					}
 				} else {
-					APPL_INFO("            - " << it2);
+					APPL_INFO("        - " << it);
+				}
+				jus::Future<std::vector<std::string>> retCall2 = remoteServicePicture.call("getSubAlbums", it).wait();
+				for (auto &it2 : retCall2.get()) {
+					jus::Future<uint32_t> retCount2 = remoteServicePicture.call("getAlbumCount", it2).wait();
+					if (retCount2.get() != 0) {
+						APPL_INFO("            - " << it2 << " / " << retCount2.get() << " images");
+						jus::Future<std::vector<std::string>> retListImage = remoteServicePicture.call("getAlbumListPicture", it2).wait();
+						for (auto &it3 : retListImage.get()) {
+							APPL_INFO("                - " << it3);
+							jus::Future<jus::File> retListImage = remoteServicePicture.call("getAlbumPicture", it3).wait();
+							jus::File tmpFile = retListImage.get();
+							APPL_INFO("                    mine-type: " << tmpFile.getMineType());
+							APPL_INFO("                    size: " << tmpFile.getData().size());
+							APPL_INFO("                    receive in =" << int64_t(retListImage.getTransmitionTime().count()/1000)/1000.0 << " ms");
+							std::string tmpFileName = std::string("./out/") + it + "_" + it2 + "_" + it3 + "." + jus::getExtention(tmpFile.getMineType());
+							APPL_INFO("                    store in: " << tmpFileName);
+							etk::FSNode node(tmpFileName);
+							node.fileOpenWrite();
+							node.fileWrite(&tmpFile.getData()[0], 1, tmpFile.getData().size());
+							node.fileClose();
+						}
+					} else {
+						APPL_INFO("            - " << it2);
+					}
 				}
 			}
+			*/
+			#if 0
+			std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
+			jus::File tmp("./photo_2016_33913.bmp");//"image/jpg", {0,5,2,6,7,5,8,4,5,2,1,5,65,5,2,6,85,4,6,6,54,65,88,64,14,6,4,64,51,3,16,4});
+			int32_t size = tmp.getData().size();
+			jus::FutureBase retSendImage = remoteServicePicture.call("addFile", tmp).wait();
+			std::chrono::steady_clock::time_point stop = std::chrono::steady_clock::now();
+			APPL_WARNING("          IO*=" << int64_t((stop-start).count()/1000)/1000.0 << " ms");
+			double megaParSec = double(size)/(double((stop-start).count())/1000000000.0);
+			APPL_WARNING("          speed=" << int64_t(megaParSec/1024.0)/1024.0 << " Mo/s");
+			#endif
 		}
-		*/
-		#if 0
-		std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
-		jus::File tmp("./photo_2016_33913.bmp");//"image/jpg", {0,5,2,6,7,5,8,4,5,2,1,5,65,5,2,6,85,4,6,6,54,65,88,64,14,6,4,64,51,3,16,4});
-		int32_t size = tmp.getData().size();
-		jus::FutureBase retSendImage = remoteServicePicture.call("addFile", tmp).wait();
-		std::chrono::steady_clock::time_point stop = std::chrono::steady_clock::now();
-		APPL_WARNING("          IO*=" << int64_t((stop-start).count()/1000)/1000.0 << " ms");
-		double megaParSec = double(size)/(double((stop-start).count())/1000000000.0);
-		APPL_WARNING("          speed=" << int64_t(megaParSec/1024.0)/1024.0 << " Mo/s");
-		#endif
 	}
 	int32_t iii=0;
 	while (iii < 3) {

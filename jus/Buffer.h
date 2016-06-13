@@ -155,8 +155,13 @@ namespace jus {
 			const uint8_t* getParameterPointer(int32_t _id) const;
 			uint32_t getParameterSize(int32_t _id) const;
 			
+		private:
+			// add parameter for transcription of json element
+			void addParameter(ejson::Value _value);
+		public:
 			template<class JUS_TYPE_DATA>
 			void addParameter(const JUS_TYPE_DATA& _value);
+			void addParameterEmptyVector();
 			void addParameter();
 			
 			template<class JUS_TYPE_DATA>
@@ -179,10 +184,15 @@ namespace jus {
 				return internalGetParameter<JUS_TYPE_DATA>(0);
 			}
 			void addError(const std::string& _value, const std::string& _comment);
+			bool hasError();
+			std::string getError();
+			std::string getErrorHelp();
 		
 		
 			void prepare();
 			ejson::Object toJson() const;
+			void fromJson(const ejson::Object& _data);
+			void fromJson(const std::string& _data);
 	};
 	std::ostream& operator <<(std::ostream& _os, enum jus::Buffer::typeMessage _value);
 	

@@ -372,6 +372,17 @@ void jus::GateWayClient::onClientDataRaw(jus::Buffer& _value) {
 					callActionForward(m_listConnectedService[serviceId],
 					                  _value,
 					                  [=](jus::FutureBase _ret) {
+					                  		
+					                  		// TODO : Check if it is a JSON or binary ...
+					                  		jus::Buffer tmpp = _ret.getRaw();
+					                  		JUS_DEBUG("    ==> transmit : " << tmpp.getTransactionId() << " -> " << transactionId);
+					                  		JUS_DEBUG("    msg=" << tmpp.generateHumanString());
+					                  		tmpp.setTransactionId(transactionId);
+					                  		JUS_DEBUG("transmit=" << tmpp.generateHumanString());
+					                  		m_interfaceClient.writeBinary(tmpp);
+					                  		// multiple send element ...
+					                  		return tmpp.getPartFinish();
+					                  		/*
 					                  		// TODO : Check if it is a JSON or binary ...
 					                  		ejson::Object tmpp = _ret.getRaw();
 					                  		JUS_VERBOSE("    ==> transmit : " << tmpp["id"].toNumber().getU64() << " -> " << transactionId);
@@ -387,6 +398,7 @@ void jus::GateWayClient::onClientDataRaw(jus::Buffer& _value) {
 					                  			return false;
 					                  		}
 					                  		return true;
+					                  		*/
 					                  });
 				}
 			}
@@ -395,6 +407,11 @@ void jus::GateWayClient::onClientDataRaw(jus::Buffer& _value) {
 
 void jus::GateWayClient::onClientData(std::string _value) {
 	JUS_DEBUG("On data: " << _value);
+	jus::Buffer tmp;
+	tmp.fromJson(_value);
+	onClientDataRaw(tmp);
+	
+	#ifdef SDFGSDFSFDSFSDFSDF
 	ejson::Object data(_value);
 	uint64_t transactionId = data["id"].toNumber().getU64();
 	if (transactionId == 0) {
@@ -699,6 +716,7 @@ void jus::GateWayClient::onClientData(std::string _value) {
 				}
 			}
 	}
+	#endif
 }
 
 jus::FutureBase jus::GateWayClient::callActionForward(uint64_t _callerId,
@@ -743,6 +761,7 @@ jus::FutureBase jus::GateWayClient::callBinary(uint64_t _callerId,
 		std::unique_lock<std::mutex> lock(m_mutex);
 		m_pendingCall.push_back(std::make_pair(_clientTransactionId, tmpFuture));
 	}
+	_obj.setTransactionId(_transactionId);
 	_srv->SendData(_callerId, _obj);
 	JUS_VERBOSE("Send BINARY [STOP]");
 	return tmpFuture;
