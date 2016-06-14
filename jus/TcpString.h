@@ -19,6 +19,12 @@ namespace jus {
 			enet::Tcp m_connection;
 			std::thread* m_thread;
 			bool m_threadRunning;
+			uint16_t m_transmissionId;
+			uint16_t getId() {
+				return m_transmissionId++;
+			}
+			std::mutex m_pendingCallMutex;
+			std::vector<jus::FutureBase> m_pendingCall;
 		protected:
 			enum jus::connectionMode m_interfaceMode;
 		public:
@@ -61,7 +67,8 @@ namespace jus {
 			std::string asyncRead();
 		private:
 			void read();
-			jus::Buffer readRaw();
+			
+			void newBuffer(jus::Buffer& _buffer);
 		private:
 			void threadCallback();
 		public:
@@ -84,8 +91,73 @@ namespace jus {
 				std::unique_lock<std::mutex> lock(m_threadAsyncMutex);
 				m_threadAsyncList.push_back(_elem);
 			}
+		private:
+			jus::FutureBase callJson(uint64_t _transactionId,
+			                         ejson::Object _obj,
+			                         const std::vector<ActionAsyncClient>& _async,
+			                         jus::FutureData::ObserverFinish _callback=nullptr,
+			                         const uint32_t& _service=0);
+			jus::FutureBase callBinary(uint64_t _transactionId,
+			                           jus::Buffer& _obj,
+			                           const std::vector<ActionAsyncClient>& _async,
+			                           jus::FutureData::ObserverFinish _callback=nullptr,
+			                           const uint32_t& _service=0);
+		public: // section call direct
+			template<class... _ARGS>
+			jus::FutureBase call(const std::string& _functionName, _ARGS&&... _args) {
+				return m_interfaceClient.call(_functionName, _args...);
+				uint16_t id = getId();
+				std::vector<jus::ActionAsyncClient> asyncAction;
+				if (m_interfaceMode == jus::connectionMode::modeJson) {
+					ejson::Object callElem = jus::createCall(asyncAction, id, _functionName, std::forward<_ARGS>(_args)...);
+					return callJson(id, callElem, asyncAction);
+				} else {
+					jus::Buffer callElem = jus::createBinaryCall(asyncAction, id, _functionName, std::forward<_ARGS>(_args)...);
+					return callBinary(id, callElem, asyncAction);
+				}
+			}
+			template<class... _ARGS>
+			jus::FutureBase callAction(const std::string& _functionName, _ARGS&&... _args, jus::FutureData::ObserverFinish _callback) {
+				return m_interfaceClient.callAction(_functionName, _args..., _callback);
+				uint16_t id = getId();
+				std::vector<jus::ActionAsyncClient> asyncAction;
+				if (m_interfaceMode == jus::connectionMode::modeJson) {
+					ejson::Object callElem = jus::createCall(asyncAction, id, _functionName, std::forward<_ARGS>(_args)...);
+					return callJson(id, callElem, asyncAction, _callback);
+				} else {
+					jus::Buffer callElem = jus::createBinaryCall(asyncAction, id, _functionName, std::forward<_ARGS>(_args)...);
+					return callBinary(id, callElem, asyncAction, _callback);
+				}
+			}
+		public: // section call with service ID / Client ID
 			
-			
+			template<class... _ARGS>
+			jus::FutureBase call(const std::string& _functionName, _ARGS&&... _args) {
+				return m_clientInterface->m_interfaceClient.callService(m_serviceId, _functionName, _args...);
+				uint16_t id = getId();
+				std::vector<jus::ActionAsyncClient> asyncActionToDo;
+				if (m_interfaceMode == jus::connectionMode::modeJson) {
+					ejson::Object callElem = jus::createCallService(asyncActionToDo, id, m_serviceId, _functionName, std::forward<_ARGS>(_args)...);
+					return callJson(id, callElem, asyncActionToDo);
+				} else {
+					jus::Buffer callElem = jus::createBinaryCallService(asyncActionToDo, id, m_serviceId, _functionName, std::forward<_ARGS>(_args)...);
+					return callBinary(id, callElem, asyncActionToDo);
+				}
+			}
+			template<class... _ARGS>
+			jus::FutureBase callAction(const std::string& _functionName, _ARGS&&... _args, jus::FutureData::ObserverFinish _callback) {
+				return m_clientInterface->m_interfaceClient.callServiceAction(m_serviceId, _functionName, _args..., _callback);
+				uint16_t id = getId();
+				std::vector<jus::ActionAsyncClient> asyncActionToDo;
+				if (m_interfaceMode == jus::connectionMode::modeJson) {
+					ejson::Object callElem = jus::createCallService(asyncActionToDo, id, m_serviceId, _functionName, std::forward<_ARGS>(_args)...);
+					return callJson(id, callElem, asyncActionToDo, _callback);
+				} else {
+					jus::Buffer callElem = jus::createBinaryCallService(asyncActionToDo, id, m_serviceId, _functionName, std::forward<_ARGS>(_args)...);
+					return callBinary(id, callElem, asyncActionToDo, _callback);
+				}
+			}
+		public: // answers ...
 			
 			void answerProtocolError(uint32_t _transactionId, const std::string& _errorHelp);
 			template<class JUS_ARG>

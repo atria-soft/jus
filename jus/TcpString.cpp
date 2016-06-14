@@ -16,6 +16,7 @@ jus::TcpString::TcpString(enet::Tcp _connection) :
 	m_threadRunning = false;
 	m_threadAsyncRunning = false;
 	m_interfaceMode = jus::connectionMode::modeJson;
+	m_transmissionId = 0;
 }
 
 jus::TcpString::TcpString() :
@@ -26,6 +27,7 @@ jus::TcpString::TcpString() :
 	m_threadRunning = false;
 	m_threadAsyncRunning = false;
 	m_interfaceMode = jus::connectionMode::modeJson;
+	m_transmissionId = 0;
 }
 
 void jus::TcpString::setInterface(enet::Tcp _connection) {
@@ -183,12 +185,9 @@ void jus::TcpString::read() {
 							JUS_WARNING("Read No data");
 						}
 					}
-					if (m_observerElement != nullptr) {
-						jus::Buffer dataRaw;
-						dataRaw.composeWith(m_buffer);
-						JUS_VERBOSE("Receive Binary :" << dataRaw.toJson().generateHumanString());
-						m_observerElement(dataRaw);
-					}
+					jus::Buffer dataRaw;
+					dataRaw.composeWith(m_buffer);
+					newBuffer(dataRaw);
 				}
 			}
 			JUS_VERBOSE("ReadRaw [STOP]");
@@ -217,12 +216,9 @@ void jus::TcpString::read() {
 							JUS_WARNING("Read No data");
 						}
 					}
-					if (m_observerElement != nullptr) {
-						JUS_VERBOSE("Receive String :" << out);
-						jus::Buffer dataRaw;
-						dataRaw.composeWith(out);
-						m_observerElement(dataRaw);
-					}
+					jus::Buffer dataRaw;
+					dataRaw.composeWith(out);
+					newBuffer(dataRaw);
 				}
 			}
 			JUS_VERBOSE("Read sized String [STOP]");
@@ -232,6 +228,70 @@ void jus::TcpString::read() {
 		} else if (type == '<') {
 			// XML Raw mode ... Finish with a \0
 			// TODO : m_dataBuffer
+		}
+	}
+}
+
+void jus::TcpString::newBuffer(jus::Buffer& _buffer) {
+	JUS_VERBOSE("Receive Binary :" << _buffer.toJson().generateHumanString());
+	jus::FutureBase future;
+	uint64_t tid = _buffer.getTransactionId();
+	if (tid == 0) {
+		JUS_ERROR("Get a Protocol error ... No ID ...");
+		/*
+		if (obj["error"].toString().get() == "PROTOCOL-ERROR") {
+			JUS_ERROR("Get a Protocol error ...");
+			std::unique_lock<std::mutex> lock(m_mutex);
+			for (auto &it : m_pendingCall) {
+				if (it.isValid() == false) {
+					continue;
+				}
+				it.setAnswer(obj);
+			}
+			m_pendingCall.clear();
+		} else {
+			JUS_ERROR("call with no ID ==> error ...");
+		}
+		*/
+		return;
+	}
+	{
+		std::unique_lock<std::mutex> lock(m_pendingCallMutex);
+		auto it = m_pendingCall.begin();
+		while (it != m_pendingCall.end()) {
+			if (it->isValid() == false) {
+				it = m_pendingCall.erase(it);
+				continue;
+			}
+			if (it->getTransactionId() != tid) {
+				++it;
+				continue;
+			}
+			future = *it;
+			break;
+		}
+	}
+	if (future.isValid() == false) {
+		if (m_observerElement != nullptr) {
+			m_observerElement(_buffer);
+		}
+		return;
+	}
+	bool ret = future.setAnswer(_buffer);
+	if (ret == true) {
+		std::unique_lock<std::mutex> lock(m_pendingCallMutex);
+		auto it = m_pendingCall.begin();
+		while (it != m_pendingCall.end()) {
+			if (it->isValid() == false) {
+				it = m_pendingCall.erase(it);
+				continue;
+			}
+			if (it->getTransactionId() != tid) {
+				++it;
+				continue;
+			}
+			it = m_pendingCall.erase(it);
+			break;
 		}
 	}
 }
@@ -260,6 +320,154 @@ void jus::TcpString::threadAsyncCallback() {
 	m_threadRunning = false;
 	JUS_DEBUG("End of thread");
 }
+
+
+
+
+class SendAsyncJson {
+	private:
+		std::vector<jus::ActionAsyncClient> m_async;
+		uint64_t m_transactionId;
+		uint32_t m_serviceId;
+		uint32_t m_partId;
+	public:
+		SendAsyncJson(uint64_t _transactionId, const uint32_t& _serviceId, const std::vector<jus::ActionAsyncClient>& _async) :
+		  m_async(_async),
+		  m_transactionId(_transactionId),
+		  m_serviceId(_serviceId),
+		  m_partId(1) {
+			
+		}
+		bool operator() (jus::TcpString* _interface){
+			auto it = m_async.begin();
+			while (it != m_async.end()) {
+				bool ret = (*it)(_interface, m_serviceId, m_transactionId, m_partId);
+				if (ret == true) {
+					// Remove it ...
+					it = m_async.erase(it);
+				} else {
+					++it;
+				}
+				m_partId++;
+			}
+			if (m_async.size() == 0) {
+				ejson::Object obj;
+				if (m_serviceId != 0) {
+					obj.add("service", ejson::Number(m_serviceId));
+				}
+				obj.add("id", ejson::Number(m_transactionId));
+				obj.add("part", ejson::Number(m_partId));
+				obj.add("finish", ejson::Boolean(true));
+				_interface->writeJson(obj);
+				return true;
+			}
+			return false;
+		}
+};
+
+jus::FutureBase jus::TcpString::callJson(uint64_t _transactionId,
+                                         ejson::Object _obj,
+                                         const std::vector<ActionAsyncClient>& _async,
+                                         jus::FutureData::ObserverFinish _callback,
+                                         const uint32_t& _serviceId) {
+	JUS_VERBOSE("Send JSON [START] ");
+	if (m_interfaceClient.isActive() == false) {
+		jus::Buffer obj;
+		obj.setType(jus::Buffer::typeMessage::answer) {
+		obj.addError("NOT-CONNECTED", "Client interface not connected (no TCP)");
+		return jus::FutureBase(_transactionId, true, obj, _callback);
+	}
+	jus::FutureBase tmpFuture(_transactionId, _callback);
+	{
+		std::unique_lock<std::mutex> lock(m_pendingCallMutex);
+		m_pendingCall.push_back(tmpFuture);
+	}
+	if (_async.size() != 0) {
+		_obj.add("part", ejson::Number(0));
+	}
+	writeJson(_obj);
+	
+	if (_async.size() != 0) {
+		addAsync(SendAsyncJson(_transactionId, _serviceId, _async));
+	}
+	JUS_VERBOSE("Send JSON [STOP]");
+	return tmpFuture;
+}
+
+
+class SendAsyncBinary {
+	private:
+		std::vector<jus::ActionAsyncClient> m_async;
+		uint64_t m_transactionId;
+		uint32_t m_serviceId;
+		uint32_t m_partId;
+	public:
+		SendAsyncBinary(uint64_t _transactionId, const uint32_t& _serviceId, const std::vector<jus::ActionAsyncClient>& _async) :
+		  m_async(_async),
+		  m_transactionId(_transactionId),
+		  m_serviceId(_serviceId),
+		  m_partId(1) {
+			
+		}
+		bool operator() (jus::TcpString* _interface){
+			auto it = m_async.begin();
+			while (it != m_async.end()) {
+				bool ret = (*it)(_interface, m_serviceId, m_transactionId, m_partId);
+				if (ret == true) {
+					// Remove it ...
+					it = m_async.erase(it);
+				} else {
+					++it;
+				}
+				m_partId++;
+			}
+			if (m_async.size() == 0) {
+				jus::Buffer obj;
+				obj.setServiceId(m_serviceId);
+				obj.setTransactionId(m_transactionId);
+				obj.setPartId(m_partId);
+				obj.setPartFinish(true);
+				_interface->writeBinary(obj);
+				return true;
+			}
+			return false;
+		}
+};
+
+jus::FutureBase jus::TcpString::callBinary(uint64_t _transactionId,
+                                           jus::Buffer& _obj,
+                                           const std::vector<ActionAsyncClient>& _async,
+                                           jus::FutureData::ObserverFinish _callback,
+                                           const uint32_t& _serviceId) {
+	JUS_VERBOSE("Send Binary [START] ");
+	if (m_interfaceClient.isActive() == false) {
+		jus::Buffer obj;
+		obj.setType(jus::Buffer::typeMessage::answer) {
+		obj.addError("NOT-CONNECTED", "Client interface not connected (no TCP)");
+		return jus::FutureBase(_transactionId, true, obj, _callback);
+	}
+	jus::FutureBase tmpFuture(_transactionId, _callback);
+	{
+		std::unique_lock<std::mutex> lock(m_pendingCallMutex);
+		m_pendingCall.push_back(tmpFuture);
+	}
+	if (_async.size() != 0) {
+		_obj.setPartFinish(false);
+	} else {
+		_obj.setPartFinish(true);
+	}
+	writeBinary(_obj);
+	
+	if (_async.size() != 0) {
+		addAsync(SendAsyncBinary(_transactionId, _serviceId, _async));
+	}
+	JUS_VERBOSE("Send Binary [STOP]");
+	return tmpFuture;
+}
+
+
+
+
 
 
 void jus::TcpString::answerError(uint64_t _clientTransactionId, const std::string& _errorValue, const std::string& _errorHelp, uint32_t _clientId) {

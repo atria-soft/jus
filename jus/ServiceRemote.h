@@ -34,6 +34,8 @@ namespace jus {
 		public:
 			template<class... _ARGS>
 			jus::FutureBase call(const std::string& _functionName, _ARGS&&... _args) {
+				return m_clientInterface->m_interfaceClient.callService(m_serviceId, _functionName, _args...);
+				/*
 				uint64_t id = getId();
 				std::vector<ActionAsyncClient> asyncActionToDo;
 				if (getMode() == jus::connectionMode::modeJson) {
@@ -43,9 +45,12 @@ namespace jus {
 					jus::Buffer callElem = jus::createBinaryCallService(asyncActionToDo, id, m_serviceId, _functionName, std::forward<_ARGS>(_args)...);
 					return callBinary(id, callElem, asyncActionToDo);
 				}
+				*/
 			}
 			template<class... _ARGS>
 			jus::FutureBase callAction(const std::string& _functionName, _ARGS&&... _args, jus::FutureData::ObserverFinish _callback) {
+				return m_clientInterface->m_interfaceClient.callServiceAction(m_serviceId, _functionName, _args..., _callback);
+				/*
 				uint64_t id = getId();
 				std::vector<ActionAsyncClient> asyncActionToDo;
 				if (getMode() == jus::connectionMode::modeJson) {
@@ -55,6 +60,7 @@ namespace jus {
 					jus::Buffer callElem = jus::createBinaryCallService(asyncActionToDo, id, m_serviceId, _functionName, std::forward<_ARGS>(_args)...);
 					return callBinary(id, callElem, asyncActionToDo, _callback);
 				}
+				*/
 			}
 	};
 }
