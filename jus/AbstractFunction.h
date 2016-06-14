@@ -4,13 +4,22 @@
  * @license APACHE v2.0 (see license file)
  */
 #pragma once
-
-#include <jus/TcpString.h>
 #include <eproperty/Value.h>
 #include <ejson/ejson.h>
 #include <jus/debug.h>
 #include <jus/ParamType.h>
 #include <jus/File.h>
+#include <jus/Buffer.h>
+
+namespace jus {
+	class TcpString;
+	// define basic async call element ...
+	using ActionAsyncClient = std::function<bool(TcpString* _interface, const uint32_t& _serviceId, uint64_t _transactionId, uint64_t _part)>;
+}
+
+
+
+
 namespace jus {
 	class AbstractFunction {
 		public:
@@ -49,19 +58,15 @@ namespace jus {
 		public:
 			virtual ~AbstractFunction() {};
 		public:
-			bool checkCompatibility(const ParamType& _type, const ejson::Value& _params);
 			bool checkCompatibility(const ParamType& _type, const std::string& _params);
 		public:
 			std::string getPrototypeFull() const;
 			virtual std::string getPrototype() const = 0;
 			virtual std::string getPrototypeReturn() const = 0;
 			virtual std::vector<std::string> getPrototypeParam() const = 0;
-			virtual void executeJson(const ememory::SharedPtr<jus::TcpString>& _interfaceClient, uint64_t _transactionId, uint64_t _clientId, const ejson::Array& _params, void* _class=nullptr) = 0;
-			virtual std::string executeString(const std::vector<std::string>& _params, void* _class=nullptr) = 0;
+			virtual void execute(const ememory::SharedPtr<jus::TcpString>& _interfaceClient, uint64_t _transactionId, uint64_t _clientId, jus::Buffer& _params, void* _class=nullptr) = 0;
 	};
 	
-	// define basic async call element ...
-	using ActionAsyncClient = std::function<bool(TcpString* _interface, const uint32_t& _serviceId, uint64_t _transactionId, uint64_t _part)>;
 	
 	template<class JUS_TYPE>
 	JUS_TYPE convertStringTo(const std::string& _value);
@@ -163,4 +168,6 @@ namespace jus {
 	jus::Buffer createBinaryCall(uint64_t _transactionId, const std::string& _functionName, const jus::Buffer& _params);
 	
 }
+
+#include <jus/TcpString.h>
 

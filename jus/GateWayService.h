@@ -18,7 +18,6 @@ namespace jus {
 			jus::GateWay* m_gatewayInterface;
 			jus::TcpString m_interfaceClient;
 			std::string m_name;
-			enum jus::connectionMode m_interfaceMode;
 		public:
 			esignal::Signal<bool> signalIsConnected;
 		public:
@@ -26,7 +25,7 @@ namespace jus {
 			virtual ~GateWayService();
 			void start();
 			void stop();
-			void onServiceData(std::string _value);
+			void onServiceData(jus::Buffer& _value);
 		public:
 			void SendData(uint64_t _userSessionId, ejson::Object _data);
 			void SendData(uint64_t _userSessionId, jus::Buffer& _data);
@@ -34,6 +33,8 @@ namespace jus {
 				return m_name;
 			}
 			bool isAlive();
+		protected:
+			void answerProtocolError(uint32_t _transactionId, const std::string& _errorHelp);
 	};
 }
 

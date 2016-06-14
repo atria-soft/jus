@@ -60,19 +60,19 @@ void jus::Buffer::internalComposeWith(const uint8_t* _buffer, uint32_t _lenght) 
 	} else {
 		// TODO : check size ...
 	}
-	JUS_INFO("Get binary messages " << generateHumanString());
+	JUS_DEBUG("Get binary messages " << generateHumanString());
 }
 
 void jus::Buffer::composeWith(const std::vector<uint8_t>& _buffer) {
 	internalComposeWith(&_buffer[0], _buffer.size());
 }
 void jus::Buffer::composeWith(const std::string& _buffer) {
-	internalComposeWith(reinterpret_cast<const uint8_t*>(&_buffer[0]), _buffer.size());
+	fromJson(ejson::Object(_buffer));
 }
 
 
 void jus::Buffer::clear() {
-	JUS_WARNING("clear buffer");
+	JUS_VERBOSE("clear buffer");
 	m_data.clear();
 	m_paramOffset.clear();
 	m_header.lenght = 0;
@@ -131,7 +131,7 @@ uint16_t jus::Buffer::getProtocalVersion() const {
 }
 
 void jus::Buffer::setProtocolVersion(uint16_t _value) {
-	JUS_WARNING("setProtocolVersion :" << _value);
+	JUS_VERBOSE("setProtocolVersion :" << _value);
 	m_header.versionProtocol = _value;
 }
 
@@ -140,7 +140,7 @@ uint32_t jus::Buffer::getTransactionId() const {
 }
 
 void jus::Buffer::setTransactionId(uint32_t _value) {
-	JUS_WARNING("setTransactionId :" << _value);
+	JUS_VERBOSE("setTransactionId :" << _value);
 	m_header.transactionID = _value;
 }
 
@@ -149,7 +149,7 @@ uint32_t jus::Buffer::getClientId() const {
 }
 
 void jus::Buffer::setClientId(uint32_t _value) {
-	JUS_WARNING("setClientId :" << _value);
+	JUS_VERBOSE("setClientId :" << _value);
 	m_header.clientID = _value;
 }
 
@@ -159,7 +159,7 @@ uint16_t jus::Buffer::getPartId() const {
 }
 
 void jus::Buffer::setPartId(uint16_t _value) {
-	JUS_WARNING("setPartId :" << _value);
+	JUS_VERBOSE("setPartId :" << _value);
 	m_header.partID = (m_header.partID&0x8000) | (_value & 0x7FFF);
 }
 
@@ -168,7 +168,7 @@ bool jus::Buffer::getPartFinish() const {
 }
 
 void jus::Buffer::setPartFinish(bool _value) {
-	JUS_WARNING("setPartFinish :" << _value);
+	JUS_VERBOSE("setPartFinish :" << _value);
 	if (_value == true) {
 		m_header.partID = (m_header.partID & 0x7FFF) | 0x8000;
 	} else {
@@ -181,7 +181,7 @@ enum jus::Buffer::typeMessage jus::Buffer::getType() const {
 }
 
 void jus::Buffer::setType(enum typeMessage _value) {
-	JUS_WARNING("setType :" << _value);
+	JUS_VERBOSE("setType :" << _value);
 	m_header.typeMessage = uint16_t(_value);
 }
 
@@ -2154,19 +2154,6 @@ std::vector<std::string> jus::Buffer::internalGetParameter<std::vector<std::stri
 			pointer += out[iii].size() + 1;
 			JUS_DEBUG("    value: '" << out[iii] << "'");
 		}
-		
-		
-		
-		// TODO : ...
-		JUS_TODO("parse list of string ...");
-		/*
-		const uint8_t* tmp = reinterpret_cast<const uint8_t*>(pointer);
-		int32_t nbElement = dataSize / sizeof(uint8_t);
-		out.resize(nbElement);
-		for (size_t iii=0; iii<nbElement; ++iii) {
-			out[iii] = tmp[iii] == 'T';
-		}
-		*/
 		return out;
 	}
 	JUS_ERROR("Can not get type from '" << type << "'");
@@ -2358,11 +2345,6 @@ ejson::Object jus::Buffer::toJson() const {
 		JUS_ERROR("Unknow TYPE ...");
 	}
 	return out;
-}
-
-// TODO : Add protocl ERROR ...
-void jus::Buffer::fromJson(const std::string& _data) {
-	return fromJson(ejson::Object(_data));
 }
 
 void jus::Buffer::fromJson(const ejson::Object& _data) {

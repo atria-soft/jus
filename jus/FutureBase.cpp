@@ -93,6 +93,7 @@ bool jus::FutureBase::setAnswer(const ejson::Object& _returnValue) {
 	tmp.fromJson(_returnValue);
 	return setAnswer(tmp);
 }
+
 bool jus::FutureBase::setAnswer(const jus::Buffer& _returnValue) {
 	if (m_data == nullptr) {
 		JUS_ERROR(" Not a valid future ...");
@@ -208,51 +209,17 @@ jus::FutureBase& jus::FutureBase::waitUntil(std::chrono::steady_clock::time_poin
 }
 
 
-jus::FutureCall::FutureCall(uint64_t _clientId, uint64_t _transactionId, const ejson::Object& _callValue) :
+jus::FutureCall::FutureCall(uint64_t _clientId, uint64_t _transactionId, jus::Buffer& _callValue) :
   m_transactionId(_transactionId),
   m_clientId(_clientId),
   m_isFinished(false) {
 	m_data = _callValue;
-	if (m_data.valueExist("part") == true) {
-		if (m_data.valueExist("finish") == true) {
-			if (m_data["finish"].toBoolean().get() == true) {
-				m_isFinished = true;
-			}
-		}
-	} else {
-		m_isFinished = true;
-	}
+	m_isFinished = m_data.getPartFinish();
 }
 
-void jus::FutureCall::appendData(const ejson::Object& _callValue) {
-	uint64_t paramID = _callValue["param-id"].toNumber().getU64();
-	// get the previous element parameters
-	ejson::Array params = m_data["param"].toArray();
-	if (params.exist() == false) {
-		JUS_ERROR("try to add element on an inexistand parameter ...==> bad case");
-		m_isFinished = true;
-		return;
-	}
-	// Get the specific parameter
-	ejson::Object param = params[paramID].toObject();
-	if (param.exist() == false) {
-		JUS_ERROR("the parameter is not an object ==> bad case");
-		m_isFinished = true;
-		return;
-	}
-	// check if section data
-	if (param.valueExist("data") == false) {
-		param.add("data", ejson::Array());
-	}
-	// add data in the array (only if we have local data ...
-	if (_callValue.valueExist("data") == true) {
-		param["data"].toArray().add(_callValue["data"]);
-	}
-	if (_callValue.valueExist("finish") == true) {
-		if (_callValue["finish"].toBoolean().get() == true) {
-			m_isFinished = true;
-		}
-	}
+void jus::FutureCall::appendData(jus::Buffer& _callValue) {
+	m_dataMultiplePack.push_back(_callValue);
+	m_isFinished = _callValue.getPartFinish();
 }
 
 uint64_t jus::FutureCall::getTransactionId() {
@@ -267,7 +234,7 @@ bool jus::FutureCall::isFinished() {
 	return m_isFinished;
 }
 
-ejson::Object jus::FutureCall::getRaw() {
+jus::Buffer& jus::FutureCall::getRaw() {
 	return m_data;
 }
 

@@ -129,7 +129,7 @@ std::vector<std::string> jus::GateWay::getAllServiceName() {
 }
 
 
-void jus::GateWay::answer(uint64_t _userSessionId, ejson::Object _data) {
+void jus::GateWay::answer(uint64_t _userSessionId, jus::Buffer& _data) {
 	for (auto &it : m_clientList) {
 		if (it == nullptr) {
 			continue;

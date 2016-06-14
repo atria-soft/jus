@@ -23,10 +23,8 @@ namespace jus {
 			eproperty::Value<uint16_t> propertyPort;
 			std::mutex m_mutex;
 			std::vector<jus::FutureBase> m_pendingCall;
-		protected:
-			enum jus::connectionMode m_interfaceMode;
 		public:
-			enum jus::connectionMode getMode() { return m_interfaceMode; }
+			enum jus::connectionMode getMode() { return m_interfaceClient.getMode(); }
 		private:
 			jus::TcpString m_interfaceClient;
 			uint32_t m_id;
@@ -46,9 +44,7 @@ namespace jus {
 			// Connect to ourself:
 			//client1.authentificate("coucou");
 		private:
-			void onClientData(std::string _value);
-			void onClientDataRaw(jus::Buffer& _value);
-			std::string asyncRead();
+			void onClientData(jus::Buffer& _value);
 			jus::FutureBase callJson(uint64_t _transactionId,
 			                         ejson::Object _obj,
 			                         const std::vector<ActionAsyncClient>& _async,

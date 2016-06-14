@@ -30,10 +30,10 @@ namespace jus {
 		private:
 			jus::GateWay* m_gatewayInterface;
 			jus::TcpString m_interfaceClient;
-		protected:
-			enum jus::connectionMode m_interfaceMode;
 		public:
-			enum jus::connectionMode getMode() { return m_interfaceMode; }
+			enum jus::connectionMode getMode() {
+				return m_interfaceClient.getMode();
+			}
 		public:
 			esignal::Signal<bool> signalIsConnected;
 			ememory::SharedPtr<jus::GateWayService> m_userService;
@@ -49,9 +49,8 @@ namespace jus {
 			virtual ~GateWayClient();
 			void start(uint64_t _uid, uint64_t _uid2);
 			void stop();
-			void onClientDataRaw(jus::Buffer& _value);
-			void onClientData(std::string _value);
-			void returnMessage(ejson::Object _data);
+			void onClientData(jus::Buffer& _value);
+			void returnMessage(jus::Buffer& _data);
 			bool checkId(uint64_t _id) const {
 				return    m_uid == _id
 				       || m_uid2 == _id;
@@ -63,7 +62,12 @@ namespace jus {
 			std::mutex m_mutex;
 			std::vector<std::pair<uint64_t, jus::FutureBase>> m_pendingCall;
 			int32_t m_transactionLocalId;
-			jus::FutureBase callJson(uint64_t _callerId, ememory::SharedPtr<jus::GateWayService> _srv, uint64_t _clientTransactionId, uint64_t _transactionId, const ejson::Object& _obj, jus::FutureData::ObserverFinish _callback=nullptr);
+			jus::FutureBase callJson(uint64_t _callerId,
+			                         ememory::SharedPtr<jus::GateWayService> _srv,
+			                         uint64_t _clientTransactionId,
+			                         uint64_t _transactionId,
+			                         const ejson::Object& _obj,
+			                         jus::FutureData::ObserverFinish _callback=nullptr);
 			jus::FutureBase callBinary(uint64_t _callerId,
 			                           ememory::SharedPtr<jus::GateWayService> _srv,
 			                           uint64_t _clientTransactionId,
@@ -101,39 +105,14 @@ namespace jus {
 			                                  int64_t _part,
 			                                  bool _finish);
 			
-			void answerProtocolError(uint32_t _transactionId, const std::string& _errorHelp);
-			
-			template<class JUS_ARG>
-			void answerValue(uint64_t _clientTransactionId, JUS_ARG _value) {
-				if (m_interfaceMode == jus::connectionMode::modeJson) {
-					ejson::Object answer;
-					answer.add("id", ejson::Number(_clientTransactionId));
-					std::vector<ActionAsyncClient> asyncAction;
-					answer.add("return", jus::convertToJson(asyncAction, -1, _value));
-					if (asyncAction.size() != 0) {
-						JUS_ERROR("ASYNC datas ... TODO ///");
-					}
-					JUS_DEBUG("answer: " << answer.generateHumanString());
-					m_interfaceClient.write(answer.generateMachineString());
-				} else if (m_interfaceMode == jus::connectionMode::modeBinary) {
-					jus::Buffer answer;
-					answer.setType(jus::Buffer::typeMessage::answer);
-					answer.setTransactionId(_clientTransactionId);
-					answer.addAnswer(_value);
-					JUS_DEBUG("answer: " << answer.generateHumanString());
-					m_interfaceClient.writeBinary(answer);
-				} else if (m_interfaceMode == jus::connectionMode::modeXml) {
-					JUS_ERROR("TODO ... ");
-				} else {
-					JUS_ERROR("wrong type of communication");
-				}
-			}
-			
-			void answerError(uint64_t _clientTransactionId, const std::string& _errorValue, const std::string& _errorComment="");
-			
 			jus::FutureBase callActionForward(ememory::SharedPtr<jus::GateWayService> _srv,
 			                                  jus::Buffer& _Buffer,
 			                                  jus::FutureData::ObserverFinish _callback);
+			
+			
+			
+			void answerProtocolError(uint32_t _transactionId, const std::string& _errorHelp);
+			
 			
 	};
 }

@@ -192,7 +192,6 @@ namespace jus {
 			void prepare();
 			ejson::Object toJson() const;
 			void fromJson(const ejson::Object& _data);
-			void fromJson(const std::string& _data);
 	};
 	std::ostream& operator <<(std::ostream& _os, enum jus::Buffer::typeMessage _value);
 	

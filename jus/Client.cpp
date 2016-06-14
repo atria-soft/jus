@@ -13,7 +13,6 @@
 jus::Client::Client() :
   propertyIp(this, "ip", "127.0.0.1", "Ip to connect server", &jus::Client::onPropertyChangeIp),
   propertyPort(this, "port", 1983, "Port to connect server", &jus::Client::onPropertyChangePort),
-  m_interfaceMode(jus::connectionMode::modeJson),
   m_id(1) {
 	m_interfaceClient.connect(this, &jus::Client::onClientData);
 }
@@ -22,7 +21,7 @@ jus::Client::~Client() {
 	
 }
 
-void jus::Client::onClientDataRaw(jus::Buffer& _value) {
+void jus::Client::onClientData(jus::Buffer& _value) {
 	JUS_DEBUG("Get answer RAW : "/* << _value*/);
 	jus::FutureBase future;
 	uint64_t tid = _value.getTransactionId();
@@ -85,67 +84,6 @@ void jus::Client::onClientDataRaw(jus::Buffer& _value) {
 	}
 }
 
-void jus::Client::onClientData(std::string _value) {
-	JUS_DEBUG("Get answer : " << _value);
-	ejson::Object obj(_value);
-	jus::FutureBase future;
-	uint64_t tid = obj["id"].toNumber().get();
-	if (tid == 0) {
-		if (obj["error"].toString().get() == "PROTOCOL-ERROR") {
-			JUS_ERROR("Get a Protocol error ...");
-			std::unique_lock<std::mutex> lock(m_mutex);
-			for (auto &it : m_pendingCall) {
-				if (it.isValid() == false) {
-					continue;
-				}
-				it.setAnswer(obj);
-			}
-			m_pendingCall.clear();
-		} else {
-			JUS_ERROR("call with no ID ==> error ...");
-		}
-		return;
-	}
-	{
-		std::unique_lock<std::mutex> lock(m_mutex);
-		auto it = m_pendingCall.begin();
-		while (it != m_pendingCall.end()) {
-			if (it->isValid() == false) {
-				it = m_pendingCall.erase(it);
-				continue;
-			}
-			if (it->getTransactionId() != tid) {
-				++it;
-				continue;
-			}
-			future = *it;
-			break;
-		}
-	}
-	if (future.isValid() == false) {
-		JUS_TODO("manage this event better ...");
-		//m_newData.push_back(std::move(_value));
-		return;
-	}
-	bool ret = future.setAnswer(obj);
-	if (ret == true) {
-		std::unique_lock<std::mutex> lock(m_mutex);
-		auto it = m_pendingCall.begin();
-		while (it != m_pendingCall.end()) {
-			if (it->isValid() == false) {
-				it = m_pendingCall.erase(it);
-				continue;
-			}
-			if (it->getTransactionId() != tid) {
-				++it;
-				continue;
-			}
-			it = m_pendingCall.erase(it);
-			break;
-		}
-	}
-}
-
 jus::ServiceRemote jus::Client::getService(const std::string& _name) {
 	return jus::ServiceRemote(this, _name);
 }
@@ -171,29 +109,6 @@ bool jus::Client::unlink(const uint32_t& _serviceId) {
 	return ret.get();
 }
 
-std::string jus::Client::asyncRead() {
-	if (m_interfaceClient.isActive() == false) {
-		return "";
-	}
-	int32_t iii = 5000;
-	while (iii>0) {
-		usleep(10000);
-		if (m_newData.size() != 0) {
-			break;
-		}
-		--iii;
-	}
-	if (iii == 0) {
-		// Time-out ...
-		return "";
-	}
-	std::string out;
-	out = std::move(m_newData[0]);
-	m_newData.erase(m_newData.begin());
-	JUS_DEBUG("get async data: " << out);
-	return out;
-}
-
 void jus::Client::onPropertyChangeIp() {
 	disconnect();
 }
@@ -214,9 +129,7 @@ bool jus::Client::connect(const std::string& _remoteUserToConnect){
 	jus::Future<bool> retBin = call("setMode", "BIN").wait();
 	if (retBin.get() == true) {
 		JUS_WARNING("    ==> accepted binary");
-		m_interfaceMode = jus::connectionMode::modeBinary;
-		m_interfaceClient.connectClean();
-		m_interfaceClient.connectRaw(this, &jus::Client::onClientDataRaw);
+		m_interfaceClient.setMode(jus::connectionMode::modeBinary);
 		JUS_INFO("Connection jump in BINARY ...");
 	} else {
 		// stay in JSON
@@ -281,8 +194,7 @@ class SendAsyncJson {
 				obj.add("id", ejson::Number(m_transactionId));
 				obj.add("part", ejson::Number(m_partId));
 				obj.add("finish", ejson::Boolean(true));
-				JUS_DEBUG("Send JSON '" << obj.generateHumanString() << "'");
-				_interface->write(obj.generateMachineString());
+				_interface->writeJson(obj);
 				return true;
 			}
 			return false;
@@ -309,8 +221,7 @@ jus::FutureBase jus::Client::callJson(uint64_t _transactionId,
 	if (_async.size() != 0) {
 		_obj.add("part", ejson::Number(0));
 	}
-	JUS_DEBUG("Send JSON '" << _obj.generateHumanString() << "'");
-	m_interfaceClient.write(_obj.generateMachineString());
+	m_interfaceClient.writeJson(_obj);
 	
 	if (_async.size() != 0) {
 		m_interfaceClient.addAsync(SendAsyncJson(_transactionId, _serviceId, _async));

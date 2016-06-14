@@ -34,29 +34,27 @@ std::vector<std::string> jus::Service::getExtention() {
 }
 
 
-void jus::Service::onClientData(std::string _value) {
-	JUS_INFO("Request: " << _value);
-	ejson::Object request(_value);
-	uint64_t tmpID = request["id"].toNumber().getU64();
-	uint64_t clientId = request["client-id"].toNumber().getU64();
+void jus::Service::onClientData(jus::Buffer& _value) {
+	uint32_t tmpID = _value.getTransactionId();
+	uint32_t clientId = _value.getClientId();;
 	auto it = m_callMultiData.begin();
 	while (it != m_callMultiData.end()) {
 		if (    it->getTransactionId() == tmpID
 		     && it->getClientId() == clientId) {
 			JUS_WARNING("Append data ... " << tmpID);
-			it->appendData(request);
+			it->appendData(_value);
 			if (it->isFinished() == true) {
 				JUS_WARNING("CALL Function ...");
-				callJson(tmpID, it->getRaw());
+				callBinary(tmpID, it->getRaw());
 				it = m_callMultiData.erase(it);
 			}
 			return;
 		}
 		++it;
 	}
-	jus::FutureCall futCall(clientId, tmpID, request);
+	jus::FutureCall futCall(clientId, tmpID, _value);
 	if (futCall.isFinished() == true) {
-		callJson(tmpID, futCall.getRaw());
+		callBinary(tmpID, futCall.getRaw());
 	} else {
 		m_callMultiData.push_back(futCall);
 	}
@@ -81,7 +79,13 @@ void jus::Service::connect(const std::string& _serviceName, uint32_t _numberRetr
 	}
 	m_interfaceClient->setInterface(std::move(connection));
 	m_interfaceClient->connect();
-	m_interfaceClient->write(std::string("{\"connect-service\":\"") + _serviceName + "\"}");
+	ejson::Object tmpp;
+	tmpp.add("id", ejson::Number(1));
+	tmpp.add("call", ejson::String("connect-service"));
+	ejson::Array params;
+	params.add(ejson::String(_serviceName));
+	tmpp.add("param", params);
+	m_interfaceClient->writeJson(tmpp);
 	JUS_DEBUG("connect [STOP]");
 }
 
@@ -97,12 +101,17 @@ bool jus::Service::GateWayAlive() {
 
 void jus::Service::pingIsAlive() {
 	if (std::chrono::steady_clock::now() - m_interfaceClient->getLastTimeSend() >= std::chrono::seconds(30)) {
-		m_interfaceClient->write("{\"event\":\"IS-ALIVE\"}");
+		/*
+		ejson::Object tmpp;
+		tmpp.add("event", ejson::String("IS-ALIVE"));
+		m_interfaceClient->writeJson(tmpp);
+		*/
 	}
 }
 
-void jus::Service::callJson(uint64_t _transactionId, const ejson::Object& _obj) {
-	if (_obj.valueExist("event") == true) {
+void jus::Service::callBinary(uint32_t _transactionId, jus::Buffer& _obj) {
+	if (_obj.getType() == jus::Buffer::typeMessage::event) {
+		/*
 		std::string event = _obj["event"].toString().get();
 		if (event == "IS-ALIVE") {
 			// Gateway just aswer a keep alive information ...
@@ -110,44 +119,39 @@ void jus::Service::callJson(uint64_t _transactionId, const ejson::Object& _obj) 
 		} else {
 			JUS_ERROR("Unknow event: '" << event << "'");
 		}
+		*/
+		JUS_ERROR("Unknow event: '...'");
 		return;
 	}
-	ejson::Object answer;
-	uint64_t clientId = _obj["client-id"].toNumber().getU64();
-	if (_obj.valueExist("call") == true) {
-		std::string call = _obj["call"].toString().get();
-		ejson::Array params = _obj["param"].toArray();
-		if (call[0] == '_') {
-			if (call == "_new") {
-				std::string userName = params[0].toString().get();
-				std::string clientName = params[1].toString().get();
-				std::vector<std::string> clientGroup = convertJsonTo<std::vector<std::string>>(params[2]);
+	if (_obj.getType() == jus::Buffer::typeMessage::answer) {
+		JUS_ERROR("Local Answer: '...'");
+		return;
+	}
+	//if (_obj.getType() == jus::Buffer::typeMessage::event) {
+	if (m_interfaceClient->getMode() == jus::connectionMode::modeBinary) {
+		
+	} else if (m_interfaceClient->getMode() == jus::connectionMode::modeJson) {
+		uint32_t clientId = _obj.getClientId();
+		std::string callFunction = _obj.getCall();
+		if (callFunction[0] == '_') {
+			if (callFunction == "_new") {
+				std::string userName = _obj.getParameter<std::string>(0);
+				std::string clientName = _obj.getParameter<std::string>(1);
+				std::vector<std::string> clientGroup = _obj.getParameter<std::vector<std::string>>(2);
 				clientConnect(clientId, userName, clientName, clientGroup);
-			} else if (call == "_delete") {
+			} else if (callFunction == "_delete") {
 				clientDisconnect(clientId);
 			}
-			// TODO : Do it better ...
-			answer.add("id", ejson::Number(_transactionId));
-			answer.add("client-id", ejson::Number(clientId));
-			answer.add("return", ejson::Boolean(true));
-			JUS_INFO("Answer: " << answer.generateHumanString());
-			m_interfaceClient->write(answer.generateMachineString());
+			m_interfaceClient->answerValue(_transactionId, true, clientId);
 			return;
-		} else if (isFunctionAuthorized(clientId, call) == true) {
-			callJson2(_transactionId, clientId, call, params);
+		} else if (isFunctionAuthorized(clientId, callFunction) == true) {
+			callBinary2(_transactionId, clientId, callFunction, _obj);
 			return;
 		} else {
-			answer.add("id", ejson::Number(_transactionId));
-			answer.add("client-id", ejson::Number(clientId));
-			answer.add("error", ejson::String("NOT-AUTHORIZED-FUNCTION"));
-			JUS_INFO("Answer: " << answer.generateHumanString());
-			m_interfaceClient->write(answer.generateMachineString());
+			m_interfaceClient->answerError(_transactionId, "NOT-AUTHORIZED-FUNCTION", "", clientId);
 			return;
 		}
+	} else {
+		JUS_ERROR("Not manage transfer mode ");
 	}
-	answer.add("id", ejson::Number(_transactionId));
-	answer.add("client-id", ejson::Number(clientId));
-	answer.add("error", ejson::String("NOT-IMPLEMENTED-FUNCTION"));
-	JUS_INFO("Answer: " << answer.generateHumanString());
-	m_interfaceClient->write(answer.generateMachineString());
 }

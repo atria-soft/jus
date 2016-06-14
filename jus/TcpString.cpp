@@ -12,20 +12,20 @@ jus::TcpString::TcpString(enet::Tcp _connection) :
   m_connection(std::move(_connection)),
   m_thread(nullptr),
   m_observerElement(nullptr),
-  m_observerRawElement(nullptr),
   m_threadAsync(nullptr) {
 	m_threadRunning = false;
 	m_threadAsyncRunning = false;
+	m_interfaceMode = jus::connectionMode::modeJson;
 }
 
 jus::TcpString::TcpString() :
   m_connection(),
   m_thread(nullptr),
   m_observerElement(nullptr),
-  m_observerRawElement(nullptr),
   m_threadAsync(nullptr) {
 	m_threadRunning = false;
 	m_threadAsyncRunning = false;
+	m_interfaceMode = jus::connectionMode::modeJson;
 }
 
 void jus::TcpString::setInterface(enet::Tcp _connection) {
@@ -39,38 +39,14 @@ jus::TcpString::~TcpString() {
 void jus::TcpString::setInterfaceName(const std::string& _name) {
 	ethread::setName(*m_thread, "Tcp-" + _name);
 }
-// TODO : Do it better :
+
 void jus::TcpString::threadCallback() {
 	ethread::setName("TcpString-input");
 	// get datas:
 	while (    m_threadRunning == true
 	        && m_connection.getConnectionStatus() == enet::Tcp::status::link) {
 		// READ section data:
-		if (m_observerElement != nullptr) {
-			JUS_PRINT("Call String ...");
-			std::string data = std::move(read());
-			JUS_PRINT("Receive data: '" << data << "'");
-			if (data.size() != 0) {
-				m_lastReceive = std::chrono::steady_clock::now();
-				JUS_PRINT("    Call function ... 1");
-				if (m_observerElement != nullptr) {
-					m_observerElement(std::move(data));
-				} else if (m_observerRawElement != nullptr) {
-					jus::Buffer dataRaw;
-					dataRaw.composeWith(data);
-					m_observerRawElement(dataRaw);
-				} else {
-					JUS_ERROR("Lose DATA ...");
-				}
-				JUS_PRINT("    Call function ... 1 (done)");
-			}
-		} else if (m_observerRawElement != nullptr) {
-			JUS_PRINT("Call Raw ...");
-			jus::Buffer data = readRaw();
-			JUS_PRINT("    Call function ... 2");
-			m_observerRawElement(data);
-			JUS_PRINT("    Call function ... 2 (done)");
-		}
+		read();
 	}
 	m_threadRunning = false;
 	JUS_DEBUG("End of thread");
@@ -136,33 +112,30 @@ void jus::TcpString::disconnect(bool _inThreadStop){
 	JUS_DEBUG("disconnect [STOP]");
 }
 
-int32_t jus::TcpString::write(const std::string& _data) {
+int32_t jus::TcpString::writeJson(ejson::Object& _data) {
+	JUS_DEBUG("Send JSON '" << _data.generateHumanString() << "'");
 	if (m_threadRunning == false) {
 		return -2;
 	}
-	if (_data.size() == 0) {
-		return 0;
-	}
-	uint32_t size = _data.size();
 	m_lastSend = std::chrono::steady_clock::now();
-	m_connection.write(&size, 4);
-	return m_connection.write(_data.c_str(), _data.size());
+	m_connection.write("J", 1);
+	std::string tmpData = _data.generateMachineString();
+	uint32_t dataSize = tmpData.size();
+	m_connection.write(&dataSize, sizeof(uint32_t));
+	m_connection.write(&tmpData[0], tmpData.size());
+	return 1;
 }
+
 int32_t jus::TcpString::writeBinary(jus::Buffer& _data) {
 	_data.prepare();
-	JUS_DEBUG("Send BINARY '" << _data.generateHumanString() << "'");
+	JUS_DEBUG("Send BINARY '" << _data.toJson().generateHumanString() << "'");
 	if (m_threadRunning == false) {
 		return -2;
 	}
-	/*
-	if (_data.size() == 0) {
-		return 0;
-	}
-	*/
-	//uint32_t size = _data.size();
+	m_lastSend = std::chrono::steady_clock::now();
+	m_connection.write("B", 1);
 	const uint8_t* data = nullptr;
 	uint32_t dataSize = 0;
-	m_lastSend = std::chrono::steady_clock::now();
 	data = _data.getHeader();
 	dataSize = _data.getHeaderSize();
 	m_connection.write(data, dataSize);
@@ -175,84 +148,92 @@ int32_t jus::TcpString::writeBinary(jus::Buffer& _data) {
 	return 1;
 }
 
-std::string jus::TcpString::read() {
+void jus::TcpString::read() {
 	JUS_VERBOSE("Read [START]");
 	if (m_threadRunning == false) {
 		JUS_DEBUG("Read [END] Disconected");
-		return "";
+		return;
 	}
 	// TODO : Do it better with a correct way to check data size ...
 	JUS_VERBOSE("Read [START]");
-	std::string out;
-	uint32_t size = 0;
-	int32_t len = m_connection.read(&size, 4);
-	if (len != 4) {
-		JUS_ERROR("Protocol error occured ...");
+	uint8_t type = 0;
+	int32_t len = m_connection.read(&type, 1);
+	if (len == 0) {
+		JUS_ERROR("Protocol error occured ==> No datas ...");
 	} else {
-		if (size == -1) {
-			JUS_WARNING("Remote close connection");
-			m_threadRunning = false;
-			//m_connection.unlink();
-		} else {
-			int64_t offset = 0;
-			out.resize(size);
-			while (offset != size) {
-				len = m_connection.read(&out[offset], size-offset);
-				offset += len;
-				if (len == 0) {
-					JUS_WARNING("Read No data");
-					//break;
+		if (type == 'B') { // binary
+			// Binary mode ... start with the lenght of the stream
+			JUS_VERBOSE("Read Binary [START]");
+			uint32_t size = 0;
+			len = m_connection.read(&size, 4);
+			if (len != 4) {
+				JUS_ERROR("Protocol error occured ...");
+			} else {
+				if (size == -1) {
+					JUS_WARNING("Remote close connection");
+					m_threadRunning = false;
+					//m_connection.unlink();
+				} else {
+					int64_t offset = 0;
+					m_buffer.resize(size);
+					while (offset != size) {
+						len = m_connection.read(&m_buffer[offset], size-offset);
+						offset += len;
+						if (len == 0) {
+							JUS_WARNING("Read No data");
+						}
+					}
+					if (m_observerElement != nullptr) {
+						jus::Buffer dataRaw;
+						dataRaw.composeWith(m_buffer);
+						JUS_VERBOSE("Receive Binary :" << dataRaw.toJson().generateHumanString());
+						m_observerElement(dataRaw);
+					}
 				}
-				/*
-				else if (size != offset) {
-					JUS_ERROR("Protocol error occured .2. ==> concat (offset=" << offset << " size=" << size);
-				}
-				*/
 			}
+			JUS_VERBOSE("ReadRaw [STOP]");
+		} else if (    type == 'X' // XML
+		            || type == 'J' // JSON
+		          ) {
+			JUS_VERBOSE("Read sized String [START]");
+			// XML/JSON mode ... start with the lenght of the stream
+			std::string out;
+			uint32_t size = 0;
+			len = m_connection.read(&size, 4);
+			if (len != 4) {
+				JUS_ERROR("Protocol error occured ...");
+			} else {
+				if (size == -1) {
+					JUS_WARNING("Remote close connection");
+					m_threadRunning = false;
+					//m_connection.unlink();
+				} else {
+					int64_t offset = 0;
+					out.resize(size);
+					while (offset != size) {
+						len = m_connection.read(&out[offset], size-offset);
+						offset += len;
+						if (len == 0) {
+							JUS_WARNING("Read No data");
+						}
+					}
+					if (m_observerElement != nullptr) {
+						JUS_VERBOSE("Receive String :" << out);
+						jus::Buffer dataRaw;
+						dataRaw.composeWith(out);
+						m_observerElement(dataRaw);
+					}
+				}
+			}
+			JUS_VERBOSE("Read sized String [STOP]");
+		} else if (type == '{') {
+			// JSON Raw mode ... Finish with a \0
+			// TODO: m_dataBuffer
+		} else if (type == '<') {
+			// XML Raw mode ... Finish with a \0
+			// TODO : m_dataBuffer
 		}
 	}
-	JUS_VERBOSE("Read [STOP]");
-	return out;
-}
-
-jus::Buffer jus::TcpString::readRaw() {
-	jus::Buffer out;
-	JUS_VERBOSE("ReadRaw [START]");
-	if (m_threadRunning == false) {
-		JUS_DEBUG("Read [END] Disconected");
-		return out;
-	}
-	JUS_VERBOSE("ReadRaw [START]");
-	uint32_t size = 0;
-	int32_t len = m_connection.read(&size, 4);
-	if (len != 4) {
-		JUS_ERROR("Protocol error occured ...");
-	} else {
-		if (size == -1) {
-			JUS_WARNING("Remote close connection");
-			m_threadRunning = false;
-			//m_connection.unlink();
-		} else {
-			int64_t offset = 0;
-			m_buffer.resize(size);
-			while (offset != size) {
-				len = m_connection.read(&m_buffer[offset], size-offset);
-				offset += len;
-				if (len == 0) {
-					JUS_WARNING("Read No data");
-					//break;
-				}
-				/*
-				else if (size != offset) {
-					JUS_ERROR("Protocol error occured .2. ==> concat (offset=" << offset << " size=" << size);
-				}
-				*/
-			}
-			out.composeWith(m_buffer);
-		}
-	}
-	JUS_VERBOSE("ReadRaw [STOP]");
-	return out;
 }
 
 void jus::TcpString::threadAsyncCallback() {
@@ -280,3 +261,51 @@ void jus::TcpString::threadAsyncCallback() {
 	JUS_DEBUG("End of thread");
 }
 
+
+void jus::TcpString::answerError(uint64_t _clientTransactionId, const std::string& _errorValue, const std::string& _errorHelp, uint32_t _clientId) {
+	if (m_interfaceMode == jus::connectionMode::modeJson) {
+		ejson::Object answer;
+		answer.add("error", ejson::String(_errorValue));
+		answer.add("id", ejson::Number(_clientTransactionId));
+		if (_clientId != 0) {
+			answer.add("client-id", ejson::Number(_clientId));
+		}
+		answer.add("error-help", ejson::String(_errorHelp));
+		writeJson(answer);
+	} else if (m_interfaceMode == jus::connectionMode::modeBinary) {
+		jus::Buffer answer;
+		answer.setType(jus::Buffer::typeMessage::answer);
+		answer.setTransactionId(_clientTransactionId);
+		answer.setClientId(_clientId);
+		answer.addError(_errorValue, _errorHelp);
+		writeBinary(answer);
+	} else if (m_interfaceMode == jus::connectionMode::modeXml) {
+		JUS_ERROR("TODO ... ");
+	} else {
+		JUS_ERROR("wrong type of communication");
+	}
+}
+
+
+void jus::TcpString::answerVoid(uint64_t _clientTransactionId, uint32_t _clientId) {
+	if (m_interfaceMode == jus::connectionMode::modeJson) {
+		ejson::Object answer;
+		answer.add("id", ejson::Number(_clientTransactionId));
+		if (_clientId != 0) {
+			answer.add("client-id", ejson::Number(_clientId));
+		}
+		answer.add("return", ejson::Null());
+		writeJson(answer);
+	} else if (m_interfaceMode == jus::connectionMode::modeBinary) {
+		jus::Buffer answer;
+		answer.setType(jus::Buffer::typeMessage::answer);
+		answer.setTransactionId(_clientTransactionId);
+		answer.setClientId(_clientId);
+		answer.addParameter();
+		writeBinary(answer);
+	} else if (m_interfaceMode == jus::connectionMode::modeXml) {
+		JUS_ERROR("TODO ... ");
+	} else {
+		JUS_ERROR("wrong type of communication");
+	}
+}

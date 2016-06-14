@@ -17,36 +17,35 @@
 
 namespace jus {
 	template <class JUS_CLASS_TYPE, class JUS_RETURN, class... JUS_TYPES>
-	void executeClassCallJson(const ememory::SharedPtr<jus::TcpString>& _interfaceClient,
-	                          uint64_t _transactionId,
-	                          uint64_t _clientId,
-	                          JUS_CLASS_TYPE* _pointer,
-	                          JUS_RETURN (JUS_CLASS_TYPE::*_func)(JUS_TYPES...),
-	                          const ejson::Array& _params) {
+	void executeClassCall(const ememory::SharedPtr<jus::TcpString>& _interfaceClient,
+	                      uint64_t _transactionId,
+	                      uint64_t _clientId,
+	                      JUS_CLASS_TYPE* _pointer,
+	                      JUS_RETURN (JUS_CLASS_TYPE::*_func)(JUS_TYPES...),
+	                      jus::Buffer& _obj) {
 		std::vector<ActionAsyncClient> asyncAction;
 		#if defined(__clang__)
 			// clang generate a basic warning:
 			//      warning: multiple unsequenced modifications to 'idParam' [-Wunsequenced]
 			int32_t idParam = 0;
-			ejson::Value ret = convertToJson(asyncAction, -1, (*_pointer.*_func)((convertJsonTo<JUS_TYPES>(_params[idParam++]))...));
+			JUS_RETURN ret = (*_pointer.*_func)(_obj.getParameter<JUS_TYPES>(idParam++)...);
 		#elif defined(__GNUC__) || defined(__GNUG__) || defined(_MSC_VER)
 			int32_t idParam = int32_t(sizeof...(JUS_TYPES))-1;
-			ejson::Value ret = convertToJson(asyncAction, -1, (*_pointer.*_func)(convertJsonTo<JUS_TYPES>(_params[idParam--])...));
+			JUS_RETURN ret = (*_pointer.*_func)(_obj.getParameter<JUS_TYPES>(idParam--)...);
 		#else
 			#error Must be implemented ...
-			ejson::Value ret = ejson::Null();
+			JUS_RETURN ret;
 			return;
 		#endif
 		if (asyncAction.size() != 0) {
 			JUS_ERROR("Missing send async messages");
 		}
-		ejson::Object answer;
-		answer.add("id", ejson::Number(_transactionId));
-		answer.add("client-id", ejson::Number(_clientId));
-		answer.add("return", ret);
-		JUS_INFO("Answer: " << answer.generateHumanString());
-		_interfaceClient->write(answer.generateMachineString());
+		_interfaceClient->addAsync([=](TcpString* _interface) {
+			    _interface->answerValue(_transactionId, ret, _clientId);
+			    return true;
+			});
 	}
+	/*
 	class SendFile {
 		private:
 			jus::FileServer m_data;
@@ -112,20 +111,20 @@ namespace jus {
 			}
 	};
 	template <class JUS_CLASS_TYPE, class... JUS_TYPES>
-	void executeClassCallJson(const ememory::SharedPtr<jus::TcpString>& _interfaceClient,
-	                          uint64_t _transactionId,
-	                          uint64_t _clientId,
-	                          JUS_CLASS_TYPE* _pointer,
-	                          jus::FileServer (JUS_CLASS_TYPE::*_func)(JUS_TYPES...),
-	                          const ejson::Array& _params) {
+	void executeClassCall(const ememory::SharedPtr<jus::TcpString>& _interfaceClient,
+	                      uint64_t _transactionId,
+	                      uint64_t _clientId,
+	                      JUS_CLASS_TYPE* _pointer,
+	                      jus::FileServer (JUS_CLASS_TYPE::*_func)(JUS_TYPES...),
+	                      jus::Buffer& _obj) {
 		#if defined(__clang__)
 			// clang generate a basic warning:
 			//      warning: multiple unsequenced modifications to 'idParam' [-Wunsequenced]
 			int32_t idParam = 0;
-			jus::FileServer tmpElem = (*_pointer.*_func)((convertJsonTo<JUS_TYPES>(_params[idParam++]))...);
+			jus::FileServer tmpElem = (*_pointer.*_func)(_obj.getParameter<JUS_TYPES>(idParam++)...);
 		#elif defined(__GNUC__) || defined(__GNUG__) || defined(_MSC_VER)
 			int32_t idParam = int32_t(sizeof...(JUS_TYPES))-1;
-			jus::FileServer tmpElem = (*_pointer.*_func)(convertJsonTo<JUS_TYPES>(_params[idParam--])...);
+			jus::FileServer tmpElem = (*_pointer.*_func)(_obj.getParameter<JUS_TYPES>(idParam--)...);
 		#else
 			#error Must be implemented ...
 			jus::FileServer tmpElem;
@@ -133,70 +132,31 @@ namespace jus {
 		#endif
 		_interfaceClient->addAsync(SendFile(tmpElem, _transactionId, _clientId));
 	}
+	*/
 	
 	template <class JUS_CLASS_TYPE, class... JUS_TYPES>
-	void executeClassCallJson(const ememory::SharedPtr<jus::TcpString>& _interfaceClient,
-	                          uint64_t _transactionId,
-	                          uint64_t _clientId,
-	                          JUS_CLASS_TYPE* _pointer,
-	                          void (JUS_CLASS_TYPE::*_func)(JUS_TYPES...),
-	                          const ejson::Array& _params) {
-		ejson::Object out;
+	void executeClassCall(const ememory::SharedPtr<jus::TcpString>& _interfaceClient,
+	                      uint64_t _transactionId,
+	                      uint64_t _clientId,
+	                      JUS_CLASS_TYPE* _pointer,
+	                      void (JUS_CLASS_TYPE::*_func)(JUS_TYPES...),
+	                      jus::Buffer& _obj) {
 		#if defined(__clang__)
 			// clang generate a basic warning:
 			//      warning: multiple unsequenced modifications to 'idParam' [-Wunsequenced]
 			int32_t idParam = 0;
-			(*_pointer.*_func)((convertJsonTo<JUS_TYPES>(_params[idParam++]))...);
+			(*_pointer.*_func)(_obj.getParameter<JUS_TYPES>(idParam++)...);
 		#elif defined(__GNUC__) || defined(__GNUG__) || defined(_MSC_VER)
 			int32_t idParam = int32_t(sizeof...(JUS_TYPES))-1;
-			(*_pointer.*_func)(convertJsonTo<JUS_TYPES>(_params[idParam--])...);
+			(*_pointer.*_func)(_obj.getParameter<JUS_TYPES>(idParam--)...);
 		#else
 			#error Must be implemented ...
-			ejson::Value ret = ejson::Null();
 			return;
 		#endif
-		ejson::Object answer;
-		answer.add("id", ejson::Number(_transactionId));
-		answer.add("client-id", ejson::Number(_clientId));
-		answer.add("return", ejson::Null());
-		JUS_INFO("Answer: " << answer.generateHumanString());
-		_interfaceClient->write(answer.generateMachineString());
-	}
-	
-	template <class JUS_CLASS_TYPE, class JUS_RETURN, class... JUS_TYPES>
-	std::string executeClassCallString(JUS_CLASS_TYPE* _pointer,
-	                                   JUS_RETURN (JUS_CLASS_TYPE::*_func)(JUS_TYPES...),
-	                                   const std::vector<std::string>& _params) {
-		#if defined(__clang__)
-			// clang generate a basic warning:
-			//      warning: multiple unsequenced modifications to 'idParam' [-Wunsequenced]
-			int32_t idParam = 0;
-			return etk::to_string((*_pointer.*_func)((convertStringTo<JUS_TYPES>(_params[idParam++]))...));
-		#elif defined(__GNUC__) || defined(__GNUG__) || defined(_MSC_VER)
-			int32_t idParam = int32_t(sizeof...(JUS_TYPES))-1;
-			return etk::to_string((*_pointer.*_func)(convertStringTo<JUS_TYPES>(_params[idParam--])...));
-		#else
-			#error Must be implemented ...
-		#endif
-		return "";
-	}
-	template <class JUS_CLASS_TYPE, class... JUS_TYPES>
-	std::string executeClassCallString(JUS_CLASS_TYPE* _pointer,
-	                                   void (JUS_CLASS_TYPE::*_func)(JUS_TYPES...),
-	                                   const std::vector<std::string>& _params) {
-		ejson::Object out;
-		#if defined(__clang__)
-			// clang generate a basic warning:
-			//      warning: multiple unsequenced modifications to 'idParam' [-Wunsequenced]
-			int32_t idParam = 0;
-			(*_pointer.*_func)((convertStringTo<JUS_TYPES>(_params[idParam++]))...);
-		#elif defined(__GNUC__) || defined(__GNUG__) || defined(_MSC_VER)
-			int32_t idParam = int32_t(sizeof...(JUS_TYPES))-1;
-			(*_pointer.*_func)(convertStringTo<JUS_TYPES>(_params[idParam--])...);
-		#else
-			#error Must be implemented ...
-		#endif
-		return "";
+		_interfaceClient->addAsync([=](TcpString* _interface) {
+			    _interface->answerVoid(_transactionId, _clientId);
+			    return true;
+			});
 	}
 	
 	template <class JUS_RETURN, class JUS_CLASS_TYPE, class... JUS_TYPES>
@@ -236,76 +196,43 @@ namespace jus {
 				}
 				return out;
 			}
-			void executeJson(const ememory::SharedPtr<jus::TcpString>& _interfaceClient,
-			                 uint64_t _transactionId,
-			                 uint64_t _clientId,
-			                 const ejson::Array& _params,
-			                 void* _class) override {
+			void execute(const ememory::SharedPtr<jus::TcpString>& _interfaceClient,
+			             uint64_t _transactionId,
+			             uint64_t _clientId,
+			             jus::Buffer& _obj,
+			             void* _class) override {
 				JUS_CLASS_TYPE* tmpClass = nullptr;
 				if (_class != nullptr) {
 					tmpClass = (JUS_CLASS_TYPE*)_class;
 				}
 				
 				// check parameter number
-				if (_params.size() != sizeof...(JUS_TYPES)) {
+				if (_obj.getNumberParameter() != sizeof...(JUS_TYPES)) {
 					JUS_ERROR("Wrong number of Parameters ...");
-					ejson::Object answer;
-					answer.add("id", ejson::Number(_transactionId));
-					answer.add("client-id", ejson::Number(_clientId));
-					answer.add("error", ejson::String("WRONG-PARAMETER-NUMBER"));
 					std::string help = "request ";
-					help += etk::to_string(_params.size());
+					help += etk::to_string(_obj.getNumberParameter());
 					help += " parameters and need ";
 					help += etk::to_string(sizeof...(JUS_TYPES));
 					help += " parameters. prototype function:";
 					help += getPrototype();
-					answer.add("error-help", ejson::String(help));
-					JUS_INFO("Answer: " << answer.generateHumanString());
-					_interfaceClient->write(answer.generateMachineString());
+					_interfaceClient->answerError(_transactionId,
+					                              "WRONG-PARAMETER-NUMBER",
+					                              help,
+					                              _clientId);
 					return;
 				}
 				// check parameter compatibility
 				for (size_t iii=0; iii<sizeof...(JUS_TYPES); ++iii) {
-					if (checkCompatibility(m_paramType[iii], _params[iii]) == false) {
-						ejson::Object answer;
-						answer.add("id", ejson::Number(_transactionId));
-						answer.add("client-id", ejson::Number(_clientId));
-						answer.add("error", ejson::String("WRONG-PARAMETER-TYPE"));
-						answer.add("error-help", ejson::String("Parameter id " + etk::to_string(iii) + " not compatible with type: '" + m_paramType[iii].getName() + "'"));
-						JUS_INFO("Answer: " << answer.generateHumanString());
-						_interfaceClient->write(answer.generateMachineString());
+					if (checkCompatibility(m_paramType[iii], _obj.getParameterType(iii)) == false) {
+						_interfaceClient->answerError(_transactionId,
+						                              "WRONG-PARAMETER-TYPE",
+						                              std::string("Parameter id ") + etk::to_string(iii) + " not compatible with type: '" + m_paramType[iii].getName() + "'",
+						                              _clientId);
 						return;
 					}
 				}
 				// execute cmd:
-				jus::executeClassCallJson(_interfaceClient, _transactionId, _clientId, tmpClass, m_function, _params);
-			}
-			std::string executeString(const std::vector<std::string>& _params, void* _class) override {
-				JUS_CLASS_TYPE* tmpClass = (JUS_CLASS_TYPE*)_class;
-				std::string out;
-				// check parameter number
-				if (_params.size() != sizeof...(JUS_TYPES)) {
-					JUS_ERROR("Wrong number of Parameters ...");
-					out += "error:WRONG-PARAMETER-NUMBER;";
-					out += "error-help:request ";
-					out += etk::to_string(_params.size());
-					out += " parameters and need ";
-					out += etk::to_string(sizeof...(JUS_TYPES));
-					out += " parameters. prototype function:";
-					out += getPrototype();
-					return out;
-				}
-				// check parameter compatibility
-				for (size_t iii=0; iii<sizeof...(JUS_TYPES); ++iii) {
-					if (checkCompatibility(m_paramType[iii], _params[iii]) == false) {
-						out += "error:WRONG-PARAMETER-TYPE;";
-						out += "error-help:Parameter id " + etk::to_string(iii) + " not compatible with type: '" + m_paramType[iii].getName() + "'";
-						return out;
-					}
-				}
-				// execute cmd:
-				out = jus::executeClassCallString(tmpClass, m_function, _params);
-				return out;
+				jus::executeClassCall(_interfaceClient, _transactionId, _clientId, tmpClass, m_function, _obj);
 			}
 	};
 	

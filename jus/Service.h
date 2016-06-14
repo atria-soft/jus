@@ -69,8 +69,7 @@ namespace jus {
 			void connect(const std::string& _serviceName, uint32_t _numberRetry = 1);
 			void disconnect();
 		private:
-			void onClientData(std::string _value);
-			std::string asyncRead();
+			void onClientData(jus::Buffer& _value);
 		public:
 			void pingIsAlive();
 			bool GateWayAlive();
@@ -86,8 +85,8 @@ namespace jus {
 			virtual void clientConnect(uint64_t _clientId, const std::string& _userName, const std::string& _clientName, const std::vector<std::string>& _groups) = 0;
 			virtual void clientDisconnect(uint64_t _clientId) = 0;
 			// Genenric function call:
-			void callJson(uint64_t _transactionId, const ejson::Object& _obj);
-			virtual void callJson2(uint64_t _transactionId, uint64_t _clientId, const std::string& _call, const ejson::Array& _obj) = 0;
+			void callBinary(uint32_t _transactionId, jus::Buffer& _obj);
+			virtual void callBinary2(uint32_t _transactionId, uint64_t _clientId, const std::string& _call, jus::Buffer& _obj) = 0;
 			std::vector<std::string> getExtention();
 		public:
 			// Add Local fuction (depend on this class)
@@ -116,6 +115,8 @@ namespace jus {
 				JUS_INFO("Add function '" << _name << "' in local mode");
 				m_listFunction.push_back(tmp);
 			}
+		
+			
 	};
 	template<class JUS_TYPE_SERVICE, class JUS_USER_ACCESS>
 	class ServiceType : public jus::Service {
@@ -208,15 +209,10 @@ namespace jus {
 				}
 				it->second.first->setGroups(_clientGroups);
 			}
-			void callJson2(uint64_t _transactionId, uint64_t _clientId, const std::string& _call, const ejson::Array& _params) {
+			void callBinary2(uint32_t _transactionId, uint64_t _clientId, const std::string& _call, jus::Buffer& _obj) {
 				auto it = m_interface.find(_clientId);
 				if (it == m_interface.end()) {
-					ejson::Object answer;
-					answer.add("id", ejson::Number(_transactionId));
-					answer.add("client-id", ejson::Number(_clientId));
-					answer.add("error", ejson::String("CLIENT-UNKNOW"));
-					JUS_INFO("Answer: " << answer.generateHumanString());
-					m_interfaceClient->write(answer.generateMachineString());
+					m_interfaceClient->answerError(_transactionId, "CLIENT-UNKNOW", "", _clientId);
 					return;
 				}
 				for (auto &it2 : m_listFunction) {
@@ -229,19 +225,19 @@ namespace jus {
 					switch (it2->getType()) {
 						case jus::AbstractFunction::type::object: {
 							JUS_TYPE_SERVICE* elem = it->second.second.get();
-							it2->executeJson(m_interfaceClient, _transactionId, _clientId, _params, (void*)elem);
+							it2->execute(m_interfaceClient, _transactionId, _clientId, _obj, (void*)elem);
 							return;
 						}
 						case jus::AbstractFunction::type::local: {
-							it2->executeJson(m_interfaceClient, _transactionId, _clientId, _params, (void*)((RemoteProcessCall*)this));
+							it2->execute(m_interfaceClient, _transactionId, _clientId, _obj, (void*)((RemoteProcessCall*)this));
 							return;
 						}
 						case jus::AbstractFunction::type::service: {
-							it2->executeJson(m_interfaceClient, _transactionId, _clientId, _params, (void*)this);
+							it2->execute(m_interfaceClient, _transactionId, _clientId, _obj, (void*)this);
 							return;
 						}
 						case jus::AbstractFunction::type::global: {
-							it2->executeJson(m_interfaceClient, _transactionId, _clientId, _params, nullptr);
+							it2->execute(m_interfaceClient, _transactionId, _clientId, _obj, nullptr);
 							return;
 						}
 						case jus::AbstractFunction::type::unknow:
@@ -249,14 +245,7 @@ namespace jus {
 							break;
 					}
 				}
-				{
-					ejson::Object answer;
-					answer.add("id", ejson::Number(_transactionId));
-					answer.add("client-id", ejson::Number(_clientId));
-					answer.add("error", ejson::String("FUNCTION-UNKNOW"));
-					JUS_INFO("Answer: " << answer.generateHumanString());
-					m_interfaceClient->write(answer.generateMachineString());
-				}
+				m_interfaceClient->answerError(_transactionId, "FUNCTION-UNKNOW", "", _clientId);
 				return;
 			}
 	};

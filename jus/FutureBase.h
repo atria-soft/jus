@@ -38,17 +38,18 @@ namespace jus {
 			uint64_t m_transactionId;
 			uint64_t m_clientId;
 			bool m_isFinished;
-			ejson::Object m_data;
+			jus::Buffer m_data;
+			std::vector<jus::Buffer> m_dataMultiplePack;
 			std::chrono::steady_clock::time_point m_receiveTime;
 			std::chrono::steady_clock::time_point m_answerTime;
 		public:
-			FutureCall(uint64_t _clientId, uint64_t _transactionId, const ejson::Object& _callValue);
-			void appendData(const ejson::Object& _callValue);
+			FutureCall(uint64_t _clientId, uint64_t _transactionId, jus::Buffer& _callValue);
+			void appendData(jus::Buffer& _callValue);
 			uint64_t getTransactionId();
 			uint64_t getClientId();
 			bool isFinished();
 			std::chrono::nanoseconds getTransmitionTime();
-			ejson::Object getRaw();
+			jus::Buffer& getRaw();
 	};
 }
 

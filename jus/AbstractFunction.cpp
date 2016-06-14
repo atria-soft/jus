@@ -181,8 +181,7 @@ namespace jus {
 				answer.add("data", ejson::String(ejson::base64::encode(&m_data.getData()[m_offset], tmpSize)));
 				m_offset += tmpSize;
 				m_size -= tmpSize;
-				JUS_INFO("data: " << answer.generateHumanString());
-				_interface->write(answer.generateMachineString());
+				_interface->writeJson(answer);
 				if (m_size <= 0) {
 					return true;
 				}
@@ -355,9 +354,11 @@ jus::AbstractFunction::AbstractFunction(const std::string& _name,
   m_description(_desc) {
 	
 }
-bool jus::AbstractFunction::checkCompatibility(const ParamType& _type, const ejson::Value& _params) {
+
+
+bool jus::AbstractFunction::checkCompatibility(const ParamType& _type, const std::string& _params) {
 	if (createType<bool>() == _type) {
-		return _params.isBoolean();
+		return _params == "bool";
 	}
 	if (    createType<int64_t>() == _type
 	     || createType<int32_t>() == _type
@@ -369,10 +370,19 @@ bool jus::AbstractFunction::checkCompatibility(const ParamType& _type, const ejs
 	     || createType<uint8_t>() == _type
 	     || createType<float>() == _type
 	     || createType<double>() == _type) {
-		return _params.isNumber();
+		return    _params == "int8"
+		       || _params == "int16"
+		       || _params == "int32"
+		       || _params == "int64"
+		       || _params == "uint8"
+		       || _params == "uint16"
+		       || _params == "uint32"
+		       || _params == "uint64"
+		       || _params == "float"
+		       || _params == "double";
 	}
 	if (createType<std::vector<std::string>>() == _type) {
-		return _params.isArray();
+		return _params == "vector:string";
 	}
 	if (    createType<std::vector<bool>>() == _type
 	     || createType<std::vector<int64_t>>() == _type
@@ -385,25 +395,30 @@ bool jus::AbstractFunction::checkCompatibility(const ParamType& _type, const ejs
 	     || createType<std::vector<uint8_t>>() == _type
 	     || createType<std::vector<float>>() == _type
 	     || createType<std::vector<double>>() == _type) {
-		if (_params.isObject()) {
-			JUS_TODO("Special case of packaging of the data");
-			return false;
-		}
-		return _params.isArray();
+		return    _params == "vector:int8"
+		       || _params == "vector:int16"
+		       || _params == "vector:int32"
+		       || _params == "vector:int64"
+		       || _params == "vector:uint8"
+		       || _params == "vector:uint16"
+		       || _params == "vector:uint32"
+		       || _params == "vector:uint64"
+		       || _params == "vector:float"
+		       || _params == "vector:double"
+		       || _params == "vector:empty";
 	}
 	if (createType<jus::File>() == _type) {
+		/*
 		if (_params.isObject()) {
 			if (_params.toObject()["type"].toString().get() == "file") {
 				return true;
 			}
 		}
+		*/
 		return false;
 	}
 	if (createType<std::string>() == _type) {
-		return _params.isString();
+		return _params == "string";
 	}
-	return false;
-}
-bool jus::AbstractFunction::checkCompatibility(const ParamType& _type, const std::string& _params) {
 	return false;
 }
