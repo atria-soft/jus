@@ -16,7 +16,7 @@ jus::TcpString::TcpString(enet::Tcp _connection) :
 	m_threadRunning = false;
 	m_threadAsyncRunning = false;
 	m_interfaceMode = jus::connectionMode::modeJson;
-	m_transmissionId = 0;
+	m_transmissionId = 1;
 }
 
 jus::TcpString::TcpString() :
@@ -27,7 +27,7 @@ jus::TcpString::TcpString() :
 	m_threadRunning = false;
 	m_threadAsyncRunning = false;
 	m_interfaceMode = jus::connectionMode::modeJson;
-	m_transmissionId = 0;
+	m_transmissionId = 1;
 }
 
 void jus::TcpString::setInterface(enet::Tcp _connection) {
@@ -259,19 +259,20 @@ void jus::TcpString::newBuffer(jus::Buffer& _buffer) {
 		std::unique_lock<std::mutex> lock(m_pendingCallMutex);
 		auto it = m_pendingCall.begin();
 		while (it != m_pendingCall.end()) {
-			if (it->isValid() == false) {
+			if (it->second.isValid() == false) {
 				it = m_pendingCall.erase(it);
 				continue;
 			}
-			if (it->getTransactionId() != tid) {
+			if (it->second.getTransactionId() != tid) {
 				++it;
 				continue;
 			}
-			future = *it;
+			future = it->second;
 			break;
 		}
 	}
 	if (future.isValid() == false) {
+		// not a pending call ==> simple event or call ...
 		if (m_observerElement != nullptr) {
 			m_observerElement(_buffer);
 		}
@@ -282,11 +283,11 @@ void jus::TcpString::newBuffer(jus::Buffer& _buffer) {
 		std::unique_lock<std::mutex> lock(m_pendingCallMutex);
 		auto it = m_pendingCall.begin();
 		while (it != m_pendingCall.end()) {
-			if (it->isValid() == false) {
+			if (it->second.isValid() == false) {
 				it = m_pendingCall.erase(it);
 				continue;
 			}
-			if (it->getTransactionId() != tid) {
+			if (it->second.getTransactionId() != tid) {
 				++it;
 				continue;
 			}
@@ -371,16 +372,16 @@ jus::FutureBase jus::TcpString::callJson(uint64_t _transactionId,
                                          jus::FutureData::ObserverFinish _callback,
                                          const uint32_t& _serviceId) {
 	JUS_VERBOSE("Send JSON [START] ");
-	if (m_interfaceClient.isActive() == false) {
+	if (isActive() == false) {
 		jus::Buffer obj;
-		obj.setType(jus::Buffer::typeMessage::answer) {
+		obj.setType(jus::Buffer::typeMessage::answer);
 		obj.addError("NOT-CONNECTED", "Client interface not connected (no TCP)");
 		return jus::FutureBase(_transactionId, true, obj, _callback);
 	}
 	jus::FutureBase tmpFuture(_transactionId, _callback);
 	{
 		std::unique_lock<std::mutex> lock(m_pendingCallMutex);
-		m_pendingCall.push_back(tmpFuture);
+		m_pendingCall.push_back(std::make_pair(uint64_t(0), tmpFuture));
 	}
 	if (_async.size() != 0) {
 		_obj.add("part", ejson::Number(0));
@@ -440,16 +441,16 @@ jus::FutureBase jus::TcpString::callBinary(uint64_t _transactionId,
                                            jus::FutureData::ObserverFinish _callback,
                                            const uint32_t& _serviceId) {
 	JUS_VERBOSE("Send Binary [START] ");
-	if (m_interfaceClient.isActive() == false) {
+	if (isActive() == false) {
 		jus::Buffer obj;
-		obj.setType(jus::Buffer::typeMessage::answer) {
+		obj.setType(jus::Buffer::typeMessage::answer);
 		obj.addError("NOT-CONNECTED", "Client interface not connected (no TCP)");
 		return jus::FutureBase(_transactionId, true, obj, _callback);
 	}
 	jus::FutureBase tmpFuture(_transactionId, _callback);
 	{
 		std::unique_lock<std::mutex> lock(m_pendingCallMutex);
-		m_pendingCall.push_back(tmpFuture);
+		m_pendingCall.push_back(std::make_pair(uint64_t(0), tmpFuture));
 	}
 	if (_async.size() != 0) {
 		_obj.setPartFinish(false);
@@ -465,10 +466,69 @@ jus::FutureBase jus::TcpString::callBinary(uint64_t _transactionId,
 	return tmpFuture;
 }
 
+jus::FutureBase jus::TcpString::callForward(uint32_t _clientId,
+                                            jus::Buffer& _buffer,
+                                            uint64_t _singleReferenceId,
+                                            jus::FutureData::ObserverFinish _callback) {
+	JUS_VERBOSE("Call Forward [START]");
+	//jus::FutureBase ret = callBinary(id, _Buffer, async, _callback);
+	//ret.setSynchronous();
+	
+	if (isActive() == false) {
+		jus::Buffer obj;
+		obj.setType(jus::Buffer::typeMessage::answer);
+		obj.addError("NOT-CONNECTED", "Client interface not connected (no TCP)");
+		return jus::FutureBase(0, true, obj, _callback);
+	}
+	uint64_t id = getId();
+	_buffer.setTransactionId(id);
+	_buffer.setClientId(_clientId);
+	jus::FutureBase tmpFuture(id, _callback);
+	tmpFuture.setSynchronous();
+	{
+		std::unique_lock<std::mutex> lock(m_pendingCallMutex);
+		m_pendingCall.push_back(std::make_pair(_singleReferenceId, tmpFuture));
+	}
+	if (m_interfaceMode == jus::connectionMode::modeJson) {
+		ejson::Object obj = _buffer.toJson();
+		writeJson(obj);
+	} else if (m_interfaceMode == jus::connectionMode::modeBinary) {
+		writeBinary(_buffer);
+	} else if (m_interfaceMode == jus::connectionMode::modeXml) {
+		JUS_ERROR("TODO ... ");
+	} else {
+		JUS_ERROR("wrong type of communication");
+	}
+	JUS_VERBOSE("Send Forward [STOP]");
+	return tmpFuture;
+}
 
-
-
-
+void jus::TcpString::callForwardMultiple(uint32_t _clientId,
+                                         jus::Buffer& _buffer,
+                                         uint64_t _singleReferenceId){
+	// subMessage ... ==> try to forward message:
+	std::unique_lock<std::mutex> lock(m_pendingCallMutex);
+	for (auto &itCall : m_pendingCall) {
+		JUS_INFO(" compare : " << itCall.first << " =?= " << _singleReferenceId);
+		if (itCall.first == _singleReferenceId) {
+			// Find element ==> transit it ...
+			_buffer.setTransactionId(itCall.second.getTransactionId());
+			_buffer.setClientId(_clientId);
+			if (m_interfaceMode == jus::connectionMode::modeJson) {
+				ejson::Object obj = _buffer.toJson();
+				writeJson(obj);
+			} else if (m_interfaceMode == jus::connectionMode::modeBinary) {
+				writeBinary(_buffer);
+			} else if (m_interfaceMode == jus::connectionMode::modeXml) {
+				JUS_ERROR("TODO ... ");
+			} else {
+				JUS_ERROR("wrong type of communication");
+			}
+			return;
+		}
+	}
+	JUS_ERROR("Can not transfer part of a message ...");
+}
 
 void jus::TcpString::answerError(uint64_t _clientTransactionId, const std::string& _errorValue, const std::string& _errorHelp, uint32_t _clientId) {
 	if (m_interfaceMode == jus::connectionMode::modeJson) {

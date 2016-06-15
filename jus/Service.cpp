@@ -15,8 +15,7 @@
 jus::Service::Service() :
   propertyIp(this, "ip", "127.0.0.1", "Ip to connect server", &jus::Service::onPropertyChangeIp),
   propertyPort(this, "port", 1982, "Port to connect server", &jus::Service::onPropertyChangePort) {
-	m_interfaceClient = std::make_shared<jus::TcpString>();
-	m_interfaceClient->connect(this, &jus::Service::onClientData);
+	
 	
 	advertise("getExtention", &jus::Service::getExtention);
 	setLastFuncDesc("Get List of availlable extention of this service");
@@ -54,6 +53,7 @@ void jus::Service::onClientData(jus::Buffer& _value) {
 	}
 	jus::FutureCall futCall(clientId, tmpID, _value);
 	if (futCall.isFinished() == true) {
+		JUS_INFO("Call Binary ..");
 		callBinary(tmpID, futCall.getRaw());
 	} else {
 		m_callMultiData.push_back(futCall);
@@ -77,25 +77,48 @@ void jus::Service::connect(const std::string& _serviceName, uint32_t _numberRetr
 		JUS_DEBUG("connect [STOP] ==> can not connect");
 		return;
 	}
+	m_interfaceClient = std::make_shared<jus::TcpString>();
+	if (m_interfaceClient == nullptr) {
+		JUS_ERROR("Can not allocate interface ...");
+		return;
+	}
+	m_interfaceClient->connect(this, &jus::Service::onClientData);
 	m_interfaceClient->setInterface(std::move(connection));
 	m_interfaceClient->connect();
-	ejson::Object tmpp;
-	tmpp.add("id", ejson::Number(1));
-	tmpp.add("call", ejson::String("connect-service"));
-	ejson::Array params;
-	params.add(ejson::String(_serviceName));
-	tmpp.add("param", params);
-	m_interfaceClient->writeJson(tmpp);
+	jus::Future<bool> ret = m_interfaceClient->call("setMode", "BIN");
+	ret.wait();
+	if (ret.get() == false) {
+		JUS_ERROR("Can not communicate with the gateway in Binary mode ... STAY in JSON");
+	} else {
+		JUS_INFO("Change mode in Binary");
+		m_interfaceClient->setMode(jus::connectionMode::modeBinary);
+	}
+	ret = m_interfaceClient->call("connect-service", _serviceName);
+	ret.wait();
+	if (ret.get() == false) {
+		JUS_ERROR("Can not configure the interface for the service with the current name ...");
+		m_interfaceClient->disconnect();
+		return;
+	}
+	
 	JUS_DEBUG("connect [STOP]");
 }
 
 void jus::Service::disconnect(){
 	JUS_DEBUG("disconnect [START]");
-	m_interfaceClient->disconnect();
+	if (m_interfaceClient != nullptr) {
+		m_interfaceClient->disconnect();
+		m_interfaceClient.reset();
+	} else {
+		JUS_VERBOSE("Nothing to disconnect ...");
+	}
 	JUS_DEBUG("disconnect [STOP]");
 }
 
 bool jus::Service::GateWayAlive() {
+	if (m_interfaceClient == nullptr) {
+		return false;
+	}
 	return m_interfaceClient->isActive();
 }
 
@@ -128,30 +151,26 @@ void jus::Service::callBinary(uint32_t _transactionId, jus::Buffer& _obj) {
 		return;
 	}
 	//if (_obj.getType() == jus::Buffer::typeMessage::event) {
-	if (m_interfaceClient->getMode() == jus::connectionMode::modeBinary) {
-		
-	} else if (m_interfaceClient->getMode() == jus::connectionMode::modeJson) {
-		uint32_t clientId = _obj.getClientId();
-		std::string callFunction = _obj.getCall();
-		if (callFunction[0] == '_') {
-			if (callFunction == "_new") {
-				std::string userName = _obj.getParameter<std::string>(0);
-				std::string clientName = _obj.getParameter<std::string>(1);
-				std::vector<std::string> clientGroup = _obj.getParameter<std::vector<std::string>>(2);
-				clientConnect(clientId, userName, clientName, clientGroup);
-			} else if (callFunction == "_delete") {
-				clientDisconnect(clientId);
-			}
-			m_interfaceClient->answerValue(_transactionId, true, clientId);
-			return;
-		} else if (isFunctionAuthorized(clientId, callFunction) == true) {
-			callBinary2(_transactionId, clientId, callFunction, _obj);
-			return;
-		} else {
-			m_interfaceClient->answerError(_transactionId, "NOT-AUTHORIZED-FUNCTION", "", clientId);
-			return;
+	uint32_t clientId = _obj.getClientId();
+	std::string callFunction = _obj.getCall();
+	if (callFunction[0] == '_') {
+		if (callFunction == "_new") {
+			std::string userName = _obj.getParameter<std::string>(0);
+			std::string clientName = _obj.getParameter<std::string>(1);
+			std::vector<std::string> clientGroup = _obj.getParameter<std::vector<std::string>>(2);
+			clientConnect(clientId, userName, clientName, clientGroup);
+		} else if (callFunction == "_delete") {
+			clientDisconnect(clientId);
 		}
+		m_interfaceClient->answerValue(_transactionId, true, clientId);
+		return;
+	} else if (isFunctionAuthorized(clientId, callFunction) == true) {
+		callBinary2(_transactionId, clientId, callFunction, _obj);
+		return;
 	} else {
-		JUS_ERROR("Not manage transfer mode ");
+		m_interfaceClient->answerError(_transactionId, "NOT-AUTHORIZED-FUNCTION", "", clientId);
+		return;
 	}
 }
+
+

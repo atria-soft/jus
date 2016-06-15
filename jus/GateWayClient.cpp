@@ -18,8 +18,7 @@ static const std::string protocolError = "PROTOCOL-ERROR";
 jus::GateWayClient::GateWayClient(enet::Tcp _connection, jus::GateWay* _gatewayInterface) :
   m_state(jus::GateWayClient::state::unconnect),
   m_gatewayInterface(_gatewayInterface),
-  m_interfaceClient(std::move(_connection)),
-  m_transactionLocalId(1) {
+  m_interfaceClient(std::move(_connection)) {
 	JUS_INFO("----------------");
 	JUS_INFO("-- NEW Client --");
 	JUS_INFO("----------------");
@@ -47,18 +46,24 @@ void jus::GateWayClient::stop() {
 		if (it == nullptr) {
 			continue;
 		}
+		it->m_interfaceClient.callClient(m_uid, "_delete");
+		/*
 		ejson::Object linkService;
 		linkService.add("call", ejson::String("_delete"));
 		linkService.add("id", ejson::Number(m_transactionLocalId++));
 		linkService.add("param", ejson::Array());
 		it->SendData(m_uid, linkService);
+		*/
 	}
 	if (m_userService != nullptr) {
+		m_userService->m_interfaceClient.callClient(m_uid2, "_delete");
+		/*
 		ejson::Object linkService;
 		linkService.add("call", ejson::String("_delete"));
 		linkService.add("id", ejson::Number(m_transactionLocalId++));
 		linkService.add("param", ejson::Array());
 		m_userService->SendData(m_uid2, linkService);
+		*/
 		m_userService = nullptr;
 	}
 	m_listConnectedService.clear();
@@ -131,7 +136,7 @@ void jus::GateWayClient::onClientData(jus::Buffer& _value) {
 						if (m_userService == nullptr) {
 							answerProtocolError(transactionId, "Gateway internal error 'No user interface'");
 						} else {
-							jus::Future<bool> futLocalService = call(m_uid2, m_userService, "_new", m_userConnectionName, "**Gateway**", std::vector<std::string>());
+							jus::Future<bool> futLocalService = m_userService->m_interfaceClient.callClient(m_uid2, "_new", m_userConnectionName, "**Gateway**", std::vector<std::string>());
 							futLocalService.wait(); // TODO: Set timeout ...
 							m_state = jus::GateWayClient::state::userIdentify;
 							m_interfaceClient.answerValue(transactionId, true);
@@ -161,7 +166,8 @@ void jus::GateWayClient::onClientData(jus::Buffer& _value) {
 						answerProtocolError(transactionId, "gateWay internal error 3");
 						return;
 					}
-					jus::Future<bool> fut = call(m_uid2, m_userService, "checkTocken", clientName, clientTocken);
+					
+					jus::Future<bool> fut = m_userService->m_interfaceClient.callClient(m_uid2, "checkTocken", clientName, clientTocken);
 					fut.wait(); // TODO: Set timeout ...
 					if (fut.hasError() == true) {
 						JUS_ERROR("Get error from the service ...");
@@ -177,7 +183,7 @@ void jus::GateWayClient::onClientData(jus::Buffer& _value) {
 				}
 				if (callFunction == "auth") {
 					std::string password = _value.getParameter<std::string>(0);
-					jus::Future<bool> fut = call(m_uid2, m_userService, "checkAuth", password);
+					jus::Future<bool> fut = m_userService->m_interfaceClient.callClient(m_uid2, "checkAuth", password);
 					fut.wait(); // TODO: Set timeout ...
 					if (fut.hasError() == true) {
 						JUS_ERROR("Get error from the service ...");
@@ -197,7 +203,7 @@ void jus::GateWayClient::onClientData(jus::Buffer& _value) {
 				// --------------------------------
 				// -- Get groups:
 				// --------------------------------
-				jus::Future<std::vector<std::string>> futGroup = call(m_uid2, m_userService, "getGroups", m_clientName);
+				jus::Future<std::vector<std::string>> futGroup = m_userService->m_interfaceClient.callClient(m_uid2, "getGroups", m_clientName);
 				futGroup.wait(); // TODO: Set timeout ...
 				if (futGroup.hasError() == true) {
 					JUS_ERROR("Get error from the service ...");
@@ -210,7 +216,7 @@ void jus::GateWayClient::onClientData(jus::Buffer& _value) {
 				// -- Get services:
 				// --------------------------------
 				std::vector<std::string> currentServices = m_gatewayInterface->getAllServiceName();
-				jus::Future<std::vector<std::string>> futServices = call(m_uid2, m_userService, "filterServices", m_clientName, currentServices);
+				jus::Future<std::vector<std::string>> futServices = m_userService->m_interfaceClient.callClient(m_uid2, "filterServices", m_clientName, currentServices);
 				futServices.wait(); // TODO: Set timeout ...
 				if (futServices.hasError() == true) {
 					JUS_ERROR("Get error from the service ...");
@@ -267,7 +273,7 @@ void jus::GateWayClient::onClientData(jus::Buffer& _value) {
 							}
 							ememory::SharedPtr<jus::GateWayService> srv = m_gatewayInterface->get(serviceName);
 							if (srv != nullptr) {
-								jus::Future<bool> futLink = call(m_uid, srv, "_new", m_userConnectionName, m_clientName, m_clientgroups);
+								jus::Future<bool> futLink = srv->m_interfaceClient.callClient(m_uid, "_new", m_userConnectionName, m_clientName, m_clientgroups);
 								futLink.wait(); // TODO: Set timeout ...
 								if (futLink.hasError() == true) {
 									JUS_ERROR("Get error from the service ... LINK");
@@ -292,7 +298,7 @@ void jus::GateWayClient::onClientData(jus::Buffer& _value) {
 							m_interfaceClient.answerError(transactionId, "NOT-CONNECTED-SERVICE");
 							return;
 						}
-						jus::Future<bool> futUnLink = call(m_uid, m_listConnectedService[localServiceID], "_delete");
+						jus::Future<bool> futUnLink = m_listConnectedService[localServiceID]->m_interfaceClient.callClient(m_uid, "_delete");
 						futUnLink.wait(); // TODO: Set timeout ...
 						if (futUnLink.hasError() == true) {
 							JUS_ERROR("Get error from the service ... UNLINK");
@@ -318,185 +324,43 @@ void jus::GateWayClient::onClientData(jus::Buffer& _value) {
 						JUS_ERROR("TODO : Manage this case ...");
 						return;
 					}
-					bool finish = _value.getPartFinish();
 					uint16_t partId = _value.getPartId();
 					if (partId != 0) {
-						// subMessage ... ==> try to forward message:
-						std::unique_lock<std::mutex> lock(m_mutex);
-						for (auto &itCall : m_pendingCall) {
-							JUS_INFO(" compare : " << itCall.first << " =?= " << transactionId);
-							if (itCall.first == transactionId) {
-								// Find element ==> transit it ...
-								_value.setTransactionId(itCall.second.getTransactionId());
-								m_listConnectedService[serviceId]->SendData(m_uid, _value);
-								return;
-							}
-						}
-						JUS_ERROR("Can not transfer part of a message ...");
+						m_listConnectedService[serviceId]->m_interfaceClient.callForwardMultiple(
+						    m_uid,
+						    _value,
+						    (uint64_t(m_uid) << 32) + uint64_t(transactionId));
 						return;
 					}
-					callActionForward(m_listConnectedService[serviceId],
-					                  _value,
-					                  [=](jus::FutureBase _ret) {
-					                  		
-					                  		// TODO : Check if it is a JSON or binary ...
-					                  		jus::Buffer tmpp = _ret.getRaw();
-					                  		JUS_DEBUG("    ==> transmit : " << tmpp.getTransactionId() << " -> " << transactionId);
-					                  		JUS_DEBUG("    msg=" << tmpp.generateHumanString());
-					                  		tmpp.setTransactionId(transactionId);
-					                  		JUS_DEBUG("transmit=" << tmpp.generateHumanString());
-					                  		m_interfaceClient.writeBinary(tmpp);
-					                  		// multiple send element ...
-					                  		return tmpp.getPartFinish();
-					                  		/*
-					                  		// TODO : Check if it is a JSON or binary ...
-					                  		ejson::Object tmpp = _ret.getRaw();
-					                  		JUS_VERBOSE("    ==> transmit : " << tmpp["id"].toNumber().getU64() << " -> " << transactionId);
-					                  		JUS_VERBOSE("    msg=" << tmpp.generateMachineString());
-					                  		tmpp["id"].toNumber().set(uint64_t(transactionId));
-					                  		m_interfaceClient.writeJson(tmpp);
-					                  		if (tmpp.valueExist("part") == true) {
-					                  			// multiple send element ...
-					                  			if (tmpp.valueExist("finish") == true) {
-					                  				return tmpp["finish"].toBoolean().get();
-					                  			}
-					                  			return false;
-					                  		}
-					                  		return true;
-					                  		*/
-					                  });
+					m_listConnectedService[serviceId]->m_interfaceClient.callForward(
+					    m_uid,
+					    _value,
+					    (uint64_t(m_uid) << 32) + uint64_t(transactionId),
+					    [=](jus::FutureBase _ret) {
+					    		jus::Buffer tmpp = _ret.getRaw();
+					    		JUS_DEBUG("    ==> transmit : " << tmpp.getTransactionId() << " -> " << transactionId);
+					    		JUS_DEBUG("    msg=" << tmpp.generateHumanString());
+					    		tmpp.setTransactionId(transactionId);
+					    		tmpp.setServiceId(serviceId+1);
+					    		JUS_DEBUG("transmit=" << tmpp.generateHumanString());
+					    		if (m_interfaceClient.getMode() == jus::connectionMode::modeJson) {
+					    			ejson::Object obj = tmpp.toJson();
+					    			m_interfaceClient.writeJson(obj);
+					    		} else if (m_interfaceClient.getMode() == jus::connectionMode::modeBinary) {
+					    			m_interfaceClient.writeBinary(tmpp);
+					    		} else if (m_interfaceClient.getMode() == jus::connectionMode::modeXml) {
+					    			JUS_ERROR("TODO ... ");
+					    		} else {
+					    			JUS_ERROR("wrong type of communication");
+					    		}
+					    		// multiple send element ...
+					    		return tmpp.getPartFinish();
+					    });
 				}
 			}
 	}
 }
-
-jus::FutureBase jus::GateWayClient::callBinary(uint64_t _callerId,
-                                               ememory::SharedPtr<jus::GateWayService> _srv,
-                                               uint64_t _clientTransactionId,
-                                               uint64_t _transactionId,
-                                               jus::Buffer& _obj,
-                                               jus::FutureData::ObserverFinish _callback) {
-	JUS_VERBOSE("Send BINARY [START] ");
-	if (_srv == nullptr) {
-		// TODO : Change this ...
-		jus::Buffer obj;
-		obj.setTransactionId(_transactionId);
-		obj.setClientId(_callerId);
-		obj.setType(jus::Buffer::typeMessage::answer);
-		obj.addError("NOT-CONNECTED", "Client interface not connected (no TCP)");
-		return jus::FutureBase(_transactionId, true, obj, _callback);
-	}
-	jus::FutureBase tmpFuture(_transactionId, _callback);
-	{
-		std::unique_lock<std::mutex> lock(m_mutex);
-		m_pendingCall.push_back(std::make_pair(_clientTransactionId, tmpFuture));
-	}
-	_obj.setTransactionId(_transactionId);
-	_srv->SendData(_callerId, _obj);
-	JUS_VERBOSE("Send BINARY [STOP]");
-	return tmpFuture;
-}
-
-jus::FutureBase jus::GateWayClient::callActionForward(ememory::SharedPtr<jus::GateWayService> _srv,
-                                                      jus::Buffer& _Buffer,
-                                                      jus::FutureData::ObserverFinish _callback) {
-	uint64_t id = getId();
-	uint64_t clientTransactionId = _Buffer.getTransactionId();
-	jus::FutureBase ret = callBinary(m_uid, _srv, clientTransactionId, id, _Buffer, _callback);
-	ret.setSynchronous();
-	return ret;
-}
-
-
-uint64_t jus::GateWayClient::getId() {
-	return m_transactionLocalId++;
-}
-
-jus::FutureBase jus::GateWayClient::callJson(uint64_t _callerId,
-                                             ememory::SharedPtr<jus::GateWayService> _srv,
-                                             uint64_t _clientTransactionId,
-                                             uint64_t _transactionId,
-                                             const ejson::Object& _obj,
-                                             jus::FutureData::ObserverFinish _callback) {
-	JUS_VERBOSE("Send JSON [START] ");
-	if (_srv == nullptr) {
-		ejson::Object obj;
-		obj.add("error", ejson::String("NOT-CONNECTED"));
-		obj.add("error-help", ejson::String("Client interface not connected (no TCP)"));
-		return jus::FutureBase(_transactionId, true, obj, _callback);
-	}
-	jus::FutureBase tmpFuture(_transactionId, _callback);
-	{
-		std::unique_lock<std::mutex> lock(m_mutex);
-		m_pendingCall.push_back(std::make_pair(_clientTransactionId, tmpFuture));
-	}
-	_srv->SendData(_callerId, _obj);
-	JUS_VERBOSE("Send JSON [STOP]");
-	return tmpFuture;
-}
-
-
-
-
 
 void jus::GateWayClient::returnMessage(jus::Buffer& _data) {
-	jus::FutureBase future;
-	uint32_t tid = _data.getTransactionId();
-	if (tid == 0) {
-		/* TODO ...
-		if (_data["error"].toString().get() == "PROTOCOL-ERROR") {
-			JUS_ERROR("Get a Protocol error ...");
-			std::unique_lock<std::mutex> lock(m_mutex);
-			for (auto &it : m_pendingCall) {
-				if (it.second.isValid() == false) {
-					continue;
-				}
-				it.second.setAnswer(_data);
-			}
-			m_pendingCall.clear();
-		} else {
-			JUS_ERROR("call with no ID ==> error ...");
-		}
-		*/
-		return;
-	}
-	{
-		std::unique_lock<std::mutex> lock(m_mutex);
-		auto it = m_pendingCall.begin();
-		while (it != m_pendingCall.end()) {
-			if (it->second.isValid() == false) {
-				it = m_pendingCall.erase(it);
-				continue;
-			}
-			if (it->second.getTransactionId() != tid) {
-				++it;
-				continue;
-			}
-			// TODO : Do it better ...
-			future = it->second;
-			break;
-		}
-	}
-	if (future.isValid() == false) {
-		JUS_WARNING("Action to do ...");
-		return;
-	}
-	bool ret = future.setAnswer(_data);
-	if (ret == true) {
-		std::unique_lock<std::mutex> lock(m_mutex);
-		auto it = m_pendingCall.begin();
-		while (it != m_pendingCall.end()) {
-			if (it->second.isValid() == false) {
-				it = m_pendingCall.erase(it);
-				continue;
-			}
-			if (it->second.getTransactionId() != tid) {
-				++it;
-				continue;
-			}
-			it = m_pendingCall.erase(it);
-			break;
-		}
-	}
+	JUS_ERROR("Get call from the Service to the user ...");
 }
-

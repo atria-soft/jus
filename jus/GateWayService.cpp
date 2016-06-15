@@ -64,7 +64,7 @@ void jus::GateWayService::SendData(uint64_t _userSessionId, jus::Buffer& _data) 
 }
 
 void jus::GateWayService::onServiceData(jus::Buffer& _value) {
-	//JUS_DEBUG("On service data: " << _value);
+	JUS_DEBUG("On service data: " << _value.toJson().generateHumanString());
 	uint32_t transactionId = _value.getTransactionId();
 	//data.add("from-service", ejson::String(m_name));
 	if (_value.getType() == jus::Buffer::typeMessage::event) {
@@ -114,7 +114,7 @@ void jus::GateWayService::onServiceData(jus::Buffer& _value) {
 			}
 			m_name = _value.getParameter<std::string>(0);
 			m_interfaceClient.setInterfaceName("srv-" + m_name);
-			m_interfaceClient.answerValue(transactionId, false);
+			m_interfaceClient.answerValue(transactionId, true);
 			return;
 		}
 		answerProtocolError(transactionId, "unknow function");

@@ -9,11 +9,11 @@
 #include <eproperty/Value.h>
 #include <ejson/ejson.h>
 #include <jus/debug.h>
-#include <jus/ServiceRemote.h>
 #include <chrono>
 #include <unistd.h>
 #include <jus/Future.h>
 #include <jus/connectionMode.h>
+#include <jus/ServiceRemote.h>
 
 namespace jus {
 	class Client : public eproperty::Interface {
@@ -21,23 +21,34 @@ namespace jus {
 		public:
 			eproperty::Value<std::string> propertyIp;
 			eproperty::Value<uint16_t> propertyPort;
-			std::mutex m_mutex;
-			std::vector<jus::FutureBase> m_pendingCall;
-		public:
-			enum jus::connectionMode getMode() { return m_interfaceClient.getMode(); }
 		private:
-			jus::TcpString m_interfaceClient;
-			uint32_t m_id;
-			std::vector<std::string> m_newData;
+			ememory::SharedPtr<jus::TcpString> m_interfaceClient;
 		public:
+			/**
+			 * @brief Create a client on a specific user in a client mode with the tocken associated
+			 * @param[in] _address Address of the user: "ABCD.efgh#atria-soft.com:1993"
+			 * @param[in] 
+			 * @param[in] 
+			 */
+			//Client(const std::string& _address, const std::string& _clientName, const std::string& _clientTocken);
+			/**
+			 * @brief Create a client on a specific user in a user mode (connect to your personnal account)
+			 * @param[in] _address Address of the user: "ABCD.efgh#atria-soft.com:1993"
+			 * @param[in] _userPassword Password of the user
+			 */
+			//Client(const std::string& _address, const std::string& _userPassword);
+			/**
+			 * @brief Create a client on a specific user in an ANONIMOUS way
+			 * @param[in] _address Address of the user: "ABCD.efgh#atria-soft.com:1993"
+			 */
+			//Client(const std::string& _address);
+			
 			Client();
 			virtual ~Client();
 			bool connect(const std::string& _remoteUserToConnect);
 			void disconnect();
 		public:
 			jus::ServiceRemote getService(const std::string& _serviceName);
-			int32_t link(const std::string& _serviceName);
-			bool unlink(const uint32_t& _serviceId);
 			
 			// Connect that is not us
 			//bool identify("clientTest1#atria-soft.com", "QSDQSDGQSF54HSXWVCSQDJ654URTDJ654NBXCDFDGAEZ51968");
@@ -46,36 +57,23 @@ namespace jus {
 		private:
 			void onClientData(jus::Buffer& _value);
 		public:
-			uint64_t getId();
 			template<class... _ARGS>
 			jus::FutureBase call(const std::string& _functionName, _ARGS&&... _args) {
-				return m_interfaceClient.call(_functionName, _args...);
-				/*
-				uint64_t id = getId();
-				std::vector<ActionAsyncClient> asyncAction;
-				if (getMode() == jus::connectionMode::modeJson) {
-					ejson::Object callElem = jus::createCall(asyncAction, id, _functionName, std::forward<_ARGS>(_args)...);
-					return callJson(id, callElem, asyncAction);
-				} else {
-					jus::Buffer callElem = jus::createBinaryCall(asyncAction, id, _functionName, std::forward<_ARGS>(_args)...);
-					return callBinary(id, callElem, asyncAction);
+				if (m_interfaceClient == nullptr) {
+					jus::Buffer ret;
+					ret.addError("NULLPTR", "call " + _functionName + " with no interface open");
+					return jus::FutureBase(0, true, ret);
 				}
-				*/
+				return m_interfaceClient->call(_functionName, _args...);
 			}
 			template<class... _ARGS>
 			jus::FutureBase callAction(const std::string& _functionName, _ARGS&&... _args, jus::FutureData::ObserverFinish _callback) {
-				return m_interfaceClient.callAction(_functionName, _args..., _callback);
-				/*
-				uint64_t id = getId();
-				std::vector<ActionAsyncClient> asyncAction;
-				if (getMode() == jus::connectionMode::modeJson) {
-					ejson::Object callElem = jus::createCall(asyncAction, id, _functionName, std::forward<_ARGS>(_args)...);
-					return callJson(id, callElem, asyncAction, _callback);
-				} else {
-					jus::Buffer callElem = jus::createBinaryCall(asyncAction, id, _functionName, std::forward<_ARGS>(_args)...);
-					return callBinary(id, callElem, asyncAction, _callback);
+				if (m_interfaceClient == nullptr) {
+					jus::Buffer ret;
+					ret.addError("NULLPTR", "call " + _functionName + " with no interface open");
+					return jus::FutureBase(0, true, ret, _callback);
 				}
-				*/
+				return m_interfaceClient->callAction(_functionName, _args..., _callback);
 			}
 		private:
 			void onPropertyChangeIp();

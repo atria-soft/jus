@@ -12,6 +12,7 @@
 #include <memory>
 #include <jus/connectionMode.h>
 #include <jus/AbstractFunction.h>
+#include <jus/FutureBase.h>
 
 namespace jus {
 	class TcpString : public eproperty::Interface {
@@ -24,7 +25,7 @@ namespace jus {
 				return m_transmissionId++;
 			}
 			std::mutex m_pendingCallMutex;
-			std::vector<jus::FutureBase> m_pendingCall;
+			std::vector<std::pair<uint64_t, jus::FutureBase>> m_pendingCall;
 		protected:
 			enum jus::connectionMode m_interfaceMode;
 		public:
@@ -105,7 +106,6 @@ namespace jus {
 		public: // section call direct
 			template<class... _ARGS>
 			jus::FutureBase call(const std::string& _functionName, _ARGS&&... _args) {
-				return m_interfaceClient.call(_functionName, _args...);
 				uint16_t id = getId();
 				std::vector<jus::ActionAsyncClient> asyncAction;
 				if (m_interfaceMode == jus::connectionMode::modeJson) {
@@ -118,7 +118,6 @@ namespace jus {
 			}
 			template<class... _ARGS>
 			jus::FutureBase callAction(const std::string& _functionName, _ARGS&&... _args, jus::FutureData::ObserverFinish _callback) {
-				return m_interfaceClient.callAction(_functionName, _args..., _callback);
 				uint16_t id = getId();
 				std::vector<jus::ActionAsyncClient> asyncAction;
 				if (m_interfaceMode == jus::connectionMode::modeJson) {
@@ -132,31 +131,49 @@ namespace jus {
 		public: // section call with service ID / Client ID
 			
 			template<class... _ARGS>
-			jus::FutureBase call(const std::string& _functionName, _ARGS&&... _args) {
-				return m_clientInterface->m_interfaceClient.callService(m_serviceId, _functionName, _args...);
+			jus::FutureBase callService(uint32_t _serviceId, const std::string& _functionName, _ARGS&&... _args) {
 				uint16_t id = getId();
 				std::vector<jus::ActionAsyncClient> asyncActionToDo;
 				if (m_interfaceMode == jus::connectionMode::modeJson) {
-					ejson::Object callElem = jus::createCallService(asyncActionToDo, id, m_serviceId, _functionName, std::forward<_ARGS>(_args)...);
+					ejson::Object callElem = jus::createCallService(asyncActionToDo, id, _serviceId, _functionName, std::forward<_ARGS>(_args)...);
 					return callJson(id, callElem, asyncActionToDo);
 				} else {
-					jus::Buffer callElem = jus::createBinaryCallService(asyncActionToDo, id, m_serviceId, _functionName, std::forward<_ARGS>(_args)...);
+					jus::Buffer callElem = jus::createBinaryCallService(asyncActionToDo, id, _serviceId, _functionName, std::forward<_ARGS>(_args)...);
 					return callBinary(id, callElem, asyncActionToDo);
 				}
 			}
 			template<class... _ARGS>
-			jus::FutureBase callAction(const std::string& _functionName, _ARGS&&... _args, jus::FutureData::ObserverFinish _callback) {
-				return m_clientInterface->m_interfaceClient.callServiceAction(m_serviceId, _functionName, _args..., _callback);
+			jus::FutureBase callServiceAction(uint32_t _serviceId, const std::string& _functionName, _ARGS&&... _args, jus::FutureData::ObserverFinish _callback) {
 				uint16_t id = getId();
 				std::vector<jus::ActionAsyncClient> asyncActionToDo;
 				if (m_interfaceMode == jus::connectionMode::modeJson) {
-					ejson::Object callElem = jus::createCallService(asyncActionToDo, id, m_serviceId, _functionName, std::forward<_ARGS>(_args)...);
+					ejson::Object callElem = jus::createCallService(asyncActionToDo, id, _serviceId, _functionName, std::forward<_ARGS>(_args)...);
 					return callJson(id, callElem, asyncActionToDo, _callback);
 				} else {
-					jus::Buffer callElem = jus::createBinaryCallService(asyncActionToDo, id, m_serviceId, _functionName, std::forward<_ARGS>(_args)...);
+					jus::Buffer callElem = jus::createBinaryCallService(asyncActionToDo, id, _serviceId, _functionName, std::forward<_ARGS>(_args)...);
 					return callBinary(id, callElem, asyncActionToDo, _callback);
 				}
 			}
+			template<class... _ARGS>
+			jus::FutureBase callClient(uint32_t _clientId,
+			                           const std::string& _functionName,
+			                           _ARGS&&... _args) {
+				return callService(_clientId, _functionName, _args...);
+			}
+			template<class... _ARGS>
+			jus::FutureBase callClientAction(uint32_t _clientId,
+			                                 const std::string& _functionName,
+			                                 _ARGS&&... _args,
+			                                 jus::FutureData::ObserverFinish _callback) {
+				return callServiceAction(_clientId, _functionName, _args..., _callback);
+			}
+			jus::FutureBase callForward(uint32_t _clientId,
+			                            jus::Buffer& _Buffer,
+			                            uint64_t _singleReferenceId,
+			                            jus::FutureData::ObserverFinish _callback);
+			void callForwardMultiple(uint32_t _clientId,
+			                         jus::Buffer& _Buffer,
+			                         uint64_t _singleReferenceId);
 		public: // answers ...
 			
 			void answerProtocolError(uint32_t _transactionId, const std::string& _errorHelp);

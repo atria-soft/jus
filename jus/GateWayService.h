@@ -13,7 +13,9 @@
 
 namespace jus {
 	class GateWay;
+	class GateWayClient;
 	class GateWayService {
+		friend class jus::GateWayClient;
 		private:
 			jus::GateWay* m_gatewayInterface;
 			jus::TcpString m_interfaceClient;
