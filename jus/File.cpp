@@ -27,10 +27,14 @@ void jus::File::storeIn(const std::string& _filename) const {
 	etk::FSNodeWriteAllDataType(_filename, m_data);
 }
 
-jus::File::File(const std::string& _mineType, std::vector<uint8_t> _data):
+jus::File::File(const std::string& _mineType, std::vector<uint8_t> _data, int32_t _fileSize):
   m_mineType(_mineType),
   m_data(_data) {
-	
+	if (_fileSize < 0){
+		m_fileSize = m_data.size();
+	} else {
+		m_fileSize = _fileSize;
+	}
 }
 
 void jus::File::setData(uint64_t _offset, const std::vector<uint8_t>& _data) {

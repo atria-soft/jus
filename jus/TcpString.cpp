@@ -163,7 +163,45 @@ void jus::TcpString::read() {
 	if (len == 0) {
 		JUS_ERROR("Protocol error occured ==> No datas ...");
 	} else {
-		if (type == 'B') { // binary
+		if (type == 'G') { // Get (This is a websocket first connection
+			std::string out = "G";
+			JUS_VERBOSE("Read HTTP first connection of a websocket [START]");
+			// get all data while we find "User-Agent **********\n" ==> After this is a TCP connection (need to answear)
+			while (true) {
+				int32_t len = m_connection.read(&type, 1);
+				if (len == 0) {
+					continue;
+				}
+				out += char(type);
+				JUS_INFO(" ** " << out);
+				if (    out[out.size()-1] == '\n'
+				     && out[out.size()-2] == '\n') {
+					break;
+				}
+				if (char(type) == '\n') {
+					if (out.find("User-Agent") != std::string::npos) {
+						break;
+					}
+				}
+			}
+			JUS_INFO("Find WebSocket ...");
+			JUS_INFO("data='" << out << "'");
+			if (    out[0] != 'G'
+			     && out[1] != 'E'
+			     && out[2] != 'T') {
+				std::string ret = "HTTP/1.0 400 Bad Request\n";
+				ret += "Content-Type : application/octet-stream\n";
+				ret += "\n";
+				m_connection.write(&ret[0], ret.size());
+				disconnect(true);
+			} else {
+				std::string ret = "HTTP/1.0 200 OK\n";
+				ret += "Content-Type : application/octet-stream\n";
+				ret += "\n";
+				m_connection.write(&ret[0], ret.size());
+			}
+			JUS_VERBOSE("Read HTTP first connection of a websocket [STOP]");
+		} else if (type == 'B') { // binary
 			// Binary mode ... start with the lenght of the stream
 			JUS_VERBOSE("Read Binary [START]");
 			uint32_t size = 0;

@@ -134,6 +134,7 @@ namespace jus {
 				call = 0x0001,
 				answer = 0x0002,
 				event = 0x0004,
+				data = 0x0008,
 			};
 			enum typeMessage getType() const;
 			void setType(enum typeMessage _value);
@@ -188,6 +189,9 @@ namespace jus {
 			std::string getError();
 			std::string getErrorHelp();
 		
+		public:
+			//multiple section of data (part ...)
+			void addData(void* _data, uint32_t _size);
 		
 			void prepare();
 			ejson::Object toJson() const;

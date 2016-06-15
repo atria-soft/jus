@@ -20,6 +20,8 @@ namespace etk {
 				return "answer";
 			case jus::Buffer::typeMessage::event:
 				return "event";
+			case jus::Buffer::typeMessage::data:
+				return "event";
 		}
 		return "???";
 	}
@@ -37,6 +39,8 @@ static enum jus::Buffer::typeMessage getTypeType(uint16_t _value) {
 			return jus::Buffer::typeMessage::answer;
 		case 4:
 			return jus::Buffer::typeMessage::event;
+		case 8:
+			return jus::Buffer::typeMessage::data;
 	}
 	return jus::Buffer::typeMessage::call;
 }
@@ -110,6 +114,9 @@ std::string jus::Buffer::generateHumanString() {
 			}
 			break;
 		case jus::Buffer::typeMessage::event:
+			
+			break;
+		case jus::Buffer::typeMessage::data:
 			
 			break;
 	}
@@ -247,6 +254,16 @@ uint32_t jus::Buffer::internalGetParameterSize(int32_t _id) const {
 	}
 	return out;
 }
+
+
+
+void jus::Buffer::addData(void* _data, uint32_t _size) {
+	m_paramOffset.clear();
+	setType(jus::Buffer::typeMessage::data);
+	m_data.resize(_size);
+	memcpy(&m_data[0], _data, _size);
+}
+
 
 uint32_t jus::Buffer::getParameterSize(int32_t _id) const {
 	return internalGetParameterSize(_id + 1);
@@ -2159,32 +2176,6 @@ std::vector<std::string> jus::Buffer::internalGetParameter<std::vector<std::stri
 	JUS_ERROR("Can not get type from '" << type << "'");
 	return out;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 void jus::Buffer::addError(const std::string& _value, const std::string& _comment) {
 	addParameter(_value);

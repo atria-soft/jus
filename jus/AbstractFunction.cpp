@@ -408,14 +408,7 @@ bool jus::AbstractFunction::checkCompatibility(const ParamType& _type, const std
 		       || _params == "vector:empty";
 	}
 	if (createType<jus::File>() == _type) {
-		/*
-		if (_params.isObject()) {
-			if (_params.toObject()["type"].toString().get() == "file") {
-				return true;
-			}
-		}
-		*/
-		return false;
+		return _params == "file";
 	}
 	if (createType<std::string>() == _type) {
 		return _params == "string";

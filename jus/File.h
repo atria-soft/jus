@@ -10,11 +10,12 @@ namespace jus {
 	class File {
 		private:
 			std::string m_mineType;
+			int32_t m_fileSize;
 			std::vector<uint8_t> m_data;
 		public:
 			File();
 			File(const std::string& _filename);
-			File(const std::string& _mineType, std::vector<uint8_t> _data);
+			File(const std::string& _mineType, std::vector<uint8_t> _data, int32_t _fileSize = -1);
 			void storeIn(const std::string& _filename) const;
 			const std::string& getMineType() const {
 				return m_mineType;
