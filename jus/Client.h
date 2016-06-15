@@ -7,7 +7,6 @@
 
 #include <jus/TcpString.h>
 #include <eproperty/Value.h>
-#include <ejson/ejson.h>
 #include <jus/debug.h>
 #include <chrono>
 #include <unistd.h>

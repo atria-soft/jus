@@ -7,7 +7,6 @@
 
 #include <jus/TcpString.h>
 #include <eproperty/Value.h>
-#include <ejson/ejson.h>
 #include <jus/debug.h>
 #include <jus/AbstractFunction.h>
 namespace jus {
@@ -21,13 +20,12 @@ namespace jus {
 			// clang generate a basic warning:
 			//      warning: multiple unsequenced modifications to 'idParam' [-Wunsequenced]
 			int32_t idParam = 0;
-			JUS_RETURN ret = jus::convertToJson(_func(_obj.getParameter<JUS_TYPES>(idParam++)...));
+			JUS_RETURN ret = _func(_obj.getParameter<JUS_TYPES>(idParam++)...);
 		#elif defined(__GNUC__) || defined(__GNUG__) || defined(_MSC_VER)
 			int32_t idParam = int32_t(sizeof...(JUS_TYPES))-1;
-			JUS_RETURN ret = jus::convertToJson(_func(_obj.getParameter<JUS_TYPES>(idParam--)...));
+			JUS_RETURN ret = _func(_obj.getParameter<JUS_TYPES>(idParam--)...);
 		#else
 			#error Must be implemented ...
-			JUS_RETURN ret = ejson::Null();
 		#endif
 		_interfaceClient->addAsync([=](TcpString* _interface) {
 			    _interface->answerValue(_transactionId, ret, _clientId);
@@ -41,7 +39,6 @@ namespace jus {
 	                 uint64_t _clientId,
 	                 void (*_func)(JUS_TYPES...),
 	                 jus::Buffer& _obj) {
-		ejson::Object out;
 		#if defined(__clang__)
 			// clang generate a basic warning:
 			//      warning: multiple unsequenced modifications to 'idParam' [-Wunsequenced]

@@ -15,10 +15,8 @@ namespace jus {
 			FutureBase(const jus::FutureBase& _base);
 			FutureBase();
 			FutureBase(uint64_t _transactionId, jus::FutureData::ObserverFinish _callback=nullptr);
-			FutureBase(uint64_t _transactionId, bool _isFinished, ejson::Object _returnData, jus::FutureData::ObserverFinish _callback=nullptr);
 			FutureBase(uint64_t _transactionId, bool _isFinished, jus::Buffer _returnData, jus::FutureData::ObserverFinish _callback=nullptr);
 			jus::FutureBase operator= (const jus::FutureBase& _base);
-			bool setAnswer(const ejson::Object& _returnValue);
 			bool setAnswer(const jus::Buffer& _returnValue);
 			void setSynchronous();
 			uint64_t getTransactionId();

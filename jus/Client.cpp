@@ -21,7 +21,7 @@ jus::Client::~Client() {
 }
 
 void jus::Client::onClientData(jus::Buffer& _value) {
-	JUS_ERROR("Get Data On the Communication interface that is not understand ... : " << _value.toJson().generateHumanString());
+	JUS_ERROR("Get Data On the Communication interface that is not understand ... : " << _value.generateHumanString());
 }
 
 jus::ServiceRemote jus::Client::getService(const std::string& _name) {
@@ -49,16 +49,6 @@ bool jus::Client::connect(const std::string& _remoteUserToConnect){
 	m_interfaceClient->connect(this, &jus::Client::onClientData);
 	m_interfaceClient->setInterface(std::move(connection));
 	m_interfaceClient->connect();
-	// Force mode binary:
-	JUS_WARNING("Request change in mode Binary");
-	jus::Future<bool> retBin = call("setMode", "BIN").wait();
-	if (retBin.get() == true) {
-		JUS_WARNING("    ==> accepted binary");
-		m_interfaceClient->setMode(jus::connectionMode::modeBinary);
-		JUS_INFO("Connection jump in BINARY ...");
-	} else {
-		// stay in JSON
-	}
 	
 	JUS_WARNING("Request connect user " << _remoteUserToConnect);
 	jus::Future<bool> ret = call("connectToUser", _remoteUserToConnect, "jus-client");

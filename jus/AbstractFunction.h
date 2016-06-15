@@ -5,7 +5,6 @@
  */
 #pragma once
 #include <eproperty/Value.h>
-#include <ejson/ejson.h>
 #include <jus/debug.h>
 #include <jus/ParamType.h>
 #include <jus/File.h>
@@ -67,67 +66,6 @@ namespace jus {
 			virtual void execute(const ememory::SharedPtr<jus::TcpString>& _interfaceClient, uint64_t _transactionId, uint64_t _clientId, jus::Buffer& _params, void* _class=nullptr) = 0;
 	};
 	
-	
-	template<class JUS_TYPE>
-	JUS_TYPE convertStringTo(const std::string& _value);
-	
-	template<class JUS_TYPE>
-	JUS_TYPE convertJsonTo(const ejson::Value& _value);
-	
-	template<class JUS_TYPE>
-	ejson::Value convertToJson(std::vector<ActionAsyncClient>& _asyncAction, int32_t _paramId, const JUS_TYPE& _value);
-	//ejson::Value convertToJson(std::vector<ActionAsyncClient>& _asyncAction, int32_t _paramId, const char* _value);
-	
-	
-	// ============================================================
-	// == JSON
-	// ============================================================
-	ejson::Object createBaseCall(uint64_t _transactionId, const std::string& _functionName, const uint32_t& _serviceId=0);
-	
-	void createParam(std::vector<ActionAsyncClient>& _asyncAction,
-	                 int32_t _paramId,
-	                 ejson::Object& _obj);
-	
-	template<class JUS_TYPE, class... _ARGS>
-	void createParam(std::vector<ActionAsyncClient>& _asyncAction,
-	                 int32_t _paramId,
-	                 ejson::Object& _obj,
-	                 const JUS_TYPE& _param,
-	                 _ARGS&&... _args) {
-		if (_obj.valueExist("param") == false) {
-			_obj.add("param", ejson::Array());
-		}
-		ejson::Array array = _obj["param"].toArray();
-		array.add(convertToJson<JUS_TYPE>(_asyncAction, _paramId, _param));
-		_paramId++;
-		createParam(_asyncAction, _paramId, _obj, std::forward<_ARGS>(_args)...);
-	}
-	// convert const char in std::string ...
-	template<class... _ARGS>
-	void createParam(std::vector<ActionAsyncClient>& _asyncAction,
-	                 int32_t _paramId,
-	                 ejson::Object& _obj,
-	                 const char* _param,
-	                 _ARGS&&... _args) {
-		createParam(_asyncAction, _paramId, _obj, std::string(_param), std::forward<_ARGS>(_args)...);
-	}
-	template<class... _ARGS>
-	ejson::Object createCall(std::vector<ActionAsyncClient>& _asyncAction, uint64_t _transactionId, const std::string& _functionName, _ARGS&&... _args) {
-		ejson::Object callElem = createBaseCall(_transactionId, _functionName);
-		createParam(_asyncAction, 0, callElem, std::forward<_ARGS>(_args)...);
-		return callElem;
-	}
-	template<class... _ARGS>
-	ejson::Object createCallService(std::vector<ActionAsyncClient>& _asyncAction, uint64_t _transactionId, const uint32_t& _serviceId, const std::string& _functionName, _ARGS&&... _args) {
-		ejson::Object callElem = createBaseCall(_transactionId, _functionName, _serviceId);
-		createParam(_asyncAction, 0, callElem, std::forward<_ARGS>(_args)...);
-		return callElem;
-	}
-	ejson::Object createCallJson(uint64_t _transactionId, const std::string& _functionName, ejson::Array _params);
-	
-	// ============================================================
-	// == Binary
-	// ============================================================
 	jus::Buffer createBinaryBaseCall(uint64_t _transactionId, const std::string& _functionName, const uint32_t& _serviceId=0);
 	void createBinaryParam(std::vector<ActionAsyncClient>& _asyncAction,
 	                       int32_t _paramId,

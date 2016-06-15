@@ -36,25 +36,6 @@ const jus::Buffer& jus::FutureBase::getRaw() {
 	return m_data->m_returnData;
 }
 
-jus::FutureBase::FutureBase(uint64_t _transactionId, bool _isFinished, ejson::Object _returnData, jus::FutureData::ObserverFinish _callback) {
-	m_data = std::make_shared<jus::FutureData>();
-	if (m_data == nullptr) {
-		return;
-	}
-	m_data->m_sendTime = std::chrono::steady_clock::now();
-	m_data->m_transactionId = _transactionId;
-	m_data->m_isFinished = _isFinished;
-	m_data->m_isSynchronous = false;
-	m_data->m_returnData.fromJson(_returnData);
-	m_data->m_callbackFinish = _callback;
-	if (m_data->m_isFinished == true) {
-		m_data->m_receiveTime = std::chrono::steady_clock::now();
-		if (m_data->m_callbackFinish != nullptr) {
-			m_data->m_callbackFinish(*this);
-		}
-	}
-}
-
 jus::FutureBase::FutureBase(uint64_t _transactionId, bool _isFinished, jus::Buffer _returnData, jus::FutureData::ObserverFinish _callback) {
 	m_data = std::make_shared<jus::FutureData>();
 	if (m_data == nullptr) {
@@ -86,12 +67,6 @@ std::chrono::nanoseconds jus::FutureBase::getTransmitionTime() {
 jus::FutureBase jus::FutureBase::operator= (const jus::FutureBase& _base) {
 	m_data = _base.m_data;
 	return *this;
-}
-
-bool jus::FutureBase::setAnswer(const ejson::Object& _returnValue) {
-	jus::Buffer tmp;
-	tmp.fromJson(_returnValue);
-	return setAnswer(tmp);
 }
 
 bool jus::FutureBase::setAnswer(const jus::Buffer& _returnValue) {

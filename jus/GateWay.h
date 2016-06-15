@@ -6,7 +6,6 @@
 #pragma once
 #include <jus/GateWayService.h>
 #include <jus/GateWayClient.h>
-#include <ejson/ejson.h>
 
 namespace jus {
 	class TcpServerInput;

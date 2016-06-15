@@ -7,7 +7,6 @@
 #include <jus/debug.h>
 #include <unistd.h>
 #include <jus/File.h>
-#include <ejson/base64.h>
 
 namespace jus {
 	template<>

@@ -7,12 +7,10 @@
 
 #include <jus/TcpString.h>
 #include <eproperty/Value.h>
-#include <ejson/ejson.h>
 #include <jus/debug.h>
 #include <jus/AbstractFunction.h>
 #include <jus/mineType.h>
 #include <etk/os/FSNode.h>
-#include <ejson/base64.h>
 
 
 namespace jus {
@@ -81,7 +79,6 @@ namespace jus {
 					m_size = m_node.fileSize();
 					jus::File tmpFile(jus::getMineType(extention), std::vector<uint8_t>(), m_size);
 					answer.addAnswer(tmpFile);
-					// TODO : Manage JSON ...
 					_interface->writeBinary(answer);
 					m_partId++;
 					return false;
@@ -93,13 +90,11 @@ namespace jus {
 				uint8_t tmpData[1024];
 				m_node.fileRead(tmpData, 1, tmpSize);
 				answer.addData(tmpData, tmpSize);
-				//answer.add("data", ejson::String(ejson::base64::encode(tmpData, tmpSize)));
 				m_size -= tmpSize;
 				if (m_size <= 0) {
 					answer.setPartFinish(true);
 					m_node.fileClose();
 				}
-				//JUS_INFO("Answer: " << answer.generateHumanString());
 				_interface->writeBinary(answer);;
 				m_partId++;
 				if (m_size <= 0) {

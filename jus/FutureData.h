@@ -6,7 +6,6 @@
 #pragma once
 
 #include <etk/types.h>
-#include <ejson/ejson.h>
 #include <jus/Buffer.h>
 
 
@@ -20,7 +19,7 @@ namespace jus {
 			bool m_isSynchronous;
 			bool m_isFinished;
 			jus::Buffer m_returnData;
-			std::vector<ejson::Value> m_returnDataPart;
+			//std::vector<ejson::Value> m_returnDataPart;
 			ObserverFinish m_callbackFinish;
 			std::chrono::steady_clock::time_point m_sendTime;
 			std::chrono::steady_clock::time_point m_receiveTime;
