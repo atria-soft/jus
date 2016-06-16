@@ -15,7 +15,6 @@ jus::TcpString::TcpString(enet::Tcp _connection) :
   m_threadAsync(nullptr) {
 	m_threadRunning = false;
 	m_threadAsyncRunning = false;
-	m_interfaceMode = jus::connectionMode::modeJson;
 	m_transmissionId = 1;
 }
 
@@ -26,7 +25,6 @@ jus::TcpString::TcpString() :
   m_threadAsync(nullptr) {
 	m_threadRunning = false;
 	m_threadAsyncRunning = false;
-	m_interfaceMode = jus::connectionMode::modeJson;
 	m_transmissionId = 1;
 }
 
@@ -114,23 +112,9 @@ void jus::TcpString::disconnect(bool _inThreadStop){
 	JUS_DEBUG("disconnect [STOP]");
 }
 
-int32_t jus::TcpString::writeJson(ejson::Object& _data) {
-	JUS_DEBUG("Send JSON '" << _data.generateHumanString() << "'");
-	if (m_threadRunning == false) {
-		return -2;
-	}
-	m_lastSend = std::chrono::steady_clock::now();
-	m_connection.write("J", 1);
-	std::string tmpData = _data.generateMachineString();
-	uint32_t dataSize = tmpData.size();
-	m_connection.write(&dataSize, sizeof(uint32_t));
-	m_connection.write(&tmpData[0], tmpData.size());
-	return 1;
-}
-
 int32_t jus::TcpString::writeBinary(jus::Buffer& _data) {
 	_data.prepare();
-	JUS_DEBUG("Send BINARY '" << _data.toJson().generateHumanString() << "'");
+	JUS_DEBUG("Send BINARY '" << _data.generateHumanString() << "'");
 	if (m_threadRunning == false) {
 		return -2;
 	}
@@ -174,24 +158,36 @@ void jus::TcpString::read() {
 				}
 				out += char(type);
 				JUS_INFO(" ** " << out);
-				if (    out[out.size()-1] == '\n'
+				if (    out.size() > 4
+				     && out[out.size()-1] == '\n'
+				     && out[out.size()-2] == '\r'
+				     && out[out.size()-3] == '\n'
+				     && out[out.size()-4] == '\r') {
+					break;
+				}
+				if (    out.size() > 2
+				     && out[out.size()-1] == '\n'
 				     && out[out.size()-2] == '\n') {
 					break;
 				}
+				/*
 				if (char(type) == '\n') {
 					if (out.find("User-Agent") != std::string::npos) {
 						break;
 					}
 				}
+				*/
 			}
 			JUS_INFO("Find WebSocket ...");
 			JUS_INFO("data='" << out << "'");
-			if (    out[0] != 'G'
-			     && out[1] != 'E'
-			     && out[2] != 'T') {
-				std::string ret = "HTTP/1.0 400 Bad Request\n";
-				ret += "Content-Type : application/octet-stream\n";
-				ret += "\n";
+			if (    if out.size() < 3
+			     || (    out[0] != 'G'
+			          && out[1] != 'E'
+			          && out[2] != 'T'
+			        )
+			   ) {
+				std::string ret = "HTTP/1.0 400 Bad Request\r\n";
+				ret += "\r\n";
 				m_connection.write(&ret[0], ret.size());
 				disconnect(true);
 			} else {
@@ -229,49 +225,12 @@ void jus::TcpString::read() {
 				}
 			}
 			JUS_VERBOSE("ReadRaw [STOP]");
-		} else if (    type == 'X' // XML
-		            || type == 'J' // JSON
-		          ) {
-			JUS_VERBOSE("Read sized String [START]");
-			// XML/JSON mode ... start with the lenght of the stream
-			std::string out;
-			uint32_t size = 0;
-			len = m_connection.read(&size, 4);
-			if (len != 4) {
-				JUS_ERROR("Protocol error occured ...");
-			} else {
-				if (size == -1) {
-					JUS_WARNING("Remote close connection");
-					m_threadRunning = false;
-					//m_connection.unlink();
-				} else {
-					int64_t offset = 0;
-					out.resize(size);
-					while (offset != size) {
-						len = m_connection.read(&out[offset], size-offset);
-						offset += len;
-						if (len == 0) {
-							JUS_WARNING("Read No data");
-						}
-					}
-					jus::Buffer dataRaw;
-					dataRaw.composeWith(out);
-					newBuffer(dataRaw);
-				}
-			}
-			JUS_VERBOSE("Read sized String [STOP]");
-		} else if (type == '{') {
-			// JSON Raw mode ... Finish with a \0
-			// TODO: m_dataBuffer
-		} else if (type == '<') {
-			// XML Raw mode ... Finish with a \0
-			// TODO : m_dataBuffer
 		}
 	}
 }
 
 void jus::TcpString::newBuffer(jus::Buffer& _buffer) {
-	JUS_VERBOSE("Receive Binary :" << _buffer.toJson().generateHumanString());
+	JUS_VERBOSE("Receive Binary :" << _buffer.generateHumanString());
 	jus::FutureBase future;
 	uint64_t tid = _buffer.getTransactionId();
 	if (tid == 0) {
@@ -361,77 +320,6 @@ void jus::TcpString::threadAsyncCallback() {
 }
 
 
-
-
-class SendAsyncJson {
-	private:
-		std::vector<jus::ActionAsyncClient> m_async;
-		uint64_t m_transactionId;
-		uint32_t m_serviceId;
-		uint32_t m_partId;
-	public:
-		SendAsyncJson(uint64_t _transactionId, const uint32_t& _serviceId, const std::vector<jus::ActionAsyncClient>& _async) :
-		  m_async(_async),
-		  m_transactionId(_transactionId),
-		  m_serviceId(_serviceId),
-		  m_partId(1) {
-			
-		}
-		bool operator() (jus::TcpString* _interface){
-			auto it = m_async.begin();
-			while (it != m_async.end()) {
-				bool ret = (*it)(_interface, m_serviceId, m_transactionId, m_partId);
-				if (ret == true) {
-					// Remove it ...
-					it = m_async.erase(it);
-				} else {
-					++it;
-				}
-				m_partId++;
-			}
-			if (m_async.size() == 0) {
-				ejson::Object obj;
-				if (m_serviceId != 0) {
-					obj.add("service", ejson::Number(m_serviceId));
-				}
-				obj.add("id", ejson::Number(m_transactionId));
-				obj.add("part", ejson::Number(m_partId));
-				obj.add("finish", ejson::Boolean(true));
-				_interface->writeJson(obj);
-				return true;
-			}
-			return false;
-		}
-};
-
-jus::FutureBase jus::TcpString::callJson(uint64_t _transactionId,
-                                         ejson::Object _obj,
-                                         const std::vector<ActionAsyncClient>& _async,
-                                         jus::FutureData::ObserverFinish _callback,
-                                         const uint32_t& _serviceId) {
-	JUS_VERBOSE("Send JSON [START] ");
-	if (isActive() == false) {
-		jus::Buffer obj;
-		obj.setType(jus::Buffer::typeMessage::answer);
-		obj.addError("NOT-CONNECTED", "Client interface not connected (no TCP)");
-		return jus::FutureBase(_transactionId, true, obj, _callback);
-	}
-	jus::FutureBase tmpFuture(_transactionId, _callback);
-	{
-		std::unique_lock<std::mutex> lock(m_pendingCallMutex);
-		m_pendingCall.push_back(std::make_pair(uint64_t(0), tmpFuture));
-	}
-	if (_async.size() != 0) {
-		_obj.add("part", ejson::Number(0));
-	}
-	writeJson(_obj);
-	
-	if (_async.size() != 0) {
-		addAsync(SendAsyncJson(_transactionId, _serviceId, _async));
-	}
-	JUS_VERBOSE("Send JSON [STOP]");
-	return tmpFuture;
-}
 
 
 class SendAsyncBinary {
@@ -527,16 +415,7 @@ jus::FutureBase jus::TcpString::callForward(uint32_t _clientId,
 		std::unique_lock<std::mutex> lock(m_pendingCallMutex);
 		m_pendingCall.push_back(std::make_pair(_singleReferenceId, tmpFuture));
 	}
-	if (m_interfaceMode == jus::connectionMode::modeJson) {
-		ejson::Object obj = _buffer.toJson();
-		writeJson(obj);
-	} else if (m_interfaceMode == jus::connectionMode::modeBinary) {
-		writeBinary(_buffer);
-	} else if (m_interfaceMode == jus::connectionMode::modeXml) {
-		JUS_ERROR("TODO ... ");
-	} else {
-		JUS_ERROR("wrong type of communication");
-	}
+	writeBinary(_buffer);
 	JUS_VERBOSE("Send Forward [STOP]");
 	return tmpFuture;
 }
@@ -552,16 +431,7 @@ void jus::TcpString::callForwardMultiple(uint32_t _clientId,
 			// Find element ==> transit it ...
 			_buffer.setTransactionId(itCall.second.getTransactionId());
 			_buffer.setClientId(_clientId);
-			if (m_interfaceMode == jus::connectionMode::modeJson) {
-				ejson::Object obj = _buffer.toJson();
-				writeJson(obj);
-			} else if (m_interfaceMode == jus::connectionMode::modeBinary) {
-				writeBinary(_buffer);
-			} else if (m_interfaceMode == jus::connectionMode::modeXml) {
-				JUS_ERROR("TODO ... ");
-			} else {
-				JUS_ERROR("wrong type of communication");
-			}
+			writeBinary(_buffer);
 			return;
 		}
 	}
@@ -569,49 +439,20 @@ void jus::TcpString::callForwardMultiple(uint32_t _clientId,
 }
 
 void jus::TcpString::answerError(uint64_t _clientTransactionId, const std::string& _errorValue, const std::string& _errorHelp, uint32_t _clientId) {
-	if (m_interfaceMode == jus::connectionMode::modeJson) {
-		ejson::Object answer;
-		answer.add("error", ejson::String(_errorValue));
-		answer.add("id", ejson::Number(_clientTransactionId));
-		if (_clientId != 0) {
-			answer.add("client-id", ejson::Number(_clientId));
-		}
-		answer.add("error-help", ejson::String(_errorHelp));
-		writeJson(answer);
-	} else if (m_interfaceMode == jus::connectionMode::modeBinary) {
-		jus::Buffer answer;
-		answer.setType(jus::Buffer::typeMessage::answer);
-		answer.setTransactionId(_clientTransactionId);
-		answer.setClientId(_clientId);
-		answer.addError(_errorValue, _errorHelp);
-		writeBinary(answer);
-	} else if (m_interfaceMode == jus::connectionMode::modeXml) {
-		JUS_ERROR("TODO ... ");
-	} else {
-		JUS_ERROR("wrong type of communication");
-	}
+	jus::Buffer answer;
+	answer.setType(jus::Buffer::typeMessage::answer);
+	answer.setTransactionId(_clientTransactionId);
+	answer.setClientId(_clientId);
+	answer.addError(_errorValue, _errorHelp);
+	writeBinary(answer);
 }
 
 
 void jus::TcpString::answerVoid(uint64_t _clientTransactionId, uint32_t _clientId) {
-	if (m_interfaceMode == jus::connectionMode::modeJson) {
-		ejson::Object answer;
-		answer.add("id", ejson::Number(_clientTransactionId));
-		if (_clientId != 0) {
-			answer.add("client-id", ejson::Number(_clientId));
-		}
-		answer.add("return", ejson::Null());
-		writeJson(answer);
-	} else if (m_interfaceMode == jus::connectionMode::modeBinary) {
-		jus::Buffer answer;
-		answer.setType(jus::Buffer::typeMessage::answer);
-		answer.setTransactionId(_clientTransactionId);
-		answer.setClientId(_clientId);
-		answer.addParameter();
-		writeBinary(answer);
-	} else if (m_interfaceMode == jus::connectionMode::modeXml) {
-		JUS_ERROR("TODO ... ");
-	} else {
-		JUS_ERROR("wrong type of communication");
-	}
+	jus::Buffer answer;
+	answer.setType(jus::Buffer::typeMessage::answer);
+	answer.setTransactionId(_clientTransactionId);
+	answer.setClientId(_clientId);
+	answer.addParameter();
+	writeBinary(answer);
 }

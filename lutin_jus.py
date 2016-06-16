@@ -26,7 +26,7 @@ def get_version():
 
 def create(target, module_name):
 	my_module = module.Module(__file__, module_name, get_type())
-	my_module.add_module_depend(['etk', 'enet', 'ememory', 'eproperty', 'esignal', 'ejson'])
+	my_module.add_module_depend(['etk', 'enet', 'ememory', 'eproperty', 'esignal'])
 	my_module.add_src_file([
 	    'jus/debug.cpp'
 	    ])
@@ -39,7 +39,6 @@ def create(target, module_name):
 	    'jus/Future.cpp',
 	    'jus/File.cpp',
 	    'jus/Buffer.cpp',
-	    'jus/BufferConvertBinaryToJson.cpp',
 	    'jus/ParamType.cpp',
 	    'jus/Client.cpp',
 	    'jus/GateWay.cpp',
@@ -60,7 +59,6 @@ def create(target, module_name):
 	    'jus/Future.h',
 	    'jus/File.h',
 	    'jus/Buffer.h',
-	    'jus/connectionMode.h',
 	    'jus/ParamType.h',
 	    'jus/debug.h',
 	    'jus/Client.h',

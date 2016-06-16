@@ -11,7 +11,6 @@
 #include <chrono>
 #include <unistd.h>
 #include <jus/Future.h>
-#include <jus/connectionMode.h>
 #include <jus/ServiceRemote.h>
 
 namespace jus {

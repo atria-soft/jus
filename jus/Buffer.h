@@ -5,7 +5,6 @@
  */
 #pragma once
 #include <etk/types.h>
-#include <ejson/ejson.h>
 
 namespace jus {
 	//U32 message lenght
@@ -156,9 +155,6 @@ namespace jus {
 			const uint8_t* getParameterPointer(int32_t _id) const;
 			uint32_t getParameterSize(int32_t _id) const;
 			
-		private:
-			// add parameter for transcription of json element
-			void addParameter(ejson::Value _value);
 		public:
 			template<class JUS_TYPE_DATA>
 			void addParameter(const JUS_TYPE_DATA& _value);
@@ -194,12 +190,7 @@ namespace jus {
 			void addData(void* _data, uint32_t _size);
 		
 			void prepare();
-			ejson::Object toJson() const;
-			void fromJson(const ejson::Object& _data);
 	};
 	std::ostream& operator <<(std::ostream& _os, enum jus::Buffer::typeMessage _value);
-	
-	template<class JUS_TYPE>
-	ejson::Value convertBinaryToJson(const uint8_t* _data, uint32_t _size);
 }
 

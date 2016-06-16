@@ -7,7 +7,6 @@
 
 #include <jus/TcpString.h>
 #include <eproperty/Value.h>
-#include <ejson/ejson.h>
 #include <jus/AbstractFunctionTypeDirect.h>
 #include <jus/AbstractFunctionTypeClass.h>
 #include <jus/debug.h>

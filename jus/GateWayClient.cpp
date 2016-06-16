@@ -6,7 +6,6 @@
 
 #include <jus/debug.h>
 #include <jus/GateWayClient.h>
-#include <ejson/ejson.h>
 #include <jus/GateWay.h>
 #include <unistd.h>
 
@@ -47,23 +46,9 @@ void jus::GateWayClient::stop() {
 			continue;
 		}
 		it->m_interfaceClient.callClient(m_uid, "_delete");
-		/*
-		ejson::Object linkService;
-		linkService.add("call", ejson::String("_delete"));
-		linkService.add("id", ejson::Number(m_transactionLocalId++));
-		linkService.add("param", ejson::Array());
-		it->SendData(m_uid, linkService);
-		*/
 	}
 	if (m_userService != nullptr) {
 		m_userService->m_interfaceClient.callClient(m_uid2, "_delete");
-		/*
-		ejson::Object linkService;
-		linkService.add("call", ejson::String("_delete"));
-		linkService.add("id", ejson::Number(m_transactionLocalId++));
-		linkService.add("param", ejson::Array());
-		m_userService->SendData(m_uid2, linkService);
-		*/
 		m_userService = nullptr;
 	}
 	m_listConnectedService.clear();
@@ -108,25 +93,7 @@ void jus::GateWayClient::onClientData(jus::Buffer& _value) {
 					answerProtocolError(transactionId, "Gateway internal error 2");
 					return;
 				}
-				if (callFunction == "setMode") {
-					std::string mode = _value.getParameter<std::string>(0);
-					if (mode == "JSON") {
-						JUS_WARNING("[" << m_uid << "] Change mode in: JSON");
-						m_interfaceClient.answerValue(transactionId, true);
-						m_interfaceClient.setMode(jus::connectionMode::modeJson);
-					} else if (mode == "BIN") {
-						JUS_WARNING("[" << m_uid << "] Change mode in: BINARY");
-						m_interfaceClient.answerValue(transactionId, true);
-						m_interfaceClient.setMode(jus::connectionMode::modeBinary);
-					} else if (mode == "XML") {
-						JUS_WARNING("[" << m_uid << "] Change mode in: XML");
-						//m_interfaceMode = jus::connectionMode::modeXml;
-						m_interfaceClient.answerValue(transactionId, false);
-					} else {
-						answerProtocolError(transactionId, std::string("Call setMode with unknow argument : '") /*+ etk::to_string(int32_t(mode))*/ + "' supported [JSON/XML/BIN]");
-					}
-					return;
-				} else if (callFunction == "connectToUser") {
+				if (callFunction == "connectToUser") {
 					m_userConnectionName = _value.getParameter<std::string>(0);
 					if (m_userConnectionName == "") {
 						answerProtocolError(transactionId, "Call connectToUser with no parameter 'user'");
@@ -246,7 +213,7 @@ void jus::GateWayClient::onClientData(jus::Buffer& _value) {
 					}
 					if (callFunction == "getServiceList") {
 						m_interfaceClient.answerValue(transactionId, m_clientServices);
-						//listService.add(ejson::String("ServiceManager/v0.1.0"));
+						//"ServiceManager/v0.1.0"
 						return;
 					}
 					if (callFunction == "link") {
@@ -343,16 +310,7 @@ void jus::GateWayClient::onClientData(jus::Buffer& _value) {
 					    		tmpp.setTransactionId(transactionId);
 					    		tmpp.setServiceId(serviceId+1);
 					    		JUS_DEBUG("transmit=" << tmpp.generateHumanString());
-					    		if (m_interfaceClient.getMode() == jus::connectionMode::modeJson) {
-					    			ejson::Object obj = tmpp.toJson();
-					    			m_interfaceClient.writeJson(obj);
-					    		} else if (m_interfaceClient.getMode() == jus::connectionMode::modeBinary) {
-					    			m_interfaceClient.writeBinary(tmpp);
-					    		} else if (m_interfaceClient.getMode() == jus::connectionMode::modeXml) {
-					    			JUS_ERROR("TODO ... ");
-					    		} else {
-					    			JUS_ERROR("wrong type of communication");
-					    		}
+					    		m_interfaceClient.writeBinary(tmpp);
 					    		// multiple send element ...
 					    		return tmpp.getPartFinish();
 					    });

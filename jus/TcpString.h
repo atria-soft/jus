@@ -10,7 +10,6 @@
 #include <enet/Tcp.h>
 #include <thread>
 #include <memory>
-#include <jus/connectionMode.h>
 #include <jus/AbstractFunction.h>
 #include <jus/FutureBase.h>
 
@@ -26,15 +25,6 @@ namespace jus {
 			}
 			std::mutex m_pendingCallMutex;
 			std::vector<std::pair<uint64_t, jus::FutureBase>> m_pendingCall;
-		protected:
-			enum jus::connectionMode m_interfaceMode;
-		public:
-			enum jus::connectionMode getMode() {
-				return m_interfaceMode;
-			}
-			void setMode(enum jus::connectionMode _mode) {
-				m_interfaceMode = _mode;
-			}
 			std::vector<uint8_t> m_buffer;
 			std::vector<uint8_t> m_temporaryBuffer;
 			std::chrono::steady_clock::time_point m_lastReceive;
@@ -63,7 +53,6 @@ namespace jus {
 			void disconnect(bool _inThreadStop = false);
 			bool isActive() const;
 			void setInterfaceName(const std::string& _name);
-			int32_t writeJson(ejson::Object& _data);
 			int32_t writeBinary(jus::Buffer& _data);
 			std::string asyncRead();
 		private:
@@ -93,11 +82,6 @@ namespace jus {
 				m_threadAsyncList.push_back(_elem);
 			}
 		private:
-			jus::FutureBase callJson(uint64_t _transactionId,
-			                         ejson::Object _obj,
-			                         const std::vector<ActionAsyncClient>& _async,
-			                         jus::FutureData::ObserverFinish _callback=nullptr,
-			                         const uint32_t& _service=0);
 			jus::FutureBase callBinary(uint64_t _transactionId,
 			                           jus::Buffer& _obj,
 			                           const std::vector<ActionAsyncClient>& _async,
@@ -108,25 +92,15 @@ namespace jus {
 			jus::FutureBase call(const std::string& _functionName, _ARGS&&... _args) {
 				uint16_t id = getId();
 				std::vector<jus::ActionAsyncClient> asyncAction;
-				if (m_interfaceMode == jus::connectionMode::modeJson) {
-					ejson::Object callElem = jus::createCall(asyncAction, id, _functionName, std::forward<_ARGS>(_args)...);
-					return callJson(id, callElem, asyncAction);
-				} else {
-					jus::Buffer callElem = jus::createBinaryCall(asyncAction, id, _functionName, std::forward<_ARGS>(_args)...);
-					return callBinary(id, callElem, asyncAction);
-				}
+				jus::Buffer callElem = jus::createBinaryCall(asyncAction, id, _functionName, std::forward<_ARGS>(_args)...);
+				return callBinary(id, callElem, asyncAction);
 			}
 			template<class... _ARGS>
 			jus::FutureBase callAction(const std::string& _functionName, _ARGS&&... _args, jus::FutureData::ObserverFinish _callback) {
 				uint16_t id = getId();
 				std::vector<jus::ActionAsyncClient> asyncAction;
-				if (m_interfaceMode == jus::connectionMode::modeJson) {
-					ejson::Object callElem = jus::createCall(asyncAction, id, _functionName, std::forward<_ARGS>(_args)...);
-					return callJson(id, callElem, asyncAction, _callback);
-				} else {
-					jus::Buffer callElem = jus::createBinaryCall(asyncAction, id, _functionName, std::forward<_ARGS>(_args)...);
-					return callBinary(id, callElem, asyncAction, _callback);
-				}
+				jus::Buffer callElem = jus::createBinaryCall(asyncAction, id, _functionName, std::forward<_ARGS>(_args)...);
+				return callBinary(id, callElem, asyncAction, _callback);
 			}
 		public: // section call with service ID / Client ID
 			
@@ -134,25 +108,15 @@ namespace jus {
 			jus::FutureBase callService(uint32_t _serviceId, const std::string& _functionName, _ARGS&&... _args) {
 				uint16_t id = getId();
 				std::vector<jus::ActionAsyncClient> asyncActionToDo;
-				if (m_interfaceMode == jus::connectionMode::modeJson) {
-					ejson::Object callElem = jus::createCallService(asyncActionToDo, id, _serviceId, _functionName, std::forward<_ARGS>(_args)...);
-					return callJson(id, callElem, asyncActionToDo);
-				} else {
-					jus::Buffer callElem = jus::createBinaryCallService(asyncActionToDo, id, _serviceId, _functionName, std::forward<_ARGS>(_args)...);
-					return callBinary(id, callElem, asyncActionToDo);
-				}
+				jus::Buffer callElem = jus::createBinaryCallService(asyncActionToDo, id, _serviceId, _functionName, std::forward<_ARGS>(_args)...);
+				return callBinary(id, callElem, asyncActionToDo);
 			}
 			template<class... _ARGS>
 			jus::FutureBase callServiceAction(uint32_t _serviceId, const std::string& _functionName, _ARGS&&... _args, jus::FutureData::ObserverFinish _callback) {
 				uint16_t id = getId();
 				std::vector<jus::ActionAsyncClient> asyncActionToDo;
-				if (m_interfaceMode == jus::connectionMode::modeJson) {
-					ejson::Object callElem = jus::createCallService(asyncActionToDo, id, _serviceId, _functionName, std::forward<_ARGS>(_args)...);
-					return callJson(id, callElem, asyncActionToDo, _callback);
-				} else {
-					jus::Buffer callElem = jus::createBinaryCallService(asyncActionToDo, id, _serviceId, _functionName, std::forward<_ARGS>(_args)...);
-					return callBinary(id, callElem, asyncActionToDo, _callback);
-				}
+				jus::Buffer callElem = jus::createBinaryCallService(asyncActionToDo, id, _serviceId, _functionName, std::forward<_ARGS>(_args)...);
+				return callBinary(id, callElem, asyncActionToDo, _callback);
 			}
 			template<class... _ARGS>
 			jus::FutureBase callClient(uint32_t _clientId,
@@ -179,30 +143,12 @@ namespace jus {
 			void answerProtocolError(uint32_t _transactionId, const std::string& _errorHelp);
 			template<class JUS_ARG>
 			void answerValue(uint64_t _clientTransactionId, JUS_ARG _value, uint32_t _clientId=0) {
-				if (m_interfaceMode == jus::connectionMode::modeJson) {
-					ejson::Object answer;
-					answer.add("id", ejson::Number(_clientTransactionId));
-					if (_clientId != 0) {
-						answer.add("client-id", ejson::Number(_clientId));
-					}
-					std::vector<jus::ActionAsyncClient> asyncAction;
-					answer.add("return", jus::convertToJson(asyncAction, -1, _value));
-					if (asyncAction.size() != 0) {
-						JUS_ERROR("ASYNC datas ... TODO ///");
-					}
-					writeJson(answer);
-				} else if (m_interfaceMode == jus::connectionMode::modeBinary) {
-					jus::Buffer answer;
-					answer.setType(jus::Buffer::typeMessage::answer);
-					answer.setTransactionId(_clientTransactionId);
-					answer.setClientId(_clientId);
-					answer.addAnswer(_value);
-					writeBinary(answer);
-				} else if (m_interfaceMode == jus::connectionMode::modeXml) {
-					JUS_ERROR("TODO ... ");
-				} else {
-					JUS_ERROR("wrong type of communication");
-				}
+				jus::Buffer answer;
+				answer.setType(jus::Buffer::typeMessage::answer);
+				answer.setTransactionId(_clientTransactionId);
+				answer.setClientId(_clientId);
+				answer.addAnswer(_value);
+				writeBinary(answer);
 			}
 			void answerVoid(uint64_t _clientTransactionId, uint32_t _clientId=0);
 			void answerError(uint64_t _clientTransactionId, const std::string& _errorValue, const std::string& _errorComment="", uint32_t _clientId=0);

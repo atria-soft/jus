@@ -8,8 +8,6 @@
 #include <jus/TcpString.h>
 #include <ememory/memory.h>
 #include <esignal/Signal.h>
-#include <ejson/ejson.h>
-#include <jus/connectionMode.h>
 
 namespace jus {
 	class GateWay;
@@ -29,7 +27,6 @@ namespace jus {
 			void stop();
 			void onServiceData(jus::Buffer& _value);
 		public:
-			void SendData(uint64_t _userSessionId, ejson::Object _data);
 			void SendData(uint64_t _userSessionId, jus::Buffer& _data);
 			const std::string& getName() {
 				return m_name;

@@ -8,7 +8,6 @@
 #include <jus/debug.h>
 #include <etk/stdTools.h>
 #include <enet/TcpClient.h>
-#include <ejson/ejson.h>
 
 #include <unistd.h>
 
@@ -85,15 +84,7 @@ void jus::Service::connect(const std::string& _serviceName, uint32_t _numberRetr
 	m_interfaceClient->connect(this, &jus::Service::onClientData);
 	m_interfaceClient->setInterface(std::move(connection));
 	m_interfaceClient->connect();
-	jus::Future<bool> ret = m_interfaceClient->call("setMode", "BIN");
-	ret.wait();
-	if (ret.get() == false) {
-		JUS_ERROR("Can not communicate with the gateway in Binary mode ... STAY in JSON");
-	} else {
-		JUS_INFO("Change mode in Binary");
-		m_interfaceClient->setMode(jus::connectionMode::modeBinary);
-	}
-	ret = m_interfaceClient->call("connect-service", _serviceName);
+	jus::Future<bool> ret = m_interfaceClient->call("connect-service", _serviceName);
 	ret.wait();
 	if (ret.get() == false) {
 		JUS_ERROR("Can not configure the interface for the service with the current name ...");

@@ -9,6 +9,7 @@
 #include <jus/ParamType.h>
 #include <jus/File.h>
 #include <jus/Buffer.h>
+#include <ememory/memory.h>
 
 namespace jus {
 	class TcpString;

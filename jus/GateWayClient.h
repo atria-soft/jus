@@ -11,7 +11,6 @@
 #include <jus/GateWayService.h>
 #include <jus/Future.h>
 #include <jus/AbstractFunction.h>
-#include <jus/connectionMode.h>
 
 
 
@@ -30,10 +29,6 @@ namespace jus {
 		private:
 			jus::GateWay* m_gatewayInterface;
 			jus::TcpString m_interfaceClient;
-		public:
-			enum jus::connectionMode getMode() {
-				return m_interfaceClient.getMode();
-			}
 		public:
 			esignal::Signal<bool> signalIsConnected;
 			ememory::SharedPtr<jus::GateWayService> m_userService;

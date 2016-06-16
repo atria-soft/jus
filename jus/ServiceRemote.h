@@ -7,12 +7,10 @@
 
 #include <jus/TcpString.h>
 #include <eproperty/Value.h>
-#include <ejson/ejson.h>
 #include <jus/debug.h>
 #include <jus/AbstractFunction.h>
 #include <jus/ServiceRemote.h>
 #include <jus/Future.h>
-#include <jus/connectionMode.h>
 #include <jus/TcpString.h>
 
 namespace jus {
