@@ -1,7 +1,7 @@
-jus
-===
+zeus
+====
 
-`jus` is a Json µ-service
+`zeus` is a Zeus ewol µ-service
 
 Instructions
 ============

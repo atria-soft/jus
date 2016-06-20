@@ -10,7 +10,7 @@ def get_sub_type():
 	return "TOOLS"
 
 def get_desc():
-	return "JUS picture service"
+	return "JUS test service"
 
 def get_licence():
 	return "APACHE-2"
@@ -32,7 +32,7 @@ def create(target, module_name):
 	    'appl/debug.cpp',
 	    'appl/main.cpp'
 	    ])
-	my_module.add_export_flag('c++', "-DSERVICE_NAME=\"\\\"" + module_name[4:] + "\\\"\"")
+	my_module.add_export_flag('c++', "-DSERVICE_NAME=\"\\\"" + module_name[5:] + "\\\"\"")
 	return my_module
 
 
