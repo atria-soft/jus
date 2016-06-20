@@ -7,6 +7,6 @@
 #include <appl/debug.h>
 
 int32_t appl::getLogId() {
-	static int32_t g_val = elog::registerInstance("jus-gateway");
+	static int32_t g_val = elog::registerInstance("zeus-gateway");
 	return g_val;
 }

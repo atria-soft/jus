@@ -5,19 +5,19 @@
  */
 #pragma once
 
-#include <jus/FutureData.h>
+#include <zeus/FutureData.h>
 
-namespace jus {
+namespace zeus {
 	class FutureBase {
 		public:
-			ememory::SharedPtr<jus::FutureData> m_data;
+			ememory::SharedPtr<zeus::FutureData> m_data;
 		public:
-			FutureBase(const jus::FutureBase& _base);
+			FutureBase(const zeus::FutureBase& _base);
 			FutureBase();
-			FutureBase(uint64_t _transactionId, jus::FutureData::ObserverFinish _callback=nullptr);
-			FutureBase(uint64_t _transactionId, bool _isFinished, jus::Buffer _returnData, jus::FutureData::ObserverFinish _callback=nullptr);
-			jus::FutureBase operator= (const jus::FutureBase& _base);
-			bool setAnswer(const jus::Buffer& _returnValue);
+			FutureBase(uint64_t _transactionId, zeus::FutureData::ObserverFinish _callback=nullptr);
+			FutureBase(uint64_t _transactionId, bool _isFinished, zeus::Buffer _returnData, zeus::FutureData::ObserverFinish _callback=nullptr);
+			zeus::FutureBase operator= (const zeus::FutureBase& _base);
+			bool setAnswer(const zeus::Buffer& _returnValue);
 			void setSynchronous();
 			uint64_t getTransactionId();
 			bool hasError();
@@ -28,7 +28,7 @@ namespace jus {
 			FutureBase& wait();
 			FutureBase& waitFor(std::chrono::microseconds _delta = std::chrono::seconds(30));
 			FutureBase& waitUntil(std::chrono::steady_clock::time_point _endTime);
-			const jus::Buffer& getRaw();
+			const zeus::Buffer& getRaw();
 			std::chrono::nanoseconds getTransmitionTime();
 	};
 	class FutureCall {
@@ -36,18 +36,18 @@ namespace jus {
 			uint64_t m_transactionId;
 			uint64_t m_clientId;
 			bool m_isFinished;
-			jus::Buffer m_data;
-			std::vector<jus::Buffer> m_dataMultiplePack;
+			zeus::Buffer m_data;
+			std::vector<zeus::Buffer> m_dataMultiplePack;
 			std::chrono::steady_clock::time_point m_receiveTime;
 			std::chrono::steady_clock::time_point m_answerTime;
 		public:
-			FutureCall(uint64_t _clientId, uint64_t _transactionId, jus::Buffer& _callValue);
-			void appendData(jus::Buffer& _callValue);
+			FutureCall(uint64_t _clientId, uint64_t _transactionId, zeus::Buffer& _callValue);
+			void appendData(zeus::Buffer& _callValue);
 			uint64_t getTransactionId();
 			uint64_t getClientId();
 			bool isFinished();
 			std::chrono::nanoseconds getTransmitionTime();
-			jus::Buffer& getRaw();
+			zeus::Buffer& getRaw();
 	};
 }
 

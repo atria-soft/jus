@@ -4,9 +4,9 @@
  * @license APACHE v2.0 (see license file)
  */
 
-#include <jus/debug.h>
+#include <zeus/debug.h>
 
-int32_t jus::getLogId() {
-	static int32_t g_val = elog::registerInstance("jus");
+int32_t zeus::getLogId() {
+	static int32_t g_val = elog::registerInstance("zeus");
 	return g_val;
 }

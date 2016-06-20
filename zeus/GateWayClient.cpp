@@ -4,43 +4,43 @@
  * @license APACHE v2.0 (see license file)
  */
 
-#include <jus/debug.h>
-#include <jus/GateWayClient.h>
-#include <jus/GateWay.h>
+#include <zeus/debug.h>
+#include <zeus/GateWayClient.h>
+#include <zeus/GateWay.h>
 #include <unistd.h>
 
-#include <jus/AbstractFunction.h>
+#include <zeus/AbstractFunction.h>
 
 
 static const std::string protocolError = "PROTOCOL-ERROR";
 
-jus::GateWayClient::GateWayClient(enet::Tcp _connection, jus::GateWay* _gatewayInterface) :
-  m_state(jus::GateWayClient::state::unconnect),
+zeus::GateWayClient::GateWayClient(enet::Tcp _connection, zeus::GateWay* _gatewayInterface) :
+  m_state(zeus::GateWayClient::state::unconnect),
   m_gatewayInterface(_gatewayInterface),
-  m_interfaceClient(std::move(_connection)) {
-	JUS_INFO("----------------");
-	JUS_INFO("-- NEW Client --");
-	JUS_INFO("----------------");
+  m_interfaceClient(std::move(_connection), true) {
+	ZEUS_INFO("----------------");
+	ZEUS_INFO("-- NEW Client --");
+	ZEUS_INFO("----------------");
 }
 
-jus::GateWayClient::~GateWayClient() {
-	JUS_TODO("Call All unlink ...");
+zeus::GateWayClient::~GateWayClient() {
+	ZEUS_TODO("Call All unlink ...");
 	stop();
-	JUS_INFO("-------------------");
-	JUS_INFO("-- DELETE Client --");
-	JUS_INFO("-------------------");
+	ZEUS_INFO("-------------------");
+	ZEUS_INFO("-- DELETE Client --");
+	ZEUS_INFO("-------------------");
 }
 
-void jus::GateWayClient::start(uint64_t _uid, uint64_t _uid2) {
+void zeus::GateWayClient::start(uint64_t _uid, uint64_t _uid2) {
 	m_uid = _uid;
 	m_uid2 = _uid2;
-	m_state = jus::GateWayClient::state::connect;
-	m_interfaceClient.connect(this, &jus::GateWayClient::onClientData);
+	m_state = zeus::GateWayClient::state::connect;
+	m_interfaceClient.connect(this, &zeus::GateWayClient::onClientData);
 	m_interfaceClient.connect(true);
 	m_interfaceClient.setInterfaceName("cli-" + etk::to_string(m_uid));
 }
 
-void jus::GateWayClient::stop() {
+void zeus::GateWayClient::stop() {
 	for (auto &it : m_listConnectedService) {
 		if (it == nullptr) {
 			continue;
@@ -55,39 +55,39 @@ void jus::GateWayClient::stop() {
 	m_interfaceClient.disconnect();
 }
 
-bool jus::GateWayClient::isAlive() {
+bool zeus::GateWayClient::isAlive() {
 	return m_interfaceClient.isActive();
 }
 
-void jus::GateWayClient::answerProtocolError(uint32_t _transactionId, const std::string& _errorHelp) {
+void zeus::GateWayClient::answerProtocolError(uint32_t _transactionId, const std::string& _errorHelp) {
 	m_interfaceClient.answerError(_transactionId, protocolError, _errorHelp);
-	m_state = jus::GateWayClient::state::disconnect;
+	m_state = zeus::GateWayClient::state::disconnect;
 	m_interfaceClient.disconnect(true);
 }
 
 
-void jus::GateWayClient::onClientData(jus::Buffer& _value) {
+void zeus::GateWayClient::onClientData(zeus::Buffer& _value) {
 	uint32_t transactionId = _value.getTransactionId();
 	if (transactionId == 0) {
-		JUS_ERROR("Protocol error ==>missing id");
+		ZEUS_ERROR("Protocol error ==>missing id");
 		answerProtocolError(transactionId, "missing parameter: 'id'");
 		return;
 	}
-	if (_value.getType() != jus::Buffer::typeMessage::call) {
-		JUS_ERROR("Protocol error ==>missing 'call'");
+	if (_value.getType() != zeus::Buffer::typeMessage::call) {
+		ZEUS_ERROR("Protocol error ==>missing 'call'");
 		answerProtocolError(transactionId, "missing parameter: 'call' / wrong type 'call'");
 		return;
 	}
 	std::string callFunction = _value.getCall();
 	switch (m_state) {
-		case jus::GateWayClient::state::disconnect:
-		case jus::GateWayClient::state::unconnect:
+		case zeus::GateWayClient::state::disconnect:
+		case zeus::GateWayClient::state::unconnect:
 			{
-				JUS_ERROR("Must never appear");
+				ZEUS_ERROR("Must never appear");
 				answerProtocolError(transactionId, "Gateway internal error");
 				return;
 			}
-		case jus::GateWayClient::state::connect:
+		case zeus::GateWayClient::state::connect:
 			{
 				if (m_userConnectionName != "") {
 					answerProtocolError(transactionId, "Gateway internal error 2");
@@ -98,24 +98,24 @@ void jus::GateWayClient::onClientData(jus::Buffer& _value) {
 					if (m_userConnectionName == "") {
 						answerProtocolError(transactionId, "Call connectToUser with no parameter 'user'");
 					} else {
-						JUS_WARNING("[" << m_uid << "] Set client connect to user : '" << m_userConnectionName << "'");
+						ZEUS_WARNING("[" << m_uid << "] Set client connect to user : '" << m_userConnectionName << "'");
 						m_userService = m_gatewayInterface->get("system-user");
 						if (m_userService == nullptr) {
 							answerProtocolError(transactionId, "Gateway internal error 'No user interface'");
 						} else {
-							jus::Future<bool> futLocalService = m_userService->m_interfaceClient.callClient(m_uid2, "_new", m_userConnectionName, "**Gateway**", std::vector<std::string>());
+							zeus::Future<bool> futLocalService = m_userService->m_interfaceClient.callClient(m_uid2, "_new", m_userConnectionName, "**Gateway**", std::vector<std::string>());
 							futLocalService.wait(); // TODO: Set timeout ...
-							m_state = jus::GateWayClient::state::userIdentify;
+							m_state = zeus::GateWayClient::state::userIdentify;
 							m_interfaceClient.answerValue(transactionId, true);
 						}
 					}
 					return;
 				}
-				JUS_WARNING("[" << m_uid << "] Client must send conection to user name ...");
+				ZEUS_WARNING("[" << m_uid << "] Client must send conection to user name ...");
 				answerProtocolError(transactionId, "Missing call of connectToUser");
 				return;
 			}
-		case jus::GateWayClient::state::userIdentify:
+		case zeus::GateWayClient::state::userIdentify:
 			{
 				m_clientServices.clear();
 				m_clientgroups.clear();
@@ -134,10 +134,10 @@ void jus::GateWayClient::onClientData(jus::Buffer& _value) {
 						return;
 					}
 					
-					jus::Future<bool> fut = m_userService->m_interfaceClient.callClient(m_uid2, "checkTocken", clientName, clientTocken);
+					zeus::Future<bool> fut = m_userService->m_interfaceClient.callClient(m_uid2, "checkTocken", clientName, clientTocken);
 					fut.wait(); // TODO: Set timeout ...
 					if (fut.hasError() == true) {
-						JUS_ERROR("Get error from the service ...");
+						ZEUS_ERROR("Get error from the service ...");
 						m_interfaceClient.answerValue(transactionId, false);
 						answerProtocolError(transactionId, "connection refused 1");
 						return;
@@ -150,10 +150,10 @@ void jus::GateWayClient::onClientData(jus::Buffer& _value) {
 				}
 				if (callFunction == "auth") {
 					std::string password = _value.getParameter<std::string>(0);
-					jus::Future<bool> fut = m_userService->m_interfaceClient.callClient(m_uid2, "checkAuth", password);
+					zeus::Future<bool> fut = m_userService->m_interfaceClient.callClient(m_uid2, "checkAuth", password);
 					fut.wait(); // TODO: Set timeout ...
 					if (fut.hasError() == true) {
-						JUS_ERROR("Get error from the service ...");
+						ZEUS_ERROR("Get error from the service ...");
 						m_interfaceClient.answerValue(transactionId, false);
 						answerProtocolError(transactionId, "connection refused 1");
 						return;
@@ -170,10 +170,10 @@ void jus::GateWayClient::onClientData(jus::Buffer& _value) {
 				// --------------------------------
 				// -- Get groups:
 				// --------------------------------
-				jus::Future<std::vector<std::string>> futGroup = m_userService->m_interfaceClient.callClient(m_uid2, "getGroups", m_clientName);
+				zeus::Future<std::vector<std::string>> futGroup = m_userService->m_interfaceClient.callClient(m_uid2, "getGroups", m_clientName);
 				futGroup.wait(); // TODO: Set timeout ...
 				if (futGroup.hasError() == true) {
-					JUS_ERROR("Get error from the service ...");
+					ZEUS_ERROR("Get error from the service ...");
 					m_interfaceClient.answerValue(transactionId, false);
 					answerProtocolError(transactionId, "grouping error");
 					return;
@@ -183,26 +183,26 @@ void jus::GateWayClient::onClientData(jus::Buffer& _value) {
 				// -- Get services:
 				// --------------------------------
 				std::vector<std::string> currentServices = m_gatewayInterface->getAllServiceName();
-				jus::Future<std::vector<std::string>> futServices = m_userService->m_interfaceClient.callClient(m_uid2, "filterServices", m_clientName, currentServices);
+				zeus::Future<std::vector<std::string>> futServices = m_userService->m_interfaceClient.callClient(m_uid2, "filterServices", m_clientName, currentServices);
 				futServices.wait(); // TODO: Set timeout ...
 				if (futServices.hasError() == true) {
-					JUS_ERROR("Get error from the service ...");
+					ZEUS_ERROR("Get error from the service ...");
 					m_interfaceClient.answerValue(transactionId, false);
 					answerProtocolError(transactionId, "service filtering error");
 					return;
 				}
 				m_clientServices = futServices.get();
-				JUS_WARNING("Connection of: '" << m_clientName << "' to '" << m_userConnectionName << "'");
-				JUS_WARNING("       groups: " << etk::to_string(m_clientgroups));
-				JUS_WARNING("     services: " << etk::to_string(m_clientServices));
+				ZEUS_WARNING("Connection of: '" << m_clientName << "' to '" << m_userConnectionName << "'");
+				ZEUS_WARNING("       groups: " << etk::to_string(m_clientgroups));
+				ZEUS_WARNING("     services: " << etk::to_string(m_clientServices));
 				
 				
 				m_interfaceClient.answerValue(transactionId, true);
-				m_state = jus::GateWayClient::state::clientIdentify;
+				m_state = zeus::GateWayClient::state::clientIdentify;
 				return;
 			}
 			break;
-		case jus::GateWayClient::state::clientIdentify:
+		case zeus::GateWayClient::state::clientIdentify:
 			{
 				uint32_t serviceId = _value.getServiceId();
 				if (serviceId == 0) {
@@ -238,12 +238,12 @@ void jus::GateWayClient::onClientData(jus::Buffer& _value) {
 								m_interfaceClient.answerError(transactionId, "UN-AUTHORIZED-SERVICE");
 								return;
 							}
-							ememory::SharedPtr<jus::GateWayService> srv = m_gatewayInterface->get(serviceName);
+							ememory::SharedPtr<zeus::GateWayService> srv = m_gatewayInterface->get(serviceName);
 							if (srv != nullptr) {
-								jus::Future<bool> futLink = srv->m_interfaceClient.callClient(m_uid, "_new", m_userConnectionName, m_clientName, m_clientgroups);
+								zeus::Future<bool> futLink = srv->m_interfaceClient.callClient(m_uid, "_new", m_userConnectionName, m_clientName, m_clientgroups);
 								futLink.wait(); // TODO: Set timeout ...
 								if (futLink.hasError() == true) {
-									JUS_ERROR("Get error from the service ... LINK");
+									ZEUS_ERROR("Get error from the service ... LINK");
 									m_interfaceClient.answerError(transactionId, "ERROR-CREATE-SERVICE-INSTANCE");
 									return;
 								}
@@ -265,10 +265,10 @@ void jus::GateWayClient::onClientData(jus::Buffer& _value) {
 							m_interfaceClient.answerError(transactionId, "NOT-CONNECTED-SERVICE");
 							return;
 						}
-						jus::Future<bool> futUnLink = m_listConnectedService[localServiceID]->m_interfaceClient.callClient(m_uid, "_delete");
+						zeus::Future<bool> futUnLink = m_listConnectedService[localServiceID]->m_interfaceClient.callClient(m_uid, "_delete");
 						futUnLink.wait(); // TODO: Set timeout ...
 						if (futUnLink.hasError() == true) {
-							JUS_ERROR("Get error from the service ... UNLINK");
+							ZEUS_ERROR("Get error from the service ... UNLINK");
 							m_interfaceClient.answerError(transactionId, "ERROR-CREATE-SERVICE-INSTANCE");
 							return;
 						}
@@ -276,7 +276,7 @@ void jus::GateWayClient::onClientData(jus::Buffer& _value) {
 						m_interfaceClient.answerValue(transactionId, true);
 						return;
 					}
-					JUS_ERROR("Function does not exist ... '" << callFunction << "'");
+					ZEUS_ERROR("Function does not exist ... '" << callFunction << "'");
 					m_interfaceClient.answerError(transactionId, "CALL-UNEXISTING");
 					return;
 				}
@@ -288,7 +288,7 @@ void jus::GateWayClient::onClientData(jus::Buffer& _value) {
 				} else {
 					if (m_listConnectedService[serviceId] == nullptr) {
 						// TODO ...
-						JUS_ERROR("TODO : Manage this case ...");
+						ZEUS_ERROR("TODO : Manage this case ...");
 						return;
 					}
 					uint16_t partId = _value.getPartId();
@@ -303,13 +303,13 @@ void jus::GateWayClient::onClientData(jus::Buffer& _value) {
 					    m_uid,
 					    _value,
 					    (uint64_t(m_uid) << 32) + uint64_t(transactionId),
-					    [=](jus::FutureBase _ret) {
-					    		jus::Buffer tmpp = _ret.getRaw();
-					    		JUS_DEBUG("    ==> transmit : " << tmpp.getTransactionId() << " -> " << transactionId);
-					    		JUS_DEBUG("    msg=" << tmpp.generateHumanString());
+					    [=](zeus::FutureBase _ret) {
+					    		zeus::Buffer tmpp = _ret.getRaw();
+					    		ZEUS_DEBUG("    ==> transmit : " << tmpp.getTransactionId() << " -> " << transactionId);
+					    		ZEUS_DEBUG("    msg=" << tmpp.generateHumanString());
 					    		tmpp.setTransactionId(transactionId);
 					    		tmpp.setServiceId(serviceId+1);
-					    		JUS_DEBUG("transmit=" << tmpp.generateHumanString());
+					    		ZEUS_DEBUG("transmit=" << tmpp.generateHumanString());
 					    		m_interfaceClient.writeBinary(tmpp);
 					    		// multiple send element ...
 					    		return tmpp.getPartFinish();
@@ -319,6 +319,6 @@ void jus::GateWayClient::onClientData(jus::Buffer& _value) {
 	}
 }
 
-void jus::GateWayClient::returnMessage(jus::Buffer& _data) {
-	JUS_ERROR("Get call from the Service to the user ...");
+void zeus::GateWayClient::returnMessage(zeus::Buffer& _data) {
+	ZEUS_ERROR("Get call from the Service to the user ...");
 }

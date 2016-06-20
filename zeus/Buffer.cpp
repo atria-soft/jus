@@ -4,57 +4,56 @@
  * @license APACHE v2.0 (see license file)
  */
 #include <etk/types.h>
-#include <jus/Buffer.h>
-#include <jus/debug.h>
-#include <jus/ParamType.h>
+#include <zeus/Buffer.h>
+#include <zeus/debug.h>
+#include <zeus/ParamType.h>
 #include <etk/stdTools.h>
-#include <jus/AbstractFunction.h>
+#include <zeus/AbstractFunction.h>
 #include <climits>
 
 namespace etk {
-	template<> std::string to_string<enum jus::Buffer::typeMessage>(const enum jus::Buffer::typeMessage& _value) {
+	template<> std::string to_string<enum zeus::Buffer::typeMessage>(const enum zeus::Buffer::typeMessage& _value) {
 		switch (_value) {
-			case jus::Buffer::typeMessage::call:
+			case zeus::Buffer::typeMessage::call:
 				return "call";
-			case jus::Buffer::typeMessage::answer:
+			case zeus::Buffer::typeMessage::answer:
 				return "answer";
-			case jus::Buffer::typeMessage::event:
+			case zeus::Buffer::typeMessage::event:
 				return "event";
-			case jus::Buffer::typeMessage::data:
+			case zeus::Buffer::typeMessage::data:
 				return "event";
 		}
 		return "???";
 	}
 }
-std::ostream& jus::operator <<(std::ostream& _os, enum jus::Buffer::typeMessage _value) {
+std::ostream& zeus::operator <<(std::ostream& _os, enum zeus::Buffer::typeMessage _value) {
 	_os << etk::to_string(_value);
 	return _os;
 }
 
-static enum jus::Buffer::typeMessage getTypeType(uint16_t _value) {
+static enum zeus::Buffer::typeMessage getTypeType(uint16_t _value) {
 	switch (_value) {
 		case 1:
-			return jus::Buffer::typeMessage::call;
+			return zeus::Buffer::typeMessage::call;
 		case 2:
-			return jus::Buffer::typeMessage::answer;
+			return zeus::Buffer::typeMessage::answer;
 		case 4:
-			return jus::Buffer::typeMessage::event;
+			return zeus::Buffer::typeMessage::event;
 		case 8:
-			return jus::Buffer::typeMessage::data;
+			return zeus::Buffer::typeMessage::data;
 	}
-	return jus::Buffer::typeMessage::call;
+	return zeus::Buffer::typeMessage::call;
 }
 
-jus::Buffer::Buffer() {
+zeus::Buffer::Buffer() {
 	clear();
 }
 
-void jus::Buffer::internalComposeWith(const uint8_t* _buffer, uint32_t _lenght) {
+void zeus::Buffer::internalComposeWith(const uint8_t* _buffer, uint32_t _lenght) {
 	clear();
-	m_header.lenght = _lenght;
 	uint32_t offset = 0;
-	memcpy(reinterpret_cast<char*>(&m_header) + sizeof(uint32_t), &_buffer[offset], sizeof(headerBin)-sizeof(uint32_t));
-	offset += sizeof(headerBin)-sizeof(uint32_t);
+	memcpy(reinterpret_cast<char*>(&m_header), &_buffer[offset], sizeof(headerBin));
+	offset += sizeof(headerBin);
 	if (m_header.numberOfParameter != 0) {
 		m_paramOffset.resize(m_header.numberOfParameter);
 		memcpy(&m_paramOffset[0], &_buffer[offset], m_header.numberOfParameter * sizeof(uint16_t));
@@ -64,18 +63,17 @@ void jus::Buffer::internalComposeWith(const uint8_t* _buffer, uint32_t _lenght) 
 	} else {
 		// TODO : check size ...
 	}
-	JUS_DEBUG("Get binary messages " << generateHumanString());
+	ZEUS_DEBUG("Get binary messages " << generateHumanString());
 }
 
-void jus::Buffer::composeWith(const std::vector<uint8_t>& _buffer) {
+void zeus::Buffer::composeWith(const std::vector<uint8_t>& _buffer) {
 	internalComposeWith(&_buffer[0], _buffer.size());
 }
 
-void jus::Buffer::clear() {
-	JUS_VERBOSE("clear buffer");
+void zeus::Buffer::clear() {
+	ZEUS_VERBOSE("clear buffer");
 	m_data.clear();
 	m_paramOffset.clear();
-	m_header.lenght = 0;
 	m_header.versionProtocol = 1;
 	m_header.transactionID = 1;
 	m_header.clientID = 0;
@@ -83,22 +81,21 @@ void jus::Buffer::clear() {
 	m_header.typeMessage = 1;
 	m_header.numberOfParameter = 1;
 }
-std::string jus::Buffer::generateHumanString() {
-	std::string out = "jus::Buffer Lenght=: ";
-	out += etk::to_string(m_header.lenght);
+std::string zeus::Buffer::generateHumanString() {
+	std::string out = "zeus::Buffer Lenght=: ";
 	out += " v=" + etk::to_string(m_header.versionProtocol);
 	out += " id=" + etk::to_string(m_header.transactionID);
 	out += " cId=" + etk::to_string(m_header.clientID);
 	out += " pId=" + etk::to_string(getPartId());
 	out += " finish=" + etk::to_string(getPartFinish());
-	enum jus::Buffer::typeMessage type = getTypeType(m_header.typeMessage);
+	enum zeus::Buffer::typeMessage type = getTypeType(m_header.typeMessage);
 	out += " type=" + etk::to_string(type);
 	switch (type) {
-		case jus::Buffer::typeMessage::call:
+		case zeus::Buffer::typeMessage::call:
 			out += " nbParam=" + etk::to_string(getNumberParameter());
 			out += " call='" + getCall() + "'";
 			break;
-		case jus::Buffer::typeMessage::answer:
+		case zeus::Buffer::typeMessage::answer:
 			if (m_paramOffset.size() == 1) {
 				out += " mode=Value";
 			} else if (m_paramOffset.size() == 2) {
@@ -109,10 +106,10 @@ std::string jus::Buffer::generateHumanString() {
 				out += " mode=???";
 			}
 			break;
-		case jus::Buffer::typeMessage::event:
+		case zeus::Buffer::typeMessage::event:
 			
 			break;
-		case jus::Buffer::typeMessage::data:
+		case zeus::Buffer::typeMessage::data:
 			
 			break;
 	}
@@ -129,49 +126,49 @@ std::string jus::Buffer::generateHumanString() {
 	return out;
 }
 
-uint16_t jus::Buffer::getProtocalVersion() const {
+uint16_t zeus::Buffer::getProtocalVersion() const {
 	return m_header.versionProtocol;
 }
 
-void jus::Buffer::setProtocolVersion(uint16_t _value) {
-	JUS_VERBOSE("setProtocolVersion :" << _value);
+void zeus::Buffer::setProtocolVersion(uint16_t _value) {
+	ZEUS_VERBOSE("setProtocolVersion :" << _value);
 	m_header.versionProtocol = _value;
 }
 
-uint32_t jus::Buffer::getTransactionId() const {
+uint32_t zeus::Buffer::getTransactionId() const {
 	return m_header.transactionID;
 }
 
-void jus::Buffer::setTransactionId(uint32_t _value) {
-	JUS_VERBOSE("setTransactionId :" << _value);
+void zeus::Buffer::setTransactionId(uint32_t _value) {
+	ZEUS_VERBOSE("setTransactionId :" << _value);
 	m_header.transactionID = _value;
 }
 
-uint32_t jus::Buffer::getClientId() const {
+uint32_t zeus::Buffer::getClientId() const {
 	return m_header.clientID;
 }
 
-void jus::Buffer::setClientId(uint32_t _value) {
-	JUS_VERBOSE("setClientId :" << _value);
+void zeus::Buffer::setClientId(uint32_t _value) {
+	ZEUS_VERBOSE("setClientId :" << _value);
 	m_header.clientID = _value;
 }
 
 // note limited 15 bits
-uint16_t jus::Buffer::getPartId() const {
+uint16_t zeus::Buffer::getPartId() const {
 	return uint16_t(m_header.partID & 0x7FFF);
 }
 
-void jus::Buffer::setPartId(uint16_t _value) {
-	JUS_VERBOSE("setPartId :" << _value);
+void zeus::Buffer::setPartId(uint16_t _value) {
+	ZEUS_VERBOSE("setPartId :" << _value);
 	m_header.partID = (m_header.partID&0x8000) | (_value & 0x7FFF);
 }
 
-bool jus::Buffer::getPartFinish() const {
+bool zeus::Buffer::getPartFinish() const {
 	return m_header.partID<0;
 }
 
-void jus::Buffer::setPartFinish(bool _value) {
-	JUS_VERBOSE("setPartFinish :" << _value);
+void zeus::Buffer::setPartFinish(bool _value) {
+	ZEUS_VERBOSE("setPartFinish :" << _value);
 	if (_value == true) {
 		m_header.partID = (m_header.partID & 0x7FFF) | 0x8000;
 	} else {
@@ -179,35 +176,35 @@ void jus::Buffer::setPartFinish(bool _value) {
 	}
 }
 
-enum jus::Buffer::typeMessage jus::Buffer::getType() const {
-	return (enum jus::Buffer::typeMessage)m_header.typeMessage;
+enum zeus::Buffer::typeMessage zeus::Buffer::getType() const {
+	return (enum zeus::Buffer::typeMessage)m_header.typeMessage;
 }
 
-void jus::Buffer::setType(enum typeMessage _value) {
-	JUS_VERBOSE("setType :" << _value);
+void zeus::Buffer::setType(enum typeMessage _value) {
+	ZEUS_VERBOSE("setType :" << _value);
 	m_header.typeMessage = uint16_t(_value);
 }
 
-uint16_t jus::Buffer::getNumberParameter() const {
+uint16_t zeus::Buffer::getNumberParameter() const {
 	return m_paramOffset.size()-1;
 }
-std::string jus::Buffer::internalGetParameterType(int32_t _id) const {
+std::string zeus::Buffer::internalGetParameterType(int32_t _id) const {
 	std::string out;
 	if (m_paramOffset.size() <= _id) {
-		JUS_ERROR("out of range Id for parameter ... " << _id << " have " << m_paramOffset.size());
+		ZEUS_ERROR("out of range Id for parameter ... " << _id << " have " << m_paramOffset.size());
 		return out;
 	}
 	out = reinterpret_cast<const char*>(&m_data[m_paramOffset[_id]]);
 	return out;
 }
-std::string jus::Buffer::getParameterType(int32_t _id) const {
+std::string zeus::Buffer::getParameterType(int32_t _id) const {
 	return internalGetParameterType(_id + 1);
 }
 
-const uint8_t* jus::Buffer::internalGetParameterPointer(int32_t _id) const {
+const uint8_t* zeus::Buffer::internalGetParameterPointer(int32_t _id) const {
 	const uint8_t* out = nullptr;
 	if (m_paramOffset.size() <= _id) {
-		JUS_ERROR("out of range Id for parameter ... " << _id << " have " << m_paramOffset.size());
+		ZEUS_ERROR("out of range Id for parameter ... " << _id << " have " << m_paramOffset.size());
 		return out;
 	}
 	out = reinterpret_cast<const uint8_t*>(&m_data[m_paramOffset[_id]]);
@@ -222,14 +219,14 @@ const uint8_t* jus::Buffer::internalGetParameterPointer(int32_t _id) const {
 	return out;
 }
 
-const uint8_t* jus::Buffer::getParameterPointer(int32_t _id) const {
+const uint8_t* zeus::Buffer::getParameterPointer(int32_t _id) const {
 	return internalGetParameterPointer(_id + 1);
 }
 
-uint32_t jus::Buffer::internalGetParameterSize(int32_t _id) const {
+uint32_t zeus::Buffer::internalGetParameterSize(int32_t _id) const {
 	int32_t out = 0;
 	if (m_paramOffset.size() <= _id) {
-		JUS_ERROR("out of range Id for parameter ... " << _id << " have " << m_paramOffset.size());
+		ZEUS_ERROR("out of range Id for parameter ... " << _id << " have " << m_paramOffset.size());
 		return out;
 	}
 	int32_t startPos = m_paramOffset[_id];
@@ -245,7 +242,7 @@ uint32_t jus::Buffer::internalGetParameterSize(int32_t _id) const {
 	out = endPos - startPos;
 	out --;
 	if (out < 0) {
-		JUS_ERROR("Get size < 0 : " << out);
+		ZEUS_ERROR("Get size < 0 : " << out);
 		out = 0;
 	}
 	return out;
@@ -253,19 +250,19 @@ uint32_t jus::Buffer::internalGetParameterSize(int32_t _id) const {
 
 
 
-void jus::Buffer::addData(void* _data, uint32_t _size) {
+void zeus::Buffer::addData(void* _data, uint32_t _size) {
 	m_paramOffset.clear();
-	setType(jus::Buffer::typeMessage::data);
+	setType(zeus::Buffer::typeMessage::data);
 	m_data.resize(_size);
 	memcpy(&m_data[0], _data, _size);
 }
 
 
-uint32_t jus::Buffer::getParameterSize(int32_t _id) const {
+uint32_t zeus::Buffer::getParameterSize(int32_t _id) const {
 	return internalGetParameterSize(_id + 1);
 }
 
-void jus::Buffer::addParameter() {
+void zeus::Buffer::addParameter() {
 	int32_t currentOffset = m_data.size();
 	m_paramOffset.push_back(currentOffset);
 	m_data.push_back('v');
@@ -274,7 +271,7 @@ void jus::Buffer::addParameter() {
 	m_data.push_back('d');
 	m_data.push_back('\0');
 }
-void jus::Buffer::addParameterEmptyVector() {
+void zeus::Buffer::addParameterEmptyVector() {
 	int32_t currentOffset = m_data.size();
 	m_paramOffset.push_back(currentOffset);
 	m_data.push_back('v');
@@ -292,7 +289,7 @@ void jus::Buffer::addParameterEmptyVector() {
 	m_data.push_back('\0');
 }
 template<>
-void jus::Buffer::addParameter<std::string>(const std::string& _value) {
+void zeus::Buffer::addParameter<std::string>(const std::string& _value) {
 	int32_t currentOffset = m_data.size();
 	m_paramOffset.push_back(currentOffset);
 	m_data.push_back('s');
@@ -307,7 +304,7 @@ void jus::Buffer::addParameter<std::string>(const std::string& _value) {
 	memcpy(&m_data[currentOffset], &_value[0], _value.size());
 }
 template<>
-void jus::Buffer::addParameter<std::vector<std::string>>(const std::vector<std::string>& _value) {
+void zeus::Buffer::addParameter<std::vector<std::string>>(const std::vector<std::string>& _value) {
 	int32_t currentOffset = m_data.size();
 	m_paramOffset.push_back(currentOffset);
 	m_data.push_back('v');
@@ -343,7 +340,7 @@ void jus::Buffer::addParameter<std::vector<std::string>>(const std::vector<std::
 }
 
 template<>
-void jus::Buffer::addParameter<std::vector<bool>>(const std::vector<bool>& _value) {
+void zeus::Buffer::addParameter<std::vector<bool>>(const std::vector<bool>& _value) {
 	int32_t currentOffset = m_data.size();
 	m_paramOffset.push_back(currentOffset);
 	m_data.push_back('v');
@@ -373,7 +370,7 @@ void jus::Buffer::addParameter<std::vector<bool>>(const std::vector<bool>& _valu
 }
 
 template<>
-void jus::Buffer::addParameter<std::vector<int8_t>>(const std::vector<int8_t>& _value) {
+void zeus::Buffer::addParameter<std::vector<int8_t>>(const std::vector<int8_t>& _value) {
 	int32_t currentOffset = m_data.size();
 	m_paramOffset.push_back(currentOffset);
 	m_data.push_back('v');
@@ -394,7 +391,7 @@ void jus::Buffer::addParameter<std::vector<int8_t>>(const std::vector<int8_t>& _
 	memcpy(&m_data[currentOffset], &_value[0], sizeof(int8_t)*_value.size());
 }
 template<>
-void jus::Buffer::addParameter<std::vector<int16_t>>(const std::vector<int16_t>& _value) {
+void zeus::Buffer::addParameter<std::vector<int16_t>>(const std::vector<int16_t>& _value) {
 	int32_t currentOffset = m_data.size();
 	m_paramOffset.push_back(currentOffset);
 	m_data.push_back('v');
@@ -416,7 +413,7 @@ void jus::Buffer::addParameter<std::vector<int16_t>>(const std::vector<int16_t>&
 	memcpy(&m_data[currentOffset], &_value[0], sizeof(int16_t)*_value.size());
 }
 template<>
-void jus::Buffer::addParameter<std::vector<int32_t>>(const std::vector<int32_t>& _value) {
+void zeus::Buffer::addParameter<std::vector<int32_t>>(const std::vector<int32_t>& _value) {
 	int32_t currentOffset = m_data.size();
 	m_paramOffset.push_back(currentOffset);
 	m_data.push_back('v');
@@ -438,7 +435,7 @@ void jus::Buffer::addParameter<std::vector<int32_t>>(const std::vector<int32_t>&
 	memcpy(&m_data[currentOffset], &_value[0], sizeof(int32_t)*_value.size());
 }
 template<>
-void jus::Buffer::addParameter<std::vector<int64_t>>(const std::vector<int64_t>& _value) {
+void zeus::Buffer::addParameter<std::vector<int64_t>>(const std::vector<int64_t>& _value) {
 	int32_t currentOffset = m_data.size();
 	m_paramOffset.push_back(currentOffset);
 	m_data.push_back('v');
@@ -461,7 +458,7 @@ void jus::Buffer::addParameter<std::vector<int64_t>>(const std::vector<int64_t>&
 }
 
 template<>
-void jus::Buffer::addParameter<std::vector<uint8_t>>(const std::vector<uint8_t>& _value) {
+void zeus::Buffer::addParameter<std::vector<uint8_t>>(const std::vector<uint8_t>& _value) {
 	int32_t currentOffset = m_data.size();
 	m_paramOffset.push_back(currentOffset);
 	m_data.push_back('v');
@@ -483,7 +480,7 @@ void jus::Buffer::addParameter<std::vector<uint8_t>>(const std::vector<uint8_t>&
 	memcpy(&m_data[currentOffset], &_value[0], sizeof(uint8_t)*_value.size());
 }
 template<>
-void jus::Buffer::addParameter<std::vector<uint16_t>>(const std::vector<uint16_t>& _value) {
+void zeus::Buffer::addParameter<std::vector<uint16_t>>(const std::vector<uint16_t>& _value) {
 	int32_t currentOffset = m_data.size();
 	m_paramOffset.push_back(currentOffset);
 	m_data.push_back('v');
@@ -506,7 +503,7 @@ void jus::Buffer::addParameter<std::vector<uint16_t>>(const std::vector<uint16_t
 	memcpy(&m_data[currentOffset], &_value[0], sizeof(uint16_t)*_value.size());
 }
 template<>
-void jus::Buffer::addParameter<std::vector<uint32_t>>(const std::vector<uint32_t>& _value) {
+void zeus::Buffer::addParameter<std::vector<uint32_t>>(const std::vector<uint32_t>& _value) {
 	int32_t currentOffset = m_data.size();
 	m_paramOffset.push_back(currentOffset);
 	m_data.push_back('v');
@@ -529,7 +526,7 @@ void jus::Buffer::addParameter<std::vector<uint32_t>>(const std::vector<uint32_t
 	memcpy(&m_data[currentOffset], &_value[0], sizeof(uint32_t)*_value.size());
 }
 template<>
-void jus::Buffer::addParameter<std::vector<uint64_t>>(const std::vector<uint64_t>& _value) {
+void zeus::Buffer::addParameter<std::vector<uint64_t>>(const std::vector<uint64_t>& _value) {
 	int32_t currentOffset = m_data.size();
 	m_paramOffset.push_back(currentOffset);
 	m_data.push_back('v');
@@ -553,7 +550,7 @@ void jus::Buffer::addParameter<std::vector<uint64_t>>(const std::vector<uint64_t
 }
 
 template<>
-void jus::Buffer::addParameter<std::vector<float>>(const std::vector<float>& _value) {
+void zeus::Buffer::addParameter<std::vector<float>>(const std::vector<float>& _value) {
 	int32_t currentOffset = m_data.size();
 	m_paramOffset.push_back(currentOffset);
 	m_data.push_back('v');
@@ -576,7 +573,7 @@ void jus::Buffer::addParameter<std::vector<float>>(const std::vector<float>& _va
 }
 
 template<>
-void jus::Buffer::addParameter<std::vector<double>>(const std::vector<double>& _value) {
+void zeus::Buffer::addParameter<std::vector<double>>(const std::vector<double>& _value) {
 	int32_t currentOffset = m_data.size();
 	m_paramOffset.push_back(currentOffset);
 	m_data.push_back('v');
@@ -600,7 +597,7 @@ void jus::Buffer::addParameter<std::vector<double>>(const std::vector<double>& _
 }
 
 template<>
-void jus::Buffer::addParameter<int8_t>(const int8_t& _value) {
+void zeus::Buffer::addParameter<int8_t>(const int8_t& _value) {
 	int32_t currentOffset = m_data.size();
 	m_paramOffset.push_back(currentOffset);
 	m_data.push_back('i');
@@ -611,7 +608,7 @@ void jus::Buffer::addParameter<int8_t>(const int8_t& _value) {
 	m_data.push_back(uint8_t(_value));
 }
 template<>
-void jus::Buffer::addParameter<uint8_t>(const uint8_t& _value) {
+void zeus::Buffer::addParameter<uint8_t>(const uint8_t& _value) {
 	int32_t currentOffset = m_data.size();
 	m_paramOffset.push_back(currentOffset);
 	m_data.push_back('u');
@@ -623,7 +620,7 @@ void jus::Buffer::addParameter<uint8_t>(const uint8_t& _value) {
 	m_data.push_back(_value);
 }
 template<>
-void jus::Buffer::addParameter<int16_t>(const int16_t& _value) {
+void zeus::Buffer::addParameter<int16_t>(const int16_t& _value) {
 	int32_t currentOffset = m_data.size();
 	m_paramOffset.push_back(currentOffset);
 	m_data.push_back('i');
@@ -637,7 +634,7 @@ void jus::Buffer::addParameter<int16_t>(const int16_t& _value) {
 	memcpy(&m_data[currentOffset], &_value, 2);
 }
 template<>
-void jus::Buffer::addParameter<uint16_t>(const uint16_t& _value) {
+void zeus::Buffer::addParameter<uint16_t>(const uint16_t& _value) {
 	int32_t currentOffset = m_data.size();
 	m_paramOffset.push_back(currentOffset);
 	m_data.push_back('u');
@@ -652,7 +649,7 @@ void jus::Buffer::addParameter<uint16_t>(const uint16_t& _value) {
 	memcpy(&m_data[currentOffset], &_value, 2);
 }
 template<>
-void jus::Buffer::addParameter<int32_t>(const int32_t& _value) {
+void zeus::Buffer::addParameter<int32_t>(const int32_t& _value) {
 	int32_t currentOffset = m_data.size();
 	m_paramOffset.push_back(currentOffset);
 	m_data.push_back('i');
@@ -666,7 +663,7 @@ void jus::Buffer::addParameter<int32_t>(const int32_t& _value) {
 	memcpy(&m_data[currentOffset], &_value, 4);
 }
 template<>
-void jus::Buffer::addParameter<uint32_t>(const uint32_t& _value) {
+void zeus::Buffer::addParameter<uint32_t>(const uint32_t& _value) {
 	int32_t currentOffset = m_data.size();
 	m_paramOffset.push_back(currentOffset);
 	m_data.push_back('u');
@@ -681,7 +678,7 @@ void jus::Buffer::addParameter<uint32_t>(const uint32_t& _value) {
 	memcpy(&m_data[currentOffset], &_value, 4);
 }
 template<>
-void jus::Buffer::addParameter<int64_t>(const int64_t& _value) {
+void zeus::Buffer::addParameter<int64_t>(const int64_t& _value) {
 	int32_t currentOffset = m_data.size();
 	m_paramOffset.push_back(currentOffset);
 	m_data.push_back('i');
@@ -695,7 +692,7 @@ void jus::Buffer::addParameter<int64_t>(const int64_t& _value) {
 	memcpy(&m_data[currentOffset], &_value, 8);
 }
 template<>
-void jus::Buffer::addParameter<uint64_t>(const uint64_t& _value) {
+void zeus::Buffer::addParameter<uint64_t>(const uint64_t& _value) {
 	int32_t currentOffset = m_data.size();
 	m_paramOffset.push_back(currentOffset);
 	m_data.push_back('u');
@@ -710,7 +707,7 @@ void jus::Buffer::addParameter<uint64_t>(const uint64_t& _value) {
 	memcpy(&m_data[currentOffset], &_value, 8);
 }
 template<>
-void jus::Buffer::addParameter<float>(const float& _value) {
+void zeus::Buffer::addParameter<float>(const float& _value) {
 	int32_t currentOffset = m_data.size();
 	m_paramOffset.push_back(currentOffset);
 	m_data.push_back('f');
@@ -724,7 +721,7 @@ void jus::Buffer::addParameter<float>(const float& _value) {
 	memcpy(&m_data[currentOffset], &_value, 4);
 }
 template<>
-void jus::Buffer::addParameter<double>(const double& _value) {
+void zeus::Buffer::addParameter<double>(const double& _value) {
 	int32_t currentOffset = m_data.size();
 	m_paramOffset.push_back(currentOffset);
 	m_data.push_back('d');
@@ -739,7 +736,7 @@ void jus::Buffer::addParameter<double>(const double& _value) {
 	memcpy(&m_data[currentOffset], &_value, 8);
 }
 template<>
-void jus::Buffer::addParameter<bool>(const bool& _value) {
+void zeus::Buffer::addParameter<bool>(const bool& _value) {
 	int32_t currentOffset = m_data.size();
 	m_paramOffset.push_back(currentOffset);
 	m_data.push_back('b');
@@ -754,9 +751,20 @@ void jus::Buffer::addParameter<bool>(const bool& _value) {
 	}
 }
 
+template<>
+void zeus::Buffer::addParameter<zeus::File>(const zeus::File& _value) {
+	int32_t currentOffset = m_data.size();
+	m_paramOffset.push_back(currentOffset);
+	m_data.push_back('f');
+	m_data.push_back('i');
+	m_data.push_back('l');
+	m_data.push_back('e');
+	m_data.push_back('\0');
+	ZEUS_TODO("Send file in output ...");
+}
 
 template<>
-bool jus::Buffer::internalGetParameter<bool>(int32_t _id) const {
+bool zeus::Buffer::internalGetParameter<bool>(int32_t _id) const {
 	std::string type = internalGetParameterType(_id);
 	const uint8_t* pointer = internalGetParameterPointer(_id);
 	uint32_t dataSize = internalGetParameterSize(_id);
@@ -773,7 +781,7 @@ bool jus::Buffer::internalGetParameter<bool>(int32_t _id) const {
 }
 
 template<>
-std::string jus::Buffer::internalGetParameter<std::string>(int32_t _id) const {
+std::string zeus::Buffer::internalGetParameter<std::string>(int32_t _id) const {
 	std::string out;
 	std::string type = internalGetParameterType(_id);
 	const uint8_t* pointer = internalGetParameterPointer(_id);
@@ -785,7 +793,7 @@ std::string jus::Buffer::internalGetParameter<std::string>(int32_t _id) const {
 
 
 template<>
-uint8_t jus::Buffer::internalGetParameter<uint8_t>(int32_t _id) const {
+uint8_t zeus::Buffer::internalGetParameter<uint8_t>(int32_t _id) const {
 	std::string type = internalGetParameterType(_id);
 	const uint8_t* pointer = internalGetParameterPointer(_id);
 	uint32_t dataSize = internalGetParameterSize(_id);
@@ -821,11 +829,11 @@ uint8_t jus::Buffer::internalGetParameter<uint8_t>(int32_t _id) const {
 		const double* tmp = reinterpret_cast<const double*>(pointer);
 		return uint8_t(etk::avg(double(0), *tmp, double(UCHAR_MAX)));
 	}
-	JUS_ERROR("Can not get type from '" << type << "'");
+	ZEUS_ERROR("Can not get type from '" << type << "'");
 	return 0;
 }
 template<>
-uint16_t jus::Buffer::internalGetParameter<uint16_t>(int32_t _id) const {
+uint16_t zeus::Buffer::internalGetParameter<uint16_t>(int32_t _id) const {
 	std::string type = internalGetParameterType(_id);
 	const uint8_t* pointer = internalGetParameterPointer(_id);
 	uint32_t dataSize = internalGetParameterSize(_id);
@@ -861,12 +869,12 @@ uint16_t jus::Buffer::internalGetParameter<uint16_t>(int32_t _id) const {
 		const double* tmp = reinterpret_cast<const double*>(pointer);
 		return uint16_t(etk::avg(double(0), *tmp, double(USHRT_MAX)));
 	}
-	JUS_ERROR("Can not get type from '" << type << "'");
+	ZEUS_ERROR("Can not get type from '" << type << "'");
 	return 0;
 }
 
 template<>
-uint32_t jus::Buffer::internalGetParameter<uint32_t>(int32_t _id) const {
+uint32_t zeus::Buffer::internalGetParameter<uint32_t>(int32_t _id) const {
 	std::string type = internalGetParameterType(_id);
 	const uint8_t* pointer = internalGetParameterPointer(_id);
 	uint32_t dataSize = internalGetParameterSize(_id);
@@ -902,12 +910,12 @@ uint32_t jus::Buffer::internalGetParameter<uint32_t>(int32_t _id) const {
 		const double* tmp = reinterpret_cast<const double*>(pointer);
 		return uint32_t(etk::avg(double(0), *tmp, double(ULONG_MAX)));
 	}
-	JUS_ERROR("Can not get type from '" << type << "'");
+	ZEUS_ERROR("Can not get type from '" << type << "'");
 	return 0;
 }
 
 template<>
-uint64_t jus::Buffer::internalGetParameter<uint64_t>(int32_t _id) const {
+uint64_t zeus::Buffer::internalGetParameter<uint64_t>(int32_t _id) const {
 	std::string type = internalGetParameterType(_id);
 	const uint8_t* pointer = internalGetParameterPointer(_id);
 	uint32_t dataSize = internalGetParameterSize(_id);
@@ -943,12 +951,12 @@ uint64_t jus::Buffer::internalGetParameter<uint64_t>(int32_t _id) const {
 		const double* tmp = reinterpret_cast<const double*>(pointer);
 		return uint64_t(etk::avg(double(0), *tmp, double(ULONG_MAX)));
 	}
-	JUS_ERROR("Can not get type from '" << type << "'");
+	ZEUS_ERROR("Can not get type from '" << type << "'");
 	return 0;
 }
 
 template<>
-int8_t jus::Buffer::internalGetParameter<int8_t>(int32_t _id) const {
+int8_t zeus::Buffer::internalGetParameter<int8_t>(int32_t _id) const {
 	std::string type = internalGetParameterType(_id);
 	const uint8_t* pointer = internalGetParameterPointer(_id);
 	uint32_t dataSize = internalGetParameterSize(_id);
@@ -984,12 +992,12 @@ int8_t jus::Buffer::internalGetParameter<int8_t>(int32_t _id) const {
 		const double* tmp = reinterpret_cast<const double*>(pointer);
 		return int8_t(etk::avg(double(SCHAR_MIN), *tmp, double(SCHAR_MAX)));
 	}
-	JUS_ERROR("Can not get type from '" << type << "'");
+	ZEUS_ERROR("Can not get type from '" << type << "'");
 	return 0;
 }
 
 template<>
-int16_t jus::Buffer::internalGetParameter<int16_t>(int32_t _id) const {
+int16_t zeus::Buffer::internalGetParameter<int16_t>(int32_t _id) const {
 	std::string type = internalGetParameterType(_id);
 	const uint8_t* pointer = internalGetParameterPointer(_id);
 	uint32_t dataSize = internalGetParameterSize(_id);
@@ -1025,12 +1033,12 @@ int16_t jus::Buffer::internalGetParameter<int16_t>(int32_t _id) const {
 		const double* tmp = reinterpret_cast<const double*>(pointer);
 		return int16_t(etk::avg(double(SHRT_MIN), *tmp, double(SHRT_MAX)));
 	}
-	JUS_ERROR("Can not get type from '" << type << "'");
+	ZEUS_ERROR("Can not get type from '" << type << "'");
 	return 0;
 }
 
 template<>
-int32_t jus::Buffer::internalGetParameter<int32_t>(int32_t _id) const {
+int32_t zeus::Buffer::internalGetParameter<int32_t>(int32_t _id) const {
 	std::string type = internalGetParameterType(_id);
 	const uint8_t* pointer = internalGetParameterPointer(_id);
 	uint32_t dataSize = internalGetParameterSize(_id);
@@ -1066,12 +1074,12 @@ int32_t jus::Buffer::internalGetParameter<int32_t>(int32_t _id) const {
 		const double* tmp = reinterpret_cast<const double*>(pointer);
 		return int32_t(etk::avg(double(LONG_MIN), *tmp, double(LONG_MAX)));
 	}
-	JUS_ERROR("Can not get type from '" << type << "'");
+	ZEUS_ERROR("Can not get type from '" << type << "'");
 	return 0;
 }
 
 template<>
-int64_t jus::Buffer::internalGetParameter<int64_t>(int32_t _id) const {
+int64_t zeus::Buffer::internalGetParameter<int64_t>(int32_t _id) const {
 	std::string type = internalGetParameterType(_id);
 	const uint8_t* pointer = internalGetParameterPointer(_id);
 	uint32_t dataSize = internalGetParameterSize(_id);
@@ -1107,12 +1115,12 @@ int64_t jus::Buffer::internalGetParameter<int64_t>(int32_t _id) const {
 		const double* tmp = reinterpret_cast<const double*>(pointer);
 		return int64_t(etk::avg(double(LLONG_MIN), *tmp, double(LLONG_MAX)));
 	}
-	JUS_ERROR("Can not get type from '" << type << "'");
+	ZEUS_ERROR("Can not get type from '" << type << "'");
 	return 0;
 }
 
 template<>
-float jus::Buffer::internalGetParameter<float>(int32_t _id) const {
+float zeus::Buffer::internalGetParameter<float>(int32_t _id) const {
 	std::string type = internalGetParameterType(_id);
 	const uint8_t* pointer = internalGetParameterPointer(_id);
 	uint32_t dataSize = internalGetParameterSize(_id);
@@ -1148,11 +1156,11 @@ float jus::Buffer::internalGetParameter<float>(int32_t _id) const {
 		const double* tmp = reinterpret_cast<const double*>(pointer);
 		return *tmp;
 	}
-	JUS_ERROR("Can not get type from '" << type << "'");
+	ZEUS_ERROR("Can not get type from '" << type << "'");
 	return 0.0f;
 }
 template<>
-double jus::Buffer::internalGetParameter<double>(int32_t _id) const {
+double zeus::Buffer::internalGetParameter<double>(int32_t _id) const {
 	std::string type = internalGetParameterType(_id);
 	const uint8_t* pointer = internalGetParameterPointer(_id);
 	uint32_t dataSize = internalGetParameterSize(_id);
@@ -1188,7 +1196,7 @@ double jus::Buffer::internalGetParameter<double>(int32_t _id) const {
 		const double* tmp = reinterpret_cast<const double*>(pointer);
 		return *tmp;
 	}
-	JUS_ERROR("Can not get type from '" << type << "'");
+	ZEUS_ERROR("Can not get type from '" << type << "'");
 	return 0.0;
 }
 
@@ -1216,7 +1224,7 @@ double jus::Buffer::internalGetParameter<double>(int32_t _id) const {
 
 
 template<>
-std::vector<uint8_t> jus::Buffer::internalGetParameter<std::vector<uint8_t>>(int32_t _id) const {
+std::vector<uint8_t> zeus::Buffer::internalGetParameter<std::vector<uint8_t>>(int32_t _id) const {
 	std::vector<uint8_t> out;
 	std::string type = internalGetParameterType(_id);
 	const uint8_t* pointer = internalGetParameterPointer(_id);
@@ -1302,11 +1310,11 @@ std::vector<uint8_t> jus::Buffer::internalGetParameter<std::vector<uint8_t>>(int
 		}
 		return out;
 	}
-	JUS_ERROR("Can not get type from '" << type << "'");
+	ZEUS_ERROR("Can not get type from '" << type << "'");
 	return out;
 }
 template<>
-std::vector<uint16_t> jus::Buffer::internalGetParameter<std::vector<uint16_t>>(int32_t _id) const {
+std::vector<uint16_t> zeus::Buffer::internalGetParameter<std::vector<uint16_t>>(int32_t _id) const {
 	std::vector<uint16_t> out;
 	std::string type = internalGetParameterType(_id);
 	const uint8_t* pointer = internalGetParameterPointer(_id);
@@ -1392,12 +1400,12 @@ std::vector<uint16_t> jus::Buffer::internalGetParameter<std::vector<uint16_t>>(i
 		}
 		return out;
 	}
-	JUS_ERROR("Can not get type from '" << type << "'");
+	ZEUS_ERROR("Can not get type from '" << type << "'");
 	return out;
 }
 
 template<>
-std::vector<uint32_t> jus::Buffer::internalGetParameter<std::vector<uint32_t>>(int32_t _id) const {
+std::vector<uint32_t> zeus::Buffer::internalGetParameter<std::vector<uint32_t>>(int32_t _id) const {
 	std::vector<uint32_t> out;
 	std::string type = internalGetParameterType(_id);
 	const uint8_t* pointer = internalGetParameterPointer(_id);
@@ -1483,12 +1491,12 @@ std::vector<uint32_t> jus::Buffer::internalGetParameter<std::vector<uint32_t>>(i
 		}
 		return out;
 	}
-	JUS_ERROR("Can not get type from '" << type << "'");
+	ZEUS_ERROR("Can not get type from '" << type << "'");
 	return out;
 }
 
 template<>
-std::vector<uint64_t> jus::Buffer::internalGetParameter<std::vector<uint64_t>>(int32_t _id) const {
+std::vector<uint64_t> zeus::Buffer::internalGetParameter<std::vector<uint64_t>>(int32_t _id) const {
 	std::vector<uint64_t> out;
 	std::string type = internalGetParameterType(_id);
 	const uint8_t* pointer = internalGetParameterPointer(_id);
@@ -1574,12 +1582,12 @@ std::vector<uint64_t> jus::Buffer::internalGetParameter<std::vector<uint64_t>>(i
 		}
 		return out;
 	}
-	JUS_ERROR("Can not get type from '" << type << "'");
+	ZEUS_ERROR("Can not get type from '" << type << "'");
 	return out;
 }
 
 template<>
-std::vector<int8_t> jus::Buffer::internalGetParameter<std::vector<int8_t>>(int32_t _id) const {
+std::vector<int8_t> zeus::Buffer::internalGetParameter<std::vector<int8_t>>(int32_t _id) const {
 	std::vector<int8_t> out;
 	std::string type = internalGetParameterType(_id);
 	const uint8_t* pointer = internalGetParameterPointer(_id);
@@ -1665,12 +1673,12 @@ std::vector<int8_t> jus::Buffer::internalGetParameter<std::vector<int8_t>>(int32
 		}
 		return out;
 	}
-	JUS_ERROR("Can not get type from '" << type << "'");
+	ZEUS_ERROR("Can not get type from '" << type << "'");
 	return out;
 }
 
 template<>
-std::vector<int16_t> jus::Buffer::internalGetParameter<std::vector<int16_t>>(int32_t _id) const {
+std::vector<int16_t> zeus::Buffer::internalGetParameter<std::vector<int16_t>>(int32_t _id) const {
 	std::vector<int16_t> out;
 	std::string type = internalGetParameterType(_id);
 	const uint8_t* pointer = internalGetParameterPointer(_id);
@@ -1756,12 +1764,12 @@ std::vector<int16_t> jus::Buffer::internalGetParameter<std::vector<int16_t>>(int
 		}
 		return out;
 	}
-	JUS_ERROR("Can not get type from '" << type << "'");
+	ZEUS_ERROR("Can not get type from '" << type << "'");
 	return out;
 }
 
 template<>
-std::vector<int32_t> jus::Buffer::internalGetParameter<std::vector<int32_t>>(int32_t _id) const {
+std::vector<int32_t> zeus::Buffer::internalGetParameter<std::vector<int32_t>>(int32_t _id) const {
 	std::vector<int32_t> out;
 	std::string type = internalGetParameterType(_id);
 	const uint8_t* pointer = internalGetParameterPointer(_id);
@@ -1847,12 +1855,12 @@ std::vector<int32_t> jus::Buffer::internalGetParameter<std::vector<int32_t>>(int
 		}
 		return out;
 	}
-	JUS_ERROR("Can not get type from '" << type << "'");
+	ZEUS_ERROR("Can not get type from '" << type << "'");
 	return out;
 }
 
 template<>
-std::vector<int64_t> jus::Buffer::internalGetParameter<std::vector<int64_t>>(int32_t _id) const {
+std::vector<int64_t> zeus::Buffer::internalGetParameter<std::vector<int64_t>>(int32_t _id) const {
 	std::vector<int64_t> out;
 	std::string type = internalGetParameterType(_id);
 	const uint8_t* pointer = internalGetParameterPointer(_id);
@@ -1938,12 +1946,12 @@ std::vector<int64_t> jus::Buffer::internalGetParameter<std::vector<int64_t>>(int
 		}
 		return out;
 	}
-	JUS_ERROR("Can not get type from '" << type << "'");
+	ZEUS_ERROR("Can not get type from '" << type << "'");
 	return out;
 }
 
 template<>
-std::vector<float> jus::Buffer::internalGetParameter<std::vector<float>>(int32_t _id) const {
+std::vector<float> zeus::Buffer::internalGetParameter<std::vector<float>>(int32_t _id) const {
 	std::vector<float> out;
 	std::string type = internalGetParameterType(_id);
 	const uint8_t* pointer = internalGetParameterPointer(_id);
@@ -2029,12 +2037,12 @@ std::vector<float> jus::Buffer::internalGetParameter<std::vector<float>>(int32_t
 		}
 		return out;
 	}
-	JUS_ERROR("Can not get type from '" << type << "'");
+	ZEUS_ERROR("Can not get type from '" << type << "'");
 	return out;
 }
 
 template<>
-std::vector<double> jus::Buffer::internalGetParameter<std::vector<double>>(int32_t _id) const {
+std::vector<double> zeus::Buffer::internalGetParameter<std::vector<double>>(int32_t _id) const {
 	std::vector<double> out;
 	std::string type = internalGetParameterType(_id);
 	const uint8_t* pointer = internalGetParameterPointer(_id);
@@ -2120,12 +2128,12 @@ std::vector<double> jus::Buffer::internalGetParameter<std::vector<double>>(int32
 		memcpy(&out, pointer, nbElement * sizeof(double));
 		return out;
 	}
-	JUS_ERROR("Can not get type from '" << type << "'");
+	ZEUS_ERROR("Can not get type from '" << type << "'");
 	return out;
 }
 
 template<>
-std::vector<bool> jus::Buffer::internalGetParameter<std::vector<bool>>(int32_t _id) const {
+std::vector<bool> zeus::Buffer::internalGetParameter<std::vector<bool>>(int32_t _id) const {
 	std::vector<bool> out;
 	std::string type = internalGetParameterType(_id);
 	const uint8_t* pointer = internalGetParameterPointer(_id);
@@ -2142,12 +2150,12 @@ std::vector<bool> jus::Buffer::internalGetParameter<std::vector<bool>>(int32_t _
 		}
 		return out;
 	}
-	JUS_ERROR("Can not get type from '" << type << "'");
+	ZEUS_ERROR("Can not get type from '" << type << "'");
 	return out;
 }
 
 template<>
-std::vector<std::string> jus::Buffer::internalGetParameter<std::vector<std::string>>(int32_t _id) const {
+std::vector<std::string> zeus::Buffer::internalGetParameter<std::vector<std::string>>(int32_t _id) const {
 	std::vector<std::string> out;
 	std::string type = internalGetParameterType(_id);
 	const uint8_t* pointer = internalGetParameterPointer(_id);
@@ -2159,62 +2167,87 @@ std::vector<std::string> jus::Buffer::internalGetParameter<std::vector<std::stri
 		const uint16_t* tmp = reinterpret_cast<const uint16_t*>(pointer);
 		out.resize(*tmp);
 		pointer += sizeof(uint16_t);
-		JUS_DEBUG("Parse list of string: Find " << out.size() << " elements");
+		ZEUS_DEBUG("Parse list of string: Find " << out.size() << " elements");
 		//each string is separated with a \0:
 		for (int32_t iii=0; iii<out.size(); ++iii) {
 			const char* tmp2 = reinterpret_cast<const char*>(pointer);
 			out[iii] = tmp2;
 			pointer += out[iii].size() + 1;
-			JUS_DEBUG("    value: '" << out[iii] << "'");
+			ZEUS_DEBUG("    value: '" << out[iii] << "'");
 		}
 		return out;
 	}
-	JUS_ERROR("Can not get type from '" << type << "'");
+	ZEUS_ERROR("Can not get type from '" << type << "'");
 	return out;
 }
 
-void jus::Buffer::addError(const std::string& _value, const std::string& _comment) {
+template<>
+zeus::File zeus::Buffer::internalGetParameter<zeus::File>(int32_t _id) const {
+	zeus::File out;
+	std::string type = internalGetParameterType(_id);
+	const uint8_t* pointer = internalGetParameterPointer(_id);
+	uint32_t dataSize = internalGetParameterSize(_id);
+	// TODO : Check size ...
+	if (createType<zeus::File>() == type) {
+		/*
+		const uint8_t* tmp = reinterpret_cast<const uint8_t*>(pointer);
+		int32_t nbElement = dataSize / sizeof(uint8_t);
+		out.resize(nbElement);
+		for (size_t iii=0; iii<nbElement; ++iii) {
+			out[iii] = tmp[iii] == 'T';
+		}
+		*/
+		ZEUS_TODO("Generate retrun of file...");
+		return out;
+	}
+	ZEUS_ERROR("Can not get type from '" << type << "'");
+	return out;
+}
+
+
+void zeus::Buffer::addError(const std::string& _value, const std::string& _comment) {
 	addParameter(_value);
 	addParameter(_comment);
 }
 
-std::string jus::Buffer::getCall() const {
+std::string zeus::Buffer::getCall() const {
 	std::string out;
 	switch(getType()) {
-		case jus::Buffer::typeMessage::call:
+		case zeus::Buffer::typeMessage::call:
 			return internalGetParameter<std::string>(0);
 			break;
-		case jus::Buffer::typeMessage::answer:
-			JUS_WARNING("get 'call' with an input type: 'answer'");
+		case zeus::Buffer::typeMessage::answer:
+			ZEUS_WARNING("get 'call' with an input type: 'answer'");
 			break;
-		case jus::Buffer::typeMessage::event:
-			JUS_WARNING("get 'call' with an input type: 'event'");
+		case zeus::Buffer::typeMessage::event:
+			ZEUS_WARNING("get 'call' with an input type: 'event'");
 			break;
 		default:
-			JUS_ERROR("unknow type: " << uint16_t(getType()));
+			ZEUS_ERROR("unknow type: " << uint16_t(getType()));
 			break;
 	}
 	return "";
 }
 
-void jus::Buffer::setCall(std::string _value) {
+void zeus::Buffer::setCall(std::string _value) {
 	if (m_paramOffset.size() != 0) {
-		JUS_ERROR("Clear Buffer of parameter ==> set the call type in first ...");
+		ZEUS_ERROR("Clear Buffer of parameter ==> set the call type in first ...");
 		m_paramOffset.clear();
 		m_data.clear();
 	}
 	addParameter(_value);
 }
 
-void jus::Buffer::prepare() {
+uint64_t zeus::Buffer::prepare() {
 	m_header.numberOfParameter = m_paramOffset.size();
-	m_header.lenght = sizeof(headerBin) - sizeof(uint32_t);
-	m_header.lenght += m_paramOffset.size() * sizeof(uint16_t); // param list
-	m_header.lenght += m_data.size();
+	uint64_t size = sizeof(headerBin);
+	size += m_paramOffset.size() * sizeof(uint16_t); // param list
+	size += m_data.size();
+	return size;
 }
 
-bool jus::Buffer::hasError() {
-	if (getType() != jus::Buffer::typeMessage::answer) {
+bool zeus::Buffer::hasError() {
+	if (getType() != zeus::Buffer::typeMessage::answer) {
 		return false;
 	}
 	if (m_paramOffset.size() == 2) {
@@ -2225,8 +2258,8 @@ bool jus::Buffer::hasError() {
 	return false;
 }
 
-std::string jus::Buffer::getError() {
-	if (getType() != jus::Buffer::typeMessage::answer) {
+std::string zeus::Buffer::getError() {
+	if (getType() != zeus::Buffer::typeMessage::answer) {
 		return "";
 	}
 	if (m_paramOffset.size() == 2) {
@@ -2237,8 +2270,8 @@ std::string jus::Buffer::getError() {
 	return "";
 }
 
-std::string jus::Buffer::getErrorHelp() {
-	if (getType() != jus::Buffer::typeMessage::answer) {
+std::string zeus::Buffer::getErrorHelp() {
+	if (getType() != zeus::Buffer::typeMessage::answer) {
 		return "";
 	}
 	if (m_paramOffset.size() == 2) {

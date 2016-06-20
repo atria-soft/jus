@@ -6,7 +6,7 @@
 #pragma once
 #include <etk/types.h>
 
-namespace jus {
+namespace zeus {
 	std::string getMineType(const std::string& _extention);
 	std::string getExtention(const std::string& _mineType);
 };

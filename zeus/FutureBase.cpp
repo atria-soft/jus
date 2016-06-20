@@ -3,21 +3,21 @@
  * @copyright 2014, Edouard DUPIN, all right reserved
  * @license APACHE v2.0 (see license file)
  */
-#include <jus/FutureBase.h>
-#include <jus/debug.h>
+#include <zeus/FutureBase.h>
+#include <zeus/debug.h>
 #include <unistd.h>
 
-jus::FutureBase::FutureBase(const jus::FutureBase& _base):
+zeus::FutureBase::FutureBase(const zeus::FutureBase& _base):
   m_data(_base.m_data) {
 	
 }
 
-jus::FutureBase::FutureBase() {
+zeus::FutureBase::FutureBase() {
 	m_data = nullptr;
 }
 
-jus::FutureBase::FutureBase(uint64_t _transactionId, jus::FutureData::ObserverFinish _callback) {
-	m_data = std::make_shared<jus::FutureData>();
+zeus::FutureBase::FutureBase(uint64_t _transactionId, zeus::FutureData::ObserverFinish _callback) {
+	m_data = std::make_shared<zeus::FutureData>();
 	if (m_data == nullptr) {
 		return;
 	}
@@ -28,16 +28,16 @@ jus::FutureBase::FutureBase(uint64_t _transactionId, jus::FutureData::ObserverFi
 	m_data->m_callbackFinish = _callback;
 }
 
-const jus::Buffer& jus::FutureBase::getRaw() {
+const zeus::Buffer& zeus::FutureBase::getRaw() {
 	if (m_data == nullptr) {
-		static jus::Buffer tmpp;
+		static zeus::Buffer tmpp;
 		return tmpp;
 	}
 	return m_data->m_returnData;
 }
 
-jus::FutureBase::FutureBase(uint64_t _transactionId, bool _isFinished, jus::Buffer _returnData, jus::FutureData::ObserverFinish _callback) {
-	m_data = std::make_shared<jus::FutureData>();
+zeus::FutureBase::FutureBase(uint64_t _transactionId, bool _isFinished, zeus::Buffer _returnData, zeus::FutureData::ObserverFinish _callback) {
+	m_data = std::make_shared<zeus::FutureData>();
 	if (m_data == nullptr) {
 		return;
 	}
@@ -54,7 +54,7 @@ jus::FutureBase::FutureBase(uint64_t _transactionId, bool _isFinished, jus::Buff
 		}
 	}
 }
-std::chrono::nanoseconds jus::FutureBase::getTransmitionTime() {
+std::chrono::nanoseconds zeus::FutureBase::getTransmitionTime() {
 	if (m_data == nullptr) {
 		return std::chrono::nanoseconds(0);
 	}
@@ -64,14 +64,14 @@ std::chrono::nanoseconds jus::FutureBase::getTransmitionTime() {
 	return m_data->m_receiveTime - m_data->m_sendTime;
 }
 
-jus::FutureBase jus::FutureBase::operator= (const jus::FutureBase& _base) {
+zeus::FutureBase zeus::FutureBase::operator= (const zeus::FutureBase& _base) {
 	m_data = _base.m_data;
 	return *this;
 }
 
-bool jus::FutureBase::setAnswer(const jus::Buffer& _returnValue) {
+bool zeus::FutureBase::setAnswer(const zeus::Buffer& _returnValue) {
 	if (m_data == nullptr) {
-		JUS_ERROR(" Not a valid future ...");
+		ZEUS_ERROR(" Not a valid future ...");
 		return true;
 	}
 	m_data->m_receiveTime = std::chrono::steady_clock::now();
@@ -109,53 +109,53 @@ bool jus::FutureBase::setAnswer(const jus::Buffer& _returnValue) {
 	}
 	return true;
 }
-void jus::FutureBase::setSynchronous() {
+void zeus::FutureBase::setSynchronous() {
 	if (m_data == nullptr) {
 		return;
 	}
 	m_data->m_isSynchronous = true;
 }
 
-uint64_t jus::FutureBase::getTransactionId() {
+uint64_t zeus::FutureBase::getTransactionId() {
 	if (m_data == nullptr) {
 		return 0;
 	}
 	return m_data->m_transactionId;
 }
 
-bool jus::FutureBase::hasError() {
+bool zeus::FutureBase::hasError() {
 	if (m_data == nullptr) {
 		return true;
 	}
 	return m_data->m_returnData.hasError();
 }
 
-std::string jus::FutureBase::getErrorType() {
+std::string zeus::FutureBase::getErrorType() {
 	if (m_data == nullptr) {
 		return "NULL_PTR";
 	}
 	return m_data->m_returnData.getError();
 }
 
-std::string jus::FutureBase::getErrorHelp() {
+std::string zeus::FutureBase::getErrorHelp() {
 	if (m_data == nullptr) {
 		return "Thsi is a nullptr future";
 	}
 	return m_data->m_returnData.getErrorHelp();
 }
 
-bool jus::FutureBase::isValid() {
+bool zeus::FutureBase::isValid() {
 	return m_data != nullptr;
 }
 
-bool jus::FutureBase::isFinished() {
+bool zeus::FutureBase::isFinished() {
 	if (m_data == nullptr) {
 		return true;
 	}
 	return m_data->m_isFinished;
 }
 
-jus::FutureBase& jus::FutureBase::wait() {
+zeus::FutureBase& zeus::FutureBase::wait() {
 	while (isFinished() == false) {
 		// TODO : Do it better ... like messaging/mutex_locked ...
 		usleep(10000);
@@ -163,7 +163,7 @@ jus::FutureBase& jus::FutureBase::wait() {
 	return *this;
 }
 
-jus::FutureBase& jus::FutureBase::waitFor(std::chrono::microseconds _delta) {
+zeus::FutureBase& zeus::FutureBase::waitFor(std::chrono::microseconds _delta) {
 	std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
 	while (    std::chrono::steady_clock::now() - start < _delta
 	        && isFinished() == false) {
@@ -174,7 +174,7 @@ jus::FutureBase& jus::FutureBase::waitFor(std::chrono::microseconds _delta) {
 	return *this;
 }
 
-jus::FutureBase& jus::FutureBase::waitUntil(std::chrono::steady_clock::time_point _endTime) {
+zeus::FutureBase& zeus::FutureBase::waitUntil(std::chrono::steady_clock::time_point _endTime) {
 	while (    std::chrono::steady_clock::now() < _endTime
 	        && isFinished() == false) {
 		// TODO : Do it better ... like messaging/mutex_locked ...
@@ -184,7 +184,7 @@ jus::FutureBase& jus::FutureBase::waitUntil(std::chrono::steady_clock::time_poin
 }
 
 
-jus::FutureCall::FutureCall(uint64_t _clientId, uint64_t _transactionId, jus::Buffer& _callValue) :
+zeus::FutureCall::FutureCall(uint64_t _clientId, uint64_t _transactionId, zeus::Buffer& _callValue) :
   m_transactionId(_transactionId),
   m_clientId(_clientId),
   m_isFinished(false) {
@@ -192,27 +192,27 @@ jus::FutureCall::FutureCall(uint64_t _clientId, uint64_t _transactionId, jus::Bu
 	m_isFinished = m_data.getPartFinish();
 }
 
-void jus::FutureCall::appendData(jus::Buffer& _callValue) {
+void zeus::FutureCall::appendData(zeus::Buffer& _callValue) {
 	m_dataMultiplePack.push_back(_callValue);
 	m_isFinished = _callValue.getPartFinish();
 }
 
-uint64_t jus::FutureCall::getTransactionId() {
+uint64_t zeus::FutureCall::getTransactionId() {
 	return m_transactionId;
 }
 
-uint64_t jus::FutureCall::getClientId() {
+uint64_t zeus::FutureCall::getClientId() {
 	return m_clientId;
 }
 
-bool jus::FutureCall::isFinished() {
+bool zeus::FutureCall::isFinished() {
 	return m_isFinished;
 }
 
-jus::Buffer& jus::FutureCall::getRaw() {
+zeus::Buffer& zeus::FutureCall::getRaw() {
 	return m_data;
 }
 
-std::chrono::nanoseconds jus::FutureCall::getTransmitionTime() {
+std::chrono::nanoseconds zeus::FutureCall::getTransmitionTime() {
 	return m_answerTime - m_receiveTime;
 }

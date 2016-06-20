@@ -7,7 +7,7 @@
 
 #include <string>
 
-namespace jus {
+namespace zeus {
 	class ParamType {
 		protected:
 			const char* m_typeName;
@@ -20,7 +20,7 @@ namespace jus {
 	};
 	
 	
-	template<class JUS_TYPE>
+	template<class ZEUS_TYPE>
 	ParamType createType();
 }
 

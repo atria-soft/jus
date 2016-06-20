@@ -10,7 +10,7 @@ TODO ...
 
 License (APACHE v2.0)
 =====================
-Copyright jus Edouard DUPIN
+Copyright zeus Edouard DUPIN
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.

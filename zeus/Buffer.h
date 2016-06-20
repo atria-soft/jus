@@ -6,11 +6,10 @@
 #pragma once
 #include <etk/types.h>
 
-namespace jus {
+namespace zeus {
 	//U32 message lenght
 	#pragma pack(push,1)
 	struct headerBin {
-		uint32_t lenght;
 		uint16_t versionProtocol; // protocol Version (might be 1)
 		uint32_t transactionID;
 		uint32_t clientID; // same as sevice ID
@@ -142,8 +141,8 @@ namespace jus {
 		// == Section call
 		// ===============================================
 		private:
-			template<class JUS_TYPE_DATA>
-			JUS_TYPE_DATA internalGetParameter(int32_t _id) const;
+			template<class ZEUS_TYPE_DATA>
+			ZEUS_TYPE_DATA internalGetParameter(int32_t _id) const;
 			std::string internalGetParameterType(int32_t _id) const;
 			const uint8_t* internalGetParameterPointer(int32_t _id) const;
 			uint32_t internalGetParameterSize(int32_t _id) const;
@@ -156,14 +155,14 @@ namespace jus {
 			uint32_t getParameterSize(int32_t _id) const;
 			
 		public:
-			template<class JUS_TYPE_DATA>
-			void addParameter(const JUS_TYPE_DATA& _value);
+			template<class ZEUS_TYPE_DATA>
+			void addParameter(const ZEUS_TYPE_DATA& _value);
 			void addParameterEmptyVector();
 			void addParameter();
 			
-			template<class JUS_TYPE_DATA>
-			JUS_TYPE_DATA getParameter(int32_t _id) const {
-				return internalGetParameter<JUS_TYPE_DATA>(_id+1);
+			template<class ZEUS_TYPE_DATA>
+			ZEUS_TYPE_DATA getParameter(int32_t _id) const {
+				return internalGetParameter<ZEUS_TYPE_DATA>(_id+1);
 			}
 			
 			
@@ -171,14 +170,14 @@ namespace jus {
 		// == Section Answer
 		// ===============================================
 		public:
-			template<class JUS_TYPE_DATA>
-			void addAnswer(const JUS_TYPE_DATA& _value) {
+			template<class ZEUS_TYPE_DATA>
+			void addAnswer(const ZEUS_TYPE_DATA& _value) {
 				addParameter(_value);
 			}
 			// TODO : Do it better check error ... ==> can be good ...
-			template<class JUS_TYPE_DATA>
-			JUS_TYPE_DATA getAnswer() const {
-				return internalGetParameter<JUS_TYPE_DATA>(0);
+			template<class ZEUS_TYPE_DATA>
+			ZEUS_TYPE_DATA getAnswer() const {
+				return internalGetParameter<ZEUS_TYPE_DATA>(0);
 			}
 			void addError(const std::string& _value, const std::string& _comment);
 			bool hasError();
@@ -189,8 +188,8 @@ namespace jus {
 			//multiple section of data (part ...)
 			void addData(void* _data, uint32_t _size);
 		
-			void prepare();
+			uint64_t prepare();
 	};
-	std::ostream& operator <<(std::ostream& _os, enum jus::Buffer::typeMessage _value);
+	std::ostream& operator <<(std::ostream& _os, enum zeus::Buffer::typeMessage _value);
 }
 

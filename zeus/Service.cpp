@@ -4,45 +4,45 @@
  * @license APACHE v2.0 (see license file)
  */
 
-#include <jus/Service.h>
-#include <jus/debug.h>
+#include <zeus/Service.h>
+#include <zeus/debug.h>
 #include <etk/stdTools.h>
 #include <enet/TcpClient.h>
 
 #include <unistd.h>
 
-jus::Service::Service() :
-  propertyIp(this, "ip", "127.0.0.1", "Ip to connect server", &jus::Service::onPropertyChangeIp),
-  propertyPort(this, "port", 1982, "Port to connect server", &jus::Service::onPropertyChangePort) {
+zeus::Service::Service() :
+  propertyIp(this, "ip", "127.0.0.1", "Ip to connect server", &zeus::Service::onPropertyChangeIp),
+  propertyPort(this, "port", 1982, "Port to connect server", &zeus::Service::onPropertyChangePort) {
 	
 	
-	advertise("getExtention", &jus::Service::getExtention);
+	advertise("getExtention", &zeus::Service::getExtention);
 	setLastFuncDesc("Get List of availlable extention of this service");
 	addLastFuncReturn("A list of extention register in the service");
 	
 }
 
-jus::Service::~Service() {
+zeus::Service::~Service() {
 	
 }
 
 
-std::vector<std::string> jus::Service::getExtention() {
+std::vector<std::string> zeus::Service::getExtention() {
 	return std::vector<std::string>();
 }
 
 
-void jus::Service::onClientData(jus::Buffer& _value) {
+void zeus::Service::onClientData(zeus::Buffer& _value) {
 	uint32_t tmpID = _value.getTransactionId();
 	uint32_t clientId = _value.getClientId();;
 	auto it = m_callMultiData.begin();
 	while (it != m_callMultiData.end()) {
 		if (    it->getTransactionId() == tmpID
 		     && it->getClientId() == clientId) {
-			JUS_WARNING("Append data ... " << tmpID);
+			ZEUS_WARNING("Append data ... " << tmpID);
 			it->appendData(_value);
 			if (it->isFinished() == true) {
-				JUS_WARNING("CALL Function ...");
+				ZEUS_WARNING("CALL Function ...");
 				callBinary(tmpID, it->getRaw());
 				it = m_callMultiData.erase(it);
 			}
@@ -50,98 +50,86 @@ void jus::Service::onClientData(jus::Buffer& _value) {
 		}
 		++it;
 	}
-	jus::FutureCall futCall(clientId, tmpID, _value);
+	zeus::FutureCall futCall(clientId, tmpID, _value);
 	if (futCall.isFinished() == true) {
-		JUS_INFO("Call Binary ..");
+		ZEUS_INFO("Call Binary ..");
 		callBinary(tmpID, futCall.getRaw());
 	} else {
 		m_callMultiData.push_back(futCall);
 	}
 }
 
-void jus::Service::onPropertyChangeIp() {
+void zeus::Service::onPropertyChangeIp() {
 	disconnect();
 }
 
-void jus::Service::onPropertyChangePort(){
+void zeus::Service::onPropertyChangePort(){
 	disconnect();
 }
 
 
-void jus::Service::connect(const std::string& _serviceName, uint32_t _numberRetry){
+void zeus::Service::connect(const std::string& _serviceName, uint32_t _numberRetry){
 	disconnect();
-	JUS_DEBUG("connect [START]");
+	ZEUS_DEBUG("connect [START]");
 	enet::Tcp connection = std::move(enet::connectTcpClient(*propertyIp, *propertyPort, _numberRetry));
 	if (connection.getConnectionStatus() != enet::Tcp::status::link) {
-		JUS_DEBUG("connect [STOP] ==> can not connect");
+		ZEUS_DEBUG("connect [STOP] ==> can not connect");
 		return;
 	}
-	m_interfaceClient = std::make_shared<jus::TcpString>();
+	m_interfaceClient = std::make_shared<zeus::TcpString>();
 	if (m_interfaceClient == nullptr) {
-		JUS_ERROR("Can not allocate interface ...");
+		ZEUS_ERROR("Can not allocate interface ...");
 		return;
 	}
-	m_interfaceClient->connect(this, &jus::Service::onClientData);
-	m_interfaceClient->setInterface(std::move(connection));
+	m_interfaceClient->connect(this, &zeus::Service::onClientData);
+	m_interfaceClient->setInterface(std::move(connection), false);
 	m_interfaceClient->connect();
-	jus::Future<bool> ret = m_interfaceClient->call("connect-service", _serviceName);
+	zeus::Future<bool> ret = m_interfaceClient->call("connect-service", _serviceName);
 	ret.wait();
 	if (ret.get() == false) {
-		JUS_ERROR("Can not configure the interface for the service with the current name ...");
+		ZEUS_ERROR("Can not configure the interface for the service with the current name ...");
 		m_interfaceClient->disconnect();
 		return;
 	}
 	
-	JUS_DEBUG("connect [STOP]");
+	ZEUS_DEBUG("connect [STOP]");
 }
 
-void jus::Service::disconnect(){
-	JUS_DEBUG("disconnect [START]");
+void zeus::Service::disconnect(){
+	ZEUS_DEBUG("disconnect [START]");
 	if (m_interfaceClient != nullptr) {
 		m_interfaceClient->disconnect();
 		m_interfaceClient.reset();
 	} else {
-		JUS_VERBOSE("Nothing to disconnect ...");
+		ZEUS_VERBOSE("Nothing to disconnect ...");
 	}
-	JUS_DEBUG("disconnect [STOP]");
+	ZEUS_DEBUG("disconnect [STOP]");
 }
 
-bool jus::Service::GateWayAlive() {
+bool zeus::Service::GateWayAlive() {
 	if (m_interfaceClient == nullptr) {
 		return false;
 	}
 	return m_interfaceClient->isActive();
 }
 
-void jus::Service::pingIsAlive() {
+void zeus::Service::pingIsAlive() {
 	if (std::chrono::steady_clock::now() - m_interfaceClient->getLastTimeSend() >= std::chrono::seconds(30)) {
-		/*
-		ejson::Object tmpp;
-		tmpp.add("event", ejson::String("IS-ALIVE"));
-		m_interfaceClient->writeJson(tmpp);
-		*/
+		m_interfaceClient->ping();
 	}
 }
 
-void jus::Service::callBinary(uint32_t _transactionId, jus::Buffer& _obj) {
-	if (_obj.getType() == jus::Buffer::typeMessage::event) {
-		/*
-		std::string event = _obj["event"].toString().get();
-		if (event == "IS-ALIVE") {
-			// Gateway just aswer a keep alive information ...
-			// Nothing to do ...
-		} else {
-			JUS_ERROR("Unknow event: '" << event << "'");
-		}
-		*/
-		JUS_ERROR("Unknow event: '...'");
+void zeus::Service::callBinary(uint32_t _transactionId, zeus::Buffer& _obj) {
+	if (_obj.getType() == zeus::Buffer::typeMessage::event) {
+		
+		ZEUS_ERROR("Unknow event: '...'");
 		return;
 	}
-	if (_obj.getType() == jus::Buffer::typeMessage::answer) {
-		JUS_ERROR("Local Answer: '...'");
+	if (_obj.getType() == zeus::Buffer::typeMessage::answer) {
+		ZEUS_ERROR("Local Answer: '...'");
 		return;
 	}
-	//if (_obj.getType() == jus::Buffer::typeMessage::event) {
+	//if (_obj.getType() == zeus::Buffer::typeMessage::event) {
 	uint32_t clientId = _obj.getClientId();
 	std::string callFunction = _obj.getCall();
 	if (callFunction[0] == '_') {

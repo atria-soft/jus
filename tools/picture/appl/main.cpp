@@ -5,8 +5,8 @@
  */
 
 #include <appl/debug.h>
-#include <jus/Service.h>
-#include <jus/File.h>
+#include <zeus/Service.h>
+#include <zeus/File.h>
 #include <etk/etk.h>
 #include <unistd.h>
 #include <mutex>
@@ -200,7 +200,7 @@ namespace appl {
 				return out;
 			}
 			// Return a File Data (might be a picture .tiff/.png/.jpg)
-			jus::FileServer getAlbumPicture(const std::string& _pictureName) {
+			zeus::FileServer getAlbumPicture(const std::string& _pictureName) {
 				std::unique_lock<std::mutex> lock(m_mutex);
 				// TODO : Check right ...
 				uint64_t id = etk::string_to_uint64_t(_pictureName);
@@ -208,19 +208,19 @@ namespace appl {
 				{
 					auto it = m_listFile.find(id);
 					if (it != m_listFile.end()) {
-						return jus::FileServer(m_basePath + it->second);
+						return zeus::FileServer(m_basePath + it->second);
 					}
 				}
 				for (auto &it : m_listFile) {
 					APPL_WARNING("compare: " << it.first << " with " << id << " " << it.second);
 					if (it.first == id) {
-						return jus::FileServer(m_basePath + it.second);
+						return zeus::FileServer(m_basePath + it.second);
 					}
 				}
 				APPL_ERROR("    ==> Not find ...");
-				return jus::FileServer();
+				return zeus::FileServer();
 			}
-			std::string addFile(const jus::File& _dataFile) {
+			std::string addFile(const zeus::File& _dataFile) {
 				std::unique_lock<std::mutex> lock(m_mutex);
 				// TODO : Check right ...
 				APPL_ERROR("    ==> Receive FILE " << _dataFile.getMineType() << " size=" << _dataFile.getData().size());
@@ -229,10 +229,10 @@ namespace appl {
 				val << std::hex << std::setw(16) << std::setfill('0') << id;
 				std::string filename = val.str();
 				filename += ".";
-				filename += jus::getExtention(_dataFile.getMineType());
+				filename += zeus::getExtention(_dataFile.getMineType());
 				_dataFile.storeIn(m_basePath + filename);
 				m_listFile.insert(std::make_pair(id, filename));
-				return etk::to_string(id);//jus::FileServer();
+				return etk::to_string(id);//zeus::FileServer();
 			}
 			bool removeFile(const std::string& _file) {
 				std::unique_lock<std::mutex> lock(m_mutex);
@@ -274,16 +274,16 @@ namespace appl {
 			}
 			/*
 			// Return a global UTC time
-			jus::Time getAlbumPictureTime(const std::string& _pictureName) {
+			zeus::Time getAlbumPictureTime(const std::string& _pictureName) {
 				std::unique_lock<std::mutex> lock(m_mutex);
 				// TODO : Check right ...
-				return jus::Time();
+				return zeus::Time();
 			}
 			// Return a Geolocalization information (latitude, longitude)
-			jus::Geo getAlbumPictureGeoLocalization(const std::string& _pictureName) {
+			zeus::Geo getAlbumPictureGeoLocalization(const std::string& _pictureName) {
 				std::unique_lock<std::mutex> lock(m_mutex);
 				// TODO : Check right ...
-				return jus::Geo();
+				return zeus::Geo();
 			}
 			*/
 		private:
@@ -318,12 +318,12 @@ namespace appl {
 		private:
 			ememory::SharedPtr<appl::User> m_user;
 		private:
-			ememory::SharedPtr<jus::ClientProperty> m_client;
+			ememory::SharedPtr<zeus::ClientProperty> m_client;
 		public:
 			PictureService() {
 				APPL_WARNING("New PictureService ...");
 			}
-			PictureService(ememory::SharedPtr<appl::User> _user, ememory::SharedPtr<jus::ClientProperty> _client) :
+			PictureService(ememory::SharedPtr<appl::User> _user, ememory::SharedPtr<zeus::ClientProperty> _client) :
 			  m_user(_user),
 			  m_client(_client) {
 				APPL_WARNING("New PictureService ... for user: ");
@@ -348,19 +348,19 @@ namespace appl {
 				return m_user->getAlbumListPicture(_album);//, _startId, _stopId);
 			}
 			// Return a File Data (might be a picture .tiff/.png/.jpg)
-			jus::FileServer getAlbumPicture(std::string _pictureName) {
+			zeus::FileServer getAlbumPicture(std::string _pictureName) {
 				return m_user->getAlbumPicture(_pictureName);
 			}
-			std::string addFile(jus::File _dataFile) {
+			std::string addFile(zeus::File _dataFile) {
 				return m_user->addFile(_dataFile);
 			}
 			/*
 			// Return a global UTC time
-			jus::Time getAlbumPictureTime(std::string _pictureName) {
+			zeus::Time getAlbumPictureTime(std::string _pictureName) {
 				return m_user->getAlbumPictureTime(_pictureName);
 			}
 			// Return a Geolocalization information (latitude, longitude)
-			jus::Geo getAlbumPictureGeoLocalization(std::string _pictureName) {
+			zeus::Geo getAlbumPictureGeoLocalization(std::string _pictureName) {
 				return m_user->getAlbumPictureGeoLocalization(_pictureName);
 			}
 			*/
@@ -389,10 +389,10 @@ int main(int _argc, const char *_argv[]) {
 	}
 	while (true) {
 		APPL_INFO("===========================================================");
-		APPL_INFO("== JUS instanciate service: " << SERVICE_NAME << " [START]");
+		APPL_INFO("== ZEUS instanciate service: " << SERVICE_NAME << " [START]");
 		APPL_INFO("===========================================================");
 		appl::UserManager userMng;
-		jus::ServiceType<appl::PictureService, appl::UserManager> serviceInterface(userMng);
+		zeus::ServiceType<appl::PictureService, appl::UserManager> serviceInterface(userMng);
 		if (ip != "") {
 			serviceInterface.propertyIp.set(ip);
 		}
@@ -416,12 +416,12 @@ int main(int _argc, const char *_argv[]) {
 		serviceInterface.advertise("getAlbumPictureGeoLocalization", &appl::PictureService::getAlbumPictureGeoLocalization);
 		*/
 		APPL_INFO("===========================================================");
-		APPL_INFO("== JUS service: " << SERVICE_NAME << " [service instanciate]");
+		APPL_INFO("== ZEUS service: " << SERVICE_NAME << " [service instanciate]");
 		APPL_INFO("===========================================================");
 		serviceInterface.connect(SERVICE_NAME);
 		if (serviceInterface.GateWayAlive() == false) {
 			APPL_INFO("===========================================================");
-			APPL_INFO("== JUS service: " << SERVICE_NAME << " [STOP] Can not connect to the GateWay");
+			APPL_INFO("== ZEUS service: " << SERVICE_NAME << " [STOP] Can not connect to the GateWay");
 			APPL_INFO("===========================================================");
 			APPL_INFO("wait 5 second ...");
 			usleep(5000000);
@@ -440,7 +440,7 @@ int main(int _argc, const char *_argv[]) {
 		}
 		serviceInterface.disconnect();
 		APPL_INFO("===========================================================");
-		APPL_INFO("== JUS service: " << SERVICE_NAME << " [STOP] GateWay Stop");
+		APPL_INFO("== ZEUS service: " << SERVICE_NAME << " [STOP] GateWay Stop");
 		APPL_INFO("===========================================================");
 	}
 	return 0;

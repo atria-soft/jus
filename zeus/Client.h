@@ -5,22 +5,22 @@
  */
 #pragma once
 
-#include <jus/TcpString.h>
+#include <zeus/TcpString.h>
 #include <eproperty/Value.h>
-#include <jus/debug.h>
+#include <zeus/debug.h>
 #include <chrono>
 #include <unistd.h>
-#include <jus/Future.h>
-#include <jus/ServiceRemote.h>
+#include <zeus/Future.h>
+#include <zeus/ServiceRemote.h>
 
-namespace jus {
+namespace zeus {
 	class Client : public eproperty::Interface {
 		friend class ServiceRemote;
 		public:
 			eproperty::Value<std::string> propertyIp;
 			eproperty::Value<uint16_t> propertyPort;
 		private:
-			ememory::SharedPtr<jus::TcpString> m_interfaceClient;
+			ememory::SharedPtr<zeus::TcpString> m_interfaceClient;
 		public:
 			/**
 			 * @brief Create a client on a specific user in a client mode with the tocken associated
@@ -46,30 +46,30 @@ namespace jus {
 			bool connect(const std::string& _remoteUserToConnect);
 			void disconnect();
 		public:
-			jus::ServiceRemote getService(const std::string& _serviceName);
+			zeus::ServiceRemote getService(const std::string& _serviceName);
 			
 			// Connect that is not us
 			//bool identify("clientTest1#atria-soft.com", "QSDQSDGQSF54HSXWVCSQDJ654URTDJ654NBXCDFDGAEZ51968");
 			// Connect to ourself:
 			//client1.authentificate("coucou");
 		private:
-			void onClientData(jus::Buffer& _value);
+			void onClientData(zeus::Buffer& _value);
 		public:
 			template<class... _ARGS>
-			jus::FutureBase call(const std::string& _functionName, _ARGS&&... _args) {
+			zeus::FutureBase call(const std::string& _functionName, _ARGS&&... _args) {
 				if (m_interfaceClient == nullptr) {
-					jus::Buffer ret;
+					zeus::Buffer ret;
 					ret.addError("NULLPTR", "call " + _functionName + " with no interface open");
-					return jus::FutureBase(0, true, ret);
+					return zeus::FutureBase(0, true, ret);
 				}
 				return m_interfaceClient->call(_functionName, _args...);
 			}
 			template<class... _ARGS>
-			jus::FutureBase callAction(const std::string& _functionName, _ARGS&&... _args, jus::FutureData::ObserverFinish _callback) {
+			zeus::FutureBase callAction(const std::string& _functionName, _ARGS&&... _args, zeus::FutureData::ObserverFinish _callback) {
 				if (m_interfaceClient == nullptr) {
-					jus::Buffer ret;
+					zeus::Buffer ret;
 					ret.addError("NULLPTR", "call " + _functionName + " with no interface open");
-					return jus::FutureBase(0, true, ret, _callback);
+					return zeus::FutureBase(0, true, ret, _callback);
 				}
 				return m_interfaceClient->callAction(_functionName, _args..., _callback);
 			}

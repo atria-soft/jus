@@ -5,30 +5,30 @@
  */
 #pragma once
 
-#include <jus/FutureBase.h>
+#include <zeus/FutureBase.h>
 
-namespace jus {
-	template<class JUS_RETURN>
-	class Future : public jus::FutureBase {
+namespace zeus {
+	template<class ZEUS_RETURN>
+	class Future : public zeus::FutureBase {
 		public:
-			Future(const jus::FutureBase& _base):
-			  jus::FutureBase(_base) {
+			Future(const zeus::FutureBase& _base):
+			  zeus::FutureBase(_base) {
 				
 			}
-			jus::Future<JUS_RETURN>& operator= (const jus::FutureBase& _base) {
+			zeus::Future<ZEUS_RETURN>& operator= (const zeus::FutureBase& _base) {
 				m_data = _base.m_data;
 				return *this;
 			}
-			JUS_RETURN get();
+			ZEUS_RETURN get();
 	};
 	template<>
-	class Future<void> : public jus::FutureBase {
+	class Future<void> : public zeus::FutureBase {
 		public:
-			Future(const jus::FutureBase& _base):
-			  jus::FutureBase(_base) {
+			Future(const zeus::FutureBase& _base):
+			  zeus::FutureBase(_base) {
 				
 			}
-			jus::Future<void>& operator= (const jus::FutureBase& _base) {
+			zeus::Future<void>& operator= (const zeus::FutureBase& _base) {
 				m_data = _base.m_data;
 				return *this;
 			}

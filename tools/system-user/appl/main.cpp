@@ -5,7 +5,7 @@
  */
 
 #include <appl/debug.h>
-#include <jus/Service.h>
+#include <zeus/Service.h>
 #include <etk/etk.h>
 #include <unistd.h>
 #include <mutex>
@@ -133,12 +133,12 @@ namespace appl {
 		private:
 			ememory::SharedPtr<appl::User> m_user;
 		private:
-			ememory::SharedPtr<jus::ClientProperty> m_client;
+			ememory::SharedPtr<zeus::ClientProperty> m_client;
 		public:
 			SystemService() {
 				APPL_WARNING("New SystemService ...");
 			}
-			SystemService(ememory::SharedPtr<appl::User> _user, ememory::SharedPtr<jus::ClientProperty> _client) :
+			SystemService(ememory::SharedPtr<appl::User> _user, ememory::SharedPtr<zeus::ClientProperty> _client) :
 			  m_user(_user),
 			  m_client(_client) {
 				APPL_WARNING("New SystemService ... for user: ");
@@ -196,10 +196,10 @@ int main(int _argc, const char *_argv[]) {
 	}
 	while (true) {
 		APPL_INFO("===========================================================");
-		APPL_INFO("== JUS instanciate service: " << SERVICE_NAME << " [START]");
+		APPL_INFO("== ZEUS instanciate service: " << SERVICE_NAME << " [START]");
 		APPL_INFO("===========================================================");
 		appl::UserManager userMng;
-		jus::ServiceType<appl::SystemService, appl::UserManager> serviceInterface(userMng);
+		zeus::ServiceType<appl::SystemService, appl::UserManager> serviceInterface(userMng);
 		if (ip != "") {
 			serviceInterface.propertyIp.set(ip);
 		}
@@ -225,12 +225,12 @@ int main(int _argc, const char *_argv[]) {
 		serviceInterface.addLastFuncParam("clientName", "Name of the client");
 		serviceInterface.addLastFuncParam("currentList", "Vector of name of the services");
 		APPL_INFO("===========================================================");
-		APPL_INFO("== JUS service: " << SERVICE_NAME << " [service instanciate]");
+		APPL_INFO("== ZEUS service: " << SERVICE_NAME << " [service instanciate]");
 		APPL_INFO("===========================================================");
 		serviceInterface.connect(SERVICE_NAME);
 		if (serviceInterface.GateWayAlive() == false) {
 			APPL_INFO("===========================================================");
-			APPL_INFO("== JUS service: " << SERVICE_NAME << " [STOP] Can not connect to the GateWay");
+			APPL_INFO("== ZEUS service: " << SERVICE_NAME << " [STOP] Can not connect to the GateWay");
 			APPL_INFO("===========================================================");
 			APPL_INFO("wait 5 second ...");
 			usleep(5000000);
@@ -245,7 +245,7 @@ int main(int _argc, const char *_argv[]) {
 		}
 		serviceInterface.disconnect();
 		APPL_INFO("===========================================================");
-		APPL_INFO("== JUS service: " << SERVICE_NAME << " [STOP] GateWay Stop");
+		APPL_INFO("== ZEUS service: " << SERVICE_NAME << " [STOP] GateWay Stop");
 		APPL_INFO("===========================================================");
 	}
 	return 0;

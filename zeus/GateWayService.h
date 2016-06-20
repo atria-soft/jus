@@ -5,29 +5,29 @@
  */
 #pragma once
 
-#include <jus/TcpString.h>
+#include <zeus/TcpString.h>
 #include <ememory/memory.h>
 #include <esignal/Signal.h>
 
-namespace jus {
+namespace zeus {
 	class GateWay;
 	class GateWayClient;
 	class GateWayService {
-		friend class jus::GateWayClient;
+		friend class zeus::GateWayClient;
 		private:
-			jus::GateWay* m_gatewayInterface;
-			jus::TcpString m_interfaceClient;
+			zeus::GateWay* m_gatewayInterface;
+			zeus::TcpString m_interfaceClient;
 			std::string m_name;
 		public:
 			esignal::Signal<bool> signalIsConnected;
 		public:
-			GateWayService(enet::Tcp _connection, jus::GateWay* _gatewayInterface);
+			GateWayService(enet::Tcp _connection, zeus::GateWay* _gatewayInterface);
 			virtual ~GateWayService();
 			void start();
 			void stop();
-			void onServiceData(jus::Buffer& _value);
+			void onServiceData(zeus::Buffer& _value);
 		public:
-			void SendData(uint64_t _userSessionId, jus::Buffer& _data);
+			void SendData(uint64_t _userSessionId, zeus::Buffer& _data);
 			const std::string& getName() {
 				return m_name;
 			}

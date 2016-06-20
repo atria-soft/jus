@@ -4,79 +4,79 @@
  * @license APACHE v2.0 (see license file)
  */
 
-#include <jus/debug.h>
-#include <jus/GateWayService.h>
-#include <jus/GateWay.h>
+#include <zeus/debug.h>
+#include <zeus/GateWayService.h>
+#include <zeus/GateWay.h>
 
 // todo : cHANGE THIS ...
 static const std::string protocolError = "PROTOCOL-ERROR";
 
 
 
-jus::GateWayService::GateWayService(enet::Tcp _connection, jus::GateWay* _gatewayInterface) :
+zeus::GateWayService::GateWayService(enet::Tcp _connection, zeus::GateWay* _gatewayInterface) :
   m_gatewayInterface(_gatewayInterface),
-  m_interfaceClient(std::move(_connection)) {
-	JUS_INFO("-----------------");
-	JUS_INFO("-- NEW Service --");
-	JUS_INFO("-----------------");
+  m_interfaceClient(std::move(_connection), true) {
+	ZEUS_INFO("-----------------");
+	ZEUS_INFO("-- NEW Service --");
+	ZEUS_INFO("-----------------");
 }
 
-jus::GateWayService::~GateWayService() {
+zeus::GateWayService::~GateWayService() {
 	
-	JUS_INFO("--------------------");
-	JUS_INFO("-- DELETE Service --");
-	JUS_INFO("--------------------");
+	ZEUS_INFO("--------------------");
+	ZEUS_INFO("-- DELETE Service --");
+	ZEUS_INFO("--------------------");
 }
 
-bool jus::GateWayService::isAlive() {
+bool zeus::GateWayService::isAlive() {
 	return m_interfaceClient.isActive();
 }
 
-void jus::GateWayService::start() {
-	m_interfaceClient.connect(this, &jus::GateWayService::onServiceData);
+void zeus::GateWayService::start() {
+	m_interfaceClient.connect(this, &zeus::GateWayService::onServiceData);
 	m_interfaceClient.connect();
 	m_interfaceClient.setInterfaceName("srv-?");
 }
 
-void jus::GateWayService::stop() {
+void zeus::GateWayService::stop() {
 	m_interfaceClient.disconnect();
 }
 
 
-void jus::GateWayService::SendData(uint64_t _userSessionId, jus::Buffer& _data) {
+void zeus::GateWayService::SendData(uint64_t _userSessionId, zeus::Buffer& _data) {
 	_data.setClientId(_userSessionId);
 	_data.prepare();
 	m_interfaceClient.writeBinary(_data);
 }
 
-void jus::GateWayService::onServiceData(jus::Buffer& _value) {
-	JUS_DEBUG("On service data: " << _value.generateHumanString());
+void zeus::GateWayService::onServiceData(zeus::Buffer& _value) {
+	ZEUS_DEBUG("On service data: " << _value.generateHumanString());
 	uint32_t transactionId = _value.getTransactionId();
 	//data.add("from-service", ejson::String(m_name));
-	if (_value.getType() == jus::Buffer::typeMessage::event) {
+	if (_value.getType() == zeus::Buffer::typeMessage::event) {
 		/*
 		if (data.valueExist("event") == true) {
 			// No need to have a user ID ...
 			if (data["event"].toString().get() == "IS-ALIVE") {
-				JUS_VERBOSE("Service Alive ...");
+				ZEUS_VERBOSE("Service Alive ...");
 				if (std::chrono::steady_clock::now() - m_interfaceClient.getLastTimeSend() >= std::chrono::seconds(20)) {
 					ejson::Object tmpp;
 					tmpp.add("event", ejson::String("IS-ALIVE"));
 					m_interfaceClient.writeJson(tmpp);
 				}
 			} else {
-				JUS_INFO("Unknow service event: '" << data["event"].toString().get() << "'");
+				ZEUS_INFO("Unknow service event: '" << data["event"].toString().get() << "'");
 			}
 			return;
 		}
 		*/
 		return;
 	}
-	if (_value.getType() == jus::Buffer::typeMessage::call) {
+	if (_value.getType() == zeus::Buffer::typeMessage::call) {
 		std::string callFunction = _value.getCall();
 		if (callFunction == "connect-service") {
 			if (m_name != "") {
-				JUS_WARNING("Service interface ==> try change the servie name after init: '" << _value.getParameter<std::string>(0));
+				ZEUS_WARNING("Service interface ==> try change the servie name after init: '" << _value.getParameter<std::string>(0));
 				m_interfaceClient.answerValue(transactionId, false);
 				return;
 			}
@@ -88,14 +88,14 @@ void jus::GateWayService::onServiceData(jus::Buffer& _value) {
 		answerProtocolError(transactionId, "unknow function");
 	}
 	if (_value.getClientId() == 0) {
-		JUS_ERROR("Service interface ==> wrong service answer ==> missing 'client-id'");
+		ZEUS_ERROR("Service interface ==> wrong service answer ==> missing 'client-id'");
 		return;
 	}
 	m_gatewayInterface->answer(_value.getClientId(), _value);
 }
 
 
-void jus::GateWayService::answerProtocolError(uint32_t _transactionId, const std::string& _errorHelp) {
+void zeus::GateWayService::answerProtocolError(uint32_t _transactionId, const std::string& _errorHelp) {
 	m_interfaceClient.answerError(_transactionId, protocolError, _errorHelp);
 	m_interfaceClient.disconnect(true);
 }

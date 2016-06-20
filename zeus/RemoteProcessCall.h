@@ -5,18 +5,18 @@
  */
 #pragma once
 
-#include <jus/TcpString.h>
+#include <zeus/TcpString.h>
 #include <eproperty/Value.h>
-#include <jus/AbstractFunctionTypeDirect.h>
-#include <jus/AbstractFunctionTypeClass.h>
-#include <jus/debug.h>
+#include <zeus/AbstractFunctionTypeDirect.h>
+#include <zeus/AbstractFunctionTypeClass.h>
+#include <zeus/debug.h>
 
-namespace jus {
+namespace zeus {
 	class RemoteProcessCall {
 		public:
 			RemoteProcessCall();
 		protected:
-			std::vector<jus::AbstractFunction*> m_listFunction;
+			std::vector<zeus::AbstractFunction*> m_listFunction;
 		protected:
 			std::string m_description;
 		public:
@@ -54,35 +54,35 @@ namespace jus {
 			virtual bool isFunctionAuthorized(uint64_t _clientSessionID, const std::string& _funcName);
 		public:
 			// Add global fuction (no link with this class)
-			template<class JUS_RETURN_VALUE,
-			         class... JUS_FUNC_ARGS_TYPE>
+			template<class ZEUS_RETURN_VALUE,
+			         class... ZEUS_FUNC_ARGS_TYPE>
 			void advertise(const std::string& _name,
-			               JUS_RETURN_VALUE (*_func)(JUS_FUNC_ARGS_TYPE... _args),
+			               ZEUS_RETURN_VALUE (*_func)(ZEUS_FUNC_ARGS_TYPE... _args),
 			               const std::string& _desc = "") {
 				for (auto &it : m_listFunction) {
 					if (it == nullptr) {
 						continue;
 					}
 					if (it->getName() == _name) {
-						JUS_ERROR("Advertise function already bind .. ==> can not be done...: '" << _name << "'");
+						ZEUS_ERROR("Advertise function already bind .. ==> can not be done...: '" << _name << "'");
 						return;
 					}
 				}
 				AbstractFunction* tmp = createAbstractFunctionDirect(_name, _desc, _func);
 				if (tmp == nullptr) {
-					JUS_ERROR("can not create abstract function ... '" << _name << "'");
+					ZEUS_ERROR("can not create abstract function ... '" << _name << "'");
 					return;
 				}
-				tmp->setType(jus::AbstractFunction::type::global);
-				JUS_INFO("Add function '" << _name << "' in global mode");
+				tmp->setType(zeus::AbstractFunction::type::global);
+				ZEUS_INFO("Add function '" << _name << "' in global mode");
 				m_listFunction.push_back(tmp);
 			}
 			// Add Local fuction (depend on this class)
-			template<class JUS_RETURN_VALUE,
-			         class JUS_CLASS_TYPE,
-			         class... JUS_FUNC_ARGS_TYPE>
+			template<class ZEUS_RETURN_VALUE,
+			         class ZEUS_CLASS_TYPE,
+			         class... ZEUS_FUNC_ARGS_TYPE>
 			void advertise(std::string _name,
-			               JUS_RETURN_VALUE (JUS_CLASS_TYPE::*_func)(JUS_FUNC_ARGS_TYPE... _args),
+			               ZEUS_RETURN_VALUE (ZEUS_CLASS_TYPE::*_func)(ZEUS_FUNC_ARGS_TYPE... _args),
 			               const std::string& _desc = "") {
 				_name = "sys." + _name;
 				for (auto &it : m_listFunction) {
@@ -90,17 +90,17 @@ namespace jus {
 						continue;
 					}
 					if (it->getName() == _name) {
-						JUS_ERROR("Advertise function already bind .. ==> can not be done...: '" << _name << "'");
+						ZEUS_ERROR("Advertise function already bind .. ==> can not be done...: '" << _name << "'");
 						return;
 					}
 				}
 				AbstractFunction* tmp = createAbstractFunctionClass(_name, _desc, _func);
 				if (tmp == nullptr) {
-					JUS_ERROR("can not create abstract function ... '" << _name << "'");
+					ZEUS_ERROR("can not create abstract function ... '" << _name << "'");
 					return;
 				}
-				tmp->setType(jus::AbstractFunction::type::local);
-				JUS_INFO("Add function '" << _name << "' in local mode");
+				tmp->setType(zeus::AbstractFunction::type::local);
+				ZEUS_INFO("Add function '" << _name << "' in local mode");
 				m_listFunction.push_back(tmp);
 			}
 	};

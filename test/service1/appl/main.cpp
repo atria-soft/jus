@@ -5,7 +5,7 @@
  */
 
 #include <appl/debug.h>
-#include <jus/Service.h>
+#include <zeus/Service.h>
 #include <etk/etk.h>
 #include <unistd.h>
 
@@ -68,7 +68,7 @@ namespace appl {
 int main(int _argc, const char *_argv[]) {
 	etk::init(_argc, _argv);
 	appl::UserManager userMng;
-	jus::ServiceType<appl::Calculator, appl::UserManager> serviceInterface(userMng);
+	zeus::ServiceType<appl::Calculator, appl::UserManager> serviceInterface(userMng);
 	serviceInterface.setDescription("Calculator interface");
 	serviceInterface.setVersion("0.1.1");
 	serviceInterface.addAuthor("Heero Yui", "yui.heero@gmail.com");
@@ -92,7 +92,7 @@ int main(int _argc, const char *_argv[]) {
 		}
 	}
 	APPL_INFO("==================================");
-	APPL_INFO("== JUS test service1 start      ==");
+	APPL_INFO("== ZEUS test service1 start      ==");
 	APPL_INFO("==================================");
 	serviceInterface.connect("serviceTest1");
 	int32_t iii=0;
@@ -104,7 +104,7 @@ int main(int _argc, const char *_argv[]) {
 	}
 	serviceInterface.disconnect();
 	APPL_INFO("==================================");
-	APPL_INFO("== JUS test service1 stop       ==");
+	APPL_INFO("== ZEUS test service1 stop       ==");
 	APPL_INFO("==================================");
 	return 0;
 }

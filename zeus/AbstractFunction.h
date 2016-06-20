@@ -5,13 +5,13 @@
  */
 #pragma once
 #include <eproperty/Value.h>
-#include <jus/debug.h>
-#include <jus/ParamType.h>
-#include <jus/File.h>
-#include <jus/Buffer.h>
+#include <zeus/debug.h>
+#include <zeus/ParamType.h>
+#include <zeus/File.h>
+#include <zeus/Buffer.h>
 #include <ememory/memory.h>
 
-namespace jus {
+namespace zeus {
 	class TcpString;
 	// define basic async call element ...
 	using ActionAsyncClient = std::function<bool(TcpString* _interface, const uint32_t& _serviceId, uint64_t _transactionId, uint64_t _part)>;
@@ -20,7 +20,7 @@ namespace jus {
 
 
 
-namespace jus {
+namespace zeus {
 	class AbstractFunction {
 		public:
 			enum class type {
@@ -64,21 +64,21 @@ namespace jus {
 			virtual std::string getPrototype() const = 0;
 			virtual std::string getPrototypeReturn() const = 0;
 			virtual std::vector<std::string> getPrototypeParam() const = 0;
-			virtual void execute(const ememory::SharedPtr<jus::TcpString>& _interfaceClient, uint64_t _transactionId, uint64_t _clientId, jus::Buffer& _params, void* _class=nullptr) = 0;
+			virtual void execute(const ememory::SharedPtr<zeus::TcpString>& _interfaceClient, uint64_t _transactionId, uint64_t _clientId, zeus::Buffer& _params, void* _class=nullptr) = 0;
 	};
 	
-	jus::Buffer createBinaryBaseCall(uint64_t _transactionId, const std::string& _functionName, const uint32_t& _serviceId=0);
+	zeus::Buffer createBinaryBaseCall(uint64_t _transactionId, const std::string& _functionName, const uint32_t& _serviceId=0);
 	void createBinaryParam(std::vector<ActionAsyncClient>& _asyncAction,
 	                       int32_t _paramId,
-	                       jus::Buffer& _obj);
+	                       zeus::Buffer& _obj);
 	
-	template<class JUS_TYPE, class... _ARGS>
+	template<class ZEUS_TYPE, class... _ARGS>
 	void createBinaryParam(std::vector<ActionAsyncClient>& _asyncAction,
 	                       int32_t _paramId,
-	                       jus::Buffer& _obj,
-	                       const JUS_TYPE& _param,
+	                       zeus::Buffer& _obj,
+	                       const ZEUS_TYPE& _param,
 	                       _ARGS&&... _args) {
-		_obj.addParameter<JUS_TYPE>(/*_asyncAction, _paramId,*/ _param);
+		_obj.addParameter<ZEUS_TYPE>(/*_asyncAction, _paramId,*/ _param);
 		_paramId++;
 		createBinaryParam(_asyncAction, _paramId, _obj, std::forward<_ARGS>(_args)...);
 	}
@@ -86,27 +86,27 @@ namespace jus {
 	template<class... _ARGS>
 	void createBinaryParam(std::vector<ActionAsyncClient>& _asyncAction,
 	                       int32_t _paramId,
-	                       jus::Buffer& _obj,
+	                       zeus::Buffer& _obj,
 	                       const char* _param,
 	                       _ARGS&&... _args) {
 		createBinaryParam(_asyncAction, _paramId, _obj, std::string(_param), std::forward<_ARGS>(_args)...);
 	}
 	
 	template<class... _ARGS>
-	jus::Buffer createBinaryCall(std::vector<ActionAsyncClient>& _asyncAction, uint64_t _transactionId, const std::string& _functionName, _ARGS&&... _args) {
-		jus::Buffer callElem = createBinaryBaseCall(_transactionId, _functionName);
+	zeus::Buffer createBinaryCall(std::vector<ActionAsyncClient>& _asyncAction, uint64_t _transactionId, const std::string& _functionName, _ARGS&&... _args) {
+		zeus::Buffer callElem = createBinaryBaseCall(_transactionId, _functionName);
 		createBinaryParam(_asyncAction, 0, callElem, std::forward<_ARGS>(_args)...);
 		return callElem;
 	}
 	template<class... _ARGS>
-	jus::Buffer createBinaryCallService(std::vector<ActionAsyncClient>& _asyncAction, uint64_t _transactionId, const uint32_t& _serviceName, const std::string& _functionName, _ARGS&&... _args) {
-		jus::Buffer callElem = createBinaryBaseCall(_transactionId, _functionName, _serviceName);
+	zeus::Buffer createBinaryCallService(std::vector<ActionAsyncClient>& _asyncAction, uint64_t _transactionId, const uint32_t& _serviceName, const std::string& _functionName, _ARGS&&... _args) {
+		zeus::Buffer callElem = createBinaryBaseCall(_transactionId, _functionName, _serviceName);
 		createBinaryParam(_asyncAction, 0, callElem, std::forward<_ARGS>(_args)...);
 		return callElem;
 	}
-	jus::Buffer createBinaryCall(uint64_t _transactionId, const std::string& _functionName, const jus::Buffer& _params);
+	zeus::Buffer createBinaryCall(uint64_t _transactionId, const std::string& _functionName, const zeus::Buffer& _params);
 	
 }
 
-#include <jus/TcpString.h>
+#include <zeus/TcpString.h>
 

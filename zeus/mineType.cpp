@@ -4,8 +4,8 @@
  * @license APACHE v2.0 (see license file)
  */
 
-#include <jus/mineType.h>
-#include <jus/debug.h>
+#include <zeus/mineType.h>
+#include <zeus/debug.h>
 
 
 static std::vector<std::pair<std::string, std::string>> mineList = {
@@ -113,22 +113,22 @@ static std::vector<std::pair<std::string, std::string>> mineList = {
   { "ifo", "text/ifo"}, /* DVD information */
 };
 
-std::string jus::getMineType(const std::string& _extention) {
+std::string zeus::getMineType(const std::string& _extention) {
 	for (auto &it : mineList) {
 		if (it.first == _extention) {
 			return it.second;
 		}
 	}
-	JUS_ERROR(" try to cenvert mine type: " << _extention);
+	ZEUS_ERROR(" try to cenvert mine type: " << _extention);
 	return "";
 }
 
-std::string jus::getExtention(const std::string& _mineType) {
+std::string zeus::getExtention(const std::string& _mineType) {
 	for (auto &it : mineList) {
 		if (it.second == _mineType) {
 			return it.first;
 		}
 	}
-	JUS_ERROR(" try to cenvert extention: " << _mineType);
+	ZEUS_ERROR(" try to cenvert extention: " << _mineType);
 	return "";
 }

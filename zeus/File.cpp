@@ -3,31 +3,31 @@
  * @copyright 2016, Edouard DUPIN, all right reserved
  * @license APACHE v2.0 (see license file)
  */
-#include <jus/File.h>
-#include <jus/debug.h>
+#include <zeus/File.h>
+#include <zeus/debug.h>
 #include <etk/types.h>
 #include <etk/stdTools.h>
-#include <jus/mineType.h>
+#include <zeus/mineType.h>
 #include <etk/os/FSNode.h>
 
 
 
-jus::File::File() {
+zeus::File::File() {
 	
 }
 
-jus::File::File(const std::string& _filename) {
+zeus::File::File(const std::string& _filename) {
 	m_data = etk::FSNodeReadAllDataType<uint8_t>(_filename);
 	std::string extention = std::string(_filename.begin()+_filename.size() -3, _filename.end());
-	JUS_WARNING("send file: '" << _filename << "' with extention: '" << extention << "'");
-	m_mineType = jus::getMineType(extention);
+	ZEUS_WARNING("send file: '" << _filename << "' with extention: '" << extention << "'");
+	m_mineType = zeus::getMineType(extention);
 }
 
-void jus::File::storeIn(const std::string& _filename) const {
+void zeus::File::storeIn(const std::string& _filename) const {
 	etk::FSNodeWriteAllDataType(_filename, m_data);
 }
 
-jus::File::File(const std::string& _mineType, std::vector<uint8_t> _data, int32_t _fileSize):
+zeus::File::File(const std::string& _mineType, std::vector<uint8_t> _data, int32_t _fileSize):
   m_mineType(_mineType),
   m_data(_data) {
 	if (_fileSize < 0){
@@ -37,16 +37,16 @@ jus::File::File(const std::string& _mineType, std::vector<uint8_t> _data, int32_
 	}
 }
 
-void jus::File::setData(uint64_t _offset, const std::vector<uint8_t>& _data) {
+void zeus::File::setData(uint64_t _offset, const std::vector<uint8_t>& _data) {
 	// TODO : Check size/offset before set
 	memcpy(&m_data[_offset], &_data[0], _data.size());
 }
 
 
-jus::FileServer::FileServer() {
+zeus::FileServer::FileServer() {
 	
 }
-jus::FileServer::FileServer(const std::string& _filename) :
+zeus::FileServer::FileServer(const std::string& _filename) :
   m_name(_filename) {
 	
 }
@@ -54,7 +54,7 @@ jus::FileServer::FileServer(const std::string& _filename) :
 
 namespace etk {
 	template<>
-	std::string to_string<jus::FileServer>(jus::FileServer const& _obj) {
+	std::string to_string<zeus::FileServer>(zeus::FileServer const& _obj) {
 		return "";
 	}
 }

@@ -5,34 +5,34 @@
  */
 #pragma once
 
-#include <jus/TcpString.h>
+#include <zeus/TcpString.h>
 #include <ememory/memory.h>
 #include <esignal/Signal.h>
-#include <jus/GateWayService.h>
-#include <jus/Future.h>
-#include <jus/AbstractFunction.h>
+#include <zeus/GateWayService.h>
+#include <zeus/Future.h>
+#include <zeus/AbstractFunction.h>
 
 
 
-namespace jus {
+namespace zeus {
 	class GateWay;
 	class GateWayClient {
 		private:
 			enum class state {
 				unconnect, // starting sate
-				connect, // just get a TCP connection
+				connect, // zeust get a TCP connection
 				userIdentify, // client set the user it want to access
 				clientIdentify, // client defien the mode of the acces (anonymous,client/user)
 				disconnect // client is dead or loal disconnection
 			};
 			enum state m_state; // state machine ...
 		private:
-			jus::GateWay* m_gatewayInterface;
-			jus::TcpString m_interfaceClient;
+			zeus::GateWay* m_gatewayInterface;
+			zeus::TcpString m_interfaceClient;
 		public:
 			esignal::Signal<bool> signalIsConnected;
-			ememory::SharedPtr<jus::GateWayService> m_userService;
-			std::vector<ememory::SharedPtr<jus::GateWayService>> m_listConnectedService;
+			ememory::SharedPtr<zeus::GateWayService> m_userService;
+			std::vector<ememory::SharedPtr<zeus::GateWayService>> m_listConnectedService;
 			uint64_t m_uid;
 			uint64_t m_uid2;
 			std::string m_userConnectionName;
@@ -40,12 +40,12 @@ namespace jus {
 			std::vector<std::string> m_clientgroups;
 			std::vector<std::string> m_clientServices;
 		public:
-			GateWayClient(enet::Tcp _connection, jus::GateWay* _gatewayInterface);
+			GateWayClient(enet::Tcp _connection, zeus::GateWay* _gatewayInterface);
 			virtual ~GateWayClient();
 			void start(uint64_t _uid, uint64_t _uid2);
 			void stop();
-			void onClientData(jus::Buffer& _value);
-			void returnMessage(jus::Buffer& _data);
+			void onClientData(zeus::Buffer& _value);
+			void returnMessage(zeus::Buffer& _data);
 			bool checkId(uint64_t _id) const {
 				return    m_uid == _id
 				       || m_uid2 == _id;

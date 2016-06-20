@@ -3,61 +3,61 @@
  * @copyright 2016, Edouard DUPIN, all right reserved
  * @license APACHE v2.0 (see license file)
  */
-#include <jus/AbstractFunction.h>
-#include <jus/debug.h>
+#include <zeus/AbstractFunction.h>
+#include <zeus/debug.h>
 #include <etk/os/FSNode.h>
 
-jus::Buffer jus::createBinaryCall(uint64_t _transactionId, const std::string& _functionName, const jus::Buffer& _params) {
-	jus::Buffer callElem = createBinaryBaseCall(_transactionId, _functionName);
+zeus::Buffer zeus::createBinaryCall(uint64_t _transactionId, const std::string& _functionName, const zeus::Buffer& _params) {
+	zeus::Buffer callElem = createBinaryBaseCall(_transactionId, _functionName);
 	//callElem.add("param", _params);
 	return callElem;
 }
 
-jus::Buffer jus::createBinaryBaseCall(uint64_t _transactionId, const std::string& _functionName, const uint32_t& _serviceId) {
-	jus::Buffer obj;
+zeus::Buffer zeus::createBinaryBaseCall(uint64_t _transactionId, const std::string& _functionName, const uint32_t& _serviceId) {
+	zeus::Buffer obj;
 	obj.setServiceId(_serviceId);
 	obj.setCall(_functionName);
 	obj.setTransactionId(_transactionId);
 	return obj;
 }
 
-void jus::createBinaryParam(std::vector<ActionAsyncClient>& _asyncAction, int32_t _paramId, jus::Buffer& _obj) {
+void zeus::createBinaryParam(std::vector<ActionAsyncClient>& _asyncAction, int32_t _paramId, zeus::Buffer& _obj) {
 	// Finish recursive parse ...
 }
 
-enum jus::AbstractFunction::type jus::AbstractFunction::getType() const {
+enum zeus::AbstractFunction::type zeus::AbstractFunction::getType() const {
 	return m_type;
 }
 
-void jus::AbstractFunction::setType(enum jus::AbstractFunction::type _type) {
+void zeus::AbstractFunction::setType(enum zeus::AbstractFunction::type _type) {
 	m_type = _type;
 }
 
-const std::string& jus::AbstractFunction::getName() const {
+const std::string& zeus::AbstractFunction::getName() const {
 	return m_name;
 }
 
-const std::string& jus::AbstractFunction::getDescription() const {
+const std::string& zeus::AbstractFunction::getDescription() const {
 	return m_description;
 }
 
-void jus::AbstractFunction::setDescription(const std::string& _desc) {
+void zeus::AbstractFunction::setDescription(const std::string& _desc) {
 	m_description = _desc;
 }
 
-void jus::AbstractFunction::setParam(int32_t _idParam, const std::string& _name, const std::string& _desc) {
-	JUS_TODO("not implemented set param ... '" << _name << "'");
+void zeus::AbstractFunction::setParam(int32_t _idParam, const std::string& _name, const std::string& _desc) {
+	ZEUS_TODO("not implemented set param ... '" << _name << "'");
 }
 
-void jus::AbstractFunction::addParam(const std::string& _name, const std::string& _desc) {
+void zeus::AbstractFunction::addParam(const std::string& _name, const std::string& _desc) {
 	m_paramsDescription.push_back(std::make_pair(_name, _desc));
 }
 
-void jus::AbstractFunction::setReturn(const std::string& _desc) {
+void zeus::AbstractFunction::setReturn(const std::string& _desc) {
 	m_returnDescription = _desc;
 }
 
-std::string jus::AbstractFunction::getPrototypeFull() const {
+std::string zeus::AbstractFunction::getPrototypeFull() const {
 	std::string out = getPrototypeReturn();
 	out += " ";
 	out += m_name;
@@ -77,16 +77,16 @@ std::string jus::AbstractFunction::getPrototypeFull() const {
 }
 
 
-jus::AbstractFunction::AbstractFunction(const std::string& _name,
+zeus::AbstractFunction::AbstractFunction(const std::string& _name,
                                         const std::string& _desc):
-  m_type(jus::AbstractFunction::type::unknow),
+  m_type(zeus::AbstractFunction::type::unknow),
   m_name(_name),
   m_description(_desc) {
 	
 }
 
 
-bool jus::AbstractFunction::checkCompatibility(const ParamType& _type, const std::string& _params) {
+bool zeus::AbstractFunction::checkCompatibility(const ParamType& _type, const std::string& _params) {
 	if (createType<bool>() == _type) {
 		return _params == "bool";
 	}
@@ -137,7 +137,7 @@ bool jus::AbstractFunction::checkCompatibility(const ParamType& _type, const std
 		       || _params == "vector:double"
 		       || _params == "vector:empty";
 	}
-	if (createType<jus::File>() == _type) {
+	if (createType<zeus::File>() == _type) {
 		return _params == "file";
 	}
 	if (createType<std::string>() == _type) {

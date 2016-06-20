@@ -10,7 +10,7 @@ def get_sub_type():
 	return "TOOLS"
 
 def get_desc():
-	return "JUS test service"
+	return "ZEUS test service"
 
 def get_licence():
 	return "APACHE-2"
@@ -27,7 +27,7 @@ def get_maintainer():
 def create(target, module_name):
 	my_module = module.Module(__file__, module_name, get_type())
 	my_module.add_export_path(tools.get_current_path(__file__))
-	my_module.add_module_depend(['jus'])
+	my_module.add_module_depend(['zeus'])
 	my_module.add_src_file([
 	    'appl/debug.cpp',
 	    'appl/main.cpp'

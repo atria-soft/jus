@@ -4,35 +4,35 @@
  * @license APACHE v2.0 (see license file)
  */
 
-#include <jus/ParamType.h>
-#include <jus/debug.h>
-#include <jus/File.h>
+#include <zeus/ParamType.h>
+#include <zeus/debug.h>
+#include <zeus/File.h>
 
 
-jus::ParamType::ParamType(const char* _name):
+zeus::ParamType::ParamType(const char* _name):
   m_typeName(_name) {
 	
 }
 
-const char* jus::ParamType::getName() const {
+const char* zeus::ParamType::getName() const {
 	return m_typeName;
 }
 
-bool jus::ParamType::operator == (const ParamType& _obj) const {
+bool zeus::ParamType::operator == (const ParamType& _obj) const {
 	return m_typeName == _obj.m_typeName;
 }
 
-bool jus::ParamType::operator == (const std::string& _value) const {
+bool zeus::ParamType::operator == (const std::string& _value) const {
 	return _value == m_typeName;
 }
-bool jus::ParamType::operator != (const std::string& _value) const {
+bool zeus::ParamType::operator != (const std::string& _value) const {
 	return _value != m_typeName;
 }
 
 #define generate_basic_type(_type, _name) \
-namespace jus { \
-	template<> jus::ParamType createType<_type>() {\
-		return jus::ParamType(_name); \
+namespace zeus { \
+	template<> zeus::ParamType createType<_type>() {\
+		return zeus::ParamType(_name); \
 	} \
 }
 
@@ -65,7 +65,7 @@ generate_basic_type(std::vector<uint8_t>, "vector:uint8");
 generate_basic_type(std::vector<std::string>, "vector:string");
 
 
-generate_basic_type(jus::File, "file");
-generate_basic_type(jus::FileServer, "file");
+generate_basic_type(zeus::File, "file");
+generate_basic_type(zeus::FileServer, "file");
 
 

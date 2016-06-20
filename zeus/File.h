@@ -6,7 +6,7 @@
 #pragma once
 #include <etk/types.h>
 
-namespace jus {
+namespace zeus {
 	class File {
 		private:
 			std::string m_mineType;
