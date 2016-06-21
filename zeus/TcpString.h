@@ -49,8 +49,7 @@ namespace zeus {
 			void setInterfaceName(const std::string& _name);
 			int32_t writeBinary(zeus::Buffer& _data);
 			void ping();
-		private:
-			bool onReceiveUri(const std::string& _uri);
+			bool onReceiveUri(const std::string& _uri, const std::vector<std::string>& _protocols);
 			void onReceiveData(std::vector<uint8_t>& _frame, bool _isBinary);
 			void newBuffer(zeus::Buffer& _buffer);
 		public:

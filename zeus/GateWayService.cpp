@@ -45,12 +45,10 @@ void zeus::GateWayService::stop() {
 
 void zeus::GateWayService::SendData(uint64_t _userSessionId, zeus::Buffer& _data) {
 	_data.setClientId(_userSessionId);
-	_data.prepare();
 	m_interfaceClient.writeBinary(_data);
 }
 
 void zeus::GateWayService::onServiceData(zeus::Buffer& _value) {
-	ZEUS_DEBUG("On service data: " << _value.generateHumanString());
 	uint32_t transactionId = _value.getTransactionId();
 	//data.add("from-service", ejson::String(m_name));
 	if (_value.getType() == zeus::Buffer::typeMessage::event) {

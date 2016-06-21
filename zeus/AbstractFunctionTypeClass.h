@@ -73,6 +73,7 @@ namespace zeus {
 				answer.setPartId(m_partId);
 				answer.setPartFinish(false);
 				if (m_partId == 0) {
+					answer.setType(zeus::Buffer::typeMessage::answer);
 					m_node.fileOpenRead();
 					std::string extention = std::string(m_data.getFileName().begin()+m_data.getFileName().size() -3, m_data.getFileName().end());
 					ZEUS_WARNING("send file: '" << m_data.getFileName() << "' with extention: '" << extention << "'");
@@ -83,6 +84,7 @@ namespace zeus {
 					m_partId++;
 					return false;
 				}
+				answer.setType(zeus::Buffer::typeMessage::data);
 				int32_t tmpSize = 1024;
 				if (m_size < 1024) {
 					tmpSize = m_size;

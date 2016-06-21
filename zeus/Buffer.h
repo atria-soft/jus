@@ -5,17 +5,19 @@
  */
 #pragma once
 #include <etk/types.h>
+#include <enet/WebSocket.h>
+#include <zeus/ParamType.h>
 
 namespace zeus {
 	//U32 message lenght
 	#pragma pack(push,1)
 	struct headerBin {
-		uint16_t versionProtocol; // protocol Version (might be 1)
+		//uint16_t versionProtocol; // protocol Version (might be 1)
 		uint32_t transactionID;
 		uint32_t clientID; // same as sevice ID
 		int16_t partID; // if < 0 the partId ifs the last (start at 0 if multiple or 0x8000 if single message)
 		uint16_t typeMessage; //TypeMessgae (1:call, 2:Answer, 4:event)
-		uint16_t numberOfParameter; //TypeMessgae (1:call, 2:Answer, 4:event)
+		uint16_t numberOfParameter;
 	};
 	#pragma pack(pop)
 	/*
@@ -82,27 +84,7 @@ namespace zeus {
 	class Buffer {
 		private:
 			headerBin m_header;
-			std::vector<uint16_t> m_paramOffset;
-			std::vector<uint8_t> m_data;
-		public:
-			const uint8_t* getHeader() const {
-				return reinterpret_cast<const uint8_t*>(&m_header);
-			}
-			uint32_t getHeaderSize() const {
-				return sizeof(headerBin);
-			}
-			const uint8_t* getParam() const {
-				return reinterpret_cast<const uint8_t*>(&m_paramOffset[0]);
-			}
-			uint32_t getParamSize() const {
-				return m_paramOffset.size() * 2;
-			}
-			const uint8_t* getData() const {
-				return &m_data[0];
-			}
-			uint32_t getDataSize() const {
-				return m_data.size();
-			}
+			mutable std::vector<std::pair<int32_t,std::vector<uint8_t>>> m_parameter;
 		private:
 			void internalComposeWith(const uint8_t* _buffer, uint32_t _lenght);
 		public:
@@ -111,8 +93,6 @@ namespace zeus {
 			void composeWith(const std::string& _buffer);
 			std::string generateHumanString();
 			void clear();
-			uint16_t getProtocalVersion() const;
-			void setProtocolVersion(uint16_t _value);
 			uint32_t getTransactionId() const;
 			void setTransactionId(uint32_t _value);
 			uint32_t getClientId() const;// this is the same as serviceId
@@ -129,10 +109,10 @@ namespace zeus {
 			bool getPartFinish() const;
 			void setPartFinish(bool _value);
 			enum class typeMessage {
-				call = 0x0001,
-				answer = 0x0002,
-				event = 0x0004,
-				data = 0x0008,
+				call = 0x0001, // Remote call on a service ID
+				answer = 0x0002, // Answer from a previous call
+				data = 0x0003, // data message happend when partId > 0 it compleate the data of a parameter or an answer or an event
+				event = 0x0004, // event message
 			};
 			enum typeMessage getType() const;
 			void setType(enum typeMessage _value);
@@ -143,14 +123,15 @@ namespace zeus {
 		private:
 			template<class ZEUS_TYPE_DATA>
 			ZEUS_TYPE_DATA internalGetParameter(int32_t _id) const;
-			std::string internalGetParameterType(int32_t _id) const;
+			zeus::ParamType internalGetParameterType(int32_t _id) const;
 			const uint8_t* internalGetParameterPointer(int32_t _id) const;
 			uint32_t internalGetParameterSize(int32_t _id) const;
+			std::string simpleStringParam(uint32_t _id) const;
 		public:
 			std::string getCall() const;
 			void setCall(std::string _value);
 			uint16_t getNumberParameter() const;
-			std::string getParameterType(int32_t _id) const;
+			zeus::ParamType getParameterType(int32_t _id) const;
 			const uint8_t* getParameterPointer(int32_t _id) const;
 			uint32_t getParameterSize(int32_t _id) const;
 			
@@ -188,7 +169,7 @@ namespace zeus {
 			//multiple section of data (part ...)
 			void addData(void* _data, uint32_t _size);
 		
-			uint64_t prepare();
+			bool writeOn(enet::WebSocket& _interface);
 	};
 	std::ostream& operator <<(std::ostream& _os, enum zeus::Buffer::typeMessage _value);
 }

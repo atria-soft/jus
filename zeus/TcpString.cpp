@@ -32,7 +32,10 @@ void zeus::TcpString::setInterface(enet::Tcp _connection, bool _isServer) {
 		m_connection.connectUri(this, &zeus::TcpString::onReceiveUri);
 		m_connection.start();
 	} else {
-		m_connection.start("/stupidName");
+		std::vector<std::string> protocols;
+		protocols.push_back("zeus/0.8");
+		protocols.push_back("zeus/1.0");
+		m_connection.start("/stupidName", protocols);
 	}
 }
 
@@ -88,30 +91,23 @@ void zeus::TcpString::disconnect(bool _inThreadStop){
 }
 
 int32_t zeus::TcpString::writeBinary(zeus::Buffer& _data) {
-	uint64_t size = _data.prepare();
-	ZEUS_DEBUG("Send BINARY " << size << " bytes '" << _data.generateHumanString() << "'");
 	if (m_connection.isAlive() == false) {
 		return -2;
 	}
-	if (m_connection.writeHeader(size, false) == false) {
-		return -1;
+	if (_data.writeOn(m_connection) == true) {
+		return 1;
 	}
-	uint8_t* data = nullptr;
-	uint32_t dataSize = 0;
-	data = (uint8_t*)_data.getHeader();
-	dataSize = _data.getHeaderSize();
-	size = m_connection.writeData(data, dataSize);
-	data = (uint8_t*)_data.getParam();
-	dataSize = _data.getParamSize();
-	size += m_connection.writeData(data, dataSize);
-	data = (uint8_t*)_data.getData();
-	dataSize = _data.getDataSize();
-	size += m_connection.writeData(data, dataSize);
-	return size;
+	return -1;
 }
 
-bool zeus::TcpString::onReceiveUri(const std::string& _uri) {
+bool zeus::TcpString::onReceiveUri(const std::string& _uri, const std::vector<std::string>& _protocols) {
 	ZEUS_INFO("Receive Header uri: " << _uri);
+	for (auto &it : _protocols) {
+		if (it == "zeus/1.0") {
+			m_connection.setProtocol(it);
+			break;
+		}
+	}
 	if (_uri == "/stupidName") {
 		return true;
 	}
@@ -264,10 +260,10 @@ class SendAsyncBinary {
 };
 
 zeus::FutureBase zeus::TcpString::callBinary(uint64_t _transactionId,
-                                           zeus::Buffer& _obj,
-                                           const std::vector<ActionAsyncClient>& _async,
-                                           zeus::FutureData::ObserverFinish _callback,
-                                           const uint32_t& _serviceId) {
+                                             zeus::Buffer& _obj,
+                                             const std::vector<ActionAsyncClient>& _async,
+                                             zeus::FutureData::ObserverFinish _callback,
+                                             const uint32_t& _serviceId) {
 	ZEUS_VERBOSE("Send Binary [START] ");
 	if (isActive() == false) {
 		zeus::Buffer obj;

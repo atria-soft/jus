@@ -58,7 +58,7 @@ namespace zeus {
 		public:
 			virtual ~AbstractFunction() {};
 		public:
-			bool checkCompatibility(const ParamType& _type, const std::string& _params);
+			bool checkCompatibility(const ParamType& _type, const ParamType& _params);
 		public:
 			std::string getPrototypeFull() const;
 			virtual std::string getPrototype() const = 0;
