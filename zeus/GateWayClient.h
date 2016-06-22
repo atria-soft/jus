@@ -44,8 +44,8 @@ namespace zeus {
 			virtual ~GateWayClient();
 			void start(uint64_t _uid, uint64_t _uid2);
 			void stop();
-			void onClientData(zeus::Buffer& _value);
-			void returnMessage(zeus::Buffer& _data);
+			void onClientData(const ememory::SharedPtr<zeus::Buffer>& _value);
+			void returnMessage(const ememory::SharedPtr<zeus::Buffer>& _data);
 			bool checkId(uint64_t _id) const {
 				return    m_uid == _id
 				       || m_uid2 == _id;

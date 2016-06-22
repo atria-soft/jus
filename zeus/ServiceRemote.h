@@ -29,8 +29,10 @@ namespace zeus {
 			template<class... _ARGS>
 			zeus::FutureBase call(const std::string& _functionName, _ARGS&&... _args) {
 				if (m_interfaceClient == nullptr) {
-					zeus::Buffer ret;
-					ret.addError("NULLPTR", "call " + _functionName + " with no interface open");
+					ememory::SharedPtr<zeus::Buffer> ret = zeus::Buffer::create();
+					if (ret != nullptr) {
+						ret->addError("NULLPTR", "call " + _functionName + " with no interface open");
+					}
 					return zeus::FutureBase(0, true, ret);
 				}
 				return m_interfaceClient->callService(m_serviceId, _functionName, _args...);
@@ -38,8 +40,10 @@ namespace zeus {
 			template<class... _ARGS>
 			zeus::FutureBase callAction(const std::string& _functionName, _ARGS&&... _args, zeus::FutureData::ObserverFinish _callback) {
 				if (m_interfaceClient == nullptr) {
-					zeus::Buffer ret;
-					ret.addError("NULLPTR", "call " + _functionName + " with no interface open");
+					ememory::SharedPtr<zeus::Buffer> ret = zeus::Buffer::create();
+					if (ret != nullptr) {
+						ret->addError("NULLPTR", "call " + _functionName + " with no interface open");
+					}
 					return zeus::FutureBase(0, true, ret, _callback);
 				}
 				return m_interfaceClient->callServiceAction(m_serviceId, _functionName, _args..., _callback);

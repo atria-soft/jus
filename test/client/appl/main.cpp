@@ -87,7 +87,7 @@ int main(int _argc, const char *_argv[]) {
 	}
 	*/
 	
-	if (true) {
+	if (false) {
 		APPL_INFO("    ----------------------------------");
 		APPL_INFO("    -- Get service system-user");
 		APPL_INFO("    ----------------------------------");
@@ -140,10 +140,9 @@ int main(int _argc, const char *_argv[]) {
 	APPL_INFO("    ----------------------------------");
 	APPL_INFO("    -- Get service picture");
 	APPL_INFO("    ----------------------------------");
-	if (false) {
+	if (true) {
 		zeus::ServiceRemote remoteServicePicture = client1.getService("picture");
 		if (remoteServicePicture.exist() == true) {
-			/*
 			zeus::Future<std::vector<std::string>> retCall = remoteServicePicture.call("getAlbums").wait();
 			APPL_INFO("    album list: ");
 			for (auto &it : retCall.get()) {
@@ -182,16 +181,15 @@ int main(int _argc, const char *_argv[]) {
 					}
 				}
 			}
-			*/
-			#if 0
-			std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
-			zeus::File tmp("./photo_2016_33913.bmp");//"image/jpg", {0,5,2,6,7,5,8,4,5,2,1,5,65,5,2,6,85,4,6,6,54,65,88,64,14,6,4,64,51,3,16,4});
-			int32_t size = tmp.getData().size();
-			zeus::FutureBase retSendImage = remoteServicePicture.call("addFile", tmp).wait();
-			std::chrono::steady_clock::time_point stop = std::chrono::steady_clock::now();
-			APPL_WARNING("          IO*=" << int64_t((stop-start).count()/1000)/1000.0 << " ms");
-			double megaParSec = double(size)/(double((stop-start).count())/1000000000.0);
-			APPL_WARNING("          speed=" << int64_t(megaParSec/1024.0)/1024.0 << " Mo/s");
+			#if 1
+				std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
+				zeus::File tmp("./testzz.png");
+				int32_t size = tmp.getData().size();
+				zeus::FutureBase retSendImage = remoteServicePicture.call("addFile", tmp).wait();
+				std::chrono::steady_clock::time_point stop = std::chrono::steady_clock::now();
+				APPL_WARNING("          IO*=" << int64_t((stop-start).count()/1000)/1000.0 << " ms");
+				double megaParSec = double(size)/(double((stop-start).count())/1000000000.0);
+				APPL_WARNING("          speed=" << int64_t(megaParSec/1024.0)/1024.0 << " Mo/s");
 			#endif
 		}
 	}

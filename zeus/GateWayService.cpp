@@ -43,15 +43,18 @@ void zeus::GateWayService::stop() {
 }
 
 
-void zeus::GateWayService::SendData(uint64_t _userSessionId, zeus::Buffer& _data) {
-	_data.setClientId(_userSessionId);
+void zeus::GateWayService::SendData(uint64_t _userSessionId, const ememory::SharedPtr<zeus::Buffer>& _data) {
+	_data->setClientId(_userSessionId);
 	m_interfaceClient.writeBinary(_data);
 }
 
-void zeus::GateWayService::onServiceData(zeus::Buffer& _value) {
-	uint32_t transactionId = _value.getTransactionId();
+void zeus::GateWayService::onServiceData(const ememory::SharedPtr<zeus::Buffer>& _value) {
+	if (_value == nullptr) {
+		return;
+	}
+	uint32_t transactionId = _value->getTransactionId();
 	//data.add("from-service", ejson::String(m_name));
-	if (_value.getType() == zeus::Buffer::typeMessage::event) {
+	if (_value->getType() == zeus::Buffer::typeMessage::event) {
 		/*
 		if (data.valueExist("event") == true) {
 			// No need to have a user ID ...
@@ -70,26 +73,26 @@ void zeus::GateWayService::onServiceData(zeus::Buffer& _value) {
 		*/
 		return;
 	}
-	if (_value.getType() == zeus::Buffer::typeMessage::call) {
-		std::string callFunction = _value.getCall();
+	if (_value->getType() == zeus::Buffer::typeMessage::call) {
+		std::string callFunction = _value->getCall();
 		if (callFunction == "connect-service") {
 			if (m_name != "") {
-				ZEUS_WARNING("Service interface ==> try change the servie name after init: '" << _value.getParameter<std::string>(0));
+				ZEUS_WARNING("Service interface ==> try change the servie name after init: '" << _value->getParameter<std::string>(0));
 				m_interfaceClient.answerValue(transactionId, false);
 				return;
 			}
-			m_name = _value.getParameter<std::string>(0);
+			m_name = _value->getParameter<std::string>(0);
 			m_interfaceClient.setInterfaceName("srv-" + m_name);
 			m_interfaceClient.answerValue(transactionId, true);
 			return;
 		}
 		answerProtocolError(transactionId, "unknow function");
 	}
-	if (_value.getClientId() == 0) {
+	if (_value->getClientId() == 0) {
 		ZEUS_ERROR("Service interface ==> wrong service answer ==> missing 'client-id'");
 		return;
 	}
-	m_gatewayInterface->answer(_value.getClientId(), _value);
+	m_gatewayInterface->answer(_value->getClientId(), _value);
 }
 
 

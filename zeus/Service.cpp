@@ -32,9 +32,9 @@ std::vector<std::string> zeus::Service::getExtention() {
 }
 
 
-void zeus::Service::onClientData(zeus::Buffer& _value) {
-	uint32_t tmpID = _value.getTransactionId();
-	uint32_t clientId = _value.getClientId();;
+void zeus::Service::onClientData(const ememory::SharedPtr<zeus::Buffer>& _value) {
+	uint32_t tmpID = _value->getTransactionId();
+	uint32_t clientId = _value->getClientId();;
 	auto it = m_callMultiData.begin();
 	while (it != m_callMultiData.end()) {
 		if (    it->getTransactionId() == tmpID
@@ -119,24 +119,26 @@ void zeus::Service::pingIsAlive() {
 	}
 }
 
-void zeus::Service::callBinary(uint32_t _transactionId, zeus::Buffer& _obj) {
-	if (_obj.getType() == zeus::Buffer::typeMessage::event) {
-		
+void zeus::Service::callBinary(uint32_t _transactionId, const ememory::SharedPtr<zeus::Buffer>& _obj) {
+	if (_obj == nullptr) {
+		return;
+	}
+	if (_obj->getType() == zeus::Buffer::typeMessage::event) {
 		ZEUS_ERROR("Unknow event: '...'");
 		return;
 	}
-	if (_obj.getType() == zeus::Buffer::typeMessage::answer) {
+	if (_obj->getType() == zeus::Buffer::typeMessage::answer) {
 		ZEUS_ERROR("Local Answer: '...'");
 		return;
 	}
 	//if (_obj.getType() == zeus::Buffer::typeMessage::event) {
-	uint32_t clientId = _obj.getClientId();
-	std::string callFunction = _obj.getCall();
+	uint32_t clientId = _obj->getClientId();
+	std::string callFunction = _obj->getCall();
 	if (callFunction[0] == '_') {
 		if (callFunction == "_new") {
-			std::string userName = _obj.getParameter<std::string>(0);
-			std::string clientName = _obj.getParameter<std::string>(1);
-			std::vector<std::string> clientGroup = _obj.getParameter<std::vector<std::string>>(2);
+			std::string userName = _obj->getParameter<std::string>(0);
+			std::string clientName = _obj->getParameter<std::string>(1);
+			std::vector<std::string> clientGroup = _obj->getParameter<std::vector<std::string>>(2);
 			clientConnect(clientId, userName, clientName, clientGroup);
 		} else if (callFunction == "_delete") {
 			clientDisconnect(clientId);

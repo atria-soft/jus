@@ -20,7 +20,7 @@ namespace zeus {
 			uint64_t m_transactionId;
 			bool m_isSynchronous;
 			bool m_isFinished;
-			zeus::Buffer m_returnData;
+			ememory::SharedPtr<zeus::Buffer> m_returnData;
 			ObserverFinish m_callbackFinish;
 			std::chrono::steady_clock::time_point m_sendTime;
 			std::chrono::steady_clock::time_point m_receiveTime;

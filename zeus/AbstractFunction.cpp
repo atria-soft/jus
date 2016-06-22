@@ -7,21 +7,18 @@
 #include <zeus/debug.h>
 #include <etk/os/FSNode.h>
 
-zeus::Buffer zeus::createBinaryCall(uint64_t _transactionId, const std::string& _functionName, const zeus::Buffer& _params) {
-	zeus::Buffer callElem = createBinaryBaseCall(_transactionId, _functionName);
-	//callElem.add("param", _params);
-	return callElem;
-}
-
-zeus::Buffer zeus::createBinaryBaseCall(uint64_t _transactionId, const std::string& _functionName, const uint32_t& _serviceId) {
-	zeus::Buffer obj;
-	obj.setServiceId(_serviceId);
-	obj.setCall(_functionName);
-	obj.setTransactionId(_transactionId);
+ememory::SharedPtr<zeus::Buffer> zeus::createBinaryBaseCall(uint64_t _transactionId, const std::string& _functionName, const uint32_t& _serviceId) {
+	ememory::SharedPtr<zeus::Buffer> obj = zeus::Buffer::create();
+	if (obj == nullptr) {
+		return nullptr;
+	}
+	obj->setServiceId(_serviceId);
+	obj->setCall(_functionName);
+	obj->setTransactionId(_transactionId);
 	return obj;
 }
 
-void zeus::createBinaryParam(std::vector<ActionAsyncClient>& _asyncAction, int32_t _paramId, zeus::Buffer& _obj) {
+void zeus::createBinaryParam(int32_t _paramId, const ememory::SharedPtr<zeus::Buffer>& _obj) {
 	// Finish recursive parse ...
 }
 

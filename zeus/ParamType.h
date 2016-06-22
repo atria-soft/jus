@@ -29,6 +29,7 @@ namespace zeus {
 			bool isVector() const;
 	};
 	extern const uint16_t paramTypeObject;
+	extern const uint16_t paramTypeRaw;
 	std::ostream& operator <<(std::ostream& _os, const zeus::ParamType& _obj);
 	
 	template<class ZEUS_TYPE>

@@ -39,6 +39,8 @@ def create(target, module_name):
 	    'zeus/Future.cpp',
 	    'zeus/File.cpp',
 	    'zeus/Buffer.cpp',
+	    'zeus/Buffer_addParameter.cpp',
+	    'zeus/Buffer_getParameter.cpp',
 	    'zeus/ParamType.cpp',
 	    'zeus/Client.cpp',
 	    'zeus/GateWay.cpp',

@@ -25,9 +25,9 @@ namespace zeus {
 			virtual ~GateWayService();
 			void start();
 			void stop();
-			void onServiceData(zeus::Buffer& _value);
+			void onServiceData(const ememory::SharedPtr<zeus::Buffer>& _value);
 		public:
-			void SendData(uint64_t _userSessionId, zeus::Buffer& _data);
+			void SendData(uint64_t _userSessionId, const ememory::SharedPtr<zeus::Buffer>& _data);
 			const std::string& getName() {
 				return m_name;
 			}

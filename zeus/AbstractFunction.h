@@ -11,14 +11,6 @@
 #include <zeus/Buffer.h>
 #include <ememory/memory.h>
 
-namespace zeus {
-	class TcpString;
-	// define basic async call element ...
-	using ActionAsyncClient = std::function<bool(TcpString* _interface, const uint32_t& _serviceId, uint64_t _transactionId, uint64_t _part)>;
-}
-
-
-
 
 namespace zeus {
 	class AbstractFunction {
@@ -64,48 +56,53 @@ namespace zeus {
 			virtual std::string getPrototype() const = 0;
 			virtual std::string getPrototypeReturn() const = 0;
 			virtual std::vector<std::string> getPrototypeParam() const = 0;
-			virtual void execute(const ememory::SharedPtr<zeus::TcpString>& _interfaceClient, uint64_t _transactionId, uint64_t _clientId, zeus::Buffer& _params, void* _class=nullptr) = 0;
+			virtual void execute(const ememory::SharedPtr<zeus::TcpString>& _interfaceClient,
+			                     uint64_t _transactionId,
+			                     uint64_t _clientId,
+			                     const ememory::SharedPtr<zeus::Buffer>& _params,
+			                     void* _class=nullptr) = 0;
 	};
 	
-	zeus::Buffer createBinaryBaseCall(uint64_t _transactionId, const std::string& _functionName, const uint32_t& _serviceId=0);
-	void createBinaryParam(std::vector<ActionAsyncClient>& _asyncAction,
-	                       int32_t _paramId,
-	                       zeus::Buffer& _obj);
+	ememory::SharedPtr<zeus::Buffer> createBinaryBaseCall(uint64_t _transactionId, const std::string& _functionName, const uint32_t& _serviceId=0);
+	void createBinaryParam(int32_t _paramId,
+	                       const ememory::SharedPtr<zeus::Buffer>& _obj);
 	
 	template<class ZEUS_TYPE, class... _ARGS>
-	void createBinaryParam(std::vector<ActionAsyncClient>& _asyncAction,
-	                       int32_t _paramId,
-	                       zeus::Buffer& _obj,
+	void createBinaryParam(int32_t _paramId,
+	                       const ememory::SharedPtr<zeus::Buffer>& _obj,
 	                       const ZEUS_TYPE& _param,
 	                       _ARGS&&... _args) {
-		_obj.addParameter<ZEUS_TYPE>(/*_asyncAction, _paramId,*/ _param);
+		_obj->addParameter<ZEUS_TYPE>(_param);
 		_paramId++;
-		createBinaryParam(_asyncAction, _paramId, _obj, std::forward<_ARGS>(_args)...);
+		createBinaryParam(_paramId, _obj, std::forward<_ARGS>(_args)...);
 	}
 	// convert const char in std::string ...
 	template<class... _ARGS>
-	void createBinaryParam(std::vector<ActionAsyncClient>& _asyncAction,
-	                       int32_t _paramId,
-	                       zeus::Buffer& _obj,
+	void createBinaryParam(int32_t _paramId,
+	                       const ememory::SharedPtr<zeus::Buffer>& _obj,
 	                       const char* _param,
 	                       _ARGS&&... _args) {
-		createBinaryParam(_asyncAction, _paramId, _obj, std::string(_param), std::forward<_ARGS>(_args)...);
+		createBinaryParam(_paramId, _obj, std::string(_param), std::forward<_ARGS>(_args)...);
 	}
 	
 	template<class... _ARGS>
-	zeus::Buffer createBinaryCall(std::vector<ActionAsyncClient>& _asyncAction, uint64_t _transactionId, const std::string& _functionName, _ARGS&&... _args) {
-		zeus::Buffer callElem = createBinaryBaseCall(_transactionId, _functionName);
-		createBinaryParam(_asyncAction, 0, callElem, std::forward<_ARGS>(_args)...);
+	ememory::SharedPtr<zeus::Buffer> createBinaryCall(uint64_t _transactionId, const std::string& _functionName, _ARGS&&... _args) {
+		ememory::SharedPtr<zeus::Buffer> callElem = createBinaryBaseCall(_transactionId, _functionName);
+		if (callElem == nullptr) {
+			return nullptr;
+		}
+		createBinaryParam(0, callElem, std::forward<_ARGS>(_args)...);
 		return callElem;
 	}
 	template<class... _ARGS>
-	zeus::Buffer createBinaryCallService(std::vector<ActionAsyncClient>& _asyncAction, uint64_t _transactionId, const uint32_t& _serviceName, const std::string& _functionName, _ARGS&&... _args) {
-		zeus::Buffer callElem = createBinaryBaseCall(_transactionId, _functionName, _serviceName);
-		createBinaryParam(_asyncAction, 0, callElem, std::forward<_ARGS>(_args)...);
+	ememory::SharedPtr<zeus::Buffer> createBinaryCallService(uint64_t _transactionId, const uint32_t& _serviceName, const std::string& _functionName, _ARGS&&... _args) {
+		ememory::SharedPtr<zeus::Buffer> callElem = createBinaryBaseCall(_transactionId, _functionName, _serviceName);
+		if (callElem == nullptr) {
+			return nullptr;
+		}
+		createBinaryParam(0, callElem, std::forward<_ARGS>(_args)...);
 		return callElem;
 	}
-	zeus::Buffer createBinaryCall(uint64_t _transactionId, const std::string& _functionName, const zeus::Buffer& _params);
-	
 }
 
 #include <zeus/TcpString.h>

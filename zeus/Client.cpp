@@ -20,8 +20,11 @@ zeus::Client::~Client() {
 	
 }
 
-void zeus::Client::onClientData(zeus::Buffer& _value) {
-	ZEUS_ERROR("Get Data On the Communication interface that is not understand ... : " << _value.generateHumanString());
+void zeus::Client::onClientData(const ememory::SharedPtr<zeus::Buffer>& _value) {
+	if (_value == nullptr) {
+		return;
+	}
+	ZEUS_ERROR("Get Data On the Communication interface that is not understand ... : " << _value->generateHumanString());
 }
 
 zeus::ServiceRemote zeus::Client::getService(const std::string& _name) {

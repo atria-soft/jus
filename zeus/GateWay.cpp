@@ -129,7 +129,7 @@ std::vector<std::string> zeus::GateWay::getAllServiceName() {
 }
 
 
-void zeus::GateWay::answer(uint64_t _userSessionId, zeus::Buffer& _data) {
+void zeus::GateWay::answer(uint64_t _userSessionId, const ememory::SharedPtr<zeus::Buffer>& _data) {
 	for (auto &it : m_clientList) {
 		if (it == nullptr) {
 			continue;

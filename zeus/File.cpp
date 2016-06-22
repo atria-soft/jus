@@ -9,6 +9,7 @@
 #include <etk/stdTools.h>
 #include <zeus/mineType.h>
 #include <etk/os/FSNode.h>
+#include <string.h>
 
 
 
@@ -38,14 +39,22 @@ zeus::File::File(const std::string& _mineType, std::vector<uint8_t> _data, int32
 }
 
 void zeus::File::setData(uint64_t _offset, const std::vector<uint8_t>& _data) {
-	// TODO : Check size/offset before set
-	memcpy(&m_data[_offset], &_data[0], _data.size());
+	setData(_offset, &_data[0], _data.size());
+}
+
+void zeus::File::setData(uint64_t _offset, const uint8_t* _data, uint32_t _size) {
+	if (_size+_offset >= m_data.size()) {
+		ZEUS_ERROR("Need Resize file buffer ...");
+		m_data.resize(_size+_offset);
+	}
+	memcpy(&m_data[_offset], _data, _size);
 }
 
 
 zeus::FileServer::FileServer() {
 	
 }
+
 zeus::FileServer::FileServer(const std::string& _filename) :
   m_name(_filename) {
 	

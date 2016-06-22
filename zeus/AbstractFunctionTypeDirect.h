@@ -15,15 +15,18 @@ namespace zeus {
 	                 uint64_t _transactionId,
 	                 uint64_t _clientId,
 	                 ZEUS_RETURN (*_func)(ZEUS_TYPES...),
-	                 zeus::Buffer& _obj) {
+	                 const ememory::SharedPtr<zeus::Buffer>& _obj) {
+		if (_obj == nullptr) {
+			return;
+		}
 		#if defined(__clang__)
 			// clang generate a basic warning:
 			//      warning: multiple unsequenced modifications to 'idParam' [-Wunsequenced]
 			int32_t idParam = 0;
-			ZEUS_RETURN ret = _func(_obj.getParameter<ZEUS_TYPES>(idParam++)...);
+			ZEUS_RETURN ret = _func(_obj->getParameter<ZEUS_TYPES>(idParam++)...);
 		#elif defined(__GNUC__) || defined(__GNUG__) || defined(_MSC_VER)
 			int32_t idParam = int32_t(sizeof...(ZEUS_TYPES))-1;
-			ZEUS_RETURN ret = _func(_obj.getParameter<ZEUS_TYPES>(idParam--)...);
+			ZEUS_RETURN ret = _func(_obj->getParameter<ZEUS_TYPES>(idParam--)...);
 		#else
 			#error Must be implemented ...
 		#endif
@@ -38,15 +41,18 @@ namespace zeus {
 	                 uint64_t _transactionId,
 	                 uint64_t _clientId,
 	                 void (*_func)(ZEUS_TYPES...),
-	                 zeus::Buffer& _obj) {
+	                 const ememory::SharedPtr<zeus::Buffer>& _obj) {
+		if (_obj == nullptr) {
+			return;
+		}
 		#if defined(__clang__)
 			// clang generate a basic warning:
 			//      warning: multiple unsequenced modifications to 'idParam' [-Wunsequenced]
 			int32_t idParam = 0;
-			_func(_obj.getParameter<ZEUS_TYPES>(idParam++)...);
+			_func(_obj->getParameter<ZEUS_TYPES>(idParam++)...);
 		#elif defined(__GNUC__) || defined(__GNUG__) || defined(_MSC_VER)
 			int32_t idParam = int32_t(sizeof...(ZEUS_TYPES))-1;
-			_func(_obj.getParameter<ZEUS_TYPES>(idParam--)...);
+			_func(_obj->getParameter<ZEUS_TYPES>(idParam--)...);
 		#else
 			#error Must be implemented ...
 		#endif
@@ -96,12 +102,15 @@ namespace zeus {
 			void execute(const ememory::SharedPtr<zeus::TcpString>& _interfaceClient,
 			             uint64_t _transactionId,
 			             uint64_t _clientId,
-			             zeus::Buffer& _obj,
+			             const ememory::SharedPtr<zeus::Buffer>& _obj,
 			             void* _class) override {
+				if (_obj == nullptr) {
+					return;
+				}
 				// check parameter number
-				if (_obj.getNumberParameter() != sizeof...(ZEUS_TYPES)) {
+				if (_obj->getNumberParameter() != sizeof...(ZEUS_TYPES)) {
 					std::string help = "request ";
-					help += etk::to_string(_obj.getNumberParameter());
+					help += etk::to_string(_obj->getNumberParameter());
 					help += " parameters and need ";
 					help += etk::to_string(sizeof...(ZEUS_TYPES));
 					help += " parameters. prototype function:";
@@ -114,7 +123,7 @@ namespace zeus {
 				}
 				// check parameter compatibility
 				for (size_t iii=0; iii<sizeof...(ZEUS_TYPES); ++iii) {
-					if (checkCompatibility(m_paramType[iii], _obj.getParameterType(iii)) == false) {
+					if (checkCompatibility(m_paramType[iii], _obj->getParameterType(iii)) == false) {
 						_interfaceClient->answerError(_transactionId,
 						                              "WRONG-PARAMETER-TYPE",
 						                              std::string("Parameter id ") + etk::to_string(iii) + " not compatible with type: '" + m_paramType[iii].getName() + "'",

@@ -89,17 +89,21 @@ namespace appl {
 				std::vector<std::string> out;
 				ejson::Array globalGroups = m_database["group-global"].toArray();
 				if (globalGroups.exist() == false) {
+					APPL_DEBUG("'group-global' ==> does not exist ==> No album");
 					return out;
 				}
 				ejson::Object groups = m_database["groups"].toObject();
 				if (groups.exist() == false) {
+					APPL_DEBUG("'group' ==> does not exist ==> No album");
 					return out;
 				}
+				APPL_DEBUG("for element in 'group-global'");
 				for (auto it: globalGroups) {
 					std::string tmpString = it.toString().get();
 					if (tmpString == "") {
 						continue;
 					}
+					APPL_DEBUG("    find emlement:" << tmpString);
 					out.push_back(tmpString);
 				}
 				return out;

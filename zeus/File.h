@@ -16,6 +16,9 @@ namespace zeus {
 			File();
 			File(const std::string& _filename);
 			File(const std::string& _mineType, std::vector<uint8_t> _data, int32_t _fileSize = -1);
+			int32_t getTheoricFileSize() const {
+				return m_fileSize;
+			}
 			void storeIn(const std::string& _filename) const;
 			const std::string& getMineType() const {
 				return m_mineType;
@@ -30,6 +33,7 @@ namespace zeus {
 				return m_data;
 			}
 			void setData(uint64_t _offset, const std::vector<uint8_t>& _data);
+			void setData(uint64_t _offset, const uint8_t* _data, uint32_t _size);
 	};
 	class FileServer {
 		private:
@@ -37,7 +41,7 @@ namespace zeus {
 		public:
 			FileServer();
 			FileServer(const std::string& _filename);
-			const std::string& getFileName() {
+			const std::string& getFileName() const {
 				return m_name;
 			}
 	};

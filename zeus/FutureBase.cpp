@@ -28,15 +28,14 @@ zeus::FutureBase::FutureBase(uint64_t _transactionId, zeus::FutureData::Observer
 	m_data->m_callbackFinish = _callback;
 }
 
-const zeus::Buffer& zeus::FutureBase::getRaw() {
+ememory::SharedPtr<zeus::Buffer> zeus::FutureBase::getRaw() {
 	if (m_data == nullptr) {
-		static zeus::Buffer tmpp;
-		return tmpp;
+		return nullptr;
 	}
 	return m_data->m_returnData;
 }
 
-zeus::FutureBase::FutureBase(uint64_t _transactionId, bool _isFinished, zeus::Buffer _returnData, zeus::FutureData::ObserverFinish _callback) {
+zeus::FutureBase::FutureBase(uint64_t _transactionId, bool _isFinished, const ememory::SharedPtr<zeus::Buffer>& _returnData, zeus::FutureData::ObserverFinish _callback) {
 	m_data = std::make_shared<zeus::FutureData>();
 	if (m_data == nullptr) {
 		return;
@@ -69,45 +68,31 @@ zeus::FutureBase zeus::FutureBase::operator= (const zeus::FutureBase& _base) {
 	return *this;
 }
 
-bool zeus::FutureBase::setAnswer(const zeus::Buffer& _returnValue) {
+bool zeus::FutureBase::setAnswer(const ememory::SharedPtr<zeus::Buffer>& _value) {
 	if (m_data == nullptr) {
 		ZEUS_ERROR(" Not a valid future ...");
 		return true;
 	}
 	m_data->m_receiveTime = std::chrono::steady_clock::now();
 	if (m_data->m_isSynchronous == true) {
-		m_data->m_returnData = _returnValue;
+		m_data->m_returnData = _value;
 		if (m_data->m_callbackFinish != nullptr) {
 			return m_data->m_callbackFinish(*this);
 		}
 		return true;
 	}
-	/* TODO : ...
-	if (_returnValue.valueExist("part") == true) {
-		uint64_t idPart = _returnValue["part"].toNumber().getU64();
-		if (idPart == 0) {
-			m_data->m_returnData = _returnValue;
-		} else {
-			m_data->m_returnDataPart.push_back(_returnValue["data"]);
+	if (_value->getType() == zeus::Buffer::typeMessage::data) {
+		if (m_data->m_returnData != nullptr) {
+			m_data->m_returnData->appendBufferData(_value);
 		}
-		if (_returnValue.valueExist("finish") == true) {
-			if (_returnValue["finish"].toBoolean().get() == true) {
-				m_data->m_isFinished = true;
-				if (m_data->m_callbackFinish != nullptr) {
-					return m_data->m_callbackFinish(*this);
-				}
-				return true;
-			}
-			// finish is false ==> normal case ...
-		}
-		return false;
-	}*/
-	m_data->m_returnData = _returnValue;
-	m_data->m_isFinished = true;
+	} else {
+		m_data->m_returnData = _value;
+	}
+	m_data->m_isFinished = _value->getPartFinish();
 	if (m_data->m_callbackFinish != nullptr) {
 		return m_data->m_callbackFinish(*this);
 	}
-	return true;
+	return m_data->m_isFinished;
 }
 void zeus::FutureBase::setSynchronous() {
 	if (m_data == nullptr) {
@@ -127,28 +112,30 @@ bool zeus::FutureBase::hasError() {
 	if (m_data == nullptr) {
 		return true;
 	}
-	return m_data->m_returnData.hasError();
+	return m_data->m_returnData->hasError();
 }
 
 std::string zeus::FutureBase::getErrorType() {
-	if (m_data == nullptr) {
+	if (    m_data == nullptr
+	     || m_data->m_returnData == nullptr) {
 		return "NULL_PTR";
 	}
-	return m_data->m_returnData.getError();
+	return m_data->m_returnData->getError();
 }
 
 std::string zeus::FutureBase::getErrorHelp() {
-	if (m_data == nullptr) {
+	if (    m_data == nullptr
+	     || m_data->m_returnData == nullptr) {
 		return "Thsi is a nullptr future";
 	}
-	return m_data->m_returnData.getErrorHelp();
+	return m_data->m_returnData->getErrorHelp();
 }
 
-bool zeus::FutureBase::isValid() {
+bool zeus::FutureBase::isValid() const {
 	return m_data != nullptr;
 }
 
-bool zeus::FutureBase::isFinished() {
+bool zeus::FutureBase::isFinished() const {
 	if (m_data == nullptr) {
 		return true;
 	}
@@ -184,35 +171,43 @@ zeus::FutureBase& zeus::FutureBase::waitUntil(std::chrono::steady_clock::time_po
 }
 
 
-zeus::FutureCall::FutureCall(uint64_t _clientId, uint64_t _transactionId, zeus::Buffer& _callValue) :
+zeus::FutureCall::FutureCall(uint64_t _clientId, uint64_t _transactionId, const ememory::SharedPtr<zeus::Buffer>& _callValue) :
   m_transactionId(_transactionId),
   m_clientId(_clientId),
   m_isFinished(false) {
 	m_data = _callValue;
-	m_isFinished = m_data.getPartFinish();
+	m_isFinished = m_data->getPartFinish();
 }
 
-void zeus::FutureCall::appendData(zeus::Buffer& _callValue) {
-	m_dataMultiplePack.push_back(_callValue);
-	m_isFinished = _callValue.getPartFinish();
+void zeus::FutureCall::appendData(const ememory::SharedPtr<zeus::Buffer>& _value) {
+	if (_value->getType() == zeus::Buffer::typeMessage::data) {
+		if (m_data == nullptr) {
+			return;
+		}
+		m_data->appendBufferData(_value);
+	} else {
+		m_data = _value;
+	}
+	m_dataMultiplePack.push_back(_value);
+	m_isFinished = _value->getPartFinish();
 }
 
-uint64_t zeus::FutureCall::getTransactionId() {
+uint64_t zeus::FutureCall::getTransactionId() const {
 	return m_transactionId;
 }
 
-uint64_t zeus::FutureCall::getClientId() {
+uint64_t zeus::FutureCall::getClientId() const {
 	return m_clientId;
 }
 
-bool zeus::FutureCall::isFinished() {
+bool zeus::FutureCall::isFinished() const {
 	return m_isFinished;
 }
 
-zeus::Buffer& zeus::FutureCall::getRaw() {
+ememory::SharedPtr<zeus::Buffer> zeus::FutureCall::getRaw() const {
 	return m_data;
 }
 
-std::chrono::nanoseconds zeus::FutureCall::getTransmitionTime() {
+std::chrono::nanoseconds zeus::FutureCall::getTransmitionTime() const {
 	return m_answerTime - m_receiveTime;
 }

@@ -32,7 +32,7 @@ namespace zeus {
 			void stop();
 			ememory::SharedPtr<zeus::GateWayService> get(const std::string& _serviceName);
 			std::vector<std::string> getAllServiceName();
-			void answer(uint64_t _userSessionId, zeus::Buffer& _data);
+			void answer(uint64_t _userSessionId, const ememory::SharedPtr<zeus::Buffer>& _data);
 			void newService(enet::Tcp _connection);
 			void newClient(enet::Tcp _connection);
 			void cleanIO();

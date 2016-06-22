@@ -66,19 +66,22 @@ void zeus::GateWayClient::answerProtocolError(uint32_t _transactionId, const std
 }
 
 
-void zeus::GateWayClient::onClientData(zeus::Buffer& _value) {
-	uint32_t transactionId = _value.getTransactionId();
+void zeus::GateWayClient::onClientData(const ememory::SharedPtr<zeus::Buffer>& _value) {
+	if (_value == nullptr) {
+		return;
+	}
+	uint32_t transactionId = _value->getTransactionId();
 	if (transactionId == 0) {
 		ZEUS_ERROR("Protocol error ==>missing id");
 		answerProtocolError(transactionId, "missing parameter: 'id'");
 		return;
 	}
-	if (_value.getType() != zeus::Buffer::typeMessage::call) {
+	if (_value->getType() != zeus::Buffer::typeMessage::call) {
 		ZEUS_ERROR("Protocol error ==>missing 'call'");
 		answerProtocolError(transactionId, "missing parameter: 'call' / wrong type 'call'");
 		return;
 	}
-	std::string callFunction = _value.getCall();
+	std::string callFunction = _value->getCall();
 	switch (m_state) {
 		case zeus::GateWayClient::state::disconnect:
 		case zeus::GateWayClient::state::unconnect:
@@ -94,7 +97,7 @@ void zeus::GateWayClient::onClientData(zeus::Buffer& _value) {
 					return;
 				}
 				if (callFunction == "connectToUser") {
-					m_userConnectionName = _value.getParameter<std::string>(0);
+					m_userConnectionName = _value->getParameter<std::string>(0);
 					if (m_userConnectionName == "") {
 						answerProtocolError(transactionId, "Call connectToUser with no parameter 'user'");
 					} else {
@@ -127,8 +130,8 @@ void zeus::GateWayClient::onClientData(zeus::Buffer& _value) {
 					return;
 				}
 				if (callFunction == "identify") {
-					std::string clientName = _value.getParameter<std::string>(0);
-					std::string clientTocken = _value.getParameter<std::string>(1);
+					std::string clientName = _value->getParameter<std::string>(0);
+					std::string clientTocken = _value->getParameter<std::string>(1);
 					if (m_userService == nullptr) {
 						answerProtocolError(transactionId, "gateWay internal error 3");
 						return;
@@ -149,7 +152,7 @@ void zeus::GateWayClient::onClientData(zeus::Buffer& _value) {
 					m_clientName = clientName;
 				}
 				if (callFunction == "auth") {
-					std::string password = _value.getParameter<std::string>(0);
+					std::string password = _value->getParameter<std::string>(0);
 					zeus::Future<bool> fut = m_userService->m_interfaceClient.callClient(m_uid2, "checkAuth", password);
 					fut.wait(); // TODO: Set timeout ...
 					if (fut.hasError() == true) {
@@ -204,7 +207,7 @@ void zeus::GateWayClient::onClientData(zeus::Buffer& _value) {
 			break;
 		case zeus::GateWayClient::state::clientIdentify:
 			{
-				uint32_t serviceId = _value.getServiceId();
+				uint32_t serviceId = _value->getServiceId();
 				if (serviceId == 0) {
 					// This is 2 default service for the cient interface that manage the authorisation of view:
 					if (callFunction == "getServiceCount") {
@@ -218,7 +221,7 @@ void zeus::GateWayClient::onClientData(zeus::Buffer& _value) {
 					}
 					if (callFunction == "link") {
 						// first param:
-						std::string serviceName = _value.getParameter<std::string>(0);
+						std::string serviceName = _value->getParameter<std::string>(0);
 						// Check if service already link:
 						auto it = m_listConnectedService.begin();
 						while (it != m_listConnectedService.end()) {
@@ -259,7 +262,7 @@ void zeus::GateWayClient::onClientData(zeus::Buffer& _value) {
 					}
 					if (callFunction == "unlink") {
 						// first param: the service we want to unconnect ...
-						int64_t localServiceID = _value.getParameter<int64_t>(0)-1;
+						int64_t localServiceID = _value->getParameter<int64_t>(0)-1;
 						// Check if service already link:
 						if (localServiceID >= m_listConnectedService.size()) {
 							m_interfaceClient.answerError(transactionId, "NOT-CONNECTED-SERVICE");
@@ -291,7 +294,7 @@ void zeus::GateWayClient::onClientData(zeus::Buffer& _value) {
 						ZEUS_ERROR("TODO : Manage this case ...");
 						return;
 					}
-					uint16_t partId = _value.getPartId();
+					uint16_t partId = _value->getPartId();
 					if (partId != 0) {
 						m_listConnectedService[serviceId]->m_interfaceClient.callForwardMultiple(
 						    m_uid,
@@ -304,21 +307,24 @@ void zeus::GateWayClient::onClientData(zeus::Buffer& _value) {
 					    _value,
 					    (uint64_t(m_uid) << 32) + uint64_t(transactionId),
 					    [=](zeus::FutureBase _ret) {
-					    		zeus::Buffer tmpp = _ret.getRaw();
-					    		ZEUS_DEBUG("    ==> transmit : " << tmpp.getTransactionId() << " -> " << transactionId);
-					    		ZEUS_DEBUG("    msg=" << tmpp.generateHumanString());
-					    		tmpp.setTransactionId(transactionId);
-					    		tmpp.setServiceId(serviceId+1);
-					    		ZEUS_DEBUG("transmit=" << tmpp.generateHumanString());
+					    		ememory::SharedPtr<zeus::Buffer> tmpp = _ret.getRaw();
+					    		if (tmpp == nullptr) {
+					    			return true;
+					    		}
+					    		ZEUS_DEBUG("    ==> transmit : " << tmpp->getTransactionId() << " -> " << transactionId);
+					    		ZEUS_DEBUG("    msg=" << tmpp->generateHumanString());
+					    		tmpp->setTransactionId(transactionId);
+					    		tmpp->setServiceId(serviceId+1);
+					    		ZEUS_DEBUG("transmit=" << tmpp->generateHumanString());
 					    		m_interfaceClient.writeBinary(tmpp);
 					    		// multiple send element ...
-					    		return tmpp.getPartFinish();
+					    		return tmpp->getPartFinish();
 					    });
 				}
 			}
 	}
 }
 
-void zeus::GateWayClient::returnMessage(zeus::Buffer& _data) {
+void zeus::GateWayClient::returnMessage(const ememory::SharedPtr<zeus::Buffer>& _data) {
 	ZEUS_ERROR("Get call from the Service to the user ...");
 }

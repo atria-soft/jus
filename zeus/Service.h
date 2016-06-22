@@ -68,7 +68,7 @@ namespace zeus {
 			void connect(const std::string& _serviceName, uint32_t _numberRetry = 1);
 			void disconnect();
 		private:
-			void onClientData(zeus::Buffer& _value);
+			void onClientData(const ememory::SharedPtr<zeus::Buffer>& _value);
 		public:
 			void pingIsAlive();
 			bool GateWayAlive();
@@ -84,8 +84,8 @@ namespace zeus {
 			virtual void clientConnect(uint64_t _clientId, const std::string& _userName, const std::string& _clientName, const std::vector<std::string>& _groups) = 0;
 			virtual void clientDisconnect(uint64_t _clientId) = 0;
 			// Genenric function call:
-			void callBinary(uint32_t _transactionId, zeus::Buffer& _obj);
-			virtual void callBinary2(uint32_t _transactionId, uint64_t _clientId, const std::string& _call, zeus::Buffer& _obj) = 0;
+			void callBinary(uint32_t _transactionId, const ememory::SharedPtr<zeus::Buffer>& _obj);
+			virtual void callBinary2(uint32_t _transactionId, uint64_t _clientId, const std::string& _call, const ememory::SharedPtr<zeus::Buffer>& _obj) = 0;
 			std::vector<std::string> getExtention();
 		public:
 			// Add Local fuction (depend on this class)
@@ -208,7 +208,7 @@ namespace zeus {
 				}
 				it->second.first->setGroups(_clientGroups);
 			}
-			void callBinary2(uint32_t _transactionId, uint64_t _clientId, const std::string& _call, zeus::Buffer& _obj) {
+			void callBinary2(uint32_t _transactionId, uint64_t _clientId, const std::string& _call, const ememory::SharedPtr<zeus::Buffer>& _obj) {
 				auto it = m_interface.find(_clientId);
 				if (it == m_interface.end()) {
 					m_interfaceClient->answerError(_transactionId, "CLIENT-UNKNOW", "", _clientId);

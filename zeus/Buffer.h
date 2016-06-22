@@ -9,6 +9,14 @@
 #include <zeus/ParamType.h>
 
 namespace zeus {
+	class TcpString;
+	// define basic async call element ...
+	using ActionAsyncClient = std::function<bool(TcpString* _interface, const uint32_t& _serviceId, uint64_t _transactionId, uint64_t _part)>;
+}
+
+
+
+namespace zeus {
 	//U32 message lenght
 	#pragma pack(push,1)
 	struct headerBin {
@@ -82,13 +90,25 @@ namespace zeus {
 	    - obj:file
 	*/
 	class Buffer {
-		private:
+		protected:
+			Buffer();
+		public:
+			static ememory::SharedPtr<zeus::Buffer> create();
+		protected:
 			headerBin m_header;
 			mutable std::vector<std::pair<int32_t,std::vector<uint8_t>>> m_parameter;
-		private:
+			std::vector<zeus::ActionAsyncClient> m_multipleSend;
+		public:
+			bool haveAsync() const {
+				return m_multipleSend.size() != 0;
+			}
+			std::vector<zeus::ActionAsyncClient> moveAsync() {
+				return std::move(m_multipleSend);
+			}
+			void appendBufferData(const ememory::SharedPtr<zeus::Buffer>& _obj);
+		protected:
 			void internalComposeWith(const uint8_t* _buffer, uint32_t _lenght);
 		public:
-			Buffer();
 			void composeWith(const std::vector<uint8_t>& _buffer);
 			void composeWith(const std::string& _buffer);
 			std::string generateHumanString();
@@ -109,6 +129,7 @@ namespace zeus {
 			bool getPartFinish() const;
 			void setPartFinish(bool _value);
 			enum class typeMessage {
+				unknow = 0x0000, // Init value
 				call = 0x0001, // Remote call on a service ID
 				answer = 0x0002, // Answer from a previous call
 				data = 0x0003, // data message happend when partId > 0 it compleate the data of a parameter or an answer or an event
@@ -120,7 +141,7 @@ namespace zeus {
 		// ===============================================
 		// == Section call
 		// ===============================================
-		private:
+		protected:
 			template<class ZEUS_TYPE_DATA>
 			ZEUS_TYPE_DATA internalGetParameter(int32_t _id) const;
 			zeus::ParamType internalGetParameterType(int32_t _id) const;
@@ -135,9 +156,14 @@ namespace zeus {
 			const uint8_t* getParameterPointer(int32_t _id) const;
 			uint32_t getParameterSize(int32_t _id) const;
 			
+		protected:
+			template<class ZEUS_TYPE_DATA>
+			void internalAddParameter(uint16_t _paramId, const ZEUS_TYPE_DATA& _value);
 		public:
 			template<class ZEUS_TYPE_DATA>
-			void addParameter(const ZEUS_TYPE_DATA& _value);
+			void addParameter(const ZEUS_TYPE_DATA& _value) {
+				internalAddParameter<ZEUS_TYPE_DATA>(m_parameter.size(), _value);
+			}
 			void addParameterEmptyVector();
 			void addParameter();
 			
@@ -167,10 +193,14 @@ namespace zeus {
 		
 		public:
 			//multiple section of data (part ...)
-			void addData(void* _data, uint32_t _size);
+			void addData(uint16_t _parameterId, void* _data, uint32_t _size);
 		
 			bool writeOn(enet::WebSocket& _interface);
 	};
 	std::ostream& operator <<(std::ostream& _os, enum zeus::Buffer::typeMessage _value);
+	
+	void addType(std::vector<uint8_t>& _data, zeus::ParamType _type);
+	void addTypeObject(std::vector<uint8_t>& _data, const std::string _type);
+	void addTypeRaw(std::vector<uint8_t>& _data);
 }
 

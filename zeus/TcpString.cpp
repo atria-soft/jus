@@ -90,11 +90,62 @@ void zeus::TcpString::disconnect(bool _inThreadStop){
 	ZEUS_DEBUG("disconnect [STOP]");
 }
 
-int32_t zeus::TcpString::writeBinary(zeus::Buffer& _data) {
+class SendAsyncBinary {
+	private:
+		std::vector<zeus::ActionAsyncClient> m_async;
+		uint64_t m_transactionId;
+		uint32_t m_serviceId;
+		uint32_t m_partId;
+	public:
+		SendAsyncBinary(uint64_t _transactionId, const uint32_t& _serviceId, std::vector<zeus::ActionAsyncClient> _async) :
+		  m_async(std::move(_async)),
+		  m_transactionId(_transactionId),
+		  m_serviceId(_serviceId),
+		  m_partId(1) {
+			
+		}
+		bool operator() (zeus::TcpString* _interface){
+			auto it = m_async.begin();
+			while (it != m_async.end()) {
+				bool ret = (*it)(_interface, m_serviceId, m_transactionId, m_partId);
+				if (ret == true) {
+					// Remove it ...
+					it = m_async.erase(it);
+				} else {
+					++it;
+				}
+				m_partId++;
+			}
+			if (m_async.size() == 0) {
+				ememory::SharedPtr<zeus::Buffer> obj = zeus::Buffer::create();
+				if (obj == nullptr) {
+					return true;
+				}
+				obj->setType(zeus::Buffer::typeMessage::data);
+				obj->setServiceId(m_serviceId);
+				obj->setTransactionId(m_transactionId);
+				obj->setPartId(m_partId);
+				obj->setPartFinish(true);
+				_interface->writeBinary(obj);
+				return true;
+			}
+			return false;
+		}
+};
+
+int32_t zeus::TcpString::writeBinary(const ememory::SharedPtr<zeus::Buffer>& _obj) {
 	if (m_connection.isAlive() == false) {
 		return -2;
 	}
-	if (_data.writeOn(m_connection) == true) {
+	if (_obj->haveAsync() == true) {
+		ZEUS_WARNING("Set Flag not finish ...");
+		_obj->setPartFinish(false);
+	}
+	if (_obj->writeOn(m_connection) == true) {
+		if (_obj->haveAsync() == true) {
+			ZEUS_WARNING("Add async");
+			addAsync(SendAsyncBinary(_obj->getTransactionId(), _obj->getServiceId(), std::move(_obj->moveAsync())));
+		}
 		return 1;
 	}
 	return -1;
@@ -115,14 +166,13 @@ bool zeus::TcpString::onReceiveUri(const std::string& _uri, const std::vector<st
 }
 
 void zeus::TcpString::onReceiveData(std::vector<uint8_t>& _frame, bool _isBinary) {
-	ZEUS_VERBOSE("Receive Frame ... " << _frame.size());
-	zeus::Buffer dataRaw;
+	ememory::SharedPtr<zeus::Buffer> dataRaw = zeus::Buffer::create();
 	if (_isBinary == true) {
 		ZEUS_ERROR("Receive non binary frame ...");
 		disconnect(true);
 		return;
 	}
-	dataRaw.composeWith(_frame);
+	dataRaw->composeWith(_frame);
 	newBuffer(dataRaw);
 }
 
@@ -130,10 +180,10 @@ void zeus::TcpString::ping() {
 	m_connection.controlPing();
 }
 
-void zeus::TcpString::newBuffer(zeus::Buffer& _buffer) {
-	ZEUS_VERBOSE("Receive Binary :" << _buffer.generateHumanString());
+void zeus::TcpString::newBuffer(const ememory::SharedPtr<zeus::Buffer>& _buffer) {
+	ZEUS_DEBUG("Receive :" << _buffer->generateHumanString());
 	zeus::FutureBase future;
-	uint64_t tid = _buffer.getTransactionId();
+	uint64_t tid = _buffer->getTransactionId();
 	if (tid == 0) {
 		ZEUS_ERROR("Get a Protocol error ... No ID ...");
 		/*
@@ -195,16 +245,28 @@ void zeus::TcpString::newBuffer(zeus::Buffer& _buffer) {
 	}
 }
 
+void zeus::TcpString::addAsync(zeus::TcpString::ActionAsync _elem) {
+	std::unique_lock<std::mutex> lock(m_threadAsyncMutex);
+	m_threadAsyncList2.push_back(_elem);
+}
+
 void zeus::TcpString::threadAsyncCallback() {
 	ethread::setName("Async-sender");
+	ZEUS_INFO("Async Sender [START]...");
 	// get datas:
 	while (    m_threadAsyncRunning == true
 	        && m_connection.isAlive() == true) {
+		if (m_threadAsyncList2.size() != 0) {
+			std::unique_lock<std::mutex> lock(m_threadAsyncMutex);
+			for (auto &it : m_threadAsyncList2) {
+				m_threadAsyncList.push_back(it);
+			}
+			m_threadAsyncList2.clear();
+		}
 		if (m_threadAsyncList.size() == 0) {
 			usleep(10000);
 			continue;
 		}
-		std::unique_lock<std::mutex> lock(m_threadAsyncMutex);
 		auto it = m_threadAsyncList.begin();
 		while (it != m_threadAsyncList.end()) {
 			bool ret = (*it)(this);
@@ -217,58 +279,19 @@ void zeus::TcpString::threadAsyncCallback() {
 		}
 	}
 	m_threadAsyncRunning = false;
-	ZEUS_DEBUG("End of thread");
+	ZEUS_INFO("Async Sender [STOP]");
 }
 
-class SendAsyncBinary {
-	private:
-		std::vector<zeus::ActionAsyncClient> m_async;
-		uint64_t m_transactionId;
-		uint32_t m_serviceId;
-		uint32_t m_partId;
-	public:
-		SendAsyncBinary(uint64_t _transactionId, const uint32_t& _serviceId, const std::vector<zeus::ActionAsyncClient>& _async) :
-		  m_async(_async),
-		  m_transactionId(_transactionId),
-		  m_serviceId(_serviceId),
-		  m_partId(1) {
-			
-		}
-		bool operator() (zeus::TcpString* _interface){
-			auto it = m_async.begin();
-			while (it != m_async.end()) {
-				bool ret = (*it)(_interface, m_serviceId, m_transactionId, m_partId);
-				if (ret == true) {
-					// Remove it ...
-					it = m_async.erase(it);
-				} else {
-					++it;
-				}
-				m_partId++;
-			}
-			if (m_async.size() == 0) {
-				zeus::Buffer obj;
-				obj.setServiceId(m_serviceId);
-				obj.setTransactionId(m_transactionId);
-				obj.setPartId(m_partId);
-				obj.setPartFinish(true);
-				_interface->writeBinary(obj);
-				return true;
-			}
-			return false;
-		}
-};
 
 zeus::FutureBase zeus::TcpString::callBinary(uint64_t _transactionId,
-                                             zeus::Buffer& _obj,
-                                             const std::vector<ActionAsyncClient>& _async,
+                                             const ememory::SharedPtr<zeus::Buffer>& _obj,
                                              zeus::FutureData::ObserverFinish _callback,
                                              const uint32_t& _serviceId) {
-	ZEUS_VERBOSE("Send Binary [START] ");
+	ZEUS_VERBOSE("Send [START] ");
 	if (isActive() == false) {
-		zeus::Buffer obj;
-		obj.setType(zeus::Buffer::typeMessage::answer);
-		obj.addError("NOT-CONNECTED", "Client interface not connected (no TCP)");
+		ememory::SharedPtr<zeus::Buffer> obj = zeus::Buffer::create();
+		obj->setType(zeus::Buffer::typeMessage::answer);
+		obj->addError("NOT-CONNECTED", "Client interface not connected (no TCP)");
 		return zeus::FutureBase(_transactionId, true, obj, _callback);
 	}
 	zeus::FutureBase tmpFuture(_transactionId, _callback);
@@ -276,37 +299,28 @@ zeus::FutureBase zeus::TcpString::callBinary(uint64_t _transactionId,
 		std::unique_lock<std::mutex> lock(m_pendingCallMutex);
 		m_pendingCall.push_back(std::make_pair(uint64_t(0), tmpFuture));
 	}
-	if (_async.size() != 0) {
-		_obj.setPartFinish(false);
-	} else {
-		_obj.setPartFinish(true);
-	}
 	writeBinary(_obj);
-	
-	if (_async.size() != 0) {
-		addAsync(SendAsyncBinary(_transactionId, _serviceId, _async));
-	}
-	ZEUS_VERBOSE("Send Binary [STOP]");
+	ZEUS_VERBOSE("Send [STOP]");
 	return tmpFuture;
 }
 
 zeus::FutureBase zeus::TcpString::callForward(uint32_t _clientId,
-                                            zeus::Buffer& _buffer,
-                                            uint64_t _singleReferenceId,
-                                            zeus::FutureData::ObserverFinish _callback) {
+                                              const ememory::SharedPtr<zeus::Buffer>& _buffer,
+                                              uint64_t _singleReferenceId,
+                                              zeus::FutureData::ObserverFinish _callback) {
 	ZEUS_VERBOSE("Call Forward [START]");
 	//zeus::FutureBase ret = callBinary(id, _Buffer, async, _callback);
 	//ret.setSynchronous();
 	
 	if (isActive() == false) {
-		zeus::Buffer obj;
-		obj.setType(zeus::Buffer::typeMessage::answer);
-		obj.addError("NOT-CONNECTED", "Client interface not connected (no TCP)");
+		ememory::SharedPtr<zeus::Buffer> obj = zeus::Buffer::create();
+		obj->setType(zeus::Buffer::typeMessage::answer);
+		obj->addError("NOT-CONNECTED", "Client interface not connected (no TCP)");
 		return zeus::FutureBase(0, true, obj, _callback);
 	}
 	uint64_t id = getId();
-	_buffer.setTransactionId(id);
-	_buffer.setClientId(_clientId);
+	_buffer->setTransactionId(id);
+	_buffer->setClientId(_clientId);
 	zeus::FutureBase tmpFuture(id, _callback);
 	tmpFuture.setSynchronous();
 	{
@@ -319,16 +333,19 @@ zeus::FutureBase zeus::TcpString::callForward(uint32_t _clientId,
 }
 
 void zeus::TcpString::callForwardMultiple(uint32_t _clientId,
-                                         zeus::Buffer& _buffer,
-                                         uint64_t _singleReferenceId){
+                                          const ememory::SharedPtr<zeus::Buffer>& _buffer,
+                                          uint64_t _singleReferenceId){
+	if (_buffer == nullptr) {
+		return;
+	}
 	// subMessage ... ==> try to forward message:
 	std::unique_lock<std::mutex> lock(m_pendingCallMutex);
 	for (auto &itCall : m_pendingCall) {
 		ZEUS_INFO(" compare : " << itCall.first << " =?= " << _singleReferenceId);
 		if (itCall.first == _singleReferenceId) {
 			// Find element ==> transit it ...
-			_buffer.setTransactionId(itCall.second.getTransactionId());
-			_buffer.setClientId(_clientId);
+			_buffer->setTransactionId(itCall.second.getTransactionId());
+			_buffer->setClientId(_clientId);
 			writeBinary(_buffer);
 			return;
 		}
@@ -337,20 +354,26 @@ void zeus::TcpString::callForwardMultiple(uint32_t _clientId,
 }
 
 void zeus::TcpString::answerError(uint64_t _clientTransactionId, const std::string& _errorValue, const std::string& _errorHelp, uint32_t _clientId) {
-	zeus::Buffer answer;
-	answer.setType(zeus::Buffer::typeMessage::answer);
-	answer.setTransactionId(_clientTransactionId);
-	answer.setClientId(_clientId);
-	answer.addError(_errorValue, _errorHelp);
+	ememory::SharedPtr<zeus::Buffer> answer = zeus::Buffer::create();
+	if (answer == nullptr) {
+		return;
+	}
+	answer->setType(zeus::Buffer::typeMessage::answer);
+	answer->setTransactionId(_clientTransactionId);
+	answer->setClientId(_clientId);
+	answer->addError(_errorValue, _errorHelp);
 	writeBinary(answer);
 }
 
 
 void zeus::TcpString::answerVoid(uint64_t _clientTransactionId, uint32_t _clientId) {
-	zeus::Buffer answer;
-	answer.setType(zeus::Buffer::typeMessage::answer);
-	answer.setTransactionId(_clientTransactionId);
-	answer.setClientId(_clientId);
-	answer.addParameter();
+	ememory::SharedPtr<zeus::Buffer> answer = zeus::Buffer::create();
+	if (answer == nullptr) {
+		return;
+	}
+	answer->setType(zeus::Buffer::typeMessage::answer);
+	answer->setTransactionId(_clientTransactionId);
+	answer->setClientId(_clientId);
+	answer->addParameter();
 	writeBinary(answer);
 }
