@@ -76,6 +76,33 @@ void zeus::GateWayClient::onClientData(const ememory::SharedPtr<zeus::Buffer>& _
 		answerProtocolError(transactionId, "missing parameter: 'id'");
 		return;
 	}
+	if (_value->getType() == zeus::Buffer::typeMessage::data) {
+		// TRANSMIT DATA ...
+		if (m_state != zeus::GateWayClient::state::clientIdentify) {
+			answerProtocolError(transactionId, "Not identify to send 'data' buffer (multiple packet element)");
+			return;
+		}
+		uint32_t serviceId = _value->getServiceId();
+		if (serviceId == 0) {
+			answerProtocolError(transactionId, "Can not send multiple data on the gateway");
+			return;
+		}
+		serviceId--;
+		if (serviceId >= m_listConnectedService.size()) {
+			m_interfaceClient.answerError(transactionId, "NOT-CONNECTED-SERVICE");
+			return;
+		}
+		if (m_listConnectedService[serviceId] == nullptr) {
+			// TODO ...
+			ZEUS_ERROR("TODO : Manage this case ...");
+			return;
+		}
+		m_listConnectedService[serviceId]->m_interfaceClient.callForwardMultiple(
+		    m_uid,
+		    _value,
+		    (uint64_t(m_uid) << 32) + uint64_t(transactionId));
+		return;
+	}
 	if (_value->getType() != zeus::Buffer::typeMessage::call) {
 		ZEUS_ERROR("Protocol error ==>missing 'call'");
 		answerProtocolError(transactionId, "missing parameter: 'call' / wrong type 'call'");
@@ -292,14 +319,6 @@ void zeus::GateWayClient::onClientData(const ememory::SharedPtr<zeus::Buffer>& _
 					if (m_listConnectedService[serviceId] == nullptr) {
 						// TODO ...
 						ZEUS_ERROR("TODO : Manage this case ...");
-						return;
-					}
-					uint16_t partId = _value->getPartId();
-					if (partId != 0) {
-						m_listConnectedService[serviceId]->m_interfaceClient.callForwardMultiple(
-						    m_uid,
-						    _value,
-						    (uint64_t(m_uid) << 32) + uint64_t(transactionId));
 						return;
 					}
 					m_listConnectedService[serviceId]->m_interfaceClient.callForward(

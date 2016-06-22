@@ -296,7 +296,7 @@ void zeus::Buffer::internalAddParameter<bool>(uint16_t _paramId, const bool& _va
 	}
 	m_parameter.push_back(std::make_pair(2,data));
 }
-#define ZEUS_MINIMUM_SIZE_MULTIPLE (1024*40)
+#define ZEUS_MINIMUM_SIZE_MULTIPLE (1024*50)
 
 namespace zeus {
 	class SendData {
