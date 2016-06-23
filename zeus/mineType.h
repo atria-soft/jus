@@ -7,6 +7,17 @@
 #include <etk/types.h>
 
 namespace zeus {
+	/**
+	 * @brief 
+	 * @param[in] 
+	 * @return 
+	 */
 	std::string getMineType(const std::string& _extention);
+	/**
+	 * @brief 
+	 * @param[in] 
+	 * @return 
+	 */
 	std::string getExtention(const std::string& _mineType);
 };
+

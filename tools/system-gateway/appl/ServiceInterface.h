@@ -5,24 +5,21 @@
  */
 #pragma once
 
-#include <zeus/TcpString.h>
+#include <zeus/WebServer.h>
 #include <ememory/memory.h>
-#include <esignal/Signal.h>
 
-namespace zeus {
+namespace appl {
 	class GateWay;
-	class GateWayClient;
-	class GateWayService {
-		friend class zeus::GateWayClient;
+	class ClientInterface;
+	class ServiceInterface {
+		friend class appl::ClientInterface;
 		private:
-			zeus::GateWay* m_gatewayInterface;
-			zeus::TcpString m_interfaceClient;
+			appl::GateWay* m_gatewayInterface;
+			zeus::WebServer m_interfaceClient;
 			std::string m_name;
 		public:
-			esignal::Signal<bool> signalIsConnected;
-		public:
-			GateWayService(enet::Tcp _connection, zeus::GateWay* _gatewayInterface);
-			virtual ~GateWayService();
+			ServiceInterface(enet::Tcp _connection, appl::GateWay* _gatewayInterface);
+			virtual ~ServiceInterface();
 			void start();
 			void stop();
 			void onServiceData(const ememory::SharedPtr<zeus::Buffer>& _value);

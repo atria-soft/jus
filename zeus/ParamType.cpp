@@ -8,6 +8,20 @@
 #include <zeus/debug.h>
 #include <zeus/File.h>
 
+
+bool zeus::checkCompatibility(const ParamType& _type, const ParamType& _params) {
+	if (_params == _type) {
+		return true;
+	}
+	// check cross compatibilité (All number are convertible (with min/max) and all number vector are convertible (min/max too)
+	if (    _type.isNumber() == true
+	     && _params.isNumber() == true) {
+		return _type.isVector() == _params.isVector();
+	}
+	return false;
+}
+
+
 std::ostream& zeus::operator <<(std::ostream& _os, const zeus::ParamType& _obj) {
 	_os << "{" << _obj.getId() << ":" << _obj.getName() << "}";
 	return _os;

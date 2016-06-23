@@ -26,15 +26,13 @@ def get_version():
 
 def create(target, module_name):
 	my_module = module.Module(__file__, module_name, get_type())
-	my_module.add_module_depend(['etk', 'enet', 'ememory', 'eproperty', 'esignal'])
+	my_module.add_module_depend(['etk', 'enet', 'ememory', 'eproperty'])
 	my_module.add_src_file([
 	    'zeus/debug.cpp'
 	    ])
 	my_module.add_path(tools.get_current_path(__file__))
 	my_module.add_src_file([
 	    'zeus/AbstractFunction.cpp',
-	    'zeus/AbstractFunctionTypeDirect.cpp',
-	    'zeus/AbstractFunctionTypeClass.cpp',
 	    'zeus/FutureBase.cpp',
 	    'zeus/Future.cpp',
 	    'zeus/File.cpp',
@@ -43,13 +41,10 @@ def create(target, module_name):
 	    'zeus/Buffer_getParameter.cpp',
 	    'zeus/ParamType.cpp',
 	    'zeus/Client.cpp',
-	    'zeus/GateWay.cpp',
-	    'zeus/GateWayService.cpp',
-	    'zeus/GateWayClient.cpp',
 	    'zeus/RemoteProcessCall.cpp',
 	    'zeus/Service.cpp',
 	    'zeus/ServiceRemote.cpp',
-	    'zeus/TcpString.cpp',
+	    'zeus/WebServer.cpp',
 	    'zeus/mineType.cpp',
 	    ])
 	my_module.add_header_file([
@@ -64,13 +59,10 @@ def create(target, module_name):
 	    'zeus/ParamType.h',
 	    'zeus/debug.h',
 	    'zeus/Client.h',
-	    'zeus/GateWay.h',
-	    'zeus/GateWayService.h',
-	    'zeus/GateWayClient.h',
 	    'zeus/RemoteProcessCall.h',
 	    'zeus/Service.h',
 	    'zeus/ServiceRemote.h',
-	    'zeus/TcpString.h',
+	    'zeus/WebServer.h',
 	    'zeus/mineType.h',
 	    ])
 	if target.config["compilator"] == "clang":

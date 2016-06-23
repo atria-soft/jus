@@ -348,8 +348,8 @@ namespace appl {
 				return m_user->getAlbumCount(_album);
 			}
 			// Return the list of the album files
-			std::vector<std::string> getAlbumListPicture(std::string _album) {//, uint32_t _startId, uint32_t _stopId) {
-				return m_user->getAlbumListPicture(_album);//, _startId, _stopId);
+			std::vector<std::string> getAlbumListPicture(std::string _album) {
+				return m_user->getAlbumListPicture(_album);
 			}
 			// Return a File Data (might be a picture .tiff/.png/.jpg)
 			zeus::FileServer getAlbumPicture(std::string _pictureName) {

@@ -5,18 +5,13 @@
  */
 #pragma once
 
-#include <zeus/TcpString.h>
-#include <ememory/memory.h>
-#include <esignal/Signal.h>
-#include <zeus/GateWayService.h>
-#include <zeus/Future.h>
-#include <zeus/AbstractFunction.h>
+#include <zeus/WebServer.h>
+#include <appl/GateWay.h>
+#include <appl/ServiceInterface.h>
 
-
-
-namespace zeus {
+namespace appl {
 	class GateWay;
-	class GateWayClient {
+	class ClientInterface {
 		private:
 			enum class state {
 				unconnect, // starting sate
@@ -27,12 +22,11 @@ namespace zeus {
 			};
 			enum state m_state; // state machine ...
 		private:
-			zeus::GateWay* m_gatewayInterface;
-			zeus::TcpString m_interfaceClient;
+			appl::GateWay* m_gatewayInterface;
+			zeus::WebServer m_interfaceClient;
 		public:
-			esignal::Signal<bool> signalIsConnected;
-			ememory::SharedPtr<zeus::GateWayService> m_userService;
-			std::vector<ememory::SharedPtr<zeus::GateWayService>> m_listConnectedService;
+			ememory::SharedPtr<appl::ServiceInterface> m_userService;
+			std::vector<ememory::SharedPtr<appl::ServiceInterface>> m_listConnectedService;
 			uint64_t m_uid;
 			uint64_t m_uid2;
 			std::string m_userConnectionName;
@@ -40,8 +34,8 @@ namespace zeus {
 			std::vector<std::string> m_clientgroups;
 			std::vector<std::string> m_clientServices;
 		public:
-			GateWayClient(enet::Tcp _connection, zeus::GateWay* _gatewayInterface);
-			virtual ~GateWayClient();
+			ClientInterface(enet::Tcp _connection, appl::GateWay* _gatewayInterface);
+			virtual ~ClientInterface();
 			void start(uint64_t _uid, uint64_t _uid2);
 			void stop();
 			void onClientData(const ememory::SharedPtr<zeus::Buffer>& _value);

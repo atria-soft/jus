@@ -4,9 +4,10 @@
  * @license APACHE v2.0 (see license file)
  */
 
-#include <zeus/debug.h>
-#include <zeus/GateWayClient.h>
-#include <zeus/GateWay.h>
+#include <appl/debug.h>
+#include <appl/ClientInterface.h>
+#include <zeus/Future.h>
+#include <appl/GateWay.h>
 #include <unistd.h>
 
 #include <zeus/AbstractFunction.h>
@@ -14,8 +15,8 @@
 
 static const std::string protocolError = "PROTOCOL-ERROR";
 
-zeus::GateWayClient::GateWayClient(enet::Tcp _connection, zeus::GateWay* _gatewayInterface) :
-  m_state(zeus::GateWayClient::state::unconnect),
+appl::ClientInterface::ClientInterface(enet::Tcp _connection, appl::GateWay* _gatewayInterface) :
+  m_state(appl::ClientInterface::state::unconnect),
   m_gatewayInterface(_gatewayInterface),
   m_interfaceClient(std::move(_connection), true) {
 	ZEUS_INFO("----------------");
@@ -23,7 +24,7 @@ zeus::GateWayClient::GateWayClient(enet::Tcp _connection, zeus::GateWay* _gatewa
 	ZEUS_INFO("----------------");
 }
 
-zeus::GateWayClient::~GateWayClient() {
+appl::ClientInterface::~ClientInterface() {
 	ZEUS_TODO("Call All unlink ...");
 	stop();
 	ZEUS_INFO("-------------------");
@@ -31,16 +32,16 @@ zeus::GateWayClient::~GateWayClient() {
 	ZEUS_INFO("-------------------");
 }
 
-void zeus::GateWayClient::start(uint64_t _uid, uint64_t _uid2) {
+void appl::ClientInterface::start(uint64_t _uid, uint64_t _uid2) {
 	m_uid = _uid;
 	m_uid2 = _uid2;
-	m_state = zeus::GateWayClient::state::connect;
-	m_interfaceClient.connect(this, &zeus::GateWayClient::onClientData);
+	m_state = appl::ClientInterface::state::connect;
+	m_interfaceClient.connect(this, &appl::ClientInterface::onClientData);
 	m_interfaceClient.connect(true);
 	m_interfaceClient.setInterfaceName("cli-" + etk::to_string(m_uid));
 }
 
-void zeus::GateWayClient::stop() {
+void appl::ClientInterface::stop() {
 	for (auto &it : m_listConnectedService) {
 		if (it == nullptr) {
 			continue;
@@ -55,18 +56,18 @@ void zeus::GateWayClient::stop() {
 	m_interfaceClient.disconnect();
 }
 
-bool zeus::GateWayClient::isAlive() {
+bool appl::ClientInterface::isAlive() {
 	return m_interfaceClient.isActive();
 }
 
-void zeus::GateWayClient::answerProtocolError(uint32_t _transactionId, const std::string& _errorHelp) {
+void appl::ClientInterface::answerProtocolError(uint32_t _transactionId, const std::string& _errorHelp) {
 	m_interfaceClient.answerError(_transactionId, protocolError, _errorHelp);
-	m_state = zeus::GateWayClient::state::disconnect;
+	m_state = appl::ClientInterface::state::disconnect;
 	m_interfaceClient.disconnect(true);
 }
 
 
-void zeus::GateWayClient::onClientData(const ememory::SharedPtr<zeus::Buffer>& _value) {
+void appl::ClientInterface::onClientData(const ememory::SharedPtr<zeus::Buffer>& _value) {
 	if (_value == nullptr) {
 		return;
 	}
@@ -78,7 +79,7 @@ void zeus::GateWayClient::onClientData(const ememory::SharedPtr<zeus::Buffer>& _
 	}
 	if (_value->getType() == zeus::Buffer::typeMessage::data) {
 		// TRANSMIT DATA ...
-		if (m_state != zeus::GateWayClient::state::clientIdentify) {
+		if (m_state != appl::ClientInterface::state::clientIdentify) {
 			answerProtocolError(transactionId, "Not identify to send 'data' buffer (multiple packet element)");
 			return;
 		}
@@ -110,14 +111,14 @@ void zeus::GateWayClient::onClientData(const ememory::SharedPtr<zeus::Buffer>& _
 	}
 	std::string callFunction = _value->getCall();
 	switch (m_state) {
-		case zeus::GateWayClient::state::disconnect:
-		case zeus::GateWayClient::state::unconnect:
+		case appl::ClientInterface::state::disconnect:
+		case appl::ClientInterface::state::unconnect:
 			{
 				ZEUS_ERROR("Must never appear");
 				answerProtocolError(transactionId, "Gateway internal error");
 				return;
 			}
-		case zeus::GateWayClient::state::connect:
+		case appl::ClientInterface::state::connect:
 			{
 				if (m_userConnectionName != "") {
 					answerProtocolError(transactionId, "Gateway internal error 2");
@@ -135,7 +136,7 @@ void zeus::GateWayClient::onClientData(const ememory::SharedPtr<zeus::Buffer>& _
 						} else {
 							zeus::Future<bool> futLocalService = m_userService->m_interfaceClient.callClient(m_uid2, "_new", m_userConnectionName, "**Gateway**", std::vector<std::string>());
 							futLocalService.wait(); // TODO: Set timeout ...
-							m_state = zeus::GateWayClient::state::userIdentify;
+							m_state = appl::ClientInterface::state::userIdentify;
 							m_interfaceClient.answerValue(transactionId, true);
 						}
 					}
@@ -145,7 +146,7 @@ void zeus::GateWayClient::onClientData(const ememory::SharedPtr<zeus::Buffer>& _
 				answerProtocolError(transactionId, "Missing call of connectToUser");
 				return;
 			}
-		case zeus::GateWayClient::state::userIdentify:
+		case appl::ClientInterface::state::userIdentify:
 			{
 				m_clientServices.clear();
 				m_clientgroups.clear();
@@ -228,11 +229,11 @@ void zeus::GateWayClient::onClientData(const ememory::SharedPtr<zeus::Buffer>& _
 				
 				
 				m_interfaceClient.answerValue(transactionId, true);
-				m_state = zeus::GateWayClient::state::clientIdentify;
+				m_state = appl::ClientInterface::state::clientIdentify;
 				return;
 			}
 			break;
-		case zeus::GateWayClient::state::clientIdentify:
+		case appl::ClientInterface::state::clientIdentify:
 			{
 				uint32_t serviceId = _value->getServiceId();
 				if (serviceId == 0) {
@@ -268,7 +269,7 @@ void zeus::GateWayClient::onClientData(const ememory::SharedPtr<zeus::Buffer>& _
 								m_interfaceClient.answerError(transactionId, "UN-AUTHORIZED-SERVICE");
 								return;
 							}
-							ememory::SharedPtr<zeus::GateWayService> srv = m_gatewayInterface->get(serviceName);
+							ememory::SharedPtr<appl::ServiceInterface> srv = m_gatewayInterface->get(serviceName);
 							if (srv != nullptr) {
 								zeus::Future<bool> futLink = srv->m_interfaceClient.callClient(m_uid, "_new", m_userConnectionName, m_clientName, m_clientgroups);
 								futLink.wait(); // TODO: Set timeout ...
@@ -331,10 +332,10 @@ void zeus::GateWayClient::onClientData(const ememory::SharedPtr<zeus::Buffer>& _
 					    			return true;
 					    		}
 					    		ZEUS_DEBUG("    ==> transmit : " << tmpp->getTransactionId() << " -> " << transactionId);
-					    		ZEUS_DEBUG("    msg=" << tmpp->generateHumanString());
+					    		ZEUS_DEBUG("    msg=" << *tmpp);
 					    		tmpp->setTransactionId(transactionId);
 					    		tmpp->setServiceId(serviceId+1);
-					    		ZEUS_DEBUG("transmit=" << tmpp->generateHumanString());
+					    		ZEUS_DEBUG("transmit=" << *tmpp);
 					    		m_interfaceClient.writeBinary(tmpp);
 					    		// multiple send element ...
 					    		return tmpp->getPartFinish();
@@ -344,6 +345,6 @@ void zeus::GateWayClient::onClientData(const ememory::SharedPtr<zeus::Buffer>& _
 	}
 }
 
-void zeus::GateWayClient::returnMessage(const ememory::SharedPtr<zeus::Buffer>& _data) {
+void appl::ClientInterface::returnMessage(const ememory::SharedPtr<zeus::Buffer>& _data) {
 	ZEUS_ERROR("Get call from the Service to the user ...");
 }

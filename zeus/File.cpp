@@ -20,7 +20,6 @@ zeus::File::File() {
 zeus::File::File(const std::string& _filename) {
 	m_data = etk::FSNodeReadAllDataType<uint8_t>(_filename);
 	std::string extention = std::string(_filename.begin()+_filename.size() -3, _filename.end());
-	ZEUS_WARNING("send file: '" << _filename << "' with extention: '" << extention << "'");
 	m_mineType = zeus::getMineType(extention);
 }
 
@@ -43,8 +42,8 @@ void zeus::File::setData(uint64_t _offset, const std::vector<uint8_t>& _data) {
 }
 
 void zeus::File::setData(uint64_t _offset, const uint8_t* _data, uint32_t _size) {
-	if (_size+_offset >= m_data.size()) {
-		ZEUS_ERROR("Need Resize file buffer ...");
+	if (_size+_offset > m_data.size()) {
+		ZEUS_ERROR("Need Resize file buffer ... need=" << _size+_offset << "  have=" << m_data.size());
 		m_data.resize(_size+_offset);
 	}
 	memcpy(&m_data[_offset], _data, _size);

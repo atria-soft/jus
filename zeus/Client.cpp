@@ -24,7 +24,7 @@ void zeus::Client::onClientData(const ememory::SharedPtr<zeus::Buffer>& _value) 
 	if (_value == nullptr) {
 		return;
 	}
-	ZEUS_ERROR("Get Data On the Communication interface that is not understand ... : " << _value->generateHumanString());
+	ZEUS_ERROR("Get Data On the Communication interface that is not understand ... : " << *_value);
 }
 
 zeus::ServiceRemote zeus::Client::getService(const std::string& _name) {
@@ -40,11 +40,11 @@ void zeus::Client::onPropertyChangePort(){
 }
 
 
-bool zeus::Client::connect(const std::string& _remoteUserToConnect){
+bool zeus::Client::connectTo(const std::string& _address) {
 	ZEUS_DEBUG("connect [START]");
 	disconnect();
 	enet::Tcp connection = std::move(enet::connectTcpClient(*propertyIp, *propertyPort));
-	m_interfaceClient = std::make_shared<zeus::TcpString>();
+	m_interfaceClient = std::make_shared<zeus::WebServer>();
 	if (m_interfaceClient == nullptr) {
 		ZEUS_ERROR("Allocate connection error");
 		return false;
@@ -53,11 +53,11 @@ bool zeus::Client::connect(const std::string& _remoteUserToConnect){
 	m_interfaceClient->setInterface(std::move(connection), false);
 	m_interfaceClient->connect();
 	
-	ZEUS_WARNING("Request connect user " << _remoteUserToConnect);
-	zeus::Future<bool> ret = call("connectToUser", _remoteUserToConnect, "zeus-client");
+	ZEUS_WARNING("Request connect user " << _address);
+	zeus::Future<bool> ret = call("connectToUser", _address, "zeus-client");
 	ret.wait();
 	if (ret.hasError() == true) {
-		ZEUS_WARNING("Can not connect to user named: '" << _remoteUserToConnect << "' ==> return error");
+		ZEUS_WARNING("Can not connect to user named: '" << _address << "' ==> return error");
 		return false;
 	}
 	if (ret.get() == true) {
@@ -66,6 +66,54 @@ bool zeus::Client::connect(const std::string& _remoteUserToConnect){
 		ZEUS_WARNING("    ==> Refuse connection");
 	}
 	return ret.get();
+}
+
+bool connect(const std::string& _address) {
+	bool ret = connectTo(_address);
+	if (ret==false) {
+		return false;
+	}
+	zeus::Future<bool> retIdentify = call("anonymous").wait();
+	if (retIdentify.haveError() == true) {
+		disconnect();
+		return false;
+	}
+	if (retIdentify.get() == false) {
+		disconnect();
+	}
+	return retIdentify.get();
+}
+
+bool connect(const std::string& _address, const std::string& _userPassword) {
+	bool ret = connectTo(_address);
+	if (ret==false) {
+		return false;
+	}
+	zeus::Future<bool> retIdentify = call("auth", _userPassword).wait();
+	if (retIdentify.haveError() == true) {
+		disconnect();
+		return false;
+	}
+	if (retIdentify.get() == false) {
+		disconnect();
+	}
+	return retIdentify.get();
+}
+
+bool connect(const std::string& _address, const std::string& _clientName, const std::string& _clientTocken) {
+	bool ret = connectTo(_address);
+	if (ret==false) {
+		return false;
+	}
+	zeus::Future<bool> retIdentify = call("identify", _clientName, _clientTocken).wait();
+	if (retIdentify.haveError() == true) {
+		disconnect();
+		return false;
+	}
+	if (retIdentify.get() == false) {
+		disconnect();
+	}
+	return retIdentify.get();
 }
 
 void zeus::Client::disconnect() {

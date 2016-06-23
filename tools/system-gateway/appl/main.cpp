@@ -5,7 +5,7 @@
  */
 
 #include <appl/debug.h>
-#include <zeus/GateWay.h>
+#include <appl/GateWay.h>
 #include <etk/etk.h>
 #include <unistd.h>
 
@@ -13,7 +13,7 @@
 
 int main(int _argc, const char *_argv[]) {
 	etk::init(_argc, _argv);
-	zeus::GateWay basicGateway;
+	appl::GateWay basicGateway;
 	for (int32_t iii=0; iii<_argc ; ++iii) {
 		std::string data = _argv[iii];
 		if (etk::start_with(data, "--client-ip=") == true) {

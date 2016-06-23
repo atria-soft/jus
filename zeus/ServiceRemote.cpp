@@ -7,7 +7,7 @@
 #include <zeus/ServiceRemote.h>
 #include <zeus/Client.h>
 
-zeus::ServiceRemote::ServiceRemote(ememory::SharedPtr<zeus::TcpString> _clientLink, const std::string& _name):
+zeus::ServiceRemote::ServiceRemote(ememory::SharedPtr<zeus::WebServer> _clientLink, const std::string& _name):
   m_interfaceClient(_clientLink),
   m_name(_name),
   m_serviceId(0),

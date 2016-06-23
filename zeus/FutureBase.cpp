@@ -188,7 +188,6 @@ void zeus::FutureCall::appendData(const ememory::SharedPtr<zeus::Buffer>& _value
 	} else {
 		m_data = _value;
 	}
-	m_dataMultiplePack.push_back(_value);
 	m_isFinished = _value->getPartFinish();
 }
 

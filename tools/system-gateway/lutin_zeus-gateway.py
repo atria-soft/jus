@@ -30,6 +30,9 @@ def create(target, module_name):
 	my_module.add_module_depend(['zeus'])
 	my_module.add_src_file([
 	    'appl/debug.cpp',
+	    'appl/ClientInterface.cpp',
+	    'appl/ServiceInterface.cpp',
+	    'appl/GateWay.cpp',
 	    'appl/main.cpp'
 	    ])
 	return my_module

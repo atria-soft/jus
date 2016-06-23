@@ -4,16 +4,17 @@
  * @license APACHE v2.0 (see license file)
  */
 
-#include <zeus/debug.h>
-#include <zeus/GateWayService.h>
-#include <zeus/GateWay.h>
+#include <appl/debug.h>
+#include <appl/ServiceInterface.h>
+#include <appl/ClientInterface.h>
+#include <appl/GateWay.h>
 
 // todo : cHANGE THIS ...
 static const std::string protocolError = "PROTOCOL-ERROR";
 
 
 
-zeus::GateWayService::GateWayService(enet::Tcp _connection, zeus::GateWay* _gatewayInterface) :
+appl::ServiceInterface::ServiceInterface(enet::Tcp _connection, appl::GateWay* _gatewayInterface) :
   m_gatewayInterface(_gatewayInterface),
   m_interfaceClient(std::move(_connection), true) {
 	ZEUS_INFO("-----------------");
@@ -21,34 +22,34 @@ zeus::GateWayService::GateWayService(enet::Tcp _connection, zeus::GateWay* _gate
 	ZEUS_INFO("-----------------");
 }
 
-zeus::GateWayService::~GateWayService() {
+appl::ServiceInterface::~ServiceInterface() {
 	
 	ZEUS_INFO("--------------------");
 	ZEUS_INFO("-- DELETE Service --");
 	ZEUS_INFO("--------------------");
 }
 
-bool zeus::GateWayService::isAlive() {
+bool appl::ServiceInterface::isAlive() {
 	return m_interfaceClient.isActive();
 }
 
-void zeus::GateWayService::start() {
-	m_interfaceClient.connect(this, &zeus::GateWayService::onServiceData);
+void appl::ServiceInterface::start() {
+	m_interfaceClient.connect(this, &appl::ServiceInterface::onServiceData);
 	m_interfaceClient.connect();
 	m_interfaceClient.setInterfaceName("srv-?");
 }
 
-void zeus::GateWayService::stop() {
+void appl::ServiceInterface::stop() {
 	m_interfaceClient.disconnect();
 }
 
 
-void zeus::GateWayService::SendData(uint64_t _userSessionId, const ememory::SharedPtr<zeus::Buffer>& _data) {
+void appl::ServiceInterface::SendData(uint64_t _userSessionId, const ememory::SharedPtr<zeus::Buffer>& _data) {
 	_data->setClientId(_userSessionId);
 	m_interfaceClient.writeBinary(_data);
 }
 
-void zeus::GateWayService::onServiceData(const ememory::SharedPtr<zeus::Buffer>& _value) {
+void appl::ServiceInterface::onServiceData(const ememory::SharedPtr<zeus::Buffer>& _value) {
 	if (_value == nullptr) {
 		return;
 	}
@@ -96,7 +97,7 @@ void zeus::GateWayService::onServiceData(const ememory::SharedPtr<zeus::Buffer>&
 }
 
 
-void zeus::GateWayService::answerProtocolError(uint32_t _transactionId, const std::string& _errorHelp) {
+void appl::ServiceInterface::answerProtocolError(uint32_t _transactionId, const std::string& _errorHelp) {
 	m_interfaceClient.answerError(_transactionId, protocolError, _errorHelp);
 	m_interfaceClient.disconnect(true);
 }

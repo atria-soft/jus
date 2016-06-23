@@ -137,7 +137,7 @@ bool zeus::Buffer::writeOn(enet::WebSocket& _interface) {
 		size += sizeof(uint32_t); // parameter size
 		size += it.second.size();
 	}
-	ZEUS_DEBUG("Send BINARY " << size << " bytes '" << generateHumanString() << "'");
+	ZEUS_VERBOSE("Send BINARY " << size << " bytes '" << *this << "'");
 	
 	if (_interface.writeHeader(size, false) == false) {
 		return false;
@@ -167,65 +167,61 @@ void zeus::Buffer::clear() {
 	m_header.numberOfParameter = 1;
 }
 
-std::string zeus::Buffer::generateHumanString() {
-	std::string out = "zeus::Buffer: ";
+std::ostream& zeus::operator <<(std::ostream& _os, const zeus::Buffer& _obj) {
+	_os << "zeus::Buffer: ";
 	//out += " v=" + etk::to_string(m_header.versionProtocol); // se it in the websocket
-	out += " id=" + etk::to_string(m_header.transactionID);
-	out += " cId=" + etk::to_string(m_header.clientID);
-	if (    getPartFinish() == false
-	     || getPartId() != 0) {
-		out += " part=" + etk::to_string(getPartId());
-		if (getPartFinish() == true) {
-			out += "/finish";
+	_os << " id=" << etk::to_string(_obj.getTransactionId());
+	_os << " cId=" << etk::to_string(_obj.getClientId());
+	if (    _obj.getPartFinish() == false
+	     || _obj.getPartId() != 0) {
+		_os << " part=" << etk::to_string(_obj.getPartId());
+		if (_obj.getPartFinish() == true) {
+			_os << "/finish";
 		}
 	}
-	enum zeus::Buffer::typeMessage type = getTypeType(m_header.typeMessage);
+	enum zeus::Buffer::typeMessage type = _obj.getType();
 	switch (type) {
 		case zeus::Buffer::typeMessage::unknow:
-			out += " -UNKNOW-";
+			_os << " -UNKNOW-";
 			break;
 		case zeus::Buffer::typeMessage::call:
-			out += " nbParam=" + etk::to_string(getNumberParameter());
-			out += " -CALL-:'" + getCall() + "'";
+			_os << " nbParam=" + etk::to_string(_obj.getNumberParameter());
+			_os << " -CALL-:'" + _obj.getCall() + "'";
 			break;
 		case zeus::Buffer::typeMessage::answer:
-			out += " -ANSWER-:";
-			if (m_parameter.size() == 1) {
-				out += "Value:" + simpleStringParam(0);
-			} else if (m_parameter.size() == 2) {
-				out += "Error";
-				out += "Error:" + simpleStringParam(0);
-			} else if (m_parameter.size() == 3) {
-				out += "Value:" + simpleStringParam(0);
-				out += "+Error:" + simpleStringParam(1);
+			_os << " -ANSWER-:";
+			if (_obj.m_parameter.size() == 1) {
+				_os << "Value:" + _obj.simpleStringParam(0);
+			} else if (_obj.m_parameter.size() == 2) {
+				_os << "Error";
+				_os << "Error:" + _obj.simpleStringParam(0);
+			} else if (_obj.m_parameter.size() == 3) {
+				_os << "Value:" + _obj.simpleStringParam(0);
+				_os << "+Error:" + _obj.simpleStringParam(1);
 			} else {
-				out += "???";
+				_os << "???";
 			}
 			break;
 		case zeus::Buffer::typeMessage::event:
-			out += " -EVENT-";
+			_os << " -EVENT-";
 			
 			break;
 		case zeus::Buffer::typeMessage::data:
-			out += " -DATA-";
+			_os << " -DATA-";
 			
 			break;
 	}
-	if (getNumberParameter() != 0) {
-		out += " paramType(";
-		if (getNumberParameter() >256) {
-			out += " !!!!!!!";
-			return out;
-		}
-		for (int32_t iii=0; iii< getNumberParameter(); ++iii) {
+	if (_obj.getNumberParameter() != 0) {
+		_os << " paramType(";
+		for (int32_t iii=0; iii<_obj.getNumberParameter(); ++iii) {
 			if (iii != 0) {
-				out += ",";
+				_os << ",";
 			}
-			out += internalGetParameterType(iii).getName();
+			_os << _obj.internalGetParameterType(iii).getName();
 		}
-		out += ")";
+		_os << ")";
 	}
-	return out;
+	return _os;
 }
 
 uint32_t zeus::Buffer::getTransactionId() const {
@@ -246,10 +242,17 @@ void zeus::Buffer::setClientId(uint32_t _value) {
 
 // note limited 15 bits
 uint16_t zeus::Buffer::getPartId() const {
+	if (getType() != zeus::Buffer::typeMessage::data) {
+		return 0;
+	}
 	return uint16_t(m_header.partID & 0x7FFF);
 }
 
 void zeus::Buffer::setPartId(uint16_t _value) {
+	if (getType() != zeus::Buffer::typeMessage::data) {
+		ZEUS_ERROR("can not set a partId at other than data buffer");
+		return;
+	}
 	m_header.partID = (m_header.partID&0x8000) | (_value & 0x7FFF);
 }
 

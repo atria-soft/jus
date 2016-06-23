@@ -4,21 +4,21 @@
  * @license APACHE v2.0 (see license file)
  */
 
-#include <zeus/GateWay.h>
-#include <zeus/debug.h>
+#include <appl/GateWay.h>
+#include <appl/debug.h>
 #include <enet/TcpServer.h>
 
 
-namespace zeus {
+namespace appl {
 	class TcpServerInput {
 		private:
 			enet::TcpServer m_interface;
 			std::thread* m_thread;
 			bool m_threadRunning;
-			zeus::GateWay* m_gateway;
+			appl::GateWay* m_gateway;
 			bool m_service;
 		public:
-			TcpServerInput(zeus::GateWay* _gateway, bool _service) :
+			TcpServerInput(appl::GateWay* _gateway, bool _service) :
 			  m_thread(nullptr),
 			  m_threadRunning(false),
 			  m_gateway(_gateway),
@@ -65,46 +65,46 @@ namespace zeus {
 	};
 }
 
-void zeus::GateWay::newService(enet::Tcp _connection) {
+void appl::GateWay::newService(enet::Tcp _connection) {
 	ZEUS_WARNING("New TCP connection (service)");
-	ememory::SharedPtr<zeus::GateWayService> tmp = std::make_shared<zeus::GateWayService>(std::move(_connection), this);
+	ememory::SharedPtr<appl::ServiceInterface> tmp = std::make_shared<appl::ServiceInterface>(std::move(_connection), this);
 	tmp->start();
 	m_serviceList.push_back(tmp);
 }
 
-void zeus::GateWay::newClient(enet::Tcp _connection) {
+void appl::GateWay::newClient(enet::Tcp _connection) {
 	ZEUS_WARNING("New TCP connection (client)");
-	ememory::SharedPtr<zeus::GateWayClient> tmp = std::make_shared<zeus::GateWayClient>(std::move(_connection), this);
+	ememory::SharedPtr<appl::ClientInterface> tmp = std::make_shared<appl::ClientInterface>(std::move(_connection), this);
 	tmp->start(m_clientUID++, m_clientUID++);
 	m_clientList.push_back(tmp);
 }
 
-zeus::GateWay::GateWay() :
+appl::GateWay::GateWay() :
   m_clientUID(1),
-  propertyClientIp(this, "client-ip", "127.0.0.1", "Ip to listen client", &zeus::GateWay::onPropertyChangeClientIp),
-  propertyClientPort(this, "client-port", 1983, "Port to listen client", &zeus::GateWay::onPropertyChangeClientPort),
-  propertyClientMax(this, "client-max", 80, "Maximum of client at the same time", &zeus::GateWay::onPropertyChangeClientMax),
-  propertyServiceIp(this, "service-ip", "127.0.0.1", "Ip to listen client", &zeus::GateWay::onPropertyChangeServiceIp),
-  propertyServicePort(this, "service-port", 1982, "Port to listen client", &zeus::GateWay::onPropertyChangeServicePort),
-  propertyServiceMax(this, "service-max", 80, "Maximum of client at the same time", &zeus::GateWay::onPropertyChangeServiceMax) {
-	m_interfaceClientServer = std::make_shared<zeus::TcpServerInput>(this, false);
-	m_interfaceServiceServer = std::make_shared<zeus::TcpServerInput>(this, true);
+  propertyClientIp(this, "client-ip", "127.0.0.1", "Ip to listen client", &appl::GateWay::onPropertyChangeClientIp),
+  propertyClientPort(this, "client-port", 1983, "Port to listen client", &appl::GateWay::onPropertyChangeClientPort),
+  propertyClientMax(this, "client-max", 80, "Maximum of client at the same time", &appl::GateWay::onPropertyChangeClientMax),
+  propertyServiceIp(this, "service-ip", "127.0.0.1", "Ip to listen client", &appl::GateWay::onPropertyChangeServiceIp),
+  propertyServicePort(this, "service-port", 1982, "Port to listen client", &appl::GateWay::onPropertyChangeServicePort),
+  propertyServiceMax(this, "service-max", 80, "Maximum of client at the same time", &appl::GateWay::onPropertyChangeServiceMax) {
+	m_interfaceClientServer = std::make_shared<appl::TcpServerInput>(this, false);
+	m_interfaceServiceServer = std::make_shared<appl::TcpServerInput>(this, true);
 }
 
-zeus::GateWay::~GateWay() {
+appl::GateWay::~GateWay() {
 	
 }
 
-void zeus::GateWay::start() {
+void appl::GateWay::start() {
 	m_interfaceClientServer->start(*propertyClientIp, *propertyClientPort);
 	m_interfaceServiceServer->start(*propertyServiceIp, *propertyServicePort);
 }
 
-void zeus::GateWay::stop() {
+void appl::GateWay::stop() {
 	
 }
 
-ememory::SharedPtr<zeus::GateWayService> zeus::GateWay::get(const std::string& _serviceName) {
+ememory::SharedPtr<appl::ServiceInterface> appl::GateWay::get(const std::string& _serviceName) {
 	for (auto &it : m_serviceList) {
 		if (it == nullptr) {
 			continue;
@@ -117,7 +117,7 @@ ememory::SharedPtr<zeus::GateWayService> zeus::GateWay::get(const std::string& _
 	return nullptr;
 }
 
-std::vector<std::string> zeus::GateWay::getAllServiceName() {
+std::vector<std::string> appl::GateWay::getAllServiceName() {
 	std::vector<std::string> out;
 	for (auto &it : m_serviceList) {
 		if (it == nullptr) {
@@ -129,7 +129,7 @@ std::vector<std::string> zeus::GateWay::getAllServiceName() {
 }
 
 
-void zeus::GateWay::answer(uint64_t _userSessionId, const ememory::SharedPtr<zeus::Buffer>& _data) {
+void appl::GateWay::answer(uint64_t _userSessionId, const ememory::SharedPtr<zeus::Buffer>& _data) {
 	for (auto &it : m_clientList) {
 		if (it == nullptr) {
 			continue;
@@ -142,7 +142,7 @@ void zeus::GateWay::answer(uint64_t _userSessionId, const ememory::SharedPtr<zeu
 	}
 }
 
-void zeus::GateWay::cleanIO() {
+void appl::GateWay::cleanIO() {
 	
 	auto it = m_serviceList.begin();
 	while (it != m_serviceList.end()) {
@@ -173,34 +173,34 @@ void zeus::GateWay::cleanIO() {
 	}
 }
 
-void zeus::GateWay::onClientConnect(const bool& _value) {
+void appl::GateWay::onClientConnect(const bool& _value) {
 	ZEUS_TODO("Client connection: " << _value);
 }
 
-void zeus::GateWay::onServiceConnect(const bool& _value) {
+void appl::GateWay::onServiceConnect(const bool& _value) {
 	ZEUS_TODO("Service connection: " << _value);
 }
 
-void zeus::GateWay::onPropertyChangeClientIp() {
+void appl::GateWay::onPropertyChangeClientIp() {
 	
 }
 
-void zeus::GateWay::onPropertyChangeClientPort() {
+void appl::GateWay::onPropertyChangeClientPort() {
 	
 }
 
-void zeus::GateWay::onPropertyChangeClientMax() {
+void appl::GateWay::onPropertyChangeClientMax() {
 	
 }
 
-void zeus::GateWay::onPropertyChangeServiceIp() {
+void appl::GateWay::onPropertyChangeServiceIp() {
 	
 }
 
-void zeus::GateWay::onPropertyChangeServicePort() {
+void appl::GateWay::onPropertyChangeServicePort() {
 	
 }
 
-void zeus::GateWay::onPropertyChangeServiceMax() {
+void appl::GateWay::onPropertyChangeServiceMax() {
 	
 }

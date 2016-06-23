@@ -316,7 +316,7 @@ namespace zeus {
 			~SendData() {
 				
 			}
-			bool operator() (zeus::TcpString* _interface,
+			bool operator() (zeus::WebServer* _interface,
 			                 uint32_t _clientId,
 			                 uint32_t _transactionId,
 			                 uint32_t _partId) {
@@ -362,14 +362,10 @@ void zeus::Buffer::internalAddParameter<zeus::File>(uint16_t _paramId, const zeu
 	const std::vector<uint8_t>& dataFile = _value.getData();
 	if (dataFile.size() != 0) {
 		currentOffset = data.size();
-		ZEUS_ERROR("set buffer with size: " << dataFile.size());
 		if (dataFile.size() < ZEUS_MINIMUM_SIZE_MULTIPLE) {
 			data.resize(data.size()+dataFile.size());
 			memcpy(&data[currentOffset], &dataFile[0], dataFile.size());
 		} else {
-			ZEUS_WARNING("multiple send the data file: " << _value.getMineType());
-			// multiple send ... (no data in the first frame ...
-			// TODO : m_multipleSend.push_back(SendFile(std::move(node), _paramId, size));
 			m_multipleSend.push_back(zeus::SendData(dataFile, _paramId));
 		}
 	}
@@ -391,7 +387,7 @@ namespace zeus {
 			~SendFile() {
 				
 			}
-			bool operator() (zeus::TcpString* _interface,
+			bool operator() (zeus::WebServer* _interface,
 			                 uint32_t _clientId,
 			                 uint32_t _transactionId,
 			                 uint32_t _partId) {
@@ -438,12 +434,7 @@ void zeus::Buffer::internalAddParameter<zeus::FileServer>(uint16_t _paramId, con
 	zeus::File tmpFile(zeus::getMineType(extention), fileData, size);
 	internalAddParameter(_paramId, tmpFile);
 	node.fileClose();
-	if (size < ZEUS_MINIMUM_SIZE_MULTIPLE) {
-		//node.fileClose();
-	} else {
-		ZEUS_WARNING("multiple send the file: " << _value.getFileName() << " with size " << size);
-		// multiple send ... (no data in the first frame ...
-		// TODO : m_multipleSend.push_back(SendFile(std::move(node), _paramId, size));
+	if (size >= ZEUS_MINIMUM_SIZE_MULTIPLE) {
 		m_multipleSend.push_back(zeus::SendFile(_value.getFileName(), _paramId, size));
 	}
 }

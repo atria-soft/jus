@@ -35,29 +35,26 @@ int main(int _argc, const char *_argv[]) {
 	APPL_INFO("==================================");
 	APPL_INFO("== ZEUS test client start        ==");
 	APPL_INFO("==================================");
-	client1.connect("test1#atria-soft.com");
+	
 	if (false) {
-		zeus::Future<bool> retIdentify = client1.call("identify", "clientTest1#atria-soft.com", "QSDQSDGQSF54HSXWVCSQDJ654URTDJ654NBXCDFDGAEZ51968");
-		retIdentify.wait();
-		if (retIdentify.get() == false) {
+		bool ret = client1.connect("test1~atria-soft.com", "clientTest1#atria-soft.com", "QSDQSDGQSF54HSXWVCSQDJ654URTDJ654NBXCDFDGAEZ51968");
+		if (ret == false) {
 			APPL_ERROR("    ==> NOT Connected with 'clientTest1#atria-soft.com'");
 			return -1;
 		} else {
 			APPL_INFO("    ==> Connected with 'clientTest1#atria-soft.com'");
 		}
 	} else if (true) {
-		zeus::Future<bool> retIdentify = client1.call("auth", "coucou");
-		retIdentify.wait();
-		if (retIdentify.get() == false) {
+		bool ret = client1.connect("test1~atria-soft.com", "coucou");
+		if (ret == false) {
 			APPL_ERROR("    ==> NOT Authentify with 'test1#atria-soft.com'");
 			return -1;
 		} else {
 			APPL_INFO("    ==> Authentify with 'test1#atria-soft.com'");
 		}
 	} else {
-		zeus::Future<bool> retIdentify = client1.call("anonymous");
-		retIdentify.wait();
-		if (retIdentify.get() == false) {
+		bool ret = client1.connect("test1~atria-soft.com");
+		if (ret == false) {
 			APPL_ERROR("    ==> NOT Connected with 'anonymous'");
 			return -1;
 		} else {

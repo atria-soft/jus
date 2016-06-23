@@ -14,12 +14,11 @@
 zeus::Service::Service() :
   propertyIp(this, "ip", "127.0.0.1", "Ip to connect server", &zeus::Service::onPropertyChangeIp),
   propertyPort(this, "port", 1982, "Port to connect server", &zeus::Service::onPropertyChangePort) {
-	
-	
-	advertise("getExtention", &zeus::Service::getExtention);
-	setLastFuncDesc("Get List of availlable extention of this service");
-	addLastFuncReturn("A list of extention register in the service");
-	
+	zeus::AbstractFunction* func = advertise("getExtention", &zeus::Service::getExtention);
+	if (func != nullptr) {
+		func->setDescription("Get List of availlable extention of this service");
+		func->setReturn("A list of extention register in the service");
+	}
 }
 
 zeus::Service::~Service() {
@@ -33,6 +32,9 @@ std::vector<std::string> zeus::Service::getExtention() {
 
 
 void zeus::Service::onClientData(const ememory::SharedPtr<zeus::Buffer>& _value) {
+	if (_value == nullptr) {
+		return;
+	}
 	uint32_t tmpID = _value->getTransactionId();
 	uint32_t clientId = _value->getClientId();;
 	auto it = m_callMultiData.begin();
@@ -43,7 +45,7 @@ void zeus::Service::onClientData(const ememory::SharedPtr<zeus::Buffer>& _value)
 			it->appendData(_value);
 			if (it->isFinished() == true) {
 				ZEUS_WARNING("CALL Function ...");
-				callBinary(tmpID, it->getRaw());
+				callBinary(it->getRaw());
 				it = m_callMultiData.erase(it);
 			}
 			return;
@@ -53,7 +55,7 @@ void zeus::Service::onClientData(const ememory::SharedPtr<zeus::Buffer>& _value)
 	zeus::FutureCall futCall(clientId, tmpID, _value);
 	if (futCall.isFinished() == true) {
 		ZEUS_INFO("Call Binary ..");
-		callBinary(tmpID, futCall.getRaw());
+		callBinary(futCall.getRaw());
 	} else {
 		m_callMultiData.push_back(futCall);
 	}
@@ -76,7 +78,7 @@ void zeus::Service::connect(const std::string& _serviceName, uint32_t _numberRet
 		ZEUS_DEBUG("connect [STOP] ==> can not connect");
 		return;
 	}
-	m_interfaceClient = std::make_shared<zeus::TcpString>();
+	m_interfaceClient = std::make_shared<zeus::WebServer>();
 	if (m_interfaceClient == nullptr) {
 		ZEUS_ERROR("Can not allocate interface ...");
 		return;
@@ -119,7 +121,7 @@ void zeus::Service::pingIsAlive() {
 	}
 }
 
-void zeus::Service::callBinary(uint32_t _transactionId, const ememory::SharedPtr<zeus::Buffer>& _obj) {
+void zeus::Service::callBinary(const ememory::SharedPtr<zeus::Buffer>& _obj) {
 	if (_obj == nullptr) {
 		return;
 	}
@@ -143,13 +145,13 @@ void zeus::Service::callBinary(uint32_t _transactionId, const ememory::SharedPtr
 		} else if (callFunction == "_delete") {
 			clientDisconnect(clientId);
 		}
-		m_interfaceClient->answerValue(_transactionId, true, clientId);
+		m_interfaceClient->answerValue(_obj->getTransactionId(), true, clientId);
 		return;
 	} else if (isFunctionAuthorized(clientId, callFunction) == true) {
-		callBinary2(_transactionId, clientId, callFunction, _obj);
+		callBinary2(callFunction, _obj);
 		return;
 	} else {
-		m_interfaceClient->answerError(_transactionId, "NOT-AUTHORIZED-FUNCTION", "", clientId);
+		m_interfaceClient->answerError(_obj->getTransactionId(), "NOT-AUTHORIZED-FUNCTION", "", clientId);
 		return;
 	}
 }

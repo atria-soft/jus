@@ -210,20 +210,28 @@ int main(int _argc, const char *_argv[]) {
 		serviceInterface.setVersion("0.1.0");
 		serviceInterface.setType("USER", 1);
 		serviceInterface.addAuthor("Heero Yui", "yui.heero@gmail.com");
-		serviceInterface.advertise("checkTocken", &appl::SystemService::checkTocken);
-		serviceInterface.setLastFuncDesc("Check if a user tocken is correct or not");
-		serviceInterface.addLastFuncParam("clientName", "Name of the client");
-		serviceInterface.addLastFuncParam("tocken", "String containing the Tocken");
-		serviceInterface.advertise("checkAuth", &appl::SystemService::checkAuth);
-		serviceInterface.setLastFuncDesc("Check the password of the curent user");
-		serviceInterface.addLastFuncParam("password", "client/user password");
-		serviceInterface.advertise("getGroups", &appl::SystemService::getGroups);
-		serviceInterface.setLastFuncDesc("Get list of group availlable for a client name");
-		serviceInterface.addLastFuncParam("clientName", "Name of the client");
-		serviceInterface.advertise("filterServices", &appl::SystemService::filterServices);
-		serviceInterface.setLastFuncDesc("Filter a list of service with the cuurent profile of the user (restrict area)");
-		serviceInterface.addLastFuncParam("clientName", "Name of the client");
-		serviceInterface.addLastFuncParam("currentList", "Vector of name of the services");
+		zeus::AbstractFunction* func = serviceInterface.advertise("checkTocken", &appl::SystemService::checkTocken);
+		if (func != nullptr) {
+			func->setDescription("Check if a user tocken is correct or not");
+			func->addParam("clientName", "Name of the client");
+			func->addParam("tocken", "String containing the Tocken");
+		}
+		func = serviceInterface.advertise("checkAuth", &appl::SystemService::checkAuth);
+		if (func != nullptr) {
+			func->setDescription("Check the password of the curent user");
+			func->addParam("password", "client/user password");
+		}
+		func = serviceInterface.advertise("getGroups", &appl::SystemService::getGroups);
+		if (func != nullptr) {
+			func->setDescription("Get list of group availlable for a client name");
+			func->addParam("clientName", "Name of the client");
+		}
+		func = serviceInterface.advertise("filterServices", &appl::SystemService::filterServices);
+		if (func != nullptr) {
+			func->setDescription("Filter a list of service with the cuurent profile of the user (restrict area)");
+			func->addParam("clientName", "Name of the client");
+			func->addParam("currentList", "Vector of name of the services");
+		}
 		APPL_INFO("===========================================================");
 		APPL_INFO("== ZEUS service: " << SERVICE_NAME << " [service instanciate]");
 		APPL_INFO("===========================================================");
