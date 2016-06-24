@@ -12,73 +12,63 @@
 
 namespace zeus {
 	/**
-	 * @brief 
-	 * @param[in] 
-	 * @return 
+	 * @brief Local declaration of call local data
 	 */
 	class RemoteProcessCall {
 		public:
 			/**
-			 * @brief 
-			 * @param[in] 
-			 * @return 
+			 * @brief Basic constructor
 			 */
 			RemoteProcessCall();
 		protected:
-			std::vector<zeus::AbstractFunction*> m_listFunction;
+			std::vector<zeus::AbstractFunction*> m_listFunction; //!< List of all functions callable
 		protected:
-			std::string m_description;
+			std::string m_description; //!< Description of the service
 		public:
 			/**
-			 * @brief 
-			 * @param[in] 
-			 * @return 
+			 * @brief Set service description
+			 * @param[in] _desc String with the describe of the service
 			 */
 			void setDescription(const std::string& _desc);
 			/**
-			 * @brief 
-			 * @param[in] 
-			 * @return 
+			 * @brief Get service description
+			 * @return String with the describe of the service
 			 */
 			std::string getDescription();
 		protected:
-			std::string m_version;
+			std::string m_version; //!< Version of the service
 		public:
 			/**
-			 * @brief 
-			 * @param[in] 
-			 * @return 
+			 * @brief Set the Version of the service
+			 * @param[in] _vers String containing the version (form: 1.0[.x[.y]][-dev]
 			 */
-			void setVersion(const std::string& _desc);
+			void setVersion(const std::string& _vers);
 			/**
-			 * @brief 
-			 * @param[in] 
-			 * @return 
+			 * @brief Get the Version of the service
+			 * @return String containing the version (form: 1.0[.x[.y]][-dev]
 			 */
 			std::string getVersion();
 		protected:
-			std::vector<std::pair<std::string,std::string>> m_authors;
+			std::vector<std::pair<std::string,std::string>> m_authors;//! List of autors of the module (name, email)
 		public:
 			/**
-			 * @brief 
-			 * @param[in] 
-			 * @return 
+			 * @brief Add an author on this service
+			 * @param[in] _name Nazme of the Author: (Surname NAME)
+			 * @param[in] _email email of the author to add
 			 */
 			void addAuthor(const std::string& _name, const std::string& _email);
 			/**
-			 * @brief 
-			 * @param[in] 
-			 * @return 
+			 * @brief Get the list of the Authors
+			 * @return Lisl of authors in a pair of name and email
 			 */
 			const std::vector<std::pair<std::string,std::string>>& getAuthors() const;
 			/**
-			 * @brief 
-			 * @param[in] 
-			 * @return 
+			 * @brief Get simple list of authors
+			 * @return List Of user and email in form: "john WHO <jhon.who@here.net>"
 			 */
 			std::vector<std::string> getAuthors2();
 		protected:
-			std::string m_type;
+			std::string m_type; //!< Generic type of the service
 		public:
 			/**
 			 * @brief 

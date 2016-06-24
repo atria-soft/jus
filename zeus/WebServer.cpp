@@ -197,7 +197,7 @@ void zeus::WebServer::ping() {
 }
 
 void zeus::WebServer::newBuffer(const ememory::SharedPtr<zeus::Buffer>& _buffer) {
-	ZEUS_VERBOSE("Receive :" << _buffer);
+	ZEUS_VERBOSE("Receive :" << *_buffer);
 	zeus::FutureBase future;
 	uint64_t tid = _buffer->getTransactionId();
 	if (tid == 0) {
@@ -210,7 +210,7 @@ void zeus::WebServer::newBuffer(const ememory::SharedPtr<zeus::Buffer>& _buffer)
 				if (it.isValid() == false) {
 					continue;
 				}
-				it.setAnswer(obj);
+				it.appendData(obj);
 			}
 			m_pendingCall.clear();
 		} else {
@@ -242,7 +242,7 @@ void zeus::WebServer::newBuffer(const ememory::SharedPtr<zeus::Buffer>& _buffer)
 		}
 		return;
 	}
-	bool ret = future.setAnswer(_buffer);
+	bool ret = future.appendData(_buffer);
 	if (ret == true) {
 		std::unique_lock<std::mutex> lock(m_pendingCallMutex);
 		auto it = m_pendingCall.begin();
@@ -308,7 +308,7 @@ zeus::FutureBase zeus::WebServer::callBinary(uint64_t _transactionId,
 		ememory::SharedPtr<zeus::Buffer> obj = zeus::Buffer::create();
 		obj->setType(zeus::Buffer::typeMessage::answer);
 		obj->addError("NOT-CONNECTED", "Client interface not connected (no TCP)");
-		return zeus::FutureBase(_transactionId, true, obj, _callback);
+		return zeus::FutureBase(_transactionId, obj, _callback);
 	}
 	zeus::FutureBase tmpFuture(_transactionId, _callback);
 	{
@@ -332,7 +332,7 @@ zeus::FutureBase zeus::WebServer::callForward(uint32_t _clientId,
 		ememory::SharedPtr<zeus::Buffer> obj = zeus::Buffer::create();
 		obj->setType(zeus::Buffer::typeMessage::answer);
 		obj->addError("NOT-CONNECTED", "Client interface not connected (no TCP)");
-		return zeus::FutureBase(0, true, obj, _callback);
+		return zeus::FutureBase(0, obj, _callback);
 	}
 	uint64_t id = getId();
 	_buffer->setTransactionId(id);

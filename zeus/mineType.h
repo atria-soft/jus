@@ -8,15 +8,15 @@
 
 namespace zeus {
 	/**
-	 * @brief 
-	 * @param[in] 
-	 * @return 
+	 * @brief get the mine type with the file extention
+	 * @param[in] _extention file extention (without the '.')
+	 * @return The generic mine tipe in http format
 	 */
 	std::string getMineType(const std::string& _extention);
 	/**
-	 * @brief 
-	 * @param[in] 
-	 * @return 
+	 * @brief Retrive the extention of a file with his mine type
+	 * @param[in] _mineType Mine tipe in http format
+	 * @return file extention (without the '.')
 	 */
 	std::string getExtention(const std::string& _mineType);
 };

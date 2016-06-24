@@ -57,7 +57,7 @@ namespace zeus {
 					if (ret != nullptr) {
 						ret->addError("NULLPTR", "call " + _functionName + " with no interface open");
 					}
-					return zeus::FutureBase(0, true, ret);
+					return zeus::FutureBase(0, ret);
 				}
 				return m_interfaceClient->callService(m_serviceId, _functionName, _args...);
 			}
@@ -73,7 +73,7 @@ namespace zeus {
 					if (ret != nullptr) {
 						ret->addError("NULLPTR", "call " + _functionName + " with no interface open");
 					}
-					return zeus::FutureBase(0, true, ret, _callback);
+					return zeus::FutureBase(0, ret, _callback);
 				}
 				return m_interfaceClient->callServiceAction(m_serviceId, _functionName, _args..., _callback);
 			}

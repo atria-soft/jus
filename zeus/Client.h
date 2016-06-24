@@ -106,7 +106,7 @@ namespace zeus {
 				if (m_interfaceClient == nullptr) {
 					ememory::SharedPtr<zeus::Buffer> ret = zeus::Buffer::create();
 					ret->addError("NULLPTR", "call " + _functionName + " with no interface open");
-					return zeus::FutureBase(0, true, ret);
+					return zeus::FutureBase(0, ret);
 				}
 				return m_interfaceClient->call(_functionName, _args...);
 			}
@@ -122,7 +122,7 @@ namespace zeus {
 				if (m_interfaceClient == nullptr) {
 					ememory::SharedPtr<zeus::Buffer> ret = zeus::Buffer::create();
 					ret->addError("NULLPTR", "call " + _functionName + " with no interface open");
-					return zeus::FutureBase(0, true, ret, _callback);
+					return zeus::FutureBase(0, ret, _callback);
 				}
 				return m_interfaceClient->callAction(_functionName, _args..., _callback);
 			}

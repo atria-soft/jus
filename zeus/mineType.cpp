@@ -10,6 +10,7 @@
 
 static std::vector<std::pair<std::string, std::string>> mineList = {
   /* Video files */
+  { "webm",  "video/webm"},
   { "asf",   "video/x-ms-asf"},
   { "avc",   "video/avi"},
   { "avi",   "video/avi"},
@@ -42,6 +43,7 @@ static std::vector<std::pair<std::string, std::string>> mineList = {
   { "iso",   "video/mpeg2"},
 
   /* Audio files */
+  { "weba", "audio/webm"},
   { "3gp",  "audio/3gpp"},
   { "aac",  "audio/x-aac"},
   { "ac3",  "audio/x-ac3"},
@@ -72,6 +74,7 @@ static std::vector<std::pair<std::string, std::string>> mineList = {
   { "flac", "audio/x-flac"},
 
   /* Images files */
+  { "webp", "image/webp"},
   { "bmp",  "image/bmp"},
   { "ico",  "image/x-icon"},
   { "gif",  "image/gif"},

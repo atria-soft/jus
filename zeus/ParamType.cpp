@@ -93,8 +93,9 @@ bool zeus::ParamType::operator != (const uint16_t& _value) const {
 
 #define generate_basic_type(_type, _name, _id, _num, _vect) \
 namespace zeus { \
-	template<> zeus::ParamType createType<_type>() {\
-		return zeus::ParamType(_name, _id, _num, _vect); \
+	template<> const zeus::ParamType& createType<_type>() {\
+		static zeus::ParamType type(_name, _id, _num, _vect); \
+		return type; \
 	} \
 }
 

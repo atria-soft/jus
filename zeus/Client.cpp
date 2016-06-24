@@ -68,13 +68,13 @@ bool zeus::Client::connectTo(const std::string& _address) {
 	return ret.get();
 }
 
-bool connect(const std::string& _address) {
+bool zeus::Client::connect(const std::string& _address) {
 	bool ret = connectTo(_address);
 	if (ret==false) {
 		return false;
 	}
 	zeus::Future<bool> retIdentify = call("anonymous").wait();
-	if (retIdentify.haveError() == true) {
+	if (retIdentify.hasError() == true) {
 		disconnect();
 		return false;
 	}
@@ -84,13 +84,13 @@ bool connect(const std::string& _address) {
 	return retIdentify.get();
 }
 
-bool connect(const std::string& _address, const std::string& _userPassword) {
+bool zeus::Client::connect(const std::string& _address, const std::string& _userPassword) {
 	bool ret = connectTo(_address);
 	if (ret==false) {
 		return false;
 	}
 	zeus::Future<bool> retIdentify = call("auth", _userPassword).wait();
-	if (retIdentify.haveError() == true) {
+	if (retIdentify.hasError() == true) {
 		disconnect();
 		return false;
 	}
@@ -100,13 +100,13 @@ bool connect(const std::string& _address, const std::string& _userPassword) {
 	return retIdentify.get();
 }
 
-bool connect(const std::string& _address, const std::string& _clientName, const std::string& _clientTocken) {
+bool zeus::Client::connect(const std::string& _address, const std::string& _clientName, const std::string& _clientTocken) {
 	bool ret = connectTo(_address);
 	if (ret==false) {
 		return false;
 	}
 	zeus::Future<bool> retIdentify = call("identify", _clientName, _clientTocken).wait();
-	if (retIdentify.haveError() == true) {
+	if (retIdentify.hasError() == true) {
 		disconnect();
 		return false;
 	}

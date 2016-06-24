@@ -52,12 +52,12 @@ void zeus::Service::onClientData(const ememory::SharedPtr<zeus::Buffer>& _value)
 		}
 		++it;
 	}
-	zeus::FutureCall futCall(clientId, tmpID, _value);
-	if (futCall.isFinished() == true) {
+	zeus::FutureBase futData(tmpID, _value, nullptr, clientId);
+	if (futData.isFinished() == true) {
 		ZEUS_INFO("Call Binary ..");
-		callBinary(futCall.getRaw());
+		callBinary(futData.getRaw());
 	} else {
-		m_callMultiData.push_back(futCall);
+		m_callMultiData.push_back(futData);
 	}
 }
 

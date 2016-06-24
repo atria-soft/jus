@@ -106,7 +106,7 @@ namespace zeus {
 			ememory::SharedPtr<zeus::WebServer> m_interfaceClient;
 			uint32_t m_id;
 			std::vector<std::string> m_newData;
-			std::vector<zeus::FutureCall> m_callMultiData;
+			std::vector<zeus::FutureBase> m_callMultiData;
 		public:
 			/**
 			 * @brief 
