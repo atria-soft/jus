@@ -305,6 +305,7 @@ zeus::FutureBase zeus::WebServer::callBinary(uint64_t _transactionId,
                                              const uint32_t& _serviceId) {
 	ZEUS_VERBOSE("Send [START] ");
 	if (isActive() == false) {
+		ZEUS_ERROR("Send [STOP] ==> not connected (no TCP)");
 		ememory::SharedPtr<zeus::Buffer> obj = zeus::Buffer::create();
 		obj->setType(zeus::Buffer::typeMessage::answer);
 		obj->addError("NOT-CONNECTED", "Client interface not connected (no TCP)");
@@ -393,3 +394,4 @@ void zeus::WebServer::answerVoid(uint64_t _clientTransactionId, uint32_t _client
 	answer->addParameter();
 	writeBinary(answer);
 }
+

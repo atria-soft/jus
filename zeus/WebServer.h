@@ -233,9 +233,9 @@ namespace zeus {
 			 * @return 
 			 */
 			zeus::FutureBase callBinary(uint64_t _transactionId,
-			                           const ememory::SharedPtr<zeus::Buffer>& _obj,
-			                           zeus::FutureData::ObserverFinish _callback=nullptr,
-			                           const uint32_t& _service=0);
+			                            const ememory::SharedPtr<zeus::Buffer>& _obj,
+			                            zeus::FutureData::ObserverFinish _callback=nullptr,
+			                            const uint32_t& _service=0);
 		public: // section call direct
 			/**
 			 * @brief 

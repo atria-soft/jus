@@ -62,9 +62,13 @@ void zeus::Buffer::appendBufferData(const ememory::SharedPtr<zeus::Buffer>& _obj
 		return;
 	}
 	if (_obj->getType() != zeus::Buffer::typeMessage::data) {
-		ZEUS_ERROR("try to add data with a wrong buffer: " << _obj->getType());
+		ZEUS_ERROR("try to add data with a wrong buffer: " << _obj->getType() << " ==> set the buffer finish ...");
+		// close the connection ...
+		setPartFinish(true);
+		// TODO : Add an error ...
 		return;
 	}
+	setPartFinish(_obj->getPartFinish());
 	if (_obj->m_parameter.size() <= 1) {
 		// normal end frame with no data ==> no problem ...
 		return;
@@ -137,8 +141,6 @@ bool zeus::Buffer::writeOn(enet::WebSocket& _interface) {
 		size += sizeof(uint32_t); // parameter size
 		size += it.second.size();
 	}
-	ZEUS_VERBOSE("Send BINARY " << size << " bytes '" << *this << "'");
-	
 	if (_interface.writeHeader(size, false) == false) {
 		return false;
 	}
@@ -249,7 +251,8 @@ uint16_t zeus::Buffer::getPartId() const {
 }
 
 void zeus::Buffer::setPartId(uint16_t _value) {
-	if (getType() != zeus::Buffer::typeMessage::data) {
+	if (    getType() != zeus::Buffer::typeMessage::data
+	     && _value != 0) {
 		ZEUS_ERROR("can not set a partId at other than data buffer");
 		return;
 	}

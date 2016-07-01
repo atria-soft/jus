@@ -90,10 +90,13 @@ bool zeus::FutureBase::appendData(const ememory::SharedPtr<zeus::Buffer>& _value
 	if (m_data->m_returnData == nullptr) {
 		return true;
 	}
-	if (m_data->m_callbackFinish != nullptr) {
-		return m_data->m_callbackFinish(*this);
+	if (m_data->m_returnData->getPartFinish() == true) {
+		if (m_data->m_callbackFinish != nullptr) {
+			return m_data->m_callbackFinish(*this);
+		}
+		return true;
 	}
-	return m_data->m_returnData->getPartFinish();
+	return false;
 }
 void zeus::FutureBase::setSynchronous() {
 	if (m_data == nullptr) {
@@ -148,7 +151,8 @@ bool zeus::FutureBase::isFinished() const {
 		return true;
 	}
 	if (m_data->m_returnData == nullptr) {
-		return true;
+		// in this case, we are waiting for an answer that the first packet is not arrived
+		return false;
 	}
 	return m_data->m_returnData->getPartFinish();
 }

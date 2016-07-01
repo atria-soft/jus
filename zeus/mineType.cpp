@@ -12,8 +12,8 @@ static std::vector<std::pair<std::string, std::string>> mineList = {
   /* Video files */
   { "webm",  "video/webm"},
   { "asf",   "video/x-ms-asf"},
-  { "avc",   "video/avi"},
   { "avi",   "video/avi"},
+  { "avc",   "video/avi"},
   { "dv",    "video/x-dv"},
   { "divx",  "video/avi"},
   { "wmv",   "video/x-ms-wmv"},
@@ -39,8 +39,6 @@ static std::vector<std::pair<std::string, std::string>> mineList = {
   { "mov",   "video/quicktime"},
   { "hdmov", "video/quicktime"},
   { "qt",    "video/quicktime"},
-  { "bin",   "video/mpeg2"},
-  { "iso",   "video/mpeg2"},
 
   /* Audio files */
   { "weba", "audio/webm"},
@@ -122,7 +120,7 @@ std::string zeus::getMineType(const std::string& _extention) {
 			return it.second;
 		}
 	}
-	ZEUS_ERROR(" try to cenvert mine type: " << _extention);
+	ZEUS_ERROR(" try to convert extention in mine type: '" << _extention << "'");
 	return "";
 }
 
@@ -132,6 +130,6 @@ std::string zeus::getExtention(const std::string& _mineType) {
 			return it.first;
 		}
 	}
-	ZEUS_ERROR(" try to cenvert extention: " << _mineType);
+	ZEUS_ERROR(" try to convert mine-type in extention: '" << _mineType << "'");
 	return "";
 }

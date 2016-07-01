@@ -324,9 +324,9 @@ namespace zeus {
 				ememory::SharedPtr<zeus::Buffer> answer = zeus::Buffer::create();
 				answer->setTransactionId(_transactionId);
 				answer->setClientId(_clientId);
+				answer->setType(zeus::Buffer::typeMessage::data);
 				answer->setPartId(_partId);
 				answer->setPartFinish(false);
-				answer->setType(zeus::Buffer::typeMessage::data);
 				int32_t tmpSize = ZEUS_MINIMUM_SIZE_MULTIPLE;
 				if (m_size < ZEUS_MINIMUM_SIZE_MULTIPLE) {
 					tmpSize = m_size;
@@ -396,9 +396,9 @@ namespace zeus {
 				ememory::SharedPtr<zeus::Buffer> answer = zeus::Buffer::create();
 				answer->setTransactionId(_transactionId);
 				answer->setClientId(_clientId);
+				answer->setType(zeus::Buffer::typeMessage::data);
 				answer->setPartId(_partId);
 				answer->setPartFinish(false);
-				answer->setType(zeus::Buffer::typeMessage::data);
 				int32_t tmpSize = ZEUS_MINIMUM_SIZE_MULTIPLE;
 				if (m_size < ZEUS_MINIMUM_SIZE_MULTIPLE) {
 					tmpSize = m_size;
