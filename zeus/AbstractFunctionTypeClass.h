@@ -21,7 +21,7 @@ namespace zeus {
 	 */
 	template <class ZEUS_CLASS_TYPE, class ZEUS_RETURN, class... ZEUS_TYPES>
 	void executeClassCall(const ememory::SharedPtr<zeus::WebServer>& _interfaceClient,
-	                      const ememory::SharedPtr<zeus::Buffer>& _obj,
+	                      const ememory::SharedPtr<zeus::BufferParameter>& _obj,
 	                      ZEUS_CLASS_TYPE* _pointer,
 	                      ZEUS_RETURN (ZEUS_CLASS_TYPE::*_func)(ZEUS_TYPES...)) {
 		if (_obj == nullptr) {
@@ -54,7 +54,7 @@ namespace zeus {
 	 */
 	template <class ZEUS_CLASS_TYPE, class... ZEUS_TYPES>
 	void executeClassCall(const ememory::SharedPtr<zeus::WebServer>& _interfaceClient,
-	                      const ememory::SharedPtr<zeus::Buffer>& _obj,
+	                      const ememory::SharedPtr<zeus::BufferParameter>& _obj,
 	                      ZEUS_CLASS_TYPE* _pointer,
 	                      void (ZEUS_CLASS_TYPE::*_func)(ZEUS_TYPES...)) {
 		if (_obj == nullptr) {
@@ -108,7 +108,7 @@ namespace zeus {
 				return out;
 			}
 			void execute(const ememory::SharedPtr<zeus::WebServer>& _interfaceClient,
-			             const ememory::SharedPtr<zeus::Buffer>& _obj,
+			             const ememory::SharedPtr<zeus::BufferCall>& _obj,
 			             void* _class) override {
 				if (_obj == nullptr) {
 					return;

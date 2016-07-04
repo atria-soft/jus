@@ -75,14 +75,15 @@ void appl::ServiceInterface::onServiceData(const ememory::SharedPtr<zeus::Buffer
 		return;
 	}
 	if (_value->getType() == zeus::Buffer::typeMessage::call) {
-		std::string callFunction = _value->getCall();
+		ememory::SharedPtr<zeus::BufferCall> callObj = std::static_pointer_cast<zeus::BufferCall>(_value);
+		std::string callFunction = callObj->getCall();
 		if (callFunction == "connect-service") {
 			if (m_name != "") {
-				ZEUS_WARNING("Service interface ==> try change the servie name after init: '" << _value->getParameter<std::string>(0));
+				ZEUS_WARNING("Service interface ==> try change the servie name after init: '" << callObj->getParameter<std::string>(0));
 				m_interfaceClient.answerValue(transactionId, false);
 				return;
 			}
-			m_name = _value->getParameter<std::string>(0);
+			m_name = callObj->getParameter<std::string>(0);
 			m_interfaceClient.setInterfaceName("srv-" + m_name);
 			m_interfaceClient.answerValue(transactionId, true);
 			return;

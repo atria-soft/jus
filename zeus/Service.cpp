@@ -133,26 +133,28 @@ void zeus::Service::callBinary(const ememory::SharedPtr<zeus::Buffer>& _obj) {
 		ZEUS_ERROR("Local Answer: '...'");
 		return;
 	}
-	//if (_obj.getType() == zeus::Buffer::typeMessage::event) {
-	uint32_t clientId = _obj->getClientId();
-	std::string callFunction = _obj->getCall();
-	if (callFunction[0] == '_') {
-		if (callFunction == "_new") {
-			std::string userName = _obj->getParameter<std::string>(0);
-			std::string clientName = _obj->getParameter<std::string>(1);
-			std::vector<std::string> clientGroup = _obj->getParameter<std::vector<std::string>>(2);
-			clientConnect(clientId, userName, clientName, clientGroup);
-		} else if (callFunction == "_delete") {
-			clientDisconnect(clientId);
+	if (_obj->getType() == zeus::Buffer::typeMessage::call) {
+		ememory::SharedPtr<zeus::BufferCall> callObj = std::static_pointer_cast<zeus::BufferCall>(_obj);
+		uint32_t clientId = callObj->getClientId();
+		std::string callFunction = callObj->getCall();
+		if (callFunction[0] == '_') {
+			if (callFunction == "_new") {
+				std::string userName = callObj->getParameter<std::string>(0);
+				std::string clientName = callObj->getParameter<std::string>(1);
+				std::vector<std::string> clientGroup = callObj->getParameter<std::vector<std::string>>(2);
+				clientConnect(clientId, userName, clientName, clientGroup);
+			} else if (callFunction == "_delete") {
+				clientDisconnect(clientId);
+			}
+			m_interfaceClient->answerValue(callObj->getTransactionId(), true, clientId);
+			return;
+		} else if (isFunctionAuthorized(clientId, callFunction) == true) {
+			callBinary2(callFunction, callObj);
+			return;
+		} else {
+			m_interfaceClient->answerError(callObj->getTransactionId(), "NOT-AUTHORIZED-FUNCTION", "", clientId);
+			return;
 		}
-		m_interfaceClient->answerValue(_obj->getTransactionId(), true, clientId);
-		return;
-	} else if (isFunctionAuthorized(clientId, callFunction) == true) {
-		callBinary2(callFunction, _obj);
-		return;
-	} else {
-		m_interfaceClient->answerError(_obj->getTransactionId(), "NOT-AUTHORIZED-FUNCTION", "", clientId);
-		return;
 	}
 }
 

@@ -53,11 +53,11 @@ zeus::Buffer::Buffer() {
 	clear();
 }
 
-ememory::SharedPtr<zeus::Buffer> zeus::Buffer::create() {
-	return ememory::SharedPtr<zeus::Buffer>(new zeus::Buffer);
+void zeus::Buffer::appendBufferData(const ememory::SharedPtr<zeus::BufferData>& _obj) {
+	ZEUS_ERROR("Can not append datas ... Not managed");
 }
 
-void zeus::Buffer::appendBufferData(const ememory::SharedPtr<zeus::Buffer>& _obj) {
+void zeus::Buffer::appendBuffer(const ememory::SharedPtr<zeus::Buffer>& _obj) {
 	if (_obj == nullptr) {
 		return;
 	}
@@ -69,161 +69,99 @@ void zeus::Buffer::appendBufferData(const ememory::SharedPtr<zeus::Buffer>& _obj
 		return;
 	}
 	setPartFinish(_obj->getPartFinish());
-	if (_obj->m_parameter.size() <= 1) {
-		// normal end frame with no data ==> no problem ...
-		return;
-	}
-	// At this point we just add data at the parameter value:
-	//It contain 2 things : 
-	//    - param 0 : parameter ID (int16_t)
-	//    - param 1 : Raw data (local direct acces ...)
-	uint16_t parameterID = _obj->internalGetParameter<uint16_t>(0);
-	
-	zeus::ParamType type = _obj->internalGetParameterType(1);
-	const uint8_t* pointer = _obj->internalGetParameterPointer(1);
-	uint32_t dataSize = _obj->internalGetParameterSize(1);
-	if (    type.getId() != zeus::paramTypeRaw
-	     || pointer == nullptr) {
-		ZEUS_ERROR("Can not get parameter Raw ==> stop add");
-		return;
-	}
-	if (dataSize == 0) {
-		// no data (normal case)
-		return;
-	}
-	// now, we will add datas:
-	if (parameterID >= m_parameter.size()) {
-		ZEUS_ERROR("Try to add data on an unexisting parameter...");
-		return;
-	}
-	int32_t offset = m_parameter[parameterID].second.size();
-	m_parameter[parameterID].second.resize(offset + dataSize);
-	memcpy(&m_parameter[parameterID].second[offset], pointer, dataSize);
+	appendBufferData(std::static_pointer_cast<zeus::BufferData>(_obj));
 }
 
-
-void zeus::Buffer::internalComposeWith(const uint8_t* _buffer, uint32_t _lenght) {
-	clear();
-	if (_lenght < sizeof(headerBin)) {
-		ZEUS_ERROR("wrong size of the buffer");
-		return;
-	}
-	uint32_t offset = 0;
-	memcpy(reinterpret_cast<char*>(&m_header), &_buffer[offset], sizeof(headerBin));
-	offset += sizeof(headerBin);
-	m_parameter.clear();
-	m_parameter.resize(m_header.numberOfParameter, std::make_pair(-1, std::vector<uint8_t>()));
-	// Load all Parameters
-	int32_t nbParameters = 0;
-	while (    nbParameters < m_header.numberOfParameter
-	        && offset < _lenght) {
-		// parameters is contituated with size + data assiciated
-		uint32_t sizeParam;
-		memcpy(&sizeParam, &_buffer[offset], sizeof(uint32_t));
-		offset += sizeof(uint32_t);
-		if (offset+sizeParam > _lenght) {
-			ZEUS_ERROR("Wrong parameter size : " << sizeParam << " / availlable=" << _lenght-offset);
-			return;
-		}
-		std::vector<uint8_t> data;
-		data.resize(sizeParam);
-		memcpy(&data[0], &_buffer[offset], data.size() * sizeof(uint8_t));
-		offset += data.size() * sizeof(uint8_t);
-		m_parameter[nbParameters].second = data;
-		nbParameters++;
-	}
+size_t zeus::Buffer::getSize() {
+	return sizeof(headerBin);
 }
 
 bool zeus::Buffer::writeOn(enet::WebSocket& _interface) {
-	m_header.numberOfParameter = m_parameter.size();
-	uint64_t size = sizeof(headerBin);
-	for (auto &it : m_parameter) {
-		size += sizeof(uint32_t); // parameter size
-		size += it.second.size();
-	}
+	uint64_t size = getSize();
 	if (_interface.writeHeader(size, false) == false) {
 		return false;
-	}
-	uint8_t* data = nullptr;
-	uint32_t dataSize = 0;
-	m_header.numberOfParameter = m_parameter.size();
-	size = _interface.writeData((uint8_t*)&m_header, sizeof(headerBin));
-	for (auto &it : m_parameter) {
-		uint32_t paramSize = it.second.size();
-		size = _interface.writeData((uint8_t*)&paramSize, sizeof(uint32_t));
-		size = _interface.writeData(&it.second[0], it.second.size() * sizeof(uint8_t));
 	}
 	return true;
 }
 
-void zeus::Buffer::composeWith(const std::vector<uint8_t>& _buffer) {
-	internalComposeWith(&_buffer[0], _buffer.size());
+
+void zeus::Buffer::composeWith(const uint8_t* _buffer, uint32_t _lenght) {
+	// impossible case
 }
 
 void zeus::Buffer::clear() {
-	m_parameter.clear();
 	m_header.transactionID = 1;
 	m_header.clientID = 0;
-	m_header.partID = 0x8000;
-	m_header.typeMessage = 1;
-	m_header.numberOfParameter = 1;
+	m_header.flags = ZEUS_BUFFER_FLAG_FINISH;
 }
 
-std::ostream& zeus::operator <<(std::ostream& _os, const zeus::Buffer& _obj) {
+std::ostream& zeus::operator <<(std::ostream& _os, zeus::Buffer* _obj) {
 	_os << "zeus::Buffer: ";
-	//out += " v=" + etk::to_string(m_header.versionProtocol); // se it in the websocket
-	_os << " id=" << etk::to_string(_obj.getTransactionId());
-	_os << " cId=" << etk::to_string(_obj.getClientId());
-	if (    _obj.getPartFinish() == false
-	     || _obj.getPartId() != 0) {
-		_os << " part=" << etk::to_string(_obj.getPartId());
-		if (_obj.getPartFinish() == true) {
-			_os << "/finish";
-		}
+	if (_obj == nullptr) {
+		_os << "nullptr";
+	} else {
+		_obj->generateDisplay(_os);
 	}
-	enum zeus::Buffer::typeMessage type = _obj.getType();
+	return _os;
+}
+void zeus::Buffer::generateDisplay(std::ostream& _os) const {
+	//out += " v=" + etk::to_string(m_header.versionProtocol); // se it in the websocket
+	_os << " id=" << etk::to_string(getTransactionId());
+	_os << " cId=" << etk::to_string(getClientId());
+	if (getPartFinish() == true) {
+		_os << "finish";
+	}
+	enum zeus::Buffer::typeMessage type = getType();
 	switch (type) {
 		case zeus::Buffer::typeMessage::unknow:
 			_os << " -UNKNOW-";
 			break;
 		case zeus::Buffer::typeMessage::call:
-			_os << " nbParam=" + etk::to_string(_obj.getNumberParameter());
-			_os << " -CALL-:'" + _obj.getCall() + "'";
+			_os << " -CALL-";
 			break;
 		case zeus::Buffer::typeMessage::answer:
-			_os << " -ANSWER-:";
-			if (_obj.m_parameter.size() == 1) {
-				_os << "Value:" + _obj.simpleStringParam(0);
-			} else if (_obj.m_parameter.size() == 2) {
-				_os << "Error";
-				_os << "Error:" + _obj.simpleStringParam(0);
-			} else if (_obj.m_parameter.size() == 3) {
-				_os << "Value:" + _obj.simpleStringParam(0);
-				_os << "+Error:" + _obj.simpleStringParam(1);
-			} else {
-				_os << "???";
-			}
+			_os << " -ANSWER-";
 			break;
 		case zeus::Buffer::typeMessage::event:
 			_os << " -EVENT-";
-			
 			break;
 		case zeus::Buffer::typeMessage::data:
 			_os << " -DATA-";
-			
 			break;
 	}
-	if (_obj.getNumberParameter() != 0) {
+}
+
+void zeus::BufferCall::generateDisplay(std::ostream& _os) const {
+	zeus::Buffer::generateDisplay(_os);
+	_os << " '" + m_callName + "'";
+	_os << " nbParam=" + etk::to_string(getNumberParameter());
+	if (getNumberParameter() != 0) {
 		_os << " paramType(";
-		for (int32_t iii=0; iii<_obj.getNumberParameter(); ++iii) {
+		for (int32_t iii=0; iii<getNumberParameter(); ++iii) {
 			if (iii != 0) {
 				_os << ",";
 			}
-			_os << _obj.internalGetParameterType(iii).getName();
+			_os << getParameterType(iii).getName();
 		}
 		_os << ")";
 	}
-	return _os;
+}
+
+void zeus::BufferAnswer::generateDisplay(std::ostream& _os) const {
+	zeus::Buffer::generateDisplay(_os);
+	_os << " '" + simpleStringParam(0) + "'";
+	if (m_errorType.size() != 0) {
+		_os << " Error='" + m_errorType + "'";
+	}if (m_errorHelp.size() != 0) {
+		_os << " Help='" + m_errorHelp + "'";
+	}
+}
+
+void zeus::BufferData::generateDisplay(std::ostream& _os) const {
+	zeus::Buffer::generateDisplay(_os);
+	_os << " paramId=" << etk::to_string(m_partId);
+	_os << " part=" << etk::to_string(m_parameterId);
+	_os << " nbData=" << etk::to_string(m_data.size());
 }
 
 uint32_t zeus::Buffer::getTransactionId() const {
@@ -242,50 +180,83 @@ void zeus::Buffer::setClientId(uint32_t _value) {
 	m_header.clientID = _value;
 }
 
-// note limited 15 bits
-uint16_t zeus::Buffer::getPartId() const {
-	if (getType() != zeus::Buffer::typeMessage::data) {
-		return 0;
-	}
-	return uint16_t(m_header.partID & 0x7FFF);
-}
-
-void zeus::Buffer::setPartId(uint16_t _value) {
-	if (    getType() != zeus::Buffer::typeMessage::data
-	     && _value != 0) {
-		ZEUS_ERROR("can not set a partId at other than data buffer");
-		return;
-	}
-	m_header.partID = (m_header.partID&0x8000) | (_value & 0x7FFF);
-}
-
 bool zeus::Buffer::getPartFinish() const {
-	return m_header.partID<0;
+	return (m_header.flags & ZEUS_BUFFER_FLAG_FINISH) != 0;
 }
 
 void zeus::Buffer::setPartFinish(bool _value) {
 	if (_value == true) {
-		m_header.partID = (m_header.partID & 0x7FFF) | 0x8000;
+		m_header.flags = (m_header.flags & 0x7F) | ZEUS_BUFFER_FLAG_FINISH;
 	} else {
-		m_header.partID = m_header.partID & 0x7FFF;
+		m_header.flags = m_header.flags & 0x7F;
 	}
 }
 
 enum zeus::Buffer::typeMessage zeus::Buffer::getType() const {
-	return (enum zeus::Buffer::typeMessage)m_header.typeMessage;
+	return zeus::Buffer::typeMessage::unknow;
 }
 
-void zeus::Buffer::setType(enum typeMessage _value) {
-	m_header.typeMessage = uint16_t(_value);
-}
 
-uint16_t zeus::Buffer::getNumberParameter() const {
-	if (m_parameter.size() <= 1) {
-		return 0;
+// ------------------------------------------------------------------------------------
+// -- Multiple parameter
+// ------------------------------------------------------------------------------------
+
+
+size_t zeus::BufferParameter::parameterGetSize() {
+	size_t size = sizeof(uint16_t);
+	for (auto &it : m_parameter) {
+		size += sizeof(uint32_t); // parameter size
+		size += it.second.size();
 	}
-	return m_parameter.size()-1;
+	return size;
 }
-zeus::ParamType zeus::Buffer::internalGetParameterType(int32_t _id) const {
+
+bool zeus::BufferParameter::parameterWriteOn(enet::WebSocket& _interface) {
+	uint8_t* data = nullptr;
+	uint32_t dataSize = 0;
+	uint16_t numberOfParameter = m_parameter.size();
+	size_t size = _interface.writeData((uint8_t*)&numberOfParameter, sizeof(uint16_t));
+	for (auto &it : m_parameter) {
+		uint32_t paramSize = it.second.size();
+		size = _interface.writeData((uint8_t*)&paramSize, sizeof(uint32_t));
+		size = _interface.writeData(&it.second[0], it.second.size() * sizeof(uint8_t));
+	}
+	return true;
+}
+
+void zeus::BufferParameter::parameterComposeWith(const uint8_t* _buffer, uint32_t _lenght) {
+	m_parameter.clear();
+	uint16_t nbParameters = 0;
+	if (_lenght < sizeof(uint16_t)) {
+		ZEUS_ERROR("wrong size of the buffer ==> missing parameter count");
+		return;
+	}
+	uint32_t offset = 0;
+	memcpy(&nbParameters, &_buffer[offset], sizeof(uint16_t));
+	offset += sizeof(uint16_t);
+	m_parameter.resize(nbParameters, std::make_pair(-1, std::vector<uint8_t>()));
+	// Load all Parameters
+	nbParameters = 0;
+	while (    nbParameters < m_parameter.size()
+	        && offset < _lenght) {
+		// parameters is contituated with size + data assiciated
+		uint32_t sizeParam;
+		memcpy(&sizeParam, &_buffer[offset], sizeof(uint32_t));
+		offset += sizeof(uint32_t);
+		if (offset+sizeParam > _lenght) {
+			ZEUS_ERROR("Wrong parameter size : " << sizeParam << " / availlable=" << _lenght-offset);
+			return;
+		}
+		std::vector<uint8_t> data;
+		data.resize(sizeParam);
+		memcpy(&data[0], &_buffer[offset], data.size() * sizeof(uint8_t));
+		offset += data.size() * sizeof(uint8_t);
+		m_parameter[nbParameters].second = data;
+		nbParameters++;
+	}
+}
+
+zeus::ParamType zeus::BufferParameter::getParameterType(int32_t _id) const {
 	if (m_parameter.size() <= _id) {
 		ZEUS_ERROR("out of range Id for parameter ... " << _id << " have " << m_parameter.size());
 		return createType<void>();
@@ -335,139 +306,308 @@ zeus::ParamType zeus::Buffer::internalGetParameterType(int32_t _id) const {
 	ZEUS_ERROR("Can not get type of parameter ... ");
 	return createType<void>();
 }
-zeus::ParamType zeus::Buffer::getParameterType(int32_t _id) const {
-	return internalGetParameterType(_id + 1);
-}
 
-const uint8_t* zeus::Buffer::internalGetParameterPointer(int32_t _id) const {
+const uint8_t* zeus::BufferParameter::getParameterPointer(int32_t _id) const {
 	const uint8_t* out = nullptr;
 	if (m_parameter.size() <= _id) {
 		ZEUS_ERROR("out of range Id for parameter ... " << _id << " have " << m_parameter.size());
 		return out;
 	}
 	if (m_parameter[_id].first <= -1) {
-		internalGetParameterType(_id); // this function initialize this parameter if needed ...
+		getParameterType(_id); // this function initialize this parameter if needed ...
 	}
 	out = reinterpret_cast<const uint8_t*>(&m_parameter[_id].second[m_parameter[_id].first]);
 	return out;
 }
 
-const uint8_t* zeus::Buffer::getParameterPointer(int32_t _id) const {
-	return internalGetParameterPointer(_id + 1);
-}
-
-uint32_t zeus::Buffer::internalGetParameterSize(int32_t _id) const {
+uint32_t zeus::BufferParameter::getParameterSize(int32_t _id) const {
 	int32_t out = 0;
 	if (m_parameter.size() <= _id) {
 		ZEUS_ERROR("out of range Id for parameter ... " << _id << " have " << m_parameter.size());
 		return 0;
 	}
 	if (m_parameter[_id].first <= -1) {
-		internalGetParameterType(_id); // this function initialize this parameter if needed ...
+		getParameterType(_id); // this function initialize this parameter if needed ...
 	}
 	return m_parameter[_id].second.size() - m_parameter[_id].first;
 }
 
-void zeus::Buffer::addData(uint16_t _parameterId, void* _data, uint32_t _size) {
-	m_parameter.clear();
-	addParameter(_parameterId);
-	std::vector<uint8_t> data;
-	// set parameter type in case of wrong interpretation
-	zeus::addTypeRaw(data);
-	int32_t offset = data.size();
-	data.resize(offset + _size);
-	memcpy(&data[offset], _data, _size);
-	m_parameter.push_back(std::make_pair(2,data));
+uint16_t zeus::BufferParameter::getNumberParameter() const {
+	return m_parameter.size();
 }
 
-uint32_t zeus::Buffer::getParameterSize(int32_t _id) const {
-	return internalGetParameterSize(_id + 1);
-}
-
-
-void zeus::Buffer::addError(const std::string& _value, const std::string& _comment) {
-	addParameter(_value);
-	addParameter(_comment);
-}
-
-std::string zeus::Buffer::getCall() const {
-	std::string out;
-	switch(getType()) {
-		case zeus::Buffer::typeMessage::call:
-			return internalGetParameter<std::string>(0);
-			break;
-		case zeus::Buffer::typeMessage::answer:
-			ZEUS_WARNING("get 'call' with an input type: 'answer'");
-			break;
-		default:
-			ZEUS_WARNING("get 'call' with an input type: '" << getType() << "'");
-			break;
-	}
-	return "";
-}
-
-void zeus::Buffer::setCall(std::string _value) {
-	if (m_parameter.size() != 0) {
-		ZEUS_ERROR("Clear Buffer of parameter ==> set the call type in first ...");
-		m_parameter.clear();
-	}
-	addParameter(_value);
-}
-
-
-bool zeus::Buffer::hasError() {
-	if (getType() != zeus::Buffer::typeMessage::answer) {
-		return false;
-	}
-	if (m_parameter.size() == 2) {
-		return true;
-	} else if (m_parameter.size() == 3) {
-		return true;
-	}
-	return false;
-}
-
-std::string zeus::Buffer::getError() {
-	if (getType() != zeus::Buffer::typeMessage::answer) {
-		return "";
-	}
-	if (m_parameter.size() == 2) {
-		return getParameter<std::string>(0);
-	} else if (m_parameter.size() == 3) {
-		return getParameter<std::string>(1);
-	}
-	return "";
-}
-
-std::string zeus::Buffer::getErrorHelp() {
-	if (getType() != zeus::Buffer::typeMessage::answer) {
-		return "";
-	}
-	if (m_parameter.size() == 2) {
-		return getParameter<std::string>(1);
-	} else if (m_parameter.size() == 3) {
-		return getParameter<std::string>(2);
-	}
-	return "";
-}
-
-
-std::string zeus::Buffer::simpleStringParam(uint32_t _id) const {
-	zeus::ParamType paramType = internalGetParameterType(_id);
+std::string zeus::BufferParameter::simpleStringParam(uint32_t _id) const {
+	zeus::ParamType paramType = getParameterType(_id);
 	if (paramType.isVector() == false) {
 		if (paramType.isNumber() == true) {
-			return etk::to_string(internalGetParameter<int64_t>(_id));
+			return etk::to_string(getParameter<int64_t>(_id));
 		}
 	}
 	if (paramType == createType<bool>()) {
-		return etk::to_string(internalGetParameter<bool>(_id));
+		return etk::to_string(getParameter<bool>(_id));
 	}
 	if (paramType == createType<std::string>()) {
-		return "{" + internalGetParameter<std::string>(_id) + "}";
+		return "{" + getParameter<std::string>(_id) + "}";
 	}
 	if (paramType == createType<std::vector<std::string>>()) {
-		return "[" + etk::to_string(internalGetParameter<std::vector<std::string>>(_id)) + "]";
+		return "[" + etk::to_string(getParameter<std::vector<std::string>>(_id)) + "]";
 	}
 	return paramType.getName();
 }
+
+void zeus::BufferParameter::parameterAppendBufferData(const ememory::SharedPtr<zeus::BufferData>& _obj) {
+	// At this point we just add data at the parameter value:
+	uint16_t parameterID = _obj->getParameterId();
+	
+	if (_obj->getData().size() == 0) {
+		// no data (normal case)
+		return;
+	}
+	// now, we will add datas:
+	if (parameterID >= m_parameter.size()) {
+		ZEUS_ERROR("Try to add data on an unexisting parameter...");
+		return;
+	}
+	int32_t offset = m_parameter[parameterID].second.size();
+	m_parameter[parameterID].second.resize(offset + _obj->getData().size());
+	memcpy(&m_parameter[parameterID].second[offset], &_obj->getData()[0], _obj->getData().size());
+}
+
+// ------------------------------------------------------------------------------------
+// -- Call
+// ------------------------------------------------------------------------------------
+
+const std::string& zeus::BufferCall::getCall() const {
+	return m_callName;
+}
+
+void zeus::BufferCall::setCall(const std::string& _value) {
+	m_callName = _value;
+}
+
+size_t zeus::BufferCall::getSize() {
+	// name + \0 + parameters ...
+	return m_callName.size()+1 + parameterGetSize();
+}
+
+bool zeus::BufferCall::writeOn(enet::WebSocket& _interface) {
+	_interface.writeData((uint8_t*)m_callName.c_str(), m_callName.size() + 1);
+	return parameterWriteOn(_interface);
+}
+
+void zeus::BufferCall::composeWith(const uint8_t* _buffer, uint32_t _lenght) {
+	// First element iw the call name, after, this is the parameters...
+	// parse the string: (call name)
+	uint32_t pos = 0;
+	m_callName.clear();
+	while(    pos < _lenght
+	       && _buffer[pos] != '\0') {
+		m_callName += _buffer[pos];
+		pos++;
+	}
+	// parse parameters:
+	parameterComposeWith(&_buffer[pos], _lenght-pos);
+}
+
+void zeus::BufferCall::appendBufferData(const ememory::SharedPtr<zeus::BufferData>& _obj) {
+	parameterAppendBufferData(_obj);
+}
+
+// ------------------------------------------------------------------------------------
+// -- Answer
+// ------------------------------------------------------------------------------------
+
+bool zeus::BufferAnswer::hasError() {
+	return m_errorType.size() != 0;
+}
+
+const std::string& zeus::BufferAnswer::getError() {
+	return m_errorType;
+}
+
+const std::string& zeus::BufferAnswer::getErrorHelp() {
+	return m_errorHelp;
+}
+
+void zeus::BufferAnswer::addError(const std::string& _value, const std::string& _comment) {
+	m_errorType = _value;
+	m_errorHelp = _comment;
+}
+
+size_t zeus::BufferAnswer::getSize() {
+	// name + \0 + parameters ...
+	size_t size = m_errorType.size()+1 + parameterGetSize();
+	if (m_errorType.size() != 0) {
+		size += m_errorHelp.size() + 1;
+	}
+	return size;
+}
+
+bool zeus::BufferAnswer::writeOn(enet::WebSocket& _interface) {
+	_interface.writeData((uint8_t*)m_errorType.c_str(), m_errorType.size() + 1);
+	if (m_errorType.size() != 0) {
+		_interface.writeData((uint8_t*)m_errorHelp.c_str(), m_errorHelp.size() + 1);
+	}
+	return parameterWriteOn(_interface);
+}
+
+void zeus::BufferAnswer::composeWith(const uint8_t* _buffer, uint32_t _lenght) {
+	// First element iw the call name, after, this is the parameters...
+	// parse the string: (call name)
+	uint32_t pos = 0;
+	m_errorType.clear();
+	m_errorHelp.clear();
+	while(    pos < _lenght
+	       && _buffer[pos] != '\0') {
+		m_errorType += _buffer[pos];
+		pos++;
+	}
+	if (m_errorType.size() != 0) {
+		while(    pos < _lenght
+		       && _buffer[pos] != '\0') {
+			m_errorHelp += _buffer[pos];
+			pos++;
+		}
+	}
+	// parse parameters:
+	parameterComposeWith(&_buffer[pos], _lenght-pos);
+}
+
+void zeus::BufferAnswer::appendBufferData(const ememory::SharedPtr<zeus::BufferData>& _obj) {
+	parameterAppendBufferData(_obj);
+}
+
+// ------------------------------------------------------------------------------------
+// -- Data
+// ------------------------------------------------------------------------------------
+
+void zeus::BufferData::addData(uint16_t _parameterId, void* _data, uint32_t _size) {
+	m_parameterId = _parameterId;
+	m_data.resize(_size);
+	memcpy(&m_data[0], _data, _size);
+}
+
+// note limited 15 bits
+uint32_t zeus::BufferData::getPartId() const {
+	return m_partId;
+}
+
+void zeus::BufferData::setPartId(uint32_t _value) {
+	if (_value == 0) {
+		ZEUS_ERROR("Part ID must be != of 0");
+		return;
+	}
+	m_partId = _value;
+}
+
+size_t zeus::BufferData::getSize() {
+	// name + \0 + parameters ...
+	return sizeof(uint32_t) + sizeof(uint16_t) + m_data.size();
+}
+
+bool zeus::BufferData::writeOn(enet::WebSocket& _interface) {
+	_interface.writeData((uint8_t*)&m_partId, sizeof(uint32_t));
+	_interface.writeData((uint8_t*)&m_parameterId, sizeof(uint16_t));
+	_interface.writeData((uint8_t*)&m_data[0], m_data.size());
+	return true;
+}
+
+void zeus::BufferData::composeWith(const uint8_t* _buffer, uint32_t _lenght) {
+	// First element iw the call name, after, this is the parameters...
+	// parse the string: (call name)
+	uint32_t pos = 0;
+	m_partId = 0;
+	m_parameterId = 0;
+	memcpy(reinterpret_cast<char*>(&m_partId), &_buffer[pos], sizeof(uint32_t));
+	pos += sizeof(uint32_t);
+	memcpy(reinterpret_cast<char*>(&m_parameterId), &_buffer[pos], sizeof(uint16_t));
+	pos += sizeof(uint16_t);
+	m_data.resize(_lenght - pos);
+	memcpy(&m_data[0], &_buffer[pos], m_data.size());
+}
+
+// ------------------------------------------------------------------------------------
+// -- Factory
+// ------------------------------------------------------------------------------------
+ememory::SharedPtr<zeus::Buffer> zeus::Buffer::create() {
+	return ememory::SharedPtr<zeus::Buffer>(new zeus::Buffer);
+}
+
+ememory::SharedPtr<zeus::Buffer> zeus::Buffer::create(const std::vector<uint8_t>& _buffer) {
+	headerBin header;
+	if (_buffer.size() < sizeof(headerBin)) {
+		ZEUS_ERROR("wrong size of the buffer");
+		return nullptr;
+	}
+	memcpy(reinterpret_cast<char*>(&header), &_buffer[0], sizeof(headerBin));
+	enum zeus::Buffer::typeMessage type = getTypeType(uint16_t(header.flags & 0x07));
+	switch (type) {
+		case zeus::Buffer::typeMessage::unknow:
+			return nullptr;
+		case zeus::Buffer::typeMessage::call: {
+				ememory::SharedPtr<zeus::BufferCall> value = zeus::BufferCall::create();
+				if (value == nullptr) {
+					return nullptr;
+				}
+				value->setTransactionId(header.transactionID);
+				value->setClientId(header.clientID);
+				value->setClientId((header.flags & ZEUS_BUFFER_FLAG_FINISH) != 0);
+				value->composeWith(&_buffer[sizeof(headerBin)],
+				                    _buffer.size() - sizeof(headerBin));
+				return value;
+			}
+			break;
+		case zeus::Buffer::typeMessage::answer: {
+				ememory::SharedPtr<zeus::BufferAnswer> value = zeus::BufferAnswer::create();
+				if (value == nullptr) {
+					return nullptr;
+				}
+				value->setTransactionId(header.transactionID);
+				value->setClientId(header.clientID);
+				value->setClientId((header.flags & ZEUS_BUFFER_FLAG_FINISH) != 0);
+				value->composeWith(&_buffer[sizeof(headerBin)],
+				                    _buffer.size() - sizeof(headerBin));
+				return value;
+			}
+			break;
+		case zeus::Buffer::typeMessage::data: {
+				ememory::SharedPtr<zeus::BufferData> value = zeus::BufferData::create();
+				if (value == nullptr) {
+					return nullptr;
+				}
+				value->setTransactionId(header.transactionID);
+				value->setClientId(header.clientID);
+				value->setClientId((header.flags & ZEUS_BUFFER_FLAG_FINISH) != 0);
+				value->composeWith(&_buffer[sizeof(headerBin)],
+				                    _buffer.size() - sizeof(headerBin));
+				return value;
+			}
+			break;
+		case zeus::Buffer::typeMessage::event:
+			
+			break;
+	}
+	return nullptr;
+}
+
+ememory::SharedPtr<zeus::BufferCall> zeus::BufferCall::create() {
+	return ememory::SharedPtr<zeus::BufferCall>(new zeus::BufferCall);
+}
+
+ememory::SharedPtr<zeus::BufferAnswer> zeus::BufferAnswer::create() {
+	return ememory::SharedPtr<zeus::BufferAnswer>(new zeus::BufferAnswer);
+}
+
+ememory::SharedPtr<zeus::BufferData> zeus::BufferData::create() {
+	return ememory::SharedPtr<zeus::BufferData>(new zeus::BufferData);
+}
+/*
+ememory::SharedPtr<zeus::BufferEvent> zeus::BufferEvent::create() {
+	return ememory::SharedPtr<zeus::BufferEvent>(new zeus::BufferEvent);
+}
+
+ememory::SharedPtr<zeus::BufferFlow> zeus::BufferFlow::create() {
+	return ememory::SharedPtr<zeus::BufferFlow>(new zeus::BufferFlow);
+}
+*/
 

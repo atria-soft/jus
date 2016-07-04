@@ -37,20 +37,20 @@ int main(int _argc, const char *_argv[]) {
 	APPL_INFO("==================================");
 	
 	if (false) {
-		bool ret = client1.connect("test1~atria-soft.com", "clientTest1#atria-soft.com", "QSDQSDGQSF54HSXWVCSQDJ654URTDJ654NBXCDFDGAEZ51968");
+		bool ret = client1.connect("test1~atria-soft.com", "clientTest1~atria-soft.com", "QSDQSDGQSF54HSXWVCSQDJ654URTDJ654NBXCDFDGAEZ51968");
 		if (ret == false) {
-			APPL_ERROR("    ==> NOT Connected with 'clientTest1#atria-soft.com'");
+			APPL_ERROR("    ==> NOT Connected to 'test1~atria-soft.com' with 'clientTest1~atria-soft.com'");
 			return -1;
 		} else {
-			APPL_INFO("    ==> Connected with 'clientTest1#atria-soft.com'");
+			APPL_INFO("    ==> Connected with 'clientTest1~atria-soft.com'");
 		}
 	} else if (true) {
 		bool ret = client1.connect("test1~atria-soft.com", "coucou");
 		if (ret == false) {
-			APPL_ERROR("    ==> NOT Authentify with 'test1#atria-soft.com'");
+			APPL_ERROR("    ==> NOT Authentify with 'test1~atria-soft.com'");
 			return -1;
 		} else {
-			APPL_INFO("    ==> Authentify with 'test1#atria-soft.com'");
+			APPL_INFO("    ==> Authentify with 'test1~atria-soft.com'");
 		}
 	} else {
 		bool ret = client1.connect("test1~atria-soft.com");

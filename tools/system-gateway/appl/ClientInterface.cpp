@@ -109,7 +109,8 @@ void appl::ClientInterface::onClientData(const ememory::SharedPtr<zeus::Buffer>&
 		answerProtocolError(transactionId, "missing parameter: 'call' / wrong type 'call'");
 		return;
 	}
-	std::string callFunction = _value->getCall();
+	ememory::SharedPtr<zeus::BufferCall> callObj = std::static_pointer_cast<zeus::BufferCall>(_value);
+	std::string callFunction = callObj->getCall();
 	switch (m_state) {
 		case appl::ClientInterface::state::disconnect:
 		case appl::ClientInterface::state::unconnect:
@@ -125,7 +126,7 @@ void appl::ClientInterface::onClientData(const ememory::SharedPtr<zeus::Buffer>&
 					return;
 				}
 				if (callFunction == "connectToUser") {
-					m_userConnectionName = _value->getParameter<std::string>(0);
+					m_userConnectionName = callObj->getParameter<std::string>(0);
 					if (m_userConnectionName == "") {
 						answerProtocolError(transactionId, "Call connectToUser with no parameter 'user'");
 					} else {
@@ -158,8 +159,8 @@ void appl::ClientInterface::onClientData(const ememory::SharedPtr<zeus::Buffer>&
 					return;
 				}
 				if (callFunction == "identify") {
-					std::string clientName = _value->getParameter<std::string>(0);
-					std::string clientTocken = _value->getParameter<std::string>(1);
+					std::string clientName = callObj->getParameter<std::string>(0);
+					std::string clientTocken = callObj->getParameter<std::string>(1);
 					if (m_userService == nullptr) {
 						answerProtocolError(transactionId, "gateWay internal error 3");
 						return;
@@ -180,7 +181,7 @@ void appl::ClientInterface::onClientData(const ememory::SharedPtr<zeus::Buffer>&
 					m_clientName = clientName;
 				}
 				if (callFunction == "auth") {
-					std::string password = _value->getParameter<std::string>(0);
+					std::string password = callObj->getParameter<std::string>(0);
 					zeus::Future<bool> fut = m_userService->m_interfaceClient.callClient(m_uid2, "checkAuth", password);
 					fut.wait(); // TODO: Set timeout ...
 					if (fut.hasError() == true) {
@@ -235,7 +236,7 @@ void appl::ClientInterface::onClientData(const ememory::SharedPtr<zeus::Buffer>&
 			break;
 		case appl::ClientInterface::state::clientIdentify:
 			{
-				uint32_t serviceId = _value->getServiceId();
+				uint32_t serviceId = callObj->getServiceId();
 				if (serviceId == 0) {
 					// This is 2 default service for the cient interface that manage the authorisation of view:
 					if (callFunction == "getServiceCount") {
@@ -249,7 +250,7 @@ void appl::ClientInterface::onClientData(const ememory::SharedPtr<zeus::Buffer>&
 					}
 					if (callFunction == "link") {
 						// first param:
-						std::string serviceName = _value->getParameter<std::string>(0);
+						std::string serviceName = callObj->getParameter<std::string>(0);
 						// Check if service already link:
 						auto it = m_listConnectedService.begin();
 						while (it != m_listConnectedService.end()) {
@@ -290,7 +291,7 @@ void appl::ClientInterface::onClientData(const ememory::SharedPtr<zeus::Buffer>&
 					}
 					if (callFunction == "unlink") {
 						// first param: the service we want to unconnect ...
-						int64_t localServiceID = _value->getParameter<int64_t>(0)-1;
+						int64_t localServiceID = callObj->getParameter<int64_t>(0)-1;
 						// Check if service already link:
 						if (localServiceID >= m_listConnectedService.size()) {
 							m_interfaceClient.answerError(transactionId, "NOT-CONNECTED-SERVICE");
@@ -332,10 +333,10 @@ void appl::ClientInterface::onClientData(const ememory::SharedPtr<zeus::Buffer>&
 					    			return true;
 					    		}
 					    		ZEUS_DEBUG("    ==> transmit : " << tmpp->getTransactionId() << " -> " << transactionId);
-					    		ZEUS_DEBUG("    msg=" << *tmpp);
+					    		ZEUS_DEBUG("    msg=" << tmpp);
 					    		tmpp->setTransactionId(transactionId);
 					    		tmpp->setServiceId(serviceId+1);
-					    		ZEUS_DEBUG("transmit=" << *tmpp);
+					    		ZEUS_DEBUG("transmit=" << tmpp);
 					    		m_interfaceClient.writeBinary(tmpp);
 					    		// multiple send element ...
 					    		return tmpp->getPartFinish();

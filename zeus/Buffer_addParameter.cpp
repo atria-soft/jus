@@ -35,12 +35,12 @@ void zeus::addTypeRaw(std::vector<uint8_t>& _data) {
 }
 
 
-void zeus::Buffer::addParameter() {
+void zeus::BufferParameter::addParameter() {
 	std::vector<uint8_t> data;
 	addType(data, createType<void>());
 	m_parameter.push_back(std::make_pair(2,data));
 }
-void zeus::Buffer::addParameterEmptyVector() {
+void zeus::BufferParameter::addParameterEmptyVector() {
 	// special case of json change mode
 	std::vector<uint8_t> data;
 	addType(data, createType<std::vector<void>>());
@@ -48,7 +48,7 @@ void zeus::Buffer::addParameterEmptyVector() {
 }
 namespace zeus {
 	template<>
-	void Buffer::internalAddParameter<std::string>(uint16_t _paramId, const std::string& _value) {
+	void BufferParameter::addParameter<std::string>(uint16_t _paramId, const std::string& _value) {
 		std::vector<uint8_t> data;
 		addType(data, createType<std::string>());
 		int32_t currentOffset = data.size();
@@ -57,7 +57,7 @@ namespace zeus {
 		m_parameter.push_back(std::make_pair(2,data));
 	}
 	template<>
-	void Buffer::internalAddParameter<std::vector<std::string>>(uint16_t _paramId, const std::vector<std::string>& _value) {
+	void BufferParameter::addParameter<std::vector<std::string>>(uint16_t _paramId, const std::vector<std::string>& _value) {
 		std::vector<uint8_t> data;
 		addType(data, createType<std::vector<std::string>>());
 		// count all datas:
@@ -80,7 +80,7 @@ namespace zeus {
 	}
 	
 	template<>
-	void Buffer::internalAddParameter<std::vector<bool>>(uint16_t _paramId, const std::vector<bool>& _value) {
+	void BufferParameter::addParameter<std::vector<bool>>(uint16_t _paramId, const std::vector<bool>& _value) {
 		std::vector<uint8_t> data;
 		addType(data, createType<std::vector<bool>>());
 		// add size:
@@ -99,7 +99,7 @@ namespace zeus {
 	}
 	
 	template<>
-	void Buffer::internalAddParameter<std::vector<int8_t>>(uint16_t _paramId, const std::vector<int8_t>& _value) {
+	void BufferParameter::addParameter<std::vector<int8_t>>(uint16_t _paramId, const std::vector<int8_t>& _value) {
 		std::vector<uint8_t> data;
 		addType(data, createType<std::vector<int8_t>>());
 		// add size:
@@ -109,7 +109,7 @@ namespace zeus {
 		m_parameter.push_back(std::make_pair(2,data));
 	}
 	template<>
-	void Buffer::internalAddParameter<std::vector<int16_t>>(uint16_t _paramId, const std::vector<int16_t>& _value) {
+	void BufferParameter::addParameter<std::vector<int16_t>>(uint16_t _paramId, const std::vector<int16_t>& _value) {
 		std::vector<uint8_t> data;
 		addType(data, createType<std::vector<int16_t>>());
 		// add size:
@@ -119,7 +119,7 @@ namespace zeus {
 		m_parameter.push_back(std::make_pair(2,data));
 	}
 	template<>
-	void Buffer::internalAddParameter<std::vector<int32_t>>(uint16_t _paramId, const std::vector<int32_t>& _value) {
+	void BufferParameter::addParameter<std::vector<int32_t>>(uint16_t _paramId, const std::vector<int32_t>& _value) {
 		std::vector<uint8_t> data;
 		addType(data, createType<std::vector<int32_t>>());
 		// add size:
@@ -129,7 +129,7 @@ namespace zeus {
 		m_parameter.push_back(std::make_pair(2,data));
 	}
 	template<>
-	void Buffer::internalAddParameter<std::vector<int64_t>>(uint16_t _paramId, const std::vector<int64_t>& _value) {
+	void BufferParameter::addParameter<std::vector<int64_t>>(uint16_t _paramId, const std::vector<int64_t>& _value) {
 		std::vector<uint8_t> data;
 		addType(data, createType<std::vector<int64_t>>());
 		// add size:
@@ -139,7 +139,7 @@ namespace zeus {
 		m_parameter.push_back(std::make_pair(2,data));
 	}
 	template<>
-	void Buffer::internalAddParameter<std::vector<uint8_t>>(uint16_t _paramId, const std::vector<uint8_t>& _value) {
+	void BufferParameter::addParameter<std::vector<uint8_t>>(uint16_t _paramId, const std::vector<uint8_t>& _value) {
 		std::vector<uint8_t> data;
 		addType(data, createType<std::vector<uint8_t>>());
 		// add size:
@@ -149,7 +149,7 @@ namespace zeus {
 		m_parameter.push_back(std::make_pair(2,data));
 	}
 	template<>
-	void Buffer::internalAddParameter<std::vector<uint16_t>>(uint16_t _paramId, const std::vector<uint16_t>& _value) {
+	void BufferParameter::addParameter<std::vector<uint16_t>>(uint16_t _paramId, const std::vector<uint16_t>& _value) {
 		std::vector<uint8_t> data;
 		addType(data, createType<std::vector<uint16_t>>());
 		// add size:
@@ -159,7 +159,7 @@ namespace zeus {
 		m_parameter.push_back(std::make_pair(2,data));
 	}
 	template<>
-	void Buffer::internalAddParameter<std::vector<uint32_t>>(uint16_t _paramId, const std::vector<uint32_t>& _value) {
+	void BufferParameter::addParameter<std::vector<uint32_t>>(uint16_t _paramId, const std::vector<uint32_t>& _value) {
 		std::vector<uint8_t> data;
 		addType(data, createType<std::vector<uint32_t>>());
 		// add size:
@@ -169,7 +169,7 @@ namespace zeus {
 		m_parameter.push_back(std::make_pair(2,data));
 	}
 	template<>
-	void Buffer::internalAddParameter<std::vector<uint64_t>>(uint16_t _paramId, const std::vector<uint64_t>& _value) {
+	void BufferParameter::addParameter<std::vector<uint64_t>>(uint16_t _paramId, const std::vector<uint64_t>& _value) {
 		std::vector<uint8_t> data;
 		addType(data, createType<std::vector<uint64_t>>());
 		// add size:
@@ -180,7 +180,7 @@ namespace zeus {
 	}
 	
 	template<>
-	void Buffer::internalAddParameter<std::vector<float>>(uint16_t _paramId, const std::vector<float>& _value) {
+	void BufferParameter::addParameter<std::vector<float>>(uint16_t _paramId, const std::vector<float>& _value) {
 		std::vector<uint8_t> data;
 		addType(data, createType<std::vector<float>>());
 		// add size:
@@ -191,7 +191,7 @@ namespace zeus {
 	}
 	
 	template<>
-	void Buffer::internalAddParameter<std::vector<double>>(uint16_t _paramId, const std::vector<double>& _value) {
+	void BufferParameter::addParameter<std::vector<double>>(uint16_t _paramId, const std::vector<double>& _value) {
 		std::vector<uint8_t> data;
 		addType(data, createType<std::vector<double>>());
 		// add size:
@@ -202,21 +202,21 @@ namespace zeus {
 	}
 	
 	template<>
-	void Buffer::internalAddParameter<int8_t>(uint16_t _paramId, const int8_t& _value) {
+	void BufferParameter::addParameter<int8_t>(uint16_t _paramId, const int8_t& _value) {
 		std::vector<uint8_t> data;
 		addType(data, createType<int8_t>());
 		data.push_back(uint8_t(_value));
 		m_parameter.push_back(std::make_pair(2,data));
 	}
 	template<>
-	void Buffer::internalAddParameter<uint8_t>(uint16_t _paramId, const uint8_t& _value) {
+	void BufferParameter::addParameter<uint8_t>(uint16_t _paramId, const uint8_t& _value) {
 		std::vector<uint8_t> data;
 		addType(data, createType<uint8_t>());
 		data.push_back(_value);
 		m_parameter.push_back(std::make_pair(2,data));
 	}
 	template<>
-	void Buffer::internalAddParameter<int16_t>(uint16_t _paramId, const int16_t& _value) {
+	void BufferParameter::addParameter<int16_t>(uint16_t _paramId, const int16_t& _value) {
 		std::vector<uint8_t> data;
 		addType(data, createType<int16_t>());
 		int32_t currentOffset = data.size();
@@ -225,7 +225,7 @@ namespace zeus {
 		m_parameter.push_back(std::make_pair(2,data));
 	}
 	template<>
-	void Buffer::internalAddParameter<uint16_t>(uint16_t _paramId, const uint16_t& _value) {
+	void BufferParameter::addParameter<uint16_t>(uint16_t _paramId, const uint16_t& _value) {
 		std::vector<uint8_t> data;
 		addType(data, createType<uint16_t>());
 		int32_t currentOffset = data.size();
@@ -234,7 +234,7 @@ namespace zeus {
 		m_parameter.push_back(std::make_pair(2,data));
 	}
 	template<>
-	void Buffer::internalAddParameter<int32_t>(uint16_t _paramId, const int32_t& _value) {
+	void BufferParameter::addParameter<int32_t>(uint16_t _paramId, const int32_t& _value) {
 		std::vector<uint8_t> data;
 		addType(data, createType<int32_t>());
 		int32_t currentOffset = data.size();
@@ -243,7 +243,7 @@ namespace zeus {
 		m_parameter.push_back(std::make_pair(2,data));
 	}
 	template<>
-	void Buffer::internalAddParameter<uint32_t>(uint16_t _paramId, const uint32_t& _value) {
+	void BufferParameter::addParameter<uint32_t>(uint16_t _paramId, const uint32_t& _value) {
 		std::vector<uint8_t> data;
 		addType(data, createType<uint32_t>());
 		int32_t currentOffset = data.size();
@@ -252,7 +252,7 @@ namespace zeus {
 		m_parameter.push_back(std::make_pair(2,data));
 	}
 	template<>
-	void Buffer::internalAddParameter<int64_t>(uint16_t _paramId, const int64_t& _value) {
+	void BufferParameter::addParameter<int64_t>(uint16_t _paramId, const int64_t& _value) {
 		std::vector<uint8_t> data;
 		addType(data, createType<int64_t>());
 		int32_t currentOffset = data.size();
@@ -261,7 +261,7 @@ namespace zeus {
 		m_parameter.push_back(std::make_pair(2,data));
 	}
 	template<>
-	void Buffer::internalAddParameter<uint64_t>(uint16_t _paramId, const uint64_t& _value) {
+	void BufferParameter::addParameter<uint64_t>(uint16_t _paramId, const uint64_t& _value) {
 		std::vector<uint8_t> data;
 		addType(data, createType<uint64_t>());
 		int32_t currentOffset = data.size();
@@ -270,7 +270,7 @@ namespace zeus {
 		m_parameter.push_back(std::make_pair(2,data));
 	}
 	template<>
-	void Buffer::internalAddParameter<float>(uint16_t _paramId, const float& _value) {
+	void BufferParameter::addParameter<float>(uint16_t _paramId, const float& _value) {
 		std::vector<uint8_t> data;
 		addType(data, createType<float>());
 		int32_t currentOffset = data.size();
@@ -279,7 +279,7 @@ namespace zeus {
 		m_parameter.push_back(std::make_pair(2,data));
 	}
 	template<>
-	void Buffer::internalAddParameter<double>(uint16_t _paramId, const double& _value) {
+	void BufferParameter::addParameter<double>(uint16_t _paramId, const double& _value) {
 		std::vector<uint8_t> data;
 		addType(data, createType<double>());
 		int32_t currentOffset = data.size();
@@ -288,7 +288,7 @@ namespace zeus {
 		m_parameter.push_back(std::make_pair(2,data));
 	}
 	template<>
-	void Buffer::internalAddParameter<bool>(uint16_t _paramId, const bool& _value) {
+	void BufferParameter::addParameter<bool>(uint16_t _paramId, const bool& _value) {
 		std::vector<uint8_t> data;
 		addType(data, createType<bool>());
 		if (_value == true) {
@@ -321,10 +321,9 @@ namespace zeus {
 			                 uint32_t _clientId,
 			                 uint32_t _transactionId,
 			                 uint32_t _partId) {
-				ememory::SharedPtr<zeus::Buffer> answer = zeus::Buffer::create();
+				ememory::SharedPtr<zeus::BufferData> answer = zeus::BufferData::create();
 				answer->setTransactionId(_transactionId);
 				answer->setClientId(_clientId);
-				answer->setType(zeus::Buffer::typeMessage::data);
 				answer->setPartId(_partId);
 				answer->setPartFinish(false);
 				int32_t tmpSize = ZEUS_MINIMUM_SIZE_MULTIPLE;
@@ -342,7 +341,7 @@ namespace zeus {
 			}
 	};
 	template<>
-	void Buffer::internalAddParameter<zeus::File>(uint16_t _paramId, const zeus::File& _value) {
+	void BufferParameter::addParameter<zeus::File>(uint16_t _paramId, const zeus::File& _value) {
 		std::vector<uint8_t> data;
 		addType(data, createType<zeus::File>());
 		// set mine type in string:
@@ -393,10 +392,9 @@ namespace zeus {
 				if (m_node.fileIsOpen() == false) {
 					m_node.fileOpenRead();
 				}
-				ememory::SharedPtr<zeus::Buffer> answer = zeus::Buffer::create();
+				ememory::SharedPtr<zeus::BufferData> answer = zeus::BufferData::create();
 				answer->setTransactionId(_transactionId);
 				answer->setClientId(_clientId);
-				answer->setType(zeus::Buffer::typeMessage::data);
 				answer->setPartId(_partId);
 				answer->setPartFinish(false);
 				int32_t tmpSize = ZEUS_MINIMUM_SIZE_MULTIPLE;
@@ -417,7 +415,7 @@ namespace zeus {
 	};
 	
 	template<>
-	void Buffer::internalAddParameter<zeus::FileServer>(uint16_t _paramId, const zeus::FileServer& _value) {
+	void BufferParameter::addParameter<zeus::FileServer>(uint16_t _paramId, const zeus::FileServer& _value) {
 		etk::FSNode node(_value.getFileName());
 		node.fileOpenRead();
 		std::string extention = std::string(_value.getFileName().begin()+_value.getFileName().size() -3, _value.getFileName().end());
@@ -430,7 +428,7 @@ namespace zeus {
 			node.fileRead(&fileData[0], 1, size);
 		}
 		zeus::File tmpFile(zeus::getMineType(extention), fileData, size);
-		internalAddParameter(_paramId, tmpFile);
+		addParameter(_paramId, tmpFile);
 		node.fileClose();
 		if (size >= ZEUS_MINIMUM_SIZE_MULTIPLE) {
 			m_multipleSend.push_back(zeus::SendFile(_value.getFileName(), _paramId, size));

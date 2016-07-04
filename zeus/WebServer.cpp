@@ -9,8 +9,8 @@
 #include <unistd.h>
 
 
-ememory::SharedPtr<zeus::Buffer> zeus::createBaseCall(uint64_t _transactionId, const std::string& _functionName, const uint32_t& _serviceId) {
-	ememory::SharedPtr<zeus::Buffer> obj = zeus::Buffer::create();
+ememory::SharedPtr<zeus::BufferCall> zeus::createBaseCall(uint64_t _transactionId, const std::string& _functionName, const uint32_t& _serviceId) {
+	ememory::SharedPtr<zeus::BufferCall> obj = zeus::BufferCall::create();
 	if (obj == nullptr) {
 		return nullptr;
 	}
@@ -20,7 +20,7 @@ ememory::SharedPtr<zeus::Buffer> zeus::createBaseCall(uint64_t _transactionId, c
 	return obj;
 }
 
-void zeus::createParam(int32_t _paramId, const ememory::SharedPtr<zeus::Buffer>& _obj) {
+void zeus::createParam(int32_t _paramId, const ememory::SharedPtr<zeus::BufferCall>& _obj) {
 	// Finish recursive parse ...
 }
 
@@ -135,11 +135,10 @@ class SendAsyncBinary {
 				m_partId++;
 			}
 			if (m_async.size() == 0) {
-				ememory::SharedPtr<zeus::Buffer> obj = zeus::Buffer::create();
+				ememory::SharedPtr<zeus::BufferData> obj = zeus::BufferData::create();
 				if (obj == nullptr) {
 					return true;
 				}
-				obj->setType(zeus::Buffer::typeMessage::data);
 				obj->setServiceId(m_serviceId);
 				obj->setTransactionId(m_transactionId);
 				obj->setPartId(m_partId);
@@ -182,13 +181,12 @@ bool zeus::WebServer::onReceiveUri(const std::string& _uri, const std::vector<st
 }
 
 void zeus::WebServer::onReceiveData(std::vector<uint8_t>& _frame, bool _isBinary) {
-	ememory::SharedPtr<zeus::Buffer> dataRaw = zeus::Buffer::create();
 	if (_isBinary == true) {
 		ZEUS_ERROR("Receive non binary frame ...");
 		disconnect(true);
 		return;
 	}
-	dataRaw->composeWith(_frame);
+	ememory::SharedPtr<zeus::Buffer> dataRaw = zeus::Buffer::create(_frame);
 	newBuffer(dataRaw);
 }
 
@@ -197,7 +195,7 @@ void zeus::WebServer::ping() {
 }
 
 void zeus::WebServer::newBuffer(const ememory::SharedPtr<zeus::Buffer>& _buffer) {
-	ZEUS_VERBOSE("Receive :" << *_buffer);
+	ZEUS_VERBOSE("Receive :" << _buffer);
 	zeus::FutureBase future;
 	uint64_t tid = _buffer->getTransactionId();
 	if (tid == 0) {
@@ -306,8 +304,7 @@ zeus::FutureBase zeus::WebServer::callBinary(uint64_t _transactionId,
 	ZEUS_VERBOSE("Send [START] ");
 	if (isActive() == false) {
 		ZEUS_ERROR("Send [STOP] ==> not connected (no TCP)");
-		ememory::SharedPtr<zeus::Buffer> obj = zeus::Buffer::create();
-		obj->setType(zeus::Buffer::typeMessage::answer);
+		ememory::SharedPtr<zeus::BufferAnswer> obj = zeus::BufferAnswer::create();
 		obj->addError("NOT-CONNECTED", "Client interface not connected (no TCP)");
 		return zeus::FutureBase(_transactionId, obj, _callback);
 	}
@@ -330,8 +327,7 @@ zeus::FutureBase zeus::WebServer::callForward(uint32_t _clientId,
 	//ret.setSynchronous();
 	
 	if (isActive() == false) {
-		ememory::SharedPtr<zeus::Buffer> obj = zeus::Buffer::create();
-		obj->setType(zeus::Buffer::typeMessage::answer);
+		ememory::SharedPtr<zeus::BufferAnswer> obj = zeus::BufferAnswer::create();
 		obj->addError("NOT-CONNECTED", "Client interface not connected (no TCP)");
 		return zeus::FutureBase(0, obj, _callback);
 	}
@@ -371,11 +367,10 @@ void zeus::WebServer::callForwardMultiple(uint32_t _clientId,
 }
 
 void zeus::WebServer::answerError(uint64_t _clientTransactionId, const std::string& _errorValue, const std::string& _errorHelp, uint32_t _clientId) {
-	ememory::SharedPtr<zeus::Buffer> answer = zeus::Buffer::create();
+	ememory::SharedPtr<zeus::BufferAnswer> answer = zeus::BufferAnswer::create();
 	if (answer == nullptr) {
 		return;
 	}
-	answer->setType(zeus::Buffer::typeMessage::answer);
 	answer->setTransactionId(_clientTransactionId);
 	answer->setClientId(_clientId);
 	answer->addError(_errorValue, _errorHelp);
@@ -384,11 +379,10 @@ void zeus::WebServer::answerError(uint64_t _clientTransactionId, const std::stri
 
 
 void zeus::WebServer::answerVoid(uint64_t _clientTransactionId, uint32_t _clientId) {
-	ememory::SharedPtr<zeus::Buffer> answer = zeus::Buffer::create();
+	ememory::SharedPtr<zeus::BufferAnswer> answer = zeus::BufferAnswer::create();
 	if (answer == nullptr) {
 		return;
 	}
-	answer->setType(zeus::Buffer::typeMessage::answer);
 	answer->setTransactionId(_clientTransactionId);
 	answer->setClientId(_clientId);
 	answer->addParameter();

@@ -17,8 +17,10 @@ namespace zeus {
 
 
 namespace zeus {
+	class BufferData;
 	//U32 message lenght
 	#pragma pack(push,1)
+	/*
 	struct headerBin {
 		//uint16_t versionProtocol; // protocol Version (might be 1)
 		uint32_t transactionID;
@@ -26,6 +28,16 @@ namespace zeus {
 		int16_t partID; // if < 0 the partId ifs the last (start at 0 if multiple or 0x8000 if single message)
 		uint16_t typeMessage; //TypeMessgae (1:call, 2:Answer, 4:event)
 		uint16_t numberOfParameter;
+	};
+	*/
+	struct headerBin {
+		//uint16_t versionProtocol; // protocol Version (might be 1)
+		uint32_t transactionID;
+		uint32_t clientID; // same as sevice ID
+		uint8_t flags; // List of flags & type message:
+		               //    - 0-2: Type of the message
+		               //    - 3-6: Reserved
+		               //    - 7: message finished
 	};
 	#pragma pack(pop)
 	/*
@@ -89,11 +101,13 @@ namespace zeus {
 	    - vector:string
 	    - obj:file
 	*/
+	#define ZEUS_BUFFER_FLAG_FINISH (0x80)
+	#define ZEUS_BUFFER_FLAG_TYPE_MESSAGE (0x07)
 	/**
 	 * @brief Protocol buffer to transmit datas
 	 */
 	class Buffer {
-		friend std::ostream& operator<<(std::ostream&, const zeus::Buffer&);
+		friend std::ostream& operator<<(std::ostream&, zeus::Buffer*);
 		protected:
 			/**
 			 * @brief basic constructor (hidden to force the use of ememory::SharedPtr) @ref zeus::Buffer::create
@@ -101,13 +115,22 @@ namespace zeus {
 			Buffer();
 		public:
 			/**
+			 * Virtualize the buffer class
+			 */
+			virtual ~Buffer() = default;
+			/**
 			 * @brief Create a shared pointer on the buffer
 			 * @return Allocated Buffer.
 			 */
 			static ememory::SharedPtr<zeus::Buffer> create();
+			/**
+			 * @brief Create a shared pointer on the buffer
+			 * @param[in] _buffer Buffer on the data
+			 * @return Allocated Buffer.
+			 */
+			static ememory::SharedPtr<zeus::Buffer> create(const std::vector<uint8_t>& _buffer);
 		protected:
 			headerBin m_header; //!< header of the protocol
-			mutable std::vector<std::pair<int32_t,std::vector<uint8_t>>> m_parameter; //!< list of the parameter (offset of start data and buffer of data (subprotocol...)
 			std::vector<zeus::ActionAsyncClient> m_multipleSend; //!< Async element to send data on the webinterface when too big ...
 		public:
 			/**
@@ -128,20 +151,16 @@ namespace zeus {
 			 * @brief When multiple frame buffer, they need to concatenate the data... call this function with the new data to append it ...
 			 * @param[in] _obj Buffer to add
 			 */
-			void appendBufferData(const ememory::SharedPtr<zeus::Buffer>& _obj);
+			void appendBuffer(const ememory::SharedPtr<zeus::Buffer>& _obj);
+			virtual void appendBufferData(const ememory::SharedPtr<zeus::BufferData>& _obj);
 		protected:
 			/**
 			 * @brief When receive new data form websocket, it might be added by this input (set all the frame ...)
 			 * @param[in] _buffer Pointer on the data to add.
 			 * @param[in] _lenght number of octet to add.
 			 */
-			void internalComposeWith(const uint8_t* _buffer, uint32_t _lenght);
+			virtual void composeWith(const uint8_t* _buffer, uint32_t _lenght);
 		public:
-			/**
-			 * @brief When receive new data form websocket, it might be added by this input.
-			 * @param[in] _buffer Buffer on the data
-			 */
-			void composeWith(const std::vector<uint8_t>& _buffer);
 			/**
 			 * @brief Chear the buffer
 			 */
@@ -181,16 +200,6 @@ namespace zeus {
 				setClientId(_value);
 			}
 			/**
-			 * @brief Get the part Id of the buffer
-			 * @return Part Identifier
-			 */
-			uint16_t getPartId() const;
-			/**
-			 * @brief Set the part Id of the buffer
-			 * @param[in] _value New Part ID
-			 */
-			void setPartId(uint16_t _value);
-			/**
 			 * @brief Check if it is the last packet of the buffer
 			 * @return If "true" The Buffer wait no more datas
 			 */
@@ -214,63 +223,29 @@ namespace zeus {
 			 * @brief Get the type of the buffer
 			 * @return the current type of the buffer
 			 */
-			enum typeMessage getType() const;
+			virtual enum typeMessage getType() const;
+		public:
 			/**
-			 * @brief Set the type of the buffer
-			 * @param[in] _value New type of the buffer
+			 * @brief Write the buffer on a specific interface
+			 * @param[in] _interface socket to write data
+			 * @return true of no error appear
 			 */
-			void setType(enum typeMessage _value);
+			virtual bool writeOn(enet::WebSocket& _interface);
+			virtual size_t getSize();
+			virtual void generateDisplay(std::ostream& _os) const ;
+	};
+	class BufferParameter:
+	  public Buffer {
 		protected:
+			mutable std::vector<std::pair<int32_t,std::vector<uint8_t>>> m_parameter; //!< list of the parameter (offset of start data and buffer of data (subprotocol...)
+		public:
 			/**
 			 * @brief Template to get a parameter with a specific type
 			 * @param[in] _id Number of the parameter
 			 * @return Converted type of the parameter (or empty value)
 			 */
 			template<class ZEUS_TYPE_DATA>
-			ZEUS_TYPE_DATA internalGetParameter(int32_t _id) const;
-			/**
-			 * @brief Get the type of a parameter.
-			 * @param[in] _id Number of the parameter
-			 * @return type of the parameter
-			 */
-			zeus::ParamType internalGetParameterType(int32_t _id) const;
-			/**
-			 * @brief Get the start pointer of the parameter
-			 * @param[in] _id Number of the parameter
-			 * @return pointer of the parameter or nullptr
-			 */
-			const uint8_t* internalGetParameterPointer(int32_t _id) const;
-			/**
-			 * @brief Get the size of the parameter availlable in the parameter pointer
-			 * @param[in] _id Number of the parameter
-			 * @return size of the parameter buffer
-			 */
-			uint32_t internalGetParameterSize(int32_t _id) const;
-			/**
-			 * @brief Convert the parameter in a simple human readable string
-			 * @param[in] _id Number of the parameter
-			 * @return readable string
-			 */
-			std::string simpleStringParam(uint32_t _id) const;
-		// ===============================================
-		// == Section call
-		// ===============================================
-		public:
-			/**
-			 * @brief get the call value of the buffer
-			 * @return string of the function to call
-			 */
-			std::string getCall() const;
-			/**
-			 * @brief Set the call value of the buffer
-			 * @param[in] _value Function to call
-			 */
-			void setCall(std::string _value);
-			/**
-			 * @brief Get the number of parameter availlable
-			 * @return number of parameter
-			 */
-			uint16_t getNumberParameter() const;
+			ZEUS_TYPE_DATA getParameter(int32_t _id) const;
 			/**
 			 * @brief Get the type of a parameter.
 			 * @param[in] _id Number of the parameter
@@ -289,24 +264,11 @@ namespace zeus {
 			 * @return size of the parameter buffer
 			 */
 			uint32_t getParameterSize(int32_t _id) const;
-			
-		protected:
 			/**
-			 * @brief Add a parameter at a specific position
-			 * @param[in] _paramId Id of the parameter (needed for the multiple packet sending)
-			 * @param[in] _value Value to add in parameter
+			 * @brief Get the number of parameter availlable
+			 * @return number of parameter
 			 */
-			template<class ZEUS_TYPE_DATA>
-			void internalAddParameter(uint16_t _paramId, const ZEUS_TYPE_DATA& _value);
-		public:
-			/**
-			 * @brief Add a parameter on the call function
-			 * @param[in] _value Value to add in parameter
-			 */
-			template<class ZEUS_TYPE_DATA>
-			void addParameter(const ZEUS_TYPE_DATA& _value) {
-				internalAddParameter<ZEUS_TYPE_DATA>(m_parameter.size(), _value);
-			}
+			uint16_t getNumberParameter() const;
 			/**
 			 * @brief Add an empty vector with no type
 			 */
@@ -316,18 +278,101 @@ namespace zeus {
 			 */
 			void addParameter();
 			/**
-			 * @brief Template to get a parameter with a specific type
+			 * @brief Convert the parameter in a simple human readable string
 			 * @param[in] _id Number of the parameter
-			 * @return Converted type of the parameter (or empty value)
+			 * @return readable string
+			 */
+			std::string simpleStringParam(uint32_t _id) const;
+			/**
+			 * @brief When receive new data form websocket, it might be added by this input (set all the frame ...)
+			 * @param[in] _buffer Pointer on the data to add.
+			 * @param[in] _lenght number of octet to add.
+			 */
+			void parameterComposeWith(const uint8_t* _buffer, uint32_t _lenght);
+			bool parameterWriteOn(enet::WebSocket& _interface);
+			size_t parameterGetSize();
+		protected:
+			/**
+			 * @brief Add a parameter at a specific position
+			 * @param[in] _paramId Id of the parameter (needed for the multiple packet sending)
+			 * @param[in] _value Value to add in parameter
 			 */
 			template<class ZEUS_TYPE_DATA>
-			ZEUS_TYPE_DATA getParameter(int32_t _id) const {
-				return internalGetParameter<ZEUS_TYPE_DATA>(_id+1);
-			}
-		// ===============================================
-		// == Section Answer
-		// ===============================================
+			void addParameter(uint16_t _paramId, const ZEUS_TYPE_DATA& _value);
 		public:
+			template<class ZEUS_TYPE_DATA>
+			void addParameter(const ZEUS_TYPE_DATA& _value) {
+				addParameter(m_parameter.size(), _value);
+			}
+			void parameterAppendBufferData(const ememory::SharedPtr<zeus::BufferData>& _obj);
+	};
+	class BufferCall :
+	  public BufferParameter {
+		friend class zeus::Buffer;
+		protected:
+			std::string m_callName;
+		protected:
+			/**
+			 * @brief basic constructor (hidden to force the use of ememory::SharedPtr) @ref zeus::BufferCall::create
+			 */
+			BufferCall() {
+				m_header.flags = ZEUS_BUFFER_FLAG_FINISH + uint8_t(zeus::Buffer::typeMessage::call);
+			};
+			void composeWith(const uint8_t* _buffer, uint32_t _lenght) override;
+			void appendBufferData(const ememory::SharedPtr<zeus::BufferData>& _obj) override;
+			bool writeOn(enet::WebSocket& _interface) override;
+			size_t getSize() override;
+			void generateDisplay(std::ostream& _os) const override;
+		public:
+			/**
+			 * @brief Create a shared pointer on the BufferCall
+			 * @return Allocated Buffer.
+			 */
+			static ememory::SharedPtr<zeus::BufferCall> create();
+		public:
+			enum zeus::Buffer::typeMessage getType() const override {
+				return zeus::Buffer::typeMessage::call;
+			}
+			/**
+			 * @brief get the call value of the buffer
+			 * @return string of the function to call
+			 */
+			const std::string& getCall() const;
+			/**
+			 * @brief Set the call value of the buffer
+			 * @param[in] _value Function to call
+			 */
+			void setCall(const std::string& _value);
+			
+	};
+	class BufferAnswer :
+	  public BufferParameter {
+		friend class zeus::Buffer;
+		protected:
+			std::string m_errorType;
+			std::string m_errorHelp;
+		protected:
+			/**
+			 * @brief basic constructor (hidden to force the use of ememory::SharedPtr) @ref zeus::BufferAnswer::create
+			 */
+			BufferAnswer() {
+				m_header.flags = ZEUS_BUFFER_FLAG_FINISH + uint8_t(zeus::Buffer::typeMessage::answer);
+			};
+			void composeWith(const uint8_t* _buffer, uint32_t _lenght) override;
+			void appendBufferData(const ememory::SharedPtr<zeus::BufferData>& _obj) override;
+			bool writeOn(enet::WebSocket& _interface) override;
+			size_t getSize() override;
+			void generateDisplay(std::ostream& _os) const override;
+		public:
+			/**
+			 * @brief Create a shared pointer on the BufferAnswer
+			 * @return Allocated Buffer.
+			 */
+			static ememory::SharedPtr<zeus::BufferAnswer> create();
+		public:
+			enum zeus::Buffer::typeMessage getType() const override {
+				return zeus::Buffer::typeMessage::answer;
+			}
 			/**
 			 * @brief set the answer of the call
 			 * @param[in] _value Value to add
@@ -343,7 +388,7 @@ namespace zeus {
 			// TODO : Do it better check error ... ==> can be good ...
 			template<class ZEUS_TYPE_DATA>
 			ZEUS_TYPE_DATA getAnswer() const {
-				return internalGetParameter<ZEUS_TYPE_DATA>(0);
+				return getParameter<ZEUS_TYPE_DATA>(0);
 			}
 			/**
 			 * @brief Ann an error on the message answer
@@ -360,14 +405,60 @@ namespace zeus {
 			 * @brief get the error value (if exist)
 			 * @return string of the error
 			 */
-			std::string getError();
+			const std::string& getError();
 			/**
 			 * @brief get the error help (if exist)
 			 * @return string of the error help
 			 */
-			std::string getErrorHelp();
-		
+			const std::string& getErrorHelp();
+	};
+	class BufferData:
+	  public Buffer {
+		friend class zeus::Buffer;
+		protected:
+			uint32_t m_partId;
+			uint16_t m_parameterId;
+			std::vector<uint8_t> m_data;
+		protected:
+			/**
+			 * @brief basic constructor (hidden to force the use of ememory::SharedPtr) @ref zeus::BufferData::create
+			 */
+			BufferData():
+			  m_partId(0) {
+				m_header.flags = ZEUS_BUFFER_FLAG_FINISH + uint8_t(zeus::Buffer::typeMessage::data);
+			};
+			void composeWith(const uint8_t* _buffer, uint32_t _lenght) override;
+			// TODO :... void appendBufferData(const ememory::SharedPtr<zeus::BufferData>& _obj) override;
+			bool writeOn(enet::WebSocket& _interface) override;
+			size_t getSize() override;
+			void generateDisplay(std::ostream& _os) const override;
 		public:
+			/**
+			 * @brief Create a shared pointer on the BufferData
+			 * @return Allocated Buffer.
+			 */
+			static ememory::SharedPtr<zeus::BufferData> create();
+		public:
+			enum zeus::Buffer::typeMessage getType() const override {
+				return zeus::Buffer::typeMessage::data;
+			}
+			/**
+			 * @brief Get the parameter Id of the buffer
+			 * @return Part Identifier
+			 */
+			uint16_t getParameterId() const {
+				return m_parameterId;
+			}
+			/**
+			 * @brief Get the part Id of the buffer
+			 * @return Part Identifier
+			 */
+			uint32_t getPartId() const;
+			/**
+			 * @brief Set the part Id of the buffer
+			 * @param[in] _value New Part ID
+			 */
+			void setPartId(uint32_t _value);
 			/**
 			 * @brief add a raw data on the buffer
 			 * @param[in] _parameterId Parameter id of the destination of the data
@@ -376,12 +467,62 @@ namespace zeus {
 			 */
 			void addData(uint16_t _parameterId, void* _data, uint32_t _size);
 			/**
-			 * @brief Write the buffer on a specific interface
-			 * @param[in] _interface socket to write data
-			 * @return true of no error appear
+			 * @brief Get data reference
 			 */
-			bool writeOn(enet::WebSocket& _interface);
+			const std::vector<uint8_t>& getData() const {
+				return m_data;
+			}
+			
 	};
+	/*
+	class BufferEvent :
+	  public BufferParameter {
+		friend class zeus::Buffer;
+		protected:
+			/ **
+			 * @brief basic constructor (hidden to force the use of ememory::SharedPtr) @ref zeus::BufferEvent::create
+			 * /
+			BufferEvent() {
+				m_header.flags = ZEUS_BUFFER_FLAG_FINISH + uint8_t(zeus::Buffer::typeMessage::event);
+			};
+			void composeWith(const uint8_t* _buffer, uint32_t _lenght) override;
+			void appendBufferData(const ememory::SharedPtr<zeus::BufferData>& _obj) override;
+		public:
+			/ **
+			 * @brief Create a shared pointer on the BufferEvent
+			 * @return Allocated Buffer.
+			 * /
+			static ememory::SharedPtr<zeus::BufferEvent> create();
+		public:
+			enum zeus::Buffer::typeMessage getType() const override {
+				return zeus::Buffer::typeMessage::event;
+			}
+			
+	};
+	class BufferFlow:
+	  public Buffer {
+		friend class zeus::Buffer;
+		protected:
+			/ **
+			 * @brief basic constructor (hidden to force the use of ememory::SharedPtr) @ref zeus::BufferFlow::create
+			 * /
+			BufferFlow() {
+				m_header.flags = ZEUS_BUFFER_FLAG_FINISH + uint8_t(zeus::Buffer::typeMessage::flow);
+			};
+			void composeWith(const uint8_t* _buffer, uint32_t _lenght) override;
+		public:
+			/ **
+			 * @brief Create a shared pointer on the BufferFlow
+			 * @return Allocated Buffer.
+			 * /
+			static ememory::SharedPtr<zeus::BufferFlow> create();
+		public:
+			enum zeus::Buffer::typeMessage getType() const override {
+				return zeus::Buffer::typeMessage::flow;
+			}
+			
+	};
+	*/
 	/**
 	 * @brief generate a display of the typemessage
 	 * @param[in] _os stream to add data
@@ -395,7 +536,7 @@ namespace zeus {
 	 * @value[in] _obj Buffer to display
 	 * @return a reference of the stream
 	 */
-	std::ostream& operator <<(std::ostream& _os, const zeus::Buffer& _obj);
+	std::ostream& operator <<(std::ostream& _os, zeus::Buffer* _obj);
 	
 	// internal:
 	/**

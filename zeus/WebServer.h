@@ -17,14 +17,14 @@ namespace zeus {
 	 * @param[in] 
 	 * @return 
 	 */
-	ememory::SharedPtr<zeus::Buffer> createBaseCall(uint64_t _transactionId, const std::string& _functionName, const uint32_t& _serviceId=0);
+	ememory::SharedPtr<zeus::BufferCall> createBaseCall(uint64_t _transactionId, const std::string& _functionName, const uint32_t& _serviceId=0);
 	/**
 	 * @brief 
 	 * @param[in] 
 	 * @return 
 	 */
 	void createParam(int32_t _paramId,
-	                       const ememory::SharedPtr<zeus::Buffer>& _obj);
+	                 const ememory::SharedPtr<zeus::BufferCall>& _obj);
 	
 	/**
 	 * @brief 
@@ -33,9 +33,9 @@ namespace zeus {
 	 */
 	template<class ZEUS_TYPE, class... _ARGS>
 	void createParam(int32_t _paramId,
-	                       const ememory::SharedPtr<zeus::Buffer>& _obj,
-	                       const ZEUS_TYPE& _param,
-	                       _ARGS&&... _args) {
+	                 const ememory::SharedPtr<zeus::BufferCall>& _obj,
+	                 const ZEUS_TYPE& _param,
+	                 _ARGS&&... _args) {
 		_obj->addParameter<ZEUS_TYPE>(_param);
 		_paramId++;
 		createParam(_paramId, _obj, std::forward<_ARGS>(_args)...);
@@ -48,9 +48,9 @@ namespace zeus {
 	// convert const char in std::string ...
 	template<class... _ARGS>
 	void createParam(int32_t _paramId,
-	                       const ememory::SharedPtr<zeus::Buffer>& _obj,
-	                       const char* _param,
-	                       _ARGS&&... _args) {
+	                 const ememory::SharedPtr<zeus::BufferCall>& _obj,
+	                 const char* _param,
+	                 _ARGS&&... _args) {
 		createParam(_paramId, _obj, std::string(_param), std::forward<_ARGS>(_args)...);
 	}
 	
@@ -60,8 +60,8 @@ namespace zeus {
 	 * @return 
 	 */
 	template<class... _ARGS>
-	ememory::SharedPtr<zeus::Buffer> createCall(uint64_t _transactionId, const std::string& _functionName, _ARGS&&... _args) {
-		ememory::SharedPtr<zeus::Buffer> callElem = createBaseCall(_transactionId, _functionName);
+	ememory::SharedPtr<zeus::BufferCall> createCall(uint64_t _transactionId, const std::string& _functionName, _ARGS&&... _args) {
+		ememory::SharedPtr<zeus::BufferCall> callElem = createBaseCall(_transactionId, _functionName);
 		if (callElem == nullptr) {
 			return nullptr;
 		}
@@ -74,8 +74,8 @@ namespace zeus {
 	 * @return 
 	 */
 	template<class... _ARGS>
-	ememory::SharedPtr<zeus::Buffer> createCallService(uint64_t _transactionId, const uint32_t& _serviceName, const std::string& _functionName, _ARGS&&... _args) {
-		ememory::SharedPtr<zeus::Buffer> callElem = createBaseCall(_transactionId, _functionName, _serviceName);
+	ememory::SharedPtr<zeus::BufferCall> createCallService(uint64_t _transactionId, const uint32_t& _serviceName, const std::string& _functionName, _ARGS&&... _args) {
+		ememory::SharedPtr<zeus::BufferCall> callElem = createBaseCall(_transactionId, _functionName, _serviceName);
 		if (callElem == nullptr) {
 			return nullptr;
 		}
@@ -245,7 +245,7 @@ namespace zeus {
 			template<class... _ARGS>
 			zeus::FutureBase call(const std::string& _functionName, _ARGS&&... _args) {
 				uint16_t id = getId();
-				ememory::SharedPtr<zeus::Buffer> callElem = zeus::createCall(id, _functionName, std::forward<_ARGS>(_args)...);
+				ememory::SharedPtr<zeus::BufferCall> callElem = zeus::createCall(id, _functionName, std::forward<_ARGS>(_args)...);
 				return callBinary(id, callElem);
 			}
 			/**
@@ -256,7 +256,7 @@ namespace zeus {
 			template<class... _ARGS>
 			zeus::FutureBase callAction(const std::string& _functionName, _ARGS&&... _args, zeus::FutureData::ObserverFinish _callback) {
 				uint16_t id = getId();
-				ememory::SharedPtr<zeus::Buffer> callElem = zeus::createCall(id, _functionName, std::forward<_ARGS>(_args)...);
+				ememory::SharedPtr<zeus::BufferCall> callElem = zeus::createCall(id, _functionName, std::forward<_ARGS>(_args)...);
 				return callBinary(id, callElem, _callback);
 			}
 		public: // section call with service ID / Client ID
@@ -269,7 +269,7 @@ namespace zeus {
 			template<class... _ARGS>
 			zeus::FutureBase callService(uint32_t _serviceId, const std::string& _functionName, _ARGS&&... _args) {
 				uint16_t id = getId();
-				ememory::SharedPtr<zeus::Buffer> callElem = zeus::createCallService(id, _serviceId, _functionName, std::forward<_ARGS>(_args)...);
+				ememory::SharedPtr<zeus::BufferCall> callElem = zeus::createCallService(id, _serviceId, _functionName, std::forward<_ARGS>(_args)...);
 				return callBinary(id, callElem);
 			}
 			/**
@@ -280,7 +280,7 @@ namespace zeus {
 			template<class... _ARGS>
 			zeus::FutureBase callServiceAction(uint32_t _serviceId, const std::string& _functionName, _ARGS&&... _args, zeus::FutureData::ObserverFinish _callback) {
 				uint16_t id = getId();
-				ememory::SharedPtr<zeus::Buffer> callElem = zeus::createCallService(id, _serviceId, _functionName, std::forward<_ARGS>(_args)...);
+				ememory::SharedPtr<zeus::BufferCall> callElem = zeus::createCallService(id, _serviceId, _functionName, std::forward<_ARGS>(_args)...);
 				return callBinary(id, callElem, _callback);
 			}
 			/**
@@ -290,8 +290,8 @@ namespace zeus {
 			 */
 			template<class... _ARGS>
 			zeus::FutureBase callClient(uint32_t _clientId,
-			                           const std::string& _functionName,
-			                           _ARGS&&... _args) {
+			                            const std::string& _functionName,
+			                            _ARGS&&... _args) {
 				return callService(_clientId, _functionName, _args...);
 			}
 			/**
@@ -301,9 +301,9 @@ namespace zeus {
 			 */
 			template<class... _ARGS>
 			zeus::FutureBase callClientAction(uint32_t _clientId,
-			                                 const std::string& _functionName,
-			                                 _ARGS&&... _args,
-			                                 zeus::FutureData::ObserverFinish _callback) {
+			                                  const std::string& _functionName,
+			                                  _ARGS&&... _args,
+			                                  zeus::FutureData::ObserverFinish _callback) {
 				return callServiceAction(_clientId, _functionName, _args..., _callback);
 			}
 			/**
@@ -312,9 +312,9 @@ namespace zeus {
 			 * @return 
 			 */
 			zeus::FutureBase callForward(uint32_t _clientId,
-			                            const ememory::SharedPtr<zeus::Buffer>& _Buffer,
-			                            uint64_t _singleReferenceId,
-			                            zeus::FutureData::ObserverFinish _callback);
+			                             const ememory::SharedPtr<zeus::Buffer>& _Buffer,
+			                             uint64_t _singleReferenceId,
+			                             zeus::FutureData::ObserverFinish _callback);
 			/**
 			 * @brief 
 			 * @param[in] 
@@ -338,8 +338,7 @@ namespace zeus {
 			 */
 			template<class ZEUS_ARG>
 			void answerValue(uint64_t _clientTransactionId, ZEUS_ARG _value, uint32_t _clientId=0) {
-				ememory::SharedPtr<zeus::Buffer> answer = zeus::Buffer::create();
-				answer->setType(zeus::Buffer::typeMessage::answer);
+				ememory::SharedPtr<zeus::BufferAnswer> answer = zeus::BufferAnswer::create();
 				answer->setTransactionId(_clientTransactionId);
 				answer->setClientId(_clientId);
 				answer->addAnswer(_value);

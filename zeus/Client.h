@@ -104,7 +104,7 @@ namespace zeus {
 			template<class... _ARGS>
 			zeus::FutureBase call(const std::string& _functionName, _ARGS&&... _args) {
 				if (m_interfaceClient == nullptr) {
-					ememory::SharedPtr<zeus::Buffer> ret = zeus::Buffer::create();
+					ememory::SharedPtr<zeus::BufferAnswer> ret = zeus::BufferAnswer::create();
 					ret->addError("NULLPTR", "call " + _functionName + " with no interface open");
 					return zeus::FutureBase(0, ret);
 				}
@@ -120,7 +120,7 @@ namespace zeus {
 			template<class... _ARGS>
 			zeus::FutureBase callAction(const std::string& _functionName, _ARGS&&... _args, zeus::FutureData::ObserverFinish _callback) {
 				if (m_interfaceClient == nullptr) {
-					ememory::SharedPtr<zeus::Buffer> ret = zeus::Buffer::create();
+					ememory::SharedPtr<zeus::BufferAnswer> ret = zeus::BufferAnswer::create();
 					ret->addError("NULLPTR", "call " + _functionName + " with no interface open");
 					return zeus::FutureBase(0, ret, _callback);
 				}

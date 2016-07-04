@@ -82,7 +82,7 @@ bool zeus::FutureBase::appendData(const ememory::SharedPtr<zeus::Buffer>& _value
 	}
 	if (_value->getType() == zeus::Buffer::typeMessage::data) {
 		if (m_data->m_returnData != nullptr) {
-			m_data->m_returnData->appendBufferData(_value);
+			m_data->m_returnData->appendBuffer(_value);
 		}
 	} else {
 		m_data->m_returnData = _value;
@@ -120,10 +120,14 @@ uint32_t zeus::FutureBase::getClientId() const {
 }
 
 bool zeus::FutureBase::hasError() const {
-	if (m_data == nullptr) {
+	if (    m_data == nullptr
+	     || m_data->m_returnData == nullptr) {
 		return true;
 	}
-	return m_data->m_returnData->hasError();
+	if (m_data->m_returnData->getType() == zeus::Buffer::typeMessage::answer) {
+		return true;
+	}
+	return static_cast<zeus::BufferAnswer*>(m_data->m_returnData.get())->hasError();
 }
 
 std::string zeus::FutureBase::getErrorType() const {
@@ -131,15 +135,21 @@ std::string zeus::FutureBase::getErrorType() const {
 	     || m_data->m_returnData == nullptr) {
 		return "NULL_PTR";
 	}
-	return m_data->m_returnData->getError();
+	if (m_data->m_returnData->getType() == zeus::Buffer::typeMessage::answer) {
+		return "NOT_ANSWER_MESSAGE";
+	}
+	return static_cast<zeus::BufferAnswer*>(m_data->m_returnData.get())->getError();
 }
 
 std::string zeus::FutureBase::getErrorHelp() const {
 	if (    m_data == nullptr
 	     || m_data->m_returnData == nullptr) {
-		return "Thsi is a nullptr future";
+		return "This is a nullptr future";
 	}
-	return m_data->m_returnData->getErrorHelp();
+	if (m_data->m_returnData->getType() == zeus::Buffer::typeMessage::answer) {
+		return "This answer is not a anwser type";
+	}
+	return static_cast<zeus::BufferAnswer*>(m_data->m_returnData.get())->getErrorHelp();
 }
 
 bool zeus::FutureBase::isValid() const {

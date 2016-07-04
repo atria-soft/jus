@@ -12,10 +12,10 @@
 #include <climits>
 namespace zeus {
 	template<>
-	bool Buffer::internalGetParameter<bool>(int32_t _id) const {
-		zeus::ParamType type = internalGetParameterType(_id);
-		const uint8_t* pointer = internalGetParameterPointer(_id);
-		uint32_t dataSize = internalGetParameterSize(_id);
+	bool BufferParameter::getParameter<bool>(int32_t _id) const {
+		zeus::ParamType type = getParameterType(_id);
+		const uint8_t* pointer = getParameterPointer(_id);
+		uint32_t dataSize = getParameterSize(_id);
 		if (createType<bool>() != type) {
 			return 0;
 		}
@@ -29,11 +29,11 @@ namespace zeus {
 	}
 	
 	template<>
-	std::string Buffer::internalGetParameter<std::string>(int32_t _id) const {
+	std::string BufferParameter::getParameter<std::string>(int32_t _id) const {
 		std::string out;
-		zeus::ParamType type = internalGetParameterType(_id);
-		const uint8_t* pointer = internalGetParameterPointer(_id);
-		uint32_t dataSize = internalGetParameterSize(_id);
+		zeus::ParamType type = getParameterType(_id);
+		const uint8_t* pointer = getParameterPointer(_id);
+		uint32_t dataSize = getParameterSize(_id);
 		out.resize(dataSize, 0);
 		memcpy(&out[0], pointer, out.size());
 		return out;
@@ -41,10 +41,10 @@ namespace zeus {
 	
 	
 	template<>
-	uint8_t Buffer::internalGetParameter<uint8_t>(int32_t _id) const {
-		zeus::ParamType type = internalGetParameterType(_id);
-		const uint8_t* pointer = internalGetParameterPointer(_id);
-		uint32_t dataSize = internalGetParameterSize(_id);
+	uint8_t BufferParameter::getParameter<uint8_t>(int32_t _id) const {
+		zeus::ParamType type = getParameterType(_id);
+		const uint8_t* pointer = getParameterPointer(_id);
+		uint32_t dataSize = getParameterSize(_id);
 		// TODO : Check size ...
 		if (createType<uint8_t>() == type) {
 			const uint8_t* tmp = reinterpret_cast<const uint8_t*>(pointer);
@@ -81,10 +81,10 @@ namespace zeus {
 		return 0;
 	}
 	template<>
-	uint16_t Buffer::internalGetParameter<uint16_t>(int32_t _id) const {
-		zeus::ParamType type = internalGetParameterType(_id);
-		const uint8_t* pointer = internalGetParameterPointer(_id);
-		uint32_t dataSize = internalGetParameterSize(_id);
+	uint16_t BufferParameter::getParameter<uint16_t>(int32_t _id) const {
+		zeus::ParamType type = getParameterType(_id);
+		const uint8_t* pointer = getParameterPointer(_id);
+		uint32_t dataSize = getParameterSize(_id);
 		// TODO : Check size ...
 		if (createType<uint8_t>() == type) {
 			const uint8_t* tmp = reinterpret_cast<const uint8_t*>(pointer);
@@ -122,10 +122,10 @@ namespace zeus {
 	}
 	
 	template<>
-	uint32_t Buffer::internalGetParameter<uint32_t>(int32_t _id) const {
-		zeus::ParamType type = internalGetParameterType(_id);
-		const uint8_t* pointer = internalGetParameterPointer(_id);
-		uint32_t dataSize = internalGetParameterSize(_id);
+	uint32_t BufferParameter::getParameter<uint32_t>(int32_t _id) const {
+		zeus::ParamType type = getParameterType(_id);
+		const uint8_t* pointer = getParameterPointer(_id);
+		uint32_t dataSize = getParameterSize(_id);
 		// TODO : Check size ...
 		if (createType<uint8_t>() == type) {
 			const uint8_t* tmp = reinterpret_cast<const uint8_t*>(pointer);
@@ -163,10 +163,10 @@ namespace zeus {
 	}
 	
 	template<>
-	uint64_t Buffer::internalGetParameter<uint64_t>(int32_t _id) const {
-		zeus::ParamType type = internalGetParameterType(_id);
-		const uint8_t* pointer = internalGetParameterPointer(_id);
-		uint32_t dataSize = internalGetParameterSize(_id);
+	uint64_t BufferParameter::getParameter<uint64_t>(int32_t _id) const {
+		zeus::ParamType type = getParameterType(_id);
+		const uint8_t* pointer = getParameterPointer(_id);
+		uint32_t dataSize = getParameterSize(_id);
 		// TODO : Check size ...
 		if (createType<uint8_t>() == type) {
 			const uint8_t* tmp = reinterpret_cast<const uint8_t*>(pointer);
@@ -204,10 +204,10 @@ namespace zeus {
 	}
 	
 	template<>
-	int8_t Buffer::internalGetParameter<int8_t>(int32_t _id) const {
-		zeus::ParamType type = internalGetParameterType(_id);
-		const uint8_t* pointer = internalGetParameterPointer(_id);
-		uint32_t dataSize = internalGetParameterSize(_id);
+	int8_t BufferParameter::getParameter<int8_t>(int32_t _id) const {
+		zeus::ParamType type = getParameterType(_id);
+		const uint8_t* pointer = getParameterPointer(_id);
+		uint32_t dataSize = getParameterSize(_id);
 		// TODO : Check size ...
 		if (createType<uint8_t>() == type) {
 			const uint8_t* tmp = reinterpret_cast<const uint8_t*>(pointer);
@@ -245,10 +245,10 @@ namespace zeus {
 	}
 	
 	template<>
-	int16_t Buffer::internalGetParameter<int16_t>(int32_t _id) const {
-		zeus::ParamType type = internalGetParameterType(_id);
-		const uint8_t* pointer = internalGetParameterPointer(_id);
-		uint32_t dataSize = internalGetParameterSize(_id);
+	int16_t BufferParameter::getParameter<int16_t>(int32_t _id) const {
+		zeus::ParamType type = getParameterType(_id);
+		const uint8_t* pointer = getParameterPointer(_id);
+		uint32_t dataSize = getParameterSize(_id);
 		// TODO : Check size ...
 		if (createType<uint8_t>() == type) {
 			const uint8_t* tmp = reinterpret_cast<const uint8_t*>(pointer);
@@ -286,10 +286,10 @@ namespace zeus {
 	}
 	
 	template<>
-	int32_t Buffer::internalGetParameter<int32_t>(int32_t _id) const {
-		zeus::ParamType type = internalGetParameterType(_id);
-		const uint8_t* pointer = internalGetParameterPointer(_id);
-		uint32_t dataSize = internalGetParameterSize(_id);
+	int32_t BufferParameter::getParameter<int32_t>(int32_t _id) const {
+		zeus::ParamType type = getParameterType(_id);
+		const uint8_t* pointer = getParameterPointer(_id);
+		uint32_t dataSize = getParameterSize(_id);
 		// TODO : Check size ...
 		if (createType<uint8_t>() == type) {
 			const uint8_t* tmp = reinterpret_cast<const uint8_t*>(pointer);
@@ -327,10 +327,10 @@ namespace zeus {
 	}
 	
 	template<>
-	int64_t Buffer::internalGetParameter<int64_t>(int32_t _id) const {
-		zeus::ParamType type = internalGetParameterType(_id);
-		const uint8_t* pointer = internalGetParameterPointer(_id);
-		uint32_t dataSize = internalGetParameterSize(_id);
+	int64_t BufferParameter::getParameter<int64_t>(int32_t _id) const {
+		zeus::ParamType type = getParameterType(_id);
+		const uint8_t* pointer = getParameterPointer(_id);
+		uint32_t dataSize = getParameterSize(_id);
 		// TODO : Check size ...
 		if (createType<uint8_t>() == type) {
 			const uint8_t* tmp = reinterpret_cast<const uint8_t*>(pointer);
@@ -368,10 +368,10 @@ namespace zeus {
 	}
 	
 	template<>
-	float Buffer::internalGetParameter<float>(int32_t _id) const {
-		zeus::ParamType type = internalGetParameterType(_id);
-		const uint8_t* pointer = internalGetParameterPointer(_id);
-		uint32_t dataSize = internalGetParameterSize(_id);
+	float BufferParameter::getParameter<float>(int32_t _id) const {
+		zeus::ParamType type = getParameterType(_id);
+		const uint8_t* pointer = getParameterPointer(_id);
+		uint32_t dataSize = getParameterSize(_id);
 		// TODO : Check size ...
 		if (createType<uint8_t>() == type) {
 			const uint8_t* tmp = reinterpret_cast<const uint8_t*>(pointer);
@@ -408,10 +408,10 @@ namespace zeus {
 		return 0.0f;
 	}
 	template<>
-	double Buffer::internalGetParameter<double>(int32_t _id) const {
-		zeus::ParamType type = internalGetParameterType(_id);
-		const uint8_t* pointer = internalGetParameterPointer(_id);
-		uint32_t dataSize = internalGetParameterSize(_id);
+	double BufferParameter::getParameter<double>(int32_t _id) const {
+		zeus::ParamType type = getParameterType(_id);
+		const uint8_t* pointer = getParameterPointer(_id);
+		uint32_t dataSize = getParameterSize(_id);
 		// TODO : Check size ...
 		if (createType<uint8_t>() == type) {
 			const uint8_t* tmp = reinterpret_cast<const uint8_t*>(pointer);
@@ -472,11 +472,11 @@ namespace zeus {
 	
 	
 	template<>
-	std::vector<uint8_t> Buffer::internalGetParameter<std::vector<uint8_t>>(int32_t _id) const {
+	std::vector<uint8_t> BufferParameter::getParameter<std::vector<uint8_t>>(int32_t _id) const {
 		std::vector<uint8_t> out;
-		zeus::ParamType type = internalGetParameterType(_id);
-		const uint8_t* pointer = internalGetParameterPointer(_id);
-		uint32_t dataSize = internalGetParameterSize(_id);
+		zeus::ParamType type = getParameterType(_id);
+		const uint8_t* pointer = getParameterPointer(_id);
+		uint32_t dataSize = getParameterSize(_id);
 		// TODO : Check size ...
 		if (type == createType<std::vector<void>>()) {
 			return out;
@@ -562,11 +562,11 @@ namespace zeus {
 		return out;
 	}
 	template<>
-	std::vector<uint16_t> Buffer::internalGetParameter<std::vector<uint16_t>>(int32_t _id) const {
+	std::vector<uint16_t> BufferParameter::getParameter<std::vector<uint16_t>>(int32_t _id) const {
 		std::vector<uint16_t> out;
-		zeus::ParamType type = internalGetParameterType(_id);
-		const uint8_t* pointer = internalGetParameterPointer(_id);
-		uint32_t dataSize = internalGetParameterSize(_id);
+		zeus::ParamType type = getParameterType(_id);
+		const uint8_t* pointer = getParameterPointer(_id);
+		uint32_t dataSize = getParameterSize(_id);
 		// TODO : Check size ...
 		if (type == createType<std::vector<void>>()) {
 			return out;
@@ -653,11 +653,11 @@ namespace zeus {
 	}
 	
 	template<>
-	std::vector<uint32_t> Buffer::internalGetParameter<std::vector<uint32_t>>(int32_t _id) const {
+	std::vector<uint32_t> BufferParameter::getParameter<std::vector<uint32_t>>(int32_t _id) const {
 		std::vector<uint32_t> out;
-		zeus::ParamType type = internalGetParameterType(_id);
-		const uint8_t* pointer = internalGetParameterPointer(_id);
-		uint32_t dataSize = internalGetParameterSize(_id);
+		zeus::ParamType type = getParameterType(_id);
+		const uint8_t* pointer = getParameterPointer(_id);
+		uint32_t dataSize = getParameterSize(_id);
 		// TODO : Check size ...
 		if (type == createType<std::vector<void>>()) {
 			return out;
@@ -744,11 +744,11 @@ namespace zeus {
 	}
 	
 	template<>
-	std::vector<uint64_t> Buffer::internalGetParameter<std::vector<uint64_t>>(int32_t _id) const {
+	std::vector<uint64_t> BufferParameter::getParameter<std::vector<uint64_t>>(int32_t _id) const {
 		std::vector<uint64_t> out;
-		zeus::ParamType type = internalGetParameterType(_id);
-		const uint8_t* pointer = internalGetParameterPointer(_id);
-		uint32_t dataSize = internalGetParameterSize(_id);
+		zeus::ParamType type = getParameterType(_id);
+		const uint8_t* pointer = getParameterPointer(_id);
+		uint32_t dataSize = getParameterSize(_id);
 		// TODO : Check size ...
 		if (type == createType<std::vector<void>>()) {
 			return out;
@@ -835,11 +835,11 @@ namespace zeus {
 	}
 	
 	template<>
-	std::vector<int8_t> Buffer::internalGetParameter<std::vector<int8_t>>(int32_t _id) const {
+	std::vector<int8_t> BufferParameter::getParameter<std::vector<int8_t>>(int32_t _id) const {
 		std::vector<int8_t> out;
-		zeus::ParamType type = internalGetParameterType(_id);
-		const uint8_t* pointer = internalGetParameterPointer(_id);
-		uint32_t dataSize = internalGetParameterSize(_id);
+		zeus::ParamType type = getParameterType(_id);
+		const uint8_t* pointer = getParameterPointer(_id);
+		uint32_t dataSize = getParameterSize(_id);
 		// TODO : Check size ...
 		if (type == createType<std::vector<void>>()) {
 			return out;
@@ -926,11 +926,11 @@ namespace zeus {
 	}
 	
 	template<>
-	std::vector<int16_t> Buffer::internalGetParameter<std::vector<int16_t>>(int32_t _id) const {
+	std::vector<int16_t> BufferParameter::getParameter<std::vector<int16_t>>(int32_t _id) const {
 		std::vector<int16_t> out;
-		zeus::ParamType type = internalGetParameterType(_id);
-		const uint8_t* pointer = internalGetParameterPointer(_id);
-		uint32_t dataSize = internalGetParameterSize(_id);
+		zeus::ParamType type = getParameterType(_id);
+		const uint8_t* pointer = getParameterPointer(_id);
+		uint32_t dataSize = getParameterSize(_id);
 		// TODO : Check size ...
 		if (type == createType<std::vector<void>>()) {
 			return out;
@@ -1017,11 +1017,11 @@ namespace zeus {
 	}
 	
 	template<>
-	std::vector<int32_t> Buffer::internalGetParameter<std::vector<int32_t>>(int32_t _id) const {
+	std::vector<int32_t> BufferParameter::getParameter<std::vector<int32_t>>(int32_t _id) const {
 		std::vector<int32_t> out;
-		zeus::ParamType type = internalGetParameterType(_id);
-		const uint8_t* pointer = internalGetParameterPointer(_id);
-		uint32_t dataSize = internalGetParameterSize(_id);
+		zeus::ParamType type = getParameterType(_id);
+		const uint8_t* pointer = getParameterPointer(_id);
+		uint32_t dataSize = getParameterSize(_id);
 		// TODO : Check size ...
 		if (type == createType<std::vector<void>>()) {
 			return out;
@@ -1108,11 +1108,11 @@ namespace zeus {
 	}
 	
 	template<>
-	std::vector<int64_t> Buffer::internalGetParameter<std::vector<int64_t>>(int32_t _id) const {
+	std::vector<int64_t> BufferParameter::getParameter<std::vector<int64_t>>(int32_t _id) const {
 		std::vector<int64_t> out;
-		zeus::ParamType type = internalGetParameterType(_id);
-		const uint8_t* pointer = internalGetParameterPointer(_id);
-		uint32_t dataSize = internalGetParameterSize(_id);
+		zeus::ParamType type = getParameterType(_id);
+		const uint8_t* pointer = getParameterPointer(_id);
+		uint32_t dataSize = getParameterSize(_id);
 		// TODO : Check size ...
 		if (type == createType<std::vector<void>>()) {
 			return out;
@@ -1199,11 +1199,11 @@ namespace zeus {
 	}
 	
 	template<>
-	std::vector<float> Buffer::internalGetParameter<std::vector<float>>(int32_t _id) const {
+	std::vector<float> BufferParameter::getParameter<std::vector<float>>(int32_t _id) const {
 		std::vector<float> out;
-		zeus::ParamType type = internalGetParameterType(_id);
-		const uint8_t* pointer = internalGetParameterPointer(_id);
-		uint32_t dataSize = internalGetParameterSize(_id);
+		zeus::ParamType type = getParameterType(_id);
+		const uint8_t* pointer = getParameterPointer(_id);
+		uint32_t dataSize = getParameterSize(_id);
 		// TODO : Check size ...
 		if (type == createType<std::vector<void>>()) {
 			return out;
@@ -1290,11 +1290,11 @@ namespace zeus {
 	}
 	
 	template<>
-	std::vector<double> Buffer::internalGetParameter<std::vector<double>>(int32_t _id) const {
+	std::vector<double> BufferParameter::getParameter<std::vector<double>>(int32_t _id) const {
 		std::vector<double> out;
-		zeus::ParamType type = internalGetParameterType(_id);
-		const uint8_t* pointer = internalGetParameterPointer(_id);
-		uint32_t dataSize = internalGetParameterSize(_id);
+		zeus::ParamType type = getParameterType(_id);
+		const uint8_t* pointer = getParameterPointer(_id);
+		uint32_t dataSize = getParameterSize(_id);
 		// TODO : Check size ...
 		if (type == createType<std::vector<void>>()) {
 			return out;
@@ -1381,11 +1381,11 @@ namespace zeus {
 	}
 	
 	template<>
-	std::vector<bool> Buffer::internalGetParameter<std::vector<bool>>(int32_t _id) const {
+	std::vector<bool> BufferParameter::getParameter<std::vector<bool>>(int32_t _id) const {
 		std::vector<bool> out;
-		zeus::ParamType type = internalGetParameterType(_id);
-		const uint8_t* pointer = internalGetParameterPointer(_id);
-		uint32_t dataSize = internalGetParameterSize(_id);
+		zeus::ParamType type = getParameterType(_id);
+		const uint8_t* pointer = getParameterPointer(_id);
+		uint32_t dataSize = getParameterSize(_id);
 		// TODO : Check size ...
 		if (type == createType<std::vector<void>>()) {
 			return out;
@@ -1403,11 +1403,11 @@ namespace zeus {
 	}
 	
 	template<>
-	std::vector<std::string> Buffer::internalGetParameter<std::vector<std::string>>(int32_t _id) const {
+	std::vector<std::string> BufferParameter::getParameter<std::vector<std::string>>(int32_t _id) const {
 		std::vector<std::string> out;
-		zeus::ParamType type = internalGetParameterType(_id);
-		const uint8_t* pointer = internalGetParameterPointer(_id);
-		uint32_t dataSize = internalGetParameterSize(_id);
+		zeus::ParamType type = getParameterType(_id);
+		const uint8_t* pointer = getParameterPointer(_id);
+		uint32_t dataSize = getParameterSize(_id);
 		if (type == createType<std::vector<void>>()) {
 			return out;
 		} else if (createType<std::vector<std::string>>() == type) {
@@ -1428,11 +1428,11 @@ namespace zeus {
 	}
 	
 	template<>
-	zeus::File Buffer::internalGetParameter<zeus::File>(int32_t _id) const {
+	zeus::File BufferParameter::getParameter<zeus::File>(int32_t _id) const {
 		zeus::File out;
-		zeus::ParamType type = internalGetParameterType(_id);
-		const uint8_t* pointer = internalGetParameterPointer(_id);
-		uint32_t dataSize = internalGetParameterSize(_id);
+		zeus::ParamType type = getParameterType(_id);
+		const uint8_t* pointer = getParameterPointer(_id);
+		uint32_t dataSize = getParameterSize(_id);
 		// TODO : Check size ...
 		if (createType<zeus::File>() == type) {
 			// get mine type in string:
