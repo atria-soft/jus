@@ -157,7 +157,9 @@ int32_t zeus::WebServer::writeBinary(const ememory::SharedPtr<zeus::Buffer>& _ob
 	if (_obj->haveAsync() == true) {
 		_obj->setPartFinish(false);
 	}
+	ZEUS_VERBOSE("Send :" << _obj);
 	if (_obj->writeOn(m_connection) == true) {
+		m_connection.send();
 		if (_obj->haveAsync() == true) {
 			addAsync(SendAsyncBinary(_obj->getTransactionId(), _obj->getServiceId(), std::move(_obj->moveAsync())));
 		}
@@ -301,7 +303,6 @@ zeus::FutureBase zeus::WebServer::callBinary(uint64_t _transactionId,
                                              const ememory::SharedPtr<zeus::Buffer>& _obj,
                                              zeus::FutureData::ObserverFinish _callback,
                                              const uint32_t& _serviceId) {
-	ZEUS_VERBOSE("Send [START] ");
 	if (isActive() == false) {
 		ZEUS_ERROR("Send [STOP] ==> not connected (no TCP)");
 		ememory::SharedPtr<zeus::BufferAnswer> obj = zeus::BufferAnswer::create();
@@ -314,7 +315,6 @@ zeus::FutureBase zeus::WebServer::callBinary(uint64_t _transactionId,
 		m_pendingCall.push_back(std::make_pair(uint64_t(0), tmpFuture));
 	}
 	writeBinary(_obj);
-	ZEUS_VERBOSE("Send [STOP]");
 	return tmpFuture;
 }
 
@@ -322,7 +322,6 @@ zeus::FutureBase zeus::WebServer::callForward(uint32_t _clientId,
                                               const ememory::SharedPtr<zeus::Buffer>& _buffer,
                                               uint64_t _singleReferenceId,
                                               zeus::FutureData::ObserverFinish _callback) {
-	ZEUS_VERBOSE("Call Forward [START]");
 	//zeus::FutureBase ret = callBinary(id, _Buffer, async, _callback);
 	//ret.setSynchronous();
 	
@@ -341,7 +340,6 @@ zeus::FutureBase zeus::WebServer::callForward(uint32_t _clientId,
 		m_pendingCall.push_back(std::make_pair(_singleReferenceId, tmpFuture));
 	}
 	writeBinary(_buffer);
-	ZEUS_VERBOSE("Send Forward [STOP]");
 	return tmpFuture;
 }
 

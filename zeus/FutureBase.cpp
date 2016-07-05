@@ -42,6 +42,7 @@ zeus::FutureBase::FutureBase(uint32_t _transactionId, const ememory::SharedPtr<z
 	}
 	m_data->m_sendTime = std::chrono::steady_clock::now();
 	m_data->m_transactionId = _transactionId;
+	m_data->m_clientId = _clientId;
 	m_data->m_isSynchronous = false;
 	m_data->m_returnData = _returnData;
 	m_data->m_callbackFinish = _callback;
@@ -124,7 +125,7 @@ bool zeus::FutureBase::hasError() const {
 	     || m_data->m_returnData == nullptr) {
 		return true;
 	}
-	if (m_data->m_returnData->getType() == zeus::Buffer::typeMessage::answer) {
+	if (m_data->m_returnData->getType() != zeus::Buffer::typeMessage::answer) {
 		return true;
 	}
 	return static_cast<zeus::BufferAnswer*>(m_data->m_returnData.get())->hasError();
@@ -135,7 +136,7 @@ std::string zeus::FutureBase::getErrorType() const {
 	     || m_data->m_returnData == nullptr) {
 		return "NULL_PTR";
 	}
-	if (m_data->m_returnData->getType() == zeus::Buffer::typeMessage::answer) {
+	if (m_data->m_returnData->getType() != zeus::Buffer::typeMessage::answer) {
 		return "NOT_ANSWER_MESSAGE";
 	}
 	return static_cast<zeus::BufferAnswer*>(m_data->m_returnData.get())->getError();
@@ -146,7 +147,7 @@ std::string zeus::FutureBase::getErrorHelp() const {
 	     || m_data->m_returnData == nullptr) {
 		return "This is a nullptr future";
 	}
-	if (m_data->m_returnData->getType() == zeus::Buffer::typeMessage::answer) {
+	if (m_data->m_returnData->getType() != zeus::Buffer::typeMessage::answer) {
 		return "This answer is not a anwser type";
 	}
 	return static_cast<zeus::BufferAnswer*>(m_data->m_returnData.get())->getErrorHelp();

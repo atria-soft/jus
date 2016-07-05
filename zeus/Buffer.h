@@ -231,7 +231,6 @@ namespace zeus {
 			 * @return true of no error appear
 			 */
 			virtual bool writeOn(enet::WebSocket& _interface);
-			virtual size_t getSize();
 			virtual void generateDisplay(std::ostream& _os) const ;
 	};
 	class BufferParameter:
@@ -283,14 +282,8 @@ namespace zeus {
 			 * @return readable string
 			 */
 			std::string simpleStringParam(uint32_t _id) const;
-			/**
-			 * @brief When receive new data form websocket, it might be added by this input (set all the frame ...)
-			 * @param[in] _buffer Pointer on the data to add.
-			 * @param[in] _lenght number of octet to add.
-			 */
-			void parameterComposeWith(const uint8_t* _buffer, uint32_t _lenght);
-			bool parameterWriteOn(enet::WebSocket& _interface);
-			size_t parameterGetSize();
+			void composeWith(const uint8_t* _buffer, uint32_t _lenght) override;
+			bool writeOn(enet::WebSocket& _interface) override;
 		protected:
 			/**
 			 * @brief Add a parameter at a specific position
@@ -321,7 +314,6 @@ namespace zeus {
 			void composeWith(const uint8_t* _buffer, uint32_t _lenght) override;
 			void appendBufferData(const ememory::SharedPtr<zeus::BufferData>& _obj) override;
 			bool writeOn(enet::WebSocket& _interface) override;
-			size_t getSize() override;
 			void generateDisplay(std::ostream& _os) const override;
 		public:
 			/**
@@ -361,7 +353,6 @@ namespace zeus {
 			void composeWith(const uint8_t* _buffer, uint32_t _lenght) override;
 			void appendBufferData(const ememory::SharedPtr<zeus::BufferData>& _obj) override;
 			bool writeOn(enet::WebSocket& _interface) override;
-			size_t getSize() override;
 			void generateDisplay(std::ostream& _os) const override;
 		public:
 			/**
@@ -430,7 +421,6 @@ namespace zeus {
 			void composeWith(const uint8_t* _buffer, uint32_t _lenght) override;
 			// TODO :... void appendBufferData(const ememory::SharedPtr<zeus::BufferData>& _obj) override;
 			bool writeOn(enet::WebSocket& _interface) override;
-			size_t getSize() override;
 			void generateDisplay(std::ostream& _os) const override;
 		public:
 			/**

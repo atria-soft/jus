@@ -58,6 +58,8 @@ bool zeus::Client::connectTo(const std::string& _address) {
 	ret.wait();
 	if (ret.hasError() == true) {
 		ZEUS_WARNING("Can not connect to user named: '" << _address << "' ==> return error");
+		ZEUS_WARNING("    error: '" << ret.getErrorType() << "'");
+		ZEUS_WARNING("    help: '" << ret.getErrorHelp() << "'");
 		return false;
 	}
 	if (ret.get() == true) {

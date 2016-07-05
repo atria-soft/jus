@@ -35,28 +35,35 @@ void zeus::Service::onClientData(const ememory::SharedPtr<zeus::Buffer>& _value)
 	if (_value == nullptr) {
 		return;
 	}
+	ZEUS_WARNING("BUFFER" << _value);
 	uint32_t tmpID = _value->getTransactionId();
-	uint32_t clientId = _value->getClientId();;
-	auto it = m_callMultiData.begin();
-	while (it != m_callMultiData.end()) {
-		if (    it->getTransactionId() == tmpID
-		     && it->getClientId() == clientId) {
-			ZEUS_WARNING("Append data ... " << tmpID);
-			it->appendData(_value);
-			if (it->isFinished() == true) {
-				ZEUS_WARNING("CALL Function ...");
-				callBinary(it->getRaw());
-				it = m_callMultiData.erase(it);
+	uint32_t clientId = _value->getClientId();
+	if (_value->getType() == zeus::Buffer::typeMessage::data) {
+		auto it = m_callMultiData.begin();
+		while (it != m_callMultiData.end()) {
+			if (    it->getTransactionId() == tmpID
+			     && it->getClientId() == clientId) {
+				ZEUS_WARNING("Append data ... " << tmpID);
+				it->appendData(_value);
+				if (it->isFinished() == true) {
+					ZEUS_WARNING("CALL Function ...");
+					callBinary(it->getRaw());
+					it = m_callMultiData.erase(it);
+				}
+				return;
 			}
-			return;
+			++it;
 		}
-		++it;
+		ZEUS_ERROR("Un-associated data ...");
+		return;
 	}
+	ZEUS_WARNING("direct call");
 	zeus::FutureBase futData(tmpID, _value, nullptr, clientId);
 	if (futData.isFinished() == true) {
 		ZEUS_INFO("Call Binary ..");
 		callBinary(futData.getRaw());
 	} else {
+		ZEUS_INFO("ADD ...");
 		m_callMultiData.push_back(futData);
 	}
 }
