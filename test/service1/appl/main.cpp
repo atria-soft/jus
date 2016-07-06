@@ -52,13 +52,16 @@ namespace appl {
 			}
 		private:
 			ememory::SharedPtr<appl::User> m_user;
+		private:
+			ememory::SharedPtr<zeus::ClientProperty> m_client;
 		public:
 			double mul(double _val1, double _val2) {
 				return _val1*_val2;
 			}
 		public:
-			Calculator(ememory::SharedPtr<appl::User> _user) :
-			  m_user(_user) {
+			Calculator(ememory::SharedPtr<appl::User> _user, ememory::SharedPtr<zeus::ClientProperty> _client) :
+			  m_user(_user),
+			  m_client(_client) {
 				//advertise("mul", &appl::Service1::mul, "simple multiplication to test double IO");
 			}
 	};
@@ -72,10 +75,12 @@ int main(int _argc, const char *_argv[]) {
 	serviceInterface.setDescription("Calculator interface");
 	serviceInterface.setVersion("0.1.1");
 	serviceInterface.addAuthor("Heero Yui", "yui.heero@gmail.com");
-	serviceInterface.advertise("mul", &appl::Calculator::mul);
-	serviceInterface.setLastFuncDesc("simple multiplication to test double IO");
-	serviceInterface.addLastFuncParam("val1", "First Parameter To multiply");
-	serviceInterface.addLastFuncParam("val2", "Second Parameter To multiply");
+	zeus::AbstractFunction* func = serviceInterface.advertise("mul", &appl::Calculator::mul);
+	if (func != nullptr) {
+		func->setDescription("simple multiplication to test double IO");
+		func->addParam("val1", "First Parameter To multiply");
+		func->addParam("val2", "Second Parameter To multiply");
+	}
 	for (int32_t iii=0; iii<_argc ; ++iii) {
 		std::string data = _argv[iii];
 		if (etk::start_with(data, "--ip=") == true) {
