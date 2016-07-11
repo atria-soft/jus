@@ -5,6 +5,7 @@
  */
 #include <etk/types.h>
 #include <zeus/Buffer.h>
+#include <zeus/BufferData.h>
 #include <zeus/debug.h>
 #include <zeus/ParamType.h>
 #include <etk/stdTools.h>

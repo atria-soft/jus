@@ -5,6 +5,7 @@
  */
 #pragma once
 #include <zeus/Buffer.h>
+#include <zeus/BufferAnswer.h>
 #include <enet/WebSocket.h>
 #include <thread>
 #include <memory>

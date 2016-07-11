@@ -4,6 +4,7 @@
  * @license APACHE v2.0 (see license file)
  */
 #include <zeus/Future.h>
+#include <zeus/BufferAnswer.h>
 #include <zeus/debug.h>
 #include <unistd.h>
 #include <zeus/File.h>

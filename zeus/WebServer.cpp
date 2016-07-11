@@ -7,6 +7,7 @@
 #include <zeus/debug.h>
 #include <ethread/tools.h>
 #include <unistd.h>
+#include <zeus/BufferData.h>
 
 
 ememory::SharedPtr<zeus::BufferCall> zeus::createBaseCall(uint64_t _transactionId, const std::string& _functionName, const uint32_t& _serviceId) {
