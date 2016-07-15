@@ -18,7 +18,7 @@ zeus::FutureBase::FutureBase() {
 }
 
 zeus::FutureBase::FutureBase(uint32_t _transactionId, zeus::FutureData::ObserverFinish _callback, uint32_t _clientId) {
-	m_data = std::make_shared<zeus::FutureData>();
+	m_data = ememory::makeShared<zeus::FutureData>();
 	if (m_data == nullptr) {
 		return;
 	}
@@ -37,7 +37,7 @@ ememory::SharedPtr<zeus::Buffer> zeus::FutureBase::getRaw() {
 }
 
 zeus::FutureBase::FutureBase(uint32_t _transactionId, const ememory::SharedPtr<zeus::Buffer>& _returnData, zeus::FutureData::ObserverFinish _callback, uint32_t _clientId) {
-	m_data = std::make_shared<zeus::FutureData>();
+	m_data = ememory::makeShared<zeus::FutureData>();
 	if (m_data == nullptr) {
 		return;
 	}

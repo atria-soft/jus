@@ -109,7 +109,7 @@ void appl::ClientInterface::onClientData(const ememory::SharedPtr<zeus::Buffer>&
 		answerProtocolError(transactionId, "missing parameter: 'call' / wrong type 'call'");
 		return;
 	}
-	ememory::SharedPtr<zeus::BufferCall> callObj = std::static_pointer_cast<zeus::BufferCall>(_value);
+	ememory::SharedPtr<zeus::BufferCall> callObj = ememory::staticPointerCast<zeus::BufferCall>(_value);
 	std::string callFunction = callObj->getCall();
 	switch (m_state) {
 		case appl::ClientInterface::state::disconnect:

@@ -44,7 +44,7 @@ bool zeus::Client::connectTo(const std::string& _address) {
 	ZEUS_DEBUG("connect [START]");
 	disconnect();
 	enet::Tcp connection = std::move(enet::connectTcpClient(*propertyIp, *propertyPort));
-	m_interfaceClient = std::make_shared<zeus::WebServer>();
+	m_interfaceClient = ememory::makeShared<zeus::WebServer>();
 	if (m_interfaceClient == nullptr) {
 		ZEUS_ERROR("Allocate connection error");
 		return false;

@@ -67,14 +67,14 @@ namespace appl {
 
 void appl::GateWay::newService(enet::Tcp _connection) {
 	ZEUS_WARNING("New TCP connection (service)");
-	ememory::SharedPtr<appl::ServiceInterface> tmp = std::make_shared<appl::ServiceInterface>(std::move(_connection), this);
+	ememory::SharedPtr<appl::ServiceInterface> tmp = ememory::makeShared<appl::ServiceInterface>(std::move(_connection), this);
 	tmp->start();
 	m_serviceList.push_back(tmp);
 }
 
 void appl::GateWay::newClient(enet::Tcp _connection) {
 	ZEUS_WARNING("New TCP connection (client)");
-	ememory::SharedPtr<appl::ClientInterface> tmp = std::make_shared<appl::ClientInterface>(std::move(_connection), this);
+	ememory::SharedPtr<appl::ClientInterface> tmp = ememory::makeShared<appl::ClientInterface>(std::move(_connection), this);
 	tmp->start(m_clientUID++, m_clientUID++);
 	m_clientList.push_back(tmp);
 }
@@ -87,8 +87,8 @@ appl::GateWay::GateWay() :
   propertyServiceIp(this, "service-ip", "127.0.0.1", "Ip to listen client", &appl::GateWay::onPropertyChangeServiceIp),
   propertyServicePort(this, "service-port", 1982, "Port to listen client", &appl::GateWay::onPropertyChangeServicePort),
   propertyServiceMax(this, "service-max", 80, "Maximum of client at the same time", &appl::GateWay::onPropertyChangeServiceMax) {
-	m_interfaceClientServer = std::make_shared<appl::TcpServerInput>(this, false);
-	m_interfaceServiceServer = std::make_shared<appl::TcpServerInput>(this, true);
+	m_interfaceClientServer = ememory::makeShared<appl::TcpServerInput>(this, false);
+	m_interfaceServiceServer = ememory::makeShared<appl::TcpServerInput>(this, true);
 }
 
 appl::GateWay::~GateWay() {

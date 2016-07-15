@@ -301,8 +301,8 @@ namespace zeus {
 				ZEUS_DEBUG("connect: " << _clientId << " to '" << _userName << "'");
 				ZEUS_DEBUG("    client name='" << _clientName << "'");
 				ZEUS_DEBUG("    groups=" << etk::to_string(_groups));
-				ememory::SharedPtr<ClientProperty> tmpProperty = std::make_shared<ClientProperty>(_clientName, _groups);
-				ememory::SharedPtr<ZEUS_TYPE_SERVICE> tmpSrv = std::make_shared<ZEUS_TYPE_SERVICE>(m_getUserInterface.getUser(_userName), tmpProperty);
+				ememory::SharedPtr<ClientProperty> tmpProperty = ememory::makeShared<ClientProperty>(_clientName, _groups);
+				ememory::SharedPtr<ZEUS_TYPE_SERVICE> tmpSrv = ememory::makeShared<ZEUS_TYPE_SERVICE>(m_getUserInterface.getUser(_userName), tmpProperty);
 				m_interface.insert(std::make_pair(_clientId, std::make_pair(tmpProperty, tmpSrv)));
 				// enable list of function availlable: 
 				for (auto &it : m_listFunction) {

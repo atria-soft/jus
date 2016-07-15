@@ -85,7 +85,7 @@ void zeus::Service::connect(const std::string& _serviceName, uint32_t _numberRet
 		ZEUS_DEBUG("connect [STOP] ==> can not connect");
 		return;
 	}
-	m_interfaceClient = std::make_shared<zeus::WebServer>();
+	m_interfaceClient = ememory::makeShared<zeus::WebServer>();
 	if (m_interfaceClient == nullptr) {
 		ZEUS_ERROR("Can not allocate interface ...");
 		return;
@@ -141,7 +141,7 @@ void zeus::Service::callBinary(const ememory::SharedPtr<zeus::Buffer>& _obj) {
 		return;
 	}
 	if (_obj->getType() == zeus::Buffer::typeMessage::call) {
-		ememory::SharedPtr<zeus::BufferCall> callObj = std::static_pointer_cast<zeus::BufferCall>(_obj);
+		ememory::SharedPtr<zeus::BufferCall> callObj = ememory::staticPointerCast<zeus::BufferCall>(_obj);
 		uint32_t clientId = callObj->getClientId();
 		std::string callFunction = callObj->getCall();
 		if (callFunction[0] == '_') {

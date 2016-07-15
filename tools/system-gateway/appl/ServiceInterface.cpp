@@ -75,7 +75,7 @@ void appl::ServiceInterface::onServiceData(const ememory::SharedPtr<zeus::Buffer
 		return;
 	}
 	if (_value->getType() == zeus::Buffer::typeMessage::call) {
-		ememory::SharedPtr<zeus::BufferCall> callObj = std::static_pointer_cast<zeus::BufferCall>(_value);
+		ememory::SharedPtr<zeus::BufferCall> callObj = ememory::staticPointerCast<zeus::BufferCall>(_value);
 		std::string callFunction = callObj->getCall();
 		if (callFunction == "connect-service") {
 			if (m_name != "") {

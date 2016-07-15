@@ -8,7 +8,7 @@
 #include <zeus/BufferAnswer.h>
 #include <enet/WebSocket.h>
 #include <thread>
-#include <memory>
+#include <ememory/memory.h>
 #include <zeus/AbstractFunction.h>
 #include <zeus/FutureBase.h>
 

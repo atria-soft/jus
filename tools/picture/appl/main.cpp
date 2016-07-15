@@ -336,7 +336,6 @@ namespace appl {
 				APPL_WARNING("delete PictureService ...");
 			}
 		public:
-		
 			std::vector<std::string> getAlbums() {
 				return m_user->getAlbums();
 			}

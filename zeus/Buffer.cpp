@@ -74,7 +74,7 @@ void zeus::Buffer::appendBuffer(const ememory::SharedPtr<zeus::Buffer>& _obj) {
 		return;
 	}
 	setPartFinish(_obj->getPartFinish());
-	appendBufferData(std::static_pointer_cast<zeus::BufferData>(_obj));
+	appendBufferData(ememory::staticPointerCast<zeus::BufferData>(_obj));
 }
 
 bool zeus::Buffer::writeOn(enet::WebSocket& _interface) {
