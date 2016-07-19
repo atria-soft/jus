@@ -44,12 +44,12 @@ void appl::ServiceInterface::stop() {
 }
 
 
-void appl::ServiceInterface::SendData(uint64_t _userSessionId, const ememory::SharedPtr<zeus::Buffer>& _data) {
+void appl::ServiceInterface::SendData(uint64_t _userSessionId, ememory::SharedPtr<zeus::Buffer> _data) {
 	_data->setClientId(_userSessionId);
 	m_interfaceClient.writeBinary(_data);
 }
 
-void appl::ServiceInterface::onServiceData(const ememory::SharedPtr<zeus::Buffer>& _value) {
+void appl::ServiceInterface::onServiceData(ememory::SharedPtr<zeus::Buffer> _value) {
 	if (_value == nullptr) {
 		return;
 	}

@@ -67,7 +67,7 @@ void appl::ClientInterface::answerProtocolError(uint32_t _transactionId, const s
 }
 
 
-void appl::ClientInterface::onClientData(const ememory::SharedPtr<zeus::Buffer>& _value) {
+void appl::ClientInterface::onClientData(ememory::SharedPtr<zeus::Buffer> _value) {
 	if (_value == nullptr) {
 		return;
 	}
@@ -346,6 +346,6 @@ void appl::ClientInterface::onClientData(const ememory::SharedPtr<zeus::Buffer>&
 	}
 }
 
-void appl::ClientInterface::returnMessage(const ememory::SharedPtr<zeus::Buffer>& _data) {
+void appl::ClientInterface::returnMessage(ememory::SharedPtr<zeus::Buffer> _data) {
 	ZEUS_ERROR("Get call from the Service to the user ...");
 }
