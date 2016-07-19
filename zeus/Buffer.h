@@ -152,8 +152,8 @@ namespace zeus {
 			 * @brief When multiple frame buffer, they need to concatenate the data... call this function with the new data to append it ...
 			 * @param[in] _obj Buffer to add
 			 */
-			void appendBuffer(const ememory::SharedPtr<zeus::Buffer>& _obj);
-			virtual void appendBufferData(const ememory::SharedPtr<zeus::BufferData>& _obj);
+			void appendBuffer(ememory::SharedPtr<zeus::Buffer> _obj);
+			virtual void appendBufferData(ememory::SharedPtr<zeus::BufferData> _obj);
 		protected:
 			/**
 			 * @brief When receive new data form websocket, it might be added by this input (set all the frame ...)
@@ -247,7 +247,7 @@ namespace zeus {
 	 * @value[in] _obj Buffer to display
 	 * @return a reference of the stream
 	 */
-	std::ostream& operator <<(std::ostream& _os, zeus::Buffer* _obj);
+	std::ostream& operator <<(std::ostream& _os, ememory::SharedPtr<zeus::Buffer> _obj);
 	
 	// internal:
 	/**

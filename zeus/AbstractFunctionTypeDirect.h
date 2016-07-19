@@ -16,8 +16,8 @@ namespace zeus {
 	 * @param[in] _func pointer on the function to call
 	 */
 	template <class ZEUS_RETURN, class... ZEUS_TYPES>
-	void executeCall(const ememory::SharedPtr<zeus::WebServer>& _interfaceClient,
-	                 const ememory::SharedPtr<zeus::BufferParameter>& _obj,
+	void executeCall(ememory::SharedPtr<zeus::WebServer> _interfaceClient,
+	                 ememory::SharedPtr<zeus::BufferParameter> _obj,
 	                 ZEUS_RETURN (*_func)(ZEUS_TYPES...)) {
 		if (_obj == nullptr) {
 			return;
@@ -45,8 +45,8 @@ namespace zeus {
 	 * @param[in] _func pointer on the function to call
 	 */
 	template <class... ZEUS_TYPES>
-	void executeCall(const ememory::SharedPtr<zeus::WebServer>& _interfaceClient,
-	                 const ememory::SharedPtr<zeus::BufferParameter>& _obj,
+	void executeCall(ememory::SharedPtr<zeus::WebServer> _interfaceClient,
+	                 ememory::SharedPtr<zeus::BufferParameter> _obj,
 	                 void (*_func)(ZEUS_TYPES...)) {
 		if (_obj == nullptr) {
 			return;
@@ -98,8 +98,8 @@ namespace zeus {
 				}
 				return out;
 			}
-			void execute(const ememory::SharedPtr<zeus::WebServer>& _interfaceClient,
-			             const ememory::SharedPtr<zeus::BufferCall>& _obj,
+			void execute(ememory::SharedPtr<zeus::WebServer> _interfaceClient,
+			             ememory::SharedPtr<zeus::BufferCall> _obj,
 			             void* _class) override {
 				if (_obj == nullptr) {
 					return;

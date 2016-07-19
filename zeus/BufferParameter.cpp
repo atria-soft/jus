@@ -156,7 +156,7 @@ std::string zeus::BufferParameter::simpleStringParam(uint32_t _id) const {
 	return paramType.getName();
 }
 
-void zeus::BufferParameter::parameterAppendBufferData(const ememory::SharedPtr<zeus::BufferData>& _obj) {
+void zeus::BufferParameter::parameterAppendBufferData(ememory::SharedPtr<zeus::BufferData> _obj) {
 	// At this point we just add data at the parameter value:
 	uint16_t parameterID = _obj->getParameterId();
 	

@@ -31,7 +31,7 @@ std::vector<std::string> zeus::Service::getExtention() {
 }
 
 
-void zeus::Service::onClientData(const ememory::SharedPtr<zeus::Buffer>& _value) {
+void zeus::Service::onClientData(ememory::SharedPtr<zeus::Buffer> _value) {
 	if (_value == nullptr) {
 		return;
 	}
@@ -128,7 +128,7 @@ void zeus::Service::pingIsAlive() {
 	}
 }
 
-void zeus::Service::callBinary(const ememory::SharedPtr<zeus::Buffer>& _obj) {
+void zeus::Service::callBinary(ememory::SharedPtr<zeus::Buffer> _obj) {
 	if (_obj == nullptr) {
 		return;
 	}

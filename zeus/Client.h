@@ -93,7 +93,7 @@ namespace zeus {
 			 * @brief When receive data from the websocket ... call this ...
 			 * @param[in] _value New input buffer
 			 */
-			void onClientData(const ememory::SharedPtr<zeus::Buffer>& _value);
+			void onClientData(ememory::SharedPtr<zeus::Buffer> _value);
 		public:
 			/**
 			 * @brief Create a call on the interface gateway

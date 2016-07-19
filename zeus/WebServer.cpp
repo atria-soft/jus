@@ -21,7 +21,7 @@ ememory::SharedPtr<zeus::BufferCall> zeus::createBaseCall(uint64_t _transactionI
 	return obj;
 }
 
-void zeus::createParam(int32_t _paramId, const ememory::SharedPtr<zeus::BufferCall>& _obj) {
+void zeus::createParam(int32_t _paramId, ememory::SharedPtr<zeus::BufferCall> _obj) {
 	// Finish recursive parse ...
 }
 
@@ -151,7 +151,7 @@ class SendAsyncBinary {
 		}
 };
 
-int32_t zeus::WebServer::writeBinary(const ememory::SharedPtr<zeus::Buffer>& _obj) {
+int32_t zeus::WebServer::writeBinary(ememory::SharedPtr<zeus::Buffer> _obj) {
 	if (m_connection.isAlive() == false) {
 		return -2;
 	}
@@ -197,7 +197,7 @@ void zeus::WebServer::ping() {
 	m_connection.controlPing();
 }
 
-void zeus::WebServer::newBuffer(const ememory::SharedPtr<zeus::Buffer>& _buffer) {
+void zeus::WebServer::newBuffer(ememory::SharedPtr<zeus::Buffer> _buffer) {
 	ZEUS_VERBOSE("Receive :" << _buffer);
 	zeus::FutureBase future;
 	uint64_t tid = _buffer->getTransactionId();
@@ -301,7 +301,7 @@ void zeus::WebServer::threadAsyncCallback() {
 
 
 zeus::FutureBase zeus::WebServer::callBinary(uint64_t _transactionId,
-                                             const ememory::SharedPtr<zeus::Buffer>& _obj,
+                                             ememory::SharedPtr<zeus::Buffer> _obj,
                                              zeus::FutureData::ObserverFinish _callback,
                                              const uint32_t& _serviceId) {
 	if (isActive() == false) {
@@ -320,7 +320,7 @@ zeus::FutureBase zeus::WebServer::callBinary(uint64_t _transactionId,
 }
 
 zeus::FutureBase zeus::WebServer::callForward(uint32_t _clientId,
-                                              const ememory::SharedPtr<zeus::Buffer>& _buffer,
+                                              ememory::SharedPtr<zeus::Buffer> _buffer,
                                               uint64_t _singleReferenceId,
                                               zeus::FutureData::ObserverFinish _callback) {
 	//zeus::FutureBase ret = callBinary(id, _Buffer, async, _callback);
@@ -345,7 +345,7 @@ zeus::FutureBase zeus::WebServer::callForward(uint32_t _clientId,
 }
 
 void zeus::WebServer::callForwardMultiple(uint32_t _clientId,
-                                          const ememory::SharedPtr<zeus::Buffer>& _buffer,
+                                          ememory::SharedPtr<zeus::Buffer> _buffer,
                                           uint64_t _singleReferenceId){
 	if (_buffer == nullptr) {
 		return;

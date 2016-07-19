@@ -58,11 +58,11 @@ zeus::Buffer::Buffer() {
 	clear();
 }
 
-void zeus::Buffer::appendBufferData(const ememory::SharedPtr<zeus::BufferData>& _obj) {
+void zeus::Buffer::appendBufferData(ememory::SharedPtr<zeus::BufferData> _obj) {
 	ZEUS_ERROR("Can not append datas ... Not managed");
 }
 
-void zeus::Buffer::appendBuffer(const ememory::SharedPtr<zeus::Buffer>& _obj) {
+void zeus::Buffer::appendBuffer(ememory::SharedPtr<zeus::Buffer> _obj) {
 	if (_obj == nullptr) {
 		return;
 	}
@@ -96,7 +96,7 @@ void zeus::Buffer::clear() {
 	m_header.flags = ZEUS_BUFFER_FLAG_FINISH;
 }
 
-std::ostream& zeus::operator <<(std::ostream& _os, zeus::Buffer* _obj) {
+std::ostream& zeus::operator <<(std::ostream& _os, ememory::SharedPtr<zeus::Buffer> _obj) {
 	_os << "zeus::Buffer: ";
 	if (_obj == nullptr) {
 		_os << "nullptr";

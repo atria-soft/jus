@@ -55,7 +55,7 @@ void zeus::BufferCall::composeWith(const uint8_t* _buffer, uint32_t _lenght) {
 	BufferParameter::composeWith(&_buffer[pos], _lenght-pos);
 }
 
-void zeus::BufferCall::appendBufferData(const ememory::SharedPtr<zeus::BufferData>& _obj) {
+void zeus::BufferCall::appendBufferData(ememory::SharedPtr<zeus::BufferData> _obj) {
 	parameterAppendBufferData(_obj);
 }
 

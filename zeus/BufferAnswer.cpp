@@ -22,15 +22,15 @@ void zeus::BufferAnswer::generateDisplay(std::ostream& _os) const {
 	}
 }
 
-bool zeus::BufferAnswer::hasError() {
+bool zeus::BufferAnswer::hasError() const {
 	return m_errorType.size() != 0;
 }
 
-const std::string& zeus::BufferAnswer::getError() {
+const std::string& zeus::BufferAnswer::getError() const {
 	return m_errorType;
 }
 
-const std::string& zeus::BufferAnswer::getErrorHelp() {
+const std::string& zeus::BufferAnswer::getErrorHelp() const {
 	return m_errorHelp;
 }
 
@@ -72,7 +72,7 @@ void zeus::BufferAnswer::composeWith(const uint8_t* _buffer, uint32_t _lenght) {
 	BufferParameter::composeWith(&_buffer[pos], _lenght-pos);
 }
 
-void zeus::BufferAnswer::appendBufferData(const ememory::SharedPtr<zeus::BufferData>& _obj) {
+void zeus::BufferAnswer::appendBufferData(ememory::SharedPtr<zeus::BufferData> _obj) {
 	parameterAppendBufferData(_obj);
 }
 

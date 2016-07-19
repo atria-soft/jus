@@ -36,7 +36,7 @@ ememory::SharedPtr<zeus::Buffer> zeus::FutureBase::getRaw() {
 	return m_data->m_returnData;
 }
 
-zeus::FutureBase::FutureBase(uint32_t _transactionId, const ememory::SharedPtr<zeus::Buffer>& _returnData, zeus::FutureData::ObserverFinish _callback, uint32_t _clientId) {
+zeus::FutureBase::FutureBase(uint32_t _transactionId, ememory::SharedPtr<zeus::Buffer> _returnData, zeus::FutureData::ObserverFinish _callback, uint32_t _clientId) {
 	m_data = ememory::makeShared<zeus::FutureData>();
 	if (m_data == nullptr) {
 		return;
@@ -69,7 +69,7 @@ zeus::FutureBase zeus::FutureBase::operator= (const zeus::FutureBase& _base) {
 	return *this;
 }
 
-bool zeus::FutureBase::appendData(const ememory::SharedPtr<zeus::Buffer>& _value) {
+bool zeus::FutureBase::appendData(ememory::SharedPtr<zeus::Buffer> _value) {
 	if (m_data == nullptr) {
 		ZEUS_ERROR(" Not a valid future ...");
 		return true;
@@ -129,7 +129,7 @@ bool zeus::FutureBase::hasError() const {
 	if (m_data->m_returnData->getType() != zeus::Buffer::typeMessage::answer) {
 		return true;
 	}
-	return static_cast<zeus::BufferAnswer*>(m_data->m_returnData.get())->hasError();
+	return static_cast<const zeus::BufferAnswer*>(m_data->m_returnData.get())->hasError();
 }
 
 std::string zeus::FutureBase::getErrorType() const {
@@ -140,7 +140,7 @@ std::string zeus::FutureBase::getErrorType() const {
 	if (m_data->m_returnData->getType() != zeus::Buffer::typeMessage::answer) {
 		return "NOT_ANSWER_MESSAGE";
 	}
-	return static_cast<zeus::BufferAnswer*>(m_data->m_returnData.get())->getError();
+	return static_cast<const zeus::BufferAnswer*>(m_data->m_returnData.get())->getError();
 }
 
 std::string zeus::FutureBase::getErrorHelp() const {
@@ -151,7 +151,7 @@ std::string zeus::FutureBase::getErrorHelp() const {
 	if (m_data->m_returnData->getType() != zeus::Buffer::typeMessage::answer) {
 		return "This answer is not a anwser type";
 	}
-	return static_cast<zeus::BufferAnswer*>(m_data->m_returnData.get())->getErrorHelp();
+	return static_cast<const zeus::BufferAnswer*>(m_data->m_returnData.get())->getErrorHelp();
 }
 
 bool zeus::FutureBase::isValid() const {

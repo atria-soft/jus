@@ -25,7 +25,7 @@ namespace zeus {
 	 * @return 
 	 */
 	void createParam(int32_t _paramId,
-	                 const ememory::SharedPtr<zeus::BufferCall>& _obj);
+	                 ememory::SharedPtr<zeus::BufferCall> _obj);
 	
 	/**
 	 * @brief 
@@ -34,7 +34,7 @@ namespace zeus {
 	 */
 	template<class ZEUS_TYPE, class... _ARGS>
 	void createParam(int32_t _paramId,
-	                 const ememory::SharedPtr<zeus::BufferCall>& _obj,
+	                 ememory::SharedPtr<zeus::BufferCall> _obj,
 	                 const ZEUS_TYPE& _param,
 	                 _ARGS&&... _args) {
 		_obj->addParameter<ZEUS_TYPE>(_param);
@@ -49,7 +49,7 @@ namespace zeus {
 	// convert const char in std::string ...
 	template<class... _ARGS>
 	void createParam(int32_t _paramId,
-	                 const ememory::SharedPtr<zeus::BufferCall>& _obj,
+	                 ememory::SharedPtr<zeus::BufferCall> _obj,
 	                 const char* _param,
 	                 _ARGS&&... _args) {
 		createParam(_paramId, _obj, std::string(_param), std::forward<_ARGS>(_args)...);
@@ -97,7 +97,7 @@ namespace zeus {
 			std::mutex m_pendingCallMutex;
 			std::vector<std::pair<uint64_t, zeus::FutureBase>> m_pendingCall;
 		public:
-			using Observer = std::function<void(const ememory::SharedPtr<zeus::Buffer>&)>; //!< Define an Observer: function pointer
+			using Observer = std::function<void(ememory::SharedPtr<zeus::Buffer>)>; //!< Define an Observer: function pointer
 			Observer m_observerElement;
 			/**
 			 * @brief Connect an function member on the signal with the shared_ptr object.
@@ -105,8 +105,8 @@ namespace zeus {
 			 * @param[in] _func Function to call.
 			 */
 			template<class CLASS_TYPE>
-			void connect(CLASS_TYPE* _class, void (CLASS_TYPE::*_func)(const ememory::SharedPtr<zeus::Buffer>&)) {
-				m_observerElement = [=](const ememory::SharedPtr<zeus::Buffer>& _value){
+			void connect(CLASS_TYPE* _class, void (CLASS_TYPE::*_func)(ememory::SharedPtr<zeus::Buffer>)) {
+				m_observerElement = [=](ememory::SharedPtr<zeus::Buffer> _value){
 					(*_class.*_func)(_value);
 				};
 			}
@@ -164,7 +164,7 @@ namespace zeus {
 			 * @param[in] 
 			 * @return 
 			 */
-			int32_t writeBinary(const ememory::SharedPtr<zeus::Buffer>& _data);
+			int32_t writeBinary(ememory::SharedPtr<zeus::Buffer> _data);
 			/**
 			 * @brief 
 			 * @param[in] 
@@ -188,7 +188,7 @@ namespace zeus {
 			 * @param[in] 
 			 * @return 
 			 */
-			void newBuffer(const ememory::SharedPtr<zeus::Buffer>& _buffer);
+			void newBuffer(ememory::SharedPtr<zeus::Buffer> _buffer);
 		public:
 			/**
 			 * @brief 
@@ -234,7 +234,7 @@ namespace zeus {
 			 * @return 
 			 */
 			zeus::FutureBase callBinary(uint64_t _transactionId,
-			                            const ememory::SharedPtr<zeus::Buffer>& _obj,
+			                            ememory::SharedPtr<zeus::Buffer> _obj,
 			                            zeus::FutureData::ObserverFinish _callback=nullptr,
 			                            const uint32_t& _service=0);
 		public: // section call direct
@@ -313,7 +313,7 @@ namespace zeus {
 			 * @return 
 			 */
 			zeus::FutureBase callForward(uint32_t _clientId,
-			                             const ememory::SharedPtr<zeus::Buffer>& _Buffer,
+			                             ememory::SharedPtr<zeus::Buffer> _Buffer,
 			                             uint64_t _singleReferenceId,
 			                             zeus::FutureData::ObserverFinish _callback);
 			/**
@@ -322,7 +322,7 @@ namespace zeus {
 			 * @return 
 			 */
 			void callForwardMultiple(uint32_t _clientId,
-			                         const ememory::SharedPtr<zeus::Buffer>& _Buffer,
+			                         ememory::SharedPtr<zeus::Buffer> _Buffer,
 			                         uint64_t _singleReferenceId);
 		public: // answers ...
 			/**

@@ -22,7 +22,7 @@ namespace zeus {
 				m_header.flags = ZEUS_BUFFER_FLAG_FINISH + uint8_t(zeus::Buffer::typeMessage::event);
 			};
 			void composeWith(const uint8_t* _buffer, uint32_t _lenght) override;
-			void appendBufferData(const ememory::SharedPtr<zeus::BufferData>& _obj) override;
+			void appendBufferData(ememory::SharedPtr<zeus::BufferData> _obj) override;
 		public:
 			/ **
 			 * @brief Create a shared pointer on the BufferEvent

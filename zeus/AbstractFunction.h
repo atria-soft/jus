@@ -124,8 +124,8 @@ namespace zeus {
 			 * @param[in] _obj Call object
 			 * @param[in] _class Pointer on the object that might be call (note: brut cast)
 			 */
-			virtual void execute(const ememory::SharedPtr<zeus::WebServer>& _interfaceClient,
-			                     const ememory::SharedPtr<zeus::BufferCall>& _obj,
+			virtual void execute(ememory::SharedPtr<zeus::WebServer> _interfaceClient,
+			                     ememory::SharedPtr<zeus::BufferCall> _obj,
 			                     void* _class=nullptr) = 0;
 	};
 }

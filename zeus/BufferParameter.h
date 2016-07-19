@@ -74,6 +74,6 @@ namespace zeus {
 			void addParameter(const ZEUS_TYPE_DATA& _value) {
 				addParameter(m_parameter.size(), _value);
 			}
-			void parameterAppendBufferData(const ememory::SharedPtr<zeus::BufferData>& _obj);
+			void parameterAppendBufferData(ememory::SharedPtr<zeus::BufferData> _obj);
 	};
 }

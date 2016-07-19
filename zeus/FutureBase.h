@@ -39,7 +39,7 @@ namespace zeus {
 			 * @param[in] _callback Observer pointer
 			 * @param[in] _clientId Client/sevice Id waiting answer
 			 */
-			FutureBase(uint32_t _transactionId, const ememory::SharedPtr<zeus::Buffer>& _returnData, zeus::FutureData::ObserverFinish _callback=nullptr, uint32_t _clientId=0);
+			FutureBase(uint32_t _transactionId, ememory::SharedPtr<zeus::Buffer> _returnData, zeus::FutureData::ObserverFinish _callback=nullptr, uint32_t _clientId=0);
 			/**
 			 * @brief Asignement operator with an other future
 			 * @param[in] _base Generic base Future
@@ -51,7 +51,7 @@ namespace zeus {
 			 * @param[in] _returnValue Returned buffer
 			 * @return return true if an error occured
 			 */
-			bool appendData(const ememory::SharedPtr<zeus::Buffer>& _returnValue);
+			bool appendData(ememory::SharedPtr<zeus::Buffer> _returnValue);
 			/**
 			 * @brief Set the future syncronous
 			 * @note this mean that the system call the observer every time a packet arrive in the Future

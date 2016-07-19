@@ -20,7 +20,7 @@ zeus::Client::~Client() {
 	
 }
 
-void zeus::Client::onClientData(const ememory::SharedPtr<zeus::Buffer>& _value) {
+void zeus::Client::onClientData(ememory::SharedPtr<zeus::Buffer> _value) {
 	if (_value == nullptr) {
 		return;
 	}

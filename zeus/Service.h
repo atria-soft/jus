@@ -138,7 +138,7 @@ namespace zeus {
 			 * @param[in] 
 			 * @return 
 			 */
-			void onClientData(const ememory::SharedPtr<zeus::Buffer>& _value);
+			void onClientData(ememory::SharedPtr<zeus::Buffer> _value);
 		public:
 			/**
 			 * @brief 
@@ -184,13 +184,13 @@ namespace zeus {
 			 * @param[in] 
 			 * @return 
 			 */
-			void callBinary(const ememory::SharedPtr<zeus::Buffer>& _obj);
+			void callBinary(ememory::SharedPtr<zeus::Buffer> _obj);
 			/**
 			 * @brief 
 			 * @param[in] 
 			 * @return 
 			 */
-			virtual void callBinary2(const std::string& _call, const ememory::SharedPtr<zeus::BufferCall>& _obj) = 0;
+			virtual void callBinary2(const std::string& _call, ememory::SharedPtr<zeus::BufferCall> _obj) = 0;
 			/**
 			 * @brief 
 			 * @param[in] 
@@ -361,7 +361,7 @@ namespace zeus {
 			 * @param[in] 
 			 * @return 
 			 */
-			void callBinary2(const std::string& _call, const ememory::SharedPtr<zeus::BufferCall>& _obj) {
+			void callBinary2(const std::string& _call, ememory::SharedPtr<zeus::BufferCall> _obj) {
 				auto it = m_interface.find(_obj->getClientId());
 				if (it == m_interface.end()) {
 					m_interfaceClient->answerError(_obj->getTransactionId(), "CLIENT-UNKNOW", "", _obj->getClientId());

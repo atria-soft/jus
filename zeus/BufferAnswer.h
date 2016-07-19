@@ -25,7 +25,7 @@ namespace zeus {
 				m_header.flags = ZEUS_BUFFER_FLAG_FINISH + uint8_t(zeus::Buffer::typeMessage::answer);
 			};
 			void composeWith(const uint8_t* _buffer, uint32_t _lenght) override;
-			void appendBufferData(const ememory::SharedPtr<zeus::BufferData>& _obj) override;
+			void appendBufferData(ememory::SharedPtr<zeus::BufferData> _obj) override;
 			bool writeOn(enet::WebSocket& _interface) override;
 			void generateDisplay(std::ostream& _os) const override;
 		public:
@@ -65,16 +65,16 @@ namespace zeus {
 			 * @brief Check if the answer have an error
 			 * @return status of the error.
 			 */
-			bool hasError();
+			bool hasError() const;
 			/**
 			 * @brief get the error value (if exist)
 			 * @return string of the error
 			 */
-			const std::string& getError();
+			const std::string& getError() const;
 			/**
 			 * @brief get the error help (if exist)
 			 * @return string of the error help
 			 */
-			const std::string& getErrorHelp();
+			const std::string& getErrorHelp() const;
 	};
 }
