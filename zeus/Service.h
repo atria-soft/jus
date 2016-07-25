@@ -311,7 +311,7 @@ namespace zeus {
 				ememory::SharedPtr<ClientProperty> tmpProperty = ememory::makeShared<ClientProperty>(_clientName, _groups);
 				ememory::SharedPtr<ZEUS_TYPE_SERVICE> tmpSrv;
 				if (m_getUserInterface == nullptr) {
-					tmpSrv = ememory::makeShared<ZEUS_TYPE_SERVICE>(tmpProperty);
+					tmpSrv = ememory::makeShared<ZEUS_TYPE_SERVICE>(nullptr, tmpProperty);
 				} else {
 					tmpSrv = ememory::makeShared<ZEUS_TYPE_SERVICE>(m_getUserInterface->getUser(_userName), tmpProperty);
 				}
