@@ -102,6 +102,7 @@ namespace zeus {
 		public:
 			eproperty::Value<std::string> propertyIp; //!< Ip of WebSocket TCP connection
 			eproperty::Value<uint16_t> propertyPort; //!< Port of the WebSocket connection
+			eproperty::Value<std::string> propertyNameService; //!< Service name
 		protected:
 			ememory::SharedPtr<zeus::WebServer> m_interfaceClient;
 			uint32_t m_id;
@@ -125,7 +126,7 @@ namespace zeus {
 			 * @param[in] 
 			 * @return 
 			 */
-			void connect(const std::string& _serviceName, uint32_t _numberRetry = 1);
+			void connect(uint32_t _numberRetry = 1);
 			/**
 			 * @brief 
 			 * @param[in] 
@@ -153,6 +154,12 @@ namespace zeus {
 			 */
 			bool GateWayAlive();
 		private:
+			/**
+			 * @brief 
+			 * @param[in] 
+			 * @return 
+			 */
+			void onPropertyChangeServiceName();
 			/**
 			 * @brief 
 			 * @param[in] 
@@ -233,7 +240,7 @@ namespace zeus {
 	template<class ZEUS_TYPE_SERVICE, class ZEUS_USER_ACCESS>
 	class ServiceType : public zeus::Service {
 		private:
-			ZEUS_USER_ACCESS& m_getUserInterface;
+			ememory::SharedPtr<ZEUS_USER_ACCESS> m_getUserInterface;
 			// no need of shared_ptr or unique_ptr (if service die all is lost and is client die, the gateway notify us...)
 			std::map<uint64_t, std::pair<ememory::SharedPtr<ClientProperty>, ememory::SharedPtr<ZEUS_TYPE_SERVICE>>> m_interface;
 		public:
@@ -275,7 +282,7 @@ namespace zeus {
 			 * @param[in] 
 			 * @return 
 			 */
-			ServiceType(ZEUS_USER_ACCESS& _interface):
+			ServiceType(ememory::SharedPtr<ZEUS_USER_ACCESS> _interface):
 			  m_getUserInterface(_interface) {
 				
 			}
@@ -302,9 +309,14 @@ namespace zeus {
 				ZEUS_DEBUG("    client name='" << _clientName << "'");
 				ZEUS_DEBUG("    groups=" << etk::to_string(_groups));
 				ememory::SharedPtr<ClientProperty> tmpProperty = ememory::makeShared<ClientProperty>(_clientName, _groups);
-				ememory::SharedPtr<ZEUS_TYPE_SERVICE> tmpSrv = ememory::makeShared<ZEUS_TYPE_SERVICE>(m_getUserInterface.getUser(_userName), tmpProperty);
+				ememory::SharedPtr<ZEUS_TYPE_SERVICE> tmpSrv;
+				if (m_getUserInterface == nullptr) {
+					tmpSrv = ememory::makeShared<ZEUS_TYPE_SERVICE>(tmpProperty);
+				} else {
+					tmpSrv = ememory::makeShared<ZEUS_TYPE_SERVICE>(m_getUserInterface->getUser(_userName), tmpProperty);
+				}
 				m_interface.insert(std::make_pair(_clientId, std::make_pair(tmpProperty, tmpSrv)));
-				// enable list of function availlable: 
+				// enable list of function availlable:
 				for (auto &it : m_listFunction) {
 					if (it == nullptr) {
 						continue;

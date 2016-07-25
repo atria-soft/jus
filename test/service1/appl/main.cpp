@@ -70,7 +70,7 @@ namespace appl {
 
 int main(int _argc, const char *_argv[]) {
 	etk::init(_argc, _argv);
-	appl::UserManager userMng;
+	ememory::SharedPtr<appl::UserManager> userMng = ememory::makeShared<appl::UserManager>();
 	zeus::ServiceType<appl::Calculator, appl::UserManager> serviceInterface(userMng);
 	serviceInterface.setDescription("Calculator interface");
 	serviceInterface.setVersion("0.1.1");
@@ -99,7 +99,8 @@ int main(int _argc, const char *_argv[]) {
 	APPL_INFO("==================================");
 	APPL_INFO("== ZEUS test service1 start      ==");
 	APPL_INFO("==================================");
-	serviceInterface.connect("serviceTest1");
+	serviceInterface.propertyNameService.set("serviceTest1");
+	serviceInterface.connect();
 	int32_t iii=0;
 	while (true) {
 		usleep(1000000);

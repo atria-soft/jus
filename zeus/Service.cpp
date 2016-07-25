@@ -13,7 +13,8 @@
 
 zeus::Service::Service() :
   propertyIp(this, "ip", "127.0.0.1", "Ip to connect server", &zeus::Service::onPropertyChangeIp),
-  propertyPort(this, "port", 1982, "Port to connect server", &zeus::Service::onPropertyChangePort) {
+  propertyPort(this, "port", 1982, "Port to connect server", &zeus::Service::onPropertyChangePort),
+  propertyNameService(this, "name", "no-name", "Sevice name", &zeus::Service::onPropertyChangeServiceName) {
 	zeus::AbstractFunction* func = advertise("getExtention", &zeus::Service::getExtention);
 	if (func != nullptr) {
 		func->setDescription("Get List of availlable extention of this service");
@@ -68,6 +69,9 @@ void zeus::Service::onClientData(ememory::SharedPtr<zeus::Buffer> _value) {
 	}
 }
 
+void zeus::Service::onPropertyChangeServiceName() {
+	disconnect();
+}
 void zeus::Service::onPropertyChangeIp() {
 	disconnect();
 }
@@ -77,7 +81,7 @@ void zeus::Service::onPropertyChangePort(){
 }
 
 
-void zeus::Service::connect(const std::string& _serviceName, uint32_t _numberRetry){
+void zeus::Service::connect(uint32_t _numberRetry){
 	disconnect();
 	ZEUS_DEBUG("connect [START]");
 	enet::Tcp connection = std::move(enet::connectTcpClient(*propertyIp, *propertyPort, _numberRetry));
@@ -93,7 +97,7 @@ void zeus::Service::connect(const std::string& _serviceName, uint32_t _numberRet
 	m_interfaceClient->connect(this, &zeus::Service::onClientData);
 	m_interfaceClient->setInterface(std::move(connection), false);
 	m_interfaceClient->connect();
-	zeus::Future<bool> ret = m_interfaceClient->call("connect-service", _serviceName);
+	zeus::Future<bool> ret = m_interfaceClient->call("connect-service", propertyNameService.get());
 	ret.wait();
 	if (ret.get() == false) {
 		ZEUS_ERROR("Can not configure the interface for the service with the current name ...");

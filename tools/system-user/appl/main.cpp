@@ -198,7 +198,7 @@ int main(int _argc, const char *_argv[]) {
 		APPL_INFO("===========================================================");
 		APPL_INFO("== ZEUS instanciate service: " << SERVICE_NAME << " [START]");
 		APPL_INFO("===========================================================");
-		appl::UserManager userMng;
+		ememory::SharedPtr<appl::UserManager> userMng = ememory::makeShared<appl::UserManager>();
 		zeus::ServiceType<appl::SystemService, appl::UserManager> serviceInterface(userMng);
 		if (ip != "") {
 			serviceInterface.propertyIp.set(ip);
@@ -206,6 +206,7 @@ int main(int _argc, const char *_argv[]) {
 		if (port != 0) {
 			serviceInterface.propertyPort.set(port);
 		}
+		serviceInterface.propertyNameService.set(SERVICE_NAME);
 		serviceInterface.setDescription("user interface management");
 		serviceInterface.setVersion("0.1.0");
 		serviceInterface.setType("USER", 1);
@@ -233,12 +234,12 @@ int main(int _argc, const char *_argv[]) {
 			func->addParam("currentList", "Vector of name of the services");
 		}
 		APPL_INFO("===========================================================");
-		APPL_INFO("== ZEUS service: " << SERVICE_NAME << " [service instanciate]");
+		APPL_INFO("== ZEUS service: " << *serviceInterface.propertyNameService << " [service instanciate]");
 		APPL_INFO("===========================================================");
-		serviceInterface.connect(SERVICE_NAME);
+		serviceInterface.connect();
 		if (serviceInterface.GateWayAlive() == false) {
 			APPL_INFO("===========================================================");
-			APPL_INFO("== ZEUS service: " << SERVICE_NAME << " [STOP] Can not connect to the GateWay");
+			APPL_INFO("== ZEUS service: " << *serviceInterface.propertyNameService << " [STOP] Can not connect to the GateWay");
 			APPL_INFO("===========================================================");
 			APPL_INFO("wait 5 second ...");
 			usleep(5000000);
@@ -253,7 +254,7 @@ int main(int _argc, const char *_argv[]) {
 		}
 		serviceInterface.disconnect();
 		APPL_INFO("===========================================================");
-		APPL_INFO("== ZEUS service: " << SERVICE_NAME << " [STOP] GateWay Stop");
+		APPL_INFO("== ZEUS service: " << *serviceInterface.propertyNameService << " [STOP] GateWay Stop");
 		APPL_INFO("===========================================================");
 	}
 	return 0;
