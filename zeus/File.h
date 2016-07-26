@@ -29,9 +29,15 @@ namespace zeus {
 			 * @brief Constructor of a typed file
 			 * @param[in] _mineType mine type of the file
 			 * @param[in] _data data of the file
-			 * @param[in] _fileSize théoric file size
+			 * @param[in] _fileSize theoric file size
 			 */
 			File(const std::string& _mineType, std::vector<uint8_t> _data, int32_t _fileSize = -1);
+			/**
+			 * @brief Constructor of a typed file
+			 * @param[in] _mineType mine type of the file
+			 * @param[in] _fileSize preallocation size (data will be set after ...)
+			 */
+			File(const std::string& _mineType, int32_t _size);
 			/**
 			 * @brief get the théoric file size
 			 * @return size of the file

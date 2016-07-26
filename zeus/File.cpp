@@ -37,6 +37,13 @@ zeus::File::File(const std::string& _mineType, std::vector<uint8_t> _data, int32
 	}
 }
 
+zeus::File::File(const std::string& _mineType, int32_t _size) :
+  m_mineType(_mineType),
+  m_data() {
+	m_data.resize(_size);
+	m_fileSize = _size;
+}
+
 void zeus::File::setData(uint64_t _offset, const std::vector<uint8_t>& _data) {
 	setData(_offset, &_data[0], _data.size());
 }

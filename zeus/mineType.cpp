@@ -112,6 +112,14 @@ static std::vector<std::pair<std::string, std::string>> mineList = {
   /* Miscellaneous text files */
   { "bup", "text/bup"}, /* DVD backup */
   { "ifo", "text/ifo"}, /* DVD information */
+  
+  /* Some Raw format for images */
+  { "yuv422",  "image/x-raw/yuv422"},
+  { "yuv420",  "image/x-raw/yuv420"},
+  { "yuv411",  "image/x-raw/yuv411"},
+  { "rgb",     "image/x-raw/r8g8b8"},
+  { "rgba",    "image/x-raw/r8g8b8a8"},
+  
 };
 
 std::string zeus::getMineType(const std::string& _extention) {
