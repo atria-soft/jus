@@ -14,6 +14,10 @@
 
 namespace zeus {
 	/**
+	 * @bried check if the compilater order the function element call in order or backOrder
+	 */
+	bool checkOrderFunctionParameter();
+	/**
 	 * @brief Interface to store a function and call it after with a @ref zeus::Buffer
 	 */
 	class AbstractFunction {

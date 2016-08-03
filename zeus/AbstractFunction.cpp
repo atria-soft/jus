@@ -7,6 +7,34 @@
 #include <zeus/debug.h>
 #include <etk/os/FSNode.h>
 
+static int32_t firstCall(bool& _value) {
+	_value = false;
+	return 51;
+}
+
+static int32_t secondCall(bool& _value) {
+	_value = true;
+	return 452;
+}
+
+static void unneededCall(int32_t _val1, int32_t _val2) {
+	// Nothing to do ...
+}
+
+bool zeus::checkOrderFunctionParameter() {
+	static bool value = false;
+	static bool init = false;
+	if (init == true) {
+		return value;
+	}
+	// use a temporary variable to mermit to have multiple first call and like this permit to not need to initialize it while not really needed
+	bool valueTmp = false;
+	unneededCall(firstCall(valueTmp),secondCall(valueTmp));
+	value = valueTmp;
+	init = true;
+	return value;
+}
+
 enum zeus::AbstractFunction::type zeus::AbstractFunction::getType() const {
 	return m_type;
 }

@@ -22,17 +22,16 @@ namespace zeus {
 		if (_obj == nullptr) {
 			return;
 		}
-		#if defined(__clang__)
+		ZEUS_RETURN ret;
+		if (zeus::checkOrderFunctionParameter() == true) {
 			// clang generate a basic warning:
 			//      warning: multiple unsequenced modifications to 'idParam' [-Wunsequenced]
 			int32_t idParam = 0;
-			ZEUS_RETURN ret = _func(_obj->getParameter<ZEUS_TYPES>(idParam++)...);
-		#elif defined(__GNUC__) || defined(__GNUG__) || defined(_MSC_VER)
+			ret = _func(_obj->getParameter<ZEUS_TYPES>(idParam++)...);
+		} else {
 			int32_t idParam = int32_t(sizeof...(ZEUS_TYPES))-1;
-			ZEUS_RETURN ret = _func(_obj->getParameter<ZEUS_TYPES>(idParam--)...);
-		#else
-			#error Must be implemented ...
-		#endif
+			ret = _func(_obj->getParameter<ZEUS_TYPES>(idParam--)...);
+		}
 		_interfaceClient->addAsync([=](WebServer* _interface) {
 			    _interface->answerValue(_obj->getTransactionId(), ret, _obj->getClientId());
 			    return true;
@@ -51,17 +50,15 @@ namespace zeus {
 		if (_obj == nullptr) {
 			return;
 		}
-		#if defined(__clang__)
+		if (zeus::checkOrderFunctionParameter() == true) {
 			// clang generate a basic warning:
 			//      warning: multiple unsequenced modifications to 'idParam' [-Wunsequenced]
 			int32_t idParam = 0;
 			_func(_obj->getParameter<ZEUS_TYPES>(idParam++)...);
-		#elif defined(__GNUC__) || defined(__GNUG__) || defined(_MSC_VER)
+		} else {
 			int32_t idParam = int32_t(sizeof...(ZEUS_TYPES))-1;
 			_func(_obj->getParameter<ZEUS_TYPES>(idParam--)...);
-		#else
-			#error Must be implemented ...
-		#endif
+		}
 		_interfaceClient->addAsync([=](WebServer* _interface) {
 			    _interface->answerVoid(_obj->getTransactionId(), _obj->getClientId());
 			    return true;
