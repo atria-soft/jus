@@ -26,7 +26,7 @@ def get_version():
 
 def create(target, module_name):
 	my_module = module.Module(__file__, module_name, get_type())
-	my_module.add_module_depend(['etk', 'enet', 'ememory', 'eproperty'])
+	my_module.add_depend(['etk', 'enet', 'ememory', 'eproperty'])
 	my_module.add_src_file([
 	    'zeus/debug.cpp'
 	    ])
