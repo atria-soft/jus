@@ -13,6 +13,9 @@
 #include <zeus/RemoteProcessCall.h>
 #include <zeus/Future.h>
 
+/**
+ * @brief Main zeus library namespace
+ */
 namespace zeus {
 	/**
 	 * @brief 

@@ -6,7 +6,8 @@ zeus
 Instructions
 ============
 
-TODO ...
+messaging engine drived by data and message based on websocket api
+
 
 License (APACHE v2.0)
 =====================
