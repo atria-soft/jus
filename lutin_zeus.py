@@ -22,7 +22,7 @@ def get_maintainer():
 	return "authors.txt"
 
 def get_version():
-	return "authors.txt"
+	return "version.txt"
 
 def create(target, module_name):
 	my_module = module.Module(__file__, module_name, get_type())
@@ -78,7 +78,7 @@ def create(target, module_name):
 	    'zeus/mineType.h',
 	    ])
 	if target.config["compilator"] == "clang":
-		my_module.add_export_flag('c++', "-Wno-unsequenced")
+		my_module.add_flag('c++', "-Wno-unsequenced", export=True)
 	# build in C++ mode
 	my_module.compile_version("c++", 2011)
 	return my_module
