@@ -9,7 +9,7 @@
 #include <etk/stdTools.hpp>
 #include <zeus/mineType.hpp>
 #include <etk/os/FSNode.hpp>
-#include <string.h>
+#include <cstring>
 
 
 

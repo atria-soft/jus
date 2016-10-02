@@ -8,13 +8,13 @@
 #include <zeus/Service.hpp>
 #include <zeus/File.hpp>
 #include <etk/etk.hpp>
-#include <unistd.hpp>
+#include <unistd.h>
 #include <mutex>
 #include <ejson/ejson.hpp>
 #include <etk/os/FSNode.hpp>
 #include <sstream>
 
-#include <etk/stdTools.h>
+#include <etk/stdTools.hpp>
 namespace appl {
 	class User {
 		private:
