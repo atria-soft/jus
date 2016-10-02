@@ -4,9 +4,9 @@
  * @license APACHE v2.0 (see license file)
  */
 
-#include <zeus/ParamType.h>
-#include <zeus/debug.h>
-#include <zeus/File.h>
+#include <zeus/ParamType.hpp>
+#include <zeus/debug.hpp>
+#include <zeus/File.hpp>
 
 
 bool zeus::checkCompatibility(const ParamType& _type, const ParamType& _params) {

@@ -4,8 +4,8 @@
  * @license APACHE v2.0 (see license file)
  */
 
-#include <zeus/mineType.h>
-#include <zeus/debug.h>
+#include <zeus/mineType.hpp>
+#include <zeus/debug.hpp>
 
 
 static std::vector<std::pair<std::string, std::string>> mineList = {

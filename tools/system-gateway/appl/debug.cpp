@@ -4,7 +4,7 @@
  * @license APACHE v2.0 (see license file)
  */
 
-#include <appl/debug.h>
+#include <appl/debug.hpp>
 
 int32_t appl::getLogId() {
 	static int32_t g_val = elog::registerInstance("zeus-gateway");

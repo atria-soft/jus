@@ -4,9 +4,9 @@
  * @license APACHE v2.0 (see license file)
  */
 
-#include <enet/TcpClient.h>
-#include <zeus/Client.h>
-#include <zeus/debug.h>
+#include <enet/TcpClient.hpp>
+#include <zeus/Client.hpp>
+#include <zeus/debug.hpp>
 
 #include <unistd.h>
 

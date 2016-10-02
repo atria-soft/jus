@@ -4,13 +4,13 @@
  * @license APACHE v2.0 (see license file)
  */
 #pragma once
-#include <zeus/Buffer.h>
-#include <zeus/BufferAnswer.h>
-#include <enet/WebSocket.h>
+#include <zeus/Buffer.hpp>
+#include <zeus/BufferAnswer.hpp>
+#include <enet/WebSocket.hpp>
 #include <thread>
-#include <ememory/memory.h>
-#include <zeus/AbstractFunction.h>
-#include <zeus/FutureBase.h>
+#include <ememory/memory.hpp>
+#include <zeus/AbstractFunction.hpp>
+#include <zeus/FutureBase.hpp>
 
 namespace zeus {
 	/**

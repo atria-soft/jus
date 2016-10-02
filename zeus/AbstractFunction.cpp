@@ -3,9 +3,9 @@
  * @copyright 2016, Edouard DUPIN, all right reserved
  * @license APACHE v2.0 (see license file)
  */
-#include <zeus/AbstractFunction.h>
-#include <zeus/debug.h>
-#include <etk/os/FSNode.h>
+#include <zeus/AbstractFunction.hpp>
+#include <zeus/debug.hpp>
+#include <etk/os/FSNode.hpp>
 
 static int32_t firstCall(bool& _value) {
 	_value = false;

@@ -4,12 +4,12 @@
  * @license APACHE v2.0 (see license file)
  */
 #pragma once
-#include <zeus/debug.h>
-#include <zeus/ParamType.h>
-#include <zeus/File.h>
-#include <zeus/Buffer.h>
-#include <zeus/BufferCall.h>
-#include <ememory/memory.h>
+#include <zeus/debug.hpp>
+#include <zeus/ParamType.hpp>
+#include <zeus/File.hpp>
+#include <zeus/Buffer.hpp>
+#include <zeus/BufferCall.hpp>
+#include <ememory/memory.hpp>
 
 
 namespace zeus {
@@ -134,5 +134,5 @@ namespace zeus {
 	};
 }
 
-#include <zeus/WebServer.h>
+#include <zeus/WebServer.hpp>
 

@@ -3,12 +3,12 @@
  * @copyright 2016, Edouard DUPIN, all right reserved
  * @license APACHE v2.0 (see license file)
  */
-#include <zeus/File.h>
-#include <zeus/debug.h>
-#include <etk/types.h>
-#include <etk/stdTools.h>
-#include <zeus/mineType.h>
-#include <etk/os/FSNode.h>
+#include <zeus/File.hpp>
+#include <zeus/debug.hpp>
+#include <etk/types.hpp>
+#include <etk/stdTools.hpp>
+#include <zeus/mineType.hpp>
+#include <etk/os/FSNode.hpp>
 #include <string.h>
 
 

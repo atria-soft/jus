@@ -3,11 +3,11 @@
  * @copyright 2016, Edouard DUPIN, all right reserved
  * @license APACHE v2.0 (see license file)
  */
-#include <zeus/WebServer.h>
-#include <zeus/debug.h>
-#include <ethread/tools.h>
-#include <unistd.h>
-#include <zeus/BufferData.h>
+#include <zeus/WebServer.hpp>
+#include <zeus/debug.hpp>
+#include <ethread/tools.hpp>
+#include <unistd.hpp>
+#include <zeus/BufferData.hpp>
 
 
 ememory::SharedPtr<zeus::BufferCall> zeus::createBaseCall(uint64_t _transactionId, const std::string& _functionName, const uint32_t& _serviceId) {

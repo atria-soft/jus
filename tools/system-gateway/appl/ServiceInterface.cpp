@@ -4,10 +4,10 @@
  * @license APACHE v2.0 (see license file)
  */
 
-#include <appl/debug.h>
-#include <appl/ServiceInterface.h>
-#include <appl/ClientInterface.h>
-#include <appl/GateWay.h>
+#include <appl/debug.hpp>
+#include <appl/ServiceInterface.hpp>
+#include <appl/ClientInterface.hpp>
+#include <appl/GateWay.hpp>
 
 // todo : cHANGE THIS ...
 static const std::string protocolError = "PROTOCOL-ERROR";

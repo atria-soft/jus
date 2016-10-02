@@ -4,9 +4,9 @@
  * @license APACHE v2.0 (see license file)
  */
 
-#include <appl/GateWay.h>
-#include <appl/debug.h>
-#include <enet/TcpServer.h>
+#include <appl/GateWay.hpp>
+#include <appl/debug.hpp>
+#include <enet/TcpServer.hpp>
 
 
 namespace appl {

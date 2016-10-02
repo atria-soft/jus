@@ -4,12 +4,12 @@
  * @license APACHE v2.0 (see license file)
  */
 
-#include <appl/debug.h>
-#include <appl/GateWay.h>
-#include <etk/etk.h>
+#include <appl/debug.hpp>
+#include <appl/GateWay.hpp>
+#include <etk/etk.hpp>
 #include <unistd.h>
 
-#include <etk/stdTools.h>
+#include <etk/stdTools.hpp>
 
 int main(int _argc, const char *_argv[]) {
 	etk::init(_argc, _argv);

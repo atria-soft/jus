@@ -5,7 +5,7 @@
  */
 #pragma once
 
-#include <zeus/FutureData.h>
+#include <zeus/FutureData.hpp>
 
 namespace zeus {
 	/**

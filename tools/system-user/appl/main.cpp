@@ -4,14 +4,14 @@
  * @license APACHE v2.0 (see license file)
  */
 
-#include <appl/debug.h>
-#include <zeus/Service.h>
-#include <etk/etk.h>
+#include <appl/debug.hpp>
+#include <zeus/Service.hpp>
+#include <etk/etk.hpp>
 #include <unistd.h>
 #include <mutex>
-#include <ejson/ejson.h>
+#include <ejson/ejson.hpp>
 
-#include <etk/stdTools.h>
+#include <etk/stdTools.hpp>
 namespace appl {
 	class User {
 		private:

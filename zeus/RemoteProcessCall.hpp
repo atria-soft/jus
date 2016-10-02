@@ -5,10 +5,10 @@
  */
 #pragma once
 
-#include <zeus/WebServer.h>
-#include <zeus/AbstractFunctionTypeDirect.h>
-#include <zeus/AbstractFunctionTypeClass.h>
-#include <zeus/debug.h>
+#include <zeus/WebServer.hpp>
+#include <zeus/AbstractFunctionTypeDirect.hpp>
+#include <zeus/AbstractFunctionTypeClass.hpp>
+#include <zeus/debug.hpp>
 
 namespace zeus {
 	/**

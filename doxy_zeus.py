@@ -24,10 +24,10 @@ def create(target, module_name):
 	    '*operator<<*',
 	    ])
 	my_module.add_exclude_file([
-	    'debug.h',
+	    'debug.hpp',
 	    ])
 	my_module.add_file_patterns([
-	    '*.h',
+	    '*.hpp',
 	    '*.md',
 	    ])
 	

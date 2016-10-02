@@ -4,10 +4,10 @@
  * @license APACHE v2.0 (see license file)
  */
 
-#include <zeus/Service.h>
-#include <zeus/debug.h>
-#include <etk/stdTools.h>
-#include <enet/TcpClient.h>
+#include <zeus/Service.hpp>
+#include <zeus/debug.hpp>
+#include <etk/stdTools.hpp>
+#include <enet/TcpClient.hpp>
 
 #include <unistd.h>
 

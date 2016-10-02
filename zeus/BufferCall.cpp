@@ -3,12 +3,12 @@
  * @copyright 2016, Edouard DUPIN, all right reserved
  * @license APACHE v2.0 (see license file)
  */
-#include <etk/types.h>
-#include <zeus/Buffer.h>
-#include <zeus/debug.h>
-#include <zeus/ParamType.h>
-#include <etk/stdTools.h>
-#include <zeus/BufferCall.h>
+#include <etk/types.hpp>
+#include <zeus/Buffer.hpp>
+#include <zeus/debug.hpp>
+#include <zeus/ParamType.hpp>
+#include <etk/stdTools.hpp>
+#include <zeus/BufferCall.hpp>
 
 void zeus::BufferCall::generateDisplay(std::ostream& _os) const {
 	zeus::Buffer::generateDisplay(_os);

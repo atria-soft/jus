@@ -4,14 +4,14 @@
  * @license APACHE v2.0 (see license file)
  */
 
-#include <appl/debug.h>
-#include <zeus/Service.h>
-#include <zeus/File.h>
-#include <etk/etk.h>
-#include <unistd.h>
+#include <appl/debug.hpp>
+#include <zeus/Service.hpp>
+#include <zeus/File.hpp>
+#include <etk/etk.hpp>
+#include <unistd.hpp>
 #include <mutex>
-#include <ejson/ejson.h>
-#include <etk/os/FSNode.h>
+#include <ejson/ejson.hpp>
+#include <etk/os/FSNode.hpp>
 #include <sstream>
 
 #include <etk/stdTools.h>

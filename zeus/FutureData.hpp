@@ -5,10 +5,10 @@
  */
 #pragma once
 
-#include <etk/types.h>
-#include <zeus/Buffer.h>
+#include <etk/types.hpp>
+#include <zeus/Buffer.hpp>
 #include <functional>
-#include <ememory/memory.h>
+#include <ememory/memory.hpp>
 
 
 namespace zeus {

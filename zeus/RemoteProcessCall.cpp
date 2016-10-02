@@ -3,7 +3,7 @@
  * @copyright 2016, Edouard DUPIN, all right reserved
  * @license APACHE v2.0 (see license file)
  */
-#include <zeus/RemoteProcessCall.h>
+#include <zeus/RemoteProcessCall.hpp>
 
 zeus::RemoteProcessCall::RemoteProcessCall() :
   m_type("UNKNOW"){

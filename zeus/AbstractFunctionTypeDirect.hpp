@@ -5,25 +5,20 @@
  */
 #pragma once
 
-#include <zeus/WebServer.h>
-#include <zeus/debug.h>
-#include <zeus/AbstractFunction.h>
-#include <zeus/mineType.h>
-
-
+#include <zeus/WebServer.hpp>
+#include <zeus/debug.hpp>
+#include <zeus/AbstractFunction.hpp>
 namespace zeus {
 	/**
-	 * @brief Execute a call on the function with a return value
+	 * @brief Execute a call on the global function with a return value
 	 * @param[in] _interfaceClient Web interface to send data
 	 * @param[in] _obj Buffer input call (that have parameter already check)
-	 * @param[in] _pointer Pointer on the class to call
 	 * @param[in] _func pointer on the function to call
 	 */
-	template <class ZEUS_CLASS_TYPE, class ZEUS_RETURN, class... ZEUS_TYPES>
-	void executeClassCall(ememory::SharedPtr<zeus::WebServer> _interfaceClient,
-	                      ememory::SharedPtr<zeus::BufferParameter> _obj,
-	                      ZEUS_CLASS_TYPE* _pointer,
-	                      ZEUS_RETURN (ZEUS_CLASS_TYPE::*_func)(ZEUS_TYPES...)) {
+	template <class ZEUS_RETURN, class... ZEUS_TYPES>
+	void executeCall(ememory::SharedPtr<zeus::WebServer> _interfaceClient,
+	                 ememory::SharedPtr<zeus::BufferParameter> _obj,
+	                 ZEUS_RETURN (*_func)(ZEUS_TYPES...)) {
 		if (_obj == nullptr) {
 			return;
 		}
@@ -32,10 +27,10 @@ namespace zeus {
 			// clang generate a basic warning:
 			//      warning: multiple unsequenced modifications to 'idParam' [-Wunsequenced]
 			int32_t idParam = 0;
-			ret = (*_pointer.*_func)(_obj->getParameter<ZEUS_TYPES>(idParam++)...);
+			ret = _func(_obj->getParameter<ZEUS_TYPES>(idParam++)...);
 		} else {
 			int32_t idParam = int32_t(sizeof...(ZEUS_TYPES))-1;
-			ret = (*_pointer.*_func)(_obj->getParameter<ZEUS_TYPES>(idParam--)...);
+			ret = _func(_obj->getParameter<ZEUS_TYPES>(idParam--)...);
 		}
 		_interfaceClient->addAsync([=](WebServer* _interface) {
 			    _interface->answerValue(_obj->getTransactionId(), ret, _obj->getClientId());
@@ -43,17 +38,15 @@ namespace zeus {
 			});
 	}
 	/**
-	 * @brief Execute a call on the function with NO return value
+	 * @brief Execute a call on the global function with NO return value
 	 * @param[in] _interfaceClient Web interface to send data
 	 * @param[in] _obj Buffer input call (that have parameter already check)
-	 * @param[in] _pointer Pointer on the class to call
 	 * @param[in] _func pointer on the function to call
 	 */
-	template <class ZEUS_CLASS_TYPE, class... ZEUS_TYPES>
-	void executeClassCall(ememory::SharedPtr<zeus::WebServer> _interfaceClient,
-	                      ememory::SharedPtr<zeus::BufferParameter> _obj,
-	                      ZEUS_CLASS_TYPE* _pointer,
-	                      void (ZEUS_CLASS_TYPE::*_func)(ZEUS_TYPES...)) {
+	template <class... ZEUS_TYPES>
+	void executeCall(ememory::SharedPtr<zeus::WebServer> _interfaceClient,
+	                 ememory::SharedPtr<zeus::BufferParameter> _obj,
+	                 void (*_func)(ZEUS_TYPES...)) {
 		if (_obj == nullptr) {
 			return;
 		}
@@ -61,33 +54,34 @@ namespace zeus {
 			// clang generate a basic warning:
 			//      warning: multiple unsequenced modifications to 'idParam' [-Wunsequenced]
 			int32_t idParam = 0;
-			(*_pointer.*_func)(_obj->getParameter<ZEUS_TYPES>(idParam++)...);
+			_func(_obj->getParameter<ZEUS_TYPES>(idParam++)...);
 		} else {
 			int32_t idParam = int32_t(sizeof...(ZEUS_TYPES))-1;
-			(*_pointer.*_func)(_obj->getParameter<ZEUS_TYPES>(idParam--)...);
+			_func(_obj->getParameter<ZEUS_TYPES>(idParam--)...);
 		}
 		_interfaceClient->addAsync([=](WebServer* _interface) {
 			    _interface->answerVoid(_obj->getTransactionId(), _obj->getClientId());
 			    return true;
 			});
 	}
+	
 	/**
-	 * @brief Chass that permit to declare a function that call intanced element or a class element
+	 * @brief Chass that permit to declare a function that call global function
 	 */
-	template <class ZEUS_RETURN, class ZEUS_CLASS_TYPE, class... ZEUS_TYPES>
-	class AbstractFunctionTypeClass: public zeus::AbstractFunction {
+	template <class ZEUS_RETURN, class... ZEUS_TYPES>
+	class AbstractFunctionTypeDirect: public zeus::AbstractFunction {
 		protected:
 			static const ParamType m_returnType;
 			static const ParamType m_paramType[sizeof...(ZEUS_TYPES)];
 		public:
-			using functionType = ZEUS_RETURN (ZEUS_CLASS_TYPE::*)(ZEUS_TYPES...);
+			using functionType = ZEUS_RETURN (*)(ZEUS_TYPES...);
 			functionType m_function;
 			/**
 			 * @brief Constructor
 			 * @param[in] _name Name of the function
 			 * @param[in] _fptr Pointer on the function
 			 */
-			AbstractFunctionTypeClass(const std::string& _name, functionType _fptr):
+			AbstractFunctionTypeDirect(const std::string& _name, functionType _fptr):
 			  AbstractFunction(_name),
 			  m_function(_fptr) {
 			}
@@ -107,14 +101,8 @@ namespace zeus {
 				if (_obj == nullptr) {
 					return;
 				}
-				ZEUS_CLASS_TYPE* tmpClass = nullptr;
-				if (_class != nullptr) {
-					tmpClass = (ZEUS_CLASS_TYPE*)_class;
-				}
-				
 				// check parameter number
 				if (_obj->getNumberParameter() != sizeof...(ZEUS_TYPES)) {
-					ZEUS_ERROR("Wrong number of Parameters ...");
 					std::string help = "request ";
 					help += etk::to_string(_obj->getNumberParameter());
 					help += " parameters and need ";
@@ -138,24 +126,23 @@ namespace zeus {
 					}
 				}
 				// execute cmd:
-				zeus::executeClassCall(_interfaceClient, _obj, tmpClass, m_function);
+				zeus::executeCall(_interfaceClient, _obj, m_function);
 			}
 	};
 	// specialization
-	template <class ZEUS_RETURN, class ZEUS_CLASS_TYPE, class... ZEUS_TYPES>
-	const ParamType AbstractFunctionTypeClass<ZEUS_RETURN, ZEUS_CLASS_TYPE, ZEUS_TYPES...>::m_returnType = createType<ZEUS_RETURN>();
+	template <class ZEUS_RETURN, class... ZEUS_TYPES>
+	const ParamType AbstractFunctionTypeDirect<ZEUS_RETURN, ZEUS_TYPES...>::m_returnType = createType<ZEUS_RETURN>();
 	// specialization
-	template <class ZEUS_RETURN, class ZEUS_CLASS_TYPE, class... ZEUS_TYPES>
-	const ParamType AbstractFunctionTypeClass<ZEUS_RETURN, ZEUS_CLASS_TYPE, ZEUS_TYPES...>::m_paramType[sizeof...(ZEUS_TYPES)] = {createType<ZEUS_TYPES>()...};
+	template <class ZEUS_RETURN, class... ZEUS_TYPES>
+	const ParamType AbstractFunctionTypeDirect<ZEUS_RETURN, ZEUS_TYPES...>::m_paramType[sizeof...(ZEUS_TYPES)] = {createType<ZEUS_TYPES>()...};
 	/**
 	 * @brief Create a function information with the function type
 	 * @param[in] _name Name of the function
 	 * @param[in] _fffp Pointer of the function
 	 * @return Abstract type of the function
 	 */
-	template <typename ZEUS_RETURN, class ZEUS_CLASS_TYPE, typename... ZEUS_TYPES>
-	AbstractFunction* createAbstractFunctionClass(const std::string& _name, ZEUS_RETURN (ZEUS_CLASS_TYPE::*_fffp)(ZEUS_TYPES...)) {
-		return new AbstractFunctionTypeClass<ZEUS_RETURN, ZEUS_CLASS_TYPE, ZEUS_TYPES...>(_name, _fffp);
+	template <typename ZEUS_RETURN, typename... ZEUS_TYPES>
+	zeus::AbstractFunction* createAbstractFunctionDirect(const std::string& _name, ZEUS_RETURN (*_fffp)(ZEUS_TYPES...)) {
+		return new AbstractFunctionTypeDirect<ZEUS_RETURN, ZEUS_TYPES...>(_name, _fffp);
 	}
 }
-

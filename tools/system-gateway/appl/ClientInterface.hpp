@@ -5,9 +5,9 @@
  */
 #pragma once
 
-#include <zeus/WebServer.h>
-#include <appl/GateWay.h>
-#include <appl/ServiceInterface.h>
+#include <zeus/WebServer.hpp>
+#include <appl/GateWay.hpp>
+#include <appl/ServiceInterface.hpp>
 
 namespace appl {
 	class GateWay;

@@ -5,13 +5,13 @@
  */
 #pragma once
 
-#include <zeus/WebServer.h>
-#include <eproperty/Value.h>
-#include <zeus/AbstractFunctionTypeDirect.h>
-#include <zeus/AbstractFunctionTypeClass.h>
-#include <zeus/debug.h>
-#include <zeus/RemoteProcessCall.h>
-#include <zeus/Future.h>
+#include <zeus/WebServer.hpp>
+#include <eproperty/Value.hpp>
+#include <zeus/AbstractFunctionTypeDirect.hpp>
+#include <zeus/AbstractFunctionTypeClass.hpp>
+#include <zeus/debug.hpp>
+#include <zeus/RemoteProcessCall.hpp>
+#include <zeus/Future.hpp>
 
 /**
  * @brief Main zeus library namespace

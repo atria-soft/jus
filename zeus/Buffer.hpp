@@ -4,9 +4,9 @@
  * @license APACHE v2.0 (see license file)
  */
 #pragma once
-#include <etk/types.h>
-#include <enet/WebSocket.h>
-#include <zeus/ParamType.h>
+#include <etk/types.hpp>
+#include <enet/WebSocket.hpp>
+#include <zeus/ParamType.hpp>
 
 namespace zeus {
 	class WebServer;

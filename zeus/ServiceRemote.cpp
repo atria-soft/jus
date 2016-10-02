@@ -4,8 +4,8 @@
  * @license APACHE v2.0 (see license file)
  */
 
-#include <zeus/ServiceRemote.h>
-#include <zeus/Client.h>
+#include <zeus/ServiceRemote.hpp>
+#include <zeus/Client.hpp>
 
 zeus::ServiceRemote::ServiceRemote(ememory::SharedPtr<zeus::WebServer> _clientLink, const std::string& _name):
   m_interfaceClient(_clientLink),

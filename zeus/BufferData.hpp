@@ -4,10 +4,10 @@
  * @license APACHE v2.0 (see license file)
  */
 #pragma once
-#include <etk/types.h>
-#include <enet/WebSocket.h>
-#include <zeus/ParamType.h>
-#include <zeus/Buffer.h>
+#include <etk/types.hpp>
+#include <enet/WebSocket.hpp>
+#include <zeus/ParamType.hpp>
+#include <zeus/Buffer.hpp>
 
 namespace zeus {
 

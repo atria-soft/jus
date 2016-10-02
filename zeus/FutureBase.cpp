@@ -3,9 +3,9 @@
  * @copyright 2014, Edouard DUPIN, all right reserved
  * @license APACHE v2.0 (see license file)
  */
-#include <zeus/FutureBase.h>
-#include <zeus/BufferAnswer.h>
-#include <zeus/debug.h>
+#include <zeus/FutureBase.hpp>
+#include <zeus/BufferAnswer.hpp>
+#include <zeus/debug.hpp>
 #include <unistd.h>
 
 zeus::FutureBase::FutureBase(const zeus::FutureBase& _base):

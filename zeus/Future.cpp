@@ -3,11 +3,11 @@
  * @copyright 2014, Edouard DUPIN, all right reserved
  * @license APACHE v2.0 (see license file)
  */
-#include <zeus/Future.h>
-#include <zeus/BufferAnswer.h>
-#include <zeus/debug.h>
+#include <zeus/Future.hpp>
+#include <zeus/BufferAnswer.hpp>
+#include <zeus/debug.hpp>
 #include <unistd.h>
-#include <zeus/File.h>
+#include <zeus/File.hpp>
 
 namespace zeus {
 	template<>

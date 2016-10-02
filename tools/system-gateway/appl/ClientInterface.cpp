@@ -4,13 +4,13 @@
  * @license APACHE v2.0 (see license file)
  */
 
-#include <appl/debug.h>
-#include <appl/ClientInterface.h>
-#include <zeus/Future.h>
-#include <appl/GateWay.h>
+#include <appl/debug.hpp>
+#include <appl/ClientInterface.hpp>
+#include <zeus/Future.hpp>
+#include <appl/GateWay.hpp>
 #include <unistd.h>
 
-#include <zeus/AbstractFunction.h>
+#include <zeus/AbstractFunction.hpp>
 
 
 static const std::string protocolError = "PROTOCOL-ERROR";

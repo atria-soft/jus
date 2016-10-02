@@ -5,12 +5,12 @@
  */
 #pragma once
 
-#include <zeus/WebServer.h>
-#include <zeus/debug.h>
-#include <zeus/AbstractFunction.h>
-#include <zeus/ServiceRemote.h>
-#include <zeus/Future.h>
-#include <zeus/WebServer.h>
+#include <zeus/WebServer.hpp>
+#include <zeus/debug.hpp>
+#include <zeus/AbstractFunction.hpp>
+#include <zeus/ServiceRemote.hpp>
+#include <zeus/Future.hpp>
+#include <zeus/WebServer.hpp>
 
 namespace zeus {
 	class Client;

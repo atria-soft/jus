@@ -3,18 +3,18 @@
  * @copyright 2016, Edouard DUPIN, all right reserved
  * @license APACHE v2.0 (see license file)
  */
-#include <etk/types.h>
-#include <zeus/Buffer.h>
-#include <zeus/debug.h>
-#include <zeus/ParamType.h>
-#include <etk/stdTools.h>
-#include <zeus/AbstractFunction.h>
+#include <etk/types.hpp>
+#include <zeus/Buffer.hpp>
+#include <zeus/debug.hpp>
+#include <zeus/ParamType.hpp>
+#include <etk/stdTools.hpp>
+#include <zeus/AbstractFunction.hpp>
 #include <climits>
-#include <zeus/BufferAnswer.h>
-#include <zeus/BufferCall.h>
-#include <zeus/BufferData.h>
-#include <zeus/BufferFlow.h>
-#include <zeus/BufferEvent.h>
+#include <zeus/BufferAnswer.hpp>
+#include <zeus/BufferCall.hpp>
+#include <zeus/BufferData.hpp>
+#include <zeus/BufferFlow.hpp>
+#include <zeus/BufferEvent.hpp>
 
 namespace etk {
 	template<> std::string to_string<enum zeus::Buffer::typeMessage>(const enum zeus::Buffer::typeMessage& _value) {

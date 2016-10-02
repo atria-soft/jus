@@ -5,13 +5,13 @@
  */
 #pragma once
 
-#include <zeus/WebServer.h>
-#include <eproperty/Value.h>
-#include <zeus/debug.h>
+#include <zeus/WebServer.hpp>
+#include <eproperty/Value.hpp>
+#include <zeus/debug.hpp>
 #include <chrono>
-#include <unistd.h>
-#include <zeus/Future.h>
-#include <zeus/ServiceRemote.h>
+#include <unistd.hpp>
+#include <zeus/Future.hpp>
+#include <zeus/ServiceRemote.hpp>
 
 namespace zeus {
 	/**

@@ -4,9 +4,9 @@
  * @license APACHE v2.0 (see license file)
  */
 #pragma once
-#include <appl/ServiceInterface.h>
-#include <appl/ClientInterface.h>
-#include <eproperty/Value.h>
+#include <appl/ServiceInterface.hpp>
+#include <appl/ClientInterface.hpp>
+#include <eproperty/Value.hpp>
 
 namespace appl {
 	class TcpServerInput;

@@ -5,8 +5,8 @@
  */
 #pragma once
 
-#include <zeus/WebServer.h>
-#include <ememory/memory.h>
+#include <zeus/WebServer.hpp>
+#include <ememory/memory.hpp>
 
 namespace appl {
 	class GateWay;

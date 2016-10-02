@@ -4,15 +4,15 @@
  * @license APACHE v2.0 (see license file)
  */
 
-#include <appl/debug.h>
-#include <zeus/Client.h>
-#include <zeus/ServiceRemote.h>
-#include <zeus/mineType.h>
-#include <etk/etk.h>
-#include <etk/os/FSNode.h>
+#include <appl/debug.hpp>
+#include <zeus/Client.hpp>
+#include <zeus/ServiceRemote.hpp>
+#include <zeus/mineType.hpp>
+#include <etk/etk.hpp>
+#include <etk/os/FSNode.hpp>
 #include <unistd.h>
 
-#include <etk/stdTools.h>
+#include <etk/stdTools.hpp>
 
 int main(int _argc, const char *_argv[]) {
 	etk::init(_argc, _argv);

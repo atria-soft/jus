@@ -3,14 +3,14 @@
  * @copyright 2016, Edouard DUPIN, all right reserved
  * @license APACHE v2.0 (see license file)
  */
-#include <etk/types.h>
-#include <zeus/Buffer.h>
-#include <zeus/BufferData.h>
-#include <zeus/debug.h>
-#include <zeus/ParamType.h>
-#include <etk/stdTools.h>
-#include <zeus/BufferParameter.h>
-#include <zeus/File.h>
+#include <etk/types.hpp>
+#include <zeus/Buffer.hpp>
+#include <zeus/BufferData.hpp>
+#include <zeus/debug.hpp>
+#include <zeus/ParamType.hpp>
+#include <etk/stdTools.hpp>
+#include <zeus/BufferParameter.hpp>
+#include <zeus/File.hpp>
 
 bool zeus::BufferParameter::writeOn(enet::WebSocket& _interface) {
 	uint8_t* data = nullptr;

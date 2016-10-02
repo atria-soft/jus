@@ -3,17 +3,17 @@
  * @copyright 2016, Edouard DUPIN, all right reserved
  * @license APACHE v2.0 (see license file)
  */
-#include <etk/types.h>
-#include <zeus/Buffer.h>
-#include <zeus/BufferData.h>
-#include <zeus/debug.h>
-#include <zeus/ParamType.h>
-#include <etk/stdTools.h>
-#include <zeus/AbstractFunction.h>
+#include <etk/types.hpp>
+#include <zeus/Buffer.hpp>
+#include <zeus/BufferData.hpp>
+#include <zeus/debug.hpp>
+#include <zeus/ParamType.hpp>
+#include <etk/stdTools.hpp>
+#include <zeus/AbstractFunction.hpp>
 #include <climits>
-#include <etk/os/FSNode.h>
-#include <zeus/mineType.h>
-#include <zeus/WebServer.h>
+#include <etk/os/FSNode.hpp>
+#include <zeus/mineType.hpp>
+#include <zeus/WebServer.hpp>
 
 
 void zeus::addType(std::vector<uint8_t>& _data, zeus::ParamType _type) {
