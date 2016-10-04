@@ -1,5 +1,5 @@
 #!/usr/bin/python
-import lutin.module as module
+import lutin.debug as debug
 import lutin.tools as tools
 
 
@@ -24,9 +24,8 @@ def get_compagny_name():
 def get_maintainer():
 	return ["Mr DUPIN Edouard <yui.heero@gmail.com>"]
 
-def create(target, module_name):
-	my_module = module.Module(__file__, module_name, get_type())
-	my_module.add_path(tools.get_current_path(__file__))
+def configure(target, my_module):
+	my_module.add_path(".")
 	my_module.add_depend(['zeus'])
 	my_module.add_src_file([
 	    'appl/debug.cpp',
@@ -35,7 +34,7 @@ def create(target, module_name):
 	    'appl/GateWay.cpp',
 	    'appl/main.cpp'
 	    ])
-	return my_module
+	return True
 
 
 

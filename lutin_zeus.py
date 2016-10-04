@@ -1,5 +1,5 @@
 #!/usr/bin/python
-import lutin.module as module
+import lutin.debug as debug
 import lutin.tools as tools
 
 
@@ -24,13 +24,16 @@ def get_maintainer():
 def get_version():
 	return "version.txt"
 
-def create(target, module_name):
-	my_module = module.Module(__file__, module_name, get_type())
-	my_module.add_depend(['etk', 'enet', 'ememory', 'eproperty'])
+def configure(target, my_module):
+	my_module.add_depend([
+	    'etk',
+	    'enet',
+	    'ememory',
+	    'eproperty'])
 	my_module.add_src_file([
 	    'zeus/debug.cpp'
 	    ])
-	my_module.add_path(tools.get_current_path(__file__))
+	my_module.add_path(".")
 	my_module.add_src_file([
 	    'zeus/AbstractFunction.cpp',
 	    'zeus/FutureBase.cpp',
@@ -81,7 +84,7 @@ def create(target, module_name):
 		my_module.add_flag('c++', "-Wno-unsequenced", export=True)
 	# build in C++ mode
 	my_module.compile_version("c++", 2011)
-	return my_module
+	return True
 
 
 
