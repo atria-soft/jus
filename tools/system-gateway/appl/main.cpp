@@ -7,12 +7,14 @@
 #include <appl/debug.hpp>
 #include <appl/GateWay.hpp>
 #include <etk/etk.hpp>
+#include <zeus/zeus.hpp>
 #include <unistd.h>
 
 #include <etk/stdTools.hpp>
 
 int main(int _argc, const char *_argv[]) {
 	etk::init(_argc, _argv);
+	zeus::init(_argc, _argv);
 	appl::GateWay basicGateway;
 	for (int32_t iii=0; iii<_argc ; ++iii) {
 		std::string data = _argv[iii];

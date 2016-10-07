@@ -8,6 +8,7 @@
 #include <zeus/Service.hpp>
 #include <zeus/File.hpp>
 #include <etk/etk.hpp>
+#include <zeus/zeus.hpp>
 #include <unistd.h>
 #include <mutex>
 #include <ejson/ejson.hpp>
@@ -373,6 +374,7 @@ namespace appl {
 
 int main(int _argc, const char *_argv[]) {
 	etk::init(_argc, _argv);
+	zeus::init(_argc, _argv);
 	std::string ip;
 	uint16_t port = 0;
 	for (int32_t iii=0; iii<_argc ; ++iii) {

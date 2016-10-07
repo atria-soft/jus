@@ -7,6 +7,7 @@
 #include <appl/debug.hpp>
 #include <zeus/Service.hpp>
 #include <etk/etk.hpp>
+#include <zeus/zeus.hpp>
 #include <unistd.h>
 
 #include <etk/stdTools.hpp>
@@ -70,6 +71,7 @@ namespace appl {
 
 int main(int _argc, const char *_argv[]) {
 	etk::init(_argc, _argv);
+	zeus::init(_argc, _argv);
 	ememory::SharedPtr<appl::UserManager> userMng = ememory::makeShared<appl::UserManager>();
 	zeus::ServiceType<appl::Calculator, appl::UserManager> serviceInterface(userMng);
 	serviceInterface.setDescription("Calculator interface");

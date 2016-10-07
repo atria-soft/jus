@@ -9,6 +9,7 @@
 #include <zeus/ServiceRemote.hpp>
 #include <zeus/mineType.hpp>
 #include <etk/etk.hpp>
+#include <zeus/zeus.hpp>
 #include <etk/os/FSNode.hpp>
 #include <unistd.h>
 
@@ -16,6 +17,7 @@
 
 int main(int _argc, const char *_argv[]) {
 	etk::init(_argc, _argv);
+	zeus::init(_argc, _argv);
 	zeus::Client client1;
 	for (int32_t iii=0; iii<_argc ; ++iii) {
 		std::string data = _argv[iii];
