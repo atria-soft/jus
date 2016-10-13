@@ -6,7 +6,7 @@
 #include <zeus/FutureBase.hpp>
 #include <zeus/BufferAnswer.hpp>
 #include <zeus/debug.hpp>
-#include <unistd.h>
+
 
 zeus::FutureBase::FutureBase(const zeus::FutureBase& _base):
   m_data(_base.m_data) {
@@ -172,7 +172,7 @@ bool zeus::FutureBase::isFinished() const {
 const zeus::FutureBase& zeus::FutureBase::wait() const {
 	while (isFinished() == false) {
 		// TODO : Do it better ... like messaging/mutex_locked ...
-		usleep(10000);
+		std::this_thread::sleep_for(std::chrono::milliseconds(10));
 	}
 	return *this;
 }
@@ -182,7 +182,7 @@ const zeus::FutureBase& zeus::FutureBase::waitFor(std::chrono::microseconds _del
 	while (    std::chrono::steady_clock::now() - start < _delta
 	        && isFinished() == false) {
 		// TODO : Do it better ... like messaging/mutex_locked ...
-		usleep(10000);
+		std::this_thread::sleep_for(std::chrono::milliseconds(10));
 		start = std::chrono::steady_clock::now();
 	}
 	return *this;
@@ -192,7 +192,7 @@ const zeus::FutureBase& zeus::FutureBase::waitUntil(std::chrono::steady_clock::t
 	while (    std::chrono::steady_clock::now() < _endTime
 	        && isFinished() == false) {
 		// TODO : Do it better ... like messaging/mutex_locked ...
-		usleep(10000);
+		std::this_thread::sleep_for(std::chrono::milliseconds(10));
 	}
 	return *this;
 }

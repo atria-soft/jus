@@ -6,7 +6,7 @@
 #include <zeus/WebServer.hpp>
 #include <zeus/debug.hpp>
 #include <ethread/tools.hpp>
-#include <unistd.h>
+
 #include <zeus/BufferData.hpp>
 
 
@@ -84,7 +84,7 @@ void zeus::WebServer::connect(bool _async){
 	while (    _async == false
 	        && m_threadAsyncRunning == true
 	        && m_connection.isAlive() != true) {
-		usleep(50000);
+		std::this_thread::sleep_for(std::chrono::milliseconds(50));
 	}
 	//ethread::setPriority(*m_receiveThread, -6);
 	if (_async == true) {
@@ -281,7 +281,7 @@ void zeus::WebServer::threadAsyncCallback() {
 			m_threadAsyncList2.clear();
 		}
 		if (m_threadAsyncList.size() == 0) {
-			usleep(10000);
+			std::this_thread::sleep_for(std::chrono::milliseconds(10));
 			continue;
 		}
 		auto it = m_threadAsyncList.begin();

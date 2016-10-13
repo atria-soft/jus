@@ -9,7 +9,7 @@
 #include <eproperty/Value.hpp>
 #include <zeus/debug.hpp>
 #include <chrono>
-#include <unistd.h>
+
 #include <zeus/Future.hpp>
 #include <zeus/ServiceRemote.hpp>
 

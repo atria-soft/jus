@@ -9,7 +9,7 @@
 #include <etk/stdTools.hpp>
 #include <enet/TcpClient.hpp>
 
-#include <unistd.h>
+
 
 zeus::Service::Service() :
   propertyIp(this, "ip", "127.0.0.1", "Ip to connect server", &zeus::Service::onPropertyChangeIp),

@@ -8,7 +8,7 @@
 #include <appl/ClientInterface.hpp>
 #include <zeus/Future.hpp>
 #include <appl/GateWay.hpp>
-#include <unistd.h>
+
 
 #include <zeus/AbstractFunction.hpp>
 

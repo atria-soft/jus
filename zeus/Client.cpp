@@ -8,7 +8,7 @@
 #include <zeus/Client.hpp>
 #include <zeus/debug.hpp>
 
-#include <unistd.h>
+
 
 zeus::Client::Client() :
   propertyIp(this, "ip", "127.0.0.1", "Ip to connect server", &zeus::Client::onPropertyChangeIp),

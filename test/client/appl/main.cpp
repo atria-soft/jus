@@ -11,7 +11,7 @@
 #include <etk/etk.hpp>
 #include <zeus/zeus.hpp>
 #include <etk/os/FSNode.hpp>
-#include <unistd.h>
+
 
 #include <etk/stdTools.hpp>
 
@@ -194,7 +194,7 @@ int main(int _argc, const char *_argv[]) {
 	}
 	int32_t iii=0;
 	while (iii < 3) {
-		usleep(500000);
+		std::this_thread::sleep_for(std::chrono::milliseconds(500));
 		APPL_INFO("Appl in waiting ... " << iii << "/3");
 		iii++;
 	}

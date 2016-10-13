@@ -6,7 +6,7 @@
 #include <zeus/Future.hpp>
 #include <zeus/BufferAnswer.hpp>
 #include <zeus/debug.hpp>
-#include <unistd.h>
+
 #include <zeus/File.hpp>
 
 namespace zeus {

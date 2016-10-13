@@ -8,7 +8,7 @@
 #include <appl/GateWay.hpp>
 #include <etk/etk.hpp>
 #include <zeus/zeus.hpp>
-#include <unistd.h>
+
 
 #include <etk/stdTools.hpp>
 
@@ -48,7 +48,7 @@ int main(int _argc, const char *_argv[]) {
 	APPL_INFO("==================================");
 	basicGateway.start();
 	while (true) {
-		usleep(100000);
+		std::this_thread::sleep_for(std::chrono::milliseconds(100));
 		basicGateway.cleanIO();
 	}
 	basicGateway.stop();

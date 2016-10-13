@@ -9,7 +9,7 @@
 #include <zeus/File.hpp>
 #include <etk/etk.hpp>
 #include <zeus/zeus.hpp>
-#include <unistd.h>
+
 #include <mutex>
 #include <ejson/ejson.hpp>
 #include <etk/os/FSNode.hpp>
@@ -430,12 +430,12 @@ int main(int _argc, const char *_argv[]) {
 			APPL_INFO("== ZEUS service: " << *serviceInterface.propertyNameService << " [STOP] Can not connect to the GateWay");
 			APPL_INFO("===========================================================");
 			APPL_INFO("wait 5 second ...");
-			usleep(5000000);
+			std::this_thread::sleep_for(std::chrono::seconds(5));
 			continue;
 		}
 		int32_t iii=0;
 		while (serviceInterface.GateWayAlive() == true) {
-			usleep(1000000);
+			std::this_thread::sleep_for(std::chrono::seconds(1));
 			serviceInterface.pingIsAlive();
 			/*
 			serviceInterface.store();

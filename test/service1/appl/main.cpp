@@ -8,7 +8,7 @@
 #include <zeus/Service.hpp>
 #include <etk/etk.hpp>
 #include <zeus/zeus.hpp>
-#include <unistd.h>
+
 
 #include <etk/stdTools.hpp>
 namespace appl {
@@ -105,7 +105,7 @@ int main(int _argc, const char *_argv[]) {
 	serviceInterface.connect();
 	int32_t iii=0;
 	while (true) {
-		usleep(1000000);
+		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 		serviceInterface.pingIsAlive();
 		APPL_INFO("service in waiting ... " << iii << "/inf");
 		iii++;
