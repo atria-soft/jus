@@ -1,0 +1,174 @@
+<!-- HTML header for doxygen 1.8.8-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <!-- For Mobile Devices -->
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+        <meta name="generator" content="Doxygen 1.8.12"/>
+        <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+        <title>zeus: Zeus ewol micro-service interface: framework/atria-soft/zeus/zeus/FutureBase.hpp Source File</title>
+        <!--<link href="tabs.css" rel="stylesheet" type="text/css"/>-->
+        <script type="text/javascript" src="dynsections.js"></script>
+        <link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+        <link href="doxygen.css" rel="stylesheet" type="text/css" />
+        <link href="customdoxygen.css" rel="stylesheet" type="text/css"/>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
+        <script type="text/javascript" src="doxy-boot.js"></script>
+    </head>
+    <body>
+        <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+            <div class="container">
+                <div class="navbar-header">
+                    <a class="navbar-brand">zeus: Zeus ewol micro-service interface 0.4.0</a>
+                </div>
+                <div id="navbar" class="navbar-collapse collapse">
+                    <ul class="nav navbar-nav">
+                        <li><a href="index.html">Main&nbsp;Page</a></li>
+                        <li><a href="pages.html">Related&nbsp;Pages</a></li>
+                        <li><a href="namespaces.html">Namespaces</a></li>
+                        <li><a href="annotated.html">Classes</a></li>
+                        <li><a href="files.html">Files</a></li>
+                    </ul>
+                    <ul class="nav navbar-nav navbar-right">
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                                Link-libs<span class="caret"></span>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a href="http://HeeroYui.github.io/lutin">lutin</a></li>
+                                <li><a href="http://atria-soft.github.io/ewol">ewol</a></li>
+                                <li><a href="http://atria-soft.github.io/etk">etk</a></li>
+                                <li><a href="http://atria-soft.github.io/ejson">ejson</a></li>
+                                <li><a href="http://atria-soft.github.io/exml">exml</a></li>
+                                <li><a href="http://atria-soft.github.io/esvg">esvg</a></li>
+                                <li><a href="http://atria-soft.github.io/egami">egami</a></li>
+                                <li><a href="http://atria-soft.github.io/gale">gale</a></li>
+                                <li><a href="http://atria-soft.github.io/ege">ege</a></li>
+                                <li><a href="http://atria-soft.github.io/elog">elog</a></li>
+                                <li><a href="http://atria-soft.github.io/ememory">ememory</a></li>
+                                <li><a href="http://atria-soft.github.io/enet">enet</a></li>
+                                <li><a href="http://atria-soft.github.io/eproperty">eproperty</a></li>
+                                <li><a href="http://atria-soft.github.io/esignal">esignal</a></li>
+                                <li><a href="http://atria-soft.github.io/zeus">zeus</a></li>
+                                <li><a href="http://atria-soft.github.io/audio-ess">audio-ess</a></li>
+                                <li><a href="http://musicdsp.github.io/audio">audio</a></li>
+                                <li><a href="http://musicdsp.github.io/audio-drain">audio-drain</a></li>
+                                <li><a href="http://musicdsp.github.io/audio-orchestra">audio-orchestra</a></li>
+                                <li><a href="http://musicdsp.github.io/audio-river">audio-river</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                    <div id="search-box" class="input-group">
+                        <div class="input-group-btn">
+                            <button aria-expanded="false" type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                                <span class="glyphicon glyphicon-search"></span>
+                                <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><a href="#">All</a></li>
+                                <li><a href="#">Classes</a></li>
+                                <li><a href="#">Namespaces</a></li>
+                                <li><a href="#">Files</a></li>
+                                <li><a href="#">Functions</a></li>
+                                <li><a href="#">Variables</a></li>
+                                <li><a href="#">Typedefs</a></li>
+                                <li><a href="#">Enumerations</a></li>
+                                <li><a href="#">Enumerator</a></li>
+                                <li><a href="#">Friends</a></li>
+                                <li><a href="#">Macros</a></li>
+                                <li><a href="#">Pages</a></li>
+                            </ul>
+                        </div>
+                        <button id="search-close" type="button" class="close" aria-label="Close">
+                            <span aria-hidden="true"></span>
+                        </button>
+                        <input id="search-field" class="form-control" accesskey="S" onkeydown="searchBox.OnSearchFieldChange(event);" placeholder="Search ..." type="text">
+                    </div>
+                </div><!--/.nav-collapse -->
+            </div>
+        </nav>
+        <div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+            <div class="content" id="content">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-sm-12 panel panel-default" style="padding-bottom: 15px;">
+                            <div style="margin-bottom: 15px;">
+<!-- end header part -->
+<!-- Generated by Doxygen 1.8.12 -->
+<script type="text/javascript">
+var searchBox = new SearchBox("searchBox", "search",false,'Search');
+</script>
+<script type="text/javascript" src="menudata.js"></script>
+<script type="text/javascript" src="menu.js"></script>
+<script type="text/javascript">
+$(function() {
+  initMenu('',true,false,'search.php','Search');
+  $(document).ready(function() { init_search(); });
+});
+</script>
+<div id="main-nav"></div>
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<iframe src="javascript:void(0)" frameborder="0" 
+        name="MSearchResults" id="MSearchResults">
+</iframe>
+</div>
+
+<div id="nav-path" class="navpath">
+  <ul>
+<li class="navelem"><a class="el" href="dir_644e041c3a6521da7b27eba0e4eb2b95.html">framework</a></li><li class="navelem"><a class="el" href="dir_a094892b17be858f66bf3446bbb755c7.html">atria-soft</a></li><li class="navelem"><a class="el" href="dir_96d802beaf7bb3afdcf2656a2c8ec44e.html">zeus</a></li><li class="navelem"><a class="el" href="dir_645a2e7aebb6c78a7ec97ee8c38ef7e7.html">zeus</a></li>  </ul>
+</div>
+</div><!-- top -->
+<div class="header">
+  <div class="headertitle">
+<div class="title">FutureBase.hpp</div>  </div>
+</div><!--header-->
+<div class="contents">
+<a href="_future_base_8hpp.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;</div><div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160;<span class="preprocessor">#pragma once</span></div><div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;</div><div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160;<span class="preprocessor">#include &lt;<a class="code" href="_future_data_8hpp.html">zeus/FutureData.hpp</a>&gt;</span></div><div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;</div><div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;<span class="keyword">namespace </span><a class="code" href="namespacezeus.html">zeus</a> {</div><div class="line"><a name="l00014"></a><span class="lineno"><a class="line" href="classzeus_1_1_future_base.html">   14</a></span>&#160;    <span class="keyword">class </span><a class="code" href="classzeus_1_1_future_base.html">FutureBase</a> {</div><div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;        <span class="keyword">public</span>:</div><div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;            <a class="codeRef" doxygen="/home/heero/dev/perso/out/doc/release/ememory.tag:http://atria-soft.github.io/ememory/" href="http://atria-soft.github.io/ememory/classememory_1_1_shared_ptr.html">ememory::SharedPtr&lt;zeus::FutureData&gt;</a> m_data; <span class="comment">// Reference on the data</span></div><div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;        <span class="keyword">public</span>:</div><div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;            <a class="code" href="classzeus_1_1_future_base.html#a870d5dc97458f944d25c8a82ea8606d9">FutureBase</a>(<span class="keyword">const</span> <a class="code" href="classzeus_1_1_future_base.html">zeus::FutureBase</a>&amp; _base);</div><div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;            <a class="code" href="classzeus_1_1_future_base.html#a870d5dc97458f944d25c8a82ea8606d9">FutureBase</a>();</div><div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;            <a class="code" href="classzeus_1_1_future_base.html#a870d5dc97458f944d25c8a82ea8606d9">FutureBase</a>(uint32_t _transactionId, <a class="code" href="classzeus_1_1_future_data.html#a3b1948b6d64c0e90fcd19dea2ed182f5">zeus::FutureData::ObserverFinish</a> _callback=<span class="keyword">nullptr</span>, uint32_t _clientId=0);</div><div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;            <a class="code" href="classzeus_1_1_future_base.html#a870d5dc97458f944d25c8a82ea8606d9">FutureBase</a>(uint32_t _transactionId, <a class="codeRef" doxygen="/home/heero/dev/perso/out/doc/release/ememory.tag:http://atria-soft.github.io/ememory/" href="http://atria-soft.github.io/ememory/classememory_1_1_shared_ptr.html">ememory::SharedPtr&lt;zeus::Buffer&gt;</a> _returnData, <a class="code" href="classzeus_1_1_future_data.html#a3b1948b6d64c0e90fcd19dea2ed182f5">zeus::FutureData::ObserverFinish</a> _callback=<span class="keyword">nullptr</span>, uint32_t _clientId=0);</div><div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;            <a class="code" href="classzeus_1_1_future_base.html">zeus::FutureBase</a> <a class="code" href="classzeus_1_1_future_base.html#a60c227ad770f63266db8fe0efd3c76ff">operator= </a>(<span class="keyword">const</span> <a class="code" href="classzeus_1_1_future_base.html">zeus::FutureBase</a>&amp; _base);</div><div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;            <span class="keywordtype">bool</span> <a class="code" href="classzeus_1_1_future_base.html#aca424bd6ac7ea8dd9775ab3617bb3d15">appendData</a>(<a class="codeRef" doxygen="/home/heero/dev/perso/out/doc/release/ememory.tag:http://atria-soft.github.io/ememory/" href="http://atria-soft.github.io/ememory/classememory_1_1_shared_ptr.html">ememory::SharedPtr&lt;zeus::Buffer&gt;</a> _returnValue);</div><div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;            <span class="keywordtype">void</span> <a class="code" href="classzeus_1_1_future_base.html#aa53d4c3eb3b8b57c56cc45614791bf5e">setSynchronous</a>();</div><div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;            uint32_t <a class="code" href="classzeus_1_1_future_base.html#ae1317ade05e9396c275585603c622417">getTransactionId</a>() <span class="keyword">const</span>;</div><div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;            uint32_t <a class="code" href="classzeus_1_1_future_base.html#a083028a70215eb6e0f67d074a406d83b">getClientId</a>() <span class="keyword">const</span>;</div><div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;            <span class="keywordtype">bool</span> <a class="code" href="classzeus_1_1_future_base.html#ace693af10c709f3f37cccb4cd771141e">hasError</a>() <span class="keyword">const</span>;</div><div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;            std::string <a class="code" href="classzeus_1_1_future_base.html#af63440c646a10f35d00b846791e98d69">getErrorType</a>() <span class="keyword">const</span>;</div><div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;            std::string <a class="code" href="classzeus_1_1_future_base.html#ae1786bd487f8364d5e898183afd13cd7">getErrorHelp</a>() <span class="keyword">const</span>;</div><div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;            <span class="keywordtype">bool</span> <a class="code" href="classzeus_1_1_future_base.html#a0d6c42e89d241cae084751d0dfbcb9f7">isValid</a>() <span class="keyword">const</span>;</div><div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;            <span class="keywordtype">bool</span> <a class="code" href="classzeus_1_1_future_base.html#a17bc19742496dc46c14db32397c26085">isFinished</a>() <span class="keyword">const</span>;</div><div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;            <span class="keyword">const</span> <a class="code" href="classzeus_1_1_future_base.html">FutureBase</a>&amp; <a class="code" href="classzeus_1_1_future_base.html#ab9cc43a3e367d7632893ee332a5458f5">wait</a>() <span class="keyword">const</span>;</div><div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;            <span class="keyword">const</span> <a class="code" href="classzeus_1_1_future_base.html">FutureBase</a>&amp; <a class="code" href="classzeus_1_1_future_base.html#a7248f56add44eddebfd7b1e188a5dd3a">waitFor</a>(std::chrono::microseconds _delta = std::chrono::seconds(30)) <span class="keyword">const</span>;</div><div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;            <span class="keyword">const</span> <a class="code" href="classzeus_1_1_future_base.html">FutureBase</a>&amp; <a class="code" href="classzeus_1_1_future_base.html#a9bfa5cea8c7246e6d21ff727406d5977">waitUntil</a>(std::chrono::steady_clock::time_point _endTime) <span class="keyword">const</span>;</div><div class="line"><a name="l00116"></a><span class="lineno">  116</span>&#160;            <a class="codeRef" doxygen="/home/heero/dev/perso/out/doc/release/ememory.tag:http://atria-soft.github.io/ememory/" href="http://atria-soft.github.io/ememory/classememory_1_1_shared_ptr.html">ememory::SharedPtr&lt;zeus::Buffer&gt;</a> <a class="code" href="classzeus_1_1_future_base.html#adc07e93a1a21b778f179ef375c8e0173">getRaw</a>();</div><div class="line"><a name="l00121"></a><span class="lineno">  121</span>&#160;            std::chrono::nanoseconds <a class="code" href="classzeus_1_1_future_base.html#ad2dc793ae8c2126d798b47d57cab8da7">getTransmitionTime</a>() <span class="keyword">const</span>;</div><div class="line"><a name="l00122"></a><span class="lineno">  122</span>&#160;    };</div><div class="line"><a name="l00123"></a><span class="lineno">  123</span>&#160;}</div><div class="line"><a name="l00124"></a><span class="lineno">  124</span>&#160;</div><div class="ttc" id="classzeus_1_1_future_data_html_a3b1948b6d64c0e90fcd19dea2ed182f5"><div class="ttname"><a href="classzeus_1_1_future_data.html#a3b1948b6d64c0e90fcd19dea2ed182f5">zeus::FutureData::ObserverFinish</a></div><div class="ttdeci">std::function&lt; bool(zeus::FutureBase)&gt; ObserverFinish</div><div class="ttdoc">Define an Observer: function pointer. </div><div class="ttdef"><b>Definition:</b> FutureData.hpp:21</div></div>
+<div class="ttc" id="classzeus_1_1_future_base_html_ae1786bd487f8364d5e898183afd13cd7"><div class="ttname"><a href="classzeus_1_1_future_base.html#ae1786bd487f8364d5e898183afd13cd7">zeus::FutureBase::getErrorHelp</a></div><div class="ttdeci">std::string getErrorHelp() const</div><div class="ttdoc">get help of the error </div></div>
+<div class="ttc" id="classzeus_1_1_future_base_html"><div class="ttname"><a href="classzeus_1_1_future_base.html">zeus::FutureBase</a></div><div class="ttdoc">Generic zeus Future interface to get data asynchronously. </div><div class="ttdef"><b>Definition:</b> FutureBase.hpp:14</div></div>
+<div class="ttc" id="_future_data_8hpp_html"><div class="ttname"><a href="_future_data_8hpp.html">FutureData.hpp</a></div></div>
+<div class="ttc" id="classzeus_1_1_future_base_html_ae1317ade05e9396c275585603c622417"><div class="ttname"><a href="classzeus_1_1_future_base.html#ae1317ade05e9396c275585603c622417">zeus::FutureBase::getTransactionId</a></div><div class="ttdeci">uint32_t getTransactionId() const</div><div class="ttdoc">Get the transaction Id of the Future. </div></div>
+<div class="ttc" id="classzeus_1_1_future_base_html_a7248f56add44eddebfd7b1e188a5dd3a"><div class="ttname"><a href="classzeus_1_1_future_base.html#a7248f56add44eddebfd7b1e188a5dd3a">zeus::FutureBase::waitFor</a></div><div class="ttdeci">const FutureBase &amp; waitFor(std::chrono::microseconds _delta=std::chrono::seconds(30)) const</div><div class="ttdoc">Wait the Future receive data. </div></div>
+<div class="ttc" id="classzeus_1_1_future_base_html_a60c227ad770f63266db8fe0efd3c76ff"><div class="ttname"><a href="classzeus_1_1_future_base.html#a60c227ad770f63266db8fe0efd3c76ff">zeus::FutureBase::operator=</a></div><div class="ttdeci">zeus::FutureBase operator=(const zeus::FutureBase &amp;_base)</div><div class="ttdoc">Asignement operator with an other future. </div></div>
+<div class="ttc" id="classzeus_1_1_future_base_html_a0d6c42e89d241cae084751d0dfbcb9f7"><div class="ttname"><a href="classzeus_1_1_future_base.html#a0d6c42e89d241cae084751d0dfbcb9f7">zeus::FutureBase::isValid</a></div><div class="ttdeci">bool isValid() const</div><div class="ttdoc">Check if the Futur is a valid data. </div></div>
+<div class="ttc" id="classzeus_1_1_future_base_html_ace693af10c709f3f37cccb4cd771141e"><div class="ttname"><a href="classzeus_1_1_future_base.html#ace693af10c709f3f37cccb4cd771141e">zeus::FutureBase::hasError</a></div><div class="ttdeci">bool hasError() const</div><div class="ttdoc">check if the answer have an error </div></div>
+<div class="ttc" id="classzeus_1_1_future_base_html_adc07e93a1a21b778f179ef375c8e0173"><div class="ttname"><a href="classzeus_1_1_future_base.html#adc07e93a1a21b778f179ef375c8e0173">zeus::FutureBase::getRaw</a></div><div class="ttdeci">ememory::SharedPtr&lt; zeus::Buffer &gt; getRaw()</div><div class="ttdoc">Get the Buffer receive. </div></div>
+<div class="ttc" id="classzeus_1_1_future_base_html_aa53d4c3eb3b8b57c56cc45614791bf5e"><div class="ttname"><a href="classzeus_1_1_future_base.html#aa53d4c3eb3b8b57c56cc45614791bf5e">zeus::FutureBase::setSynchronous</a></div><div class="ttdeci">void setSynchronous()</div><div class="ttdoc">Set the future syncronous. </div></div>
+<div class="ttc" id="classzeus_1_1_future_base_html_a083028a70215eb6e0f67d074a406d83b"><div class="ttname"><a href="classzeus_1_1_future_base.html#a083028a70215eb6e0f67d074a406d83b">zeus::FutureBase::getClientId</a></div><div class="ttdeci">uint32_t getClientId() const</div><div class="ttdoc">Get the client Id of the Future. </div></div>
+<div class="ttc" id="classzeus_1_1_future_base_html_ad2dc793ae8c2126d798b47d57cab8da7"><div class="ttname"><a href="classzeus_1_1_future_base.html#ad2dc793ae8c2126d798b47d57cab8da7">zeus::FutureBase::getTransmitionTime</a></div><div class="ttdeci">std::chrono::nanoseconds getTransmitionTime() const</div><div class="ttdoc">Get duration of the current trasaction take. </div></div>
+<div class="ttc" id="classzeus_1_1_future_base_html_ab9cc43a3e367d7632893ee332a5458f5"><div class="ttname"><a href="classzeus_1_1_future_base.html#ab9cc43a3e367d7632893ee332a5458f5">zeus::FutureBase::wait</a></div><div class="ttdeci">const FutureBase &amp; wait() const</div><div class="ttdoc">Wait the Future receive data. </div></div>
+<div class="ttc" id="classzeus_1_1_future_base_html_aca424bd6ac7ea8dd9775ab3617bb3d15"><div class="ttname"><a href="classzeus_1_1_future_base.html#aca424bd6ac7ea8dd9775ab3617bb3d15">zeus::FutureBase::appendData</a></div><div class="ttdeci">bool appendData(ememory::SharedPtr&lt; zeus::Buffer &gt; _returnValue)</div><div class="ttdoc">Add data on the call/answer. </div></div>
+<div class="ttc" id="namespacezeus_html"><div class="ttname"><a href="namespacezeus.html">zeus</a></div><div class="ttdoc">Main zeus library namespace. </div><div class="ttdef"><b>Definition:</b> AbstractFunction.hpp:15</div></div>
+<div class="ttc" id="classememory_1_1_shared_ptr_html"><div class="ttname"><a href="http://atria-soft.github.io/ememory/classememory_1_1_shared_ptr.html">ememory::SharedPtr</a></div></div>
+<div class="ttc" id="classzeus_1_1_future_base_html_a870d5dc97458f944d25c8a82ea8606d9"><div class="ttname"><a href="classzeus_1_1_future_base.html#a870d5dc97458f944d25c8a82ea8606d9">zeus::FutureBase::FutureBase</a></div><div class="ttdeci">FutureBase()</div><div class="ttdoc">contructor of a FutureBase </div></div>
+<div class="ttc" id="classzeus_1_1_future_base_html_a17bc19742496dc46c14db32397c26085"><div class="ttname"><a href="classzeus_1_1_future_base.html#a17bc19742496dc46c14db32397c26085">zeus::FutureBase::isFinished</a></div><div class="ttdeci">bool isFinished() const</div><div class="ttdoc">Check if the futur have finish receiving data. </div></div>
+<div class="ttc" id="classzeus_1_1_future_base_html_af63440c646a10f35d00b846791e98d69"><div class="ttname"><a href="classzeus_1_1_future_base.html#af63440c646a10f35d00b846791e98d69">zeus::FutureBase::getErrorType</a></div><div class="ttdeci">std::string getErrorType() const</div><div class="ttdoc">get type of the error </div></div>
+<div class="ttc" id="classzeus_1_1_future_base_html_a9bfa5cea8c7246e6d21ff727406d5977"><div class="ttname"><a href="classzeus_1_1_future_base.html#a9bfa5cea8c7246e6d21ff727406d5977">zeus::FutureBase::waitUntil</a></div><div class="ttdeci">const FutureBase &amp; waitUntil(std::chrono::steady_clock::time_point _endTime) const</div><div class="ttdoc">Wait the Future receive data. </div></div>
+</div><!-- fragment --></div><!-- contents -->
+<!-- HTML footer for doxygen 1.8.8-->
+<!-- start footer part -->
+</div>
+</div>
+</div>
+</div>
+</div>
+<hr class="footer"/><address class="footer"><small>
+Generated on Mon Oct 24 2016 14:06:05 for zeus: Zeus ewol micro-service interface by &#160;<a href="http://www.doxygen.org/index.html">
+<img class="footer" src="doxygen.png" alt="doxygen"/>
+</a> 1.8.12
+</small></address>
+</body>
+</html>

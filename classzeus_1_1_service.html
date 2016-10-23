@@ -1,0 +1,522 @@
+<!-- HTML header for doxygen 1.8.8-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <!-- For Mobile Devices -->
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+        <meta name="generator" content="Doxygen 1.8.12"/>
+        <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+        <title>zeus: Zeus ewol micro-service interface: zeus::Service Class Reference</title>
+        <!--<link href="tabs.css" rel="stylesheet" type="text/css"/>-->
+        <script type="text/javascript" src="dynsections.js"></script>
+        <link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+        <link href="doxygen.css" rel="stylesheet" type="text/css" />
+        <link href="customdoxygen.css" rel="stylesheet" type="text/css"/>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
+        <script type="text/javascript" src="doxy-boot.js"></script>
+    </head>
+    <body>
+        <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+            <div class="container">
+                <div class="navbar-header">
+                    <a class="navbar-brand">zeus: Zeus ewol micro-service interface 0.4.0</a>
+                </div>
+                <div id="navbar" class="navbar-collapse collapse">
+                    <ul class="nav navbar-nav">
+                        <li><a href="index.html">Main&nbsp;Page</a></li>
+                        <li><a href="pages.html">Related&nbsp;Pages</a></li>
+                        <li><a href="namespaces.html">Namespaces</a></li>
+                        <li><a href="annotated.html">Classes</a></li>
+                        <li><a href="files.html">Files</a></li>
+                    </ul>
+                    <ul class="nav navbar-nav navbar-right">
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                                Link-libs<span class="caret"></span>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a href="http://HeeroYui.github.io/lutin">lutin</a></li>
+                                <li><a href="http://atria-soft.github.io/ewol">ewol</a></li>
+                                <li><a href="http://atria-soft.github.io/etk">etk</a></li>
+                                <li><a href="http://atria-soft.github.io/ejson">ejson</a></li>
+                                <li><a href="http://atria-soft.github.io/exml">exml</a></li>
+                                <li><a href="http://atria-soft.github.io/esvg">esvg</a></li>
+                                <li><a href="http://atria-soft.github.io/egami">egami</a></li>
+                                <li><a href="http://atria-soft.github.io/gale">gale</a></li>
+                                <li><a href="http://atria-soft.github.io/ege">ege</a></li>
+                                <li><a href="http://atria-soft.github.io/elog">elog</a></li>
+                                <li><a href="http://atria-soft.github.io/ememory">ememory</a></li>
+                                <li><a href="http://atria-soft.github.io/enet">enet</a></li>
+                                <li><a href="http://atria-soft.github.io/eproperty">eproperty</a></li>
+                                <li><a href="http://atria-soft.github.io/esignal">esignal</a></li>
+                                <li><a href="http://atria-soft.github.io/zeus">zeus</a></li>
+                                <li><a href="http://atria-soft.github.io/audio-ess">audio-ess</a></li>
+                                <li><a href="http://musicdsp.github.io/audio">audio</a></li>
+                                <li><a href="http://musicdsp.github.io/audio-drain">audio-drain</a></li>
+                                <li><a href="http://musicdsp.github.io/audio-orchestra">audio-orchestra</a></li>
+                                <li><a href="http://musicdsp.github.io/audio-river">audio-river</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                    <div id="search-box" class="input-group">
+                        <div class="input-group-btn">
+                            <button aria-expanded="false" type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                                <span class="glyphicon glyphicon-search"></span>
+                                <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><a href="#">All</a></li>
+                                <li><a href="#">Classes</a></li>
+                                <li><a href="#">Namespaces</a></li>
+                                <li><a href="#">Files</a></li>
+                                <li><a href="#">Functions</a></li>
+                                <li><a href="#">Variables</a></li>
+                                <li><a href="#">Typedefs</a></li>
+                                <li><a href="#">Enumerations</a></li>
+                                <li><a href="#">Enumerator</a></li>
+                                <li><a href="#">Friends</a></li>
+                                <li><a href="#">Macros</a></li>
+                                <li><a href="#">Pages</a></li>
+                            </ul>
+                        </div>
+                        <button id="search-close" type="button" class="close" aria-label="Close">
+                            <span aria-hidden="true"></span>
+                        </button>
+                        <input id="search-field" class="form-control" accesskey="S" onkeydown="searchBox.OnSearchFieldChange(event);" placeholder="Search ..." type="text">
+                    </div>
+                </div><!--/.nav-collapse -->
+            </div>
+        </nav>
+        <div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+            <div class="content" id="content">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-sm-12 panel panel-default" style="padding-bottom: 15px;">
+                            <div style="margin-bottom: 15px;">
+<!-- end header part -->
+<!-- Generated by Doxygen 1.8.12 -->
+<script type="text/javascript">
+var searchBox = new SearchBox("searchBox", "search",false,'Search');
+</script>
+<script type="text/javascript" src="menudata.js"></script>
+<script type="text/javascript" src="menu.js"></script>
+<script type="text/javascript">
+$(function() {
+  initMenu('',true,false,'search.php','Search');
+  $(document).ready(function() { init_search(); });
+});
+</script>
+<div id="main-nav"></div>
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<iframe src="javascript:void(0)" frameborder="0" 
+        name="MSearchResults" id="MSearchResults">
+</iframe>
+</div>
+
+<div id="nav-path" class="navpath">
+  <ul>
+<li class="navelem"><a class="el" href="namespacezeus.html">zeus</a></li><li class="navelem"><a class="el" href="classzeus_1_1_service.html">Service</a></li>  </ul>
+</div>
+</div><!-- top -->
+<div class="header">
+  <div class="summary">
+<a href="#pub-methods">Public Member Functions</a> &#124;
+<a href="#pub-attribs">Public Attributes</a> &#124;
+<a href="#pro-attribs">Protected Attributes</a> &#124;
+<a href="classzeus_1_1_service-members.html">List of all members</a>  </div>
+  <div class="headertitle">
+<div class="title">zeus::Service Class Reference<span class="mlabels"><span class="mlabel">abstract</span></span></div>  </div>
+</div><!--header-->
+<div class="contents">
+
+<p><code>#include &lt;<a class="el" href="_service_8hpp_source.html">Service.hpp</a>&gt;</code></p>
+<div class="dynheader">
+Inheritance diagram for zeus::Service:</div>
+<div class="dyncontent">
+ <div class="center">
+  <img src="classzeus_1_1_service.png" usemap="#zeus::Service_map" alt=""/>
+  <map id="zeus::Service_map" name="zeus::Service_map">
+<area doxygen="/home/heero/dev/perso/out/doc/release/eproperty.tag:http://atria-soft.github.io/eproperty/" href="http://atria-soft.github.io/eproperty/classeproperty_1_1_interface.html" alt="eproperty::Interface" shape="rect" coords="0,0,411,24"/>
+<area href="classzeus_1_1_remote_process_call.html" title="Local declaration of call local data. " alt="zeus::RemoteProcessCall" shape="rect" coords="421,0,832,24"/>
+<area href="classzeus_1_1_service_type.html" alt="zeus::ServiceType&lt; ZEUS_TYPE_SERVICE, ZEUS_USER_ACCESS &gt;" shape="rect" coords="210,112,621,136"/>
+</map>
+ </div></div>
+<table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
+Public Member Functions</h2></td></tr>
+<tr class="memitem:ae578c7a651b412b049ef78eda2d0a921"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzeus_1_1_service.html#ae578c7a651b412b049ef78eda2d0a921">Service</a> ()</td></tr>
+<tr class="separator:ae578c7a651b412b049ef78eda2d0a921"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7385fdad3cc3fc1d39adc4da7b15a8b3"><td class="memItemLeft" align="right" valign="top">virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzeus_1_1_service.html#a7385fdad3cc3fc1d39adc4da7b15a8b3">~Service</a> ()</td></tr>
+<tr class="separator:a7385fdad3cc3fc1d39adc4da7b15a8b3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abec956bd2fcb27018ff14c8e4f7cd06a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzeus_1_1_service.html#abec956bd2fcb27018ff14c8e4f7cd06a">connect</a> (uint32_t _numberRetry=1)</td></tr>
+<tr class="separator:abec956bd2fcb27018ff14c8e4f7cd06a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acd27fec233b880688553c5ad314a9fed"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzeus_1_1_service.html#acd27fec233b880688553c5ad314a9fed">disconnect</a> ()</td></tr>
+<tr class="separator:acd27fec233b880688553c5ad314a9fed"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0f5d35170a456ea3dea5a8e531b8d8ac"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzeus_1_1_service.html#a0f5d35170a456ea3dea5a8e531b8d8ac">pingIsAlive</a> ()</td></tr>
+<tr class="separator:a0f5d35170a456ea3dea5a8e531b8d8ac"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aedba004d565f1f72f8fcb74924721a94"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzeus_1_1_service.html#aedba004d565f1f72f8fcb74924721a94">GateWayAlive</a> ()</td></tr>
+<tr class="separator:aedba004d565f1f72f8fcb74924721a94"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6f83b9fef593209468108089b97e133d"><td class="memTemplParams" colspan="2">template&lt;class ZEUS_RETURN_VALUE , class ZEUS_CLASS_TYPE , class... ZEUS_FUNC_ARGS_TYPE&gt; </td></tr>
+<tr class="memitem:a6f83b9fef593209468108089b97e133d"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classzeus_1_1_abstract_function.html">zeus::AbstractFunction</a> *&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classzeus_1_1_service.html#a6f83b9fef593209468108089b97e133d">advertise</a> (std::string _name, ZEUS_RETURN_VALUE(ZEUS_CLASS_TYPE::*_func)(ZEUS_FUNC_ARGS_TYPE... _args))</td></tr>
+<tr class="separator:a6f83b9fef593209468108089b97e133d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="inherit_header pub_methods_classzeus_1_1_remote_process_call"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_classzeus_1_1_remote_process_call')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="classzeus_1_1_remote_process_call.html">zeus::RemoteProcessCall</a></td></tr>
+<tr class="memitem:a56bd5f5de5f0a78d3055e2033a6e7878 inherit pub_methods_classzeus_1_1_remote_process_call"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzeus_1_1_remote_process_call.html#a56bd5f5de5f0a78d3055e2033a6e7878">RemoteProcessCall</a> ()</td></tr>
+<tr class="separator:a56bd5f5de5f0a78d3055e2033a6e7878 inherit pub_methods_classzeus_1_1_remote_process_call"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aed95bf8ce01b84e8f842cff50b98d214 inherit pub_methods_classzeus_1_1_remote_process_call"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzeus_1_1_remote_process_call.html#aed95bf8ce01b84e8f842cff50b98d214">setDescription</a> (const std::string &amp;_desc)</td></tr>
+<tr class="separator:aed95bf8ce01b84e8f842cff50b98d214 inherit pub_methods_classzeus_1_1_remote_process_call"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae927db98a8d56b7d88f9260c705c22c0 inherit pub_methods_classzeus_1_1_remote_process_call"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzeus_1_1_remote_process_call.html#ae927db98a8d56b7d88f9260c705c22c0">getDescription</a> ()</td></tr>
+<tr class="separator:ae927db98a8d56b7d88f9260c705c22c0 inherit pub_methods_classzeus_1_1_remote_process_call"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af635678367e7c29deced5e8dbd0b8d3c inherit pub_methods_classzeus_1_1_remote_process_call"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzeus_1_1_remote_process_call.html#af635678367e7c29deced5e8dbd0b8d3c">setVersion</a> (const std::string &amp;_vers)</td></tr>
+<tr class="separator:af635678367e7c29deced5e8dbd0b8d3c inherit pub_methods_classzeus_1_1_remote_process_call"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0a380bace6b950181ed8f7ac0ea23e51 inherit pub_methods_classzeus_1_1_remote_process_call"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzeus_1_1_remote_process_call.html#a0a380bace6b950181ed8f7ac0ea23e51">getVersion</a> ()</td></tr>
+<tr class="separator:a0a380bace6b950181ed8f7ac0ea23e51 inherit pub_methods_classzeus_1_1_remote_process_call"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab054889a0ff86db5c251852aa0c7e632 inherit pub_methods_classzeus_1_1_remote_process_call"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzeus_1_1_remote_process_call.html#ab054889a0ff86db5c251852aa0c7e632">addAuthor</a> (const std::string &amp;_name, const std::string &amp;_email)</td></tr>
+<tr class="separator:ab054889a0ff86db5c251852aa0c7e632 inherit pub_methods_classzeus_1_1_remote_process_call"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a90d610e41d026dd304d48a912e18a5ad inherit pub_methods_classzeus_1_1_remote_process_call"><td class="memItemLeft" align="right" valign="top">const std::vector&lt; std::pair&lt; std::string, std::string &gt; &gt; &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzeus_1_1_remote_process_call.html#a90d610e41d026dd304d48a912e18a5ad">getAuthors</a> () const</td></tr>
+<tr class="separator:a90d610e41d026dd304d48a912e18a5ad inherit pub_methods_classzeus_1_1_remote_process_call"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a83c83463bbf95e8ec517490e1c4ebb3f inherit pub_methods_classzeus_1_1_remote_process_call"><td class="memItemLeft" align="right" valign="top">std::vector&lt; std::string &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzeus_1_1_remote_process_call.html#a83c83463bbf95e8ec517490e1c4ebb3f">getAuthors2</a> ()</td></tr>
+<tr class="separator:a83c83463bbf95e8ec517490e1c4ebb3f inherit pub_methods_classzeus_1_1_remote_process_call"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae973033f2d710c3640df1a4b5fb3892d inherit pub_methods_classzeus_1_1_remote_process_call"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzeus_1_1_remote_process_call.html#ae973033f2d710c3640df1a4b5fb3892d">getType</a> ()</td></tr>
+<tr class="separator:ae973033f2d710c3640df1a4b5fb3892d inherit pub_methods_classzeus_1_1_remote_process_call"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0e1908663d925a6eab346941483bf3ff inherit pub_methods_classzeus_1_1_remote_process_call"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzeus_1_1_remote_process_call.html#a0e1908663d925a6eab346941483bf3ff">setType</a> (const std::string &amp;_type, uint16_t _version)</td></tr>
+<tr class="separator:a0e1908663d925a6eab346941483bf3ff inherit pub_methods_classzeus_1_1_remote_process_call"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a37d2417bb20e19dc421390c93f9f41d6 inherit pub_methods_classzeus_1_1_remote_process_call"><td class="memItemLeft" align="right" valign="top">std::vector&lt; std::string &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzeus_1_1_remote_process_call.html#a37d2417bb20e19dc421390c93f9f41d6">getFunctions</a> ()</td></tr>
+<tr class="separator:a37d2417bb20e19dc421390c93f9f41d6 inherit pub_methods_classzeus_1_1_remote_process_call"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a19c983f4b989557a9375a25ebc48d659 inherit pub_methods_classzeus_1_1_remote_process_call"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classzeus_1_1_abstract_function.html">AbstractFunction</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzeus_1_1_remote_process_call.html#a19c983f4b989557a9375a25ebc48d659">getFunction</a> (std::string _funcName)</td></tr>
+<tr class="separator:a19c983f4b989557a9375a25ebc48d659 inherit pub_methods_classzeus_1_1_remote_process_call"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a016ea02517069bd50a7e0b3bae1af9b7 inherit pub_methods_classzeus_1_1_remote_process_call"><td class="memTemplParams" colspan="2">template&lt;class ZEUS_RETURN_VALUE , class... ZEUS_FUNC_ARGS_TYPE&gt; </td></tr>
+<tr class="memitem:a016ea02517069bd50a7e0b3bae1af9b7 inherit pub_methods_classzeus_1_1_remote_process_call"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classzeus_1_1_abstract_function.html">zeus::AbstractFunction</a> *&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classzeus_1_1_remote_process_call.html#a016ea02517069bd50a7e0b3bae1af9b7">advertise</a> (const std::string &amp;_name, ZEUS_RETURN_VALUE(*_func)(ZEUS_FUNC_ARGS_TYPE... _args))</td></tr>
+<tr class="separator:a016ea02517069bd50a7e0b3bae1af9b7 inherit pub_methods_classzeus_1_1_remote_process_call"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acc8890974a223941941b18d900229935 inherit pub_methods_classzeus_1_1_remote_process_call"><td class="memTemplParams" colspan="2">template&lt;class ZEUS_RETURN_VALUE , class ZEUS_CLASS_TYPE , class... ZEUS_FUNC_ARGS_TYPE&gt; </td></tr>
+<tr class="memitem:acc8890974a223941941b18d900229935 inherit pub_methods_classzeus_1_1_remote_process_call"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classzeus_1_1_abstract_function.html">zeus::AbstractFunction</a> *&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classzeus_1_1_remote_process_call.html#acc8890974a223941941b18d900229935">advertise</a> (std::string _name, ZEUS_RETURN_VALUE(ZEUS_CLASS_TYPE::*_func)(ZEUS_FUNC_ARGS_TYPE... _args))</td></tr>
+<tr class="separator:acc8890974a223941941b18d900229935 inherit pub_methods_classzeus_1_1_remote_process_call"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
+Public Attributes</h2></td></tr>
+<tr class="memitem:ab826eb50667d1ba8a15f8c46745705b0"><td class="memItemLeft" align="right" valign="top"><a class="elRef" doxygen="/home/heero/dev/perso/out/doc/release/eproperty.tag:http://atria-soft.github.io/eproperty/" href="http://atria-soft.github.io/eproperty/classeproperty_1_1_value.html">eproperty::Value</a>&lt; std::string &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzeus_1_1_service.html#ab826eb50667d1ba8a15f8c46745705b0">propertyIp</a></td></tr>
+<tr class="separator:ab826eb50667d1ba8a15f8c46745705b0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a35cc644236eeb05a97ff7c2e5bc55eb9"><td class="memItemLeft" align="right" valign="top"><a class="elRef" doxygen="/home/heero/dev/perso/out/doc/release/eproperty.tag:http://atria-soft.github.io/eproperty/" href="http://atria-soft.github.io/eproperty/classeproperty_1_1_value.html">eproperty::Value</a>&lt; uint16_t &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzeus_1_1_service.html#a35cc644236eeb05a97ff7c2e5bc55eb9">propertyPort</a></td></tr>
+<tr class="separator:a35cc644236eeb05a97ff7c2e5bc55eb9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac0c7e8b6bddfb670178a77a544da1a11"><td class="memItemLeft" align="right" valign="top"><a class="elRef" doxygen="/home/heero/dev/perso/out/doc/release/eproperty.tag:http://atria-soft.github.io/eproperty/" href="http://atria-soft.github.io/eproperty/classeproperty_1_1_value.html">eproperty::Value</a>&lt; std::string &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzeus_1_1_service.html#ac0c7e8b6bddfb670178a77a544da1a11">propertyNameService</a></td></tr>
+<tr class="separator:ac0c7e8b6bddfb670178a77a544da1a11"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="inherit_header pub_attribs_classeproperty_1_1_interface"><td colspan="2" onclick="javascript:toggleInherit('pub_attribs_classeproperty_1_1_interface')"><img src="closed.png" alt="-"/>&#160;Public Attributes inherited from <a class="el" href="http://atria-soft.github.io/eproperty/classeproperty_1_1_interface.html">eproperty::Interface</a></td></tr>
+<tr class="memitem:a3670955b0c5e36457ceb8710c84093d4 inherit pub_attribs_classeproperty_1_1_interface"><td class="memItemLeft" align="right" valign="top"><a id="a3670955b0c5e36457ceb8710c84093d4"></a>
+<a class="elRef" doxygen="/home/heero/dev/perso/out/doc/release/eproperty.tag:http://atria-soft.github.io/eproperty/" href="http://atria-soft.github.io/eproperty/classeproperty_1_1_interface_data.html">eproperty::InterfaceData</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="elRef" doxygen="/home/heero/dev/perso/out/doc/release/eproperty.tag:http://atria-soft.github.io/eproperty/" href="http://atria-soft.github.io/eproperty/classeproperty_1_1_interface.html#a3670955b0c5e36457ceb8710c84093d4">properties</a></td></tr>
+<tr class="separator:a3670955b0c5e36457ceb8710c84093d4 inherit pub_attribs_classeproperty_1_1_interface"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pro-attribs"></a>
+Protected Attributes</h2></td></tr>
+<tr class="memitem:a1ee3675da0565ab425cc1ce1e9608184"><td class="memItemLeft" align="right" valign="top"><a id="a1ee3675da0565ab425cc1ce1e9608184"></a>
+std::mutex&#160;</td><td class="memItemRight" valign="bottom"><b>m_mutex</b></td></tr>
+<tr class="separator:a1ee3675da0565ab425cc1ce1e9608184"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad08c1bd4ecfaaee238e890116dbae49b"><td class="memItemLeft" align="right" valign="top"><a id="ad08c1bd4ecfaaee238e890116dbae49b"></a>
+<a class="elRef" doxygen="/home/heero/dev/perso/out/doc/release/ememory.tag:http://atria-soft.github.io/ememory/" href="http://atria-soft.github.io/ememory/classememory_1_1_shared_ptr.html">ememory::SharedPtr</a>&lt; <a class="el" href="classzeus_1_1_web_server.html">zeus::WebServer</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>m_interfaceClient</b></td></tr>
+<tr class="separator:ad08c1bd4ecfaaee238e890116dbae49b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a71d17a956df54ba8b1407662c3103a38"><td class="memItemLeft" align="right" valign="top"><a id="a71d17a956df54ba8b1407662c3103a38"></a>
+uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>m_id</b></td></tr>
+<tr class="separator:a71d17a956df54ba8b1407662c3103a38"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abde86dc5627e6e02d1198ca05d691747"><td class="memItemLeft" align="right" valign="top"><a id="abde86dc5627e6e02d1198ca05d691747"></a>
+std::vector&lt; std::string &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>m_newData</b></td></tr>
+<tr class="separator:abde86dc5627e6e02d1198ca05d691747"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3308bd5ca8513232421a8d669e7d1b01"><td class="memItemLeft" align="right" valign="top"><a id="a3308bd5ca8513232421a8d669e7d1b01"></a>
+std::vector&lt; <a class="el" href="classzeus_1_1_future_base.html">zeus::FutureBase</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>m_callMultiData</b></td></tr>
+<tr class="separator:a3308bd5ca8513232421a8d669e7d1b01"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="inherit_header pro_attribs_classzeus_1_1_remote_process_call"><td colspan="2" onclick="javascript:toggleInherit('pro_attribs_classzeus_1_1_remote_process_call')"><img src="closed.png" alt="-"/>&#160;Protected Attributes inherited from <a class="el" href="classzeus_1_1_remote_process_call.html">zeus::RemoteProcessCall</a></td></tr>
+<tr class="memitem:a72f198515bc8719be2db618fc5a64a1e inherit pro_attribs_classzeus_1_1_remote_process_call"><td class="memItemLeft" align="right" valign="top">std::vector&lt; <a class="el" href="classzeus_1_1_abstract_function.html">zeus::AbstractFunction</a> * &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzeus_1_1_remote_process_call.html#a72f198515bc8719be2db618fc5a64a1e">m_listFunction</a></td></tr>
+<tr class="separator:a72f198515bc8719be2db618fc5a64a1e inherit pro_attribs_classzeus_1_1_remote_process_call"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2532ad683c756717f6c61d03d9defc1f inherit pro_attribs_classzeus_1_1_remote_process_call"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzeus_1_1_remote_process_call.html#a2532ad683c756717f6c61d03d9defc1f">m_description</a></td></tr>
+<tr class="separator:a2532ad683c756717f6c61d03d9defc1f inherit pro_attribs_classzeus_1_1_remote_process_call"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a03df1c4d4dfaee5cb84c35c7d713eaa3 inherit pro_attribs_classzeus_1_1_remote_process_call"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzeus_1_1_remote_process_call.html#a03df1c4d4dfaee5cb84c35c7d713eaa3">m_version</a></td></tr>
+<tr class="separator:a03df1c4d4dfaee5cb84c35c7d713eaa3 inherit pro_attribs_classzeus_1_1_remote_process_call"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a194267ece59bfe0536f78eb18177e69c inherit pro_attribs_classzeus_1_1_remote_process_call"><td class="memItemLeft" align="right" valign="top"><a id="a194267ece59bfe0536f78eb18177e69c"></a>
+std::vector&lt; std::pair&lt; std::string, std::string &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>m_authors</b></td></tr>
+<tr class="separator:a194267ece59bfe0536f78eb18177e69c inherit pro_attribs_classzeus_1_1_remote_process_call"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a67b174dae0738e623c621102c5e8fc64 inherit pro_attribs_classzeus_1_1_remote_process_call"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzeus_1_1_remote_process_call.html#a67b174dae0738e623c621102c5e8fc64">m_type</a></td></tr>
+<tr class="separator:a67b174dae0738e623c621102c5e8fc64 inherit pro_attribs_classzeus_1_1_remote_process_call"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="inherited"></a>
+Additional Inherited Members</h2></td></tr>
+<tr class="inherit_header pro_methods_classzeus_1_1_remote_process_call"><td colspan="2" onclick="javascript:toggleInherit('pro_methods_classzeus_1_1_remote_process_call')"><img src="closed.png" alt="-"/>&#160;Protected Member Functions inherited from <a class="el" href="classzeus_1_1_remote_process_call.html">zeus::RemoteProcessCall</a></td></tr>
+<tr class="memitem:a19569a8c0299c9ec07e3cdc0ab210d9d inherit pro_methods_classzeus_1_1_remote_process_call"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzeus_1_1_remote_process_call.html#a19569a8c0299c9ec07e3cdc0ab210d9d">isFunctionAuthorized</a> (uint64_t _clientSessionID, const std::string &amp;_funcName)</td></tr>
+<tr class="separator:a19569a8c0299c9ec07e3cdc0ab210d9d inherit pro_methods_classzeus_1_1_remote_process_call"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname"></td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+</div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
+<a id="ae578c7a651b412b049ef78eda2d0a921"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae578c7a651b412b049ef78eda2d0a921">&sect;&nbsp;</a></span>Service()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">zeus::Service::Service </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname"></td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="a7385fdad3cc3fc1d39adc4da7b15a8b3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7385fdad3cc3fc1d39adc4da7b15a8b3">&sect;&nbsp;</a></span>~Service()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual zeus::Service::~Service </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname"></td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<h2 class="groupheader">Member Function Documentation</h2>
+<a id="a6f83b9fef593209468108089b97e133d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6f83b9fef593209468108089b97e133d">&sect;&nbsp;</a></span>advertise()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class ZEUS_RETURN_VALUE , class ZEUS_CLASS_TYPE , class... ZEUS_FUNC_ARGS_TYPE&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classzeus_1_1_abstract_function.html">zeus::AbstractFunction</a>* zeus::Service::advertise </td>
+          <td>(</td>
+          <td class="paramtype">std::string&#160;</td>
+          <td class="paramname"><em>_name</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">ZEUS_RETURN_VALUE(ZEUS_CLASS_TYPE::*)(ZEUS_FUNC_ARGS_TYPE... _args)&#160;</td>
+          <td class="paramname"><em>_func</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname"></td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="abec956bd2fcb27018ff14c8e4f7cd06a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abec956bd2fcb27018ff14c8e4f7cd06a">&sect;&nbsp;</a></span>connect()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void zeus::Service::connect </td>
+          <td>(</td>
+          <td class="paramtype">uint32_t&#160;</td>
+          <td class="paramname"><em>_numberRetry</em> = <code>1</code></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname"></td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="acd27fec233b880688553c5ad314a9fed"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#acd27fec233b880688553c5ad314a9fed">&sect;&nbsp;</a></span>disconnect()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void zeus::Service::disconnect </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname"></td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="aedba004d565f1f72f8fcb74924721a94"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aedba004d565f1f72f8fcb74924721a94">&sect;&nbsp;</a></span>GateWayAlive()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool zeus::Service::GateWayAlive </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname"></td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="a0f5d35170a456ea3dea5a8e531b8d8ac"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0f5d35170a456ea3dea5a8e531b8d8ac">&sect;&nbsp;</a></span>pingIsAlive()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void zeus::Service::pingIsAlive </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname"></td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<h2 class="groupheader">Member Data Documentation</h2>
+<a id="ab826eb50667d1ba8a15f8c46745705b0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab826eb50667d1ba8a15f8c46745705b0">&sect;&nbsp;</a></span>propertyIp</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="elRef" doxygen="/home/heero/dev/perso/out/doc/release/eproperty.tag:http://atria-soft.github.io/eproperty/" href="http://atria-soft.github.io/eproperty/classeproperty_1_1_value.html">eproperty::Value</a>&lt;std::string&gt; zeus::Service::propertyIp</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Ip of WebSocket TCP connection. </p>
+
+</div>
+</div>
+<a id="ac0c7e8b6bddfb670178a77a544da1a11"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac0c7e8b6bddfb670178a77a544da1a11">&sect;&nbsp;</a></span>propertyNameService</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="elRef" doxygen="/home/heero/dev/perso/out/doc/release/eproperty.tag:http://atria-soft.github.io/eproperty/" href="http://atria-soft.github.io/eproperty/classeproperty_1_1_value.html">eproperty::Value</a>&lt;std::string&gt; zeus::Service::propertyNameService</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p><a class="el" href="classzeus_1_1_service.html">Service</a> name. </p>
+
+</div>
+</div>
+<a id="a35cc644236eeb05a97ff7c2e5bc55eb9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a35cc644236eeb05a97ff7c2e5bc55eb9">&sect;&nbsp;</a></span>propertyPort</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="elRef" doxygen="/home/heero/dev/perso/out/doc/release/eproperty.tag:http://atria-soft.github.io/eproperty/" href="http://atria-soft.github.io/eproperty/classeproperty_1_1_value.html">eproperty::Value</a>&lt;uint16_t&gt; zeus::Service::propertyPort</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Port of the WebSocket connection. </p>
+
+</div>
+</div>
+<hr/>The documentation for this class was generated from the following file:<ul>
+<li>framework/atria-soft/zeus/zeus/<a class="el" href="_service_8hpp_source.html">Service.hpp</a></li>
+</ul>
+</div><!-- contents -->
+<!-- HTML footer for doxygen 1.8.8-->
+<!-- start footer part -->
+</div>
+</div>
+</div>
+</div>
+</div>
+<hr class="footer"/><address class="footer"><small>
+Generated on Mon Oct 24 2016 14:06:05 for zeus: Zeus ewol micro-service interface by &#160;<a href="http://www.doxygen.org/index.html">
+<img class="footer" src="doxygen.png" alt="doxygen"/>
+</a> 1.8.12
+</small></address>
+</body>
+</html>

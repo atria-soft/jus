@@ -1,0 +1,629 @@
+<!-- HTML header for doxygen 1.8.8-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <!-- For Mobile Devices -->
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+        <meta name="generator" content="Doxygen 1.8.12"/>
+        <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+        <title>zeus: Zeus ewol micro-service interface: zeus::BufferParameter Class Reference</title>
+        <!--<link href="tabs.css" rel="stylesheet" type="text/css"/>-->
+        <script type="text/javascript" src="dynsections.js"></script>
+        <link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+        <link href="doxygen.css" rel="stylesheet" type="text/css" />
+        <link href="customdoxygen.css" rel="stylesheet" type="text/css"/>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
+        <script type="text/javascript" src="doxy-boot.js"></script>
+    </head>
+    <body>
+        <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+            <div class="container">
+                <div class="navbar-header">
+                    <a class="navbar-brand">zeus: Zeus ewol micro-service interface 0.4.0</a>
+                </div>
+                <div id="navbar" class="navbar-collapse collapse">
+                    <ul class="nav navbar-nav">
+                        <li><a href="index.html">Main&nbsp;Page</a></li>
+                        <li><a href="pages.html">Related&nbsp;Pages</a></li>
+                        <li><a href="namespaces.html">Namespaces</a></li>
+                        <li><a href="annotated.html">Classes</a></li>
+                        <li><a href="files.html">Files</a></li>
+                    </ul>
+                    <ul class="nav navbar-nav navbar-right">
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                                Link-libs<span class="caret"></span>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a href="http://HeeroYui.github.io/lutin">lutin</a></li>
+                                <li><a href="http://atria-soft.github.io/ewol">ewol</a></li>
+                                <li><a href="http://atria-soft.github.io/etk">etk</a></li>
+                                <li><a href="http://atria-soft.github.io/ejson">ejson</a></li>
+                                <li><a href="http://atria-soft.github.io/exml">exml</a></li>
+                                <li><a href="http://atria-soft.github.io/esvg">esvg</a></li>
+                                <li><a href="http://atria-soft.github.io/egami">egami</a></li>
+                                <li><a href="http://atria-soft.github.io/gale">gale</a></li>
+                                <li><a href="http://atria-soft.github.io/ege">ege</a></li>
+                                <li><a href="http://atria-soft.github.io/elog">elog</a></li>
+                                <li><a href="http://atria-soft.github.io/ememory">ememory</a></li>
+                                <li><a href="http://atria-soft.github.io/enet">enet</a></li>
+                                <li><a href="http://atria-soft.github.io/eproperty">eproperty</a></li>
+                                <li><a href="http://atria-soft.github.io/esignal">esignal</a></li>
+                                <li><a href="http://atria-soft.github.io/zeus">zeus</a></li>
+                                <li><a href="http://atria-soft.github.io/audio-ess">audio-ess</a></li>
+                                <li><a href="http://musicdsp.github.io/audio">audio</a></li>
+                                <li><a href="http://musicdsp.github.io/audio-drain">audio-drain</a></li>
+                                <li><a href="http://musicdsp.github.io/audio-orchestra">audio-orchestra</a></li>
+                                <li><a href="http://musicdsp.github.io/audio-river">audio-river</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                    <div id="search-box" class="input-group">
+                        <div class="input-group-btn">
+                            <button aria-expanded="false" type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                                <span class="glyphicon glyphicon-search"></span>
+                                <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><a href="#">All</a></li>
+                                <li><a href="#">Classes</a></li>
+                                <li><a href="#">Namespaces</a></li>
+                                <li><a href="#">Files</a></li>
+                                <li><a href="#">Functions</a></li>
+                                <li><a href="#">Variables</a></li>
+                                <li><a href="#">Typedefs</a></li>
+                                <li><a href="#">Enumerations</a></li>
+                                <li><a href="#">Enumerator</a></li>
+                                <li><a href="#">Friends</a></li>
+                                <li><a href="#">Macros</a></li>
+                                <li><a href="#">Pages</a></li>
+                            </ul>
+                        </div>
+                        <button id="search-close" type="button" class="close" aria-label="Close">
+                            <span aria-hidden="true"></span>
+                        </button>
+                        <input id="search-field" class="form-control" accesskey="S" onkeydown="searchBox.OnSearchFieldChange(event);" placeholder="Search ..." type="text">
+                    </div>
+                </div><!--/.nav-collapse -->
+            </div>
+        </nav>
+        <div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+            <div class="content" id="content">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-sm-12 panel panel-default" style="padding-bottom: 15px;">
+                            <div style="margin-bottom: 15px;">
+<!-- end header part -->
+<!-- Generated by Doxygen 1.8.12 -->
+<script type="text/javascript">
+var searchBox = new SearchBox("searchBox", "search",false,'Search');
+</script>
+<script type="text/javascript" src="menudata.js"></script>
+<script type="text/javascript" src="menu.js"></script>
+<script type="text/javascript">
+$(function() {
+  initMenu('',true,false,'search.php','Search');
+  $(document).ready(function() { init_search(); });
+});
+</script>
+<div id="main-nav"></div>
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<iframe src="javascript:void(0)" frameborder="0" 
+        name="MSearchResults" id="MSearchResults">
+</iframe>
+</div>
+
+<div id="nav-path" class="navpath">
+  <ul>
+<li class="navelem"><a class="el" href="namespacezeus.html">zeus</a></li><li class="navelem"><a class="el" href="classzeus_1_1_buffer_parameter.html">BufferParameter</a></li>  </ul>
+</div>
+</div><!-- top -->
+<div class="header">
+  <div class="summary">
+<a href="#pub-methods">Public Member Functions</a> &#124;
+<a href="#pro-methods">Protected Member Functions</a> &#124;
+<a href="#pro-attribs">Protected Attributes</a> &#124;
+<a href="classzeus_1_1_buffer_parameter-members.html">List of all members</a>  </div>
+  <div class="headertitle">
+<div class="title">zeus::BufferParameter Class Reference</div>  </div>
+</div><!--header-->
+<div class="contents">
+<div class="dynheader">
+Inheritance diagram for zeus::BufferParameter:</div>
+<div class="dyncontent">
+ <div class="center">
+  <img src="classzeus_1_1_buffer_parameter.png" usemap="#zeus::BufferParameter_map" alt=""/>
+  <map id="zeus::BufferParameter_map" name="zeus::BufferParameter_map">
+<area href="classzeus_1_1_buffer.html" title="Protocol buffer to transmit datas. " alt="zeus::Buffer" shape="rect" coords="73,0,210,24"/>
+<area href="classzeus_1_1_buffer_answer.html" alt="zeus::BufferAnswer" shape="rect" coords="0,112,137,136"/>
+<area href="classzeus_1_1_buffer_call.html" alt="zeus::BufferCall" shape="rect" coords="147,112,284,136"/>
+</map>
+ </div></div>
+<table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
+Public Member Functions</h2></td></tr>
+<tr class="memitem:a8c7dc500e838cbd420f0f96506f5aae3"><td class="memTemplParams" colspan="2">template&lt;class ZEUS_TYPE_DATA &gt; </td></tr>
+<tr class="memitem:a8c7dc500e838cbd420f0f96506f5aae3"><td class="memTemplItemLeft" align="right" valign="top">ZEUS_TYPE_DATA&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classzeus_1_1_buffer_parameter.html#a8c7dc500e838cbd420f0f96506f5aae3">getParameter</a> (int32_t _id) const</td></tr>
+<tr class="separator:a8c7dc500e838cbd420f0f96506f5aae3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abe751c73c4b1a1f316f8f1e790b84d64"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classzeus_1_1_param_type.html">zeus::ParamType</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzeus_1_1_buffer_parameter.html#abe751c73c4b1a1f316f8f1e790b84d64">getParameterType</a> (int32_t _id) const</td></tr>
+<tr class="separator:abe751c73c4b1a1f316f8f1e790b84d64"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a906b224cdca4796b427a2fdf5bfabc69"><td class="memItemLeft" align="right" valign="top">const uint8_t *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzeus_1_1_buffer_parameter.html#a906b224cdca4796b427a2fdf5bfabc69">getParameterPointer</a> (int32_t _id) const</td></tr>
+<tr class="separator:a906b224cdca4796b427a2fdf5bfabc69"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a53bb01ccc595c24e93552c9d30546425"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzeus_1_1_buffer_parameter.html#a53bb01ccc595c24e93552c9d30546425">getParameterSize</a> (int32_t _id) const</td></tr>
+<tr class="separator:a53bb01ccc595c24e93552c9d30546425"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a02b8fc1305bad1f93bb596dc68bf3aff"><td class="memItemLeft" align="right" valign="top">uint16_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzeus_1_1_buffer_parameter.html#a02b8fc1305bad1f93bb596dc68bf3aff">getNumberParameter</a> () const</td></tr>
+<tr class="separator:a02b8fc1305bad1f93bb596dc68bf3aff"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a644ed390af5db818a01df2e08e3a35c2"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzeus_1_1_buffer_parameter.html#a644ed390af5db818a01df2e08e3a35c2">addParameterEmptyVector</a> ()</td></tr>
+<tr class="separator:a644ed390af5db818a01df2e08e3a35c2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6005a0344f0571e9ce30de0d3d5fc0a0"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzeus_1_1_buffer_parameter.html#a6005a0344f0571e9ce30de0d3d5fc0a0">addParameter</a> ()</td></tr>
+<tr class="separator:a6005a0344f0571e9ce30de0d3d5fc0a0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab2fc28c02f66843234779e82638e2647"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzeus_1_1_buffer_parameter.html#ab2fc28c02f66843234779e82638e2647">simpleStringParam</a> (uint32_t _id) const</td></tr>
+<tr class="separator:ab2fc28c02f66843234779e82638e2647"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2e173b7ed3a42ea5860c01efdd67884b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzeus_1_1_buffer_parameter.html#a2e173b7ed3a42ea5860c01efdd67884b">composeWith</a> (const uint8_t *_buffer, uint32_t _lenght) override</td></tr>
+<tr class="separator:a2e173b7ed3a42ea5860c01efdd67884b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abd1c9ff49bf0b7feb0e743a74f291ff4"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzeus_1_1_buffer_parameter.html#abd1c9ff49bf0b7feb0e743a74f291ff4">writeOn</a> (<a class="elRef" doxygen="/home/heero/dev/perso/out/doc/release/enet.tag:http://atria-soft.github.io/enet/" href="http://atria-soft.github.io/enet/classenet_1_1_web_socket.html">enet::WebSocket</a> &amp;_interface) override</td></tr>
+<tr class="separator:abd1c9ff49bf0b7feb0e743a74f291ff4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3b62ce6c4e4a48dea062a0d04fa30145"><td class="memTemplParams" colspan="2"><a id="a3b62ce6c4e4a48dea062a0d04fa30145"></a>
+template&lt;class ZEUS_TYPE_DATA &gt; </td></tr>
+<tr class="memitem:a3b62ce6c4e4a48dea062a0d04fa30145"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><b>addParameter</b> (const ZEUS_TYPE_DATA &amp;_value)</td></tr>
+<tr class="separator:a3b62ce6c4e4a48dea062a0d04fa30145"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0a0649743e5b9704b958d58c60210f04"><td class="memItemLeft" align="right" valign="top"><a id="a0a0649743e5b9704b958d58c60210f04"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>parameterAppendBufferData</b> (<a class="elRef" doxygen="/home/heero/dev/perso/out/doc/release/ememory.tag:http://atria-soft.github.io/ememory/" href="http://atria-soft.github.io/ememory/classememory_1_1_shared_ptr.html">ememory::SharedPtr</a>&lt; <a class="el" href="classzeus_1_1_buffer_data.html">zeus::BufferData</a> &gt; _obj)</td></tr>
+<tr class="separator:a0a0649743e5b9704b958d58c60210f04"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="inherit_header pub_methods_classzeus_1_1_buffer"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_classzeus_1_1_buffer')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="classzeus_1_1_buffer.html">zeus::Buffer</a></td></tr>
+<tr class="memitem:a3a86e791e7369411338152b85bc63fc2 inherit pub_methods_classzeus_1_1_buffer"><td class="memItemLeft" align="right" valign="top">virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzeus_1_1_buffer.html#a3a86e791e7369411338152b85bc63fc2">~Buffer</a> ()=default</td></tr>
+<tr class="separator:a3a86e791e7369411338152b85bc63fc2 inherit pub_methods_classzeus_1_1_buffer"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a55a8c80490a62df5baf43f574ddc236b inherit pub_methods_classzeus_1_1_buffer"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzeus_1_1_buffer.html#a55a8c80490a62df5baf43f574ddc236b">haveAsync</a> () const</td></tr>
+<tr class="separator:a55a8c80490a62df5baf43f574ddc236b inherit pub_methods_classzeus_1_1_buffer"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3c34b9cdc68f966fa54037e8f2f7cf78 inherit pub_methods_classzeus_1_1_buffer"><td class="memItemLeft" align="right" valign="top">std::vector&lt; zeus::ActionAsyncClient &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzeus_1_1_buffer.html#a3c34b9cdc68f966fa54037e8f2f7cf78">moveAsync</a> ()</td></tr>
+<tr class="separator:a3c34b9cdc68f966fa54037e8f2f7cf78 inherit pub_methods_classzeus_1_1_buffer"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a99f27046a1f0dec254341c1530a297a4 inherit pub_methods_classzeus_1_1_buffer"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzeus_1_1_buffer.html#a99f27046a1f0dec254341c1530a297a4">appendBuffer</a> (<a class="elRef" doxygen="/home/heero/dev/perso/out/doc/release/ememory.tag:http://atria-soft.github.io/ememory/" href="http://atria-soft.github.io/ememory/classememory_1_1_shared_ptr.html">ememory::SharedPtr</a>&lt; <a class="el" href="classzeus_1_1_buffer.html">zeus::Buffer</a> &gt; _obj)</td></tr>
+<tr class="separator:a99f27046a1f0dec254341c1530a297a4 inherit pub_methods_classzeus_1_1_buffer"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a595372a40a12ab24cbea9cd3e5d694e1 inherit pub_methods_classzeus_1_1_buffer"><td class="memItemLeft" align="right" valign="top"><a id="a595372a40a12ab24cbea9cd3e5d694e1"></a>
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>appendBufferData</b> (<a class="elRef" doxygen="/home/heero/dev/perso/out/doc/release/ememory.tag:http://atria-soft.github.io/ememory/" href="http://atria-soft.github.io/ememory/classememory_1_1_shared_ptr.html">ememory::SharedPtr</a>&lt; <a class="el" href="classzeus_1_1_buffer_data.html">zeus::BufferData</a> &gt; _obj)</td></tr>
+<tr class="separator:a595372a40a12ab24cbea9cd3e5d694e1 inherit pub_methods_classzeus_1_1_buffer"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9dd89dee98ceb392b3ad299c4eaf1213 inherit pub_methods_classzeus_1_1_buffer"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzeus_1_1_buffer.html#a9dd89dee98ceb392b3ad299c4eaf1213">clear</a> ()</td></tr>
+<tr class="separator:a9dd89dee98ceb392b3ad299c4eaf1213 inherit pub_methods_classzeus_1_1_buffer"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab3904269466260a92e04b401e2e98eeb inherit pub_methods_classzeus_1_1_buffer"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzeus_1_1_buffer.html#ab3904269466260a92e04b401e2e98eeb">getTransactionId</a> () const</td></tr>
+<tr class="separator:ab3904269466260a92e04b401e2e98eeb inherit pub_methods_classzeus_1_1_buffer"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a32d2e6d8fc7807554fef6d4f94fe6e24 inherit pub_methods_classzeus_1_1_buffer"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzeus_1_1_buffer.html#a32d2e6d8fc7807554fef6d4f94fe6e24">setTransactionId</a> (uint32_t _value)</td></tr>
+<tr class="separator:a32d2e6d8fc7807554fef6d4f94fe6e24 inherit pub_methods_classzeus_1_1_buffer"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab4932ae6c95c48ca42fdc58eef9cddb2 inherit pub_methods_classzeus_1_1_buffer"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzeus_1_1_buffer.html#ab4932ae6c95c48ca42fdc58eef9cddb2">getClientId</a> () const</td></tr>
+<tr class="separator:ab4932ae6c95c48ca42fdc58eef9cddb2 inherit pub_methods_classzeus_1_1_buffer"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aedf74bdce024b947ec0739523d74b313 inherit pub_methods_classzeus_1_1_buffer"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzeus_1_1_buffer.html#aedf74bdce024b947ec0739523d74b313">setClientId</a> (uint32_t _value)</td></tr>
+<tr class="separator:aedf74bdce024b947ec0739523d74b313 inherit pub_methods_classzeus_1_1_buffer"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a954fa4ab49a4b44959234eba0ddf36b3 inherit pub_methods_classzeus_1_1_buffer"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzeus_1_1_buffer.html#a954fa4ab49a4b44959234eba0ddf36b3">getServiceId</a> () const</td></tr>
+<tr class="separator:a954fa4ab49a4b44959234eba0ddf36b3 inherit pub_methods_classzeus_1_1_buffer"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a402fb385b3b2ee61329138a5012bd599 inherit pub_methods_classzeus_1_1_buffer"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzeus_1_1_buffer.html#a402fb385b3b2ee61329138a5012bd599">setServiceId</a> (uint32_t _value)</td></tr>
+<tr class="separator:a402fb385b3b2ee61329138a5012bd599 inherit pub_methods_classzeus_1_1_buffer"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7225af13b903ec076414f574c2df9f11 inherit pub_methods_classzeus_1_1_buffer"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzeus_1_1_buffer.html#a7225af13b903ec076414f574c2df9f11">getPartFinish</a> () const</td></tr>
+<tr class="separator:a7225af13b903ec076414f574c2df9f11 inherit pub_methods_classzeus_1_1_buffer"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3064bb37e134da5929da1ea3986d1803 inherit pub_methods_classzeus_1_1_buffer"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzeus_1_1_buffer.html#a3064bb37e134da5929da1ea3986d1803">setPartFinish</a> (bool _value)</td></tr>
+<tr class="separator:a3064bb37e134da5929da1ea3986d1803 inherit pub_methods_classzeus_1_1_buffer"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6ba035d3a026f351013b5f621e32e636 inherit pub_methods_classzeus_1_1_buffer"><td class="memItemLeft" align="right" valign="top">virtual enum <a class="el" href="classzeus_1_1_buffer.html#ad70481d287df843b9f4a1658f20732a9">typeMessage</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzeus_1_1_buffer.html#a6ba035d3a026f351013b5f621e32e636">getType</a> () const</td></tr>
+<tr class="separator:a6ba035d3a026f351013b5f621e32e636 inherit pub_methods_classzeus_1_1_buffer"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5556d5cb0fb2abd9434bb2f2cba95372 inherit pub_methods_classzeus_1_1_buffer"><td class="memItemLeft" align="right" valign="top"><a id="a5556d5cb0fb2abd9434bb2f2cba95372"></a>
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>generateDisplay</b> (std::ostream &amp;_os) const</td></tr>
+<tr class="separator:a5556d5cb0fb2abd9434bb2f2cba95372 inherit pub_methods_classzeus_1_1_buffer"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pro-methods"></a>
+Protected Member Functions</h2></td></tr>
+<tr class="memitem:a0544d8a6e2343d9343c4495f75e00521"><td class="memTemplParams" colspan="2">template&lt;class ZEUS_TYPE_DATA &gt; </td></tr>
+<tr class="memitem:a0544d8a6e2343d9343c4495f75e00521"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classzeus_1_1_buffer_parameter.html#a0544d8a6e2343d9343c4495f75e00521">addParameter</a> (uint16_t _paramId, const ZEUS_TYPE_DATA &amp;_value)</td></tr>
+<tr class="separator:a0544d8a6e2343d9343c4495f75e00521"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="inherit_header pro_methods_classzeus_1_1_buffer"><td colspan="2" onclick="javascript:toggleInherit('pro_methods_classzeus_1_1_buffer')"><img src="closed.png" alt="-"/>&#160;Protected Member Functions inherited from <a class="el" href="classzeus_1_1_buffer.html">zeus::Buffer</a></td></tr>
+<tr class="memitem:adc7919d79f9f1ba53b691a1a54e208d6 inherit pro_methods_classzeus_1_1_buffer"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzeus_1_1_buffer.html#adc7919d79f9f1ba53b691a1a54e208d6">Buffer</a> ()</td></tr>
+<tr class="separator:adc7919d79f9f1ba53b691a1a54e208d6 inherit pro_methods_classzeus_1_1_buffer"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pro-attribs"></a>
+Protected Attributes</h2></td></tr>
+<tr class="memitem:a01e5d2b1735a9fc504af5dd86c591ed3"><td class="memItemLeft" align="right" valign="top">std::vector&lt; std::pair&lt; int32_t, std::vector&lt; uint8_t &gt; &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzeus_1_1_buffer_parameter.html#a01e5d2b1735a9fc504af5dd86c591ed3">m_parameter</a></td></tr>
+<tr class="separator:a01e5d2b1735a9fc504af5dd86c591ed3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="inherit_header pro_attribs_classzeus_1_1_buffer"><td colspan="2" onclick="javascript:toggleInherit('pro_attribs_classzeus_1_1_buffer')"><img src="closed.png" alt="-"/>&#160;Protected Attributes inherited from <a class="el" href="classzeus_1_1_buffer.html">zeus::Buffer</a></td></tr>
+<tr class="memitem:aad198ff90f0335d7828a84ae2d5302ac inherit pro_attribs_classzeus_1_1_buffer"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structzeus_1_1header_bin.html">headerBin</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzeus_1_1_buffer.html#aad198ff90f0335d7828a84ae2d5302ac">m_header</a></td></tr>
+<tr class="separator:aad198ff90f0335d7828a84ae2d5302ac inherit pro_attribs_classzeus_1_1_buffer"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab21f842488e97b05f68d1353911c46bf inherit pro_attribs_classzeus_1_1_buffer"><td class="memItemLeft" align="right" valign="top">std::vector&lt; zeus::ActionAsyncClient &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzeus_1_1_buffer.html#ab21f842488e97b05f68d1353911c46bf">m_multipleSend</a></td></tr>
+<tr class="separator:ab21f842488e97b05f68d1353911c46bf inherit pro_attribs_classzeus_1_1_buffer"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="inherited"></a>
+Additional Inherited Members</h2></td></tr>
+<tr class="inherit_header pub_types_classzeus_1_1_buffer"><td colspan="2" onclick="javascript:toggleInherit('pub_types_classzeus_1_1_buffer')"><img src="closed.png" alt="-"/>&#160;Public Types inherited from <a class="el" href="classzeus_1_1_buffer.html">zeus::Buffer</a></td></tr>
+<tr class="memitem:ad70481d287df843b9f4a1658f20732a9 inherit pub_types_classzeus_1_1_buffer"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzeus_1_1_buffer.html#ad70481d287df843b9f4a1658f20732a9">typeMessage</a> { <br />
+&#160;&#160;<a class="el" href="classzeus_1_1_buffer.html#ad70481d287df843b9f4a1658f20732a9a5c940de9c166a32dc1f63d9dafc6822f">typeMessage::unknow</a> = 0x0000, 
+<a class="el" href="classzeus_1_1_buffer.html#ad70481d287df843b9f4a1658f20732a9a53b9e9679a8ea25880376080b76f98ad">typeMessage::call</a> = 0x0001, 
+<a class="el" href="classzeus_1_1_buffer.html#ad70481d287df843b9f4a1658f20732a9aa363b8d13575101a0226e8d0d054f2e7">typeMessage::answer</a> = 0x0002, 
+<a class="el" href="classzeus_1_1_buffer.html#ad70481d287df843b9f4a1658f20732a9a8d777f385d3dfec8815d20f7496026dc">typeMessage::data</a> = 0x0003, 
+<br />
+&#160;&#160;<a class="el" href="classzeus_1_1_buffer.html#ad70481d287df843b9f4a1658f20732a9a4119639092e62c55ea8be348e4d9260d">typeMessage::event</a> = 0x0004
+<br />
+ }</td></tr>
+<tr class="separator:ad70481d287df843b9f4a1658f20732a9 inherit pub_types_classzeus_1_1_buffer"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="inherit_header pub_static_methods_classzeus_1_1_buffer"><td colspan="2" onclick="javascript:toggleInherit('pub_static_methods_classzeus_1_1_buffer')"><img src="closed.png" alt="-"/>&#160;Static Public Member Functions inherited from <a class="el" href="classzeus_1_1_buffer.html">zeus::Buffer</a></td></tr>
+<tr class="memitem:afecc1f7ef76505e8d065a391edc33069 inherit pub_static_methods_classzeus_1_1_buffer"><td class="memItemLeft" align="right" valign="top">static <a class="elRef" doxygen="/home/heero/dev/perso/out/doc/release/ememory.tag:http://atria-soft.github.io/ememory/" href="http://atria-soft.github.io/ememory/classememory_1_1_shared_ptr.html">ememory::SharedPtr</a>&lt; <a class="el" href="classzeus_1_1_buffer.html">zeus::Buffer</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzeus_1_1_buffer.html#afecc1f7ef76505e8d065a391edc33069">create</a> ()</td></tr>
+<tr class="separator:afecc1f7ef76505e8d065a391edc33069 inherit pub_static_methods_classzeus_1_1_buffer"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0346c57221b2b455b6d84a0c4c4799fe inherit pub_static_methods_classzeus_1_1_buffer"><td class="memItemLeft" align="right" valign="top">static <a class="elRef" doxygen="/home/heero/dev/perso/out/doc/release/ememory.tag:http://atria-soft.github.io/ememory/" href="http://atria-soft.github.io/ememory/classememory_1_1_shared_ptr.html">ememory::SharedPtr</a>&lt; <a class="el" href="classzeus_1_1_buffer.html">zeus::Buffer</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzeus_1_1_buffer.html#a0346c57221b2b455b6d84a0c4c4799fe">create</a> (const std::vector&lt; uint8_t &gt; &amp;_buffer)</td></tr>
+<tr class="separator:a0346c57221b2b455b6d84a0c4c4799fe inherit pub_static_methods_classzeus_1_1_buffer"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table>
+<h2 class="groupheader">Member Function Documentation</h2>
+<a id="a6005a0344f0571e9ce30de0d3d5fc0a0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6005a0344f0571e9ce30de0d3d5fc0a0">&sect;&nbsp;</a></span>addParameter() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void zeus::BufferParameter::addParameter </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Add parameter (or not.. this is the end of an auto resursive add parameter) </p>
+
+</div>
+</div>
+<a id="a0544d8a6e2343d9343c4495f75e00521"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0544d8a6e2343d9343c4495f75e00521">&sect;&nbsp;</a></span>addParameter() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class ZEUS_TYPE_DATA &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void zeus::BufferParameter::addParameter </td>
+          <td>(</td>
+          <td class="paramtype">uint16_t&#160;</td>
+          <td class="paramname"><em>_paramId</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const ZEUS_TYPE_DATA &amp;&#160;</td>
+          <td class="paramname"><em>_value</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">protected</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Add a parameter at a specific position. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">_paramId</td><td>Id of the parameter (needed for the multiple packet sending) </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">_value</td><td>Value to add in parameter </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="a644ed390af5db818a01df2e08e3a35c2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a644ed390af5db818a01df2e08e3a35c2">&sect;&nbsp;</a></span>addParameterEmptyVector()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void zeus::BufferParameter::addParameterEmptyVector </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Add an empty vector with no type. </p>
+
+</div>
+</div>
+<a id="a2e173b7ed3a42ea5860c01efdd67884b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2e173b7ed3a42ea5860c01efdd67884b">&sect;&nbsp;</a></span>composeWith()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void zeus::BufferParameter::composeWith </td>
+          <td>(</td>
+          <td class="paramtype">const uint8_t *&#160;</td>
+          <td class="paramname"><em>_buffer</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint32_t&#160;</td>
+          <td class="paramname"><em>_lenght</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>When receive new data form websocket, it might be added by this input (set all the frame ...) </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">_buffer</td><td>Pointer on the data to add. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">_lenght</td><td>number of octet to add. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p>Reimplemented from <a class="el" href="classzeus_1_1_buffer.html#a30344f73cbacd286759d731acc4252ab">zeus::Buffer</a>.</p>
+
+</div>
+</div>
+<a id="a02b8fc1305bad1f93bb596dc68bf3aff"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a02b8fc1305bad1f93bb596dc68bf3aff">&sect;&nbsp;</a></span>getNumberParameter()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint16_t zeus::BufferParameter::getNumberParameter </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Get the number of parameter availlable. </p>
+<dl class="section return"><dt>Returns</dt><dd>number of parameter </dd></dl>
+
+</div>
+</div>
+<a id="a8c7dc500e838cbd420f0f96506f5aae3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8c7dc500e838cbd420f0f96506f5aae3">&sect;&nbsp;</a></span>getParameter()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class ZEUS_TYPE_DATA &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">ZEUS_TYPE_DATA zeus::BufferParameter::getParameter </td>
+          <td>(</td>
+          <td class="paramtype">int32_t&#160;</td>
+          <td class="paramname"><em>_id</em></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Template to get a parameter with a specific type. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">_id</td><td>Number of the parameter </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Converted type of the parameter (or empty value) </dd></dl>
+
+</div>
+</div>
+<a id="a906b224cdca4796b427a2fdf5bfabc69"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a906b224cdca4796b427a2fdf5bfabc69">&sect;&nbsp;</a></span>getParameterPointer()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const uint8_t* zeus::BufferParameter::getParameterPointer </td>
+          <td>(</td>
+          <td class="paramtype">int32_t&#160;</td>
+          <td class="paramname"><em>_id</em></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Get the start pointer of the parameter. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">_id</td><td>Number of the parameter </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>pointer of the parameter or nullptr </dd></dl>
+
+</div>
+</div>
+<a id="a53bb01ccc595c24e93552c9d30546425"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a53bb01ccc595c24e93552c9d30546425">&sect;&nbsp;</a></span>getParameterSize()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t zeus::BufferParameter::getParameterSize </td>
+          <td>(</td>
+          <td class="paramtype">int32_t&#160;</td>
+          <td class="paramname"><em>_id</em></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Get the size of the parameter availlable in the parameter pointer. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">_id</td><td>Number of the parameter </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>size of the parameter buffer </dd></dl>
+
+</div>
+</div>
+<a id="abe751c73c4b1a1f316f8f1e790b84d64"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abe751c73c4b1a1f316f8f1e790b84d64">&sect;&nbsp;</a></span>getParameterType()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classzeus_1_1_param_type.html">zeus::ParamType</a> zeus::BufferParameter::getParameterType </td>
+          <td>(</td>
+          <td class="paramtype">int32_t&#160;</td>
+          <td class="paramname"><em>_id</em></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Get the type of a parameter. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">_id</td><td>Number of the parameter </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>type of the parameter </dd></dl>
+
+</div>
+</div>
+<a id="ab2fc28c02f66843234779e82638e2647"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab2fc28c02f66843234779e82638e2647">&sect;&nbsp;</a></span>simpleStringParam()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::string zeus::BufferParameter::simpleStringParam </td>
+          <td>(</td>
+          <td class="paramtype">uint32_t&#160;</td>
+          <td class="paramname"><em>_id</em></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Convert the parameter in a simple human readable string. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">_id</td><td>Number of the parameter </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>readable string </dd></dl>
+
+</div>
+</div>
+<a id="abd1c9ff49bf0b7feb0e743a74f291ff4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abd1c9ff49bf0b7feb0e743a74f291ff4">&sect;&nbsp;</a></span>writeOn()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool zeus::BufferParameter::writeOn </td>
+          <td>(</td>
+          <td class="paramtype"><a class="elRef" doxygen="/home/heero/dev/perso/out/doc/release/enet.tag:http://atria-soft.github.io/enet/" href="http://atria-soft.github.io/enet/classenet_1_1_web_socket.html">enet::WebSocket</a> &amp;&#160;</td>
+          <td class="paramname"><em>_interface</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Write the buffer on a specific interface. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">_interface</td><td>socket to write data </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>true of no error appear </dd></dl>
+
+<p>Reimplemented from <a class="el" href="classzeus_1_1_buffer.html#acd63c534f866dba253415e19a1ac2cdb">zeus::Buffer</a>.</p>
+
+</div>
+</div>
+<h2 class="groupheader">Member Data Documentation</h2>
+<a id="a01e5d2b1735a9fc504af5dd86c591ed3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a01e5d2b1735a9fc504af5dd86c591ed3">&sect;&nbsp;</a></span>m_parameter</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::vector&lt;std::pair&lt;int32_t,std::vector&lt;uint8_t&gt; &gt; &gt; zeus::BufferParameter::m_parameter</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">mutable</span><span class="mlabel">protected</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>list of the parameter (offset of start data and buffer of data (subprotocol...) </p>
+
+</div>
+</div>
+<hr/>The documentation for this class was generated from the following file:<ul>
+<li>framework/atria-soft/zeus/zeus/<a class="el" href="_buffer_parameter_8hpp_source.html">BufferParameter.hpp</a></li>
+</ul>
+</div><!-- contents -->
+<!-- HTML footer for doxygen 1.8.8-->
+<!-- start footer part -->
+</div>
+</div>
+</div>
+</div>
+</div>
+<hr class="footer"/><address class="footer"><small>
+Generated on Mon Oct 24 2016 14:06:05 for zeus: Zeus ewol micro-service interface by &#160;<a href="http://www.doxygen.org/index.html">
+<img class="footer" src="doxygen.png" alt="doxygen"/>
+</a> 1.8.12
+</small></address>
+</body>
+</html>

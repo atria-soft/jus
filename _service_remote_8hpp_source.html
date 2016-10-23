@@ -1,0 +1,171 @@
+<!-- HTML header for doxygen 1.8.8-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <!-- For Mobile Devices -->
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+        <meta name="generator" content="Doxygen 1.8.12"/>
+        <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+        <title>zeus: Zeus ewol micro-service interface: framework/atria-soft/zeus/zeus/ServiceRemote.hpp Source File</title>
+        <!--<link href="tabs.css" rel="stylesheet" type="text/css"/>-->
+        <script type="text/javascript" src="dynsections.js"></script>
+        <link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+        <link href="doxygen.css" rel="stylesheet" type="text/css" />
+        <link href="customdoxygen.css" rel="stylesheet" type="text/css"/>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
+        <script type="text/javascript" src="doxy-boot.js"></script>
+    </head>
+    <body>
+        <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+            <div class="container">
+                <div class="navbar-header">
+                    <a class="navbar-brand">zeus: Zeus ewol micro-service interface 0.4.0</a>
+                </div>
+                <div id="navbar" class="navbar-collapse collapse">
+                    <ul class="nav navbar-nav">
+                        <li><a href="index.html">Main&nbsp;Page</a></li>
+                        <li><a href="pages.html">Related&nbsp;Pages</a></li>
+                        <li><a href="namespaces.html">Namespaces</a></li>
+                        <li><a href="annotated.html">Classes</a></li>
+                        <li><a href="files.html">Files</a></li>
+                    </ul>
+                    <ul class="nav navbar-nav navbar-right">
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                                Link-libs<span class="caret"></span>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a href="http://HeeroYui.github.io/lutin">lutin</a></li>
+                                <li><a href="http://atria-soft.github.io/ewol">ewol</a></li>
+                                <li><a href="http://atria-soft.github.io/etk">etk</a></li>
+                                <li><a href="http://atria-soft.github.io/ejson">ejson</a></li>
+                                <li><a href="http://atria-soft.github.io/exml">exml</a></li>
+                                <li><a href="http://atria-soft.github.io/esvg">esvg</a></li>
+                                <li><a href="http://atria-soft.github.io/egami">egami</a></li>
+                                <li><a href="http://atria-soft.github.io/gale">gale</a></li>
+                                <li><a href="http://atria-soft.github.io/ege">ege</a></li>
+                                <li><a href="http://atria-soft.github.io/elog">elog</a></li>
+                                <li><a href="http://atria-soft.github.io/ememory">ememory</a></li>
+                                <li><a href="http://atria-soft.github.io/enet">enet</a></li>
+                                <li><a href="http://atria-soft.github.io/eproperty">eproperty</a></li>
+                                <li><a href="http://atria-soft.github.io/esignal">esignal</a></li>
+                                <li><a href="http://atria-soft.github.io/zeus">zeus</a></li>
+                                <li><a href="http://atria-soft.github.io/audio-ess">audio-ess</a></li>
+                                <li><a href="http://musicdsp.github.io/audio">audio</a></li>
+                                <li><a href="http://musicdsp.github.io/audio-drain">audio-drain</a></li>
+                                <li><a href="http://musicdsp.github.io/audio-orchestra">audio-orchestra</a></li>
+                                <li><a href="http://musicdsp.github.io/audio-river">audio-river</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                    <div id="search-box" class="input-group">
+                        <div class="input-group-btn">
+                            <button aria-expanded="false" type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                                <span class="glyphicon glyphicon-search"></span>
+                                <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><a href="#">All</a></li>
+                                <li><a href="#">Classes</a></li>
+                                <li><a href="#">Namespaces</a></li>
+                                <li><a href="#">Files</a></li>
+                                <li><a href="#">Functions</a></li>
+                                <li><a href="#">Variables</a></li>
+                                <li><a href="#">Typedefs</a></li>
+                                <li><a href="#">Enumerations</a></li>
+                                <li><a href="#">Enumerator</a></li>
+                                <li><a href="#">Friends</a></li>
+                                <li><a href="#">Macros</a></li>
+                                <li><a href="#">Pages</a></li>
+                            </ul>
+                        </div>
+                        <button id="search-close" type="button" class="close" aria-label="Close">
+                            <span aria-hidden="true"></span>
+                        </button>
+                        <input id="search-field" class="form-control" accesskey="S" onkeydown="searchBox.OnSearchFieldChange(event);" placeholder="Search ..." type="text">
+                    </div>
+                </div><!--/.nav-collapse -->
+            </div>
+        </nav>
+        <div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+            <div class="content" id="content">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-sm-12 panel panel-default" style="padding-bottom: 15px;">
+                            <div style="margin-bottom: 15px;">
+<!-- end header part -->
+<!-- Generated by Doxygen 1.8.12 -->
+<script type="text/javascript">
+var searchBox = new SearchBox("searchBox", "search",false,'Search');
+</script>
+<script type="text/javascript" src="menudata.js"></script>
+<script type="text/javascript" src="menu.js"></script>
+<script type="text/javascript">
+$(function() {
+  initMenu('',true,false,'search.php','Search');
+  $(document).ready(function() { init_search(); });
+});
+</script>
+<div id="main-nav"></div>
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<iframe src="javascript:void(0)" frameborder="0" 
+        name="MSearchResults" id="MSearchResults">
+</iframe>
+</div>
+
+<div id="nav-path" class="navpath">
+  <ul>
+<li class="navelem"><a class="el" href="dir_644e041c3a6521da7b27eba0e4eb2b95.html">framework</a></li><li class="navelem"><a class="el" href="dir_a094892b17be858f66bf3446bbb755c7.html">atria-soft</a></li><li class="navelem"><a class="el" href="dir_96d802beaf7bb3afdcf2656a2c8ec44e.html">zeus</a></li><li class="navelem"><a class="el" href="dir_645a2e7aebb6c78a7ec97ee8c38ef7e7.html">zeus</a></li>  </ul>
+</div>
+</div><!-- top -->
+<div class="header">
+  <div class="headertitle">
+<div class="title">ServiceRemote.hpp</div>  </div>
+</div><!--header-->
+<div class="contents">
+<a href="_service_remote_8hpp.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;</div><div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160;<span class="preprocessor">#pragma once</span></div><div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;</div><div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160;<span class="preprocessor">#include &lt;<a class="code" href="_web_server_8hpp.html">zeus/WebServer.hpp</a>&gt;</span></div><div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;<span class="preprocessor">#include &lt;zeus/debug.hpp&gt;</span></div><div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;<span class="preprocessor">#include &lt;<a class="code" href="_abstract_function_8hpp.html">zeus/AbstractFunction.hpp</a>&gt;</span></div><div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;<span class="preprocessor">#include &lt;<a class="code" href="_service_remote_8hpp.html">zeus/ServiceRemote.hpp</a>&gt;</span></div><div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;<span class="preprocessor">#include &lt;<a class="code" href="_future_8hpp.html">zeus/Future.hpp</a>&gt;</span></div><div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;<span class="preprocessor">#include &lt;<a class="code" href="_web_server_8hpp.html">zeus/WebServer.hpp</a>&gt;</span></div><div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;</div><div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;<span class="keyword">namespace </span><a class="code" href="namespacezeus.html">zeus</a> {</div><div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;    <span class="keyword">class </span>Client;</div><div class="line"><a name="l00022"></a><span class="lineno"><a class="line" href="classzeus_1_1_service_remote.html">   22</a></span>&#160;    <span class="keyword">class </span><a class="code" href="classzeus_1_1_service_remote.html">ServiceRemote</a> {</div><div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;        <span class="keyword">private</span>:</div><div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;            <a class="codeRef" doxygen="/home/heero/dev/perso/out/doc/release/ememory.tag:http://atria-soft.github.io/ememory/" href="http://atria-soft.github.io/ememory/classememory_1_1_shared_ptr.html">ememory::SharedPtr&lt;zeus::WebServer&gt;</a> m_interfaceClient;</div><div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;            std::string m_name;</div><div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;            uint32_t m_serviceId;</div><div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;            <span class="keywordtype">bool</span> m_isLinked;</div><div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;        <span class="keyword">public</span>:</div><div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;            <a class="code" href="classzeus_1_1_service_remote.html#ad8e7fcac86348b5dbcdbb87cb8bddac1">ServiceRemote</a>(<a class="codeRef" doxygen="/home/heero/dev/perso/out/doc/release/ememory.tag:http://atria-soft.github.io/ememory/" href="http://atria-soft.github.io/ememory/classememory_1_1_shared_ptr.html">ememory::SharedPtr&lt;zeus::WebServer&gt;</a> _clientLink, <span class="keyword">const</span> std::string&amp; _name);</div><div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;            <a class="code" href="classzeus_1_1_service_remote.html#aab8df35447d22e094dad66b259ca2e96">~ServiceRemote</a>();</div><div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;            <span class="keywordtype">bool</span> <a class="code" href="classzeus_1_1_service_remote.html#a6a59a33542f60623cf38f1925a32f605">exist</a>();</div><div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;        <span class="keyword">public</span>:</div><div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;            <span class="keyword">template</span>&lt;<span class="keyword">class</span>... _ARGS&gt;</div><div class="line"><a name="l00054"></a><span class="lineno"><a class="line" href="classzeus_1_1_service_remote.html#a0a1ddf61436b9bdc0b6017e511e37659">   54</a></span>&#160;            <a class="code" href="classzeus_1_1_future_base.html">zeus::FutureBase</a> <a class="code" href="classzeus_1_1_service_remote.html#a0a1ddf61436b9bdc0b6017e511e37659">call</a>(<span class="keyword">const</span> std::string&amp; _functionName, _ARGS&amp;&amp;... _args) {</div><div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;                <span class="keywordflow">if</span> (m_interfaceClient == <span class="keyword">nullptr</span>) {</div><div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;                    <a class="codeRef" doxygen="/home/heero/dev/perso/out/doc/release/ememory.tag:http://atria-soft.github.io/ememory/" href="http://atria-soft.github.io/ememory/classememory_1_1_shared_ptr.html">ememory::SharedPtr&lt;zeus::BufferAnswer&gt;</a> ret = <a class="code" href="classzeus_1_1_buffer_answer.html#ab1a111f2b9d9e0c4bd808287a7606bc9">zeus::BufferAnswer::create</a>();</div><div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;                    <span class="keywordflow">if</span> (ret != <span class="keyword">nullptr</span>) {</div><div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;                        ret-&gt;<a class="code" href="classzeus_1_1_buffer_answer.html#ac15609f4e984e03e3a92e58463b5ad90">addError</a>(<span class="stringliteral">&quot;NULLPTR&quot;</span>, <span class="stringliteral">&quot;call &quot;</span> + _functionName + <span class="stringliteral">&quot; with no interface open&quot;</span>);</div><div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;                    }</div><div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;                    <span class="keywordflow">return</span> <a class="code" href="classzeus_1_1_future_base.html">zeus::FutureBase</a>(0, ret);</div><div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;                }</div><div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;                <span class="keywordflow">return</span> m_interfaceClient-&gt;<a class="code" href="classzeus_1_1_web_server.html#ae8c0d23f4481506ba6ff6c232a174c41">callService</a>(m_serviceId, _functionName, _args...);</div><div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;            }</div><div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;            <span class="keyword">template</span>&lt;<span class="keyword">class</span>... _ARGS&gt;</div><div class="line"><a name="l00070"></a><span class="lineno"><a class="line" href="classzeus_1_1_service_remote.html#a6ab7c74a3b567034ca945a91afda2b9b">   70</a></span>&#160;            <a class="code" href="classzeus_1_1_future_base.html">zeus::FutureBase</a> <a class="code" href="classzeus_1_1_service_remote.html#a6ab7c74a3b567034ca945a91afda2b9b">callAction</a>(<span class="keyword">const</span> std::string&amp; _functionName, _ARGS&amp;&amp;... _args, <a class="code" href="classzeus_1_1_future_data.html#a3b1948b6d64c0e90fcd19dea2ed182f5">zeus::FutureData::ObserverFinish</a> _callback) {</div><div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;                <span class="keywordflow">if</span> (m_interfaceClient == <span class="keyword">nullptr</span>) {</div><div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;                    <a class="codeRef" doxygen="/home/heero/dev/perso/out/doc/release/ememory.tag:http://atria-soft.github.io/ememory/" href="http://atria-soft.github.io/ememory/classememory_1_1_shared_ptr.html">ememory::SharedPtr&lt;zeus::BufferAnswer&gt;</a> ret = <a class="code" href="classzeus_1_1_buffer_answer.html#ab1a111f2b9d9e0c4bd808287a7606bc9">zeus::BufferAnswer::create</a>();</div><div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;                    <span class="keywordflow">if</span> (ret != <span class="keyword">nullptr</span>) {</div><div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;                        ret-&gt;<a class="code" href="classzeus_1_1_buffer_answer.html#ac15609f4e984e03e3a92e58463b5ad90">addError</a>(<span class="stringliteral">&quot;NULLPTR&quot;</span>, <span class="stringliteral">&quot;call &quot;</span> + _functionName + <span class="stringliteral">&quot; with no interface open&quot;</span>);</div><div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;                    }</div><div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;                    <span class="keywordflow">return</span> <a class="code" href="classzeus_1_1_future_base.html">zeus::FutureBase</a>(0, ret, _callback);</div><div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;                }</div><div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;                <span class="keywordflow">return</span> m_interfaceClient-&gt;<a class="code" href="classzeus_1_1_web_server.html#ae41a220d142518fe1c84b86a5dc9eef6">callServiceAction</a>(m_serviceId, _functionName, _args..., _callback);</div><div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;            }</div><div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;    };</div><div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;}</div><div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;</div><div class="ttc" id="classzeus_1_1_future_data_html_a3b1948b6d64c0e90fcd19dea2ed182f5"><div class="ttname"><a href="classzeus_1_1_future_data.html#a3b1948b6d64c0e90fcd19dea2ed182f5">zeus::FutureData::ObserverFinish</a></div><div class="ttdeci">std::function&lt; bool(zeus::FutureBase)&gt; ObserverFinish</div><div class="ttdoc">Define an Observer: function pointer. </div><div class="ttdef"><b>Definition:</b> FutureData.hpp:21</div></div>
+<div class="ttc" id="classzeus_1_1_service_remote_html_a6ab7c74a3b567034ca945a91afda2b9b"><div class="ttname"><a href="classzeus_1_1_service_remote.html#a6ab7c74a3b567034ca945a91afda2b9b">zeus::ServiceRemote::callAction</a></div><div class="ttdeci">zeus::FutureBase callAction(const std::string &amp;_functionName, _ARGS &amp;&amp;... _args, zeus::FutureData::ObserverFinish _callback)</div><div class="ttdef"><b>Definition:</b> ServiceRemote.hpp:70</div></div>
+<div class="ttc" id="classzeus_1_1_service_remote_html"><div class="ttname"><a href="classzeus_1_1_service_remote.html">zeus::ServiceRemote</a></div><div class="ttdef"><b>Definition:</b> ServiceRemote.hpp:22</div></div>
+<div class="ttc" id="_abstract_function_8hpp_html"><div class="ttname"><a href="_abstract_function_8hpp.html">AbstractFunction.hpp</a></div></div>
+<div class="ttc" id="classzeus_1_1_web_server_html_ae8c0d23f4481506ba6ff6c232a174c41"><div class="ttname"><a href="classzeus_1_1_web_server.html#ae8c0d23f4481506ba6ff6c232a174c41">zeus::WebServer::callService</a></div><div class="ttdeci">zeus::FutureBase callService(uint32_t _serviceId, const std::string &amp;_functionName, _ARGS &amp;&amp;... _args)</div><div class="ttdef"><b>Definition:</b> WebServer.hpp:271</div></div>
+<div class="ttc" id="classzeus_1_1_buffer_answer_html_ab1a111f2b9d9e0c4bd808287a7606bc9"><div class="ttname"><a href="classzeus_1_1_buffer_answer.html#ab1a111f2b9d9e0c4bd808287a7606bc9">zeus::BufferAnswer::create</a></div><div class="ttdeci">static ememory::SharedPtr&lt; zeus::BufferAnswer &gt; create()</div><div class="ttdoc">Create a shared pointer on the BufferAnswer. </div></div>
+<div class="ttc" id="classzeus_1_1_future_base_html"><div class="ttname"><a href="classzeus_1_1_future_base.html">zeus::FutureBase</a></div><div class="ttdoc">Generic zeus Future interface to get data asynchronously. </div><div class="ttdef"><b>Definition:</b> FutureBase.hpp:14</div></div>
+<div class="ttc" id="classzeus_1_1_buffer_answer_html_ac15609f4e984e03e3a92e58463b5ad90"><div class="ttname"><a href="classzeus_1_1_buffer_answer.html#ac15609f4e984e03e3a92e58463b5ad90">zeus::BufferAnswer::addError</a></div><div class="ttdeci">void addError(const std::string &amp;_value, const std::string &amp;_comment)</div><div class="ttdoc">Ann an error on the message answer. </div></div>
+<div class="ttc" id="classzeus_1_1_service_remote_html_aab8df35447d22e094dad66b259ca2e96"><div class="ttname"><a href="classzeus_1_1_service_remote.html#aab8df35447d22e094dad66b259ca2e96">zeus::ServiceRemote::~ServiceRemote</a></div><div class="ttdeci">~ServiceRemote()</div></div>
+<div class="ttc" id="_service_remote_8hpp_html"><div class="ttname"><a href="_service_remote_8hpp.html">ServiceRemote.hpp</a></div></div>
+<div class="ttc" id="classzeus_1_1_service_remote_html_a0a1ddf61436b9bdc0b6017e511e37659"><div class="ttname"><a href="classzeus_1_1_service_remote.html#a0a1ddf61436b9bdc0b6017e511e37659">zeus::ServiceRemote::call</a></div><div class="ttdeci">zeus::FutureBase call(const std::string &amp;_functionName, _ARGS &amp;&amp;... _args)</div><div class="ttdef"><b>Definition:</b> ServiceRemote.hpp:54</div></div>
+<div class="ttc" id="_web_server_8hpp_html"><div class="ttname"><a href="_web_server_8hpp.html">WebServer.hpp</a></div></div>
+<div class="ttc" id="_future_8hpp_html"><div class="ttname"><a href="_future_8hpp.html">Future.hpp</a></div></div>
+<div class="ttc" id="namespacezeus_html"><div class="ttname"><a href="namespacezeus.html">zeus</a></div><div class="ttdoc">Main zeus library namespace. </div><div class="ttdef"><b>Definition:</b> AbstractFunction.hpp:15</div></div>
+<div class="ttc" id="classememory_1_1_shared_ptr_html"><div class="ttname"><a href="http://atria-soft.github.io/ememory/classememory_1_1_shared_ptr.html">ememory::SharedPtr</a></div></div>
+<div class="ttc" id="classzeus_1_1_service_remote_html_ad8e7fcac86348b5dbcdbb87cb8bddac1"><div class="ttname"><a href="classzeus_1_1_service_remote.html#ad8e7fcac86348b5dbcdbb87cb8bddac1">zeus::ServiceRemote::ServiceRemote</a></div><div class="ttdeci">ServiceRemote(ememory::SharedPtr&lt; zeus::WebServer &gt; _clientLink, const std::string &amp;_name)</div></div>
+<div class="ttc" id="classzeus_1_1_web_server_html_ae41a220d142518fe1c84b86a5dc9eef6"><div class="ttname"><a href="classzeus_1_1_web_server.html#ae41a220d142518fe1c84b86a5dc9eef6">zeus::WebServer::callServiceAction</a></div><div class="ttdeci">zeus::FutureBase callServiceAction(uint32_t _serviceId, const std::string &amp;_functionName, _ARGS &amp;&amp;... _args, zeus::FutureData::ObserverFinish _callback)</div><div class="ttdef"><b>Definition:</b> WebServer.hpp:282</div></div>
+<div class="ttc" id="classzeus_1_1_service_remote_html_a6a59a33542f60623cf38f1925a32f605"><div class="ttname"><a href="classzeus_1_1_service_remote.html#a6a59a33542f60623cf38f1925a32f605">zeus::ServiceRemote::exist</a></div><div class="ttdeci">bool exist()</div></div>
+</div><!-- fragment --></div><!-- contents -->
+<!-- HTML footer for doxygen 1.8.8-->
+<!-- start footer part -->
+</div>
+</div>
+</div>
+</div>
+</div>
+<hr class="footer"/><address class="footer"><small>
+Generated on Mon Oct 24 2016 14:06:05 for zeus: Zeus ewol micro-service interface by &#160;<a href="http://www.doxygen.org/index.html">
+<img class="footer" src="doxygen.png" alt="doxygen"/>
+</a> 1.8.12
+</small></address>
+</body>
+</html>

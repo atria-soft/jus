@@ -1,0 +1,317 @@
+<!-- HTML header for doxygen 1.8.8-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <!-- For Mobile Devices -->
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+        <meta name="generator" content="Doxygen 1.8.12"/>
+        <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+        <title>zeus: Zeus ewol micro-service interface: zeus::FutureData Class Reference</title>
+        <!--<link href="tabs.css" rel="stylesheet" type="text/css"/>-->
+        <script type="text/javascript" src="dynsections.js"></script>
+        <link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+        <link href="doxygen.css" rel="stylesheet" type="text/css" />
+        <link href="customdoxygen.css" rel="stylesheet" type="text/css"/>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
+        <script type="text/javascript" src="doxy-boot.js"></script>
+    </head>
+    <body>
+        <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+            <div class="container">
+                <div class="navbar-header">
+                    <a class="navbar-brand">zeus: Zeus ewol micro-service interface 0.4.0</a>
+                </div>
+                <div id="navbar" class="navbar-collapse collapse">
+                    <ul class="nav navbar-nav">
+                        <li><a href="index.html">Main&nbsp;Page</a></li>
+                        <li><a href="pages.html">Related&nbsp;Pages</a></li>
+                        <li><a href="namespaces.html">Namespaces</a></li>
+                        <li><a href="annotated.html">Classes</a></li>
+                        <li><a href="files.html">Files</a></li>
+                    </ul>
+                    <ul class="nav navbar-nav navbar-right">
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                                Link-libs<span class="caret"></span>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a href="http://HeeroYui.github.io/lutin">lutin</a></li>
+                                <li><a href="http://atria-soft.github.io/ewol">ewol</a></li>
+                                <li><a href="http://atria-soft.github.io/etk">etk</a></li>
+                                <li><a href="http://atria-soft.github.io/ejson">ejson</a></li>
+                                <li><a href="http://atria-soft.github.io/exml">exml</a></li>
+                                <li><a href="http://atria-soft.github.io/esvg">esvg</a></li>
+                                <li><a href="http://atria-soft.github.io/egami">egami</a></li>
+                                <li><a href="http://atria-soft.github.io/gale">gale</a></li>
+                                <li><a href="http://atria-soft.github.io/ege">ege</a></li>
+                                <li><a href="http://atria-soft.github.io/elog">elog</a></li>
+                                <li><a href="http://atria-soft.github.io/ememory">ememory</a></li>
+                                <li><a href="http://atria-soft.github.io/enet">enet</a></li>
+                                <li><a href="http://atria-soft.github.io/eproperty">eproperty</a></li>
+                                <li><a href="http://atria-soft.github.io/esignal">esignal</a></li>
+                                <li><a href="http://atria-soft.github.io/zeus">zeus</a></li>
+                                <li><a href="http://atria-soft.github.io/audio-ess">audio-ess</a></li>
+                                <li><a href="http://musicdsp.github.io/audio">audio</a></li>
+                                <li><a href="http://musicdsp.github.io/audio-drain">audio-drain</a></li>
+                                <li><a href="http://musicdsp.github.io/audio-orchestra">audio-orchestra</a></li>
+                                <li><a href="http://musicdsp.github.io/audio-river">audio-river</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                    <div id="search-box" class="input-group">
+                        <div class="input-group-btn">
+                            <button aria-expanded="false" type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                                <span class="glyphicon glyphicon-search"></span>
+                                <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><a href="#">All</a></li>
+                                <li><a href="#">Classes</a></li>
+                                <li><a href="#">Namespaces</a></li>
+                                <li><a href="#">Files</a></li>
+                                <li><a href="#">Functions</a></li>
+                                <li><a href="#">Variables</a></li>
+                                <li><a href="#">Typedefs</a></li>
+                                <li><a href="#">Enumerations</a></li>
+                                <li><a href="#">Enumerator</a></li>
+                                <li><a href="#">Friends</a></li>
+                                <li><a href="#">Macros</a></li>
+                                <li><a href="#">Pages</a></li>
+                            </ul>
+                        </div>
+                        <button id="search-close" type="button" class="close" aria-label="Close">
+                            <span aria-hidden="true"></span>
+                        </button>
+                        <input id="search-field" class="form-control" accesskey="S" onkeydown="searchBox.OnSearchFieldChange(event);" placeholder="Search ..." type="text">
+                    </div>
+                </div><!--/.nav-collapse -->
+            </div>
+        </nav>
+        <div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+            <div class="content" id="content">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-sm-12 panel panel-default" style="padding-bottom: 15px;">
+                            <div style="margin-bottom: 15px;">
+<!-- end header part -->
+<!-- Generated by Doxygen 1.8.12 -->
+<script type="text/javascript">
+var searchBox = new SearchBox("searchBox", "search",false,'Search');
+</script>
+<script type="text/javascript" src="menudata.js"></script>
+<script type="text/javascript" src="menu.js"></script>
+<script type="text/javascript">
+$(function() {
+  initMenu('',true,false,'search.php','Search');
+  $(document).ready(function() { init_search(); });
+});
+</script>
+<div id="main-nav"></div>
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<iframe src="javascript:void(0)" frameborder="0" 
+        name="MSearchResults" id="MSearchResults">
+</iframe>
+</div>
+
+<div id="nav-path" class="navpath">
+  <ul>
+<li class="navelem"><a class="el" href="namespacezeus.html">zeus</a></li><li class="navelem"><a class="el" href="classzeus_1_1_future_data.html">FutureData</a></li>  </ul>
+</div>
+</div><!-- top -->
+<div class="header">
+  <div class="summary">
+<a href="#pub-types">Public Types</a> &#124;
+<a href="#pub-attribs">Public Attributes</a> &#124;
+<a href="classzeus_1_1_future_data-members.html">List of all members</a>  </div>
+  <div class="headertitle">
+<div class="title">zeus::FutureData Class Reference</div>  </div>
+</div><!--header-->
+<div class="contents">
+
+<p><code>#include &lt;<a class="el" href="_future_data_8hpp_source.html">FutureData.hpp</a>&gt;</code></p>
+<table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-types"></a>
+Public Types</h2></td></tr>
+<tr class="memitem:a3b1948b6d64c0e90fcd19dea2ed182f5"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzeus_1_1_future_data.html#a3b1948b6d64c0e90fcd19dea2ed182f5">ObserverFinish</a> = std::function&lt; bool(<a class="el" href="classzeus_1_1_future_base.html">zeus::FutureBase</a>)&gt;</td></tr>
+<tr class="separator:a3b1948b6d64c0e90fcd19dea2ed182f5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
+Public Attributes</h2></td></tr>
+<tr class="memitem:a58282ccffdd4c66a5fff40bd2768faf7"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzeus_1_1_future_data.html#a58282ccffdd4c66a5fff40bd2768faf7">m_transactionId</a></td></tr>
+<tr class="separator:a58282ccffdd4c66a5fff40bd2768faf7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6dccd0fdd9b754f6456b60580b1be9c4"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzeus_1_1_future_data.html#a6dccd0fdd9b754f6456b60580b1be9c4">m_clientId</a></td></tr>
+<tr class="separator:a6dccd0fdd9b754f6456b60580b1be9c4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aef9317df6a0f42d6d93992b6a1d65a34"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzeus_1_1_future_data.html#aef9317df6a0f42d6d93992b6a1d65a34">m_isSynchronous</a></td></tr>
+<tr class="separator:aef9317df6a0f42d6d93992b6a1d65a34"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7096ea9a21e24c7a5ed07c1fae8597a1"><td class="memItemLeft" align="right" valign="top"><a class="elRef" doxygen="/home/heero/dev/perso/out/doc/release/ememory.tag:http://atria-soft.github.io/ememory/" href="http://atria-soft.github.io/ememory/classememory_1_1_shared_ptr.html">ememory::SharedPtr</a>&lt; <a class="el" href="classzeus_1_1_buffer.html">zeus::Buffer</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzeus_1_1_future_data.html#a7096ea9a21e24c7a5ed07c1fae8597a1">m_returnData</a></td></tr>
+<tr class="separator:a7096ea9a21e24c7a5ed07c1fae8597a1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2c5388212200fde73edac29038ff6c45"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classzeus_1_1_future_data.html#a3b1948b6d64c0e90fcd19dea2ed182f5">ObserverFinish</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzeus_1_1_future_data.html#a2c5388212200fde73edac29038ff6c45">m_callbackFinish</a></td></tr>
+<tr class="separator:a2c5388212200fde73edac29038ff6c45"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a559b96a6fbd67b88c18dbd0af19594fd"><td class="memItemLeft" align="right" valign="top">std::chrono::steady_clock::time_point&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzeus_1_1_future_data.html#a559b96a6fbd67b88c18dbd0af19594fd">m_sendTime</a></td></tr>
+<tr class="separator:a559b96a6fbd67b88c18dbd0af19594fd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a09c38038e82ef0b592a69a9b5b0cfe55"><td class="memItemLeft" align="right" valign="top">std::chrono::steady_clock::time_point&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzeus_1_1_future_data.html#a09c38038e82ef0b592a69a9b5b0cfe55">m_receiveTime</a></td></tr>
+<tr class="separator:a09c38038e82ef0b592a69a9b5b0cfe55"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>Data interface of the future (the future can be copied, but the data need to stay... </p>
+</div><h2 class="groupheader">Member Typedef Documentation</h2>
+<a id="a3b1948b6d64c0e90fcd19dea2ed182f5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3b1948b6d64c0e90fcd19dea2ed182f5">&sect;&nbsp;</a></span>ObserverFinish</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">using <a class="el" href="classzeus_1_1_future_data.html#a3b1948b6d64c0e90fcd19dea2ed182f5">zeus::FutureData::ObserverFinish</a> =  std::function&lt;bool(<a class="el" href="classzeus_1_1_future_base.html">zeus::FutureBase</a>)&gt;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Define an Observer: function pointer. </p>
+
+</div>
+</div>
+<h2 class="groupheader">Member Data Documentation</h2>
+<a id="a2c5388212200fde73edac29038ff6c45"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2c5388212200fde73edac29038ff6c45">&sect;&nbsp;</a></span>m_callbackFinish</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classzeus_1_1_future_data.html#a3b1948b6d64c0e90fcd19dea2ed182f5">ObserverFinish</a> zeus::FutureData::m_callbackFinish</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>ofserver of the finish data </p>
+
+</div>
+</div>
+<a id="a6dccd0fdd9b754f6456b60580b1be9c4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6dccd0fdd9b754f6456b60580b1be9c4">&sect;&nbsp;</a></span>m_clientId</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t zeus::FutureData::m_clientId</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>need to anser at this client. </p>
+
+</div>
+</div>
+<a id="aef9317df6a0f42d6d93992b6a1d65a34"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aef9317df6a0f42d6d93992b6a1d65a34">&sect;&nbsp;</a></span>m_isSynchronous</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool zeus::FutureData::m_isSynchronous</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>the future is synchronous. (call when receive data) </p>
+
+</div>
+</div>
+<a id="a09c38038e82ef0b592a69a9b5b0cfe55"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a09c38038e82ef0b592a69a9b5b0cfe55">&sect;&nbsp;</a></span>m_receiveTime</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::chrono::steady_clock::time_point zeus::FutureData::m_receiveTime</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>time when the future has receve answer </p>
+
+</div>
+</div>
+<a id="a7096ea9a21e24c7a5ed07c1fae8597a1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7096ea9a21e24c7a5ed07c1fae8597a1">&sect;&nbsp;</a></span>m_returnData</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="elRef" doxygen="/home/heero/dev/perso/out/doc/release/ememory.tag:http://atria-soft.github.io/ememory/" href="http://atria-soft.github.io/ememory/classememory_1_1_shared_ptr.html">ememory::SharedPtr</a>&lt;<a class="el" href="classzeus_1_1_buffer.html">zeus::Buffer</a>&gt; zeus::FutureData::m_returnData</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>all buffer concatenate or last buffer if synchronous </p>
+
+</div>
+</div>
+<a id="a559b96a6fbd67b88c18dbd0af19594fd"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a559b96a6fbd67b88c18dbd0af19594fd">&sect;&nbsp;</a></span>m_sendTime</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::chrono::steady_clock::time_point zeus::FutureData::m_sendTime</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>time when the future has been sended request </p>
+
+</div>
+</div>
+<a id="a58282ccffdd4c66a5fff40bd2768faf7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a58282ccffdd4c66a5fff40bd2768faf7">&sect;&nbsp;</a></span>m_transactionId</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t zeus::FutureData::m_transactionId</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>waiting answer data </p>
+
+</div>
+</div>
+<hr/>The documentation for this class was generated from the following file:<ul>
+<li>framework/atria-soft/zeus/zeus/<a class="el" href="_future_data_8hpp_source.html">FutureData.hpp</a></li>
+</ul>
+</div><!-- contents -->
+<!-- HTML footer for doxygen 1.8.8-->
+<!-- start footer part -->
+</div>
+</div>
+</div>
+</div>
+</div>
+<hr class="footer"/><address class="footer"><small>
+Generated on Mon Oct 24 2016 14:06:05 for zeus: Zeus ewol micro-service interface by &#160;<a href="http://www.doxygen.org/index.html">
+<img class="footer" src="doxygen.png" alt="doxygen"/>
+</a> 1.8.12
+</small></address>
+</body>
+</html>

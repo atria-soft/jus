@@ -1,0 +1,693 @@
+<!-- HTML header for doxygen 1.8.8-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <!-- For Mobile Devices -->
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+        <meta name="generator" content="Doxygen 1.8.12"/>
+        <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+        <title>zeus: Zeus ewol micro-service interface: zeus::FutureBase Class Reference</title>
+        <!--<link href="tabs.css" rel="stylesheet" type="text/css"/>-->
+        <script type="text/javascript" src="dynsections.js"></script>
+        <link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+        <link href="doxygen.css" rel="stylesheet" type="text/css" />
+        <link href="customdoxygen.css" rel="stylesheet" type="text/css"/>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
+        <script type="text/javascript" src="doxy-boot.js"></script>
+    </head>
+    <body>
+        <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+            <div class="container">
+                <div class="navbar-header">
+                    <a class="navbar-brand">zeus: Zeus ewol micro-service interface 0.4.0</a>
+                </div>
+                <div id="navbar" class="navbar-collapse collapse">
+                    <ul class="nav navbar-nav">
+                        <li><a href="index.html">Main&nbsp;Page</a></li>
+                        <li><a href="pages.html">Related&nbsp;Pages</a></li>
+                        <li><a href="namespaces.html">Namespaces</a></li>
+                        <li><a href="annotated.html">Classes</a></li>
+                        <li><a href="files.html">Files</a></li>
+                    </ul>
+                    <ul class="nav navbar-nav navbar-right">
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                                Link-libs<span class="caret"></span>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a href="http://HeeroYui.github.io/lutin">lutin</a></li>
+                                <li><a href="http://atria-soft.github.io/ewol">ewol</a></li>
+                                <li><a href="http://atria-soft.github.io/etk">etk</a></li>
+                                <li><a href="http://atria-soft.github.io/ejson">ejson</a></li>
+                                <li><a href="http://atria-soft.github.io/exml">exml</a></li>
+                                <li><a href="http://atria-soft.github.io/esvg">esvg</a></li>
+                                <li><a href="http://atria-soft.github.io/egami">egami</a></li>
+                                <li><a href="http://atria-soft.github.io/gale">gale</a></li>
+                                <li><a href="http://atria-soft.github.io/ege">ege</a></li>
+                                <li><a href="http://atria-soft.github.io/elog">elog</a></li>
+                                <li><a href="http://atria-soft.github.io/ememory">ememory</a></li>
+                                <li><a href="http://atria-soft.github.io/enet">enet</a></li>
+                                <li><a href="http://atria-soft.github.io/eproperty">eproperty</a></li>
+                                <li><a href="http://atria-soft.github.io/esignal">esignal</a></li>
+                                <li><a href="http://atria-soft.github.io/zeus">zeus</a></li>
+                                <li><a href="http://atria-soft.github.io/audio-ess">audio-ess</a></li>
+                                <li><a href="http://musicdsp.github.io/audio">audio</a></li>
+                                <li><a href="http://musicdsp.github.io/audio-drain">audio-drain</a></li>
+                                <li><a href="http://musicdsp.github.io/audio-orchestra">audio-orchestra</a></li>
+                                <li><a href="http://musicdsp.github.io/audio-river">audio-river</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                    <div id="search-box" class="input-group">
+                        <div class="input-group-btn">
+                            <button aria-expanded="false" type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                                <span class="glyphicon glyphicon-search"></span>
+                                <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><a href="#">All</a></li>
+                                <li><a href="#">Classes</a></li>
+                                <li><a href="#">Namespaces</a></li>
+                                <li><a href="#">Files</a></li>
+                                <li><a href="#">Functions</a></li>
+                                <li><a href="#">Variables</a></li>
+                                <li><a href="#">Typedefs</a></li>
+                                <li><a href="#">Enumerations</a></li>
+                                <li><a href="#">Enumerator</a></li>
+                                <li><a href="#">Friends</a></li>
+                                <li><a href="#">Macros</a></li>
+                                <li><a href="#">Pages</a></li>
+                            </ul>
+                        </div>
+                        <button id="search-close" type="button" class="close" aria-label="Close">
+                            <span aria-hidden="true"></span>
+                        </button>
+                        <input id="search-field" class="form-control" accesskey="S" onkeydown="searchBox.OnSearchFieldChange(event);" placeholder="Search ..." type="text">
+                    </div>
+                </div><!--/.nav-collapse -->
+            </div>
+        </nav>
+        <div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+            <div class="content" id="content">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-sm-12 panel panel-default" style="padding-bottom: 15px;">
+                            <div style="margin-bottom: 15px;">
+<!-- end header part -->
+<!-- Generated by Doxygen 1.8.12 -->
+<script type="text/javascript">
+var searchBox = new SearchBox("searchBox", "search",false,'Search');
+</script>
+<script type="text/javascript" src="menudata.js"></script>
+<script type="text/javascript" src="menu.js"></script>
+<script type="text/javascript">
+$(function() {
+  initMenu('',true,false,'search.php','Search');
+  $(document).ready(function() { init_search(); });
+});
+</script>
+<div id="main-nav"></div>
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<iframe src="javascript:void(0)" frameborder="0" 
+        name="MSearchResults" id="MSearchResults">
+</iframe>
+</div>
+
+<div id="nav-path" class="navpath">
+  <ul>
+<li class="navelem"><a class="el" href="namespacezeus.html">zeus</a></li><li class="navelem"><a class="el" href="classzeus_1_1_future_base.html">FutureBase</a></li>  </ul>
+</div>
+</div><!-- top -->
+<div class="header">
+  <div class="summary">
+<a href="#pub-methods">Public Member Functions</a> &#124;
+<a href="#pub-attribs">Public Attributes</a> &#124;
+<a href="classzeus_1_1_future_base-members.html">List of all members</a>  </div>
+  <div class="headertitle">
+<div class="title">zeus::FutureBase Class Reference</div>  </div>
+</div><!--header-->
+<div class="contents">
+
+<p><code>#include &lt;<a class="el" href="_future_base_8hpp_source.html">FutureBase.hpp</a>&gt;</code></p>
+<div class="dynheader">
+Inheritance diagram for zeus::FutureBase:</div>
+<div class="dyncontent">
+ <div class="center">
+  <img src="classzeus_1_1_future_base.png" usemap="#zeus::FutureBase_map" alt=""/>
+  <map id="zeus::FutureBase_map" name="zeus::FutureBase_map">
+<area href="classzeus_1_1_future.html" title="future template to cast type in a specific type " alt="zeus::Future&lt; ZEUS_RETURN &gt;" shape="rect" coords="0,56,193,80"/>
+<area href="classzeus_1_1_future_3_01void_01_4.html" title="future template to cast type in a void methode (fallback) " alt="zeus::Future&lt; void &gt;" shape="rect" coords="203,56,396,80"/>
+</map>
+ </div></div>
+<table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
+Public Member Functions</h2></td></tr>
+<tr class="memitem:a6f8d2eb8acefd18b628331139b5f2aa3"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzeus_1_1_future_base.html#a6f8d2eb8acefd18b628331139b5f2aa3">FutureBase</a> (const <a class="el" href="classzeus_1_1_future_base.html">zeus::FutureBase</a> &amp;_base)</td></tr>
+<tr class="separator:a6f8d2eb8acefd18b628331139b5f2aa3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a870d5dc97458f944d25c8a82ea8606d9"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzeus_1_1_future_base.html#a870d5dc97458f944d25c8a82ea8606d9">FutureBase</a> ()</td></tr>
+<tr class="separator:a870d5dc97458f944d25c8a82ea8606d9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad03e90c369aecac9e3161a43bfbad88a"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzeus_1_1_future_base.html#ad03e90c369aecac9e3161a43bfbad88a">FutureBase</a> (uint32_t _transactionId, <a class="el" href="classzeus_1_1_future_data.html#a3b1948b6d64c0e90fcd19dea2ed182f5">zeus::FutureData::ObserverFinish</a> _callback=nullptr, uint32_t _clientId=0)</td></tr>
+<tr class="separator:ad03e90c369aecac9e3161a43bfbad88a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1d02dc27ad95bfd4101f84e9cecb8891"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzeus_1_1_future_base.html#a1d02dc27ad95bfd4101f84e9cecb8891">FutureBase</a> (uint32_t _transactionId, <a class="elRef" doxygen="/home/heero/dev/perso/out/doc/release/ememory.tag:http://atria-soft.github.io/ememory/" href="http://atria-soft.github.io/ememory/classememory_1_1_shared_ptr.html">ememory::SharedPtr</a>&lt; <a class="el" href="classzeus_1_1_buffer.html">zeus::Buffer</a> &gt; _returnData, <a class="el" href="classzeus_1_1_future_data.html#a3b1948b6d64c0e90fcd19dea2ed182f5">zeus::FutureData::ObserverFinish</a> _callback=nullptr, uint32_t _clientId=0)</td></tr>
+<tr class="separator:a1d02dc27ad95bfd4101f84e9cecb8891"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a60c227ad770f63266db8fe0efd3c76ff"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classzeus_1_1_future_base.html">zeus::FutureBase</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzeus_1_1_future_base.html#a60c227ad770f63266db8fe0efd3c76ff">operator=</a> (const <a class="el" href="classzeus_1_1_future_base.html">zeus::FutureBase</a> &amp;_base)</td></tr>
+<tr class="separator:a60c227ad770f63266db8fe0efd3c76ff"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aca424bd6ac7ea8dd9775ab3617bb3d15"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzeus_1_1_future_base.html#aca424bd6ac7ea8dd9775ab3617bb3d15">appendData</a> (<a class="elRef" doxygen="/home/heero/dev/perso/out/doc/release/ememory.tag:http://atria-soft.github.io/ememory/" href="http://atria-soft.github.io/ememory/classememory_1_1_shared_ptr.html">ememory::SharedPtr</a>&lt; <a class="el" href="classzeus_1_1_buffer.html">zeus::Buffer</a> &gt; _returnValue)</td></tr>
+<tr class="separator:aca424bd6ac7ea8dd9775ab3617bb3d15"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa53d4c3eb3b8b57c56cc45614791bf5e"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzeus_1_1_future_base.html#aa53d4c3eb3b8b57c56cc45614791bf5e">setSynchronous</a> ()</td></tr>
+<tr class="separator:aa53d4c3eb3b8b57c56cc45614791bf5e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae1317ade05e9396c275585603c622417"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzeus_1_1_future_base.html#ae1317ade05e9396c275585603c622417">getTransactionId</a> () const</td></tr>
+<tr class="separator:ae1317ade05e9396c275585603c622417"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a083028a70215eb6e0f67d074a406d83b"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzeus_1_1_future_base.html#a083028a70215eb6e0f67d074a406d83b">getClientId</a> () const</td></tr>
+<tr class="separator:a083028a70215eb6e0f67d074a406d83b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ace693af10c709f3f37cccb4cd771141e"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzeus_1_1_future_base.html#ace693af10c709f3f37cccb4cd771141e">hasError</a> () const</td></tr>
+<tr class="separator:ace693af10c709f3f37cccb4cd771141e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af63440c646a10f35d00b846791e98d69"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzeus_1_1_future_base.html#af63440c646a10f35d00b846791e98d69">getErrorType</a> () const</td></tr>
+<tr class="separator:af63440c646a10f35d00b846791e98d69"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae1786bd487f8364d5e898183afd13cd7"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzeus_1_1_future_base.html#ae1786bd487f8364d5e898183afd13cd7">getErrorHelp</a> () const</td></tr>
+<tr class="separator:ae1786bd487f8364d5e898183afd13cd7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0d6c42e89d241cae084751d0dfbcb9f7"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzeus_1_1_future_base.html#a0d6c42e89d241cae084751d0dfbcb9f7">isValid</a> () const</td></tr>
+<tr class="separator:a0d6c42e89d241cae084751d0dfbcb9f7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a17bc19742496dc46c14db32397c26085"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzeus_1_1_future_base.html#a17bc19742496dc46c14db32397c26085">isFinished</a> () const</td></tr>
+<tr class="separator:a17bc19742496dc46c14db32397c26085"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab9cc43a3e367d7632893ee332a5458f5"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="classzeus_1_1_future_base.html">FutureBase</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzeus_1_1_future_base.html#ab9cc43a3e367d7632893ee332a5458f5">wait</a> () const</td></tr>
+<tr class="separator:ab9cc43a3e367d7632893ee332a5458f5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7248f56add44eddebfd7b1e188a5dd3a"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="classzeus_1_1_future_base.html">FutureBase</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzeus_1_1_future_base.html#a7248f56add44eddebfd7b1e188a5dd3a">waitFor</a> (std::chrono::microseconds _delta=std::chrono::seconds(30)) const</td></tr>
+<tr class="separator:a7248f56add44eddebfd7b1e188a5dd3a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9bfa5cea8c7246e6d21ff727406d5977"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="classzeus_1_1_future_base.html">FutureBase</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzeus_1_1_future_base.html#a9bfa5cea8c7246e6d21ff727406d5977">waitUntil</a> (std::chrono::steady_clock::time_point _endTime) const</td></tr>
+<tr class="separator:a9bfa5cea8c7246e6d21ff727406d5977"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adc07e93a1a21b778f179ef375c8e0173"><td class="memItemLeft" align="right" valign="top"><a class="elRef" doxygen="/home/heero/dev/perso/out/doc/release/ememory.tag:http://atria-soft.github.io/ememory/" href="http://atria-soft.github.io/ememory/classememory_1_1_shared_ptr.html">ememory::SharedPtr</a>&lt; <a class="el" href="classzeus_1_1_buffer.html">zeus::Buffer</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzeus_1_1_future_base.html#adc07e93a1a21b778f179ef375c8e0173">getRaw</a> ()</td></tr>
+<tr class="separator:adc07e93a1a21b778f179ef375c8e0173"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad2dc793ae8c2126d798b47d57cab8da7"><td class="memItemLeft" align="right" valign="top">std::chrono::nanoseconds&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzeus_1_1_future_base.html#ad2dc793ae8c2126d798b47d57cab8da7">getTransmitionTime</a> () const</td></tr>
+<tr class="separator:ad2dc793ae8c2126d798b47d57cab8da7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
+Public Attributes</h2></td></tr>
+<tr class="memitem:a959c9f9967551dbc24d0d2c603c86209"><td class="memItemLeft" align="right" valign="top"><a id="a959c9f9967551dbc24d0d2c603c86209"></a>
+<a class="elRef" doxygen="/home/heero/dev/perso/out/doc/release/ememory.tag:http://atria-soft.github.io/ememory/" href="http://atria-soft.github.io/ememory/classememory_1_1_shared_ptr.html">ememory::SharedPtr</a>&lt; <a class="el" href="classzeus_1_1_future_data.html">zeus::FutureData</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>m_data</b></td></tr>
+<tr class="separator:a959c9f9967551dbc24d0d2c603c86209"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>Generic zeus <a class="el" href="classzeus_1_1_future.html" title="future template to cast type in a specific type ">Future</a> interface to get data asynchronously. </p>
+</div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
+<a id="a6f8d2eb8acefd18b628331139b5f2aa3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6f8d2eb8acefd18b628331139b5f2aa3">&sect;&nbsp;</a></span>FutureBase() <span class="overload">[1/4]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">zeus::FutureBase::FutureBase </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classzeus_1_1_future_base.html">zeus::FutureBase</a> &amp;&#160;</td>
+          <td class="paramname"><em>_base</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Copy contructor of a <a class="el" href="classzeus_1_1_future_base.html" title="Generic zeus Future interface to get data asynchronously. ">FutureBase</a>. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">_base</td><td>the <a class="el" href="classzeus_1_1_future_base.html" title="Generic zeus Future interface to get data asynchronously. ">FutureBase</a> to copy </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="a870d5dc97458f944d25c8a82ea8606d9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a870d5dc97458f944d25c8a82ea8606d9">&sect;&nbsp;</a></span>FutureBase() <span class="overload">[2/4]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">zeus::FutureBase::FutureBase </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>contructor of a <a class="el" href="classzeus_1_1_future_base.html" title="Generic zeus Future interface to get data asynchronously. ">FutureBase</a> </p>
+
+</div>
+</div>
+<a id="ad03e90c369aecac9e3161a43bfbad88a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad03e90c369aecac9e3161a43bfbad88a">&sect;&nbsp;</a></span>FutureBase() <span class="overload">[3/4]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">zeus::FutureBase::FutureBase </td>
+          <td>(</td>
+          <td class="paramtype">uint32_t&#160;</td>
+          <td class="paramname"><em>_transactionId</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classzeus_1_1_future_data.html#a3b1948b6d64c0e90fcd19dea2ed182f5">zeus::FutureData::ObserverFinish</a>&#160;</td>
+          <td class="paramname"><em>_callback</em> = <code>nullptr</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint32_t&#160;</td>
+          <td class="paramname"><em>_clientId</em> = <code>0</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Contructor of the <a class="el" href="classzeus_1_1_future_base.html" title="Generic zeus Future interface to get data asynchronously. ">FutureBase</a> with an ofserver. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">_transactionId</td><td>Transaction waiting answer </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">_callback</td><td>Observer pointer </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">_clientId</td><td>Client/sevice Id waiting answer </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="a1d02dc27ad95bfd4101f84e9cecb8891"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1d02dc27ad95bfd4101f84e9cecb8891">&sect;&nbsp;</a></span>FutureBase() <span class="overload">[4/4]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">zeus::FutureBase::FutureBase </td>
+          <td>(</td>
+          <td class="paramtype">uint32_t&#160;</td>
+          <td class="paramname"><em>_transactionId</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="elRef" doxygen="/home/heero/dev/perso/out/doc/release/ememory.tag:http://atria-soft.github.io/ememory/" href="http://atria-soft.github.io/ememory/classememory_1_1_shared_ptr.html">ememory::SharedPtr</a>&lt; <a class="el" href="classzeus_1_1_buffer.html">zeus::Buffer</a> &gt;&#160;</td>
+          <td class="paramname"><em>_returnData</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classzeus_1_1_future_data.html#a3b1948b6d64c0e90fcd19dea2ed182f5">zeus::FutureData::ObserverFinish</a>&#160;</td>
+          <td class="paramname"><em>_callback</em> = <code>nullptr</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint32_t&#160;</td>
+          <td class="paramname"><em>_clientId</em> = <code>0</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Contructor of the <a class="el" href="classzeus_1_1_future_base.html" title="Generic zeus Future interface to get data asynchronously. ">FutureBase</a> for direct error answer. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">_transactionId</td><td>Transaction waiting answer </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">_isFinished</td><td>set state finish or not </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">_returnData</td><td>Set return value </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">_callback</td><td>Observer pointer </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">_clientId</td><td>Client/sevice Id waiting answer </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<h2 class="groupheader">Member Function Documentation</h2>
+<a id="aca424bd6ac7ea8dd9775ab3617bb3d15"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aca424bd6ac7ea8dd9775ab3617bb3d15">&sect;&nbsp;</a></span>appendData()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool zeus::FutureBase::appendData </td>
+          <td>(</td>
+          <td class="paramtype"><a class="elRef" doxygen="/home/heero/dev/perso/out/doc/release/ememory.tag:http://atria-soft.github.io/ememory/" href="http://atria-soft.github.io/ememory/classememory_1_1_shared_ptr.html">ememory::SharedPtr</a>&lt; <a class="el" href="classzeus_1_1_buffer.html">zeus::Buffer</a> &gt;&#160;</td>
+          <td class="paramname"><em>_returnValue</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Add data on the call/answer. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">_returnValue</td><td>Returned buffer </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>return true if an error occured </dd></dl>
+
+</div>
+</div>
+<a id="a083028a70215eb6e0f67d074a406d83b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a083028a70215eb6e0f67d074a406d83b">&sect;&nbsp;</a></span>getClientId()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t zeus::FutureBase::getClientId </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Get the client Id of the <a class="el" href="classzeus_1_1_future.html" title="future template to cast type in a specific type ">Future</a>. </p>
+<dl class="section return"><dt>Returns</dt><dd><a class="el" href="classzeus_1_1_client.html" title="Client interface to acces on the remote service and gateway. ">Client</a> id requested or 0 </dd></dl>
+
+</div>
+</div>
+<a id="ae1786bd487f8364d5e898183afd13cd7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae1786bd487f8364d5e898183afd13cd7">&sect;&nbsp;</a></span>getErrorHelp()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::string zeus::FutureBase::getErrorHelp </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>get help of the error </p>
+<dl class="section return"><dt>Returns</dt><dd>the string of the error help </dd></dl>
+
+</div>
+</div>
+<a id="af63440c646a10f35d00b846791e98d69"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af63440c646a10f35d00b846791e98d69">&sect;&nbsp;</a></span>getErrorType()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::string zeus::FutureBase::getErrorType </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>get type of the error </p>
+<dl class="section return"><dt>Returns</dt><dd>the string of the error type </dd></dl>
+
+</div>
+</div>
+<a id="adc07e93a1a21b778f179ef375c8e0173"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#adc07e93a1a21b778f179ef375c8e0173">&sect;&nbsp;</a></span>getRaw()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="elRef" doxygen="/home/heero/dev/perso/out/doc/release/ememory.tag:http://atria-soft.github.io/ememory/" href="http://atria-soft.github.io/ememory/classememory_1_1_shared_ptr.html">ememory::SharedPtr</a>&lt;<a class="el" href="classzeus_1_1_buffer.html">zeus::Buffer</a>&gt; zeus::FutureBase::getRaw </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Get the <a class="el" href="classzeus_1_1_buffer.html" title="Protocol buffer to transmit datas. ">Buffer</a> receive. </p>
+<dl class="section return"><dt>Returns</dt><dd>pointer on the receive data </dd></dl>
+
+</div>
+</div>
+<a id="ae1317ade05e9396c275585603c622417"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae1317ade05e9396c275585603c622417">&sect;&nbsp;</a></span>getTransactionId()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t zeus::FutureBase::getTransactionId </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Get the transaction Id of the <a class="el" href="classzeus_1_1_future.html" title="future template to cast type in a specific type ">Future</a>. </p>
+<dl class="section return"><dt>Returns</dt><dd>Transaction Id requested or 0 </dd></dl>
+
+</div>
+</div>
+<a id="ad2dc793ae8c2126d798b47d57cab8da7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad2dc793ae8c2126d798b47d57cab8da7">&sect;&nbsp;</a></span>getTransmitionTime()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::chrono::nanoseconds zeus::FutureBase::getTransmitionTime </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Get duration of the current trasaction take. </p>
+<dl class="section return"><dt>Returns</dt><dd>Tile in nanosecond to wait answer </dd></dl>
+
+</div>
+</div>
+<a id="ace693af10c709f3f37cccb4cd771141e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ace693af10c709f3f37cccb4cd771141e">&sect;&nbsp;</a></span>hasError()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool zeus::FutureBase::hasError </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>check if the answer have an error </p>
+<dl class="section return"><dt>Returns</dt><dd>return true if an error is registered </dd></dl>
+
+</div>
+</div>
+<a id="a17bc19742496dc46c14db32397c26085"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a17bc19742496dc46c14db32397c26085">&sect;&nbsp;</a></span>isFinished()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool zeus::FutureBase::isFinished </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Check if the futur have finish receiving data. </p>
+<dl class="section return"><dt>Returns</dt><dd>status of the fisnish state </dd></dl>
+
+</div>
+</div>
+<a id="a0d6c42e89d241cae084751d0dfbcb9f7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0d6c42e89d241cae084751d0dfbcb9f7">&sect;&nbsp;</a></span>isValid()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool zeus::FutureBase::isValid </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Check if the Futur is a valid data. </p>
+<dl class="section return"><dt>Returns</dt><dd>return true if the data is valid </dd></dl>
+
+</div>
+</div>
+<a id="a60c227ad770f63266db8fe0efd3c76ff"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a60c227ad770f63266db8fe0efd3c76ff">&sect;&nbsp;</a></span>operator=()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classzeus_1_1_future_base.html">zeus::FutureBase</a> zeus::FutureBase::operator= </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classzeus_1_1_future_base.html">zeus::FutureBase</a> &amp;&#160;</td>
+          <td class="paramname"><em>_base</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Asignement operator with an other future. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">_base</td><td>Generic base <a class="el" href="classzeus_1_1_future.html" title="future template to cast type in a specific type ">Future</a> </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>the reference on the local element </dd></dl>
+
+</div>
+</div>
+<a id="aa53d4c3eb3b8b57c56cc45614791bf5e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa53d4c3eb3b8b57c56cc45614791bf5e">&sect;&nbsp;</a></span>setSynchronous()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void zeus::FutureBase::setSynchronous </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Set the future syncronous. </p>
+<dl class="section note"><dt>Note</dt><dd>this mean that the system call the observer every time a packet arrive in the <a class="el" href="classzeus_1_1_future.html" title="future template to cast type in a specific type ">Future</a> </dd></dl>
+
+</div>
+</div>
+<a id="ab9cc43a3e367d7632893ee332a5458f5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab9cc43a3e367d7632893ee332a5458f5">&sect;&nbsp;</a></span>wait()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="classzeus_1_1_future_base.html">FutureBase</a>&amp; zeus::FutureBase::wait </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Wait the <a class="el" href="classzeus_1_1_future.html" title="future template to cast type in a specific type ">Future</a> receive data. </p>
+<dl class="section return"><dt>Returns</dt><dd>reference on the current futur </dd></dl>
+
+</div>
+</div>
+<a id="a7248f56add44eddebfd7b1e188a5dd3a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7248f56add44eddebfd7b1e188a5dd3a">&sect;&nbsp;</a></span>waitFor()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="classzeus_1_1_future_base.html">FutureBase</a>&amp; zeus::FutureBase::waitFor </td>
+          <td>(</td>
+          <td class="paramtype">std::chrono::microseconds&#160;</td>
+          <td class="paramname"><em>_delta</em> = <code>std::chrono::seconds(30)</code></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Wait the <a class="el" href="classzeus_1_1_future.html" title="future template to cast type in a specific type ">Future</a> receive data. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">_delta</td><td>delay to wait the data arrive </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>reference on the current futur </dd></dl>
+
+</div>
+</div>
+<a id="a9bfa5cea8c7246e6d21ff727406d5977"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9bfa5cea8c7246e6d21ff727406d5977">&sect;&nbsp;</a></span>waitUntil()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="classzeus_1_1_future_base.html">FutureBase</a>&amp; zeus::FutureBase::waitUntil </td>
+          <td>(</td>
+          <td class="paramtype">std::chrono::steady_clock::time_point&#160;</td>
+          <td class="paramname"><em>_endTime</em></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Wait the <a class="el" href="classzeus_1_1_future.html" title="future template to cast type in a specific type ">Future</a> receive data. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">_endTime</td><td>tiem to wait the data </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>reference on the current futur </dd></dl>
+
+</div>
+</div>
+<hr/>The documentation for this class was generated from the following file:<ul>
+<li>framework/atria-soft/zeus/zeus/<a class="el" href="_future_base_8hpp_source.html">FutureBase.hpp</a></li>
+</ul>
+</div><!-- contents -->
+<!-- HTML footer for doxygen 1.8.8-->
+<!-- start footer part -->
+</div>
+</div>
+</div>
+</div>
+</div>
+<hr class="footer"/><address class="footer"><small>
+Generated on Mon Oct 24 2016 14:06:05 for zeus: Zeus ewol micro-service interface by &#160;<a href="http://www.doxygen.org/index.html">
+<img class="footer" src="doxygen.png" alt="doxygen"/>
+</a> 1.8.12
+</small></address>
+</body>
+</html>

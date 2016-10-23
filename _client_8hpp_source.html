@@ -1,0 +1,179 @@
+<!-- HTML header for doxygen 1.8.8-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <!-- For Mobile Devices -->
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+        <meta name="generator" content="Doxygen 1.8.12"/>
+        <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+        <title>zeus: Zeus ewol micro-service interface: framework/atria-soft/zeus/zeus/Client.hpp Source File</title>
+        <!--<link href="tabs.css" rel="stylesheet" type="text/css"/>-->
+        <script type="text/javascript" src="dynsections.js"></script>
+        <link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+        <link href="doxygen.css" rel="stylesheet" type="text/css" />
+        <link href="customdoxygen.css" rel="stylesheet" type="text/css"/>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
+        <script type="text/javascript" src="doxy-boot.js"></script>
+    </head>
+    <body>
+        <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+            <div class="container">
+                <div class="navbar-header">
+                    <a class="navbar-brand">zeus: Zeus ewol micro-service interface 0.4.0</a>
+                </div>
+                <div id="navbar" class="navbar-collapse collapse">
+                    <ul class="nav navbar-nav">
+                        <li><a href="index.html">Main&nbsp;Page</a></li>
+                        <li><a href="pages.html">Related&nbsp;Pages</a></li>
+                        <li><a href="namespaces.html">Namespaces</a></li>
+                        <li><a href="annotated.html">Classes</a></li>
+                        <li><a href="files.html">Files</a></li>
+                    </ul>
+                    <ul class="nav navbar-nav navbar-right">
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                                Link-libs<span class="caret"></span>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a href="http://HeeroYui.github.io/lutin">lutin</a></li>
+                                <li><a href="http://atria-soft.github.io/ewol">ewol</a></li>
+                                <li><a href="http://atria-soft.github.io/etk">etk</a></li>
+                                <li><a href="http://atria-soft.github.io/ejson">ejson</a></li>
+                                <li><a href="http://atria-soft.github.io/exml">exml</a></li>
+                                <li><a href="http://atria-soft.github.io/esvg">esvg</a></li>
+                                <li><a href="http://atria-soft.github.io/egami">egami</a></li>
+                                <li><a href="http://atria-soft.github.io/gale">gale</a></li>
+                                <li><a href="http://atria-soft.github.io/ege">ege</a></li>
+                                <li><a href="http://atria-soft.github.io/elog">elog</a></li>
+                                <li><a href="http://atria-soft.github.io/ememory">ememory</a></li>
+                                <li><a href="http://atria-soft.github.io/enet">enet</a></li>
+                                <li><a href="http://atria-soft.github.io/eproperty">eproperty</a></li>
+                                <li><a href="http://atria-soft.github.io/esignal">esignal</a></li>
+                                <li><a href="http://atria-soft.github.io/zeus">zeus</a></li>
+                                <li><a href="http://atria-soft.github.io/audio-ess">audio-ess</a></li>
+                                <li><a href="http://musicdsp.github.io/audio">audio</a></li>
+                                <li><a href="http://musicdsp.github.io/audio-drain">audio-drain</a></li>
+                                <li><a href="http://musicdsp.github.io/audio-orchestra">audio-orchestra</a></li>
+                                <li><a href="http://musicdsp.github.io/audio-river">audio-river</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                    <div id="search-box" class="input-group">
+                        <div class="input-group-btn">
+                            <button aria-expanded="false" type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                                <span class="glyphicon glyphicon-search"></span>
+                                <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><a href="#">All</a></li>
+                                <li><a href="#">Classes</a></li>
+                                <li><a href="#">Namespaces</a></li>
+                                <li><a href="#">Files</a></li>
+                                <li><a href="#">Functions</a></li>
+                                <li><a href="#">Variables</a></li>
+                                <li><a href="#">Typedefs</a></li>
+                                <li><a href="#">Enumerations</a></li>
+                                <li><a href="#">Enumerator</a></li>
+                                <li><a href="#">Friends</a></li>
+                                <li><a href="#">Macros</a></li>
+                                <li><a href="#">Pages</a></li>
+                            </ul>
+                        </div>
+                        <button id="search-close" type="button" class="close" aria-label="Close">
+                            <span aria-hidden="true"></span>
+                        </button>
+                        <input id="search-field" class="form-control" accesskey="S" onkeydown="searchBox.OnSearchFieldChange(event);" placeholder="Search ..." type="text">
+                    </div>
+                </div><!--/.nav-collapse -->
+            </div>
+        </nav>
+        <div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+            <div class="content" id="content">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-sm-12 panel panel-default" style="padding-bottom: 15px;">
+                            <div style="margin-bottom: 15px;">
+<!-- end header part -->
+<!-- Generated by Doxygen 1.8.12 -->
+<script type="text/javascript">
+var searchBox = new SearchBox("searchBox", "search",false,'Search');
+</script>
+<script type="text/javascript" src="menudata.js"></script>
+<script type="text/javascript" src="menu.js"></script>
+<script type="text/javascript">
+$(function() {
+  initMenu('',true,false,'search.php','Search');
+  $(document).ready(function() { init_search(); });
+});
+</script>
+<div id="main-nav"></div>
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<iframe src="javascript:void(0)" frameborder="0" 
+        name="MSearchResults" id="MSearchResults">
+</iframe>
+</div>
+
+<div id="nav-path" class="navpath">
+  <ul>
+<li class="navelem"><a class="el" href="dir_644e041c3a6521da7b27eba0e4eb2b95.html">framework</a></li><li class="navelem"><a class="el" href="dir_a094892b17be858f66bf3446bbb755c7.html">atria-soft</a></li><li class="navelem"><a class="el" href="dir_96d802beaf7bb3afdcf2656a2c8ec44e.html">zeus</a></li><li class="navelem"><a class="el" href="dir_645a2e7aebb6c78a7ec97ee8c38ef7e7.html">zeus</a></li>  </ul>
+</div>
+</div><!-- top -->
+<div class="header">
+  <div class="headertitle">
+<div class="title">Client.hpp</div>  </div>
+</div><!--header-->
+<div class="contents">
+<a href="_client_8hpp.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;</div><div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160;<span class="preprocessor">#pragma once</span></div><div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;</div><div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160;<span class="preprocessor">#include &lt;<a class="code" href="_web_server_8hpp.html">zeus/WebServer.hpp</a>&gt;</span></div><div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;<span class="preprocessor">#include &lt;<a class="codeRef" doxygen="/home/heero/dev/perso/out/doc/release/eproperty.tag:http://atria-soft.github.io/eproperty/" href="http://atria-soft.github.io/eproperty/__value__8hpp.html">eproperty/Value.hpp</a>&gt;</span></div><div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;<span class="preprocessor">#include &lt;zeus/debug.hpp&gt;</span></div><div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;<span class="preprocessor">#include &lt;chrono&gt;</span></div><div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;</div><div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;<span class="preprocessor">#include &lt;<a class="code" href="_future_8hpp.html">zeus/Future.hpp</a>&gt;</span></div><div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;<span class="preprocessor">#include &lt;<a class="code" href="_service_remote_8hpp.html">zeus/ServiceRemote.hpp</a>&gt;</span></div><div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;</div><div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;<span class="keyword">namespace </span><a class="code" href="namespacezeus.html">zeus</a> {</div><div class="line"><a name="l00020"></a><span class="lineno"><a class="line" href="classzeus_1_1_client.html">   20</a></span>&#160;    <span class="keyword">class </span><a class="code" href="classzeus_1_1_client.html">Client</a> : <span class="keyword">public</span> <a class="codeRef" doxygen="/home/heero/dev/perso/out/doc/release/eproperty.tag:http://atria-soft.github.io/eproperty/" href="http://atria-soft.github.io/eproperty/classeproperty_1_1_interface.html">eproperty::Interface</a> {</div><div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;        <span class="keyword">friend</span> <span class="keyword">class </span><a class="code" href="classzeus_1_1_service_remote.html">ServiceRemote</a>;</div><div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;        <span class="keyword">public</span>:</div><div class="line"><a name="l00023"></a><span class="lineno"><a class="line" href="classzeus_1_1_client.html#a159e7049f013c25cf95ec2017ef88885">   23</a></span>&#160;            <a class="codeRef" doxygen="/home/heero/dev/perso/out/doc/release/eproperty.tag:http://atria-soft.github.io/eproperty/" href="http://atria-soft.github.io/eproperty/classeproperty_1_1_value.html">eproperty::Value&lt;std::string&gt;</a> <a class="code" href="classzeus_1_1_client.html#a159e7049f013c25cf95ec2017ef88885">propertyIp</a>; </div><div class="line"><a name="l00024"></a><span class="lineno"><a class="line" href="classzeus_1_1_client.html#a35b2325791ec35f1df8ac9925a03e41d">   24</a></span>&#160;            <a class="codeRef" doxygen="/home/heero/dev/perso/out/doc/release/eproperty.tag:http://atria-soft.github.io/eproperty/" href="http://atria-soft.github.io/eproperty/classeproperty_1_1_value.html">eproperty::Value&lt;uint16_t&gt;</a> <a class="code" href="classzeus_1_1_client.html#a35b2325791ec35f1df8ac9925a03e41d">propertyPort</a>; </div><div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;        <span class="keyword">private</span>:</div><div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;            <a class="codeRef" doxygen="/home/heero/dev/perso/out/doc/release/ememory.tag:http://atria-soft.github.io/ememory/" href="http://atria-soft.github.io/ememory/classememory_1_1_shared_ptr.html">ememory::SharedPtr&lt;zeus::WebServer&gt;</a> m_interfaceClient; </div><div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;        <span class="keyword">public</span>:</div><div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;            <span class="comment">//Client(const std::string&amp; _address, const std::string&amp; _clientName, const std::string&amp; _clientTocken);</span></div><div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;<span class="comment"></span>            <span class="comment">//Client(const std::string&amp; _address, const std::string&amp; _userPassword);</span></div><div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;            <span class="comment">//Client(const std::string&amp; _address);</span></div><div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;            </div><div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;            <a class="code" href="classzeus_1_1_client.html#a3a10e70d2386b88cf1f9bb615ea2f582">Client</a>();</div><div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;            <span class="keyword">virtual</span> <a class="code" href="classzeus_1_1_client.html#af9302c059ea4fd9b564af41d524ac49c">~Client</a>();</div><div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;        <span class="keyword">protected</span>:</div><div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;            <span class="keywordtype">bool</span> <a class="code" href="classzeus_1_1_client.html#a3bdc86ddcb5504b7636d069dc003e086">connectTo</a>(<span class="keyword">const</span> std::string&amp; _address);</div><div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;        <span class="keyword">public</span>:</div><div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;            <span class="keywordtype">bool</span> <a class="code" href="classzeus_1_1_client.html#af8b42ee062476505a9e7b449aa6ae8e9">connect</a>(<span class="keyword">const</span> std::string&amp; _address);</div><div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;            <span class="keywordtype">bool</span> <a class="code" href="classzeus_1_1_client.html#af8b42ee062476505a9e7b449aa6ae8e9">connect</a>(<span class="keyword">const</span> std::string&amp; _address, <span class="keyword">const</span> std::string&amp; _userPassword);</div><div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;            <span class="keywordtype">bool</span> <a class="code" href="classzeus_1_1_client.html#af8b42ee062476505a9e7b449aa6ae8e9">connect</a>(<span class="keyword">const</span> std::string&amp; _address, <span class="keyword">const</span> std::string&amp; _clientName, <span class="keyword">const</span> std::string&amp; _clientTocken);</div><div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;            <span class="keywordtype">void</span> <a class="code" href="classzeus_1_1_client.html#a37f95679ea94427cf673110465f4f42c">disconnect</a>();</div><div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;        <span class="keyword">public</span>:</div><div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;            <a class="code" href="classzeus_1_1_service_remote.html">zeus::ServiceRemote</a> <a class="code" href="classzeus_1_1_client.html#a18c9a92a93dc2abc6817e576fa4c7ca4">getService</a>(<span class="keyword">const</span> std::string&amp; _serviceName);</div><div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;        <span class="keyword">private</span>:</div><div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;            <span class="keywordtype">void</span> onClientData(<a class="codeRef" doxygen="/home/heero/dev/perso/out/doc/release/ememory.tag:http://atria-soft.github.io/ememory/" href="http://atria-soft.github.io/ememory/classememory_1_1_shared_ptr.html">ememory::SharedPtr&lt;zeus::Buffer&gt;</a> _value);</div><div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;        <span class="keyword">public</span>:</div><div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;            <span class="keyword">template</span>&lt;<span class="keyword">class</span>... _ARGS&gt;</div><div class="line"><a name="l00105"></a><span class="lineno"><a class="line" href="classzeus_1_1_client.html#ad1a617dad4121cf70b5b5b62a158cab9">  105</a></span>&#160;            <a class="code" href="classzeus_1_1_future_base.html">zeus::FutureBase</a> <a class="code" href="classzeus_1_1_client.html#ad1a617dad4121cf70b5b5b62a158cab9">call</a>(<span class="keyword">const</span> std::string&amp; _functionName, _ARGS&amp;&amp;... _args) {</div><div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;                <span class="keywordflow">if</span> (m_interfaceClient == <span class="keyword">nullptr</span>) {</div><div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;                    <a class="codeRef" doxygen="/home/heero/dev/perso/out/doc/release/ememory.tag:http://atria-soft.github.io/ememory/" href="http://atria-soft.github.io/ememory/classememory_1_1_shared_ptr.html">ememory::SharedPtr&lt;zeus::BufferAnswer&gt;</a> ret = <a class="code" href="classzeus_1_1_buffer_answer.html#ab1a111f2b9d9e0c4bd808287a7606bc9">zeus::BufferAnswer::create</a>();</div><div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;                    ret-&gt;<a class="code" href="classzeus_1_1_buffer_answer.html#ac15609f4e984e03e3a92e58463b5ad90">addError</a>(<span class="stringliteral">&quot;NULLPTR&quot;</span>, <span class="stringliteral">&quot;call &quot;</span> + _functionName + <span class="stringliteral">&quot; with no interface open&quot;</span>);</div><div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;                    <span class="keywordflow">return</span> <a class="code" href="classzeus_1_1_future_base.html">zeus::FutureBase</a>(0, ret);</div><div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;                }</div><div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;                <span class="keywordflow">return</span> m_interfaceClient-&gt;<a class="code" href="classzeus_1_1_web_server.html#a45888e695d06d18bd4e433e9e72f6bcc">call</a>(_functionName, _args...);</div><div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160;            }</div><div class="line"><a name="l00120"></a><span class="lineno">  120</span>&#160;            <span class="keyword">template</span>&lt;<span class="keyword">class</span>... _ARGS&gt;</div><div class="line"><a name="l00121"></a><span class="lineno"><a class="line" href="classzeus_1_1_client.html#ad11fc4d69ce0d35534dd759c4076aad1">  121</a></span>&#160;            <a class="code" href="classzeus_1_1_future_base.html">zeus::FutureBase</a> <a class="code" href="classzeus_1_1_client.html#ad11fc4d69ce0d35534dd759c4076aad1">callAction</a>(<span class="keyword">const</span> std::string&amp; _functionName, _ARGS&amp;&amp;... _args, <a class="code" href="classzeus_1_1_future_data.html#a3b1948b6d64c0e90fcd19dea2ed182f5">zeus::FutureData::ObserverFinish</a> _callback) {</div><div class="line"><a name="l00122"></a><span class="lineno">  122</span>&#160;                <span class="keywordflow">if</span> (m_interfaceClient == <span class="keyword">nullptr</span>) {</div><div class="line"><a name="l00123"></a><span class="lineno">  123</span>&#160;                    <a class="codeRef" doxygen="/home/heero/dev/perso/out/doc/release/ememory.tag:http://atria-soft.github.io/ememory/" href="http://atria-soft.github.io/ememory/classememory_1_1_shared_ptr.html">ememory::SharedPtr&lt;zeus::BufferAnswer&gt;</a> ret = <a class="code" href="classzeus_1_1_buffer_answer.html#ab1a111f2b9d9e0c4bd808287a7606bc9">zeus::BufferAnswer::create</a>();</div><div class="line"><a name="l00124"></a><span class="lineno">  124</span>&#160;                    ret-&gt;<a class="code" href="classzeus_1_1_buffer_answer.html#ac15609f4e984e03e3a92e58463b5ad90">addError</a>(<span class="stringliteral">&quot;NULLPTR&quot;</span>, <span class="stringliteral">&quot;call &quot;</span> + _functionName + <span class="stringliteral">&quot; with no interface open&quot;</span>);</div><div class="line"><a name="l00125"></a><span class="lineno">  125</span>&#160;                    <span class="keywordflow">return</span> <a class="code" href="classzeus_1_1_future_base.html">zeus::FutureBase</a>(0, ret, _callback);</div><div class="line"><a name="l00126"></a><span class="lineno">  126</span>&#160;                }</div><div class="line"><a name="l00127"></a><span class="lineno">  127</span>&#160;                <span class="keywordflow">return</span> m_interfaceClient-&gt;<a class="code" href="classzeus_1_1_web_server.html#a1c89d0900da3f2cd5c34a3099c73b676">callAction</a>(_functionName, _args..., _callback);</div><div class="line"><a name="l00128"></a><span class="lineno">  128</span>&#160;            }</div><div class="line"><a name="l00129"></a><span class="lineno">  129</span>&#160;        <span class="keyword">private</span>:</div><div class="line"><a name="l00133"></a><span class="lineno">  133</span>&#160;            <span class="keywordtype">void</span> onPropertyChangeIp();</div><div class="line"><a name="l00137"></a><span class="lineno">  137</span>&#160;            <span class="keywordtype">void</span> onPropertyChangePort();</div><div class="line"><a name="l00138"></a><span class="lineno">  138</span>&#160;    };</div><div class="line"><a name="l00139"></a><span class="lineno">  139</span>&#160;}</div><div class="line"><a name="l00140"></a><span class="lineno">  140</span>&#160;</div><div class="ttc" id="classzeus_1_1_future_data_html_a3b1948b6d64c0e90fcd19dea2ed182f5"><div class="ttname"><a href="classzeus_1_1_future_data.html#a3b1948b6d64c0e90fcd19dea2ed182f5">zeus::FutureData::ObserverFinish</a></div><div class="ttdeci">std::function&lt; bool(zeus::FutureBase)&gt; ObserverFinish</div><div class="ttdoc">Define an Observer: function pointer. </div><div class="ttdef"><b>Definition:</b> FutureData.hpp:21</div></div>
+<div class="ttc" id="classzeus_1_1_client_html_a37f95679ea94427cf673110465f4f42c"><div class="ttname"><a href="classzeus_1_1_client.html#a37f95679ea94427cf673110465f4f42c">zeus::Client::disconnect</a></div><div class="ttdeci">void disconnect()</div><div class="ttdoc">Disconnect of the current interface. </div></div>
+<div class="ttc" id="classzeus_1_1_service_remote_html"><div class="ttname"><a href="classzeus_1_1_service_remote.html">zeus::ServiceRemote</a></div><div class="ttdef"><b>Definition:</b> ServiceRemote.hpp:22</div></div>
+<div class="ttc" id="classzeus_1_1_web_server_html_a1c89d0900da3f2cd5c34a3099c73b676"><div class="ttname"><a href="classzeus_1_1_web_server.html#a1c89d0900da3f2cd5c34a3099c73b676">zeus::WebServer::callAction</a></div><div class="ttdeci">zeus::FutureBase callAction(const std::string &amp;_functionName, _ARGS &amp;&amp;... _args, zeus::FutureData::ObserverFinish _callback)</div><div class="ttdef"><b>Definition:</b> WebServer.hpp:258</div></div>
+<div class="ttc" id="classzeus_1_1_client_html_a3bdc86ddcb5504b7636d069dc003e086"><div class="ttname"><a href="classzeus_1_1_client.html#a3bdc86ddcb5504b7636d069dc003e086">zeus::Client::connectTo</a></div><div class="ttdeci">bool connectTo(const std::string &amp;_address)</div><div class="ttdoc">Connetc to a remote extern server. </div></div>
+<div class="ttc" id="classzeus_1_1_client_html_a35b2325791ec35f1df8ac9925a03e41d"><div class="ttname"><a href="classzeus_1_1_client.html#a35b2325791ec35f1df8ac9925a03e41d">zeus::Client::propertyPort</a></div><div class="ttdeci">eproperty::Value&lt; uint16_t &gt; propertyPort</div><div class="ttdoc">Port of the WebSocket connection. </div><div class="ttdef"><b>Definition:</b> Client.hpp:24</div></div>
+<div class="ttc" id="classzeus_1_1_buffer_answer_html_ab1a111f2b9d9e0c4bd808287a7606bc9"><div class="ttname"><a href="classzeus_1_1_buffer_answer.html#ab1a111f2b9d9e0c4bd808287a7606bc9">zeus::BufferAnswer::create</a></div><div class="ttdeci">static ememory::SharedPtr&lt; zeus::BufferAnswer &gt; create()</div><div class="ttdoc">Create a shared pointer on the BufferAnswer. </div></div>
+<div class="ttc" id="classzeus_1_1_future_base_html"><div class="ttname"><a href="classzeus_1_1_future_base.html">zeus::FutureBase</a></div><div class="ttdoc">Generic zeus Future interface to get data asynchronously. </div><div class="ttdef"><b>Definition:</b> FutureBase.hpp:14</div></div>
+<div class="ttc" id="classzeus_1_1_web_server_html_a45888e695d06d18bd4e433e9e72f6bcc"><div class="ttname"><a href="classzeus_1_1_web_server.html#a45888e695d06d18bd4e433e9e72f6bcc">zeus::WebServer::call</a></div><div class="ttdeci">zeus::FutureBase call(const std::string &amp;_functionName, _ARGS &amp;&amp;... _args)</div><div class="ttdef"><b>Definition:</b> WebServer.hpp:247</div></div>
+<div class="ttc" id="classzeus_1_1_buffer_answer_html_ac15609f4e984e03e3a92e58463b5ad90"><div class="ttname"><a href="classzeus_1_1_buffer_answer.html#ac15609f4e984e03e3a92e58463b5ad90">zeus::BufferAnswer::addError</a></div><div class="ttdeci">void addError(const std::string &amp;_value, const std::string &amp;_comment)</div><div class="ttdoc">Ann an error on the message answer. </div></div>
+<div class="ttc" id="classzeus_1_1_client_html_a3a10e70d2386b88cf1f9bb615ea2f582"><div class="ttname"><a href="classzeus_1_1_client.html#a3a10e70d2386b88cf1f9bb615ea2f582">zeus::Client::Client</a></div><div class="ttdeci">Client()</div><div class="ttdoc">Create a client on a specific user in a client mode with the tocken associated. </div></div>
+<div class="ttc" id="classzeus_1_1_client_html"><div class="ttname"><a href="classzeus_1_1_client.html">zeus::Client</a></div><div class="ttdoc">Client interface to acces on the remote service and gateway. </div><div class="ttdef"><b>Definition:</b> Client.hpp:20</div></div>
+<div class="ttc" id="classzeus_1_1_client_html_ad11fc4d69ce0d35534dd759c4076aad1"><div class="ttname"><a href="classzeus_1_1_client.html#ad11fc4d69ce0d35534dd759c4076aad1">zeus::Client::callAction</a></div><div class="ttdeci">zeus::FutureBase callAction(const std::string &amp;_functionName, _ARGS &amp;&amp;... _args, zeus::FutureData::ObserverFinish _callback)</div><div class="ttdoc">Create a call on the interface gateway. </div><div class="ttdef"><b>Definition:</b> Client.hpp:121</div></div>
+<div class="ttc" id="classzeus_1_1_client_html_a18c9a92a93dc2abc6817e576fa4c7ca4"><div class="ttname"><a href="classzeus_1_1_client.html#a18c9a92a93dc2abc6817e576fa4c7ca4">zeus::Client::getService</a></div><div class="ttdeci">zeus::ServiceRemote getService(const std::string &amp;_serviceName)</div><div class="ttdoc">Get a remote service. </div></div>
+<div class="ttc" id="classzeus_1_1_client_html_af8b42ee062476505a9e7b449aa6ae8e9"><div class="ttname"><a href="classzeus_1_1_client.html#af8b42ee062476505a9e7b449aa6ae8e9">zeus::Client::connect</a></div><div class="ttdeci">bool connect(const std::string &amp;_address)</div><div class="ttdoc">Create a client on a specific user in an ANONIMOUS way. </div></div>
+<div class="ttc" id="_service_remote_8hpp_html"><div class="ttname"><a href="_service_remote_8hpp.html">ServiceRemote.hpp</a></div></div>
+<div class="ttc" id="_web_server_8hpp_html"><div class="ttname"><a href="_web_server_8hpp.html">WebServer.hpp</a></div></div>
+<div class="ttc" id="_future_8hpp_html"><div class="ttname"><a href="_future_8hpp.html">Future.hpp</a></div></div>
+<div class="ttc" id="classeproperty_1_1_interface_html"><div class="ttname"><a href="http://atria-soft.github.io/eproperty/classeproperty_1_1_interface.html">eproperty::Interface</a></div></div>
+<div class="ttc" id="__value__8hpp_html"><div class="ttname"><a href="http://atria-soft.github.io/eproperty/__value__8hpp.html">Value.hpp</a></div></div>
+<div class="ttc" id="namespacezeus_html"><div class="ttname"><a href="namespacezeus.html">zeus</a></div><div class="ttdoc">Main zeus library namespace. </div><div class="ttdef"><b>Definition:</b> AbstractFunction.hpp:15</div></div>
+<div class="ttc" id="classememory_1_1_shared_ptr_html"><div class="ttname"><a href="http://atria-soft.github.io/ememory/classememory_1_1_shared_ptr.html">ememory::SharedPtr</a></div></div>
+<div class="ttc" id="classeproperty_1_1_value_html"><div class="ttname"><a href="http://atria-soft.github.io/eproperty/classeproperty_1_1_value.html">eproperty::Value&lt; std::string &gt;</a></div></div>
+<div class="ttc" id="classzeus_1_1_client_html_af9302c059ea4fd9b564af41d524ac49c"><div class="ttname"><a href="classzeus_1_1_client.html#af9302c059ea4fd9b564af41d524ac49c">zeus::Client::~Client</a></div><div class="ttdeci">virtual ~Client()</div></div>
+<div class="ttc" id="classzeus_1_1_client_html_ad1a617dad4121cf70b5b5b62a158cab9"><div class="ttname"><a href="classzeus_1_1_client.html#ad1a617dad4121cf70b5b5b62a158cab9">zeus::Client::call</a></div><div class="ttdeci">zeus::FutureBase call(const std::string &amp;_functionName, _ARGS &amp;&amp;... _args)</div><div class="ttdoc">Create a call on the interface gateway. </div><div class="ttdef"><b>Definition:</b> Client.hpp:105</div></div>
+<div class="ttc" id="classzeus_1_1_client_html_a159e7049f013c25cf95ec2017ef88885"><div class="ttname"><a href="classzeus_1_1_client.html#a159e7049f013c25cf95ec2017ef88885">zeus::Client::propertyIp</a></div><div class="ttdeci">eproperty::Value&lt; std::string &gt; propertyIp</div><div class="ttdoc">Ip of WebSocket TCP connection. </div><div class="ttdef"><b>Definition:</b> Client.hpp:23</div></div>
+</div><!-- fragment --></div><!-- contents -->
+<!-- HTML footer for doxygen 1.8.8-->
+<!-- start footer part -->
+</div>
+</div>
+</div>
+</div>
+</div>
+<hr class="footer"/><address class="footer"><small>
+Generated on Mon Oct 24 2016 14:06:05 for zeus: Zeus ewol micro-service interface by &#160;<a href="http://www.doxygen.org/index.html">
+<img class="footer" src="doxygen.png" alt="doxygen"/>
+</a> 1.8.12
+</small></address>
+</body>
+</html>

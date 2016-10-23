@@ -1,0 +1,1306 @@
+<!-- HTML header for doxygen 1.8.8-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <!-- For Mobile Devices -->
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+        <meta name="generator" content="Doxygen 1.8.12"/>
+        <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+        <title>zeus: Zeus ewol micro-service interface: zeus::WebServer Class Reference</title>
+        <!--<link href="tabs.css" rel="stylesheet" type="text/css"/>-->
+        <script type="text/javascript" src="dynsections.js"></script>
+        <link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+        <link href="doxygen.css" rel="stylesheet" type="text/css" />
+        <link href="customdoxygen.css" rel="stylesheet" type="text/css"/>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
+        <script type="text/javascript" src="doxy-boot.js"></script>
+    </head>
+    <body>
+        <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+            <div class="container">
+                <div class="navbar-header">
+                    <a class="navbar-brand">zeus: Zeus ewol micro-service interface 0.4.0</a>
+                </div>
+                <div id="navbar" class="navbar-collapse collapse">
+                    <ul class="nav navbar-nav">
+                        <li><a href="index.html">Main&nbsp;Page</a></li>
+                        <li><a href="pages.html">Related&nbsp;Pages</a></li>
+                        <li><a href="namespaces.html">Namespaces</a></li>
+                        <li><a href="annotated.html">Classes</a></li>
+                        <li><a href="files.html">Files</a></li>
+                    </ul>
+                    <ul class="nav navbar-nav navbar-right">
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                                Link-libs<span class="caret"></span>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a href="http://HeeroYui.github.io/lutin">lutin</a></li>
+                                <li><a href="http://atria-soft.github.io/ewol">ewol</a></li>
+                                <li><a href="http://atria-soft.github.io/etk">etk</a></li>
+                                <li><a href="http://atria-soft.github.io/ejson">ejson</a></li>
+                                <li><a href="http://atria-soft.github.io/exml">exml</a></li>
+                                <li><a href="http://atria-soft.github.io/esvg">esvg</a></li>
+                                <li><a href="http://atria-soft.github.io/egami">egami</a></li>
+                                <li><a href="http://atria-soft.github.io/gale">gale</a></li>
+                                <li><a href="http://atria-soft.github.io/ege">ege</a></li>
+                                <li><a href="http://atria-soft.github.io/elog">elog</a></li>
+                                <li><a href="http://atria-soft.github.io/ememory">ememory</a></li>
+                                <li><a href="http://atria-soft.github.io/enet">enet</a></li>
+                                <li><a href="http://atria-soft.github.io/eproperty">eproperty</a></li>
+                                <li><a href="http://atria-soft.github.io/esignal">esignal</a></li>
+                                <li><a href="http://atria-soft.github.io/zeus">zeus</a></li>
+                                <li><a href="http://atria-soft.github.io/audio-ess">audio-ess</a></li>
+                                <li><a href="http://musicdsp.github.io/audio">audio</a></li>
+                                <li><a href="http://musicdsp.github.io/audio-drain">audio-drain</a></li>
+                                <li><a href="http://musicdsp.github.io/audio-orchestra">audio-orchestra</a></li>
+                                <li><a href="http://musicdsp.github.io/audio-river">audio-river</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                    <div id="search-box" class="input-group">
+                        <div class="input-group-btn">
+                            <button aria-expanded="false" type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                                <span class="glyphicon glyphicon-search"></span>
+                                <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><a href="#">All</a></li>
+                                <li><a href="#">Classes</a></li>
+                                <li><a href="#">Namespaces</a></li>
+                                <li><a href="#">Files</a></li>
+                                <li><a href="#">Functions</a></li>
+                                <li><a href="#">Variables</a></li>
+                                <li><a href="#">Typedefs</a></li>
+                                <li><a href="#">Enumerations</a></li>
+                                <li><a href="#">Enumerator</a></li>
+                                <li><a href="#">Friends</a></li>
+                                <li><a href="#">Macros</a></li>
+                                <li><a href="#">Pages</a></li>
+                            </ul>
+                        </div>
+                        <button id="search-close" type="button" class="close" aria-label="Close">
+                            <span aria-hidden="true"></span>
+                        </button>
+                        <input id="search-field" class="form-control" accesskey="S" onkeydown="searchBox.OnSearchFieldChange(event);" placeholder="Search ..." type="text">
+                    </div>
+                </div><!--/.nav-collapse -->
+            </div>
+        </nav>
+        <div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+            <div class="content" id="content">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-sm-12 panel panel-default" style="padding-bottom: 15px;">
+                            <div style="margin-bottom: 15px;">
+<!-- end header part -->
+<!-- Generated by Doxygen 1.8.12 -->
+<script type="text/javascript">
+var searchBox = new SearchBox("searchBox", "search",false,'Search');
+</script>
+<script type="text/javascript" src="menudata.js"></script>
+<script type="text/javascript" src="menu.js"></script>
+<script type="text/javascript">
+$(function() {
+  initMenu('',true,false,'search.php','Search');
+  $(document).ready(function() { init_search(); });
+});
+</script>
+<div id="main-nav"></div>
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<iframe src="javascript:void(0)" frameborder="0" 
+        name="MSearchResults" id="MSearchResults">
+</iframe>
+</div>
+
+<div id="nav-path" class="navpath">
+  <ul>
+<li class="navelem"><a class="el" href="namespacezeus.html">zeus</a></li><li class="navelem"><a class="el" href="classzeus_1_1_web_server.html">WebServer</a></li>  </ul>
+</div>
+</div><!-- top -->
+<div class="header">
+  <div class="summary">
+<a href="#pub-types">Public Types</a> &#124;
+<a href="#pub-methods">Public Member Functions</a> &#124;
+<a href="#pub-attribs">Public Attributes</a> &#124;
+<a href="classzeus_1_1_web_server-members.html">List of all members</a>  </div>
+  <div class="headertitle">
+<div class="title">zeus::WebServer Class Reference</div>  </div>
+</div><!--header-->
+<div class="contents">
+<table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-types"></a>
+Public Types</h2></td></tr>
+<tr class="memitem:a07e6405ce6db9495c0463bb039dd73ac"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzeus_1_1_web_server.html#a07e6405ce6db9495c0463bb039dd73ac">Observer</a> = std::function&lt; void(<a class="elRef" doxygen="/home/heero/dev/perso/out/doc/release/ememory.tag:http://atria-soft.github.io/ememory/" href="http://atria-soft.github.io/ememory/classememory_1_1_shared_ptr.html">ememory::SharedPtr</a>&lt; <a class="el" href="classzeus_1_1_buffer.html">zeus::Buffer</a> &gt;)&gt;</td></tr>
+<tr class="separator:a07e6405ce6db9495c0463bb039dd73ac"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
+Public Member Functions</h2></td></tr>
+<tr class="memitem:a9b5250376d03649b3d4f8d03abe4ca12"><td class="memTemplParams" colspan="2">template&lt;class CLASS_TYPE &gt; </td></tr>
+<tr class="memitem:a9b5250376d03649b3d4f8d03abe4ca12"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classzeus_1_1_web_server.html#a9b5250376d03649b3d4f8d03abe4ca12">connect</a> (CLASS_TYPE *_class, void(CLASS_TYPE::*_func)(<a class="elRef" doxygen="/home/heero/dev/perso/out/doc/release/ememory.tag:http://atria-soft.github.io/ememory/" href="http://atria-soft.github.io/ememory/classememory_1_1_shared_ptr.html">ememory::SharedPtr</a>&lt; <a class="el" href="classzeus_1_1_buffer.html">zeus::Buffer</a> &gt;))</td></tr>
+<tr class="separator:a9b5250376d03649b3d4f8d03abe4ca12"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aaaa33e2e1f9887a76c3264457b00fbc3"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzeus_1_1_web_server.html#aaaa33e2e1f9887a76c3264457b00fbc3">WebServer</a> ()</td></tr>
+<tr class="separator:aaaa33e2e1f9887a76c3264457b00fbc3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ace4db5a554da0fc00975fec29d9d98d8"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzeus_1_1_web_server.html#ace4db5a554da0fc00975fec29d9d98d8">WebServer</a> (<a class="elRef" doxygen="/home/heero/dev/perso/out/doc/release/enet.tag:http://atria-soft.github.io/enet/" href="http://atria-soft.github.io/enet/classenet_1_1_tcp.html">enet::Tcp</a> _connection, bool _isServer)</td></tr>
+<tr class="separator:ace4db5a554da0fc00975fec29d9d98d8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab83d1fd96eda7fc60e6ddeebfc641fc6"><td class="memItemLeft" align="right" valign="top">virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzeus_1_1_web_server.html#ab83d1fd96eda7fc60e6ddeebfc641fc6">~WebServer</a> ()</td></tr>
+<tr class="separator:ab83d1fd96eda7fc60e6ddeebfc641fc6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0adfa64c2ac946c202c2a4dc905361e4"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzeus_1_1_web_server.html#a0adfa64c2ac946c202c2a4dc905361e4">setInterface</a> (<a class="elRef" doxygen="/home/heero/dev/perso/out/doc/release/enet.tag:http://atria-soft.github.io/enet/" href="http://atria-soft.github.io/enet/classenet_1_1_tcp.html">enet::Tcp</a> _connection, bool _isServer)</td></tr>
+<tr class="separator:a0adfa64c2ac946c202c2a4dc905361e4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a63a9655c4dd439bb884a1e6e8a9d624d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzeus_1_1_web_server.html#a63a9655c4dd439bb884a1e6e8a9d624d">connect</a> (bool _async=false)</td></tr>
+<tr class="separator:a63a9655c4dd439bb884a1e6e8a9d624d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a78c60f8971529a5afe8254bd0b740123"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzeus_1_1_web_server.html#a78c60f8971529a5afe8254bd0b740123">disconnect</a> (bool _inThreadStop=false)</td></tr>
+<tr class="separator:a78c60f8971529a5afe8254bd0b740123"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae5f09d4d5285fbdb47d8d172b5daca03"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzeus_1_1_web_server.html#ae5f09d4d5285fbdb47d8d172b5daca03">isActive</a> () const</td></tr>
+<tr class="separator:ae5f09d4d5285fbdb47d8d172b5daca03"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5fe5e9b7229372970b349403291e4061"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzeus_1_1_web_server.html#a5fe5e9b7229372970b349403291e4061">setInterfaceName</a> (const std::string &amp;_name)</td></tr>
+<tr class="separator:a5fe5e9b7229372970b349403291e4061"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad3908a55e8388fd243de6746004de264"><td class="memItemLeft" align="right" valign="top">int32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzeus_1_1_web_server.html#ad3908a55e8388fd243de6746004de264">writeBinary</a> (<a class="elRef" doxygen="/home/heero/dev/perso/out/doc/release/ememory.tag:http://atria-soft.github.io/ememory/" href="http://atria-soft.github.io/ememory/classememory_1_1_shared_ptr.html">ememory::SharedPtr</a>&lt; <a class="el" href="classzeus_1_1_buffer.html">zeus::Buffer</a> &gt; _data)</td></tr>
+<tr class="separator:ad3908a55e8388fd243de6746004de264"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5e627ed1640d7551a3e8c62ed42516eb"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzeus_1_1_web_server.html#a5e627ed1640d7551a3e8c62ed42516eb">ping</a> ()</td></tr>
+<tr class="separator:a5e627ed1640d7551a3e8c62ed42516eb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afc0b0796c99bc506a1415be6b60d2206"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzeus_1_1_web_server.html#afc0b0796c99bc506a1415be6b60d2206">onReceiveUri</a> (const std::string &amp;_uri, const std::vector&lt; std::string &gt; &amp;_protocols)</td></tr>
+<tr class="separator:afc0b0796c99bc506a1415be6b60d2206"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae0ce360374948c1c98a8931d56e58b07"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzeus_1_1_web_server.html#ae0ce360374948c1c98a8931d56e58b07">onReceiveData</a> (std::vector&lt; uint8_t &gt; &amp;_frame, bool _isBinary)</td></tr>
+<tr class="separator:ae0ce360374948c1c98a8931d56e58b07"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a62702e2c479fe20045e603510ff73590"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzeus_1_1_web_server.html#a62702e2c479fe20045e603510ff73590">newBuffer</a> (<a class="elRef" doxygen="/home/heero/dev/perso/out/doc/release/ememory.tag:http://atria-soft.github.io/ememory/" href="http://atria-soft.github.io/ememory/classememory_1_1_shared_ptr.html">ememory::SharedPtr</a>&lt; <a class="el" href="classzeus_1_1_buffer.html">zeus::Buffer</a> &gt; _buffer)</td></tr>
+<tr class="separator:a62702e2c479fe20045e603510ff73590"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7a34c3422a0cb21a46c1ba01f4394146"><td class="memItemLeft" align="right" valign="top">const std::chrono::steady_clock::time_point &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzeus_1_1_web_server.html#a7a34c3422a0cb21a46c1ba01f4394146">getLastTimeReceive</a> ()</td></tr>
+<tr class="separator:a7a34c3422a0cb21a46c1ba01f4394146"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1e1989a2ed992ddcd814d431e3e4a119"><td class="memItemLeft" align="right" valign="top">const std::chrono::steady_clock::time_point &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzeus_1_1_web_server.html#a1e1989a2ed992ddcd814d431e3e4a119">getLastTimeSend</a> ()</td></tr>
+<tr class="separator:a1e1989a2ed992ddcd814d431e3e4a119"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac83b2029df9eed068850ec5c3deb1d1e"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzeus_1_1_web_server.html#ac83b2029df9eed068850ec5c3deb1d1e">addAsync</a> (ActionAsync _elem)</td></tr>
+<tr class="separator:ac83b2029df9eed068850ec5c3deb1d1e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a45888e695d06d18bd4e433e9e72f6bcc"><td class="memTemplParams" colspan="2">template&lt;class... _ARGS&gt; </td></tr>
+<tr class="memitem:a45888e695d06d18bd4e433e9e72f6bcc"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classzeus_1_1_future_base.html">zeus::FutureBase</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classzeus_1_1_web_server.html#a45888e695d06d18bd4e433e9e72f6bcc">call</a> (const std::string &amp;_functionName, _ARGS &amp;&amp;... _args)</td></tr>
+<tr class="separator:a45888e695d06d18bd4e433e9e72f6bcc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1c89d0900da3f2cd5c34a3099c73b676"><td class="memTemplParams" colspan="2">template&lt;class... _ARGS&gt; </td></tr>
+<tr class="memitem:a1c89d0900da3f2cd5c34a3099c73b676"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classzeus_1_1_future_base.html">zeus::FutureBase</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classzeus_1_1_web_server.html#a1c89d0900da3f2cd5c34a3099c73b676">callAction</a> (const std::string &amp;_functionName, _ARGS &amp;&amp;... _args, <a class="el" href="classzeus_1_1_future_data.html#a3b1948b6d64c0e90fcd19dea2ed182f5">zeus::FutureData::ObserverFinish</a> _callback)</td></tr>
+<tr class="separator:a1c89d0900da3f2cd5c34a3099c73b676"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae8c0d23f4481506ba6ff6c232a174c41"><td class="memTemplParams" colspan="2">template&lt;class... _ARGS&gt; </td></tr>
+<tr class="memitem:ae8c0d23f4481506ba6ff6c232a174c41"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classzeus_1_1_future_base.html">zeus::FutureBase</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classzeus_1_1_web_server.html#ae8c0d23f4481506ba6ff6c232a174c41">callService</a> (uint32_t _serviceId, const std::string &amp;_functionName, _ARGS &amp;&amp;... _args)</td></tr>
+<tr class="separator:ae8c0d23f4481506ba6ff6c232a174c41"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae41a220d142518fe1c84b86a5dc9eef6"><td class="memTemplParams" colspan="2">template&lt;class... _ARGS&gt; </td></tr>
+<tr class="memitem:ae41a220d142518fe1c84b86a5dc9eef6"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classzeus_1_1_future_base.html">zeus::FutureBase</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classzeus_1_1_web_server.html#ae41a220d142518fe1c84b86a5dc9eef6">callServiceAction</a> (uint32_t _serviceId, const std::string &amp;_functionName, _ARGS &amp;&amp;... _args, <a class="el" href="classzeus_1_1_future_data.html#a3b1948b6d64c0e90fcd19dea2ed182f5">zeus::FutureData::ObserverFinish</a> _callback)</td></tr>
+<tr class="separator:ae41a220d142518fe1c84b86a5dc9eef6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a19683b89ac9d6dbabdc2932772e7f658"><td class="memTemplParams" colspan="2">template&lt;class... _ARGS&gt; </td></tr>
+<tr class="memitem:a19683b89ac9d6dbabdc2932772e7f658"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classzeus_1_1_future_base.html">zeus::FutureBase</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classzeus_1_1_web_server.html#a19683b89ac9d6dbabdc2932772e7f658">callClient</a> (uint32_t _clientId, const std::string &amp;_functionName, _ARGS &amp;&amp;... _args)</td></tr>
+<tr class="separator:a19683b89ac9d6dbabdc2932772e7f658"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa279203869613d9b7322b18680b7671a"><td class="memTemplParams" colspan="2">template&lt;class... _ARGS&gt; </td></tr>
+<tr class="memitem:aa279203869613d9b7322b18680b7671a"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classzeus_1_1_future_base.html">zeus::FutureBase</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classzeus_1_1_web_server.html#aa279203869613d9b7322b18680b7671a">callClientAction</a> (uint32_t _clientId, const std::string &amp;_functionName, _ARGS &amp;&amp;... _args, <a class="el" href="classzeus_1_1_future_data.html#a3b1948b6d64c0e90fcd19dea2ed182f5">zeus::FutureData::ObserverFinish</a> _callback)</td></tr>
+<tr class="separator:aa279203869613d9b7322b18680b7671a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5cd66eca3393cc627f4b639c9f4d0f5e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classzeus_1_1_future_base.html">zeus::FutureBase</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzeus_1_1_web_server.html#a5cd66eca3393cc627f4b639c9f4d0f5e">callForward</a> (uint32_t _clientId, <a class="elRef" doxygen="/home/heero/dev/perso/out/doc/release/ememory.tag:http://atria-soft.github.io/ememory/" href="http://atria-soft.github.io/ememory/classememory_1_1_shared_ptr.html">ememory::SharedPtr</a>&lt; <a class="el" href="classzeus_1_1_buffer.html">zeus::Buffer</a> &gt; _Buffer, uint64_t _singleReferenceId, <a class="el" href="classzeus_1_1_future_data.html#a3b1948b6d64c0e90fcd19dea2ed182f5">zeus::FutureData::ObserverFinish</a> _callback)</td></tr>
+<tr class="separator:a5cd66eca3393cc627f4b639c9f4d0f5e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a02812d5bfe6ccbfd925e691274e9a066"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzeus_1_1_web_server.html#a02812d5bfe6ccbfd925e691274e9a066">callForwardMultiple</a> (uint32_t _clientId, <a class="elRef" doxygen="/home/heero/dev/perso/out/doc/release/ememory.tag:http://atria-soft.github.io/ememory/" href="http://atria-soft.github.io/ememory/classememory_1_1_shared_ptr.html">ememory::SharedPtr</a>&lt; <a class="el" href="classzeus_1_1_buffer.html">zeus::Buffer</a> &gt; _Buffer, uint64_t _singleReferenceId)</td></tr>
+<tr class="separator:a02812d5bfe6ccbfd925e691274e9a066"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a46494ab13a683fc4c8e8f69e8d99970a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzeus_1_1_web_server.html#a46494ab13a683fc4c8e8f69e8d99970a">answerProtocolError</a> (uint32_t _transactionId, const std::string &amp;_errorHelp)</td></tr>
+<tr class="separator:a46494ab13a683fc4c8e8f69e8d99970a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a50b94c0b985791fd8073b4cd8197d781"><td class="memTemplParams" colspan="2">template&lt;class ZEUS_ARG &gt; </td></tr>
+<tr class="memitem:a50b94c0b985791fd8073b4cd8197d781"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classzeus_1_1_web_server.html#a50b94c0b985791fd8073b4cd8197d781">answerValue</a> (uint64_t _clientTransactionId, ZEUS_ARG _value, uint32_t _clientId=0)</td></tr>
+<tr class="separator:a50b94c0b985791fd8073b4cd8197d781"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a37bfa54fc1dd0a5596e772ae7d8d4f66"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzeus_1_1_web_server.html#a37bfa54fc1dd0a5596e772ae7d8d4f66">answerVoid</a> (uint64_t _clientTransactionId, uint32_t _clientId=0)</td></tr>
+<tr class="separator:a37bfa54fc1dd0a5596e772ae7d8d4f66"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a98221404f4f355749c4afcfa69eda8b3"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzeus_1_1_web_server.html#a98221404f4f355749c4afcfa69eda8b3">answerError</a> (uint64_t _clientTransactionId, const std::string &amp;_errorValue, const std::string &amp;_errorComment=&quot;&quot;, uint32_t _clientId=0)</td></tr>
+<tr class="separator:a98221404f4f355749c4afcfa69eda8b3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
+Public Attributes</h2></td></tr>
+<tr class="memitem:a45638b459173abc338a8b6ac3bd7c4ee"><td class="memItemLeft" align="right" valign="top"><a id="a45638b459173abc338a8b6ac3bd7c4ee"></a>
+<a class="el" href="classzeus_1_1_web_server.html#a07e6405ce6db9495c0463bb039dd73ac">Observer</a>&#160;</td><td class="memItemRight" valign="bottom"><b>m_observerElement</b></td></tr>
+<tr class="separator:a45638b459173abc338a8b6ac3bd7c4ee"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table>
+<h2 class="groupheader">Member Typedef Documentation</h2>
+<a id="a07e6405ce6db9495c0463bb039dd73ac"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a07e6405ce6db9495c0463bb039dd73ac">&sect;&nbsp;</a></span>Observer</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">using <a class="el" href="classzeus_1_1_web_server.html#a07e6405ce6db9495c0463bb039dd73ac">zeus::WebServer::Observer</a> =  std::function&lt;void(<a class="elRef" doxygen="/home/heero/dev/perso/out/doc/release/ememory.tag:http://atria-soft.github.io/ememory/" href="http://atria-soft.github.io/ememory/classememory_1_1_shared_ptr.html">ememory::SharedPtr</a>&lt;<a class="el" href="classzeus_1_1_buffer.html">zeus::Buffer</a>&gt;)&gt;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Define an Observer: function pointer. </p>
+
+</div>
+</div>
+<h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
+<a id="aaaa33e2e1f9887a76c3264457b00fbc3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aaaa33e2e1f9887a76c3264457b00fbc3">&sect;&nbsp;</a></span>WebServer() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">zeus::WebServer::WebServer </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname"></td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="ace4db5a554da0fc00975fec29d9d98d8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ace4db5a554da0fc00975fec29d9d98d8">&sect;&nbsp;</a></span>WebServer() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">zeus::WebServer::WebServer </td>
+          <td>(</td>
+          <td class="paramtype"><a class="elRef" doxygen="/home/heero/dev/perso/out/doc/release/enet.tag:http://atria-soft.github.io/enet/" href="http://atria-soft.github.io/enet/classenet_1_1_tcp.html">enet::Tcp</a>&#160;</td>
+          <td class="paramname"><em>_connection</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>_isServer</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname"></td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="ab83d1fd96eda7fc60e6ddeebfc641fc6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab83d1fd96eda7fc60e6ddeebfc641fc6">&sect;&nbsp;</a></span>~WebServer()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual zeus::WebServer::~WebServer </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname"></td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<h2 class="groupheader">Member Function Documentation</h2>
+<a id="ac83b2029df9eed068850ec5c3deb1d1e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac83b2029df9eed068850ec5c3deb1d1e">&sect;&nbsp;</a></span>addAsync()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void zeus::WebServer::addAsync </td>
+          <td>(</td>
+          <td class="paramtype">ActionAsync&#160;</td>
+          <td class="paramname"><em>_elem</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname"></td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="a98221404f4f355749c4afcfa69eda8b3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a98221404f4f355749c4afcfa69eda8b3">&sect;&nbsp;</a></span>answerError()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void zeus::WebServer::answerError </td>
+          <td>(</td>
+          <td class="paramtype">uint64_t&#160;</td>
+          <td class="paramname"><em>_clientTransactionId</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::string &amp;&#160;</td>
+          <td class="paramname"><em>_errorValue</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::string &amp;&#160;</td>
+          <td class="paramname"><em>_errorComment</em> = <code>&quot;&quot;</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint32_t&#160;</td>
+          <td class="paramname"><em>_clientId</em> = <code>0</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname"></td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="a46494ab13a683fc4c8e8f69e8d99970a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a46494ab13a683fc4c8e8f69e8d99970a">&sect;&nbsp;</a></span>answerProtocolError()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void zeus::WebServer::answerProtocolError </td>
+          <td>(</td>
+          <td class="paramtype">uint32_t&#160;</td>
+          <td class="paramname"><em>_transactionId</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::string &amp;&#160;</td>
+          <td class="paramname"><em>_errorHelp</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname"></td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="a50b94c0b985791fd8073b4cd8197d781"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a50b94c0b985791fd8073b4cd8197d781">&sect;&nbsp;</a></span>answerValue()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class ZEUS_ARG &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void zeus::WebServer::answerValue </td>
+          <td>(</td>
+          <td class="paramtype">uint64_t&#160;</td>
+          <td class="paramname"><em>_clientTransactionId</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">ZEUS_ARG&#160;</td>
+          <td class="paramname"><em>_value</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint32_t&#160;</td>
+          <td class="paramname"><em>_clientId</em> = <code>0</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname"></td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="a37bfa54fc1dd0a5596e772ae7d8d4f66"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a37bfa54fc1dd0a5596e772ae7d8d4f66">&sect;&nbsp;</a></span>answerVoid()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void zeus::WebServer::answerVoid </td>
+          <td>(</td>
+          <td class="paramtype">uint64_t&#160;</td>
+          <td class="paramname"><em>_clientTransactionId</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint32_t&#160;</td>
+          <td class="paramname"><em>_clientId</em> = <code>0</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname"></td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="a45888e695d06d18bd4e433e9e72f6bcc"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a45888e695d06d18bd4e433e9e72f6bcc">&sect;&nbsp;</a></span>call()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class... _ARGS&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classzeus_1_1_future_base.html">zeus::FutureBase</a> zeus::WebServer::call </td>
+          <td>(</td>
+          <td class="paramtype">const std::string &amp;&#160;</td>
+          <td class="paramname"><em>_functionName</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">_ARGS &amp;&amp;...&#160;</td>
+          <td class="paramname"><em>_args</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname"></td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="a1c89d0900da3f2cd5c34a3099c73b676"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1c89d0900da3f2cd5c34a3099c73b676">&sect;&nbsp;</a></span>callAction()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class... _ARGS&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classzeus_1_1_future_base.html">zeus::FutureBase</a> zeus::WebServer::callAction </td>
+          <td>(</td>
+          <td class="paramtype">const std::string &amp;&#160;</td>
+          <td class="paramname"><em>_functionName</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">_ARGS &amp;&amp;...&#160;</td>
+          <td class="paramname"><em>_args</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classzeus_1_1_future_data.html#a3b1948b6d64c0e90fcd19dea2ed182f5">zeus::FutureData::ObserverFinish</a>&#160;</td>
+          <td class="paramname"><em>_callback</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname"></td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="a19683b89ac9d6dbabdc2932772e7f658"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a19683b89ac9d6dbabdc2932772e7f658">&sect;&nbsp;</a></span>callClient()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class... _ARGS&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classzeus_1_1_future_base.html">zeus::FutureBase</a> zeus::WebServer::callClient </td>
+          <td>(</td>
+          <td class="paramtype">uint32_t&#160;</td>
+          <td class="paramname"><em>_clientId</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::string &amp;&#160;</td>
+          <td class="paramname"><em>_functionName</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">_ARGS &amp;&amp;...&#160;</td>
+          <td class="paramname"><em>_args</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname"></td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="aa279203869613d9b7322b18680b7671a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa279203869613d9b7322b18680b7671a">&sect;&nbsp;</a></span>callClientAction()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class... _ARGS&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classzeus_1_1_future_base.html">zeus::FutureBase</a> zeus::WebServer::callClientAction </td>
+          <td>(</td>
+          <td class="paramtype">uint32_t&#160;</td>
+          <td class="paramname"><em>_clientId</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::string &amp;&#160;</td>
+          <td class="paramname"><em>_functionName</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">_ARGS &amp;&amp;...&#160;</td>
+          <td class="paramname"><em>_args</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classzeus_1_1_future_data.html#a3b1948b6d64c0e90fcd19dea2ed182f5">zeus::FutureData::ObserverFinish</a>&#160;</td>
+          <td class="paramname"><em>_callback</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname"></td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="a5cd66eca3393cc627f4b639c9f4d0f5e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5cd66eca3393cc627f4b639c9f4d0f5e">&sect;&nbsp;</a></span>callForward()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classzeus_1_1_future_base.html">zeus::FutureBase</a> zeus::WebServer::callForward </td>
+          <td>(</td>
+          <td class="paramtype">uint32_t&#160;</td>
+          <td class="paramname"><em>_clientId</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="elRef" doxygen="/home/heero/dev/perso/out/doc/release/ememory.tag:http://atria-soft.github.io/ememory/" href="http://atria-soft.github.io/ememory/classememory_1_1_shared_ptr.html">ememory::SharedPtr</a>&lt; <a class="el" href="classzeus_1_1_buffer.html">zeus::Buffer</a> &gt;&#160;</td>
+          <td class="paramname"><em>_Buffer</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint64_t&#160;</td>
+          <td class="paramname"><em>_singleReferenceId</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classzeus_1_1_future_data.html#a3b1948b6d64c0e90fcd19dea2ed182f5">zeus::FutureData::ObserverFinish</a>&#160;</td>
+          <td class="paramname"><em>_callback</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname"></td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="a02812d5bfe6ccbfd925e691274e9a066"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a02812d5bfe6ccbfd925e691274e9a066">&sect;&nbsp;</a></span>callForwardMultiple()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void zeus::WebServer::callForwardMultiple </td>
+          <td>(</td>
+          <td class="paramtype">uint32_t&#160;</td>
+          <td class="paramname"><em>_clientId</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="elRef" doxygen="/home/heero/dev/perso/out/doc/release/ememory.tag:http://atria-soft.github.io/ememory/" href="http://atria-soft.github.io/ememory/classememory_1_1_shared_ptr.html">ememory::SharedPtr</a>&lt; <a class="el" href="classzeus_1_1_buffer.html">zeus::Buffer</a> &gt;&#160;</td>
+          <td class="paramname"><em>_Buffer</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint64_t&#160;</td>
+          <td class="paramname"><em>_singleReferenceId</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname"></td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="ae8c0d23f4481506ba6ff6c232a174c41"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae8c0d23f4481506ba6ff6c232a174c41">&sect;&nbsp;</a></span>callService()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class... _ARGS&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classzeus_1_1_future_base.html">zeus::FutureBase</a> zeus::WebServer::callService </td>
+          <td>(</td>
+          <td class="paramtype">uint32_t&#160;</td>
+          <td class="paramname"><em>_serviceId</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::string &amp;&#160;</td>
+          <td class="paramname"><em>_functionName</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">_ARGS &amp;&amp;...&#160;</td>
+          <td class="paramname"><em>_args</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname"></td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="ae41a220d142518fe1c84b86a5dc9eef6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae41a220d142518fe1c84b86a5dc9eef6">&sect;&nbsp;</a></span>callServiceAction()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class... _ARGS&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classzeus_1_1_future_base.html">zeus::FutureBase</a> zeus::WebServer::callServiceAction </td>
+          <td>(</td>
+          <td class="paramtype">uint32_t&#160;</td>
+          <td class="paramname"><em>_serviceId</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::string &amp;&#160;</td>
+          <td class="paramname"><em>_functionName</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">_ARGS &amp;&amp;...&#160;</td>
+          <td class="paramname"><em>_args</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classzeus_1_1_future_data.html#a3b1948b6d64c0e90fcd19dea2ed182f5">zeus::FutureData::ObserverFinish</a>&#160;</td>
+          <td class="paramname"><em>_callback</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname"></td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="a9b5250376d03649b3d4f8d03abe4ca12"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9b5250376d03649b3d4f8d03abe4ca12">&sect;&nbsp;</a></span>connect() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class CLASS_TYPE &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void zeus::WebServer::connect </td>
+          <td>(</td>
+          <td class="paramtype">CLASS_TYPE *&#160;</td>
+          <td class="paramname"><em>_class</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">void(CLASS_TYPE::*)(<a class="elRef" doxygen="/home/heero/dev/perso/out/doc/release/ememory.tag:http://atria-soft.github.io/ememory/" href="http://atria-soft.github.io/ememory/classememory_1_1_shared_ptr.html">ememory::SharedPtr</a>&lt; <a class="el" href="classzeus_1_1_buffer.html">zeus::Buffer</a> &gt;)&#160;</td>
+          <td class="paramname"><em>_func</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Connect an function member on the signal with the shared_ptr object. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">_class</td><td>shared_ptr Object on whe we need to call ==&gt; the object is get in keeped in weak_ptr. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">_func</td><td>Function to call. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="a63a9655c4dd439bb884a1e6e8a9d624d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a63a9655c4dd439bb884a1e6e8a9d624d">&sect;&nbsp;</a></span>connect() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void zeus::WebServer::connect </td>
+          <td>(</td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>_async</em> = <code>false</code></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname"></td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="a78c60f8971529a5afe8254bd0b740123"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a78c60f8971529a5afe8254bd0b740123">&sect;&nbsp;</a></span>disconnect()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void zeus::WebServer::disconnect </td>
+          <td>(</td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>_inThreadStop</em> = <code>false</code></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname"></td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="a7a34c3422a0cb21a46c1ba01f4394146"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7a34c3422a0cb21a46c1ba01f4394146">&sect;&nbsp;</a></span>getLastTimeReceive()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const std::chrono::steady_clock::time_point&amp; zeus::WebServer::getLastTimeReceive </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname"></td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="a1e1989a2ed992ddcd814d431e3e4a119"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1e1989a2ed992ddcd814d431e3e4a119">&sect;&nbsp;</a></span>getLastTimeSend()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const std::chrono::steady_clock::time_point&amp; zeus::WebServer::getLastTimeSend </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname"></td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="ae5f09d4d5285fbdb47d8d172b5daca03"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae5f09d4d5285fbdb47d8d172b5daca03">&sect;&nbsp;</a></span>isActive()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool zeus::WebServer::isActive </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname"></td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="a62702e2c479fe20045e603510ff73590"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a62702e2c479fe20045e603510ff73590">&sect;&nbsp;</a></span>newBuffer()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void zeus::WebServer::newBuffer </td>
+          <td>(</td>
+          <td class="paramtype"><a class="elRef" doxygen="/home/heero/dev/perso/out/doc/release/ememory.tag:http://atria-soft.github.io/ememory/" href="http://atria-soft.github.io/ememory/classememory_1_1_shared_ptr.html">ememory::SharedPtr</a>&lt; <a class="el" href="classzeus_1_1_buffer.html">zeus::Buffer</a> &gt;&#160;</td>
+          <td class="paramname"><em>_buffer</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname"></td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="ae0ce360374948c1c98a8931d56e58b07"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae0ce360374948c1c98a8931d56e58b07">&sect;&nbsp;</a></span>onReceiveData()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void zeus::WebServer::onReceiveData </td>
+          <td>(</td>
+          <td class="paramtype">std::vector&lt; uint8_t &gt; &amp;&#160;</td>
+          <td class="paramname"><em>_frame</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>_isBinary</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname"></td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="afc0b0796c99bc506a1415be6b60d2206"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#afc0b0796c99bc506a1415be6b60d2206">&sect;&nbsp;</a></span>onReceiveUri()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool zeus::WebServer::onReceiveUri </td>
+          <td>(</td>
+          <td class="paramtype">const std::string &amp;&#160;</td>
+          <td class="paramname"><em>_uri</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::vector&lt; std::string &gt; &amp;&#160;</td>
+          <td class="paramname"><em>_protocols</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname"></td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="a5e627ed1640d7551a3e8c62ed42516eb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5e627ed1640d7551a3e8c62ed42516eb">&sect;&nbsp;</a></span>ping()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void zeus::WebServer::ping </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname"></td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="a0adfa64c2ac946c202c2a4dc905361e4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0adfa64c2ac946c202c2a4dc905361e4">&sect;&nbsp;</a></span>setInterface()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void zeus::WebServer::setInterface </td>
+          <td>(</td>
+          <td class="paramtype"><a class="elRef" doxygen="/home/heero/dev/perso/out/doc/release/enet.tag:http://atria-soft.github.io/enet/" href="http://atria-soft.github.io/enet/classenet_1_1_tcp.html">enet::Tcp</a>&#160;</td>
+          <td class="paramname"><em>_connection</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>_isServer</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname"></td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="a5fe5e9b7229372970b349403291e4061"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5fe5e9b7229372970b349403291e4061">&sect;&nbsp;</a></span>setInterfaceName()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void zeus::WebServer::setInterfaceName </td>
+          <td>(</td>
+          <td class="paramtype">const std::string &amp;&#160;</td>
+          <td class="paramname"><em>_name</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname"></td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="ad3908a55e8388fd243de6746004de264"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad3908a55e8388fd243de6746004de264">&sect;&nbsp;</a></span>writeBinary()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int32_t zeus::WebServer::writeBinary </td>
+          <td>(</td>
+          <td class="paramtype"><a class="elRef" doxygen="/home/heero/dev/perso/out/doc/release/ememory.tag:http://atria-soft.github.io/ememory/" href="http://atria-soft.github.io/ememory/classememory_1_1_shared_ptr.html">ememory::SharedPtr</a>&lt; <a class="el" href="classzeus_1_1_buffer.html">zeus::Buffer</a> &gt;&#160;</td>
+          <td class="paramname"><em>_data</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname"></td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<hr/>The documentation for this class was generated from the following file:<ul>
+<li>framework/atria-soft/zeus/zeus/<a class="el" href="_web_server_8hpp_source.html">WebServer.hpp</a></li>
+</ul>
+</div><!-- contents -->
+<!-- HTML footer for doxygen 1.8.8-->
+<!-- start footer part -->
+</div>
+</div>
+</div>
+</div>
+</div>
+<hr class="footer"/><address class="footer"><small>
+Generated on Mon Oct 24 2016 14:06:05 for zeus: Zeus ewol micro-service interface by &#160;<a href="http://www.doxygen.org/index.html">
+<img class="footer" src="doxygen.png" alt="doxygen"/>
+</a> 1.8.12
+</small></address>
+</body>
+</html>

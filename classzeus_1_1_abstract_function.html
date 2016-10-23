@@ -1,0 +1,841 @@
+<!-- HTML header for doxygen 1.8.8-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <!-- For Mobile Devices -->
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+        <meta name="generator" content="Doxygen 1.8.12"/>
+        <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+        <title>zeus: Zeus ewol micro-service interface: zeus::AbstractFunction Class Reference</title>
+        <!--<link href="tabs.css" rel="stylesheet" type="text/css"/>-->
+        <script type="text/javascript" src="dynsections.js"></script>
+        <link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+        <link href="doxygen.css" rel="stylesheet" type="text/css" />
+        <link href="customdoxygen.css" rel="stylesheet" type="text/css"/>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
+        <script type="text/javascript" src="doxy-boot.js"></script>
+    </head>
+    <body>
+        <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+            <div class="container">
+                <div class="navbar-header">
+                    <a class="navbar-brand">zeus: Zeus ewol micro-service interface 0.4.0</a>
+                </div>
+                <div id="navbar" class="navbar-collapse collapse">
+                    <ul class="nav navbar-nav">
+                        <li><a href="index.html">Main&nbsp;Page</a></li>
+                        <li><a href="pages.html">Related&nbsp;Pages</a></li>
+                        <li><a href="namespaces.html">Namespaces</a></li>
+                        <li><a href="annotated.html">Classes</a></li>
+                        <li><a href="files.html">Files</a></li>
+                    </ul>
+                    <ul class="nav navbar-nav navbar-right">
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                                Link-libs<span class="caret"></span>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a href="http://HeeroYui.github.io/lutin">lutin</a></li>
+                                <li><a href="http://atria-soft.github.io/ewol">ewol</a></li>
+                                <li><a href="http://atria-soft.github.io/etk">etk</a></li>
+                                <li><a href="http://atria-soft.github.io/ejson">ejson</a></li>
+                                <li><a href="http://atria-soft.github.io/exml">exml</a></li>
+                                <li><a href="http://atria-soft.github.io/esvg">esvg</a></li>
+                                <li><a href="http://atria-soft.github.io/egami">egami</a></li>
+                                <li><a href="http://atria-soft.github.io/gale">gale</a></li>
+                                <li><a href="http://atria-soft.github.io/ege">ege</a></li>
+                                <li><a href="http://atria-soft.github.io/elog">elog</a></li>
+                                <li><a href="http://atria-soft.github.io/ememory">ememory</a></li>
+                                <li><a href="http://atria-soft.github.io/enet">enet</a></li>
+                                <li><a href="http://atria-soft.github.io/eproperty">eproperty</a></li>
+                                <li><a href="http://atria-soft.github.io/esignal">esignal</a></li>
+                                <li><a href="http://atria-soft.github.io/zeus">zeus</a></li>
+                                <li><a href="http://atria-soft.github.io/audio-ess">audio-ess</a></li>
+                                <li><a href="http://musicdsp.github.io/audio">audio</a></li>
+                                <li><a href="http://musicdsp.github.io/audio-drain">audio-drain</a></li>
+                                <li><a href="http://musicdsp.github.io/audio-orchestra">audio-orchestra</a></li>
+                                <li><a href="http://musicdsp.github.io/audio-river">audio-river</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                    <div id="search-box" class="input-group">
+                        <div class="input-group-btn">
+                            <button aria-expanded="false" type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                                <span class="glyphicon glyphicon-search"></span>
+                                <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><a href="#">All</a></li>
+                                <li><a href="#">Classes</a></li>
+                                <li><a href="#">Namespaces</a></li>
+                                <li><a href="#">Files</a></li>
+                                <li><a href="#">Functions</a></li>
+                                <li><a href="#">Variables</a></li>
+                                <li><a href="#">Typedefs</a></li>
+                                <li><a href="#">Enumerations</a></li>
+                                <li><a href="#">Enumerator</a></li>
+                                <li><a href="#">Friends</a></li>
+                                <li><a href="#">Macros</a></li>
+                                <li><a href="#">Pages</a></li>
+                            </ul>
+                        </div>
+                        <button id="search-close" type="button" class="close" aria-label="Close">
+                            <span aria-hidden="true"></span>
+                        </button>
+                        <input id="search-field" class="form-control" accesskey="S" onkeydown="searchBox.OnSearchFieldChange(event);" placeholder="Search ..." type="text">
+                    </div>
+                </div><!--/.nav-collapse -->
+            </div>
+        </nav>
+        <div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+            <div class="content" id="content">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-sm-12 panel panel-default" style="padding-bottom: 15px;">
+                            <div style="margin-bottom: 15px;">
+<!-- end header part -->
+<!-- Generated by Doxygen 1.8.12 -->
+<script type="text/javascript">
+var searchBox = new SearchBox("searchBox", "search",false,'Search');
+</script>
+<script type="text/javascript" src="menudata.js"></script>
+<script type="text/javascript" src="menu.js"></script>
+<script type="text/javascript">
+$(function() {
+  initMenu('',true,false,'search.php','Search');
+  $(document).ready(function() { init_search(); });
+});
+</script>
+<div id="main-nav"></div>
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<iframe src="javascript:void(0)" frameborder="0" 
+        name="MSearchResults" id="MSearchResults">
+</iframe>
+</div>
+
+<div id="nav-path" class="navpath">
+  <ul>
+<li class="navelem"><a class="el" href="namespacezeus.html">zeus</a></li><li class="navelem"><a class="el" href="classzeus_1_1_abstract_function.html">AbstractFunction</a></li>  </ul>
+</div>
+</div><!-- top -->
+<div class="header">
+  <div class="summary">
+<a href="#pub-types">Public Types</a> &#124;
+<a href="#pub-methods">Public Member Functions</a> &#124;
+<a href="#pro-methods">Protected Member Functions</a> &#124;
+<a href="#pro-attribs">Protected Attributes</a> &#124;
+<a href="classzeus_1_1_abstract_function-members.html">List of all members</a>  </div>
+  <div class="headertitle">
+<div class="title">zeus::AbstractFunction Class Reference<span class="mlabels"><span class="mlabel">abstract</span></span></div>  </div>
+</div><!--header-->
+<div class="contents">
+
+<p><code>#include &lt;<a class="el" href="_abstract_function_8hpp_source.html">AbstractFunction.hpp</a>&gt;</code></p>
+<div class="dynheader">
+Inheritance diagram for zeus::AbstractFunction:</div>
+<div class="dyncontent">
+ <div class="center">
+  <img src="classzeus_1_1_abstract_function.png" usemap="#zeus::AbstractFunction_map" alt=""/>
+  <map id="zeus::AbstractFunction_map" name="zeus::AbstractFunction_map">
+<area href="classzeus_1_1_abstract_function_type_class.html" title="Chass that permit to declare a function that call intanced element or a class element. " alt="zeus::AbstractFunctionTypeClass&lt; ZEUS_RETURN, ZEUS_CLASS_TYPE, ZEUS_TYPES &gt;" shape="rect" coords="0,56,529,80"/>
+<area href="classzeus_1_1_abstract_function_type_direct.html" title="Chass that permit to declare a function that call global function. " alt="zeus::AbstractFunctionTypeDirect&lt; ZEUS_RETURN, ZEUS_TYPES &gt;" shape="rect" coords="539,56,1068,80"/>
+</map>
+ </div></div>
+<table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-types"></a>
+Public Types</h2></td></tr>
+<tr class="memitem:a92971542cd402eed6be8f1c20e2ac6e7"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzeus_1_1_abstract_function.html#a92971542cd402eed6be8f1c20e2ac6e7">type</a> { <br />
+&#160;&#160;<a class="el" href="classzeus_1_1_abstract_function.html#a92971542cd402eed6be8f1c20e2ac6e7a5c940de9c166a32dc1f63d9dafc6822f">type::unknow</a>, 
+<a class="el" href="classzeus_1_1_abstract_function.html#a92971542cd402eed6be8f1c20e2ac6e7a9c70933aff6b2a6d08c687a6cbb6b765">type::global</a>, 
+<a class="el" href="classzeus_1_1_abstract_function.html#a92971542cd402eed6be8f1c20e2ac6e7af5ddaf0ca7929578b408c909429f68f2">type::local</a>, 
+<a class="el" href="classzeus_1_1_abstract_function.html#a92971542cd402eed6be8f1c20e2ac6e7aaaabf0d39951f3e6c3e8a7911df524c2">type::service</a>, 
+<br />
+&#160;&#160;<a class="el" href="classzeus_1_1_abstract_function.html#a92971542cd402eed6be8f1c20e2ac6e7aa8cfde6331bd59eb2ac96f8911c4b666">type::object</a>
+<br />
+ }</td></tr>
+<tr class="separator:a92971542cd402eed6be8f1c20e2ac6e7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
+Public Member Functions</h2></td></tr>
+<tr class="memitem:a356a114e19e9c398153f66e49a8d3b4b"><td class="memItemLeft" align="right" valign="top">virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzeus_1_1_abstract_function.html#a356a114e19e9c398153f66e49a8d3b4b">~AbstractFunction</a> ()=default</td></tr>
+<tr class="separator:a356a114e19e9c398153f66e49a8d3b4b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a005de2efdd0b6a512806aeb01c8335f3"><td class="memItemLeft" align="right" valign="top">enum <a class="el" href="classzeus_1_1_abstract_function.html#a92971542cd402eed6be8f1c20e2ac6e7">type</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzeus_1_1_abstract_function.html#a005de2efdd0b6a512806aeb01c8335f3">getType</a> () const</td></tr>
+<tr class="separator:a005de2efdd0b6a512806aeb01c8335f3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aec2aae9ebbf1203ec3ded6caf8e061b9"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzeus_1_1_abstract_function.html#aec2aae9ebbf1203ec3ded6caf8e061b9">setType</a> (enum <a class="el" href="classzeus_1_1_abstract_function.html#a92971542cd402eed6be8f1c20e2ac6e7">type</a> _type)</td></tr>
+<tr class="separator:aec2aae9ebbf1203ec3ded6caf8e061b9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af714da6a34db67ff90d0d7e2134c537e"><td class="memItemLeft" align="right" valign="top">const std::string &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzeus_1_1_abstract_function.html#af714da6a34db67ff90d0d7e2134c537e">getName</a> () const</td></tr>
+<tr class="separator:af714da6a34db67ff90d0d7e2134c537e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a93bb803ddba0b8e2346ce7f505972a19"><td class="memItemLeft" align="right" valign="top">const std::string &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzeus_1_1_abstract_function.html#a93bb803ddba0b8e2346ce7f505972a19">getDescription</a> () const</td></tr>
+<tr class="separator:a93bb803ddba0b8e2346ce7f505972a19"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3ea82864cd57ebb5b4f349fb8e28bbc6"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzeus_1_1_abstract_function.html#a3ea82864cd57ebb5b4f349fb8e28bbc6">setDescription</a> (const std::string &amp;_desc)</td></tr>
+<tr class="separator:a3ea82864cd57ebb5b4f349fb8e28bbc6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aad01df6028577b64ee2289c48f1087d5"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzeus_1_1_abstract_function.html#aad01df6028577b64ee2289c48f1087d5">setParam</a> (int32_t _idParam, const std::string &amp;_name, const std::string &amp;_desc)</td></tr>
+<tr class="separator:aad01df6028577b64ee2289c48f1087d5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a82ffc80b0ba508933edbdb34fbfd607d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzeus_1_1_abstract_function.html#a82ffc80b0ba508933edbdb34fbfd607d">addParam</a> (const std::string &amp;_name, const std::string &amp;_desc)</td></tr>
+<tr class="separator:a82ffc80b0ba508933edbdb34fbfd607d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7e6d71f6f6dce5624531986dc02d69bb"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzeus_1_1_abstract_function.html#a7e6d71f6f6dce5624531986dc02d69bb">setReturn</a> (const std::string &amp;_desc)</td></tr>
+<tr class="separator:a7e6d71f6f6dce5624531986dc02d69bb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0d1a6a22b58dd4a4a33df95cf430d790"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzeus_1_1_abstract_function.html#a0d1a6a22b58dd4a4a33df95cf430d790">getPrototype</a> () const</td></tr>
+<tr class="separator:a0d1a6a22b58dd4a4a33df95cf430d790"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2ffe971db7283008e7d019079bdc4404"><td class="memItemLeft" align="right" valign="top">virtual std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzeus_1_1_abstract_function.html#a2ffe971db7283008e7d019079bdc4404">getSignature</a> () const</td></tr>
+<tr class="separator:a2ffe971db7283008e7d019079bdc4404"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a74686a5493a0bba570934def16ca5ee2"><td class="memItemLeft" align="right" valign="top">virtual std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzeus_1_1_abstract_function.html#a74686a5493a0bba570934def16ca5ee2">getPrototypeReturn</a> () const =0</td></tr>
+<tr class="separator:a74686a5493a0bba570934def16ca5ee2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a97d6fbd3a3e7ee222853833d44645e45"><td class="memItemLeft" align="right" valign="top">virtual std::vector&lt; std::string &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzeus_1_1_abstract_function.html#a97d6fbd3a3e7ee222853833d44645e45">getPrototypeParam</a> () const =0</td></tr>
+<tr class="separator:a97d6fbd3a3e7ee222853833d44645e45"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac51676c8afc14adeec8e201dbc149f66"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzeus_1_1_abstract_function.html#ac51676c8afc14adeec8e201dbc149f66">execute</a> (<a class="elRef" doxygen="/home/heero/dev/perso/out/doc/release/ememory.tag:http://atria-soft.github.io/ememory/" href="http://atria-soft.github.io/ememory/classememory_1_1_shared_ptr.html">ememory::SharedPtr</a>&lt; <a class="el" href="classzeus_1_1_web_server.html">zeus::WebServer</a> &gt; _interfaceClient, <a class="elRef" doxygen="/home/heero/dev/perso/out/doc/release/ememory.tag:http://atria-soft.github.io/ememory/" href="http://atria-soft.github.io/ememory/classememory_1_1_shared_ptr.html">ememory::SharedPtr</a>&lt; <a class="el" href="classzeus_1_1_buffer_call.html">zeus::BufferCall</a> &gt; _obj, void *_class=nullptr)=0</td></tr>
+<tr class="separator:ac51676c8afc14adeec8e201dbc149f66"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pro-methods"></a>
+Protected Member Functions</h2></td></tr>
+<tr class="memitem:a67f6cabe1dc5fca02b7cb5396f958a5c"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzeus_1_1_abstract_function.html#a67f6cabe1dc5fca02b7cb5396f958a5c">AbstractFunction</a> (const std::string &amp;_name)</td></tr>
+<tr class="separator:a67f6cabe1dc5fca02b7cb5396f958a5c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pro-attribs"></a>
+Protected Attributes</h2></td></tr>
+<tr class="memitem:abef361d1a08a668fd451df79fa18952d"><td class="memItemLeft" align="right" valign="top">enum <a class="el" href="classzeus_1_1_abstract_function.html#a92971542cd402eed6be8f1c20e2ac6e7">type</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzeus_1_1_abstract_function.html#abef361d1a08a668fd451df79fa18952d">m_type</a></td></tr>
+<tr class="separator:abef361d1a08a668fd451df79fa18952d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a07b2b2c5e292b134ed94cba2c77a0fad"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzeus_1_1_abstract_function.html#a07b2b2c5e292b134ed94cba2c77a0fad">m_name</a></td></tr>
+<tr class="separator:a07b2b2c5e292b134ed94cba2c77a0fad"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adf677a4cd2e1ebb2afd618edccaf8919"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzeus_1_1_abstract_function.html#adf677a4cd2e1ebb2afd618edccaf8919">m_description</a></td></tr>
+<tr class="separator:adf677a4cd2e1ebb2afd618edccaf8919"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac45d8ec5373d9d4a3c3aa20ec58ea194"><td class="memItemLeft" align="right" valign="top">std::vector&lt; std::pair&lt; std::string, std::string &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzeus_1_1_abstract_function.html#ac45d8ec5373d9d4a3c3aa20ec58ea194">m_paramsDescription</a></td></tr>
+<tr class="separator:ac45d8ec5373d9d4a3c3aa20ec58ea194"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9c11f20b5f3067ba6d82fbb4fdfd88e7"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classzeus_1_1_abstract_function.html#a9c11f20b5f3067ba6d82fbb4fdfd88e7">m_returnDescription</a></td></tr>
+<tr class="separator:a9c11f20b5f3067ba6d82fbb4fdfd88e7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>Interface to store a function and call it after with a <a class="el" href="classzeus_1_1_buffer.html">zeus::Buffer</a>. </p>
+</div><h2 class="groupheader">Member Enumeration Documentation</h2>
+<a id="a92971542cd402eed6be8f1c20e2ac6e7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a92971542cd402eed6be8f1c20e2ac6e7">&sect;&nbsp;</a></span>type</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum <a class="el" href="classzeus_1_1_abstract_function.html#a92971542cd402eed6be8f1c20e2ac6e7">zeus::AbstractFunction::type</a></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">strong</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Under type of the call methode. </p>
+<table class="fieldtable">
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="a92971542cd402eed6be8f1c20e2ac6e7a5c940de9c166a32dc1f63d9dafc6822f"></a>unknow&#160;</td><td class="fielddoc"><p>Does not know the type of the call. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a92971542cd402eed6be8f1c20e2ac6e7a9c70933aff6b2a6d08c687a6cbb6b765"></a>global&#160;</td><td class="fielddoc"><p>This is a global function. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a92971542cd402eed6be8f1c20e2ac6e7af5ddaf0ca7929578b408c909429f68f2"></a>local&#160;</td><td class="fielddoc"><p>This is a local fucntion. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a92971542cd402eed6be8f1c20e2ac6e7aaaabf0d39951f3e6c3e8a7911df524c2"></a>service&#160;</td><td class="fielddoc"><p>This call a service function (global function like "srv.xxx") </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a92971542cd402eed6be8f1c20e2ac6e7aa8cfde6331bd59eb2ac96f8911c4b666"></a>object&#160;</td><td class="fielddoc"><p>this is for service instance call </p>
+</td></tr>
+</table>
+
+</div>
+</div>
+<h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
+<a id="a67f6cabe1dc5fca02b7cb5396f958a5c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a67f6cabe1dc5fca02b7cb5396f958a5c">&sect;&nbsp;</a></span>AbstractFunction()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">zeus::AbstractFunction::AbstractFunction </td>
+          <td>(</td>
+          <td class="paramtype">const std::string &amp;&#160;</td>
+          <td class="paramname"><em>_name</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">protected</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Constructor. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">_name</td><td>Nmae of the function </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="a356a114e19e9c398153f66e49a8d3b4b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a356a114e19e9c398153f66e49a8d3b4b">&sect;&nbsp;</a></span>~AbstractFunction()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual zeus::AbstractFunction::~AbstractFunction </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">virtual</span><span class="mlabel">default</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>generic virtual destructor </p>
+
+</div>
+</div>
+<h2 class="groupheader">Member Function Documentation</h2>
+<a id="a82ffc80b0ba508933edbdb34fbfd607d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a82ffc80b0ba508933edbdb34fbfd607d">&sect;&nbsp;</a></span>addParam()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void zeus::AbstractFunction::addParam </td>
+          <td>(</td>
+          <td class="paramtype">const std::string &amp;&#160;</td>
+          <td class="paramname"><em>_name</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::string &amp;&#160;</td>
+          <td class="paramname"><em>_desc</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Set the parameter name and description of the last parameter not set (increment id every element) </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">_name</td><td>Name of the parameter </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">_desc</td><td>Description of the parameter </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="ac51676c8afc14adeec8e201dbc149f66"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac51676c8afc14adeec8e201dbc149f66">&sect;&nbsp;</a></span>execute()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual void zeus::AbstractFunction::execute </td>
+          <td>(</td>
+          <td class="paramtype"><a class="elRef" doxygen="/home/heero/dev/perso/out/doc/release/ememory.tag:http://atria-soft.github.io/ememory/" href="http://atria-soft.github.io/ememory/classememory_1_1_shared_ptr.html">ememory::SharedPtr</a>&lt; <a class="el" href="classzeus_1_1_web_server.html">zeus::WebServer</a> &gt;&#160;</td>
+          <td class="paramname"><em>_interfaceClient</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="elRef" doxygen="/home/heero/dev/perso/out/doc/release/ememory.tag:http://atria-soft.github.io/ememory/" href="http://atria-soft.github.io/ememory/classememory_1_1_shared_ptr.html">ememory::SharedPtr</a>&lt; <a class="el" href="classzeus_1_1_buffer_call.html">zeus::BufferCall</a> &gt;&#160;</td>
+          <td class="paramname"><em>_obj</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">void *&#160;</td>
+          <td class="paramname"><em>_class</em> = <code>nullptr</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">pure virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Execute the function with all parameter properties. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">_interfaceClient</td><td>Web interface to anser values </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">_obj</td><td>Call object </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">_class</td><td>Pointer on the object that might be call (note: brut cast) </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p>Implemented in <a class="el" href="classzeus_1_1_abstract_function_type_class.html#aac3650ce55acd310b33e03990051759b">zeus::AbstractFunctionTypeClass&lt; ZEUS_RETURN, ZEUS_CLASS_TYPE, ZEUS_TYPES &gt;</a>, and <a class="el" href="classzeus_1_1_abstract_function_type_direct.html#ae84681d3fece2079c60f0f9ea6b3a45e">zeus::AbstractFunctionTypeDirect&lt; ZEUS_RETURN, ZEUS_TYPES &gt;</a>.</p>
+
+</div>
+</div>
+<a id="a93bb803ddba0b8e2346ce7f505972a19"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a93bb803ddba0b8e2346ce7f505972a19">&sect;&nbsp;</a></span>getDescription()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const std::string&amp; zeus::AbstractFunction::getDescription </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Get the description of the function. </p>
+<dl class="section return"><dt>Returns</dt><dd>The description string of the function (same as doxygen 'brief') </dd></dl>
+
+</div>
+</div>
+<a id="af714da6a34db67ff90d0d7e2134c537e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af714da6a34db67ff90d0d7e2134c537e">&sect;&nbsp;</a></span>getName()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const std::string&amp; zeus::AbstractFunction::getName </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Get the name of the function. </p>
+<dl class="section return"><dt>Returns</dt><dd>Function name </dd></dl>
+
+</div>
+</div>
+<a id="a0d1a6a22b58dd4a4a33df95cf430d790"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0d1a6a22b58dd4a4a33df95cf430d790">&sect;&nbsp;</a></span>getPrototype()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::string zeus::AbstractFunction::getPrototype </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Get the prototype of the function with the parameter name and type. </p>
+<dl class="section return"><dt>Returns</dt><dd>The fucntion like "void maFonction(int32 parameter_1, vector:string parameter_2);" </dd></dl>
+
+</div>
+</div>
+<a id="a97d6fbd3a3e7ee222853833d44645e45"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a97d6fbd3a3e7ee222853833d44645e45">&sect;&nbsp;</a></span>getPrototypeParam()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual std::vector&lt;std::string&gt; zeus::AbstractFunction::getPrototypeParam </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">pure virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Get the list of type of the parameter. </p>
+<dl class="section return"><dt>Returns</dt><dd>List of types (zeus singature mode) </dd></dl>
+
+<p>Implemented in <a class="el" href="classzeus_1_1_abstract_function_type_class.html#a10ef08a9533e15782a10009a805ad0b6">zeus::AbstractFunctionTypeClass&lt; ZEUS_RETURN, ZEUS_CLASS_TYPE, ZEUS_TYPES &gt;</a>, and <a class="el" href="classzeus_1_1_abstract_function_type_direct.html#a9e012a17f4b5dddf603f6905b92235da">zeus::AbstractFunctionTypeDirect&lt; ZEUS_RETURN, ZEUS_TYPES &gt;</a>.</p>
+
+</div>
+</div>
+<a id="a74686a5493a0bba570934def16ca5ee2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a74686a5493a0bba570934def16ca5ee2">&sect;&nbsp;</a></span>getPrototypeReturn()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual std::string zeus::AbstractFunction::getPrototypeReturn </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">pure virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Get the string of the type of the return value. </p>
+<dl class="section return"><dt>Returns</dt><dd>type string of the return value </dd></dl>
+
+<p>Implemented in <a class="el" href="classzeus_1_1_abstract_function_type_class.html#a8b74b51cfb1938ec4c7104e86e135b16">zeus::AbstractFunctionTypeClass&lt; ZEUS_RETURN, ZEUS_CLASS_TYPE, ZEUS_TYPES &gt;</a>, and <a class="el" href="classzeus_1_1_abstract_function_type_direct.html#ab5d1aa6bb0b1d96d39fa0eb27e3074bd">zeus::AbstractFunctionTypeDirect&lt; ZEUS_RETURN, ZEUS_TYPES &gt;</a>.</p>
+
+</div>
+</div>
+<a id="a2ffe971db7283008e7d019079bdc4404"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2ffe971db7283008e7d019079bdc4404">&sect;&nbsp;</a></span>getSignature()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual std::string zeus::AbstractFunction::getSignature </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Get the signature of the function. </p>
+<dl class="section return"><dt>Returns</dt><dd>The signature of the function: "void(int32,vector:string);" </dd></dl>
+
+</div>
+</div>
+<a id="a005de2efdd0b6a512806aeb01c8335f3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a005de2efdd0b6a512806aeb01c8335f3">&sect;&nbsp;</a></span>getType()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum <a class="el" href="classzeus_1_1_abstract_function.html#a92971542cd402eed6be8f1c20e2ac6e7">type</a> zeus::AbstractFunction::getType </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Get the tyope of the call that is needed to do. </p>
+<dl class="section return"><dt>Returns</dt><dd>Type of the call. </dd></dl>
+
+</div>
+</div>
+<a id="a3ea82864cd57ebb5b4f349fb8e28bbc6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3ea82864cd57ebb5b4f349fb8e28bbc6">&sect;&nbsp;</a></span>setDescription()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void zeus::AbstractFunction::setDescription </td>
+          <td>(</td>
+          <td class="paramtype">const std::string &amp;&#160;</td>
+          <td class="paramname"><em>_desc</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Set a new description of the function. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">_desc</td><td>Descriptive string </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="aad01df6028577b64ee2289c48f1087d5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aad01df6028577b64ee2289c48f1087d5">&sect;&nbsp;</a></span>setParam()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void zeus::AbstractFunction::setParam </td>
+          <td>(</td>
+          <td class="paramtype">int32_t&#160;</td>
+          <td class="paramname"><em>_idParam</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::string &amp;&#160;</td>
+          <td class="paramname"><em>_name</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::string &amp;&#160;</td>
+          <td class="paramname"><em>_desc</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Set the parameter name and description. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">_idParam</td><td>Number of the parameter </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">_name</td><td>Name of the parameter </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">_desc</td><td>Description of the parameter </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="a7e6d71f6f6dce5624531986dc02d69bb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7e6d71f6f6dce5624531986dc02d69bb">&sect;&nbsp;</a></span>setReturn()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void zeus::AbstractFunction::setReturn </td>
+          <td>(</td>
+          <td class="paramtype">const std::string &amp;&#160;</td>
+          <td class="paramname"><em>_desc</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Set the return description of the Function. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">_desc</td><td>Description of the return parameter </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="aec2aae9ebbf1203ec3ded6caf8e061b9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aec2aae9ebbf1203ec3ded6caf8e061b9">&sect;&nbsp;</a></span>setType()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void zeus::AbstractFunction::setType </td>
+          <td>(</td>
+          <td class="paramtype">enum <a class="el" href="classzeus_1_1_abstract_function.html#a92971542cd402eed6be8f1c20e2ac6e7">type</a>&#160;</td>
+          <td class="paramname"><em>_type</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Set the type of the call that must be done for this function. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">_type</td><td>New type of the call. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<h2 class="groupheader">Member Data Documentation</h2>
+<a id="adf677a4cd2e1ebb2afd618edccaf8919"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#adf677a4cd2e1ebb2afd618edccaf8919">&sect;&nbsp;</a></span>m_description</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::string zeus::AbstractFunction::m_description</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">protected</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>description of the function </p>
+
+</div>
+</div>
+<a id="a07b2b2c5e292b134ed94cba2c77a0fad"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a07b2b2c5e292b134ed94cba2c77a0fad">&sect;&nbsp;</a></span>m_name</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::string zeus::AbstractFunction::m_name</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">protected</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>name of the function </p>
+
+</div>
+</div>
+<a id="ac45d8ec5373d9d4a3c3aa20ec58ea194"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac45d8ec5373d9d4a3c3aa20ec58ea194">&sect;&nbsp;</a></span>m_paramsDescription</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::vector&lt;std::pair&lt;std::string, std::string&gt; &gt; zeus::AbstractFunction::m_paramsDescription</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">protected</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>List of the parameter descriptions. </p>
+
+</div>
+</div>
+<a id="a9c11f20b5f3067ba6d82fbb4fdfd88e7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9c11f20b5f3067ba6d82fbb4fdfd88e7">&sect;&nbsp;</a></span>m_returnDescription</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::string zeus::AbstractFunction::m_returnDescription</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">protected</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Return description of the Function. </p>
+
+</div>
+</div>
+<a id="abef361d1a08a668fd451df79fa18952d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abef361d1a08a668fd451df79fa18952d">&sect;&nbsp;</a></span>m_type</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum <a class="el" href="classzeus_1_1_abstract_function.html#a92971542cd402eed6be8f1c20e2ac6e7">type</a> zeus::AbstractFunction::m_type</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">protected</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Type of the subCall (to permit to call many type of call) </p>
+
+</div>
+</div>
+<hr/>The documentation for this class was generated from the following file:<ul>
+<li>framework/atria-soft/zeus/zeus/<a class="el" href="_abstract_function_8hpp_source.html">AbstractFunction.hpp</a></li>
+</ul>
+</div><!-- contents -->
+<!-- HTML footer for doxygen 1.8.8-->
+<!-- start footer part -->
+</div>
+</div>
+</div>
+</div>
+</div>
+<hr class="footer"/><address class="footer"><small>
+Generated on Mon Oct 24 2016 14:06:05 for zeus: Zeus ewol micro-service interface by &#160;<a href="http://www.doxygen.org/index.html">
+<img class="footer" src="doxygen.png" alt="doxygen"/>
+</a> 1.8.12
+</small></address>
+</body>
+</html>
