@@ -203,6 +203,13 @@ namespace zeus {
 		return 0;
 	}
 	
+	#if    defined(__TARGET_OS__MacOs) \
+	    || defined(__TARGET_OS__IOs)
+	template<>
+	size_t BufferParameter::getParameter<size_t>(int32_t _id) const {
+		return getParameter<uint64_t>(_id);
+	}
+	#endif
 	template<>
 	int8_t BufferParameter::getParameter<int8_t>(int32_t _id) const {
 		zeus::ParamType type = getParameterType(_id);

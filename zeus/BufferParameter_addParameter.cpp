@@ -270,6 +270,13 @@ namespace zeus {
 		memcpy(&data[currentOffset], &_value, 8);
 		m_parameter.push_back(std::make_pair(2,data));
 	}
+	#if    defined(__TARGET_OS__MacOs) \
+	    || defined(__TARGET_OS__IOs)
+	template<>
+	void BufferParameter::addParameter<size_t>(uint16_t _paramId, const size_t& _value) {
+		addParameter(_paramId, uint64_t(_value));
+	}
+	#endif
 	template<>
 	void BufferParameter::addParameter<float>(uint16_t _paramId, const float& _value) {
 		std::vector<uint8_t> data;
