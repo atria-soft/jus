@@ -17,6 +17,8 @@ namespace appl {
 			Windows();
 			void init();
 			ewol::widget::ComposerShared m_composer;
+			std::vector<std::string> m_list;
+			int32_t m_id;
 		public:
 			DECLARE_FACTORY(Windows);
 		public: // callback functions
@@ -24,6 +26,7 @@ namespace appl {
 			void onCallbackPlay();
 			void onCallbackNext();
 			void onCallbackFPS(const int32_t& _fps);
+			void addFile(const std::string& _file);
 	};
 }
 

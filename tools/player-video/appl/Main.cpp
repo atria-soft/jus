@@ -68,9 +68,16 @@ namespace appl {
 				// set application widget:
 				appl::widget::VideoDisplay::createManagerWidget(_context.getWidgetManager());
 				// Create the windows
-				ewol::widget::WindowsShared basicWindows = appl::Windows::create();
+				ememory::SharedPtr<appl::Windows> basicWindows = appl::Windows::create();
 				// configure the ewol context to use the new windows
 				_context.setWindows(basicWindows);
+				for (int32_t iii=0 ; iii<_context.getCmd().size(); iii++) {
+					std::string tmpppp = _context.getCmd().get(iii);
+					if (etk::start_with(tmpppp, "-") == true) {
+						continue;
+					}
+					basicWindows->addFile(tmpppp);
+				}
 			}
 	};
 }

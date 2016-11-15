@@ -11,7 +11,8 @@
 #include <ewol/widget/Button.hpp>
 #include <appl/widget/VideoPlayer.hpp>
 
-appl::Windows::Windows() {
+appl::Windows::Windows():
+  m_id(0) {
 	addObjectType("appl::Windows");
 	propertyTitle.setDirectCheck(std::string("sample ") + PROJECT_NAME);
 }
@@ -57,27 +58,35 @@ void appl::Windows::init() {
 
 
 void appl::Windows::onCallbackPrevious() {
-	ememory::SharedPtr<appl::widget::VideoDisplay> tmpDisp = ememory::dynamicPointerCast<appl::widget::VideoDisplay>(getSubObjectNamed("displayer"));
-	if (tmpDisp != nullptr) {
-		// TODO : tmpDisp->...
+	m_id--;
+	if (m_id < 0) {
+		m_id = m_list.size()-1;
 	}
+	onCallbackPlay();
 }
 
 void appl::Windows::onCallbackPlay() {
 	ememory::SharedPtr<appl::widget::VideoDisplay> tmpDisp = ememory::dynamicPointerCast<appl::widget::VideoDisplay>(getSubObjectNamed("displayer"));
 	if (tmpDisp != nullptr) {
-		tmpDisp->setFile("/home/heero/Downloads/Mademoiselle Zazie-e18-Myrtille.mp4");
+		tmpDisp->setFile(m_list[m_id]);
 	}
 }
 
 void appl::Windows::onCallbackNext() {
-	ememory::SharedPtr<appl::widget::VideoDisplay> tmpDisp = ememory::dynamicPointerCast<appl::widget::VideoDisplay>(getSubObjectNamed("displayer"));
-	if (tmpDisp != nullptr) {
-		// TODO : tmpDisp->...
+	m_id++;
+	if (m_id >= m_list.size()) {
+		m_id = 0;
 	}
+	onCallbackPlay();
 }
 
 
 void appl::Windows::onCallbackFPS(const int32_t& _fps) {
 	APPL_PRINT("FPS = " << _fps);
+	propertySetOnWidgetNamed("lb-fps", "value", "FPS=<font color='orangered'>" + etk::to_string(_fps) + "</font>");
+}
+
+void appl::Windows::addFile(const std::string& _file) {
+	APPL_PRINT("Add file : " << _file);
+	m_list.push_back(_file);
 }
