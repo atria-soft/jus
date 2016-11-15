@@ -1,5 +1,6 @@
 tools/system-user
 tools/system-gateway
 tools/picture
+tools/player-video
 test/client
 test/service1
