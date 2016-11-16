@@ -71,6 +71,15 @@ static void unPlanar(void* _buffer, int32_t _len, audio::format _format, int32_t
           out[iii*_nbChannel + jjj] = in[jjj*nbSample+iii];
         }
       }
+      // TODO : This is really bad ...
+      for (int32_t iii=0; iii<nbSample; ++iii) {
+        for (int32_t jjj=0; jjj<_nbChannel; ++jjj) {
+          if (jjj == 0) {
+            continue;
+          }
+          out[iii*_nbChannel + jjj] = out[iii*_nbChannel + 0];
+        }
+      }
       return;
     }
     case audio::format_double:
@@ -263,6 +272,12 @@ int appl::Decoder::decode_packet(int *_gotFrame, int _cached) {
 					}
 					// inject data in the buffer:
 					memcpy(&m_audioPool[slotId].m_buffer[0], m_frame->extended_data[0], m_audioPool[slotId].m_buffer.size());
+					/*
+					size_t unPaddedLineSize = m_frame->nb_samples * av_get_bytes_per_sample((enum AVSampleFormat)m_frame->format);
+					if (unPaddedLineSize != m_audioPool[slotId].m_buffer.size()) {
+						APPL_CRITICAL("Wrong Size ... " << unPaddedLineSize << " " << m_audioPool[slotId].m_buffer.size());
+					}
+					*/
 					m_audioPool[slotId].m_id = m_audioFrameCount;
 					m_audioPool[slotId].m_time = m_currentAudioTime;
 					m_audioPool[slotId].m_duration = echrono::Duration(0,(1000000000.0*m_frame->nb_samples)/float(m_frame->sample_rate));
