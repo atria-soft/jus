@@ -69,6 +69,7 @@ void appl::Windows::onCallbackPlay() {
 	ememory::SharedPtr<appl::widget::VideoDisplay> tmpDisp = ememory::dynamicPointerCast<appl::widget::VideoDisplay>(getSubObjectNamed("displayer"));
 	if (tmpDisp != nullptr) {
 		tmpDisp->setFile(m_list[m_id]);
+		tmpDisp->play();
 	}
 }
 

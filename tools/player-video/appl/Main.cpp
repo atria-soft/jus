@@ -88,7 +88,7 @@ namespace appl {
  * @return std IO
  */
 int main(int _argc, const char *_argv[]) {
-	// second possibility
+	audio::river::init();
 	return ewol::run(new appl::MainApplication(), _argc, _argv);
 }
 

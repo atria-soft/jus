@@ -11,6 +11,11 @@
 #include <ewol/widget/Manager.hpp>
 #include <gale/Thread.hpp>
 #include <esignal/Signal.hpp>
+#include <audio/channel.hpp>
+#include <audio/format.hpp>
+#include <audio/river/river.hpp>
+#include <audio/river/Manager.hpp>
+#include <audio/river/Interface.hpp>
 
 extern "C" {
 	#include <libavutil/imgutils.h>
@@ -21,7 +26,51 @@ extern "C" {
 }
 
 namespace appl {
+	class BufferElement {
+		public:
+			uint64_t m_id; //!< Id of the current image (must be unique)
+			echrono::Duration m_time; //!< Current time of the Buffer Element
+			echrono::Duration m_duration; //!< if the FPS is static ==> the duration can be set otherwise (0)
+			bool m_isUsed; //!< This buffer is used
+			BufferElement():
+			  m_id(0),
+			  m_isUsed(false) {
+				
+			}
+			virtual ~BufferElement() = default;
+	};
+	// class that contain all the element needed for a buffer image transfert:
+	class BufferElementVideo : public appl::BufferElement {
+		public:
+			egami::Image m_image; //!< Image to manage internal data
+			ivec2 m_imagerealSize; //!< Real size of the image, in OpenGL we need power of 2 border size.
+			int32_t m_lineSize; //!< Size of a single line (in byte)
+			void setSize(const ivec2& _newSize);
+			BufferElementVideo():
+			  m_image(ivec2(32,32), egami::colorType::RGB8) {
+				
+			}
+	};
+	class BufferElementAudio : public appl::BufferElement {
+		public:
+			std::vector<uint8_t> m_buffer; //!< raw audio data
+			audio::format m_format; //!< Audio format buffer
+			uint32_t m_sampleRate; //!< sample rate of the buffer
+			std::vector<audio::channel> m_map; //!< Channel map of the buffer
+			void configure(audio::format _format, uint32_t _sampleRate, int32_t _nbChannel, int32_t _nbSample);
+	};
+	
 	class Decoder : public gale::Thread {
+		public:
+			std::vector<BufferElementAudio> m_audioPool;
+			echrono::Duration m_currentAudioTime;
+			std::vector<BufferElementVideo> m_videoPool;
+			echrono::Duration m_currentVideoTime;
+			int32_t audioGetOlderSlot();
+			int32_t videoGetOlderSlot();
+		private:
+			int32_t videoGetEmptySlot();
+			int32_t audioGetEmptySlot();
 		private:
 			AVFormatContext* m_formatContext;
 			AVCodecContext* m_videoDecoderContext;
@@ -32,13 +81,9 @@ namespace appl {
 			AVStream *m_audioStream;
 			std::string m_sourceFilename;
 			
-			uint8_t *m_videoDestinationData[4];
-			int32_t m_videoDestinationLineSize[4];
-			int32_t m_videoDestinationBufferSize;
-			
-			uint8_t *m_videoDestinationRGBData[4];
-			int32_t m_videoDestinationRGBLineSize[4];
-			int32_t m_videoDestinationRGBBufferSize;
+			uint8_t* m_videoDestinationRGBData[4];
+			int32_t  m_videoDestinationRGBLineSize[4];
+			int32_t  m_videoDestinationRGBBufferSize;
 			
 			int32_t m_videoStream_idx;
 			int32_t m_audioStream_idx;
@@ -63,6 +108,23 @@ namespace appl {
 			void init(const std::string& _filename);
 			bool onThreadCall() override;
 			void uninit();
+			
+			bool m_audioPresent;
+			audio::format m_audioFormat; //!< Audio format buffer
+			uint32_t m_audioSampleRate; //!< sample rate of the buffer
+			std::vector<audio::channel> m_audioMap; //!< Channel map of the buffer
+			bool haveAudio() {
+				return m_audioPresent;
+			}
+			uint32_t audioGetSampleRate() {
+				return m_audioSampleRate;
+			}
+			std::vector<audio::channel> audioGetChannelMap() {
+				return m_audioMap;
+			}
+			audio::format audioGetFormat() {
+				return m_audioFormat;
+			}
 	};
 }
 namespace appl {
@@ -77,6 +139,7 @@ namespace appl {
 				ivec2 m_imageSize;
 				echrono::Duration m_LastResetCounter;
 				int32_t m_nbFramePushed;
+				echrono::Duration m_currentTime;
 			private:
 				ememory::SharedPtr<gale::resource::Program> m_GLprogram; //!< pointer on the opengl display program
 				int32_t m_GLPosition; //!< openGL id on the element (vertex buffer)
@@ -107,13 +170,20 @@ namespace appl {
 				void onRegenerateDisplay() override;
 			public:
 				void setFile(const std::string& _fileName);
+			protected:
+				bool m_isPalying;
+			public:
+				bool isPlaying();
+				void play();
+				void pause();
 			public:
 				void periodicEvent(const ewol::event::Time& _event);
 			private:
 				void printPart(const vec2& _size, const vec2& _sourcePosStart, const vec2& _sourcePosStop);
 				void loadProgram();
-			public:
-				void setRawData(const ivec2& _size, void* _dataPointer);
+			private: // Audio Property:
+				ememory::SharedPtr<audio::river::Manager> m_audioManager; //!< River manager interface
+				ememory::SharedPtr<audio::river::Interface> m_audioInterface; //!< Play audio interface
 		};
 	}
 }

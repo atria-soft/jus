@@ -36,7 +36,8 @@ def configure(target, my_module):
 	    ])
 	my_module.add_depend([
 	    'ffmpeg-libs',
-	    'ewol'
+	    'ewol',
+	    'audio-river'
 	    ])
 	my_module.add_flag('c++', [
 	    "-DPROJECT_NAME=\"\\\""+my_module.get_name()+"\\\"\"",
