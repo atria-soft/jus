@@ -62,10 +62,21 @@ namespace appl {
 	
 	class Decoder : public gale::Thread {
 		public:
+			echrono::Duration m_seekApply;
+		private:
+			echrono::Duration m_seek;
+			void applySeek(echrono::Duration _time);
+			echrono::Duration m_duration;
+		public:
+			echrono::Duration getDuration() {
+				return m_duration;
+			}
+		public:
 			std::vector<BufferElementAudio> m_audioPool;
 			echrono::Duration m_currentAudioTime;
 			std::vector<BufferElementVideo> m_videoPool;
 			echrono::Duration m_currentVideoTime;
+			bool m_updateVideoTimeStampAfterSeek;
 			int32_t audioGetOlderSlot();
 			int32_t videoGetOlderSlot();
 		private:
@@ -80,10 +91,6 @@ namespace appl {
 			AVStream *m_videoStream;
 			AVStream *m_audioStream;
 			std::string m_sourceFilename;
-			
-			uint8_t* m_videoDestinationRGBData[4];
-			int32_t  m_videoDestinationRGBLineSize[4];
-			int32_t  m_videoDestinationRGBBufferSize;
 			
 			int32_t m_videoStream_idx;
 			int32_t m_audioStream_idx;
@@ -125,6 +132,10 @@ namespace appl {
 			audio::format audioGetFormat() {
 				return m_audioFormat;
 			}
+			void seek(const echrono::Duration& _time) {
+				m_seek = _time;
+			}
+			void flushBuffer();
 	};
 }
 namespace appl {
@@ -132,6 +143,7 @@ namespace appl {
 		class VideoDisplay : public ewol::Widget {
 			public:
 				esignal::Signal<int32_t> signalFps;
+				esignal::Signal<echrono::Duration> signalPosition; //!< signal the current duration of the video duration
 			private:
 				mat4 m_matrixApply;
 				appl::Decoder m_decoder;
@@ -184,6 +196,11 @@ namespace appl {
 			private: // Audio Property:
 				ememory::SharedPtr<audio::river::Manager> m_audioManager; //!< River manager interface
 				ememory::SharedPtr<audio::river::Interface> m_audioInterface; //!< Play audio interface
+			public:
+				echrono::Duration getDuration() {
+					return m_decoder.getDuration();
+				}
+				void seek(const echrono::Duration& _time);
 		};
 	}
 }

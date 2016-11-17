@@ -15,88 +15,51 @@
 #include <etk/tool.hpp>
 #include <egami/egami.hpp>
 
-static void unPlanar(void* _buffer, int32_t _len, audio::format _format, int32_t _nbChannel) {
-  if (_nbChannel == 1) {
-    // nothing to do only one channel ...
-    return;
-  }
-  std::vector<uint8_t> tmpData;
-  tmpData.resize(_len);
-  memcpy(&tmpData[0], _buffer, _len);
-  // depend on the type of flow:
-  switch(_format) {
-    case audio::format_int8:
-    {
-      uint8_t* in = reinterpret_cast<uint8_t*>(&tmpData[0]);
-      uint8_t* out = reinterpret_cast<uint8_t*>(_buffer);
-      int32_t nbSample = _len/static_cast<int32_t>(sizeof(int8_t)*_nbChannel);
-      for (int32_t iii=0; iii<nbSample; ++iii) {
-        for (int32_t jjj=0; jjj<_nbChannel; ++jjj) {
-          out[iii*_nbChannel + jjj] = in[jjj*nbSample+iii];
-        }
-      }
-      return;
-    }
-    case audio::format_int16:
-    {
-      int16_t* in = reinterpret_cast<int16_t*>(&tmpData[0]);
-      int16_t* out = reinterpret_cast<int16_t*>(_buffer);
-      int32_t nbSample = _len/static_cast<int32_t>(sizeof(int16_t)*_nbChannel);
-      for (int32_t iii=0; iii<nbSample; ++iii) {
-        for (int32_t jjj=0; jjj<_nbChannel; ++jjj) {
-          out[iii*_nbChannel + jjj] = in[jjj*nbSample+iii];
-        }
-      }
-      return;
-    }
-    case audio::format_int32:
-    {
-      int32_t* in = reinterpret_cast<int32_t*>(&tmpData[0]);
-      int32_t* out = reinterpret_cast<int32_t*>(_buffer);
-      int32_t nbSample = _len/static_cast<int32_t>(sizeof(int32_t)*_nbChannel);
-      for (int32_t iii=0; iii<nbSample; ++iii) {
-        for (int32_t jjj=0; jjj<_nbChannel; ++jjj) {
-          out[iii*_nbChannel + jjj] = in[jjj*nbSample+iii];
-        }
-      }
-      return;
-    }
-    case audio::format_float:
-    {
-      float* in = reinterpret_cast<float*>(&tmpData[0]);
-      float* out = reinterpret_cast<float*>(_buffer);
-      int32_t nbSample = _len/static_cast<int32_t>(sizeof(float)*_nbChannel);
-      for (int32_t iii=0; iii<nbSample; ++iii) {
-        for (int32_t jjj=0; jjj<_nbChannel; ++jjj) {
-          out[iii*_nbChannel + jjj] = in[jjj*nbSample+iii];
-        }
-      }
-      // TODO : This is really bad ...
-      for (int32_t iii=0; iii<nbSample; ++iii) {
-        for (int32_t jjj=0; jjj<_nbChannel; ++jjj) {
-          if (jjj == 0) {
-            continue;
-          }
-          out[iii*_nbChannel + jjj] = out[iii*_nbChannel + 0];
-        }
-      }
-      return;
-    }
-    case audio::format_double:
-    {
-      double* in = reinterpret_cast<double*>(&tmpData[0]);
-      double* out = reinterpret_cast<double*>(_buffer);
-      int32_t nbSample = _len/static_cast<int32_t>(sizeof(double)*_nbChannel);
-      for (int32_t iii=0; iii<nbSample; ++iii) {
-        for (int32_t jjj=0; jjj<_nbChannel; ++jjj) {
-          out[iii*_nbChannel + jjj] = in[jjj*nbSample+iii];
-        }
-      }
-      return;
-    }
-    default:
-      break;
-  }
+static void unPlanar(void* _bufferOut, const void* _bufferIn, int32_t _nbSample, audio::format _format, int32_t _channelId, int32_t _nbChannel) {
+	switch(_format) {
+		case audio::format_int8: {
+			const uint8_t* in = reinterpret_cast<const uint8_t*>(_bufferIn);
+			uint8_t* out = reinterpret_cast<uint8_t*>(_bufferOut);
+			for (int32_t sss=0; sss<_nbSample; ++sss) {
+				out[sss*_nbChannel + _channelId] = in[sss];
+			}
+			return;
+		}
+		case audio::format_int16: {
+			const int16_t* in = reinterpret_cast<const int16_t*>(_bufferIn);
+			int16_t* out = reinterpret_cast<int16_t*>(_bufferOut);
+			for (int32_t sss=0; sss<_nbSample; ++sss) {
+				out[sss*_nbChannel + _channelId] = in[sss];
+			}
+			return;
+		}
+		case audio::format_int32: {
+			const int32_t* in = reinterpret_cast<const int32_t*>(_bufferIn);
+			int32_t* out = reinterpret_cast<int32_t*>(_bufferOut);
+			for (int32_t sss=0; sss<_nbSample; ++sss) {
+				out[sss*_nbChannel + _channelId] = in[sss];
+			}
+			return;
+		}
+		case audio::format_float: {
+			const float* in = reinterpret_cast<const float*>(_bufferIn);
+			float* out = reinterpret_cast<float*>(_bufferOut);
+			for (int32_t sss=0; sss<_nbSample; ++sss) {
+				out[sss*_nbChannel + _channelId] = in[sss];
+			}
+			return;
+		}
+		case audio::format_double: {
+			const double* in = reinterpret_cast<const double*>(_bufferIn);
+			double* out = reinterpret_cast<double*>(_bufferOut);
+			for (int32_t sss=0; sss<_nbSample; ++sss) {
+				out[sss*_nbChannel + _channelId] = in[sss];
+			}
+			return;
+		}
+		default:
+			break;
+	}
 }
 
 /**
@@ -163,14 +126,12 @@ appl::Decoder::Decoder() {
 	m_videoStream = nullptr;
 	m_audioStream = nullptr;
 	
-	m_videoDestinationRGBData[0] = nullptr;
-	
 	m_videoStream_idx = -1;
 	m_audioStream_idx = -1;
 	m_frame = nullptr;
 	m_videoFrameCount = 0;
 	m_audioFrameCount = 0;
-	
+	m_seek = -1;
 	// output format convertion:
 	m_convertContext = nullptr;
 	m_audioPresent = false;
@@ -202,10 +163,16 @@ int appl::Decoder::decode_packet(int *_gotFrame, int _cached) {
 				APPL_ERROR("new: size=" << ivec2(m_frame->width,m_frame->height) << " format=" << av_get_pix_fmt_name((enum AVPixelFormat)m_frame->format));
 				return -1;
 			}
-			APPL_VERBOSE("video_frame " << (_cached?"(cached)":"")
+			if (m_updateVideoTimeStampAfterSeek == true) {
+				m_currentVideoTime = m_currentAudioTime;
+				m_updateVideoTimeStampAfterSeek = false;
+				m_seekApply = m_currentVideoTime; // => ready to display
+			}
+			echrono::Duration packetTime(double(m_frame->pkt_pts) * double(m_videoDecoderContext->time_base.num) / double(m_videoDecoderContext->time_base.den));
+			APPL_INFO("video_frame " << (_cached?"(cached)":"")
 			             << " n=" << m_videoFrameCount
 			             << " coded_n=" << m_frame->coded_picture_number
-			             << " pts=" << av_ts2timestr(m_frame->pts, &m_videoDecoderContext->time_base));
+			             << " pts=" << av_ts2timestr(m_frame->pkt_pts, &m_videoDecoderContext->time_base) << "  " << packetTime);
 			m_videoFrameCount++;
 			int32_t slotId = videoGetEmptySlot();
 			if (slotId == -1) {
@@ -237,52 +204,56 @@ int appl::Decoder::decode_packet(int *_gotFrame, int _cached) {
 		// Some audio decoders decode only part of the packet, and have to be called again with the remainder of the packet data.
 		decoded = FFMIN(ret, m_packet.size);
 		if (*_gotFrame) {
-			APPL_VERBOSE("audio_frame " << (_cached?"(cached)":"")
-			             << " n=" << m_audioFrameCount
-			             << " nb_samples=" << m_frame->nb_samples
-			             << " pts=" << av_ts2timestr(m_frame->pts, &m_audioDecoderContext->time_base));
-			m_audioFrameCount++;
-			int32_t slotId = audioGetEmptySlot();
-			if (slotId == -1) {
-				APPL_ERROR("an error occured when getting an empty slot for audio");
+			echrono::Duration packetTime(double(m_frame->pkt_pts) * double(m_audioDecoderContext->time_base.num) / double(m_audioDecoderContext->time_base.den));
+			if (m_updateVideoTimeStampAfterSeek == true) {
+				// seek specific usecase ==> drop frame to have fast display
+				m_currentAudioTime = packetTime;
 			} else {
-				//m_frame->channel_layout
-				bool isPlanar = false;
-				audio::format format = audio::format_unknow;
-				switch(m_frame->format) {
-					case AV_SAMPLE_FMT_U8P:  isPlanar = true;
-					case AV_SAMPLE_FMT_U8:   format = audio::format_int8;   break;
-					case AV_SAMPLE_FMT_S16P: isPlanar = true;
-					case AV_SAMPLE_FMT_S16:  format = audio::format_int16;  break;
-					case AV_SAMPLE_FMT_S32P: isPlanar = true;
-					case AV_SAMPLE_FMT_S32:  format = audio::format_int32;  break;
-					case AV_SAMPLE_FMT_FLTP: isPlanar = true;
-					case AV_SAMPLE_FMT_FLT:  format = audio::format_float;  break;
-					case AV_SAMPLE_FMT_DBLP: isPlanar = true;
-					case AV_SAMPLE_FMT_DBL:  format = audio::format_double; break;
-				}
-				if (format == audio::format_unknow) {
-					APPL_ERROR("Unsupported audio format :" << m_frame->format << " ...");
+				APPL_INFO("audio_frame " << (_cached?"(cached)":"")
+				             << " n=" << m_audioFrameCount
+				             << " nb_samples=" << m_frame->nb_samples
+				             << " pts=" << packetTime);
+				m_audioFrameCount++;
+				int32_t slotId = audioGetEmptySlot();
+				if (slotId == -1) {
+					APPL_ERROR("an error occured when getting an empty slot for audio");
 				} else {
-					// configure Buffer:
-					m_audioPool[slotId].configure(format, m_frame->sample_rate, m_frame->channels, m_frame->nb_samples);
-					// TODO : Optimise buffer transfer
-					if (isPlanar == true) {
-						unPlanar(m_frame->extended_data[0], m_audioPool[slotId].m_buffer.size(), m_audioPool[slotId].m_format, m_frame->channels);
+					//m_frame->channel_layout
+					audio::format format = audio::format_unknow;
+					switch(av_get_packed_sample_fmt((enum AVSampleFormat)m_frame->format)) {
+						case AV_SAMPLE_FMT_U8:   format = audio::format_int8;   break;
+						case AV_SAMPLE_FMT_S16:  format = audio::format_int16;  break;
+						case AV_SAMPLE_FMT_S32:  format = audio::format_int32;  break;
+						case AV_SAMPLE_FMT_FLT:  format = audio::format_float;  break;
+						case AV_SAMPLE_FMT_DBL:  format = audio::format_double; break;
+						default: break;
 					}
-					// inject data in the buffer:
-					memcpy(&m_audioPool[slotId].m_buffer[0], m_frame->extended_data[0], m_audioPool[slotId].m_buffer.size());
-					/*
-					size_t unPaddedLineSize = m_frame->nb_samples * av_get_bytes_per_sample((enum AVSampleFormat)m_frame->format);
-					if (unPaddedLineSize != m_audioPool[slotId].m_buffer.size()) {
-						APPL_CRITICAL("Wrong Size ... " << unPaddedLineSize << " " << m_audioPool[slotId].m_buffer.size());
+					if (format == audio::format_unknow) {
+						APPL_ERROR("Unsupported audio format :" << m_frame->format << " ...");
+					} else {
+						// configure Buffer:
+						m_audioPool[slotId].configure(format, m_frame->sample_rate, m_frame->channels, m_frame->nb_samples);
+						if (av_sample_fmt_is_planar((enum AVSampleFormat)m_frame->format) == 1) {
+							for (int32_t ccc=0; ccc<m_frame->channels; ++ccc) {
+								unPlanar(&m_audioPool[slotId].m_buffer[0],
+								         m_frame->extended_data[ccc],
+								         m_frame->nb_samples,
+								         m_audioPool[slotId].m_format,
+								         ccc,
+								         m_frame->channels);
+							}
+						} else {
+							// inject data in the buffer:
+							memcpy(&m_audioPool[slotId].m_buffer[0], m_frame->extended_data[0], m_audioPool[slotId].m_buffer.size());
+						}
+						// We use the Time of the packet ==> better synchronisation when seeking
+						m_currentAudioTime = packetTime;
+						m_audioPool[slotId].m_id = m_audioFrameCount;
+						m_audioPool[slotId].m_time = m_currentAudioTime;
+						m_audioPool[slotId].m_duration = echrono::Duration(0,(1000000000.0*m_frame->nb_samples)/float(m_frame->sample_rate));
+						m_currentAudioTime += m_audioPool[slotId].m_duration;
+						m_audioPool[slotId].m_isUsed = true;
 					}
-					*/
-					m_audioPool[slotId].m_id = m_audioFrameCount;
-					m_audioPool[slotId].m_time = m_currentAudioTime;
-					m_audioPool[slotId].m_duration = echrono::Duration(0,(1000000000.0*m_frame->nb_samples)/float(m_frame->sample_rate));
-					m_currentAudioTime += m_audioPool[slotId].m_duration;
-					m_audioPool[slotId].m_isUsed = true;
 				}
 			}
 		}
@@ -292,6 +263,7 @@ int appl::Decoder::decode_packet(int *_gotFrame, int _cached) {
 		av_frame_unref(m_frame);
 	return decoded;
 }
+
 int appl::Decoder::open_codec_context(int *_streamId, AVFormatContext *_formatContext, enum AVMediaType _type) {
 	int ret = 0;
 	int stream_index = 0;
@@ -315,7 +287,7 @@ int appl::Decoder::open_codec_context(int *_streamId, AVFormatContext *_formatCo
 		}
 		// Init the decoders, with or without reference counting
 		av_dict_set(&opts, "refcounted_frames", m_refCount ? "1" : "0", 0);
-		av_dict_set(&opts, "threads", "auto", 0);
+		//av_dict_set(&opts, "threads", "auto", 0);
 		if ((ret = avcodec_open2(dec_ctx, dec, &opts)) < 0) {
 			APPL_ERROR("Failed to open " << av_get_media_type_string(_type) << " codec");
 			return ret;
@@ -335,6 +307,7 @@ void appl::Decoder::init(const std::string& _filename) {
 	if (false) {
 		m_refCount = true;
 	}
+	m_updateVideoTimeStampAfterSeek = false;
 	m_sourceFilename = _filename;
 	// register all formats and codecs
 	av_register_all();
@@ -348,6 +321,8 @@ void appl::Decoder::init(const std::string& _filename) {
 		APPL_ERROR("Could not find stream information");
 		exit(1);
 	}
+	m_duration = echrono::Duration(double(m_formatContext->duration)/double(AV_TIME_BASE));
+	APPL_INFO("Stream duration : " << m_duration);
 	// Open Video decoder:
 	if (open_codec_context(&m_videoStream_idx, m_formatContext, AVMEDIA_TYPE_VIDEO) >= 0) {
 		m_videoStream = m_formatContext->streams[m_videoStream_idx];
@@ -357,21 +332,11 @@ void appl::Decoder::init(const std::string& _filename) {
 		m_pixelFormat = m_videoDecoderContext->pix_fmt;
 		
 		m_videoPool.resize(10);
-		
-		// Create the video buffer for RGB mode:
-		ret = av_image_alloc(m_videoDestinationRGBData, m_videoDestinationRGBLineSize, m_size.x(), m_size.y(), AV_PIX_FMT_RGB24, 1);
-		if (ret < 0) {
-			APPL_ERROR("Could not allocate raw video buffer");
-			return; // TODO : An error occured ... !!!!!
-		}
-		m_videoDestinationRGBBufferSize = ret;
 		APPL_INFO("Open video stream with property: size=" << m_size << " pixel format=" << av_get_pix_fmt_name(m_pixelFormat) << " fps=" << getFps(m_videoDecoderContext) << " tick/frame=" << m_videoDecoderContext->ticks_per_frame);
-		
 		// convert the image format:
 		m_convertContext = sws_getContext(m_size.x(), m_size.y(), m_pixelFormat,
 		                                  m_size.x(), m_size.y(), AV_PIX_FMT_RGB24,
 		                                  0, 0, 0, 0);
-		
 	}
 	// Open Audio Decoder:
 	if (open_codec_context(&m_audioStream_idx, m_formatContext, AVMEDIA_TYPE_AUDIO) >= 0) {
@@ -386,22 +351,15 @@ void appl::Decoder::init(const std::string& _filename) {
 		APPL_INFO("Open audio stream with audio property: " << int32_t(m_audioDecoderContext->channels) << " channel(s) & samplerate=" << m_audioDecoderContext->sample_rate << " Hz");
 		
 		//m_frame->channel_layout
-		bool isPlanar = false;
 		m_audioSampleRate = m_audioDecoderContext->sample_rate;
 		m_audioFormat = audio::format_unknow;
-		switch(m_audioDecoderContext->sample_fmt) {
-			case AV_SAMPLE_FMT_U8P:
+		switch(av_get_packed_sample_fmt(m_audioDecoderContext->sample_fmt)) {
 			case AV_SAMPLE_FMT_U8:   m_audioFormat = audio::format_int8;   break;
-			case AV_SAMPLE_FMT_S16P:
 			case AV_SAMPLE_FMT_S16:  m_audioFormat = audio::format_int16;  break;
-			case AV_SAMPLE_FMT_S32P:
 			case AV_SAMPLE_FMT_S32:  m_audioFormat = audio::format_int32;  break;
-			case AV_SAMPLE_FMT_FLTP:
 			case AV_SAMPLE_FMT_FLT:  m_audioFormat = audio::format_float;  break;
-			case AV_SAMPLE_FMT_DBLP:
 			case AV_SAMPLE_FMT_DBL:  m_audioFormat = audio::format_double; break;
-			case AV_SAMPLE_FMT_NONE:
-			case AV_SAMPLE_FMT_NB:
+			default:
 				m_audioFormat = audio::format_unknow;
 				break;
 		}
@@ -450,6 +408,12 @@ void appl::Decoder::init(const std::string& _filename) {
 	m_packet.size = 0;
 }
 bool appl::Decoder::onThreadCall() {
+	if (m_seek >= echrono::Duration(0)) {
+		// seek requested (create a copy to permit to update it in background):
+		echrono::Duration tmpSeek = m_seek;
+		m_seek = echrono::Duration(-1);
+		applySeek(tmpSeek);
+	}
 	// check if we have space to decode data
 	if (    (    m_videoPool.size() != 0
 	          && videoGetEmptySlot() == -1)
@@ -491,7 +455,48 @@ void appl::Decoder::uninit() {
 	avcodec_close(m_audioDecoderContext);
 	avformat_close_input(&m_formatContext);
 	av_frame_free(&m_frame);
-	av_free(m_videoDestinationRGBData[0]);
+}
+
+void appl::Decoder::flushBuffer() {
+	// flush all decoders ...
+	avcodec_flush_buffers(m_audioStream->codec);
+	avcodec_flush_buffers(m_videoStream->codec);
+	// TODO : Protect this ...
+	// Disable use of all buffer
+	for (int32_t iii=0; iii<m_videoPool.size(); ++iii) {
+		m_videoPool[iii].m_isUsed = false;
+	}
+	for (int32_t iii=0; iii<m_audioPool.size(); ++iii) {
+		m_audioPool[iii].m_isUsed = false;
+	}
+}
+
+void appl::Decoder::applySeek(echrono::Duration _time) {
+	APPL_INFO("Apply seek : " << _time);
+	flushBuffer();
+	int64_t seekPos = int64_t(_time.toSeconds() * double(AV_TIME_BASE));
+	
+	int32_t id = -1;
+	echrono::Duration tmpPos;
+	if (m_audioStream_idx>=0) {
+		id = m_audioStream_idx;
+		tmpPos = m_currentAudioTime;
+	} else if (m_videoStream_idx>=0) {
+		id = m_videoStream_idx;
+		tmpPos = m_currentVideoTime;
+	}
+	
+	int64_t seekTarget = av_rescale_q(seekPos, AV_TIME_BASE_Q, m_formatContext->streams[id]->time_base);
+	APPL_INFO("request seek at: " << seekPos << " and get position: " << seekTarget);
+	int flags = _time < tmpPos ? AVSEEK_FLAG_BACKWARD : 0; // AVSEEK_FLAG_ANY
+	if (av_seek_frame(m_formatContext, id, seekTarget, flags) < 0) {
+		APPL_ERROR(" Unable to seek");
+		return;
+	}
+	m_currentVideoTime = _time;
+	m_currentAudioTime = _time;
+	m_updateVideoTimeStampAfterSeek = true;
+	APPL_INFO("Request seeking : " << _time << " done");
 }
 
 int32_t appl::Decoder::videoGetEmptySlot() {
@@ -723,6 +728,13 @@ void appl::widget::VideoDisplay::periodicEvent(const ewol::event::Time& _event) 
 	if (m_isPalying == true) {
 		m_currentTime += _event.getDeltaCallDuration();
 	}
+	if (m_decoder.m_seekApply >= echrono::Duration(0)) {
+		m_currentTime = m_decoder.m_seekApply;
+		m_decoder.m_seekApply = echrono::Duration(-1);
+		if (m_audioInterface != nullptr) {
+			m_audioInterface->clearInternalBuffer();
+		}
+	}
 	// SET AUDIO:
 	int32_t idSlot = m_decoder.audioGetOlderSlot();
 	if (    idSlot != -1
@@ -754,6 +766,11 @@ void appl::widget::VideoDisplay::periodicEvent(const ewol::event::Time& _event) 
 		signalFps.emit(m_nbFramePushed);
 		m_nbFramePushed = 0;
 	}
+	signalPosition.emit(m_currentTime);
 	markToRedraw();
 }
 
+void appl::widget::VideoDisplay::seek(const echrono::Duration& _time) {
+	APPL_PRINT("seek request = " << _time);
+	m_decoder.seek(_time);
+}
