@@ -54,6 +54,7 @@ namespace appl {
 	};
 	
 	class MediaDecoder : public gale::Thread {
+		bool m_stopRequested;
 		public:
 			echrono::Duration m_seekApply;
 		private:
@@ -94,13 +95,10 @@ namespace appl {
 			
 			// output format convertion:
 			SwsContext* m_convertContext;
-			
-			// Enable or disable frame reference counting.
-			// You are not supposed to support both paths in your application but pick the one most appropriate to your needs.
-			// Look for the use of refcount in this example to see what are the differences of API usage between them.
-			bool m_refCount;
+			bool m_isInit;
 		public:
 			MediaDecoder();
+			~MediaDecoder();
 			
 			int decode_packet(int *_gotFrame, int _cached);
 			int open_codec_context(int *_streamId, AVFormatContext *_formatContext, enum AVMediaType _type);
@@ -129,6 +127,8 @@ namespace appl {
 				m_seek = _time;
 			}
 			void flushBuffer();
+			
+			void stop() override;
 	};
 }
 

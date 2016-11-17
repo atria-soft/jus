@@ -26,7 +26,7 @@ namespace appl {
 				esignal::Signal<echrono::Duration> signalPosition; //!< signal the current duration of the video duration
 			private:
 				mat4 m_matrixApply;
-				appl::MediaDecoder m_decoder;
+				ememory::SharedPtr<appl::MediaDecoder> m_decoder;
 				ivec2 m_videoSize;
 				ivec2 m_imageSize;
 				echrono::Duration m_LastResetCounter;
@@ -68,6 +68,7 @@ namespace appl {
 				bool isPlaying();
 				void play();
 				void pause();
+				void stop();
 			public:
 				void periodicEvent(const ewol::event::Time& _event);
 			private:
@@ -78,7 +79,10 @@ namespace appl {
 				ememory::SharedPtr<audio::river::Interface> m_audioInterface; //!< Play audio interface
 			public:
 				echrono::Duration getDuration() {
-					return m_decoder.getDuration();
+					if (m_decoder != nullptr) {
+						return m_decoder->getDuration();
+					}
+					return echrono::Duration(0);
 				}
 				void seek(const echrono::Duration& _time);
 		};

@@ -15,6 +15,15 @@
 #include <etk/tool.hpp>
 #include <egami/egami.hpp>
 
+static void init_ffmpeg() {
+	static bool isInit = false;
+	if (isInit == false) {
+		isInit = true;
+		av_register_all();
+	}
+}
+
+
 static void unPlanar(void* _bufferOut, const void* _bufferIn, int32_t _nbSample, audio::format _format, int32_t _channelId, int32_t _nbChannel) {
 	switch(_format) {
 		case audio::format_int8: {
@@ -119,6 +128,7 @@ void appl::BufferElementAudio::configure(audio::format _format, uint32_t _sample
 }
 
 appl::MediaDecoder::MediaDecoder() {
+	init_ffmpeg();
 	m_formatContext = nullptr;
 	m_videoDecoderContext = nullptr;
 	m_audioDecoderContext = nullptr;
@@ -136,10 +146,12 @@ appl::MediaDecoder::MediaDecoder() {
 	m_convertContext = nullptr;
 	m_audioPresent = false;
 	m_audioFormat = audio::format_unknow;
-	// Enable or disable frame reference counting.
-	// You are not supposed to support both paths in your application but pick the one most appropriate to your needs.
-	// Look for the use of refcount in this example to see what are the differences of API usage between them.
-	m_refCount = false;
+	m_isInit = false;
+	m_stopRequested = false;
+}
+
+appl::MediaDecoder::~MediaDecoder() {
+	uninit();
 }
 
 int appl::MediaDecoder::decode_packet(int *_gotFrame, int _cached) {
@@ -258,9 +270,6 @@ int appl::MediaDecoder::decode_packet(int *_gotFrame, int _cached) {
 			}
 		}
 	}
-	// If we use frame reference counting, we own the data and need to de-reference it when we don't use it anymore
-	if (*_gotFrame && m_refCount)
-		av_frame_unref(m_frame);
 	return decoded;
 }
 
@@ -286,7 +295,7 @@ int appl::MediaDecoder::open_codec_context(int *_streamId, AVFormatContext *_for
 			return AVERROR(EINVAL);
 		}
 		// Init the decoders, with or without reference counting
-		av_dict_set(&opts, "refcounted_frames", m_refCount ? "1" : "0", 0);
+		av_dict_set(&opts, "refcounted_frames", "0", 0);
 		//av_dict_set(&opts, "threads", "auto", 0);
 		if ((ret = avcodec_open2(dec_ctx, dec, &opts)) < 0) {
 			APPL_ERROR("Failed to open " << av_get_media_type_string(_type) << " codec");
@@ -302,15 +311,8 @@ double appl::MediaDecoder::getFps(AVCodecContext *_avctx) {
 }
 
 void appl::MediaDecoder::init(const std::string& _filename) {
-	int ret = 0;
-	// Enable or disable refcount:
-	if (false) {
-		m_refCount = true;
-	}
 	m_updateVideoTimeStampAfterSeek = false;
 	m_sourceFilename = _filename;
-	// register all formats and codecs
-	av_register_all();
 	// open input file, and allocate format context
 	if (avformat_open_input(&m_formatContext, m_sourceFilename.c_str(), nullptr, nullptr) < 0) {
 		APPL_ERROR("Could not open source file " << m_sourceFilename);
@@ -319,7 +321,8 @@ void appl::MediaDecoder::init(const std::string& _filename) {
 	// retrieve stream information
 	if (avformat_find_stream_info(m_formatContext, nullptr) < 0) {
 		APPL_ERROR("Could not find stream information");
-		exit(1);
+		// TODO : check this, this will create a memeory leak
+		return;;
 	}
 	m_duration = echrono::Duration(double(m_formatContext->duration)/double(AV_TIME_BASE));
 	APPL_INFO("Stream duration : " << m_duration);
@@ -390,24 +393,30 @@ void appl::MediaDecoder::init(const std::string& _filename) {
 		APPL_PRINT("Audio configuration : " << m_audioMap << " " << m_audioFormat << " sampleRate=" <<m_audioSampleRate);
 	}
 	// dump input information to stderr
-	av_dump_format(m_formatContext, 0, m_sourceFilename.c_str(), 0);
-	if (!m_audioStream && !m_videoStream) {
+	// For test only: av_dump_format(m_formatContext, 0, m_sourceFilename.c_str(), 0);
+	
+	if (    m_audioStream == nullptr
+	     && m_videoStream == nullptr) {
 		APPL_ERROR("Could not find audio or video stream in the input, aborting");
-		ret = 1;
 		return; // TODO : An error occured ... !!!!!
 	}
 	m_frame = av_frame_alloc();
 	if (!m_frame) {
-		APPL_ERROR("Could not allocate frame");
-		ret = AVERROR(ENOMEM);
+		int ret = AVERROR(ENOMEM);
+		APPL_ERROR("Could not allocate frame ret=" << ret);
 		return; // TODO : An error occured ... !!!!!
 	}
 	// initialize packet, set data to nullptr, let the demuxer fill it
 	av_init_packet(&m_packet);
 	m_packet.data = nullptr;
 	m_packet.size = 0;
+	m_isInit = true;
 }
+
 bool appl::MediaDecoder::onThreadCall() {
+	if (m_stopRequested == true) {
+		return true;
+	}
 	if (m_seek >= echrono::Duration(0)) {
 		// seek requested (create a copy to permit to update it in background):
 		echrono::Duration tmpSeek = m_seek;
@@ -443,18 +452,19 @@ bool appl::MediaDecoder::onThreadCall() {
 	return (ret < 0);
 }
 void appl::MediaDecoder::uninit() {
-	// flush cached frames
-	m_packet.data = nullptr;
-	m_packet.size = 0;
-	int gotFrame;
-	do {
-		decode_packet(&gotFrame, 1);
-	} while (gotFrame);
+	if (m_isInit == false) {
+		return;
+	}
 	APPL_PRINT("Demuxing & Decoding succeeded...");
 	avcodec_close(m_videoDecoderContext);
 	avcodec_close(m_audioDecoderContext);
 	avformat_close_input(&m_formatContext);
 	av_frame_free(&m_frame);
+	m_isInit = false;
+}
+
+void appl::MediaDecoder::stop() {
+	m_stopRequested = true;
 }
 
 void appl::MediaDecoder::flushBuffer() {

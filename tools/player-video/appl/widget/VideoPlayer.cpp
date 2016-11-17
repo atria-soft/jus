@@ -74,22 +74,17 @@ void appl::widget::VideoDisplay::loadProgram() {
 	}
 }
 void appl::widget::VideoDisplay::setFile(const std::string& _filename) {
-	m_decoder.init(_filename);
-	if (m_decoder.haveAudio() == true) {
-		//Get the generic input:
-		m_audioInterface = m_audioManager->createOutput(m_decoder.audioGetSampleRate(),
-		                                                m_decoder.audioGetChannelMap(),
-		                                                m_decoder.audioGetFormat(),
-		                                                "speaker");
-		if(m_audioInterface == nullptr) {
-			APPL_ERROR("Can not creata Audio interface");
-		}
-		m_audioInterface->setReadwrite();
-		m_audioInterface->start();
+	// Stop playing in all case...
+	stop();
+	// Clear the old interface
+	m_decoder.reset();
+	// Create a new interface
+	m_decoder = ememory::makeShared<appl::MediaDecoder>();
+	if (m_decoder == nullptr) {
+		APPL_ERROR("Can not create sharedPtr on decoder ...");
+		return;
 	}
-	
-	m_decoder.start();
-	m_audioManager->generateDotAll("out/local_player_flow.dot");
+	m_decoder->init(_filename);
 	markToRedraw();
 }
 
@@ -98,12 +93,55 @@ bool appl::widget::VideoDisplay::isPlaying() {
 }
 
 void appl::widget::VideoDisplay::play() {
+	if (m_decoder == nullptr) {
+		APPL_WARNING("Request play with no associated decoder");
+		return;
+	}
 	m_isPalying = true;
+	if (m_decoder->getState() != gale::Thread::state::stop) {
+		// The thread is already active ==> then it is just in pause ...
+		APPL_DEBUG("Already started");
+		return;
+	}
+	if (m_decoder->haveAudio() == true) {
+		m_audioInterface = m_audioManager->createOutput(m_decoder->audioGetSampleRate(),
+		                                                m_decoder->audioGetChannelMap(),
+		                                                m_decoder->audioGetFormat(),
+		                                                "speaker");
+		if(m_audioInterface == nullptr) {
+			APPL_ERROR("Can not creata Audio interface");
+		}
+		m_audioInterface->setReadwrite();
+		m_audioInterface->start();
+	}
+	// Start decoder, this is maybe not the good point, but if we configure a decoder, it is to use it ...
+	m_decoder->start();
+	//TODO: Set an option to river to auto-generate dot: m_audioManager->generateDotAll("out/local_player_flow.dot");
 }
 
 void appl::widget::VideoDisplay::pause() {
 	m_isPalying = false;
 }
+
+void appl::widget::VideoDisplay::stop() {
+	m_isPalying = false;
+	if (    m_decoder != nullptr
+	     && m_decoder->getState() != gale::Thread::state::stop) {
+		APPL_ERROR("Stop Decoder");
+		// stop it ... and request seet at 0 position ...
+		m_decoder->seek(echrono::Duration(0));
+		m_decoder->stop();
+	}
+	if (m_audioInterface != nullptr) {
+		APPL_ERROR("Stop audio interface");
+		// Stop audio interface
+		m_audioInterface->stop();
+		// wait a little to be sure it is done correctly:
+		// TODO : Set this in an asynchronous loop ...
+		m_audioInterface.reset();
+	}
+}
+
 
 void appl::widget::VideoDisplay::onDraw() {
 	if (m_VBO->bufferSize(m_vboIdCoord) <= 0) {
@@ -118,9 +156,7 @@ void appl::widget::VideoDisplay::onDraw() {
 		APPL_ERROR("No shader ...");
 		return;
 	}
-	//APPL_WARNING("Display image : " << m_VBO->bufferSize(m_vboIdCoord));
 	gale::openGL::disable(gale::openGL::flag_depthTest);
-	// set Matrix : translation/positionMatrix
 	mat4 tmpMatrix = gale::openGL::getMatrix()*m_matrixApply;
 	m_GLprogram->use();
 	m_GLprogram->uniformMatrix(m_GLMatrix, tmpMatrix);
@@ -199,34 +235,39 @@ void appl::widget::VideoDisplay::periodicEvent(const ewol::event::Time& _event) 
 	if (m_isPalying == true) {
 		m_currentTime += _event.getDeltaCallDuration();
 	}
-	if (m_decoder.m_seekApply >= echrono::Duration(0)) {
-		m_currentTime = m_decoder.m_seekApply;
-		m_decoder.m_seekApply = echrono::Duration(-1);
+	if (m_decoder == nullptr) {
+		return;
+	}
+	if (m_decoder->m_seekApply >= echrono::Duration(0)) {
+		m_currentTime = m_decoder->m_seekApply;
+		m_decoder->m_seekApply = echrono::Duration(-1);
 		if (m_audioInterface != nullptr) {
 			m_audioInterface->clearInternalBuffer();
 		}
 	}
 	// SET AUDIO:
-	int32_t idSlot = m_decoder.audioGetOlderSlot();
+	int32_t idSlot = m_decoder->audioGetOlderSlot();
 	if (    idSlot != -1
-	     && m_currentTime > m_decoder.m_audioPool[idSlot].m_time) {
-		int32_t nbSample =   m_decoder.m_audioPool[idSlot].m_buffer.size()
-		                   / audio::getFormatBytes(m_decoder.m_audioPool[idSlot].m_format)
-		                   / m_decoder.m_audioPool[idSlot].m_map.size();
-		m_audioInterface->write(&m_decoder.m_audioPool[idSlot].m_buffer[0], nbSample);
-		m_decoder.m_audioPool[idSlot].m_isUsed = false;
+	     && m_currentTime > m_decoder->m_audioPool[idSlot].m_time) {
+		if (m_audioInterface != nullptr) {
+			int32_t nbSample =   m_decoder->m_audioPool[idSlot].m_buffer.size()
+			                   / audio::getFormatBytes(m_decoder->m_audioPool[idSlot].m_format)
+			                   / m_decoder->m_audioPool[idSlot].m_map.size();
+			m_audioInterface->write(&m_decoder->m_audioPool[idSlot].m_buffer[0], nbSample);
+		}
+		m_decoder->m_audioPool[idSlot].m_isUsed = false;
 	}
 	// SET VIDEO:
-	idSlot = m_decoder.videoGetOlderSlot();
+	idSlot = m_decoder->videoGetOlderSlot();
 	// check the slot is valid and check display time of the element:
 	if (    idSlot != -1
-	     && m_currentTime > m_decoder.m_videoPool[idSlot].m_time) {
-		m_resource->get().swap(m_decoder.m_videoPool[idSlot].m_image);
+	     && m_currentTime > m_decoder->m_videoPool[idSlot].m_time) {
+		m_resource->get().swap(m_decoder->m_videoPool[idSlot].m_image);
 		m_imageSize = m_resource->get().getSize();
-		ivec2 tmpSize = m_decoder.m_videoPool[idSlot].m_imagerealSize;
-		m_decoder.m_videoPool[idSlot].m_imagerealSize = m_videoSize;
+		ivec2 tmpSize = m_decoder->m_videoPool[idSlot].m_imagerealSize;
+		m_decoder->m_videoPool[idSlot].m_imagerealSize = m_videoSize;
 		m_videoSize = tmpSize;
-		m_decoder.m_videoPool[idSlot].m_isUsed = false;
+		m_decoder->m_videoPool[idSlot].m_isUsed = false;
 		m_resource->flush();
 		m_nbFramePushed++;
 	}
@@ -238,10 +279,14 @@ void appl::widget::VideoDisplay::periodicEvent(const ewol::event::Time& _event) 
 		m_nbFramePushed = 0;
 	}
 	signalPosition.emit(m_currentTime);
+	// TODO : Chek if this is needed, the display configuration not change too much ...
 	markToRedraw();
 }
 
 void appl::widget::VideoDisplay::seek(const echrono::Duration& _time) {
 	APPL_PRINT("seek request = " << _time);
-	m_decoder.seek(_time);
+	if (m_decoder == nullptr) {
+		return;
+	}
+	m_decoder->seek(_time);
 }

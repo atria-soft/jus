@@ -23,7 +23,7 @@ namespace appl {
 			DECLARE_FACTORY(Windows);
 		public: // callback functions
 			void onCallbackPrevious();
-			void onCallbackPlay();
+			void onCallbackPlay(const bool& _isPressed);
 			void onCallbackNext();
 			void onCallbackFPS(const int32_t& _fps);
 			void onCallbackPosition(const echrono::Duration& _time);

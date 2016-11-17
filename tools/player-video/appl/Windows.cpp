@@ -28,10 +28,9 @@ void appl::Windows::init() {
 	composition += "				previous\n";
 	composition += "			</label>\n";
 	composition += "		</button>\n";
-	composition += "		<button name='bt-play'>\n";
-	composition += "			<label>\n";
-	composition += "				play/pause\n";
-	composition += "			</label>\n";
+	composition += "		<button name='bt-play' toggle='true'>\n";
+	composition += "			<label>play</label>\n";
+	composition += "			<label>pause</label>\n";
 	composition += "		</button>\n";
 	composition += "		<button name='bt-next'>\n";
 	composition += "			<label>\n";
@@ -53,7 +52,7 @@ void appl::Windows::init() {
 	m_composer->loadFromString(composition);
 	setSubWidget(m_composer);
 	subBind(ewol::widget::Button, "bt-previous", signalPressed, sharedFromThis(), &appl::Windows::onCallbackPrevious);
-	subBind(ewol::widget::Button, "bt-play", signalPressed, sharedFromThis(), &appl::Windows::onCallbackPlay);
+	subBind(ewol::widget::Button, "bt-play", signalValue, sharedFromThis(), &appl::Windows::onCallbackPlay);
 	subBind(ewol::widget::Button, "bt-next", signalPressed, sharedFromThis(), &appl::Windows::onCallbackNext);
 	subBind(appl::widget::VideoDisplay, "displayer", signalFps, sharedFromThis(), &appl::Windows::onCallbackFPS);
 	subBind(appl::widget::VideoDisplay, "displayer", signalPosition, sharedFromThis(), &appl::Windows::onCallbackPosition);
@@ -67,12 +66,11 @@ void appl::Windows::onCallbackPrevious() {
 	if (m_id < 0) {
 		m_id = m_list.size()-1;
 	}
-	onCallbackPlay();
-}
-
-void appl::Windows::onCallbackPlay() {
 	ememory::SharedPtr<appl::widget::VideoDisplay> tmpDisp = ememory::dynamicPointerCast<appl::widget::VideoDisplay>(getSubObjectNamed("displayer"));
 	if (tmpDisp != nullptr) {
+		// stop previous (if needed)
+		tmpDisp->stop();
+		// Set new file:
 		tmpDisp->setFile(m_list[m_id]);
 		tmpDisp->play();
 		echrono::Duration time = tmpDisp->getDuration();
@@ -82,12 +80,35 @@ void appl::Windows::onCallbackPlay() {
 	}
 }
 
+void appl::Windows::onCallbackPlay(const bool& _isPressed) {
+	ememory::SharedPtr<appl::widget::VideoDisplay> tmpDisp = ememory::dynamicPointerCast<appl::widget::VideoDisplay>(getSubObjectNamed("displayer"));
+	if (tmpDisp == nullptr) {
+		return;
+	}
+	if (_isPressed == true) {
+		tmpDisp->play();
+	} else {
+		tmpDisp->pause();
+	}
+}
+
 void appl::Windows::onCallbackNext() {
 	m_id++;
 	if (m_id >= m_list.size()) {
 		m_id = 0;
 	}
-	onCallbackPlay();
+	ememory::SharedPtr<appl::widget::VideoDisplay> tmpDisp = ememory::dynamicPointerCast<appl::widget::VideoDisplay>(getSubObjectNamed("displayer"));
+	if (tmpDisp != nullptr) {
+		// stop previous (if needed)
+		tmpDisp->stop();
+		// Set new file:
+		tmpDisp->setFile(m_list[m_id]);
+		tmpDisp->play();
+		echrono::Duration time = tmpDisp->getDuration();
+		APPL_DEBUG("duration = " << time << "  " << etk::to_string(time.toSeconds()));
+		propertySetOnWidgetNamed("progress-bar", "value", "0");
+		propertySetOnWidgetNamed("progress-bar", "max", etk::to_string(time.toSeconds()));
+	}
 }
 
 
@@ -99,6 +120,17 @@ void appl::Windows::onCallbackFPS(const int32_t& _fps) {
 void appl::Windows::addFile(const std::string& _file) {
 	APPL_DEBUG("Add file : " << _file);
 	m_list.push_back(_file);
+	if (m_list.size() == 1) {
+		m_id = 0;
+		ememory::SharedPtr<appl::widget::VideoDisplay> tmpDisp = ememory::dynamicPointerCast<appl::widget::VideoDisplay>(getSubObjectNamed("displayer"));
+		if (tmpDisp != nullptr) {
+			tmpDisp->setFile(m_list[m_id]);
+			echrono::Duration time = tmpDisp->getDuration();
+			APPL_DEBUG("duration = " << time << "  " << etk::to_string(time.toSeconds()));
+			propertySetOnWidgetNamed("progress-bar", "value", "0");
+			propertySetOnWidgetNamed("progress-bar", "max", etk::to_string(time.toSeconds()));
+		}
+	}
 }
 
 void appl::Windows::onCallbackPosition(const echrono::Duration& _time) {
