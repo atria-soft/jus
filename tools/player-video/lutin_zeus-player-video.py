@@ -32,6 +32,7 @@ def configure(target, my_module):
 	    'appl/debug.cpp',
 	    'appl/Main.cpp',
 	    'appl/Windows.cpp',
+	    'appl/MediaDecoder.cpp',
 	    'appl/widget/VideoPlayer.cpp',
 	    ])
 	my_module.add_depend([
