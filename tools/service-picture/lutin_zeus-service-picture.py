@@ -34,7 +34,7 @@ def configure(target, my_module):
 	    'appl/debug.cpp',
 	    'appl/main.cpp'
 	    ])
-	my_module.add_flag('c++', "-DSERVICE_NAME=\"\\\"" + my_module.get_name()[5:] + "\\\"\"")
+	my_module.add_flag('c++', "-DSERVICE_NAME=\"\\\"" + my_module.get_name()[13:] + "\\\"\"")
 	return True
 
 
