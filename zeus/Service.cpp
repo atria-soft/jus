@@ -95,16 +95,16 @@ void zeus::Service::connect(uint32_t _numberRetry){
 		return;
 	}
 	m_interfaceClient->connect(this, &zeus::Service::onClientData);
-	m_interfaceClient->setInterface(std::move(connection), false);
+	m_interfaceClient->setInterface(std::move(connection), false, propertyNameService.get());
 	m_interfaceClient->connect();
-	zeus::Future<bool> ret = m_interfaceClient->call("connect-service", propertyNameService.get());
-	ret.wait();
+	// TODO :  Check error ...
+	/*
 	if (ret.get() == false) {
 		ZEUS_ERROR("Can not configure the interface for the service with the current name ...");
 		m_interfaceClient->disconnect();
 		return;
 	}
-	
+	*/
 	ZEUS_DEBUG("connect [STOP]");
 }
 

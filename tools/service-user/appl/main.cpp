@@ -13,61 +13,63 @@
 #include <ejson/ejson.hpp>
 
 #include <etk/stdTools.hpp>
+
+
+static std::mutex g_mutex;
+static std::string g_userName;
+static ejson::Document g_database;
+
 namespace appl {
-	class User {
+	
+	class SystemService {
 		private:
-			std::mutex m_mutex;
-			std::string m_userName;
-			ejson::Document m_database;
+			ememory::SharedPtr<zeus::ClientProperty> m_client;
 		public:
-			User(const std::string& _userName) :
-			  m_userName(_userName) {
-				std::unique_lock<std::mutex> lock(m_mutex);
-				APPL_WARNING("new USER: " << m_userName);
-				bool ret = m_database.load(std::string("USERDATA:") + m_userName + ".json");
-				if (ret == false) {
-					APPL_WARNING("    ==> LOAD error");
-				}
+			SystemService(ememory::SharedPtr<zeus::ClientProperty> _client) :
+			  m_client(_client) {
+				APPL_WARNING("New SystemService ... for user: ");
 			}
-			~User() {
-				std::unique_lock<std::mutex> lock(m_mutex);
-				APPL_WARNING("delete USER [START]");
-				APPL_DEBUG("Store User Info:");
-				bool ret = m_database.storeSafe(std::string("USERDATA:") + m_userName + ".json");
-				if (ret == false) {
-					APPL_WARNING("    ==> Store error");
-				}
-				APPL_WARNING("delete USER [STOP]");
+			~SystemService() {
+				APPL_WARNING("Delete service-user interface.");
 			}
-			const std::string& getName() {
-				return m_userName;
-			}
-			std::vector<std::string> getGroups(const std::string& _clientName) {
-				std::unique_lock<std::mutex> lock(m_mutex);
+		public:
+			std::vector<std::string> getGroups(std::string _clientName) {
 				std::vector<std::string> out;
-				ejson::Object clients = m_database["client"].toObject();
-				if (clients.exist() == false) {
-					// Section never created
+				if (m_client == nullptr) {
 					return out;
 				}
-				ejson::Object client = clients[_clientName].toObject();
-				if (clients.exist() == false) {
-					// No specificity for this client (in case it have no special right)
-					return out;
+				// TODO: check if basished ...
+				if (m_client->getName() != "") {
+					std::unique_lock<std::mutex> lock(g_mutex);
+					std::vector<std::string> out;
+					ejson::Object clients = g_database["client"].toObject();
+					if (clients.exist() == false) {
+						// Section never created
+						return out;
+					}
+					ejson::Object client = clients[m_client->getName()].toObject();
+					if (clients.exist() == false) {
+						// No specificity for this client (in case it have no special right)
+						return out;
+					}
+					if (client["tocken"].toString().get() != "") {
+						out.push_back("connected");
+					}
+					// TODO: check banishing ...
+					ejson::Array groups = client["group"].toArray();
+					for (auto it : groups) {
+						out.push_back(it.toString().get());
+					}
 				}
-				if (client["tocken"].toString().get() != "") {
-					out.push_back("connected");
-				}
-				// TODO: check banishing ...
-				ejson::Array groups = client["group"].toArray();
-				for (auto it : groups) {
-					out.push_back(it.toString().get());
+				// TODO: Check default visibility ... (if user want to have default visibility at Noone ==> then public must be removed...
+				if (true) {
+					out.push_back("public");
 				}
 				return out;
 			}
-			bool checkTocken(const std::string& _clientName, const std::string& _tocken) {
-				std::unique_lock<std::mutex> lock(m_mutex);
-				ejson::Object clients = m_database["client"].toObject();
+			bool checkTocken(std::string _clientName, std::string _tocken) {
+				std::unique_lock<std::mutex> lock(g_mutex);
+				ejson::Object clients = g_database["client"].toObject();
 				if (clients.exist() == false) {
 					// Section never created
 					return false;
@@ -85,9 +87,9 @@ namespace appl {
 				}
 				return false;
 			}
-			bool checkAuth(const std::string& _password) {
-				std::unique_lock<std::mutex> lock(m_mutex);
-				std::string pass = m_database["password"].toString().get();
+			bool checkAuth(std::string _password) {
+				std::unique_lock<std::mutex> lock(g_mutex);
+				std::string pass = g_database["password"].toString().get();
 				if (pass == "") {
 					// pb password
 					return false;
@@ -97,80 +99,15 @@ namespace appl {
 				}
 				return false;
 			}
-			std::vector<std::string> filterServices(const std::string& _clientName, std::vector<std::string> _inputList) {
-				std::unique_lock<std::mutex> lock(m_mutex);
+			std::vector<std::string> filterServices(std::string _clientName, std::vector<std::string> _currentList) {
+				std::unique_lock<std::mutex> lock(g_mutex);
 				// When connected to our session ==> we have no control access ...
-				if (_clientName == m_userName) {
-					return _inputList;
+				if (_clientName == g_userName) {
+					return _currentList;
 				}
 				std::vector<std::string> out;
 				APPL_TODO("Filter service list ==> not implemented...");
 				return out;
-			}
-	};
-	
-	class UserManager {
-		private:
-			std::mutex m_mutex;
-			std::map<std::string, ememory::SharedPtr<appl::User>> m_listLoaded;
-		public:
-			UserManager() {
-				
-			}
-			ememory::SharedPtr<appl::User> getUser(const std::string& _userName) {
-				std::unique_lock<std::mutex> lock(m_mutex);
-				auto it = m_listLoaded.find(_userName);
-				if (it != m_listLoaded.end()) {
-					// User already loaded:
-					return it->second;
-				}
-				// load New User:
-				ememory::SharedPtr<appl::User> tmp(new appl::User(_userName));
-				m_listLoaded.insert(std::make_pair(_userName, tmp));
-				return tmp;
-			}
-	};
-	class SystemService {
-		private:
-			ememory::SharedPtr<appl::User> m_user;
-		private:
-			ememory::SharedPtr<zeus::ClientProperty> m_client;
-		public:
-			SystemService() {
-				APPL_WARNING("New SystemService ...");
-			}
-			SystemService(ememory::SharedPtr<appl::User> _user, ememory::SharedPtr<zeus::ClientProperty> _client) :
-			  m_user(_user),
-			  m_client(_client) {
-				APPL_WARNING("New SystemService ... for user: ");
-			}
-			~SystemService() {
-				APPL_WARNING("delete SystemService ...");
-			}
-		public:
-			std::vector<std::string> getGroups(std::string _clientName) {
-				std::vector<std::string> out;
-				if (m_client == nullptr) {
-					return out;
-				}
-				// TODO: check if basished ...
-				if (m_client->getName() != "") {
-					out = m_user->getGroups(m_client->getName());
-				}
-				// TODO: Check default visibility ... (if user want to have default visibility at Noone ==> then public must be removed...
-				if (true) {
-					out.push_back("public");
-				}
-				return out;
-			}
-			bool checkTocken(std::string _clientName, std::string _tocken) {
-				return m_user->checkTocken(_clientName, _tocken);
-			}
-			bool checkAuth(std::string _password) {
-				return m_user->checkAuth(_password);
-			}
-			std::vector<std::string> filterServices(std::string _clientName, std::vector<std::string> _currentList) {
-				return m_user->filterServices(_clientName, _currentList);
 			}
 	};
 }
@@ -187,21 +124,39 @@ int main(int _argc, const char *_argv[]) {
 			ip = std::string(&data[5]);
 		} else if (etk::start_with(data, "--port=") == true) {
 			port = etk::string_to_uint16_t(std::string(&data[7]));
+		} else if (etk::start_with(data, "--name=") == true) {
+			g_userName = std::string(&data[7]);
 		} else if (    data == "-h"
 		            || data == "--help") {
 			APPL_PRINT(etk::getApplicationName() << " - help : ");
 			APPL_PRINT("    " << _argv[0] << " [options]");
-			APPL_PRINT("        --ip=XXX      Server connection IP (default: 1.7.0.0.1)");
-			APPL_PRINT("        --port=XXX    Server connection PORT (default: 1983)");
+			APPL_PRINT("        --name=XXX           User name of the service");
+			APPL_PRINT("        --ip=XXX             Server connection IP (default: 1.7.0.0.1)");
+			APPL_PRINT("        --port=XXX           Server connection PORT (default: 1983)");
 			return -1;
 		}
 	}
+	if (g_userName.size() == 0) {
+		APPL_ERROR("Missing User name when runnig service");
+		exit(-1);
+	}
+	{
+		std::unique_lock<std::mutex> lock(g_mutex);
+		APPL_WARNING("Load USER: " << g_userName);
+		bool ret = g_database.load(std::string("USERDATA:") + g_userName + ".json");
+		if (ret == false) {
+			APPL_WARNING("    ==> LOAD error");
+		}
+	}
+	// TODO: Remove the While true, ==> sevice must be spown by a user call, if a service die, the wall system will die ...
 	while (true) {
 		APPL_INFO("===========================================================");
 		APPL_INFO("== ZEUS instanciate service: " << SERVICE_NAME << " [START]");
 		APPL_INFO("===========================================================");
-		ememory::SharedPtr<appl::UserManager> userMng = ememory::makeShared<appl::UserManager>();
-		zeus::ServiceType<appl::SystemService, appl::UserManager> serviceInterface(userMng);
+		
+		zeus::ServiceType<appl::SystemService> serviceInterface([](ememory::SharedPtr<zeus::ClientProperty> _client){
+		                                                        	return ememory::makeShared<appl::SystemService>(_client);
+		                                                        });
 		if (ip != "") {
 			serviceInterface.propertyIp.set(ip);
 		}
@@ -259,5 +214,18 @@ int main(int _argc, const char *_argv[]) {
 		APPL_INFO("== ZEUS service: " << *serviceInterface.propertyNameService << " [STOP] GateWay Stop");
 		APPL_INFO("===========================================================");
 	}
+	APPL_INFO("Stop service ==> flush internal datas ...");
+	{
+		std::unique_lock<std::mutex> lock(g_mutex);
+		APPL_DEBUG("Store User Info:");
+		bool ret = g_database.storeSafe(std::string("USERDATA:") + g_userName + ".json");
+		if (ret == false) {
+			APPL_WARNING("    ==> Store error");
+		}
+		APPL_WARNING("delete USER [STOP]");
+	}
+	APPL_INFO("===========================================================");
+	APPL_INFO("== ZEUS service: " << SERVICE_NAME << " [END-APPLICATION]");
+	APPL_INFO("===========================================================");
 	return 0;
 }

@@ -93,6 +93,7 @@ namespace zeus {
 			}
 	};
 }
+
 namespace zeus {
 	/**
 	 * @brief 
@@ -239,11 +240,17 @@ namespace zeus {
 				m_listFunction.push_back(tmp);
 				return tmp;
 			}
+			
 	};
-	template<class ZEUS_TYPE_SERVICE, class ZEUS_USER_ACCESS>
+	template<class ZEUS_TYPE_SERVICE>
 	class ServiceType : public zeus::Service {
 		private:
-			ememory::SharedPtr<ZEUS_USER_ACCESS> m_getUserInterface;
+			std::function<ememory::SharedPtr<ZEUS_TYPE_SERVICE>(ememory::SharedPtr<ClientProperty>)> m_factory;
+		public:
+			ServiceType(std::function<ememory::SharedPtr<ZEUS_TYPE_SERVICE>(ememory::SharedPtr<ClientProperty>)> _factory) {
+				m_factory = _factory;
+			}
+		private:
 			// no need of shared_ptr or unique_ptr (if service die all is lost and is client die, the gateway notify us...)
 			std::map<uint64_t, std::pair<ememory::SharedPtr<ClientProperty>, ememory::SharedPtr<ZEUS_TYPE_SERVICE>>> m_interface;
 		public:
@@ -285,15 +292,6 @@ namespace zeus {
 			 * @param[in] 
 			 * @return 
 			 */
-			ServiceType(ememory::SharedPtr<ZEUS_USER_ACCESS> _interface):
-			  m_getUserInterface(_interface) {
-				
-			}
-			/**
-			 * @brief 
-			 * @param[in] 
-			 * @return 
-			 */
 			bool isFunctionAuthorized(uint64_t _clientId, const std::string& _funcName) {
 				auto it = m_interface.find(_clientId);
 				if (it == m_interface.end()) {
@@ -313,10 +311,10 @@ namespace zeus {
 				ZEUS_DEBUG("    groups=" << etk::to_string(_groups));
 				ememory::SharedPtr<ClientProperty> tmpProperty = ememory::makeShared<ClientProperty>(_clientName, _groups);
 				ememory::SharedPtr<ZEUS_TYPE_SERVICE> tmpSrv;
-				if (m_getUserInterface == nullptr) {
-					tmpSrv = ememory::makeShared<ZEUS_TYPE_SERVICE>(nullptr, tmpProperty);
+				if (m_factory != nullptr) {
+					tmpSrv = m_factory(tmpProperty);
 				} else {
-					tmpSrv = ememory::makeShared<ZEUS_TYPE_SERVICE>(m_getUserInterface->getUser(_userName), tmpProperty);
+					ZEUS_ERROR("Create service with no factory");
 				}
 				m_interface.insert(std::make_pair(_clientId, std::make_pair(tmpProperty, tmpSrv)));
 				// enable list of function availlable:
