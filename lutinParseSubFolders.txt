@@ -1,5 +1,6 @@
+tools/gateway-front-end
+tools/gateway-back-end
 tools/service-user
-tools/gateway
 tools/service-picture
 tools/service-video
 tools/player-video

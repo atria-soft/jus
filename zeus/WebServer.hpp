@@ -111,6 +111,26 @@ namespace zeus {
 				};
 			}
 		public:
+			using ObserverRequestUri = std::function<bool(const std::string&)>; //!< Define an Observer on the specific URI requested callback: function pointer (return true if the connection is accepted or not)
+		protected:
+			ObserverRequestUri m_observerRequestUri;
+		public:
+			/**
+			 * @brief Connect on the URI requested.
+			 * @param[in] _class shared_ptr Object on whe we need to call ==> the object is get in keeped in weak_ptr.
+			 * @param[in] _func Function to call.
+			 */
+			template<class CLASS_TYPE>
+			void connectUri(CLASS_TYPE* _class, bool (CLASS_TYPE::*_func)(const std::string&)) {
+				m_observerRequestUri = [=](const std::string& _value){
+					return (*_class.*_func)(_value);
+				};
+			}
+			void connectUri(WebServer::ObserverRequestUri _func) {
+				m_observerRequestUri = _func;
+			}
+			
+		public:
 			/**
 			 * @brief 
 			 * @param[in] 
@@ -134,7 +154,7 @@ namespace zeus {
 			 * @param[in] 
 			 * @return 
 			 */
-			void setInterface(enet::Tcp _connection, bool _isServer);
+			void setInterface(enet::Tcp _connection, bool _isServer, const std::string& _userName="");
 			/**
 			 * @brief 
 			 * @param[in] 

@@ -5,7 +5,7 @@
  */
 #pragma once
 #include <appl/ServiceInterface.hpp>
-#include <appl/ClientInterface.hpp>
+#include <appl/ClientGateWayInterface.hpp>
 #include <eproperty/Value.hpp>
 
 namespace appl {
@@ -15,14 +15,13 @@ namespace appl {
 			uint64_t m_clientUID;
 		private:
 			std::vector<ememory::SharedPtr<appl::ServiceInterface>> m_serviceList; //!< List of all service availlable with their specific connection interface
-			std::vector<ememory::SharedPtr<appl::ClientInterface>> m_clientList; //!< List of all Client interface with their own connection
-			//TODO: std::vector<appl::ServerInterface> m_ServerList; //!< List of all Server connected to this gateway
-			ememory::SharedPtr<appl::TcpServerInput> m_interfaceClientServer;
+			ememory::SharedPtr<appl::ClientGateWayInterface> m_gateWayClient; //!< Interface with the Gateway Front End
+			
 			ememory::SharedPtr<appl::TcpServerInput> m_interfaceServiceServer;
 		public:
-			eproperty::Value<std::string> propertyClientIp;
-			eproperty::Value<uint16_t> propertyClientPort;
-			eproperty::Value<uint16_t> propertyClientMax;
+			eproperty::Value<std::string> propertyUserName;
+			eproperty::Value<std::string> propertyGateWayClientIp;
+			eproperty::Value<uint16_t> propertyGateWayClientPort;
 			eproperty::Value<std::string> propertyServiceIp;
 			eproperty::Value<uint16_t> propertyServicePort;
 			eproperty::Value<uint16_t> propertyServiceMax;
@@ -35,7 +34,6 @@ namespace appl {
 			std::vector<std::string> getAllServiceName();
 			void answer(uint64_t _userSessionId, const ememory::SharedPtr<zeus::Buffer>& _data);
 			void newService(enet::Tcp _connection);
-			void newClient(enet::Tcp _connection);
 			void cleanIO();
 		private:
 			void onPropertyChangeClientIp();

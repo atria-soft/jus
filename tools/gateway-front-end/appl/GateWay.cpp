@@ -56,7 +56,7 @@ namespace appl {
 					enet::Tcp data = std::move(m_interface.waitNext());
 					ZEUS_VERBOSE("New connection");
 					if (m_service == true) {
-						m_gateway->newService(std::move(data));
+						m_gateway->newClientGateWayBackEnd(std::move(data));
 					} else {
 						m_gateway->newClient(std::move(data));
 					}
@@ -65,11 +65,11 @@ namespace appl {
 	};
 }
 
-void appl::GateWay::newService(enet::Tcp _connection) {
+void appl::GateWay::newClientGateWayBackEnd(enet::Tcp _connection) {
 	ZEUS_WARNING("New TCP connection (service)");
-	ememory::SharedPtr<appl::ServiceInterface> tmp = ememory::makeShared<appl::ServiceInterface>(std::move(_connection), this);
+	ememory::SharedPtr<appl::GateWayInterface> tmp = ememory::makeShared<appl::GateWayInterface>(std::move(_connection), this);
 	tmp->start();
-	m_serviceList.push_back(tmp);
+	m_gatewayBackEndList.push_back(tmp);
 }
 
 void appl::GateWay::newClient(enet::Tcp _connection) {
@@ -84,11 +84,11 @@ appl::GateWay::GateWay() :
   propertyClientIp(this, "client-ip", "127.0.0.1", "Ip to listen client", &appl::GateWay::onPropertyChangeClientIp),
   propertyClientPort(this, "client-port", 1983, "Port to listen client", &appl::GateWay::onPropertyChangeClientPort),
   propertyClientMax(this, "client-max", 80, "Maximum of client at the same time", &appl::GateWay::onPropertyChangeClientMax),
-  propertyServiceIp(this, "service-ip", "127.0.0.1", "Ip to listen client", &appl::GateWay::onPropertyChangeServiceIp),
-  propertyServicePort(this, "service-port", 1982, "Port to listen client", &appl::GateWay::onPropertyChangeServicePort),
-  propertyServiceMax(this, "service-max", 80, "Maximum of client at the same time", &appl::GateWay::onPropertyChangeServiceMax) {
+  propertyGatewayBackEndIp(this, "gw-ip", "127.0.0.1", "Ip to listen client", &appl::GateWay::onPropertyChangeGateWayIp),
+  propertyGatewayBackEndPort(this, "gw-port", 1984, "Port to listen client", &appl::GateWay::onPropertyChangeGateWayPort),
+  propertyGatewayBackEndMax(this, "gw-max", 80, "Maximum of client at the same time", &appl::GateWay::onPropertyChangeGateWayMax) {
 	m_interfaceClientServer = ememory::makeShared<appl::TcpServerInput>(this, false);
-	m_interfaceServiceServer = ememory::makeShared<appl::TcpServerInput>(this, true);
+	m_interfaceGatewayBackEndServer = ememory::makeShared<appl::TcpServerInput>(this, true);
 }
 
 appl::GateWay::~GateWay() {
@@ -97,19 +97,21 @@ appl::GateWay::~GateWay() {
 
 void appl::GateWay::start() {
 	m_interfaceClientServer->start(*propertyClientIp, *propertyClientPort);
-	m_interfaceServiceServer->start(*propertyServiceIp, *propertyServicePort);
+	m_interfaceGatewayBackEndServer->start(*propertyGatewayBackEndIp, *propertyGatewayBackEndPort);
 }
 
 void appl::GateWay::stop() {
+	// TODO : Stop all server ...
 	
 }
 
-ememory::SharedPtr<appl::ServiceInterface> appl::GateWay::get(const std::string& _serviceName) {
-	for (auto &it : m_serviceList) {
+ememory::SharedPtr<appl::GateWayInterface> appl::GateWay::get(const std::string& _userName) {
+	// TODO : Start USer only when needed, not get it all time started...
+	for (auto &it : m_gatewayBackEndList) {
 		if (it == nullptr) {
 			continue;
 		}
-		if (it->getName() != _serviceName) {
+		if (it->getName() != _userName) {
 			continue;
 		}
 		return it;
@@ -117,14 +119,17 @@ ememory::SharedPtr<appl::ServiceInterface> appl::GateWay::get(const std::string&
 	return nullptr;
 }
 
-std::vector<std::string> appl::GateWay::getAllServiceName() {
+
+std::vector<std::string> appl::GateWay::getAllUserName() {
 	std::vector<std::string> out;
-	for (auto &it : m_serviceList) {
+	/*
+	for (auto &it : m_gatewayBackEndList) {
 		if (it == nullptr) {
 			continue;
 		}
 		out.push_back(it->getName());
 	}
+	*/
 	return out;
 }
 
@@ -144,15 +149,15 @@ void appl::GateWay::answer(uint64_t _userSessionId, const ememory::SharedPtr<zeu
 
 void appl::GateWay::cleanIO() {
 	
-	auto it = m_serviceList.begin();
-	while (it != m_serviceList.end()) {
+	auto it = m_gatewayBackEndList.begin();
+	while (it != m_gatewayBackEndList.end()) {
 		if (*it != nullptr) {
 			if ((*it)->isAlive() == false) {
-				it = m_serviceList.erase(it);
+				it = m_gatewayBackEndList.erase(it);
 				continue;
 			}
 		} else {
-			it = m_serviceList.erase(it);
+			it = m_gatewayBackEndList.erase(it);
 			continue;
 		}
 		++it;
@@ -193,14 +198,14 @@ void appl::GateWay::onPropertyChangeClientMax() {
 	
 }
 
-void appl::GateWay::onPropertyChangeServiceIp() {
+void appl::GateWay::onPropertyChangeGateWayIp() {
 	
 }
 
-void appl::GateWay::onPropertyChangeServicePort() {
+void appl::GateWay::onPropertyChangeGateWayPort() {
 	
 }
 
-void appl::GateWay::onPropertyChangeServiceMax() {
+void appl::GateWay::onPropertyChangeGateWayMax() {
 	
 }

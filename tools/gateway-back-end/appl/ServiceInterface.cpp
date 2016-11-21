@@ -6,7 +6,7 @@
 
 #include <appl/debug.hpp>
 #include <appl/ServiceInterface.hpp>
-#include <appl/ClientInterface.hpp>
+#include <appl/ClientGateWayInterface.hpp>
 #include <appl/GateWay.hpp>
 
 // todo : cHANGE THIS ...
@@ -17,16 +17,16 @@ static const std::string protocolError = "PROTOCOL-ERROR";
 appl::ServiceInterface::ServiceInterface(enet::Tcp _connection, appl::GateWay* _gatewayInterface) :
   m_gatewayInterface(_gatewayInterface),
   m_interfaceClient(std::move(_connection), true) {
-	ZEUS_INFO("-----------------");
-	ZEUS_INFO("-- NEW Service --");
-	ZEUS_INFO("-----------------");
+	APPL_INFO("-----------------");
+	APPL_INFO("-- NEW Service --");
+	APPL_INFO("-----------------");
 }
 
 appl::ServiceInterface::~ServiceInterface() {
 	
-	ZEUS_INFO("--------------------");
-	ZEUS_INFO("-- DELETE Service --");
-	ZEUS_INFO("--------------------");
+	APPL_INFO("--------------------");
+	APPL_INFO("-- DELETE Service --");
+	APPL_INFO("--------------------");
 }
 
 bool appl::ServiceInterface::isAlive() {
@@ -60,14 +60,14 @@ void appl::ServiceInterface::onServiceData(ememory::SharedPtr<zeus::Buffer> _val
 		if (data.valueExist("event") == true) {
 			// No need to have a user ID ...
 			if (data["event"].toString().get() == "IS-ALIVE") {
-				ZEUS_VERBOSE("Service Alive ...");
+				APPL_VERBOSE("Service Alive ...");
 				if (std::chrono::steady_clock::now() - m_interfaceClient.getLastTimeSend() >= std::chrono::seconds(20)) {
 					ejson::Object tmpp;
 					tmpp.add("event", ejson::String("IS-ALIVE"));
 					m_interfaceClient.writeJson(tmpp);
 				}
 			} else {
-				ZEUS_INFO("Unknow service event: '" << data["event"].toString().get() << "'");
+				APPL_INFO("Unknow service event: '" << data["event"].toString().get() << "'");
 			}
 			return;
 		}
@@ -79,7 +79,7 @@ void appl::ServiceInterface::onServiceData(ememory::SharedPtr<zeus::Buffer> _val
 		std::string callFunction = callObj->getCall();
 		if (callFunction == "connect-service") {
 			if (m_name != "") {
-				ZEUS_WARNING("Service interface ==> try change the servie name after init: '" << callObj->getParameter<std::string>(0));
+				APPL_WARNING("Service interface ==> try change the servie name after init: '" << callObj->getParameter<std::string>(0));
 				m_interfaceClient.answerValue(transactionId, false);
 				return;
 			}
@@ -91,7 +91,7 @@ void appl::ServiceInterface::onServiceData(ememory::SharedPtr<zeus::Buffer> _val
 		answerProtocolError(transactionId, "unknow function");
 	}
 	if (_value->getClientId() == 0) {
-		ZEUS_ERROR("Service interface ==> wrong service answer ==> missing 'client-id'");
+		APPL_ERROR("Service interface ==> wrong service answer ==> missing 'client-id'");
 		return;
 	}
 	m_gatewayInterface->answer(_value->getClientId(), _value);

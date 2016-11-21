@@ -49,10 +49,11 @@ bool zeus::Client::connectTo(const std::string& _address) {
 		ZEUS_ERROR("Allocate connection error");
 		return false;
 	}
+	ZEUS_WARNING("Request connect user " << _address);
 	m_interfaceClient->connect(this, &zeus::Client::onClientData);
-	m_interfaceClient->setInterface(std::move(connection), false);
+	m_interfaceClient->setInterface(std::move(connection), false, _address);
 	m_interfaceClient->connect();
-	
+	/*
 	ZEUS_WARNING("Request connect user " << _address);
 	zeus::Future<bool> ret = call("connectToUser", _address, "zeus-client");
 	ret.wait();
@@ -68,6 +69,9 @@ bool zeus::Client::connectTo(const std::string& _address) {
 		ZEUS_WARNING("    ==> Refuse connection");
 	}
 	return ret.get();
+	*/
+	// TODO: Check if connection is retruen OK or arror ...
+	return true;
 }
 
 bool zeus::Client::connect(const std::string& _address) {

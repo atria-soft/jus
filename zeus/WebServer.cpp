@@ -44,7 +44,7 @@ zeus::WebServer::WebServer(enet::Tcp _connection, bool _isServer) :
 	setInterface(std::move(_connection), _isServer);
 }
 
-void zeus::WebServer::setInterface(enet::Tcp _connection, bool _isServer) {
+void zeus::WebServer::setInterface(enet::Tcp _connection, bool _isServer, const std::string& _userName) {
 	m_connection.setInterface(std::move(_connection), _isServer);
 	m_connection.connect(this, &zeus::WebServer::onReceiveData);
 	if (_isServer == true) {
@@ -54,7 +54,7 @@ void zeus::WebServer::setInterface(enet::Tcp _connection, bool _isServer) {
 		std::vector<std::string> protocols;
 		protocols.push_back("zeus/0.8");
 		protocols.push_back("zeus/1.0");
-		m_connection.start("/stupidName", protocols);
+		m_connection.start("/" + _userName, protocols);
 	}
 }
 
@@ -177,8 +177,9 @@ bool zeus::WebServer::onReceiveUri(const std::string& _uri, const std::vector<st
 			break;
 		}
 	}
-	if (_uri == "/stupidName") {
-		return true;
+	// TODO : Add better return on specific user ...
+	if (m_observerRequestUri != nullptr) {
+		return m_observerRequestUri(_uri);
 	}
 	return false;
 }
@@ -355,7 +356,7 @@ void zeus::WebServer::callForwardMultiple(uint32_t _clientId,
 	for (auto &itCall : m_pendingCall) {
 		ZEUS_INFO(" compare : " << itCall.first << " =?= " << _singleReferenceId);
 		if (itCall.first == _singleReferenceId) {
-			// Find element ==> transit it ...
+			// Find element ==> transmit it ...
 			_buffer->setTransactionId(itCall.second.getTransactionId());
 			_buffer->setClientId(_clientId);
 			writeBinary(_buffer);

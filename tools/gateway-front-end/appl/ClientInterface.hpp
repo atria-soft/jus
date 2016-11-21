@@ -7,7 +7,7 @@
 
 #include <zeus/WebServer.hpp>
 #include <appl/GateWay.hpp>
-#include <appl/ServiceInterface.hpp>
+#include <appl/GateWayInterface.hpp>
 
 namespace appl {
 	class GateWay;
@@ -16,17 +16,16 @@ namespace appl {
 			enum class state {
 				unconnect, // starting sate
 				connect, // zeust get a TCP connection
-				userIdentify, // client set the user it want to access
-				clientIdentify, // client defien the mode of the acces (anonymous,client/user)
 				disconnect // client is dead or loal disconnection
 			};
 			enum state m_state; // state machine ...
 		private:
 			appl::GateWay* m_gatewayInterface;
 			zeus::WebServer m_interfaceClient;
+			bool requestURI(const std::string& _uri);
 		public:
-			ememory::SharedPtr<appl::ServiceInterface> m_userService;
-			std::vector<ememory::SharedPtr<appl::ServiceInterface>> m_listConnectedService;
+			ememory::SharedPtr<appl::GateWayInterface> m_userGateWay;
+			std::vector<ememory::SharedPtr<appl::GateWayInterface>> m_listConnectedService;
 			uint64_t m_uid;
 			uint64_t m_uid2;
 			std::string m_userConnectionName;

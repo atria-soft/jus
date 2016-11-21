@@ -296,7 +296,7 @@ int appl::MediaDecoder::open_codec_context(int *_streamId, AVFormatContext *_for
 		}
 		// Init the decoders, with or without reference counting
 		av_dict_set(&opts, "refcounted_frames", "0", 0);
-		//av_dict_set(&opts, "threads", "auto", 0);
+		av_dict_set(&opts, "threads", "auto", 0);
 		if ((ret = avcodec_open2(dec_ctx, dec, &opts)) < 0) {
 			APPL_ERROR("Failed to open " << av_get_media_type_string(_type) << " codec");
 			return ret;
