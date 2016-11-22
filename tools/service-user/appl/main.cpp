@@ -17,10 +17,10 @@
 
 static std::mutex g_mutex;
 static std::string g_basePath;
+static std::string g_baseDBName = std::string(SERVICE_NAME) + "-database.json";
 static ejson::Document g_database;
 
 namespace appl {
-	
 	class SystemService {
 		private:
 			ememory::SharedPtr<zeus::ClientProperty> m_client;
@@ -116,7 +116,7 @@ bool SERVICE_IO_init(std::string _basePath) {
 	g_basePath = _basePath;
 	std::unique_lock<std::mutex> lock(g_mutex);
 	APPL_WARNING("Load USER: " << g_basePath);
-	bool ret = g_database.load(g_basePath + "config.json");
+	bool ret = g_database.load(g_basePath + g_baseDBName);
 	if (ret == false) {
 		APPL_WARNING("    ==> LOAD error");
 	}
@@ -126,7 +126,7 @@ bool SERVICE_IO_init(std::string _basePath) {
 bool SERVICE_IO_uninit() {
 	std::unique_lock<std::mutex> lock(g_mutex);
 	APPL_DEBUG("Store User Info:");
-	bool ret = g_database.storeSafe(g_basePath + "config.json");
+	bool ret = g_database.storeSafe(g_basePath + g_baseDBName);
 	if (ret == false) {
 		APPL_WARNING("    ==> Store error");
 		return false;
