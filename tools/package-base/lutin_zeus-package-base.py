@@ -4,14 +4,10 @@ import lutin.tools as tools
 
 
 def get_type():
-	return "LIBRARY_DYNAMIC"
-	#return "BINARY"
-
-def get_sub_type():
-	return "TOOLS"
+	return "PACKAGE"
 
 def get_desc():
-	return "ZEUS test service"
+	return "ZEUS package group to set it usable"
 
 def get_licence():
 	return "APACHE-2"
@@ -26,16 +22,14 @@ def get_maintainer():
 	return ["Mr DUPIN Edouard <yui.heero@gmail.com>"]
 
 def configure(target, my_module):
-	my_module.add_path(".")
 	my_module.add_depend([
-	    'zeus',
-	    'ejson'
+	    'zeus-gateway-front-end',
+	    'zeus-gateway-back-end',
+	    'zeus-service-user',
+	    'zeus-service-picture',
+	    'zeus-service-video',
+	    'zeus-launcher',
 	    ])
-	my_module.add_src_file([
-	    'appl/debug.cpp',
-	    'appl/main.cpp'
-	    ])
-	my_module.add_flag('c++', "-DSERVICE_NAME=\"\\\"" + my_module.get_name()[13:] + "\\\"\"")
 	return True
 
 
