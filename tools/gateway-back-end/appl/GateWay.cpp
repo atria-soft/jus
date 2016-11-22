@@ -74,7 +74,7 @@ appl::GateWay::GateWay() :
   propertyServiceIp(this, "service-ip", "127.0.0.1", "Ip to listen client", &appl::GateWay::onPropertyChangeServiceIp),
   propertyServicePort(this, "service-port", 1982, "Port to listen client", &appl::GateWay::onPropertyChangeServicePort),
   propertyServiceMax(this, "service-max", 80, "Maximum of client at the same time", &appl::GateWay::onPropertyChangeServiceMax) {
-	m_interfaceServiceServer = ememory::makeShared<appl::TcpServerInput>(this);
+	m_interfaceNewService = ememory::makeShared<appl::TcpServerInput>(this);
 }
 
 appl::GateWay::~GateWay() {
@@ -83,7 +83,8 @@ appl::GateWay::~GateWay() {
 
 void appl::GateWay::start() {
 	m_gateWayClient = ememory::makeShared<appl::ClientGateWayInterface>(*propertyGateWayClientIp, *propertyGateWayClientPort, *propertyUserName, this);
-	m_interfaceServiceServer->start(*propertyServiceIp, *propertyServicePort);
+	
+	m_interfaceNewService->start(*propertyServiceIp, *propertyServicePort);
 }
 
 void appl::GateWay::stop() {
@@ -117,22 +118,13 @@ std::vector<std::string> appl::GateWay::getAllServiceName() {
 
 
 void appl::GateWay::answer(uint64_t _userSessionId, const ememory::SharedPtr<zeus::Buffer>& _data) {
-	/*
-	for (auto &it : m_gateWayClient) {
-		if (it == nullptr) {
-			continue;
-		}
-		if (it->checkId(_userSessionId) == false) {
-			continue;
-		}
-		it->returnMessage(_data);
-		return;
+	if (m_gateWayClient != nullptr) {
+		m_gateWayClient->answer(_userSessionId, _data);
 	}
-	*/
 }
 
 void appl::GateWay::cleanIO() {
-	
+	APPL_VERBOSE("Check if something need to be clean ...");
 	auto it = m_serviceList.begin();
 	while (it != m_serviceList.end()) {
 		if (*it != nullptr) {
@@ -146,21 +138,9 @@ void appl::GateWay::cleanIO() {
 		}
 		++it;
 	}
-	/*
-	auto it2 = m_gateWayClient.begin();
-	while (it2 != m_gateWayClient.end()) {
-		if (*it2 != nullptr) {
-			if ((*it2)->isAlive() == false) {
-				it2 = m_gateWayClient.erase(it2);
-				continue;
-			}
-		} else {
-			it2 = m_gateWayClient.erase(it2);
-			continue;
-		}
-		++it2;
+	if (m_gateWayClient != nullptr) {
+		m_gateWayClient->clean();
 	}
-	*/
 }
 
 void appl::GateWay::onClientConnect(const bool& _value) {

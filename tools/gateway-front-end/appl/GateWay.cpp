@@ -75,12 +75,13 @@ void appl::GateWay::newClientGateWayBackEnd(enet::Tcp _connection) {
 void appl::GateWay::newClient(enet::Tcp _connection) {
 	ZEUS_WARNING("New TCP connection (client)");
 	ememory::SharedPtr<appl::ClientInterface> tmp = ememory::makeShared<appl::ClientInterface>(std::move(_connection), this);
-	tmp->start(m_clientUID++, m_clientUID++);
+	tmp->start(m_clientUID);
+	m_clientUID += 2; // Need to do it, it is une impair ID by the Gateway
 	m_clientList.push_back(tmp);
 }
 
 appl::GateWay::GateWay() :
-  m_clientUID(1),
+  m_clientUID(2),
   propertyClientIp(this, "client-ip", "127.0.0.1", "Ip to listen client", &appl::GateWay::onPropertyChangeClientIp),
   propertyClientPort(this, "client-port", 1983, "Port to listen client", &appl::GateWay::onPropertyChangeClientPort),
   propertyClientMax(this, "client-max", 80, "Maximum of client at the same time", &appl::GateWay::onPropertyChangeClientMax),

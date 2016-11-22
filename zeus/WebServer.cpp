@@ -8,6 +8,7 @@
 #include <ethread/tools.hpp>
 
 #include <zeus/BufferData.hpp>
+#include <zeus/BufferCtrl.hpp>
 
 
 ememory::SharedPtr<zeus::BufferCall> zeus::createBaseCall(uint64_t _transactionId, const std::string& _functionName, const uint32_t& _serviceId) {
@@ -26,11 +27,13 @@ void zeus::createParam(int32_t _paramId, ememory::SharedPtr<zeus::BufferCall> _o
 }
 
 
+static uint32_t interfaceId = 1;
 
 zeus::WebServer::WebServer() :
   m_connection(),
   m_observerElement(nullptr),
   m_threadAsync(nullptr) {
+	m_interfaceId = interfaceId++;
 	m_threadAsyncRunning = false;
 	m_transmissionId = 1;
 }
@@ -39,6 +42,7 @@ zeus::WebServer::WebServer(enet::Tcp _connection, bool _isServer) :
   m_connection(),
   m_observerElement(nullptr),
   m_threadAsync(nullptr) {
+	m_interfaceId = interfaceId++;
 	m_threadAsyncRunning = false;
 	m_transmissionId = 1;
 	setInterface(std::move(_connection), _isServer);
@@ -140,6 +144,7 @@ class SendAsyncBinary {
 				if (obj == nullptr) {
 					return true;
 				}
+				//obj->setInterfaceId(m_interfaceId);
 				obj->setServiceId(m_serviceId);
 				obj->setTransactionId(m_transactionId);
 				obj->setPartId(m_partId);
@@ -151,6 +156,10 @@ class SendAsyncBinary {
 		}
 };
 
+#define ZEUS_LOG_INPUT_OUTPUT ZEUS_WARNING
+//#define ZEUS_LOG_INPUT_OUTPUT ZEUS_VERBOSE
+
+
 int32_t zeus::WebServer::writeBinary(ememory::SharedPtr<zeus::Buffer> _obj) {
 	if (m_connection.isAlive() == false) {
 		return -2;
@@ -158,7 +167,8 @@ int32_t zeus::WebServer::writeBinary(ememory::SharedPtr<zeus::Buffer> _obj) {
 	if (_obj->haveAsync() == true) {
 		_obj->setPartFinish(false);
 	}
-	ZEUS_VERBOSE("Send :" << _obj);
+	_obj->setInterfaceId(m_interfaceId);
+	ZEUS_LOG_INPUT_OUTPUT("Send    :" << _obj);
 	if (_obj->writeOn(m_connection) == true) {
 		m_connection.send();
 		if (_obj->haveAsync() == true) {
@@ -181,6 +191,10 @@ bool zeus::WebServer::onReceiveUri(const std::string& _uri, const std::vector<st
 	if (m_observerRequestUri != nullptr) {
 		return m_observerRequestUri(_uri);
 	}
+	if (_uri == "/") {
+		return true;
+	}
+	ZEUS_ERROR("Disable connection all time the uri is not accepted by the server if the URI is not '/' URI='" << _uri << "'");
 	return false;
 }
 
@@ -191,6 +205,7 @@ void zeus::WebServer::onReceiveData(std::vector<uint8_t>& _frame, bool _isBinary
 		return;
 	}
 	ememory::SharedPtr<zeus::Buffer> dataRaw = zeus::Buffer::create(_frame);
+	dataRaw->setInterfaceId(m_interfaceId);
 	newBuffer(dataRaw);
 }
 
@@ -199,7 +214,7 @@ void zeus::WebServer::ping() {
 }
 
 void zeus::WebServer::newBuffer(ememory::SharedPtr<zeus::Buffer> _buffer) {
-	ZEUS_VERBOSE("Receive :" << _buffer);
+	ZEUS_LOG_INPUT_OUTPUT("Receive :" << _buffer);
 	zeus::FutureBase future;
 	uint64_t tid = _buffer->getTransactionId();
 	if (tid == 0) {
@@ -328,7 +343,7 @@ zeus::FutureBase zeus::WebServer::callForward(uint32_t _clientId,
 	//ret.setSynchronous();
 	
 	if (isActive() == false) {
-		ememory::SharedPtr<zeus::BufferAnswer> obj = zeus::BufferAnswer::create();
+		auto obj = zeus::BufferAnswer::create();
 		obj->addError("NOT-CONNECTED", "Client interface not connected (no TCP)");
 		return zeus::FutureBase(0, obj, _callback);
 	}
@@ -366,8 +381,19 @@ void zeus::WebServer::callForwardMultiple(uint32_t _clientId,
 	ZEUS_ERROR("Can not transfer part of a message ...");
 }
 
+void zeus::WebServer::sendCtrl(const std::string& _ctrlValue, uint32_t _clientId) {
+	auto ctrl = zeus::BufferCtrl::create();
+	if (ctrl == nullptr) {
+		return;
+	}
+	ctrl->setTransactionId(getId());
+	ctrl->setClientId(_clientId);
+	ctrl->setCtrl(_ctrlValue);
+	writeBinary(ctrl);
+}
+
 void zeus::WebServer::answerError(uint64_t _clientTransactionId, const std::string& _errorValue, const std::string& _errorHelp, uint32_t _clientId) {
-	ememory::SharedPtr<zeus::BufferAnswer> answer = zeus::BufferAnswer::create();
+	auto answer = zeus::BufferAnswer::create();
 	if (answer == nullptr) {
 		return;
 	}
@@ -379,7 +405,7 @@ void zeus::WebServer::answerError(uint64_t _clientTransactionId, const std::stri
 
 
 void zeus::WebServer::answerVoid(uint64_t _clientTransactionId, uint32_t _clientId) {
-	ememory::SharedPtr<zeus::BufferAnswer> answer = zeus::BufferAnswer::create();
+	auto answer = zeus::BufferAnswer::create();
 	if (answer == nullptr) {
 		return;
 	}

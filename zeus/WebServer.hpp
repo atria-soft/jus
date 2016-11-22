@@ -90,6 +90,7 @@ namespace zeus {
 	class WebServer {
 		private:
 			enet::WebSocket m_connection;
+			uint32_t m_interfaceId;
 			uint16_t m_transmissionId;
 			uint16_t getId() {
 				return m_transmissionId++;
@@ -353,9 +354,10 @@ namespace zeus {
 			
 			void answerProtocolError(uint32_t _transactionId, const std::string& _errorHelp);
 			/**
-			 * @brief 
-			 * @param[in] 
-			 * @return 
+			 * @brief Send an Answer of a function with single value
+			 * @param[in] _clientTransactionId Transaction ID
+			 * @param[in] _value ... Value to return
+			 * @param[in] _clientId Client to send control
 			 */
 			template<class ZEUS_ARG>
 			void answerValue(uint64_t _clientTransactionId, ZEUS_ARG _value, uint32_t _clientId=0) {
@@ -366,17 +368,27 @@ namespace zeus {
 				writeBinary(answer);
 			}
 			/**
-			 * @brief 
-			 * @param[in] 
-			 * @return 
+			 * @brief Send an Answer value (no value to set ==> void return of function)
+			 * @param[in] _clientTransactionId Transaction ID
+			 * @param[in] _clientId Client to send control
 			 */
 			void answerVoid(uint64_t _clientTransactionId, uint32_t _clientId=0);
 			/**
-			 * @brief 
-			 * @param[in] 
-			 * @return 
+			 * @brief Send an Answer error of a function
+			 * @param[in] _clientTransactionId Transaction ID
+			 * @param[in] _errorValue Value of the error
+			 * @param[in] _errorComment Help comment of the error
+			 * @param[in] _clientId Client to send control
 			 */
 			void answerError(uint64_t _clientTransactionId, const std::string& _errorValue, const std::string& _errorComment="", uint32_t _clientId=0);
+			/**
+			 * @brief  Send a control on the Interface
+			 * @param[in] _clientTransactionId Transaction ID
+			 * @param[in] _ctrlValue Value of the control
+			 * @param[in] _clientId Client to send control
+			 * @return 
+			 */
+			void sendCtrl(const std::string& _ctrlValue, uint32_t _clientId);
 	};
 }
 

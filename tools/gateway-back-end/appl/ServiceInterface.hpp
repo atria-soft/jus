@@ -11,8 +11,10 @@
 namespace appl {
 	class GateWay;
 	class ClientGateWayInterface;
+	class userSpecificInterface;
 	class ServiceInterface {
 		friend class appl::ClientGateWayInterface;
+		friend class appl::userSpecificInterface;
 		private:
 			appl::GateWay* m_gatewayInterface;
 			zeus::WebServer m_interfaceClient;
@@ -23,6 +25,7 @@ namespace appl {
 			void start();
 			void stop();
 			void onServiceData(ememory::SharedPtr<zeus::Buffer> _value);
+			bool requestURI(const std::string& _uri);
 		public:
 			void SendData(uint64_t _userSessionId, ememory::SharedPtr<zeus::Buffer> _data);
 			const std::string& getName() {

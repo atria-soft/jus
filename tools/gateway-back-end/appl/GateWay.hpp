@@ -17,7 +17,7 @@ namespace appl {
 			std::vector<ememory::SharedPtr<appl::ServiceInterface>> m_serviceList; //!< List of all service availlable with their specific connection interface
 			ememory::SharedPtr<appl::ClientGateWayInterface> m_gateWayClient; //!< Interface with the Gateway Front End
 			
-			ememory::SharedPtr<appl::TcpServerInput> m_interfaceServiceServer;
+			ememory::SharedPtr<appl::TcpServerInput> m_interfaceNewService;
 		public:
 			eproperty::Value<std::string> propertyUserName;
 			eproperty::Value<std::string> propertyGateWayClientIp;

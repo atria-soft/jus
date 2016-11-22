@@ -81,31 +81,28 @@ void zeus::Service::onPropertyChangePort(){
 }
 
 
-void zeus::Service::connect(uint32_t _numberRetry){
+bool zeus::Service::connect(uint32_t _numberRetry){
 	disconnect();
 	ZEUS_DEBUG("connect [START]");
 	enet::Tcp connection = std::move(enet::connectTcpClient(*propertyIp, *propertyPort, _numberRetry));
 	if (connection.getConnectionStatus() != enet::Tcp::status::link) {
 		ZEUS_DEBUG("connect [STOP] ==> can not connect");
-		return;
+		return false;
 	}
 	m_interfaceClient = ememory::makeShared<zeus::WebServer>();
 	if (m_interfaceClient == nullptr) {
 		ZEUS_ERROR("Can not allocate interface ...");
-		return;
+		return false;
 	}
 	m_interfaceClient->connect(this, &zeus::Service::onClientData);
-	m_interfaceClient->setInterface(std::move(connection), false, propertyNameService.get());
+	m_interfaceClient->setInterface(std::move(connection), false, std::string("service:") + propertyNameService.get());
 	m_interfaceClient->connect();
-	// TODO :  Check error ...
-	/*
-	if (ret.get() == false) {
-		ZEUS_ERROR("Can not configure the interface for the service with the current name ...");
-		m_interfaceClient->disconnect();
-		return;
+	if (m_interfaceClient->isActive() == false) {
+		ZEUS_ERROR("Can not connect service ...");
+		return false;
 	}
-	*/
 	ZEUS_DEBUG("connect [STOP]");
+	return true;
 }
 
 void zeus::Service::disconnect(){

@@ -8,10 +8,40 @@
 #include <appl/ServiceInterface.hpp>
 #include <appl/ClientGateWayInterface.hpp>
 #include <appl/GateWay.hpp>
+#include <etk/stdTools.hpp>
 
 // todo : cHANGE THIS ...
 static const std::string protocolError = "PROTOCOL-ERROR";
 
+
+bool appl::ServiceInterface::requestURI(const std::string& _uri) {
+	APPL_WARNING("request connect on SERVICE: '" << _uri << "'");
+	if(m_gatewayInterface == nullptr) {
+		APPL_ERROR("Can not access to the main GateWay interface (nullptr)");
+		return false;
+	}
+	std::string tmpURI = _uri;
+	if (tmpURI.size() == 0) {
+		APPL_ERROR("Empty URI ... not supported ...");
+		return false;
+	}
+	if (tmpURI[0] == '/') {
+		tmpURI = std::string(tmpURI.begin() + 1, tmpURI.end());
+	}
+	std::vector<std::string> listValue = etk::split(tmpURI, '?');
+	if (listValue.size() == 0) {
+		APPL_ERROR("can not parse URI ...");
+		return false;
+	}
+	tmpURI = listValue[0];
+	if (etk::start_with(tmpURI, "service:") == false ) {
+		APPL_ERROR("Missing 'service:' at the start of the URI ...");
+		return false;
+	}
+	m_name = &tmpURI[8];
+	APPL_INFO("Connect service name : '" << m_name << "'");
+	return true;
+}
 
 
 appl::ServiceInterface::ServiceInterface(enet::Tcp _connection, appl::GateWay* _gatewayInterface) :
@@ -35,6 +65,7 @@ bool appl::ServiceInterface::isAlive() {
 
 void appl::ServiceInterface::start() {
 	m_interfaceClient.connect(this, &appl::ServiceInterface::onServiceData);
+	m_interfaceClient.connectUri(this, &appl::ServiceInterface::requestURI);
 	m_interfaceClient.connect();
 	m_interfaceClient.setInterfaceName("srv-?");
 }
@@ -74,12 +105,14 @@ void appl::ServiceInterface::onServiceData(ememory::SharedPtr<zeus::Buffer> _val
 		*/
 		return;
 	}
+	/*
+	 DEPRECATED:
 	if (_value->getType() == zeus::Buffer::typeMessage::call) {
 		ememory::SharedPtr<zeus::BufferCall> callObj = ememory::staticPointerCast<zeus::BufferCall>(_value);
 		std::string callFunction = callObj->getCall();
 		if (callFunction == "connect-service") {
 			if (m_name != "") {
-				APPL_WARNING("Service interface ==> try change the servie name after init: '" << callObj->getParameter<std::string>(0));
+				APPL_WARNING("Service interface ==> try change the service name after init: '" << callObj->getParameter<std::string>(0));
 				m_interfaceClient.answerValue(transactionId, false);
 				return;
 			}
@@ -90,6 +123,7 @@ void appl::ServiceInterface::onServiceData(ememory::SharedPtr<zeus::Buffer> _val
 		}
 		answerProtocolError(transactionId, "unknow function");
 	}
+	*/
 	if (_value->getClientId() == 0) {
 		APPL_ERROR("Service interface ==> wrong service answer ==> missing 'client-id'");
 		return;

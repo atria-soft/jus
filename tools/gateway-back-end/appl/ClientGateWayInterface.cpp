@@ -13,93 +13,64 @@
 
 #include <zeus/AbstractFunction.hpp>
 
-
 static const std::string protocolError = "PROTOCOL-ERROR";
 
-appl::ClientGateWayInterface::ClientGateWayInterface(const std::string& _ip, uint16_t _port, const std::string& _userName, appl::GateWay* _gatewayInterface) :
-  m_state(appl::ClientGateWayInterface::state::unconnect),
-  m_gatewayInterface(_gatewayInterface),
-  m_interfaceGateWayClient() {
-	APPL_INFO("----------------------------------------");
-	APPL_INFO("-- NEW Connection to GateWay Font-end --");
-	APPL_INFO("----------------------------------------");
-	enet::Tcp connection = std::move(enet::connectTcpClient(_ip, _port));
-	if (connection.getConnectionStatus() != enet::Tcp::status::link) {
-		APPL_ERROR("Can not connect the GateWay-front-end");
-		return;
-	}
-	m_interfaceGateWayClient.setInterface(std::move(connection), false, _userName);
-	m_userConnectionName = _userName;
-	m_state = appl::ClientGateWayInterface::state::connect;
-	m_interfaceGateWayClient.connect(this, &appl::ClientGateWayInterface::onClientData);
-	m_interfaceGateWayClient.connect(true);
-	m_interfaceGateWayClient.setInterfaceName("cli-" + etk::to_string(m_uid));
+appl::userSpecificInterface::userSpecificInterface() {
+	m_uid = 0;
+	m_localIdUser = 0;
+	m_state = appl::clientState::unconnect;
+	APPL_INFO("----------------");
+	APPL_INFO("-- NEW Client --");
+	APPL_INFO("----------------");
 }
 
-appl::ClientGateWayInterface::~ClientGateWayInterface() {
-	APPL_TODO("Call All unlink ...");
-	stop();
-	APPL_INFO("-------------------------------------------");
-	APPL_INFO("-- DELETE Connection to GateWay Font-end --");
-	APPL_INFO("-------------------------------------------");
+appl::userSpecificInterface::~userSpecificInterface() {
+	APPL_INFO("-------------------");
+	APPL_INFO("-- DELETE Client --");
+	APPL_INFO("-------------------");
 }
 
-void appl::ClientGateWayInterface::start(uint64_t _uid, uint64_t _uid2) {
-	m_uid = _uid;
-	m_uid2 = _uid2;
-	m_state = appl::ClientGateWayInterface::state::connect;
-	m_interfaceGateWayClient.setInterfaceName("cli-" + etk::to_string(m_uid));
+void appl::userSpecificInterface::answerProtocolError(uint32_t _transactionId, const std::string& _errorHelp) {
+	m_interfaceGateWayClient->answerError(_transactionId, protocolError, _errorHelp);
+	m_interfaceGateWayClient->sendCtrl("DISCONNECT", m_uid);
+	m_state = appl::clientState::disconnect;
+}
+
+bool appl::userSpecificInterface::start(uint32_t _transactionId, appl::GateWay* _gatewayInterface, zeus::WebServer* _interfaceGateWayClient, uint64_t _id) {
+	m_interfaceGateWayClient = _interfaceGateWayClient;
+	m_gatewayInterface = _gatewayInterface;
+	m_uid = _id;
+	m_localIdUser = _id+1;
+	m_state = appl::clientState::connect;
+	//m_interfaceGateWayClient->setInterfaceName("cli-" + etk::to_string(m_uid));
 	
-	APPL_WARNING("[" << m_uid << "] Connect to the user service");
+	APPL_WARNING("[" << m_uid << "] New client");
+	
 	m_userService = m_gatewayInterface->get("user");
 	if (m_userService == nullptr) {
-		//answerProtocolError(transactionId, "Gateway internal error 'No user interface'");
-		// TODO: Can not work at all ==> or create a fallback mode ...
+		APPL_ERROR("missing service 'user'");
+		answerProtocolError(_transactionId, "Gateway internal error 'No user interface'");
+		return false;
 	}
-	/*
-	  else {
-		zeus::Future<bool> futLocalService = m_userService->m_interfaceClient.callClient(m_uid2, "_new", m_userConnectionName, "**Gateway**", std::vector<std::string>());
-		futLocalService.wait(); // TODO: Set timeout ...
-		m_interfaceGateWayClient.answerValue(transactionId, true);
+	zeus::Future<bool> futLocalService = m_userService->m_interfaceClient.callClient(m_localIdUser, "_new", m_userConnectionName, "**Gateway**", std::vector<std::string>());
+	futLocalService.wait(); // TODO: Set timeout ...
+	if (futLocalService.get() == false) {
+		answerProtocolError(_transactionId, "Gateway internal error 'Can not create client in user backend'");
+		return false;
 	}
-				APPL_WARNING("[" << m_uid << "] Client must send conection to user name ...");
-				answerProtocolError(transactionId, "Missing call of connectToUser");
-				return;
-			}
-	*/
-}
-
-void appl::ClientGateWayInterface::stop() {
-	for (auto &it : m_listConnectedService) {
-		if (it == nullptr) {
-			continue;
-		}
-		it->m_interfaceClient.callClient(m_uid, "_delete");
-	}
-	if (m_userService != nullptr) {
-		m_userService->m_interfaceClient.callClient(m_uid2, "_delete");
-		m_userService = nullptr;
-	}
-	m_listConnectedService.clear();
-	m_interfaceGateWayClient.disconnect();
-}
-
-bool appl::ClientGateWayInterface::isAlive() {
-	return m_interfaceGateWayClient.isActive();
-}
-
-void appl::ClientGateWayInterface::answerProtocolError(uint32_t _transactionId, const std::string& _errorHelp) {
-	m_interfaceGateWayClient.answerError(_transactionId, protocolError, _errorHelp);
-	m_state = appl::ClientGateWayInterface::state::disconnect;
-	m_interfaceGateWayClient.disconnect(true);
+	return true;
 }
 
 
-void appl::ClientGateWayInterface::onClientData(ememory::SharedPtr<zeus::Buffer> _value) {
+void appl::userSpecificInterface::returnMessage(ememory::SharedPtr<zeus::Buffer> _data) {
+	APPL_ERROR("Get call from the Service to the user ...");
+}
+
+void appl::userSpecificInterface::onClientData(ememory::SharedPtr<zeus::Buffer> _value) {
 	if (_value == nullptr) {
 		return;
 	}
-	APPL_ERROR("get message from front-end gateWay: " << _value);
+	//APPL_ERROR("    ==> parse DATA ...");
 	uint32_t transactionId = _value->getTransactionId();
 	if (transactionId == 0) {
 		APPL_ERROR("Protocol error ==>missing id");
@@ -108,7 +79,7 @@ void appl::ClientGateWayInterface::onClientData(ememory::SharedPtr<zeus::Buffer>
 	}
 	if (_value->getType() == zeus::Buffer::typeMessage::data) {
 		// TRANSMIT DATA ...
-		if (m_state != appl::ClientGateWayInterface::state::clientIdentify) {
+		if (m_state != appl::clientState::clientIdentify) {
 			answerProtocolError(transactionId, "Not identify to send 'data' buffer (multiple packet element)");
 			return;
 		}
@@ -119,7 +90,7 @@ void appl::ClientGateWayInterface::onClientData(ememory::SharedPtr<zeus::Buffer>
 		}
 		serviceId--;
 		if (serviceId >= m_listConnectedService.size()) {
-			m_interfaceGateWayClient.answerError(transactionId, "NOT-CONNECTED-SERVICE");
+			m_interfaceGateWayClient->answerError(transactionId, "NOT-CONNECTED-SERVICE");
 			return;
 		}
 		if (m_listConnectedService[serviceId] == nullptr) {
@@ -141,14 +112,14 @@ void appl::ClientGateWayInterface::onClientData(ememory::SharedPtr<zeus::Buffer>
 	ememory::SharedPtr<zeus::BufferCall> callObj = ememory::staticPointerCast<zeus::BufferCall>(_value);
 	std::string callFunction = callObj->getCall();
 	switch (m_state) {
-		case appl::ClientGateWayInterface::state::disconnect:
-		case appl::ClientGateWayInterface::state::unconnect:
+		case appl::clientState::disconnect:
+		case appl::clientState::unconnect:
 			{
 				APPL_ERROR("Must never appear");
 				answerProtocolError(transactionId, "Gateway internal error");
 				return;
 			}
-		case appl::ClientGateWayInterface::state::connect:
+		case appl::clientState::connect:
 			{
 				m_clientServices.clear();
 				m_clientgroups.clear();
@@ -167,15 +138,15 @@ void appl::ClientGateWayInterface::onClientData(ememory::SharedPtr<zeus::Buffer>
 						return;
 					}
 					
-					zeus::Future<bool> fut = m_userService->m_interfaceClient.callClient(m_uid2, "checkTocken", clientName, clientTocken);
+					zeus::Future<bool> fut = m_userService->m_interfaceClient.callClient(m_localIdUser, "checkTocken", clientName, clientTocken);
 					fut.wait(); // TODO: Set timeout ...
 					if (fut.hasError() == true) {
 						APPL_ERROR("Get error from the service ...");
-						m_interfaceGateWayClient.answerValue(transactionId, false);
+						m_interfaceGateWayClient->answerValue(transactionId, false);
 						answerProtocolError(transactionId, "connection refused 1");
 						return;
 					} else if (fut.get() == false) {
-						m_interfaceGateWayClient.answerValue(transactionId, false);
+						m_interfaceGateWayClient->answerValue(transactionId, false);
 						answerProtocolError(transactionId, "connection refused 2");
 						return;
 					}
@@ -183,15 +154,15 @@ void appl::ClientGateWayInterface::onClientData(ememory::SharedPtr<zeus::Buffer>
 				}
 				if (callFunction == "auth") {
 					std::string password = callObj->getParameter<std::string>(0);
-					zeus::Future<bool> fut = m_userService->m_interfaceClient.callClient(m_uid2, "checkAuth", password);
+					zeus::Future<bool> fut = m_userService->m_interfaceClient.callClient(m_localIdUser, "checkAuth", password);
 					fut.wait(); // TODO: Set timeout ...
 					if (fut.hasError() == true) {
 						APPL_ERROR("Get error from the service ...");
-						m_interfaceGateWayClient.answerValue(transactionId, false);
+						m_interfaceGateWayClient->answerValue(transactionId, false);
 						answerProtocolError(transactionId, "connection refused 1");
 						return;
 					} else if (fut.get() == false) {
-						m_interfaceGateWayClient.answerValue(transactionId, false);
+						m_interfaceGateWayClient->answerValue(transactionId, false);
 						answerProtocolError(transactionId, "connection refused 2");
 						return;
 					}
@@ -203,11 +174,11 @@ void appl::ClientGateWayInterface::onClientData(ememory::SharedPtr<zeus::Buffer>
 				// --------------------------------
 				// -- Get groups:
 				// --------------------------------
-				zeus::Future<std::vector<std::string>> futGroup = m_userService->m_interfaceClient.callClient(m_uid2, "getGroups", m_clientName);
+				zeus::Future<std::vector<std::string>> futGroup = m_userService->m_interfaceClient.callClient(m_localIdUser, "getGroups", m_clientName);
 				futGroup.wait(); // TODO: Set timeout ...
 				if (futGroup.hasError() == true) {
 					APPL_ERROR("Get error from the service ...");
-					m_interfaceGateWayClient.answerValue(transactionId, false);
+					m_interfaceGateWayClient->answerValue(transactionId, false);
 					answerProtocolError(transactionId, "grouping error");
 					return;
 				}
@@ -216,11 +187,11 @@ void appl::ClientGateWayInterface::onClientData(ememory::SharedPtr<zeus::Buffer>
 				// -- Get services:
 				// --------------------------------
 				std::vector<std::string> currentServices = m_gatewayInterface->getAllServiceName();
-				zeus::Future<std::vector<std::string>> futServices = m_userService->m_interfaceClient.callClient(m_uid2, "filterServices", m_clientName, currentServices);
+				zeus::Future<std::vector<std::string>> futServices = m_userService->m_interfaceClient.callClient(m_localIdUser, "filterServices", m_clientName, currentServices);
 				futServices.wait(); // TODO: Set timeout ...
 				if (futServices.hasError() == true) {
 					APPL_ERROR("Get error from the service ...");
-					m_interfaceGateWayClient.answerValue(transactionId, false);
+					m_interfaceGateWayClient->answerValue(transactionId, false);
 					answerProtocolError(transactionId, "service filtering error");
 					return;
 				}
@@ -230,22 +201,22 @@ void appl::ClientGateWayInterface::onClientData(ememory::SharedPtr<zeus::Buffer>
 				APPL_WARNING("     services: " << etk::to_string(m_clientServices));
 				
 				
-				m_interfaceGateWayClient.answerValue(transactionId, true);
-				m_state = appl::ClientGateWayInterface::state::clientIdentify;
+				m_interfaceGateWayClient->answerValue(transactionId, true);
+				m_state = appl::clientState::clientIdentify;
 				return;
 			}
 			break;
-		case appl::ClientGateWayInterface::state::clientIdentify:
+		case appl::clientState::clientIdentify:
 			{
 				uint32_t serviceId = callObj->getServiceId();
 				if (serviceId == 0) {
 					// This is 2 default service for the cient interface that manage the authorisation of view:
 					if (callFunction == "getServiceCount") {
-						m_interfaceGateWayClient.answerValue(transactionId, m_clientServices.size());
+						m_interfaceGateWayClient->answerValue(transactionId, m_clientServices.size(), m_uid);
 						return;
 					}
 					if (callFunction == "getServiceList") {
-						m_interfaceGateWayClient.answerValue(transactionId, m_clientServices);
+						m_interfaceGateWayClient->answerValue(transactionId, m_clientServices, m_uid);
 						//"ServiceManager/v0.1.0"
 						return;
 					}
@@ -268,7 +239,7 @@ void appl::ClientGateWayInterface::onClientData(ememory::SharedPtr<zeus::Buffer>
 						if (it == m_listConnectedService.end()) {
 							// check if service is connectable ...
 							if (std::find(m_clientServices.begin(), m_clientServices.end(), serviceName) == m_clientServices.end()) {
-								m_interfaceGateWayClient.answerError(transactionId, "UN-AUTHORIZED-SERVICE");
+								m_interfaceGateWayClient->answerError(transactionId, "UN-AUTHORIZED-SERVICE");
 								return;
 							}
 							ememory::SharedPtr<appl::ServiceInterface> srv = m_gatewayInterface->get(serviceName);
@@ -277,17 +248,17 @@ void appl::ClientGateWayInterface::onClientData(ememory::SharedPtr<zeus::Buffer>
 								futLink.wait(); // TODO: Set timeout ...
 								if (futLink.hasError() == true) {
 									APPL_ERROR("Get error from the service ... LINK");
-									m_interfaceGateWayClient.answerError(transactionId, "ERROR-CREATE-SERVICE-INSTANCE");
+									m_interfaceGateWayClient->answerError(transactionId, "ERROR-CREATE-SERVICE-INSTANCE");
 									return;
 								}
 								m_listConnectedService.push_back(srv);
-								m_interfaceGateWayClient.answerValue(transactionId, m_listConnectedService.size());
+								m_interfaceGateWayClient->answerValue(transactionId, m_listConnectedService.size(), m_uid);
 								return;
 							}
-							m_interfaceGateWayClient.answerError(transactionId, "CAN-NOT-CONNECT-SERVICE");
+							m_interfaceGateWayClient->answerError(transactionId, "CAN-NOT-CONNECT-SERVICE");
 							return;
 						}
-						m_interfaceGateWayClient.answerError(transactionId, "SERVICE-ALREADY-CONNECTED");;
+						m_interfaceGateWayClient->answerError(transactionId, "SERVICE-ALREADY-CONNECTED");;
 						return;
 					}
 					if (callFunction == "unlink") {
@@ -295,28 +266,28 @@ void appl::ClientGateWayInterface::onClientData(ememory::SharedPtr<zeus::Buffer>
 						int64_t localServiceID = callObj->getParameter<int64_t>(0)-1;
 						// Check if service already link:
 						if (localServiceID >= m_listConnectedService.size()) {
-							m_interfaceGateWayClient.answerError(transactionId, "NOT-CONNECTED-SERVICE");
+							m_interfaceGateWayClient->answerError(transactionId, "NOT-CONNECTED-SERVICE");
 							return;
 						}
 						zeus::Future<bool> futUnLink = m_listConnectedService[localServiceID]->m_interfaceClient.callClient(m_uid, "_delete");
 						futUnLink.wait(); // TODO: Set timeout ...
 						if (futUnLink.hasError() == true) {
 							APPL_ERROR("Get error from the service ... UNLINK");
-							m_interfaceGateWayClient.answerError(transactionId, "ERROR-CREATE-SERVICE-INSTANCE");
+							m_interfaceGateWayClient->answerError(transactionId, "ERROR-CREATE-SERVICE-INSTANCE");
 							return;
 						}
 						m_listConnectedService[localServiceID] = nullptr;
-						m_interfaceGateWayClient.answerValue(transactionId, true);
+						m_interfaceGateWayClient->answerValue(transactionId, true);
 						return;
 					}
 					APPL_ERROR("Function does not exist ... '" << callFunction << "'");
-					m_interfaceGateWayClient.answerError(transactionId, "CALL-UNEXISTING");
+					m_interfaceGateWayClient->answerError(transactionId, "CALL-UNEXISTING");
 					return;
 				}
 				// decrease service ID ...
 				serviceId -= 1;
 				if (serviceId >= m_listConnectedService.size()) {
-					m_interfaceGateWayClient.answerError(transactionId, "NOT-CONNECTED-SERVICE");
+					m_interfaceGateWayClient->answerError(transactionId, "NOT-CONNECTED-SERVICE");
 					return;
 				} else {
 					if (m_listConnectedService[serviceId] == nullptr) {
@@ -338,7 +309,7 @@ void appl::ClientGateWayInterface::onClientData(ememory::SharedPtr<zeus::Buffer>
 					    		tmpp->setTransactionId(transactionId);
 					    		tmpp->setServiceId(serviceId+1);
 					    		APPL_DEBUG("transmit=" << tmpp);
-					    		m_interfaceGateWayClient.writeBinary(tmpp);
+					    		m_interfaceGateWayClient->writeBinary(tmpp);
 					    		// multiple send element ...
 					    		return tmpp->getPartFinish();
 					    });
@@ -347,6 +318,103 @@ void appl::ClientGateWayInterface::onClientData(ememory::SharedPtr<zeus::Buffer>
 	}
 }
 
-void appl::ClientGateWayInterface::returnMessage(ememory::SharedPtr<zeus::Buffer> _data) {
-	APPL_ERROR("Get call from the Service to the user ...");
+
+
+
+appl::ClientGateWayInterface::ClientGateWayInterface(const std::string& _ip, uint16_t _port, const std::string& _userName, appl::GateWay* _gatewayInterface) :
+  m_state(appl::clientState::unconnect),
+  m_gatewayInterface(_gatewayInterface),
+  m_interfaceGateWayClient() {
+	APPL_INFO("----------------------------------------");
+	APPL_INFO("-- NEW Connection to GateWay Font-end --");
+	APPL_INFO("----------------------------------------");
+	enet::Tcp connection = std::move(enet::connectTcpClient(_ip, _port));
+	if (connection.getConnectionStatus() != enet::Tcp::status::link) {
+		APPL_ERROR("Can not connect the GateWay-front-end");
+		return;
+	}
+	m_interfaceGateWayClient.setInterface(std::move(connection), false, _userName);
+	//m_userConnectionName = _userName;
+	m_state = appl::clientState::connect;
+	m_interfaceGateWayClient.connect(this, &appl::ClientGateWayInterface::onClientData);
+	m_interfaceGateWayClient.connect(true);
+	m_interfaceGateWayClient.setInterfaceName("cli-GateWay-front-end");
+	// TODO : Check if user name is accepted ...
+}
+
+appl::ClientGateWayInterface::~ClientGateWayInterface() {
+	APPL_TODO("Call All unlink ...");
+	stop();
+	APPL_INFO("-------------------------------------------");
+	APPL_INFO("-- DELETE Connection to GateWay Font-end --");
+	APPL_INFO("-------------------------------------------");
+}
+
+void appl::ClientGateWayInterface::stop() {
+	/* TODO ...
+	for (auto &it : m_listConnectedService) {
+		if (it == nullptr) {
+			continue;
+		}
+		it->m_interfaceClient.callClient(m_uid, "_delete");
+	}
+	if (m_userService != nullptr) {
+		m_userService->m_interfaceClient.callClient(m_uid2, "_delete");
+		m_userService = nullptr;
+	}
+	m_listConnectedService.clear();
+	*/
+	m_interfaceGateWayClient.disconnect();
+}
+
+bool appl::ClientGateWayInterface::isAlive() {
+	return m_interfaceGateWayClient.isActive();
+}
+
+
+
+void appl::ClientGateWayInterface::onClientData(ememory::SharedPtr<zeus::Buffer> _value) {
+	if (_value == nullptr) {
+		return;
+	}
+	// Get client ID:
+	uint64_t clientId = _value->getClientId();
+	//APPL_ERROR("[" << clientId << "] get message from front-end gateWay: " << _value);
+	int64_t localId = -1;
+	for (size_t iii=0; iii<m_listUser.size(); ++iii) {
+		if (m_listUser[iii].m_uid == clientId) {
+			localId = iii;
+			break;
+		}
+	}
+	if (localId == -1) {
+		m_listUser.push_back(userSpecificInterface());
+		localId = m_listUser.size()-1;
+		bool ret = m_listUser[localId].start(_value->getTransactionId(), m_gatewayInterface, &m_interfaceGateWayClient, clientId);
+		if (ret == false) {
+			return;
+		}
+	}
+	m_listUser[localId].onClientData(std::move(_value));
+}
+
+void appl::ClientGateWayInterface::answer(uint64_t _userSessionId, const ememory::SharedPtr<zeus::Buffer>& _data) {
+	for (auto &it : m_listUser) {
+		if (it.checkId(_userSessionId) == false) {
+			continue;
+		}
+		it.returnMessage(_data);
+		return;
+	}
+}
+
+void appl::ClientGateWayInterface::clean() {
+	auto it = m_listUser.begin();
+	while (it != m_listUser.end()) {
+		if (it->m_state == appl::clientState::disconnect) {
+			it = m_listUser.erase(it);
+			continue;
+		}
+		++it;
+	}
 }

@@ -25,9 +25,7 @@ namespace appl {
 			bool requestURI(const std::string& _uri);
 		public:
 			ememory::SharedPtr<appl::GateWayInterface> m_userGateWay;
-			std::vector<ememory::SharedPtr<appl::GateWayInterface>> m_listConnectedService;
 			uint64_t m_uid;
-			uint64_t m_uid2;
 			std::string m_userConnectionName;
 			std::string m_clientName;
 			std::vector<std::string> m_clientgroups;
@@ -35,13 +33,12 @@ namespace appl {
 		public:
 			ClientInterface(enet::Tcp _connection, appl::GateWay* _gatewayInterface);
 			virtual ~ClientInterface();
-			void start(uint64_t _uid, uint64_t _uid2);
+			void start(uint64_t _uid);
 			void stop();
 			void onClientData(ememory::SharedPtr<zeus::Buffer> _value);
 			void returnMessage(ememory::SharedPtr<zeus::Buffer> _data);
 			bool checkId(uint64_t _id) const {
-				return    m_uid == _id
-				       || m_uid2 == _id;
+				return m_uid == _id;
 			}
 			bool isAlive();
 			

@@ -131,6 +131,7 @@ namespace zeus {
 			 */
 			static ememory::SharedPtr<zeus::Buffer> create(const std::vector<uint8_t>& _buffer);
 		protected:
+			uint32_t m_interfaceID; //!< For debug ==> unterface ID ...
 			headerBin m_header; //!< header of the protocol
 			std::vector<zeus::ActionAsyncClient> m_multipleSend; //!< Async element to send data on the webinterface when too big ...
 		public:
@@ -166,6 +167,16 @@ namespace zeus {
 			 * @brief Chear the buffer
 			 */
 			void clear();
+			/**
+			 * @brief Get the interface identifier of the packet
+			 * @return value of the interface
+			 */
+			uint32_t getInterfaceId() const;
+			/**
+			 * @brief Set the interface identifier of the packet
+			 * @param[in] _value New interface id
+			 */
+			void setInterfaceId(uint32_t _value);
 			/**
 			 * @brief Get the transaction identifier of the packet
 			 * @return value of the transaction
@@ -215,10 +226,11 @@ namespace zeus {
 			 */
 			enum class typeMessage {
 				unknow = 0x0000, //!< Init value
-				call = 0x0001, //!< Remote call on a service ID
-				answer = 0x0002, //!< Answer from a previous call
-				data = 0x0003, //!< data message happend when partId > 0 it compleate the data of a parameter or an answer or an event
-				event = 0x0004, //!< event message
+				ctrl = 0x0001, //!< Control message
+				call = 0x0002, //!< Remote call on a service ID
+				answer = 0x0003, //!< Answer from a previous call
+				data = 0x0004, //!< data message happend when partId > 0 it compleate the data of a parameter or an answer or an event
+				event = 0x0005, //!< event message
 			};
 			/**
 			 * @brief Get the type of the buffer

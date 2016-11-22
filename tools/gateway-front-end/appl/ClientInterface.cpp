@@ -8,6 +8,7 @@
 #include <appl/ClientInterface.hpp>
 #include <zeus/Future.hpp>
 #include <appl/GateWay.hpp>
+#include <zeus/BufferCtrl.hpp>
 
 
 #include <zeus/AbstractFunction.hpp>
@@ -56,9 +57,8 @@ bool appl::ClientInterface::requestURI(const std::string& _uri) {
 	return true;
 }
 
-void appl::ClientInterface::start(uint64_t _uid, uint64_t _uid2) {
+void appl::ClientInterface::start(uint64_t _uid) {
 	m_uid = _uid;
-	//m_uid2 = _uid2;
 	m_state = appl::ClientInterface::state::connect;
 	m_interfaceClient.connect(this, &appl::ClientInterface::onClientData);
 	m_interfaceClient.connectUri(this, &appl::ClientInterface::requestURI);
@@ -67,20 +67,9 @@ void appl::ClientInterface::start(uint64_t _uid, uint64_t _uid2) {
 }
 
 void appl::ClientInterface::stop() {
-	for (auto &it : m_listConnectedService) {
-		if (it == nullptr) {
-			continue;
-		}
-		it->m_interfaceClient.callClient(m_uid, "_delete");
+	if (m_interfaceClient.isActive() == true) {
+		m_interfaceClient.disconnect();
 	}
-	/*
-	if (m_userGateWay != nullptr) {
-		m_userGateWay->m_interfaceClient.callClient(m_uid2, "_delete");
-		m_userGateWay = nullptr;
-	}
-	*/
-	m_listConnectedService.clear();
-	m_interfaceClient.disconnect();
 }
 
 bool appl::ClientInterface::isAlive() {
@@ -98,7 +87,7 @@ void appl::ClientInterface::onClientData(ememory::SharedPtr<zeus::Buffer> _value
 	if (_value == nullptr) {
 		return;
 	}
-	APPL_ERROR("receive data : " << _value);
+	//APPL_ERROR("receive data : " << _value);
 	uint32_t transactionId = _value->getTransactionId();
 	if (transactionId == 0) {
 		APPL_ERROR("Protocol error ==>missing id");
@@ -143,6 +132,19 @@ void appl::ClientInterface::onClientData(ememory::SharedPtr<zeus::Buffer> _value
 }
 
 void appl::ClientInterface::returnMessage(ememory::SharedPtr<zeus::Buffer> _data) {
-	APPL_ERROR("Get call from the Service to the user ...");
+	if (_data == nullptr) {
+		return;
+	}
+	if (_data->getType() == zeus::Buffer::typeMessage::ctrl) {
+		std::string value = static_cast<zeus::BufferCtrl*>(_data.get())->getCtrl();
+		if (value == "DISCONNECT") {
+			m_state = appl::ClientInterface::state::disconnect;
+			m_interfaceClient.disconnect(true);
+			return;
+		}
+		APPL_ERROR("Receive message from GateWay CTRL : '" << value << "' ==> not managed" );
+		return;
+	}
+	APPL_ERROR("Get call from the Service to the user ... " << _data);
 }
 

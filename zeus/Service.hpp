@@ -128,9 +128,9 @@ namespace zeus {
 			/**
 			 * @brief 
 			 * @param[in] 
-			 * @return 
+			 * @return true The connection is done corectly, false otherwise
 			 */
-			void connect(uint32_t _numberRetry = 1);
+			bool connect(uint32_t _numberRetry = 1);
 			/**
 			 * @brief 
 			 * @param[in] 

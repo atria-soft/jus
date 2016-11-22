@@ -11,6 +11,7 @@
 #include <zeus/AbstractFunction.hpp>
 #include <climits>
 #include <zeus/BufferAnswer.hpp>
+#include <zeus/BufferCtrl.hpp>
 #include <zeus/BufferCall.hpp>
 #include <zeus/BufferData.hpp>
 #include <zeus/BufferFlow.hpp>
@@ -21,6 +22,8 @@ namespace etk {
 		switch (_value) {
 			case zeus::Buffer::typeMessage::unknow:
 				return "unknow";
+			case zeus::Buffer::typeMessage::ctrl:
+				return "ctrl";
 			case zeus::Buffer::typeMessage::call:
 				return "call";
 			case zeus::Buffer::typeMessage::answer:
@@ -43,12 +46,14 @@ static enum zeus::Buffer::typeMessage getTypeType(uint16_t _value) {
 		case 0:
 			return zeus::Buffer::typeMessage::unknow;
 		case 1:
-			return zeus::Buffer::typeMessage::call;
+			return zeus::Buffer::typeMessage::ctrl;
 		case 2:
-			return zeus::Buffer::typeMessage::answer;
+			return zeus::Buffer::typeMessage::call;
 		case 3:
-			return zeus::Buffer::typeMessage::data;
+			return zeus::Buffer::typeMessage::answer;
 		case 4:
+			return zeus::Buffer::typeMessage::data;
+		case 5:
 			return zeus::Buffer::typeMessage::event;
 	}
 	return zeus::Buffer::typeMessage::unknow;
@@ -106,8 +111,9 @@ std::ostream& zeus::operator <<(std::ostream& _os, ememory::SharedPtr<zeus::Buff
 	return _os;
 }
 void zeus::Buffer::generateDisplay(std::ostream& _os) const {
-	//out += " v=" + etk::to_string(m_header.versionProtocol); // se it in the websocket
-	_os << " id=" << etk::to_string(getTransactionId());
+	//out += " v=" + etk::to_string(m_header.versionProtocol); // set it in the websocket
+	_os << " if=" << etk::to_string(getInterfaceId());
+	_os << " tr-id=" << etk::to_string(getTransactionId());
 	_os << " cId=" << etk::to_string(getClientId());
 	if (getPartFinish() == true) {
 		_os << " finish";
@@ -116,6 +122,9 @@ void zeus::Buffer::generateDisplay(std::ostream& _os) const {
 	switch (type) {
 		case zeus::Buffer::typeMessage::unknow:
 			_os << " -UNKNOW-";
+			break;
+		case zeus::Buffer::typeMessage::ctrl:
+			_os << " -CTRL-";
 			break;
 		case zeus::Buffer::typeMessage::call:
 			_os << " -CALL-";
@@ -132,6 +141,13 @@ void zeus::Buffer::generateDisplay(std::ostream& _os) const {
 	}
 }
 
+uint32_t zeus::Buffer::getInterfaceId() const {
+	return m_interfaceID;
+}
+
+void zeus::Buffer::setInterfaceId(uint32_t _value) {
+	m_interfaceID = _value;
+}
 uint32_t zeus::Buffer::getTransactionId() const {
 	return m_header.transactionID;
 }
@@ -182,6 +198,19 @@ ememory::SharedPtr<zeus::Buffer> zeus::Buffer::create(const std::vector<uint8_t>
 	switch (type) {
 		case zeus::Buffer::typeMessage::unknow:
 			return nullptr;
+		case zeus::Buffer::typeMessage::ctrl: {
+				ememory::SharedPtr<zeus::BufferCtrl> value = zeus::BufferCtrl::create();
+				if (value == nullptr) {
+					return nullptr;
+				}
+				value->setTransactionId(header.transactionID);
+				value->setClientId(header.clientID);
+				value->setPartFinish((header.flags & ZEUS_BUFFER_FLAG_FINISH) != 0);
+				value->composeWith(&_buffer[sizeof(headerBin)],
+				                    _buffer.size() - sizeof(headerBin));
+				return value;
+			}
+			break;
 		case zeus::Buffer::typeMessage::call: {
 				ememory::SharedPtr<zeus::BufferCall> value = zeus::BufferCall::create();
 				if (value == nullptr) {
