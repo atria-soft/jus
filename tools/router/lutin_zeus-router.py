@@ -10,7 +10,7 @@ def get_sub_type():
 	return "TOOLS"
 
 def get_desc():
-	return "ZEUS generic gateway"
+	return "ZEUS generic router"
 
 def get_licence():
 	return "APACHE-2"
@@ -31,7 +31,7 @@ def configure(target, my_module):
 	    'appl/debug.cpp',
 	    'appl/ClientInterface.cpp',
 	    'appl/GateWayInterface.cpp',
-	    'appl/GateWay.cpp',
+	    'appl/Router.cpp',
 	    'appl/main.cpp'
 	    ])
 	return True

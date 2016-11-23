@@ -10,20 +10,22 @@
 
 namespace appl {
 	class GateWay;
-	class ClientInterface;
-	class GateWayInterface {
-		friend class appl::ClientInterface;
+	class RouterInterface;
+	class userSpecificInterface;
+	class ServiceInterface {
+		friend class appl::RouterInterface;
+		friend class appl::userSpecificInterface;
 		private:
 			appl::GateWay* m_gatewayInterface;
 			zeus::WebServer m_interfaceClient;
 			std::string m_name;
-			bool requestURI(const std::string& _uri);
 		public:
-			GateWayInterface(enet::Tcp _connection, appl::GateWay* _gatewayInterface);
-			virtual ~GateWayInterface();
+			ServiceInterface(enet::Tcp _connection, appl::GateWay* _gatewayInterface);
+			virtual ~ServiceInterface();
 			void start();
 			void stop();
 			void onServiceData(ememory::SharedPtr<zeus::Buffer> _value);
+			bool requestURI(const std::string& _uri);
 		public:
 			void SendData(uint64_t _userSessionId, ememory::SharedPtr<zeus::Buffer> _data);
 			const std::string& getName() {

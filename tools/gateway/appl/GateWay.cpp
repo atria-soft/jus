@@ -69,8 +69,8 @@ void appl::GateWay::newService(enet::Tcp _connection) {
 appl::GateWay::GateWay() :
   m_clientUID(1),
   propertyUserName(this, "user", "no-name", "User name of the interface"), // must be set befor start ...
-  propertyGateWayClientIp(this, "gw-ip", "127.0.0.1", "Ip to listen client", &appl::GateWay::onPropertyChangeClientIp),
-  propertyGateWayClientPort(this, "gw-port", 1984, "Port to listen client", &appl::GateWay::onPropertyChangeClientPort),
+  propertyRouterIp(this, "router-ip", "127.0.0.1", "Ip to listen client", &appl::GateWay::onPropertyChangeClientIp),
+  propertyRouterPort(this, "router-port", 1984, "Port to listen client", &appl::GateWay::onPropertyChangeClientPort),
   propertyServiceIp(this, "service-ip", "127.0.0.1", "Ip to listen client", &appl::GateWay::onPropertyChangeServiceIp),
   propertyServicePort(this, "service-port", 1982, "Port to listen client", &appl::GateWay::onPropertyChangeServicePort),
   propertyServiceMax(this, "service-max", 80, "Maximum of client at the same time", &appl::GateWay::onPropertyChangeServiceMax) {
@@ -82,13 +82,13 @@ appl::GateWay::~GateWay() {
 }
 
 void appl::GateWay::start() {
-	m_gateWayClient = ememory::makeShared<appl::ClientGateWayInterface>(*propertyGateWayClientIp, *propertyGateWayClientPort, *propertyUserName, this);
+	m_routerClient = ememory::makeShared<appl::RouterInterface>(*propertyRouterIp, *propertyRouterPort, *propertyUserName, this);
 	
 	m_interfaceNewService->start(*propertyServiceIp, *propertyServicePort);
 }
 
 void appl::GateWay::stop() {
-	m_gateWayClient.reset();
+	m_routerClient.reset();
 	
 }
 
@@ -118,8 +118,8 @@ std::vector<std::string> appl::GateWay::getAllServiceName() {
 
 
 void appl::GateWay::answer(uint64_t _userSessionId, const ememory::SharedPtr<zeus::Buffer>& _data) {
-	if (m_gateWayClient != nullptr) {
-		m_gateWayClient->answer(_userSessionId, _data);
+	if (m_routerClient != nullptr) {
+		m_routerClient->answer(_userSessionId, _data);
 	}
 }
 
@@ -138,8 +138,8 @@ void appl::GateWay::cleanIO() {
 		}
 		++it;
 	}
-	if (m_gateWayClient != nullptr) {
-		m_gateWayClient->clean();
+	if (m_routerClient != nullptr) {
+		m_routerClient->clean();
 	}
 }
 

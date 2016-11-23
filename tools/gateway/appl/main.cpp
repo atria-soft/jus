@@ -20,10 +20,10 @@ int main(int _argc, const char *_argv[]) {
 		std::string data = _argv[iii];
 		if (etk::start_with(data, "--user=") == true) {
 			basicGateway.propertyUserName.set(std::string(&data[7]));
-		} else if (etk::start_with(data, "--gw-ip=") == true) {
-			basicGateway.propertyGateWayClientIp.set(std::string(&data[8]));
-		} else if (etk::start_with(data, "--gw-port=") == true) {
-			basicGateway.propertyGateWayClientPort.set(etk::string_to_uint16_t(std::string(&data[10])));
+		} else if (etk::start_with(data, "--router-ip=") == true) {
+			basicGateway.propertyRouterIp.set(std::string(&data[12]));
+		} else if (etk::start_with(data, "--router-port=") == true) {
+			basicGateway.propertyRouterPort.set(etk::string_to_uint16_t(std::string(&data[14])));
 		} else if (etk::start_with(data, "--service-ip=") == true) {
 			basicGateway.propertyServiceIp.set(std::string(&data[13]));
 		} else if (etk::start_with(data, "--service-port=") == true) {
@@ -35,8 +35,8 @@ int main(int _argc, const char *_argv[]) {
 			APPL_PRINT(etk::getApplicationName() << " - help : ");
 			APPL_PRINT("    " << _argv[0] << " [options]");
 			APPL_PRINT("        --user=XXX           Name of the user that we are connected.");
-			APPL_PRINT("        --gw-ip=XXX          GateWay Front-end connection IP (default: 1.7.0.0.1)");
-			APPL_PRINT("        --gw-port=XXX        GateWay Front-end connection PORT (default: 1984)");
+			APPL_PRINT("        --router-ip=XXX      Router connection IP (default: 1.7.0.0.1)");
+			APPL_PRINT("        --router-port=XXX    Router connection PORT (default: 1984)");
 			APPL_PRINT("        --service-ip=XXX     Service connection IP (default: 1.7.0.0.1)");
 			APPL_PRINT("        --service-port=XXX   Service connection PORT (default: 1982)");
 			APPL_PRINT("        --service-max=XXX    Service Maximum IO (default: 15)");

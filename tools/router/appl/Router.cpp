@@ -4,7 +4,7 @@
  * @license APACHE v2.0 (see license file)
  */
 
-#include <appl/GateWay.hpp>
+#include <appl/Router.hpp>
 #include <appl/debug.hpp>
 #include <enet/TcpServer.hpp>
 
@@ -15,13 +15,13 @@ namespace appl {
 			enet::TcpServer m_interface;
 			std::thread* m_thread;
 			bool m_threadRunning;
-			appl::GateWay* m_gateway;
+			appl::Router* m_router;
 			bool m_service;
 		public:
-			TcpServerInput(appl::GateWay* _gateway, bool _service) :
+			TcpServerInput(appl::Router* _router, bool _service) :
 			  m_thread(nullptr),
 			  m_threadRunning(false),
-			  m_gateway(_gateway),
+			  m_router(_router),
 			  m_service(_service) {
 				
 			}
@@ -56,23 +56,23 @@ namespace appl {
 					enet::Tcp data = std::move(m_interface.waitNext());
 					ZEUS_VERBOSE("New connection");
 					if (m_service == true) {
-						m_gateway->newClientGateWayBackEnd(std::move(data));
+						m_router->newClientGateWay(std::move(data));
 					} else {
-						m_gateway->newClient(std::move(data));
+						m_router->newClient(std::move(data));
 					}
 				}
 			}
 	};
 }
 
-void appl::GateWay::newClientGateWayBackEnd(enet::Tcp _connection) {
+void appl::Router::newClientGateWay(enet::Tcp _connection) {
 	ZEUS_WARNING("New TCP connection (service)");
 	ememory::SharedPtr<appl::GateWayInterface> tmp = ememory::makeShared<appl::GateWayInterface>(std::move(_connection), this);
 	tmp->start();
-	m_gatewayBackEndList.push_back(tmp);
+	m_GateWayList.push_back(tmp);
 }
 
-void appl::GateWay::newClient(enet::Tcp _connection) {
+void appl::Router::newClient(enet::Tcp _connection) {
 	ZEUS_WARNING("New TCP connection (client)");
 	ememory::SharedPtr<appl::ClientInterface> tmp = ememory::makeShared<appl::ClientInterface>(std::move(_connection), this);
 	tmp->start(m_clientUID);
@@ -80,35 +80,35 @@ void appl::GateWay::newClient(enet::Tcp _connection) {
 	m_clientList.push_back(tmp);
 }
 
-appl::GateWay::GateWay() :
+appl::Router::Router() :
   m_clientUID(2),
-  propertyClientIp(this, "client-ip", "127.0.0.1", "Ip to listen client", &appl::GateWay::onPropertyChangeClientIp),
-  propertyClientPort(this, "client-port", 1983, "Port to listen client", &appl::GateWay::onPropertyChangeClientPort),
-  propertyClientMax(this, "client-max", 80, "Maximum of client at the same time", &appl::GateWay::onPropertyChangeClientMax),
-  propertyGatewayBackEndIp(this, "gw-ip", "127.0.0.1", "Ip to listen client", &appl::GateWay::onPropertyChangeGateWayIp),
-  propertyGatewayBackEndPort(this, "gw-port", 1984, "Port to listen client", &appl::GateWay::onPropertyChangeGateWayPort),
-  propertyGatewayBackEndMax(this, "gw-max", 80, "Maximum of client at the same time", &appl::GateWay::onPropertyChangeGateWayMax) {
+  propertyClientIp(this, "client-ip", "127.0.0.1", "Ip to listen client", &appl::Router::onPropertyChangeClientIp),
+  propertyClientPort(this, "client-port", 1983, "Port to listen client", &appl::Router::onPropertyChangeClientPort),
+  propertyClientMax(this, "client-max", 80, "Maximum of client at the same time", &appl::Router::onPropertyChangeClientMax),
+  propertyGateWayIp(this, "gw-ip", "127.0.0.1", "Ip to listen client", &appl::Router::onPropertyChangeGateWayIp),
+  propertyGateWayPort(this, "gw-port", 1984, "Port to listen client", &appl::Router::onPropertyChangeGateWayPort),
+  propertyGateWayMax(this, "gw-max", 80, "Maximum of client at the same time", &appl::Router::onPropertyChangeGateWayMax) {
 	m_interfaceClientServer = ememory::makeShared<appl::TcpServerInput>(this, false);
-	m_interfaceGatewayBackEndServer = ememory::makeShared<appl::TcpServerInput>(this, true);
+	m_interfaceGateWayServer = ememory::makeShared<appl::TcpServerInput>(this, true);
 }
 
-appl::GateWay::~GateWay() {
+appl::Router::~Router() {
 	
 }
 
-void appl::GateWay::start() {
+void appl::Router::start() {
 	m_interfaceClientServer->start(*propertyClientIp, *propertyClientPort);
-	m_interfaceGatewayBackEndServer->start(*propertyGatewayBackEndIp, *propertyGatewayBackEndPort);
+	m_interfaceGateWayServer->start(*propertyGateWayIp, *propertyGateWayPort);
 }
 
-void appl::GateWay::stop() {
+void appl::Router::stop() {
 	// TODO : Stop all server ...
 	
 }
 
-ememory::SharedPtr<appl::GateWayInterface> appl::GateWay::get(const std::string& _userName) {
+ememory::SharedPtr<appl::GateWayInterface> appl::Router::get(const std::string& _userName) {
 	// TODO : Start USer only when needed, not get it all time started...
-	for (auto &it : m_gatewayBackEndList) {
+	for (auto &it : m_GateWayList) {
 		if (it == nullptr) {
 			continue;
 		}
@@ -121,10 +121,10 @@ ememory::SharedPtr<appl::GateWayInterface> appl::GateWay::get(const std::string&
 }
 
 
-std::vector<std::string> appl::GateWay::getAllUserName() {
+std::vector<std::string> appl::Router::getAllUserName() {
 	std::vector<std::string> out;
 	/*
-	for (auto &it : m_gatewayBackEndList) {
+	for (auto &it : m_GateWayList) {
 		if (it == nullptr) {
 			continue;
 		}
@@ -135,7 +135,7 @@ std::vector<std::string> appl::GateWay::getAllUserName() {
 }
 
 
-void appl::GateWay::answer(uint64_t _userSessionId, const ememory::SharedPtr<zeus::Buffer>& _data) {
+void appl::Router::answer(uint64_t _userSessionId, const ememory::SharedPtr<zeus::Buffer>& _data) {
 	for (auto &it : m_clientList) {
 		if (it == nullptr) {
 			continue;
@@ -148,17 +148,17 @@ void appl::GateWay::answer(uint64_t _userSessionId, const ememory::SharedPtr<zeu
 	}
 }
 
-void appl::GateWay::cleanIO() {
+void appl::Router::cleanIO() {
 	
-	auto it = m_gatewayBackEndList.begin();
-	while (it != m_gatewayBackEndList.end()) {
+	auto it = m_GateWayList.begin();
+	while (it != m_GateWayList.end()) {
 		if (*it != nullptr) {
 			if ((*it)->isAlive() == false) {
-				it = m_gatewayBackEndList.erase(it);
+				it = m_GateWayList.erase(it);
 				continue;
 			}
 		} else {
-			it = m_gatewayBackEndList.erase(it);
+			it = m_GateWayList.erase(it);
 			continue;
 		}
 		++it;
@@ -179,34 +179,34 @@ void appl::GateWay::cleanIO() {
 	}
 }
 
-void appl::GateWay::onClientConnect(const bool& _value) {
+void appl::Router::onClientConnect(const bool& _value) {
 	ZEUS_TODO("Client connection: " << _value);
 }
 
-void appl::GateWay::onServiceConnect(const bool& _value) {
+void appl::Router::onServiceConnect(const bool& _value) {
 	ZEUS_TODO("Service connection: " << _value);
 }
 
-void appl::GateWay::onPropertyChangeClientIp() {
+void appl::Router::onPropertyChangeClientIp() {
 	
 }
 
-void appl::GateWay::onPropertyChangeClientPort() {
+void appl::Router::onPropertyChangeClientPort() {
 	
 }
 
-void appl::GateWay::onPropertyChangeClientMax() {
+void appl::Router::onPropertyChangeClientMax() {
 	
 }
 
-void appl::GateWay::onPropertyChangeGateWayIp() {
+void appl::Router::onPropertyChangeGateWayIp() {
 	
 }
 
-void appl::GateWay::onPropertyChangeGateWayPort() {
+void appl::Router::onPropertyChangeGateWayPort() {
 	
 }
 
-void appl::GateWay::onPropertyChangeGateWayMax() {
+void appl::Router::onPropertyChangeGateWayMax() {
 	
 }

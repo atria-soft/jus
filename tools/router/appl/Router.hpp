@@ -11,25 +11,25 @@
 
 namespace appl {
 	class TcpServerInput;
-	class GateWay : public eproperty::Interface {
+	class Router : public eproperty::Interface {
 		private:
 			uint64_t m_clientUID;
 		private:
-			std::vector<ememory::SharedPtr<appl::GateWayInterface>> m_gatewayBackEndList; //!< List of all service availlable with their specific connection interface
+			std::vector<ememory::SharedPtr<appl::GateWayInterface>> m_GateWayList; //!< List of all service availlable with their specific connection interface
 			std::vector<ememory::SharedPtr<appl::ClientInterface>> m_clientList; //!< List of all Client interface with their own connection
 			ememory::SharedPtr<appl::TcpServerInput> m_interfaceClientServer;
-			ememory::SharedPtr<appl::TcpServerInput> m_interfaceGatewayBackEndServer;
+			ememory::SharedPtr<appl::TcpServerInput> m_interfaceGateWayServer;
 			ejson::Document m_listUser;
 		public:
 			eproperty::Value<std::string> propertyClientIp;
 			eproperty::Value<uint16_t> propertyClientPort;
 			eproperty::Value<uint16_t> propertyClientMax;
-			eproperty::Value<std::string> propertyGatewayBackEndIp;
-			eproperty::Value<uint16_t> propertyGatewayBackEndPort;
-			eproperty::Value<uint16_t> propertyGatewayBackEndMax;
+			eproperty::Value<std::string> propertyGateWayIp;
+			eproperty::Value<uint16_t> propertyGateWayPort;
+			eproperty::Value<uint16_t> propertyGateWayMax;
 		public:
-			GateWay();
-			virtual ~GateWay();
+			Router();
+			virtual ~Router();
 			void start();
 			void stop();
 			// Get a specific user gateway:
@@ -37,7 +37,7 @@ namespace appl {
 			
 			std::vector<std::string> getAllUserName();
 			void answer(uint64_t _userSessionId, const ememory::SharedPtr<zeus::Buffer>& _data);
-			void newClientGateWayBackEnd(enet::Tcp _connection);
+			void newClientGateWay(enet::Tcp _connection);
 			void newClient(enet::Tcp _connection);
 			void cleanIO();
 		private:

@@ -8,6 +8,33 @@ Instructions
 
 messaging engine drived by data and message based on websocket api
 
+Start basic service engine
+==========================
+
+Start The router interface:
+```
+lutin -cclang -mdebug zeus-package-base?build?run%zeus-router
+```
+
+You have now multiple choice:
+
+* Single process start:
+
+```
+#Start a single gateWay with basic with no user service associated:
+lutin -cclang -mdebug zeus-package-base?build?run%zeus-gateway:--user=userName~server.org
+# start service is separated process: (the user service is needed all the time ...)
+lutin -cclang -mdebug zeus-package-base?build?run%zeus-launch:--srv=user
+lutin -cclang -mdebug zeus-package-base?build?run%zeus-launch:--srv=picture
+lutin -cclang -mdebug zeus-package-base?build?run%zeus-launch:--srv=video
+```
+
+* Start your gateway with the service in a single process (faster: No inter-process messaging)
+
+```
+lutin -cclang -mdebug zeus-package-base?build?run%zeus-gateway:--user=userName~server.org:--srv=user:--srv=picture:--srv=video
+```
+
 
 License (APACHE v2.0)
 =====================

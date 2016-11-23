@@ -9,23 +9,21 @@
 #include <ememory/memory.hpp>
 
 namespace appl {
-	class GateWay;
-	class ClientGateWayInterface;
-	class userSpecificInterface;
-	class ServiceInterface {
-		friend class appl::ClientGateWayInterface;
-		friend class appl::userSpecificInterface;
+	class Router;
+	class ClientInterface;
+	class GateWayInterface {
+		friend class appl::ClientInterface;
 		private:
-			appl::GateWay* m_gatewayInterface;
+			appl::Router* m_routerInterface;
 			zeus::WebServer m_interfaceClient;
 			std::string m_name;
+			bool requestURI(const std::string& _uri);
 		public:
-			ServiceInterface(enet::Tcp _connection, appl::GateWay* _gatewayInterface);
-			virtual ~ServiceInterface();
+			GateWayInterface(enet::Tcp _connection, appl::Router* _routerInterface);
+			virtual ~GateWayInterface();
 			void start();
 			void stop();
 			void onServiceData(ememory::SharedPtr<zeus::Buffer> _value);
-			bool requestURI(const std::string& _uri);
 		public:
 			void SendData(uint64_t _userSessionId, ememory::SharedPtr<zeus::Buffer> _data);
 			const std::string& getName() {

@@ -23,8 +23,8 @@ def get_maintainer():
 
 def configure(target, my_module):
 	my_module.add_depend([
-	    'zeus-gateway-front-end',
-	    'zeus-gateway-back-end',
+	    'zeus-router',
+	    'zeus-gateway',
 	    'zeus-service-user',
 	    'zeus-service-picture',
 	    'zeus-service-video',

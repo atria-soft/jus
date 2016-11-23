@@ -2,7 +2,7 @@
 
 
                                                 *----------------------------------------------------------------------------*
-                                                | Docker / single binary           Single User specufic program/environement |
+                                                | Docker / single binary           Single User specific program/environement |
                                                 |                                                                            |
                                                 |                                *-----------------------*                   |
                                                 |                     +--------->| service-right-manager |                   |
@@ -25,7 +25,7 @@ Internet   |     |    |             |
            |<----*===>|80  ROUTER   |
            |     |    |             |
            |<----|    |             |<---+      *----------------------------------------------------------------------------*
-           |     |    |             |    |      | Docker / single binary           Single User specufic program/environement |
+           |     |    |             |    |      | Docker / single binary           Single User specific program/environement |
            |<----*    |             |    |      |                                                                            |
            |          *-------------*    |      |                                *-----------------------*                   |
            |                ||           |      |                     +--------->| service-right-manager |                   |

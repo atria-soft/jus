@@ -19,7 +19,7 @@ namespace appl {
 	};
 	class userSpecificInterface {
 		public:
-			zeus::WebServer* m_interfaceGateWayClient;
+			zeus::WebServer* m_interfaceRouterClient;
 			appl::GateWay* m_gatewayInterface;
 			uint64_t m_uid;
 			uint64_t m_localIdUser;
@@ -41,16 +41,16 @@ namespace appl {
 			}
 			void answerProtocolError(uint32_t _transactionId, const std::string& _errorHelp);
 	};
-	class ClientGateWayInterface {
+	class RouterInterface {
 		private:
 			enum clientState m_state; // state machine ..
 			std::vector<userSpecificInterface> m_listUser;
 		private:
 			appl::GateWay* m_gatewayInterface;
-			zeus::WebServer m_interfaceGateWayClient;
+			zeus::WebServer m_interfaceRouterClient;
 		public:
-			ClientGateWayInterface(const std::string& _ip, uint16_t _port, const std::string& _userName, appl::GateWay* _gatewayInterface);
-			virtual ~ClientGateWayInterface();
+			RouterInterface(const std::string& _ip, uint16_t _port, const std::string& _userName, appl::GateWay* _gatewayInterface);
+			virtual ~RouterInterface();
 			void stop();
 			void onClientData(ememory::SharedPtr<zeus::Buffer> _value);
 			bool isAlive();

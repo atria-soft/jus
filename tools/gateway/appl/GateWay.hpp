@@ -5,7 +5,7 @@
  */
 #pragma once
 #include <appl/ServiceInterface.hpp>
-#include <appl/ClientGateWayInterface.hpp>
+#include <appl/RouterInterface.hpp>
 #include <eproperty/Value.hpp>
 
 namespace appl {
@@ -15,13 +15,13 @@ namespace appl {
 			uint64_t m_clientUID;
 		private:
 			std::vector<ememory::SharedPtr<appl::ServiceInterface>> m_serviceList; //!< List of all service availlable with their specific connection interface
-			ememory::SharedPtr<appl::ClientGateWayInterface> m_gateWayClient; //!< Interface with the Gateway Front End
+			ememory::SharedPtr<appl::RouterInterface> m_routerClient; //!< Interface with the Gateway Front End
 			
 			ememory::SharedPtr<appl::TcpServerInput> m_interfaceNewService;
 		public:
 			eproperty::Value<std::string> propertyUserName;
-			eproperty::Value<std::string> propertyGateWayClientIp;
-			eproperty::Value<uint16_t> propertyGateWayClientPort;
+			eproperty::Value<std::string> propertyRouterIp;
+			eproperty::Value<uint16_t> propertyRouterPort;
 			eproperty::Value<std::string> propertyServiceIp;
 			eproperty::Value<uint16_t> propertyServicePort;
 			eproperty::Value<uint16_t> propertyServiceMax;

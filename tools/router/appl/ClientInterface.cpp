@@ -7,7 +7,7 @@
 #include <appl/debug.hpp>
 #include <appl/ClientInterface.hpp>
 #include <zeus/Future.hpp>
-#include <appl/GateWay.hpp>
+#include <appl/Router.hpp>
 #include <zeus/BufferCtrl.hpp>
 
 
@@ -16,9 +16,9 @@
 
 static const std::string protocolError = "PROTOCOL-ERROR";
 
-appl::ClientInterface::ClientInterface(enet::Tcp _connection, appl::GateWay* _gatewayInterface) :
+appl::ClientInterface::ClientInterface(enet::Tcp _connection, appl::Router* _routerInterface) :
   m_state(appl::ClientInterface::state::unconnect),
-  m_gatewayInterface(_gatewayInterface),
+  m_routerInterface(_routerInterface),
   m_interfaceClient(std::move(_connection), true) {
 	APPL_INFO("----------------");
 	APPL_INFO("-- NEW Client --");
@@ -35,7 +35,7 @@ appl::ClientInterface::~ClientInterface() {
 
 bool appl::ClientInterface::requestURI(const std::string& _uri) {
 	APPL_WARNING("request connect on CLIENT: '" << _uri << "'");
-	if(m_gatewayInterface == nullptr) {
+	if(m_routerInterface == nullptr) {
 		APPL_ERROR("Can not access to the main GateWay interface (nullptr)");
 		return false;
 	}
@@ -48,7 +48,7 @@ bool appl::ClientInterface::requestURI(const std::string& _uri) {
 		tmpURI = std::string(tmpURI.begin() + 1, tmpURI.end());
 	}
 	// TODO : Remove subParameters xxx?YYY
-	m_userGateWay = m_gatewayInterface->get(tmpURI);
+	m_userGateWay = m_routerInterface->get(tmpURI);
 	if (m_userGateWay == nullptr) {
 		APPL_ERROR("Can not connect on Client ==> it does not exist ...");
 		return false;

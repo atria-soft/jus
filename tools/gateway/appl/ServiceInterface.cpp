@@ -5,79 +5,81 @@
  */
 
 #include <appl/debug.hpp>
-#include <appl/GateWayInterface.hpp>
-#include <appl/ClientInterface.hpp>
+#include <appl/ServiceInterface.hpp>
 #include <appl/GateWay.hpp>
+#include <etk/stdTools.hpp>
 
 // todo : cHANGE THIS ...
 static const std::string protocolError = "PROTOCOL-ERROR";
 
 
-
-appl::GateWayInterface::GateWayInterface(enet::Tcp _connection, appl::GateWay* _gatewayInterface) :
-  m_gatewayInterface(_gatewayInterface),
-  m_interfaceClient(std::move(_connection), true) {
-	ZEUS_INFO("--------------------------");
-	ZEUS_INFO("-- NEW GateWay Back-end --");
-	ZEUS_INFO("--------------------------");
-	
-}
-
-appl::GateWayInterface::~GateWayInterface() {
-	
-	ZEUS_INFO("------------------------------");
-	ZEUS_INFO("-- DELETE GateWay Back-end  --");
-	ZEUS_INFO("------------------------------");
-}
-
-bool appl::GateWayInterface::isAlive() {
-	return m_interfaceClient.isActive();
-}
-
-bool appl::GateWayInterface::requestURI(const std::string& _uri) {
-	ZEUS_INFO("request connect on User - GateWay: '" << _uri << "'");
+bool appl::ServiceInterface::requestURI(const std::string& _uri) {
+	APPL_WARNING("request connect on SERVICE: '" << _uri << "'");
 	if(m_gatewayInterface == nullptr) {
-		ZEUS_ERROR("Can not access to the main GateWay interface (nullptr)");
+		APPL_ERROR("Can not access to the main GateWay interface (nullptr)");
 		return false;
 	}
 	std::string tmpURI = _uri;
 	if (tmpURI.size() == 0) {
-		ZEUS_ERROR("Empty URI ... not supported ...");
+		APPL_ERROR("Empty URI ... not supported ...");
 		return false;
 	}
 	if (tmpURI[0] == '/') {
 		tmpURI = std::string(tmpURI.begin() + 1, tmpURI.end());
 	}
-	// TODO : Remove subParameters xxx?YYY
-	// check if the USER is already connected:
-	ememory::SharedPtr<appl::GateWayInterface> tmp = m_gatewayInterface->get(tmpURI);
-	if (tmp != nullptr) {
-		ZEUS_ERROR("User is already connected ==> this is a big error ...");
+	std::vector<std::string> listValue = etk::split(tmpURI, '?');
+	if (listValue.size() == 0) {
+		APPL_ERROR("can not parse URI ...");
 		return false;
 	}
-	m_name = tmpURI;
-	ZEUS_WARNING("Connection of user : '" << tmpURI << "'");
+	tmpURI = listValue[0];
+	if (etk::start_with(tmpURI, "service:") == false ) {
+		APPL_ERROR("Missing 'service:' at the start of the URI ...");
+		return false;
+	}
+	m_name = &tmpURI[8];
+	APPL_INFO("Connect service name : '" << m_name << "'");
 	return true;
 }
 
-void appl::GateWayInterface::start() {
-	m_interfaceClient.connect(this, &appl::GateWayInterface::onServiceData);
-	m_interfaceClient.connectUri(this, &appl::GateWayInterface::requestURI);
+
+appl::ServiceInterface::ServiceInterface(enet::Tcp _connection, appl::GateWay* _gatewayInterface) :
+  m_gatewayInterface(_gatewayInterface),
+  m_interfaceClient(std::move(_connection), true) {
+	APPL_INFO("-----------------");
+	APPL_INFO("-- NEW Service --");
+	APPL_INFO("-----------------");
+}
+
+appl::ServiceInterface::~ServiceInterface() {
+	
+	APPL_INFO("--------------------");
+	APPL_INFO("-- DELETE Service --");
+	APPL_INFO("--------------------");
+}
+
+bool appl::ServiceInterface::isAlive() {
+	return m_interfaceClient.isActive();
+}
+
+void appl::ServiceInterface::start() {
+	m_interfaceClient.connect(this, &appl::ServiceInterface::onServiceData);
+	m_interfaceClient.connectUri(this, &appl::ServiceInterface::requestURI);
 	m_interfaceClient.connect();
 	m_interfaceClient.setInterfaceName("srv-?");
 }
 
-void appl::GateWayInterface::stop() {
+void appl::ServiceInterface::stop() {
 	m_interfaceClient.disconnect();
 }
 
 
-void appl::GateWayInterface::SendData(uint64_t _userSessionId, ememory::SharedPtr<zeus::Buffer> _data) {
+void appl::ServiceInterface::SendData(uint64_t _userSessionId, ememory::SharedPtr<zeus::Buffer> _data) {
 	_data->setClientId(_userSessionId);
 	m_interfaceClient.writeBinary(_data);
 }
 
-void appl::GateWayInterface::onServiceData(ememory::SharedPtr<zeus::Buffer> _value) {
+void appl::ServiceInterface::onServiceData(ememory::SharedPtr<zeus::Buffer> _value) {
 	if (_value == nullptr) {
 		return;
 	}
@@ -88,26 +90,28 @@ void appl::GateWayInterface::onServiceData(ememory::SharedPtr<zeus::Buffer> _val
 		if (data.valueExist("event") == true) {
 			// No need to have a user ID ...
 			if (data["event"].toString().get() == "IS-ALIVE") {
-				ZEUS_VERBOSE("Service Alive ...");
+				APPL_VERBOSE("Service Alive ...");
 				if (std::chrono::steady_clock::now() - m_interfaceClient.getLastTimeSend() >= std::chrono::seconds(20)) {
 					ejson::Object tmpp;
 					tmpp.add("event", ejson::String("IS-ALIVE"));
 					m_interfaceClient.writeJson(tmpp);
 				}
 			} else {
-				ZEUS_INFO("Unknow service event: '" << data["event"].toString().get() << "'");
+				APPL_INFO("Unknow service event: '" << data["event"].toString().get() << "'");
 			}
 			return;
 		}
 		*/
 		return;
 	}
+	/*
+	 DEPRECATED:
 	if (_value->getType() == zeus::Buffer::typeMessage::call) {
 		ememory::SharedPtr<zeus::BufferCall> callObj = ememory::staticPointerCast<zeus::BufferCall>(_value);
 		std::string callFunction = callObj->getCall();
 		if (callFunction == "connect-service") {
 			if (m_name != "") {
-				ZEUS_WARNING("Service interface ==> try change the servie name after init: '" << callObj->getParameter<std::string>(0));
+				APPL_WARNING("Service interface ==> try change the service name after init: '" << callObj->getParameter<std::string>(0));
 				m_interfaceClient.answerValue(transactionId, false);
 				return;
 			}
@@ -118,15 +122,16 @@ void appl::GateWayInterface::onServiceData(ememory::SharedPtr<zeus::Buffer> _val
 		}
 		answerProtocolError(transactionId, "unknow function");
 	}
+	*/
 	if (_value->getClientId() == 0) {
-		ZEUS_ERROR("Service interface ==> wrong service answer ==> missing 'client-id'");
+		APPL_ERROR("Service interface ==> wrong service answer ==> missing 'client-id'");
 		return;
 	}
 	m_gatewayInterface->answer(_value->getClientId(), _value);
 }
 
 
-void appl::GateWayInterface::answerProtocolError(uint32_t _transactionId, const std::string& _errorHelp) {
+void appl::ServiceInterface::answerProtocolError(uint32_t _transactionId, const std::string& _errorHelp) {
 	m_interfaceClient.answerError(_transactionId, protocolError, _errorHelp);
 	m_interfaceClient.disconnect(true);
 }

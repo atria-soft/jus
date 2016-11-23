@@ -6,11 +6,11 @@
 #pragma once
 
 #include <zeus/WebServer.hpp>
-#include <appl/GateWay.hpp>
+#include <appl/Router.hpp>
 #include <appl/GateWayInterface.hpp>
 
 namespace appl {
-	class GateWay;
+	class Router;
 	class ClientInterface {
 		private:
 			enum class state {
@@ -20,7 +20,7 @@ namespace appl {
 			};
 			enum state m_state; // state machine ...
 		private:
-			appl::GateWay* m_gatewayInterface;
+			appl::Router* m_routerInterface;
 			zeus::WebServer m_interfaceClient;
 			bool requestURI(const std::string& _uri);
 		public:
@@ -31,7 +31,7 @@ namespace appl {
 			std::vector<std::string> m_clientgroups;
 			std::vector<std::string> m_clientServices;
 		public:
-			ClientInterface(enet::Tcp _connection, appl::GateWay* _gatewayInterface);
+			ClientInterface(enet::Tcp _connection, appl::Router* _routerInterface);
 			virtual ~ClientInterface();
 			void start(uint64_t _uid);
 			void stop();

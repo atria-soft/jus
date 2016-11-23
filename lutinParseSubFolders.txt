@@ -1,5 +1,5 @@
-tools/gateway-front-end
-tools/gateway-back-end
+tools/gateway
+tools/router
 tools/service-user
 tools/service-picture
 tools/service-video
