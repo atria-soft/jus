@@ -11,7 +11,7 @@ def get_sub_type():
 	return "TOOLS"
 
 def get_desc():
-	return "ZEUS test service"
+	return "ZEUS service user"
 
 def get_licence():
 	return "APACHE-2"

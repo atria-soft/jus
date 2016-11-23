@@ -4,7 +4,8 @@ import lutin.tools as tools
 
 
 def get_type():
-	return "BINARY"
+	return "LIBRARY_DYNAMIC"
+	#return "BINARY"
 
 def get_sub_type():
 	return "TOOLS"

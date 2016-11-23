@@ -112,7 +112,9 @@ namespace appl {
 	};
 }
 
-bool SERVICE_IO_init(std::string _basePath) {
+ETK_EXPORT_API bool SERVICE_IO_init(int _argc, const char *_argv[], std::string _basePath) {
+	// Already init : etk::init(_argc, _argv);
+	zeus::init(_argc, _argv);
 	g_basePath = _basePath;
 	std::unique_lock<std::mutex> lock(g_mutex);
 	APPL_WARNING("Load USER: " << g_basePath);
@@ -123,7 +125,7 @@ bool SERVICE_IO_init(std::string _basePath) {
 	return true;
 }
 
-bool SERVICE_IO_uninit() {
+ETK_EXPORT_API bool SERVICE_IO_uninit() {
 	std::unique_lock<std::mutex> lock(g_mutex);
 	APPL_DEBUG("Store User Info:");
 	bool ret = g_database.storeSafe(g_basePath + g_baseDBName);
@@ -135,7 +137,7 @@ bool SERVICE_IO_uninit() {
 	return true;
 }
 
-bool SERVICE_IO_execute(std::string _ip, uint16_t _port) {
+ETK_EXPORT_API bool SERVICE_IO_execute(std::string _ip, uint16_t _port) {
 	APPL_INFO("===========================================================");
 	APPL_INFO("== ZEUS instanciate service: " << SERVICE_NAME << " [START]");
 	APPL_INFO("===========================================================");
@@ -179,16 +181,12 @@ bool SERVICE_IO_execute(std::string _ip, uint16_t _port) {
 	APPL_INFO("== ZEUS service: " << *serviceInterface.propertyNameService << " [service instanciate]");
 	APPL_INFO("===========================================================");
 	if (serviceInterface.connect() == false) {
-		APPL_INFO("wait 5 second ...");
-		std::this_thread::sleep_for(std::chrono::seconds(5));
 		return false;
 	}
 	if (serviceInterface.GateWayAlive() == false) {
 		APPL_INFO("===========================================================");
 		APPL_INFO("== ZEUS service: " << *serviceInterface.propertyNameService << " [STOP] Can not connect to the GateWay");
 		APPL_INFO("===========================================================");
-		APPL_INFO("wait 5 second ...");
-		std::this_thread::sleep_for(std::chrono::seconds(5));
 		return false;
 	}
 	int32_t iii=0;
@@ -205,48 +203,3 @@ bool SERVICE_IO_execute(std::string _ip, uint16_t _port) {
 	APPL_INFO("===========================================================");
 	return true;
 }
-
-#ifndef APPL_BUILD_SHARED_LIBRARY
-
-int main(int _argc, const char *_argv[]) {
-	etk::init(_argc, _argv);
-	zeus::init(_argc, _argv);
-	std::string ip;
-	uint16_t port = 0;
-	std::string basePath;
-	for (int32_t iii=0; iii<_argc ; ++iii) {
-		std::string data = _argv[iii];
-		if (etk::start_with(data, "--ip=") == true) {
-			ip = std::string(&data[5]);
-		} else if (etk::start_with(data, "--port=") == true) {
-			port = etk::string_to_uint16_t(std::string(&data[7]));
-		} else if (etk::start_with(data, "--base-path=") == true) {
-			basePath = std::string(&data[12]);
-		} else if (    data == "-h"
-		            || data == "--help") {
-			APPL_PRINT(etk::getApplicationName() << " - help : ");
-			APPL_PRINT("    " << _argv[0] << " [options]");
-			APPL_PRINT("        --base-path=XXX      base path to search data (default: 'USERDATA:')");
-			APPL_PRINT("        --ip=XXX             Server connection IP (default: 1.7.0.0.1)");
-			APPL_PRINT("        --port=XXX           Server connection PORT (default: 1983)");
-			return -1;
-		}
-	}
-	if (basePath.size() == 0) {
-		basePath = "USERDATA:";
-		APPL_PRINT("Use base path: " << basePath);
-	}
-	SERVICE_IO_init(basePath);
-	// TODO: Remove the While true, ==> sevice must be spown by a user call, if a service die, the wall system will die ...
-	while (true) {
-		SERVICE_IO_execute(ip, port);
-	}
-	APPL_INFO("Stop service ==> flush internal datas ...");
-	SERVICE_IO_uninit();
-	APPL_INFO("===========================================================");
-	APPL_INFO("== ZEUS service: " << SERVICE_NAME << " [END-APPLICATION]");
-	APPL_INFO("===========================================================");
-	return 0;
-}
-
-#endif
