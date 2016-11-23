@@ -1,0 +1,24 @@
+#description: user interface management
+#version: 0.1.0
+#type-api:USER/1
+#author:Heero Yui<yui.heero@gmail.com>
+
+#brief:Get list of group availlable for a client name
+#param:_clientName:Name of the client
+vector:string getGroups(string clientName)
+
+#brief:Check if a user tocken is correct or not
+#param[in]:clientName:Name of the client
+#param[in]:tocken:String containing the Tocken
+#return: true if the Tocken is validated or false if it is wrong
+bool checkTocken(string clientName, string tocken)
+
+#brief:Check the password of the curent user
+#param[in]:password:client/user password
+#return: true if the pasword is validated or false if it is wrong
+bool checkAuth(string _password)
+
+#brief:Filter a list of service with the cuurent profile of the user (restrict area)
+#param[in]:clientName:Name of the client
+#param[in]:currentList:Vector of name of the services
+vector:string filterServices(string _clientName, vector:string _currentList)
