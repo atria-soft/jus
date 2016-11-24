@@ -326,9 +326,10 @@ ETK_EXPORT_API bool SERVICE_IO_execute(std::string _ip, uint16_t _port) {
 		serviceInterface.propertyPort.set(_port);
 	}
 	serviceInterface.propertyNameService.set(SERVICE_NAME);
-	serviceInterface.setDescription("Picture Private Interface");
-	serviceInterface.setVersion("0.1.0");
-	serviceInterface.setType("PICTURE", 1);
+	serviceInterface.setDescription("Video Private Interface");
+	serviceInterface.setVersionImplementation("0.1.0");
+	serviceInterface.setVersion("1.0");
+	serviceInterface.setType("VIDEO");
 	serviceInterface.addAuthor("Heero Yui", "yui.heero@gmail.com");
 	
 	serviceInterface.advertise("getAlbums", &appl::VideoService::getAlbums);

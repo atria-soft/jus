@@ -7,6 +7,8 @@
 
 #include <zeus/FutureBase.hpp>
 
+// TODO : When do a cast of the type on the future ==> do a wait ...
+
 namespace zeus {
 	/**
 	 * @brief future template to cast type in a specific type

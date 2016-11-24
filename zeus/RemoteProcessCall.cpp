@@ -69,6 +69,14 @@ std::string zeus::RemoteProcessCall::getVersion() {
 	return m_version;
 }
 
+void zeus::RemoteProcessCall::setVersionImplementation(const std::string& _desc) {
+	m_versionImplement = _desc;
+}
+
+std::string zeus::RemoteProcessCall::getVersionImplementation() {
+	return m_versionImplement;
+}
+
 void zeus::RemoteProcessCall::addAuthor(const std::string& _name, const std::string& _email) {
 	m_authors.push_back(std::make_pair(_name, _email));
 }
@@ -102,8 +110,8 @@ std::string zeus::RemoteProcessCall::getType() {
 	return m_type;
 }
 
-void zeus::RemoteProcessCall::setType(const std::string& _type, uint16_t _version) {
-	m_type = _type + "/" + etk::to_string(_version);
+void zeus::RemoteProcessCall::setType(const std::string& _type) {
+	m_type = _type;
 }
 
 

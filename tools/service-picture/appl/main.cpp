@@ -312,6 +312,11 @@ ETK_EXPORT_API bool SERVICE_IO_uninit() {
 	return true;
 }
 
+
+//ZEUS_SERVICE_PICTURE_DECLARE_DEFAULT(appl::PictureService);
+
+
+
 ETK_EXPORT_API bool SERVICE_IO_execute(std::string _ip, uint16_t _port) {
 	APPL_INFO("===========================================================");
 	APPL_INFO("== ZEUS instanciate service: " << SERVICE_NAME << " [START]");
@@ -327,8 +332,9 @@ ETK_EXPORT_API bool SERVICE_IO_execute(std::string _ip, uint16_t _port) {
 	}
 	serviceInterface.propertyNameService.set(SERVICE_NAME);
 	serviceInterface.setDescription("Picture Private Interface");
-	serviceInterface.setVersion("0.1.0");
-	serviceInterface.setType("PICTURE", 1);
+	serviceInterface.setVersionImplementation("0.1.0");
+	serviceInterface.setVersion("1.0");
+	serviceInterface.setType("PICTURE");
 	serviceInterface.addAuthor("Heero Yui", "yui.heero@gmail.com");
 	
 	serviceInterface.advertise("getAlbums", &appl::PictureService::getAlbums);

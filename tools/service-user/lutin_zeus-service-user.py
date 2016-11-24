@@ -2,6 +2,7 @@
 import lutin.debug as debug
 import lutin.tools as tools
 import os
+import copy
 
 
 def get_type():
@@ -14,7 +15,7 @@ def get_sub_type():
 def get_desc():
 	return "ZEUS service user"
 
-def get_licence():
+def get_license():
 	return "APACHE-2"
 
 def get_compagny_type():
@@ -67,6 +68,20 @@ def convert_type_in_cpp(data):
 			return elem[1]
 	debug.error(" can not find type in IDL : '" + data + "'")
 
+
+def remove_start_stop_spacer(data):
+	dataout = copy.deepcopy(data)
+	while     len(dataout) >= 1 \
+	      and (    dataout[0] == " " \
+	            or dataout[0] == "\t"):
+		dataout = dataout[1:]
+	while     len(dataout) >= 1 \
+	      and (    dataout[-1] == " " \
+	            or dataout[-1] == "\t"):
+		dataout = dataout[:-1]
+	return dataout
+
+
 class FunctionDefinition:
 	def __init__(self):
 		self.name = "";
@@ -76,11 +91,11 @@ class FunctionDefinition:
 		self.parameters = []
 	
 	def set_function_name(self, name):
-		self.name = name;
+		self.name = remove_start_stop_spacer(name);
 	
 	def set_brief(self, desc):
 		self.name = "";
-		self.brief = desc;
+		self.brief = remove_start_stop_spacer(desc);
 		self.return_type = "";
 		self.return_brief = "";
 		self.parameters = []
@@ -89,44 +104,43 @@ class FunctionDefinition:
 		for elem in self.parameters:
 			if     elem["name"] == "" \
 			   and elem["brief"] == "":
-				elem["name"] = name;
-				elem["brief"] = desc;
+				elem["name"] = remove_start_stop_spacer(name);
+				elem["brief"] = remove_start_stop_spacer(desc);
 				return;
 		self.parameters.append({
 		    "type":"",
-		    "name":name,
-		    "brief":desc
+		    "name":remove_start_stop_spacer(name),
+		    "brief":remove_start_stop_spacer(desc)
 		    })
 	
 	def set_return_comment(self, desc):
-		self.return_brief = desc;
+		self.return_brief = remove_start_stop_spacer(desc);
 	
 	def set_return_type(self, type):
-		self.return_type = type;
+		self.return_type = remove_start_stop_spacer(type);
 	
 	def add_parameter_type(self, type):
 		for elem in self.parameters:
 			if elem["type"] == "":
-				elem["type"] = type;
+				elem["type"] = remove_start_stop_spacer(type);
 				return;
 		self.parameters.append({
-		    "type":type,
+		    "type":remove_start_stop_spacer(type),
 		    "name":"",
 		    "brief":""
 		    })
 		
 	def display(self):
-		debug.info("   BRIEF: " + self.brief)
-		debug.info("   BRIEF-return: " + self.return_brief)
-		debug.info("   " + self.return_type + " " + self.name + "(")
+		debug.info("       BRIEF: " + self.brief)
+		debug.info("       BRIEF-return: " + self.return_brief)
+		debug.info("       " + self.return_type + " " + self.name + "(")
 		for elem in self.parameters:
-			debug.info("           " + elem["type"] + " " + elem["name"] + ", # " + elem["brief"])
-		debug.info("   )")
+			debug.info("               " + elem["type"] + " " + elem["name"] + ", # " + elem["brief"])
+		debug.info("       )")
 	
-	def generate_cpp(self, space):
-		out = "";
+	def generate_doxy(self, space):
 		# generate doxygen comment:
-		out += space + "/**\n"
+		out = space + "/**\n"
 		if self.brief != "":
 			out += space + " * @brief " + self.brief + "\n"
 		for elem in self.parameters:
@@ -142,7 +156,11 @@ class FunctionDefinition:
 		if self.return_brief != "":
 			out += space + " * @return " + self.return_brief + "\n"
 		out += space + " */\n"
-		
+		return out
+	
+	def generate_cpp(self, space):
+		out = "";
+		out += self.generate_doxy(space)
 		out += space + "virtual "
 		out += convert_type_in_cpp(self.return_type) + " " + self.name + "("
 		param_data = ""
@@ -153,17 +171,404 @@ class FunctionDefinition:
 		out += param_data
 		out += ") = 0;\n"
 		return out;
+		
+	def generate_hpp_proxy(self, space):
+		out = "";
+		out += self.generate_doxy(space)
+		out += space + "virtual zeus::Future<" + convert_type_in_cpp(self.return_type) + "> " + self.name + "("
+		param_data = ""
+		for elem in self.parameters:
+			if len(param_data) != 0:
+				param_data += ", "
+			param_data += "const " + convert_type_in_cpp(elem["type"]) + "& _" + elem["name"]
+		out += param_data
+		out += ");\n"
+		return out;
+	def generate_cpp_proxy(self, space, class_name):
+		out = "";
+		out += space + "zeus::Future<" + convert_type_in_cpp(self.return_type) + "> " + class_name + "::" + self.name + "("
+		param_data = ""
+		for elem in self.parameters:
+			if len(param_data) != 0:
+				param_data += ", "
+			param_data += "const " + convert_type_in_cpp(elem["type"]) + "& _" + elem["name"]
+		out += param_data
+		out += ") {\n"
+		space += "	"
+		out += space + 'return m_srv.call("' + self.name + '"'
+		for elem in self.parameters:
+			out += ", "
+			out += "_" + elem["name"]
+		out += ');\n'
+		out += "}\n"
+		space = space[:-1]
+		return out;
 
-def parse_service_idl(path):
-	debug.info("Parsing .zeus.idl [start] " + str(path))
-	name_file = os.path.basename(path)
+class ServiceDefinition:
+	def __init__(self):
+		self.name = [""];
+		self.brief = "";
+		self.version = "";
+		self.api = "";
+		self.authors = []
+		self.functions = []
+	
+	def set_name(self, value):
+		self.name = value
+		# TODO : Check range ...
+		self.name[-1] = self.name[-1].title()
+	
+	def set_brief(self, value):
+		self.brief = remove_start_stop_spacer(value)
+	
+	def set_version(self, value):
+		self.version = remove_start_stop_spacer(value)
+	
+	def set_api(self, value):
+		self.api = remove_start_stop_spacer(value)
+	
+	def add_author(self, value):
+		self.authors.append(remove_start_stop_spacer(value))
+	
+	def add_function(self, value):
+		self.functions.append(value)
+	
+	def display(self):
+		debug.info("Display service definition : ")
+		debug.info("    name:    " + str(self.name))
+		debug.info("    brief:   '" + str(self.brief) + "'")
+		debug.info("    version: '" + str(self.version) + "'")
+		debug.info("    api:     '" + str(self.api) + "'")
+		debug.info("    authors: '" + str(self.authors) + "'")
+		debug.info("    functions: ")
+		for elem in self.functions:
+			elem.display();
+	
+	def generate_header(self):
+		filename = ""
+		for elem in self.name[:-1]:
+			filename += elem + "/"
+		filename += self.name[-1] + ".hpp";
+		out = ""
+		# TODO: add global header:
+		out += "/** @file\n"
+		out += " * @note Generated file !!! Do not modify !!!\n"
+		out += " * @license APACHE-2\n"
+		out += " * @copyright none\n"
+		out += " */\n"
+		out += "#pragma once\n"
+		out += "\n"
+		out += "#include <etk/types.hpp>\n"
+		out += "#include <string>\n"
+		out += "#include <vector>\n"
+		out += "\n"
+		space = ""
+		for elem in self.name[:-1]:
+			out += space + "namespace " + elem + " {\n"
+			space += "	"
+		
+		out += space + " /**\n"
+		if self.brief != "":
+			out += space + " * @brief " + self.brief + " \n"
+		if self.version != "":
+			out += space + " *     version:" + self.version + "\n"
+		if self.api != "":
+			out += space + " *     api:" + self.api + "\n"
+		for elem in self.authors:
+			out += space + " *     authors:" + elem + "\n"
+		out += space + " */\n"
+		out += space + "class " + self.name[-1] + " {\n"
+		space += "	"
+		out += space + "public:\n"
+		space += "	"
+		out += space + "/**\n"
+		out += space + " * @brief Generic virtual destructor\n"
+		out += space + " */\n"
+		out += space + "virtual ~" + self.name[-1] + "() = default;\n"
+		
+		for elem in self.functions:
+			out += elem.generate_cpp(space)
+		
+		space = space[:-2]
+		out += space + "};\n"
+		
+		for elem in self.name[:-1]:
+			space = space[:-1]
+			out += space + "}\n"
+		return [filename, out]
+	
+	def generate_register_header(self):
+		filename = ""
+		for elem in self.name[:-1]:
+			filename += elem + "/"
+		filename += "register" + self.name[-1] + ".hpp";
+		
+		class_name = ""
+		for elem in self.name[:-1]:
+			class_name += "" + elem + "::"
+		class_name += self.name[-1];
+		
+		out = ""
+		out += "/** @file\n"
+		out += " * @note Generated file !!! Do not modify !!!\n"
+		out += " * @license APACHE-2\n"
+		out += " * @copyright none\n"
+		out += " */\n"
+		out += "#pragma once\n"
+		out += "\n"
+		out += "#include <etk/types.hpp>\n"
+		out += "#include <zeus/Service.hpp>\n"
+		out += "#include <" + class_name.replace("::","/") + ".hpp>\n"
+		out += "#include <string>\n"
+		out += "#include <vector>\n"
+		out += "\n"
+		space = ""
+		for elem in self.name[:-1]:
+			out += space + "namespace " + elem + " {\n"
+			space += "	"
+		
+		out += space + "void register" + self.name[-1] + "(zeus::ServiceType<" + class_name + ">& _serviceInterface);\n"
+		out += space + "template<class ZEUS_TYPE_SERVICE>\n"
+		out += space + "zeus::Service* create" + self.name[-1] + "(std::function<ememory::SharedPtr<ZEUS_TYPE_SERVICE>(ememory::SharedPtr<ClientProperty>)> _factory) {\n"
+		out += space + "	zeus::ServiceType<zeus::service::User>* tmp = nullptr;\n"
+		out += space + "	tmp = new zeus::ServiceType<zeus::service::User>(_factory);\n"
+		out += space + "	zeus::service::registerUser(*tmp);\n"
+		out += space + "	return tmp;\n"
+		out += space + "}\n"
+		
+		for elem in self.name[:-1]:
+			space = space[:-1]
+			out += space + "}\n"
+		out += space + "\n"
+		
+		out += space + "#define ZEUS_SERVICE_USER_DECLARE_DEFAULT(type) \\\n"
+		out += space + "	ETK_EXPORT_API zeus::Service* SERVICE_IO_instanciate() { \\\n"
+		out += space + "		return zeus::service::create" + self.name[-1] + "<type>([](ememory::SharedPtr<zeus::ClientProperty> _client){ \\\n"
+		out += space + "		                                 	return ememory::makeShared<type>(_client); \\\n"
+		out += space + "		                                 }); \\\n"
+		out += space + "	}\n"
+		out += space + "\n"
+		out += space + "#define ZEUS_SERVICE_USER_DECLARE(type, factory) \\\n"
+		out += space + "	ETK_EXPORT_API zeus::Service* SERVICE_IO_instanciate() { \\\n"
+		out += space + "		return zeus::service::create" + self.name[-1] + "<type>(factory); \\\n"
+		out += space + "	}\n"
+		
+		return [filename, out]
+	
+	def generate_register_code(self):
+		filename = ""
+		for elem in self.name[:-1]:
+			filename += elem + "/"
+		filename += "register" + self.name[-1] + ".cpp";
+		
+		class_name = ""
+		for elem in self.name[:-1]:
+			class_name += "" + elem + "::"
+		class_name += self.name[-1];
+		
+		out = ""
+		out += "/** @file\n"
+		out += " * @note Generated file !!! Do not modify !!!\n"
+		out += " * @license APACHE-2\n"
+		out += " * @copyright none\n"
+		out += " */\n"
+		out += "\n"
+		out += "#include <" + filename.replace(".cpp", ".hpp") + ">\n"
+		out += "#include <zeus/debug.hpp>\n"
+		out += "\n"
+		space = ""
+		function_name = ""
+		for elem in self.name[:-1]:
+			function_name += "" + elem + "::"
+		function_name += "register" + self.name[-1];
+		
+		class_name = ""
+		for elem in self.name[:-1]:
+			class_name += "" + elem + "::"
+		class_name += self.name[-1];
+		
+		out += space + "void " + function_name + "(zeus::ServiceType<" + class_name + ">& _serviceInterface) {\n"
+		space += "	"
+		
+		
+		
+		
+		out += space + 'ZEUS_INFO("===========================================================");\n';
+		out += space + 'ZEUS_INFO("== Instanciate service: ' + self.name[-1] + '");\n';
+		out += space + 'ZEUS_INFO("===========================================================");\n';
+		"""
+		zeus::ServiceType<appl::SystemService> _serviceInterface([](ememory::SharedPtr<zeus::ClientProperty> _client){
+		                                                        	return ememory::makeShared<appl::SystemService>(_client);
+		                                                        });
+		if (_ip != "") {
+			_serviceInterface.propertyIp.set(_ip);
+		}
+		if (_port != 0) {
+			_serviceInterface.propertyPort.set(_port);
+		}
+		"""
+		out += space + '_serviceInterface.propertyNameService.set("' + self.name[-1].lower() + '");\n'
+		if self.brief != "":
+			out += space + '_serviceInterface.setDescription("' + self.brief + '");\n';
+		if self.version != "":
+			out += space + '_serviceInterface.setVersion("' + self.version + '");\n';
+		if self.api != "":
+			out += space + '_serviceInterface.setType("' + self.api + '");\n';
+		for elem in self.authors:
+			out += space + '_serviceInterface.addAuthor("' + elem.split("<")[0] + '", "' + elem.split("<")[1].replace(">","") + '");\n';
+		if len(self.functions) != 0:
+			out += space + "zeus::AbstractFunction* func = nullptr;\n"
+		for elem in self.functions:
+			out += space + 'func = _serviceInterface.advertise("' + elem.name + '", &' + class_name + '::' + elem.name + ');\n'
+			out += space + 'if (func != nullptr) {\n'
+			space += "	"
+			if elem.brief != "":
+				out += space + 'func->setDescription("' + elem.name + '");\n'
+			for elem_p in elem.parameters:
+				if     elem_p["name"] == "" \
+				   and elem_p["brief"] == "":
+					continue
+				out += space + 'func->addParam("'
+				if elem_p["name"] != "":
+					out += elem_p["name"]
+				out += '", "'
+				if elem_p["brief"] != "":
+					out += elem_p["brief"]
+				out += '");\n'
+			if elem.return_brief != "":
+				out += space + 'func->setReturn("' + elem.return_brief + '");\n'
+			space = space[:-1]
+			out += space + '}\n'
+		out += space + 'ZEUS_INFO("===========================================================");\n';
+		out += space + 'ZEUS_INFO("== Instanciate service: ' + self.name[-1] + ' [DONE]");\n';
+		out += space + 'ZEUS_INFO("===========================================================");\n';
+		"""
+		if (_serviceInterface.connect() == false) {
+			return false;
+		}
+		if (_serviceInterface.GateWayAlive() == false) {
+			APPL_INFO("===========================================================");
+			APPL_INFO("== ZEUS service: " << *_serviceInterface.propertyNameService << " [STOP] Can not connect to the GateWay");
+			APPL_INFO("===========================================================");
+			return false;
+		}
+		int32_t iii=0;
+		while (_serviceInterface.GateWayAlive() == true) {
+			std::this_thread::sleep_for(std::chrono::seconds(10));
+			_serviceInterface.pingIsAlive();
+			APPL_INFO("service in waiting ... " << iii << "/inf");
+			iii++;
+		}
+		APPL_INFO("Disconnect service ...");
+		_serviceInterface.disconnect();
+		APPL_INFO("===========================================================");
+		APPL_INFO("== ZEUS service: " << *_serviceInterface.propertyNameService << " [STOP] GateWay Stop");
+		APPL_INFO("===========================================================");
+		return true;
+		"""
+		
+		
+		
+		
+		
+		out += "}\n"
+		out += "\n"
+		return [filename, out]
+	
+	def generate_proxy_header(self):
+		filename = ""
+		for elem in self.name[:-1]:
+			filename += elem + "/"
+		filename += "Proxy" + self.name[-1] + ".hpp";
+		out = ""
+		
+		out += "/** @file\n"
+		out += " * @note Generated file !!! Do not modify !!!\n"
+		out += " * @license APACHE-2\n"
+		out += " * @copyright none\n"
+		out += " */\n"
+		out += "#pragma once\n"
+		out += "\n"
+		out += "#include <zeus/ServiceRemote.hpp>\n"
+		out += "#include <string>\n"
+		out += "#include <vector>\n"
+		out += "\n"
+		space = ""
+		for elem in self.name[:-1]:
+			out += space + "namespace " + elem + " {\n"
+			space += "	"
+		
+		out += space + " /**\n"
+		if self.brief != "":
+			out += space + " * @brief " + self.brief + " \n"
+		if self.version != "":
+			out += space + " *     version:" + self.version + "\n"
+		if self.api != "":
+			out += space + " *     api:" + self.api + "\n"
+		for elem in self.authors:
+			out += space + " *     authors:" + elem + "\n"
+		out += space + " */\n"
+		#out += space + "class Proxy" + self.name[-1] + " : public " + self.name[-1] + " {\n"
+		out += space + "class Proxy" + self.name[-1] + " {\n"
+		space += "	"
+		out += space + "protected:\n"
+		out += space + "	zeus::ServiceRemote m_srv; //!< Service instance handle\n"
+		out += space + "public:\n"
+		space += "	"
+		"""
+		out += space + "/**\n"
+		out += space + " * @brief Generic virtual destructor\n"
+		out += space + " */\n"
+		out += space + "virtual ~" + self.name[-1] + "() = default;\n"
+		"""
+		for elem in self.functions:
+			out += elem.generate_hpp_proxy(space)
+		
+		space = space[:-2]
+		out += space + "};\n"
+		
+		for elem in self.name[:-1]:
+			space = space[:-1]
+			out += space + "}\n"
+		return [filename, out]
+	
+	def generate_proxy_code(self):
+		filename = ""
+		for elem in self.name[:-1]:
+			filename += elem + "/"
+		filename += "Proxy" + self.name[-1] + ".cpp";
+		out = ""
+		
+		class_name = ""
+		for elem in self.name[:-1]:
+			class_name += "" + elem + "::"
+		class_name += "Proxy" + self.name[-1];
+		
+		out += "/** @file\n"
+		out += " * @note Generated file !!! Do not modify !!!\n"
+		out += " * @license APACHE-2\n"
+		out += " * @copyright none\n"
+		out += " */\n"
+		out += "\n"
+		out += "#include <" + filename.replace(".cpp",".hpp") + ">\n"
+		out += "\n"
+		
+		for elem in self.functions:
+			out += elem.generate_cpp_proxy("", class_name)
+		return [filename, out]
+	
+
+
+def tool_generate_idl(target, module, data):
+	debug.debug("Parsing .zeus.idl [start] " + str(data))
+	name_file = os.path.basename(data)
 	if len(name_file) < 9 \
 	   and name_file[-9:] != ".zeus.idl":
 		debug.error("IDL must have an extention ended with '.zeus.idl' and not with '" + name_file[-9:] + "'")
 	
-	# TODO : Get from filename the namespace and the service name
-	service_base = name_file[:-9].split("-")
-	data = tools.file_read_data(os.path.join(os.path.dirname(__file__), path))
+	service_def = ServiceDefinition()
+	service_def.set_name(name_file[:-9].split("-"))
+	data = tools.file_read_data(os.path.join(module.get_origin_path(), data))
 	if len(data) == 0:
 		debug.error("Can not parse zeus.idl ==> no data in the file, or no file.")
 		return;
@@ -173,18 +578,17 @@ def parse_service_idl(path):
 	id_line = 0
 	multi_comment = False
 	current_def = FunctionDefinition()
-	list_all_function = []
 	for line in data.split("\n"):
 		id_line += 1;
 		if len(line) == 0:
 			# empty line
-			debug.info("find line " + str(id_line) + " ==> empty line")
+			debug.extreme_verbose("find line " + str(id_line) + " ==> empty line")
 			continue
 		if multi_comment == False:
 			if     len(line) >= 2 \
 			   and line[:2] == "/*":
 				# Comment multi-line
-				debug.info("find line " + str(id_line) + " ==> comment multi-line [START]")
+				debug.extreme_verbose("find line " + str(id_line) + " ==> comment multi-line [START]")
 				if len(line) > 2:
 					debug.error("line " + str(id_line) + " ==> /* must be alone in the line (no text after)")
 				multi_comment = True
@@ -196,7 +600,7 @@ def parse_service_idl(path):
 			if     len(line) >= 2 \
 			   and line[:2] == "*/":
 				# Comment multi-line
-				debug.info("find line " + str(id_line) + " ==> comment multi-line [STOP]")
+				debug.extreme_verbose("find line " + str(id_line) + " ==> comment multi-line [STOP]")
 				multi_comment = False
 				if len(line) > 2:
 					debug.error("line " + str(id_line) + " ==> find '/*' must be alone in the line (no text after)")
@@ -205,12 +609,12 @@ def parse_service_idl(path):
 		if     len(line) >= 2 \
 		   and line[:2] == "//":
 			# Comment line
-			debug.info("find line " + str(id_line) + " ==> comment line")
+			debug.extreme_verbose("find line " + str(id_line) + " ==> comment line")
 			continue
 		if    len(line) >= 1 \
 		   and line[0] == "#":
 			# Documentation line
-			debug.info("find line " + str(id_line) + " ==> documentation line")
+			debug.extreme_verbose("find line " + str(id_line) + " ==> documentation line")
 			#get keyword:
 			list_elems = line.split(":")
 			if len(list_elems) < 1:
@@ -218,34 +622,34 @@ def parse_service_idl(path):
 			doc_keyword = list_elems[0] + ":"
 			doc_data = line[len(doc_keyword):]
 			if doc_keyword == "#brief:":
-				debug.info("    BRIEF: '" + doc_data + "'")
+				debug.extreme_verbose("    BRIEF: '" + doc_data + "'")
 				current_def = FunctionDefinition()
 				current_def.set_brief(doc_data)
 			elif doc_keyword == "#param:":
-				debug.info("    PARAMETER: '" + doc_data + "'")
+				debug.extreme_verbose("    PARAMETER: '" + doc_data + "'")
 				# TODO : Do it better ...
 				current_def.add_param_comment(doc_data.split(":")[0], doc_data.split(":")[1])
 			elif doc_keyword == "#return:":
-				debug.info("    RETURN: '" + doc_data + "'")
+				debug.extreme_verbose("    RETURN: '" + doc_data + "'")
 				current_def.set_return_comment(doc_data)
 			elif doc_keyword == "#srv-brief:":
-				debug.info("    SRV-BRIEF: '" + doc_data + "'")
-				# TODO: ...
+				debug.extreme_verbose("    SRV-BRIEF: '" + doc_data + "'")
+				service_def.set_brief(doc_data)
 			elif doc_keyword == "#srv-version:":
-				debug.info("    SRV-VERSION: '" + doc_data + "'")
-				# TODO: ...
-			elif doc_keyword == "#srv-type-api:":
-				debug.info("    SRV-TYPE-API: '" + doc_data + "'")
-				# TODO: ...
+				debug.extreme_verbose("    SRV-VERSION: '" + doc_data + "'")
+				service_def.set_version(doc_data)
+			elif doc_keyword == "#srv-type:":
+				debug.extreme_verbose("    SRV-TYPE: '" + doc_data + "'")
+				service_def.set_api(doc_data)
 			elif doc_keyword == "#srv-author:":
-				debug.info("    SRV-AUTHOR: '" + doc_data + "'")
-				# TODO: ...
+				debug.extreme_verbose("    SRV-AUTHOR: '" + doc_data + "'")
+				service_def.add_author(doc_data)
 			else:
 				debug.warning("line " + str(id_line) + " ==> Unknow: keyword: '" + doc_keyword + "'")
-				debug.error("        support only: '#brief:' '#param:' '#return:' '#srv-brief:' '#srv-version:' '#srv-type-api:' '#srv-author:'")
+				debug.error("        support only: '#brief:' '#param:' '#return:' '#srv-brief:' '#srv-version:' '#srv-type:' '#srv-author:'")
 			continue
-		debug.info("Need to parse the fucntion line:")
-		debug.info("    '" + line + "'")
+		debug.extreme_verbose("Need to parse the fucntion line:")
+		debug.extreme_verbose("    '" + line + "'")
 		if True:
 			if line[-1] != ")":
 				debug.error("line " + str(id_line) + " Can not parse function the line dos not ended by a ')'")
@@ -267,65 +671,72 @@ def parse_service_idl(path):
 			for elem in argument_list:
 				if elem not in get_list_type():
 					debug.error("line " + str(id_line) + " fucntion argument type unknow : '" + elem + "' not in " + str(get_list_type()))
-			debug.info("        Parse of function done :")
-			debug.info("            return:" + return_value)
-			debug.info("            name:" + function_name)
-			debug.info("            arguments:" + str(argument_list))
+			debug.extreme_verbose("        Parse of function done :")
+			debug.extreme_verbose("            return:" + return_value)
+			debug.extreme_verbose("            name:" + function_name)
+			debug.extreme_verbose("            arguments:" + str(argument_list))
 			current_def.set_function_name(function_name)
 			current_def.set_return_type(return_value)
 			for elem in argument_list:
 				current_def.add_parameter_type(elem)
-			list_all_function.append(current_def)
+			service_def.add_function(current_def)
 			current_def = FunctionDefinition()
 	if multi_comment == True:
 		debug.error("reach end of file and missing end of multi-line comment */")
-	debug.warning("Parsing Done")
-	for elem in list_all_function:
-		elem.display();
-	debug.warning("Display Done")
-	cpp_header = ""
-	# TODO: add global header:
-	cpp_header += "/** @file\n"
-	cpp_header += " * @note Generated file !!! Do not modify !!!\n"
-	cpp_header += " */\n"
-	cpp_header += "#pragma once"
-	cpp_header += "\n"
-	space = ""
-	for elem in service_base[:-1]:
-		cpp_header += space + "namespace " + elem + " {\n"
-		space += "	"
+	debug.verbose("Parsing idl Done (no error ...)")
 	
-	cpp_header += space + "class " + service_base[-1] + " {\n"
-	space += "	"
-	cpp_header += space + "public:\n"
-	space += "	"
+	#service_def.display()
 	
-	for elem in list_all_function:
-		cpp_header += elem.generate_cpp(space)
+	service_header = service_def.generate_header()
+	register_header = service_def.generate_register_header()
+	register_code = service_def.generate_register_code()
+	proxy_header = service_def.generate_proxy_header()
+	proxy_code = service_def.generate_proxy_code()
 	
-	space = space[:-2]
-	cpp_header += space + "};\n"
+	debug.verbose("-----------------  " + service_header[0] + "  -----------------")
+	debug.verbose("\n" + service_header[1])
+	debug.verbose("-----------------  " + register_header[0] + "  -----------------")
+	debug.verbose("\n" + register_header[1])
+	debug.verbose("-----------------  " + register_code[0] + "  -----------------")
+	debug.verbose("\n" + register_code[1])
+	debug.verbose("-----------------  " + proxy_header[0] + "  -----------------")
+	debug.verbose("\n" + proxy_header[1])
+	debug.verbose("-----------------  " + proxy_code[0] + "  -----------------")
+	debug.verbose("\n" + proxy_code[1])
 	
-	for elem in service_base[:-1]:
-		space = space[:-1]
-		cpp_header += space + "}\n"
-	debug.info(cpp_header)
-	debug.warning("Generate C++ Done")
+	tmp_path = os.path.join(target.get_build_path_temporary_generate(module.get_name()), "idl_src")
+	module.add_generated_header_file(service_header[1], service_header[0], install_element=True)
+	module.add_generated_header_file(register_header[1], register_header[0], install_element=True)
 	
-	debug.error("Parsing .zeus.idl [DONE]")
+	path_file = os.path.join(tmp_path, register_code[0])
+	tools.file_write_data(path_file, register_code[1], only_if_new=True)
+	module.add_src_file(path_file)
+	
+	module.add_generated_header_file(proxy_header[1], proxy_header[0], install_element=True)
+	
+	path_file = os.path.join(tmp_path, proxy_code[0])
+	tools.file_write_data(path_file, proxy_code[1], only_if_new=True)
+	module.add_src_file(path_file)
+	
+	debug.info("build in : " + tmp_path);
+	
+	
+	debug.warning("Parsing .zeus.idl [DONE]")
 
 def configure(target, my_module):
 	my_module.add_path(".")
 	my_module.add_depend([
-	    'zeus',
-	    'ejson'
+	    'zeus'
 	    ])
+	"""
 	my_module.add_src_file([
 	    'appl/debug.cpp',
 	    'appl/main.cpp'
 	    ])
+	"""
+	my_module.add_action(tool_generate_idl, data='appl/zeus-service-user.zeus.idl')
 	
-	parse_service_idl('appl/service-user.zeus.idl')
+	#parse_service_idl(my_module, 'appl/zeus-service-user.zeus.idl')
 	
 	my_module.add_flag('c++', "-DSERVICE_NAME=\"\\\"" + my_module.get_name()[13:] + "\\\"\"")
 	

@@ -1,16 +1,19 @@
 #!/usr/bin/python
 import lutin.debug as debug
 import lutin.tools as tools
+import os
+import copy
 
 
 def get_type():
-	return "BINARY"
+	return "LIBRARY_DYNAMIC"
+	#return "BINARY"
 
 def get_sub_type():
 	return "TOOLS"
 
 def get_desc():
-	return "ZEUS launcher of service module"
+	return "ZEUS service user"
 
 def get_licence():
 	return "APACHE-2"
@@ -27,14 +30,17 @@ def get_maintainer():
 def configure(target, my_module):
 	my_module.add_path(".")
 	my_module.add_depend([
-	    'etk',
 	    'zeus',
-	    'elog'
+	    'ejson',
+	    'zeus-service-user'
 	    ])
 	my_module.add_src_file([
 	    'appl/debug.cpp',
 	    'appl/main.cpp'
 	    ])
+	
+	my_module.add_flag('c++', "-DSERVICE_NAME=\"\\\"user\\\"\"")
+	
 	return True
 
 

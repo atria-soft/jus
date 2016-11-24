@@ -49,6 +49,19 @@ namespace zeus {
 			 */
 			std::string getVersion();
 		protected:
+			std::string m_versionImplement; //!< Version implementation of the service
+		public:
+			/**
+			 * @brief Set the Version implementation of the service
+			 * @param[in] _vers String containing the version (form: 1.0[.x[.y]][-dev]
+			 */
+			void setVersionImplementation(const std::string& _vers);
+			/**
+			 * @brief Get the Version implementation of the service
+			 * @return String containing the version (form: 1.0[.x[.y]][-dev]
+			 */
+			std::string getVersionImplementation();
+		protected:
 			std::vector<std::pair<std::string,std::string>> m_authors;//! List of autors of the module (name, email)
 		public:
 			/**
@@ -81,7 +94,7 @@ namespace zeus {
 			 * @param[in] 
 			 * @return 
 			 */
-			void setType(const std::string& _type, uint16_t _version);
+			void setType(const std::string& _type);
 		public:
 			/**
 			 * @brief 

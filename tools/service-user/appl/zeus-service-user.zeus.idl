@@ -1,6 +1,6 @@
 #srv-brief: user interface management
-#srv-version: 0.1.0
-#srv-type-api:USER/1
+#srv-version: 1.0
+#srv-type:USER
 #srv-author:Heero Yui<yui.heero@gmail.com>
 
 // Idl comment example
