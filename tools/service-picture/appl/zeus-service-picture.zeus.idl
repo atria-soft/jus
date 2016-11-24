@@ -1,0 +1,21 @@
+#srv-brief: picture interface management
+#srv-version: 1.0
+#srv-type:PICTURE
+#srv-author:Heero Yui<yui.heero@gmail.com
+
+
+vector:string getAlbums()
+vector:string getSubAlbums(string)
+uint32 getAlbumCount(string)
+vector:string getAlbumListPicture(string)
+//zeus::FileServer getAlbumPicture(string)
+//string addFile(zeus::File)
+bool removeFile(string)
+/*
+string createAlbum(string)
+bool removeAlbum(string)
+bool setAlbumDescription(string, string)
+string getAlbumDescription(string)
+bool addInAlbum(string, string)
+bool removeFromAlbum(string, string)
+*/

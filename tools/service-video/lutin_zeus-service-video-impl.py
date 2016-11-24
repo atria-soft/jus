@@ -1,7 +1,6 @@
 #!/usr/bin/python
 import lutin.debug as debug
 import lutin.tools as tools
-import lutin.macro as macro
 
 
 def get_type():
@@ -12,9 +11,9 @@ def get_sub_type():
 	return "TOOLS"
 
 def get_desc():
-	return "ZEUS service user"
+	return "ZEUS video service"
 
-def get_license():
+def get_licence():
 	return "APACHE-2"
 
 def get_compagny_type():
@@ -29,17 +28,15 @@ def get_maintainer():
 def configure(target, my_module):
 	my_module.add_path(".")
 	my_module.add_depend([
-	    'zeus'
+	    'zeus',
+	    'ejson',
+	    'zeus-service-video'
 	    ])
-	
-	zeus_macro = macro.load_macro('zeus')
-	zeus_macro.parse_service_idl(my_module, 'appl/zeus-service-user.zeus.idl')
-	
-	#module_zeus = target.get_module('zeus')
-	#module_zeus.parse_service_idl(my_module, 'appl/zeus-service-user.zeus.idl')
-	
-	my_module.add_flag('c++', "-DSERVICE_NAME=\"\\\"user\\\"\"")
-	
+	my_module.add_src_file([
+	    'appl/debug.cpp',
+	    'appl/main.cpp'
+	    ])
+	my_module.add_flag('c++', "-DSERVICE_NAME=\"\\\"video\\\"\"")
 	return True
 
 

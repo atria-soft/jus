@@ -1,6 +1,7 @@
 #!/usr/bin/python
 import lutin.debug as debug
 import lutin.tools as tools
+import lutin.macro as macro
 
 
 def get_type():
@@ -26,16 +27,16 @@ def get_maintainer():
 	return ["Mr DUPIN Edouard <yui.heero@gmail.com>"]
 
 def configure(target, my_module):
-	my_module.add_path(".")
 	my_module.add_depend([
-	    'zeus',
-	    'ejson'
+	    'zeus'
 	    ])
-	my_module.add_src_file([
-	    'appl/debug.cpp',
-	    'appl/main.cpp'
-	    ])
-	my_module.add_flag('c++', "-DSERVICE_NAME=\"\\\"" + my_module.get_name()[13:] + "\\\"\"")
+	
+	zeus_macro = macro.load_macro('zeus')
+	zeus_macro.parse_service_idl(my_module, 'appl/zeus-service-video.zeus.idl')
+	#module_zeus = target.get_module('zeus')
+	#module_zeus.parse_service_idl(my_module, 'appl/zeus-service-video.zeus.idl')
+	
+	my_module.add_flag('c++', "-DSERVICE_NAME=\"\\\"video\\\"\"")
 	return True
 
 

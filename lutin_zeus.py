@@ -91,8 +91,3 @@ def configure(target, my_module):
 	return True
 
 
-
-
-
-
-

@@ -17,6 +17,9 @@
 
 #include <etk/stdTools.hpp>
 
+#include <zeus/service/Video.hpp>
+#include <zeus/service/registerVideo.hpp>
+
 static std::mutex g_mutex;
 static std::string g_basePath;
 static std::string g_baseDBName = std::string(SERVICE_NAME) + "-database.json";
@@ -30,13 +33,10 @@ static uint64_t createFileID() {
 }
 
 namespace appl {
-	class VideoService {
+	class VideoService : public zeus::service::Video {
 		private:
 			ememory::SharedPtr<zeus::ClientProperty> m_client;
 		public:
-			VideoService() {
-				APPL_WARNING("New VideoService ...");
-			}
 			VideoService(ememory::SharedPtr<zeus::ClientProperty> _client) :
 			  m_client(_client) {
 				APPL_WARNING("New VideoService ... for user: ");
@@ -200,51 +200,51 @@ namespace appl {
 				return m_user->getAlbumPictureGeoLocalization(_pictureName);
 			}
 			*/
-			bool removeFile(const std::string& _file) {
+			bool removeFile(std::string _file) {
 				std::unique_lock<std::mutex> lock(g_mutex);
 				// TODO : Check right ...
 				return false;
 			}
 			
-			std::string createAlbum(const std::string& _name) {
+			std::string createAlbum(std::string _name) {
 				std::unique_lock<std::mutex> lock(g_mutex);
 				// TODO : Check right ...
 				return "";
 			}
-			bool removeAlbum(const std::string& _name) {
+			bool removeAlbum(std::string _name) {
 				std::unique_lock<std::mutex> lock(g_mutex);
 				// TODO : Check right ...
 				return false;
 			}
-			bool setAlbumDescription(const std::string& _name, const std::string& _desc) {
+			bool setAlbumDescription(std::string _name, std::string _desc) {
 				std::unique_lock<std::mutex> lock(g_mutex);
 				// TODO : Check right ...
 				return false;
 			}
-			std::string getAlbumDescription(const std::string& _name) {
+			std::string getAlbumDescription(std::string _name) {
 				std::unique_lock<std::mutex> lock(g_mutex);
 				// TODO : Check right ...
 				return "";
 			}
-			bool addInAlbum(const std::string& _nameAlbum, const std::string& _nameElement) {
+			bool addInAlbum(std::string _nameAlbum, std::string _nameElement) {
 				std::unique_lock<std::mutex> lock(g_mutex);
 				// TODO : Check right ...
 				return false;
 			}
-			bool removeFromAlbum(const std::string& _nameAlbum, const std::string& _nameElement) {
+			bool removeFromAlbum(std::string _nameAlbum, std::string _nameElement) {
 				std::unique_lock<std::mutex> lock(g_mutex);
 				// TODO : Check right ...
 				return false;
 			}
 			/*
 			// Return a global UTC time
-			zeus::Time getAlbumPictureTime(const std::string& _pictureName) {
+			zeus::Time getAlbumPictureTime(std::string _pictureName) {
 				std::unique_lock<std::mutex> lock(g_mutex);
 				// TODO : Check right ...
 				return zeus::Time();
 			}
 			// Return a Geolocalization information (latitude, longitude)
-			zeus::Geo getAlbumPictureGeoLocalization(const std::string& _pictureName) {
+			zeus::Geo getAlbumPictureGeoLocalization(std::string _pictureName) {
 				std::unique_lock<std::mutex> lock(g_mutex);
 				// TODO : Check right ...
 				return zeus::Geo();
@@ -312,63 +312,5 @@ ETK_EXPORT_API bool SERVICE_IO_uninit() {
 	return true;
 }
 
-ETK_EXPORT_API bool SERVICE_IO_execute(std::string _ip, uint16_t _port) {
-	APPL_INFO("===========================================================");
-	APPL_INFO("== ZEUS instanciate service: " << SERVICE_NAME << " [START]");
-	APPL_INFO("===========================================================");
-	zeus::ServiceType<appl::VideoService> serviceInterface([](ememory::SharedPtr<zeus::ClientProperty> _client){
-	                                                        	return ememory::makeShared<appl::VideoService>(_client);
-	                                                        });
-	if (_ip != "") {
-		serviceInterface.propertyIp.set(_ip);
-	}
-	if (_port != 0) {
-		serviceInterface.propertyPort.set(_port);
-	}
-	serviceInterface.propertyNameService.set(SERVICE_NAME);
-	serviceInterface.setDescription("Video Private Interface");
-	serviceInterface.setVersionImplementation("0.1.0");
-	serviceInterface.setVersion("1.0");
-	serviceInterface.setType("VIDEO");
-	serviceInterface.addAuthor("Heero Yui", "yui.heero@gmail.com");
-	
-	serviceInterface.advertise("getAlbums", &appl::VideoService::getAlbums);
-	serviceInterface.advertise("getSubAlbums", &appl::VideoService::getSubAlbums);
-	serviceInterface.advertise("getAlbumCount", &appl::VideoService::getAlbumCount);
-	serviceInterface.advertise("getAlbumListPicture", &appl::VideoService::getAlbumListPicture);
-	serviceInterface.advertise("getAlbumPicture", &appl::VideoService::getAlbumPicture);
-	serviceInterface.advertise("addFile", &appl::VideoService::addFile);
-	/*
-	serviceInterface.advertise("getAlbumPicture", &appl::VideoService::getAlbumPicture);
-	serviceInterface.advertise("getAlbumPictureTime", &appl::VideoService::getAlbumPictureTime);
-	serviceInterface.advertise("getAlbumPictureGeoLocalization", &appl::VideoService::getAlbumPictureGeoLocalization);
-	*/
-	APPL_INFO("===========================================================");
-	APPL_INFO("== ZEUS service: " << *serviceInterface.propertyNameService << " [service instanciate]");
-	APPL_INFO("===========================================================");
-	if (serviceInterface.connect() == false) {
-		return false;
-	}
-	if (serviceInterface.GateWayAlive() == false) {
-		APPL_INFO("===========================================================");
-		APPL_INFO("== ZEUS service: " << *serviceInterface.propertyNameService << " [STOP] Can not connect to the GateWay");
-		APPL_INFO("===========================================================");
-		return false;
-	}
-	int32_t iii=0;
-	while (serviceInterface.GateWayAlive() == true) {
-		std::this_thread::sleep_for(std::chrono::seconds(1));
-		serviceInterface.pingIsAlive();
-		/*
-		serviceInterface.store();
-		serviceInterface.clean();
-		*/
-		APPL_INFO("service in waiting ... " << iii << "/inf");
-		iii++;
-	}
-	serviceInterface.disconnect();
-	APPL_INFO("===========================================================");
-	APPL_INFO("== ZEUS service: " << *serviceInterface.propertyNameService << " [STOP] GateWay Stop");
-	APPL_INFO("===========================================================");
-	return true;
-}
+ZEUS_SERVICE_VIDEO_DECLARE_DEFAULT(appl::VideoService);
+

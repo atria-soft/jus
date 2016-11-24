@@ -26,8 +26,8 @@ def configure(target, my_module):
 	    'zeus-router',
 	    'zeus-gateway',
 	    'zeus-service-user-impl',
-	    'zeus-service-picture',
-	    'zeus-service-video',
+	    'zeus-service-picture-impl',
+	    'zeus-service-video-impl',
 	    'zeus-launcher',
 	    ])
 	return True
