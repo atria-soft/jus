@@ -1,24 +1,31 @@
-#description: user interface management
-#version: 0.1.0
-#type-api:USER/1
-#author:Heero Yui<yui.heero@gmail.com>
+#srv-brief: user interface management
+#srv-version: 0.1.0
+#srv-type-api:USER/1
+#srv-author:Heero Yui<yui.heero@gmail.com>
+
+// Idl comment example
+
+/*
+Multiple line comment example
+And an other line
+*/
 
 #brief:Get list of group availlable for a client name
-#param:_clientName:Name of the client
-vector:string getGroups(string clientName)
+#param:clientName:Name of the client
+vector:string getGroups(string)
 
 #brief:Check if a user tocken is correct or not
-#param[in]:clientName:Name of the client
-#param[in]:tocken:String containing the Tocken
+#param:clientName:Name of the client
+#param:tocken:String containing the Tocken
 #return: true if the Tocken is validated or false if it is wrong
-bool checkTocken(string clientName, string tocken)
+bool checkTocken(string, string)
 
 #brief:Check the password of the curent user
-#param[in]:password:client/user password
+#param:password:client/user password
 #return: true if the pasword is validated or false if it is wrong
-bool checkAuth(string _password)
+bool checkAuth(string)
 
 #brief:Filter a list of service with the cuurent profile of the user (restrict area)
-#param[in]:clientName:Name of the client
-#param[in]:currentList:Vector of name of the services
-vector:string filterServices(string _clientName, vector:string _currentList)
+#param:clientName:Name of the client
+#param:currentList:Vector of name of the services
+vector:string filterServices(string, vector:string)
