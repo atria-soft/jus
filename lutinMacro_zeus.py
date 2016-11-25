@@ -30,6 +30,11 @@ list_of_known_type = [
     ["vector:uint64", "std::vector<uint64_t>"],
     ["vector:float32", "std::vector<float>"],
     ["vector:float64", "std::vector<double>"],
+    ["duration", "echrono::Duration"],
+    ["time", "echrono::Time"],
+    ["file", "zeus::File"],
+    ["stream", "zeus::Stream"],
+    ["json", "ejson::Object"],
     ]
 
 
@@ -141,10 +146,16 @@ class FunctionDefinition:
 		out += space + "virtual "
 		out += convert_type_in_cpp(self.return_type) + " " + self.name + "("
 		param_data = ""
+		id_parameter = 0
 		for elem in self.parameters:
+			id_parameter += 1
 			if len(param_data) != 0:
 				param_data += ", "
-			param_data += convert_type_in_cpp(elem["type"]) + " _" + elem["name"]
+			param_data += convert_type_in_cpp(elem["type"]) + " _"
+			if elem["name"] == "":
+				param_data += "no_name_param_" + str(id_parameter)
+			else:
+				param_data += elem["name"]
 		out += param_data
 		out += ") = 0;\n"
 		return out;
@@ -154,10 +165,16 @@ class FunctionDefinition:
 		out += self.generate_doxy(space)
 		out += space + "virtual zeus::Future<" + convert_type_in_cpp(self.return_type) + "> " + self.name + "("
 		param_data = ""
+		id_parameter = 0
 		for elem in self.parameters:
+			id_parameter += 1
 			if len(param_data) != 0:
 				param_data += ", "
-			param_data += "const " + convert_type_in_cpp(elem["type"]) + "& _" + elem["name"]
+			param_data += "const " + convert_type_in_cpp(elem["type"]) + "& _"
+			if elem["name"] == "":
+				param_data += "no_name_param_" + str(id_parameter)
+			else:
+				param_data += elem["name"]
 		out += param_data
 		out += ");\n"
 		return out;
@@ -165,17 +182,29 @@ class FunctionDefinition:
 		out = "";
 		out += space + "zeus::Future<" + convert_type_in_cpp(self.return_type) + "> " + class_name + "::" + self.name + "("
 		param_data = ""
+		id_parameter = 0
 		for elem in self.parameters:
+			id_parameter += 1
 			if len(param_data) != 0:
 				param_data += ", "
-			param_data += "const " + convert_type_in_cpp(elem["type"]) + "& _" + elem["name"]
+			param_data += "const " + convert_type_in_cpp(elem["type"]) + "& _"
+			if elem["name"] == "":
+				param_data += "no_name_param_" + str(id_parameter)
+			else:
+				param_data += elem["name"]
 		out += param_data
 		out += ") {\n"
 		space += "	"
 		out += space + 'return m_srv.call("' + self.name + '"'
+		id_parameter = 0
 		for elem in self.parameters:
+			id_parameter += 1
 			out += ", "
-			out += "_" + elem["name"]
+			out += "_"
+			if elem["name"] == "":
+				out += "no_name_param_" + str(id_parameter)
+			else:
+				out += elem["name"]
 		out += ');\n'
 		out += "}\n"
 		space = space[:-1]
@@ -314,7 +343,7 @@ class ServiceDefinition:
 		out += space + "void register" + self.name[-1] + "(zeus::ServiceType<" + class_name + ">& _serviceInterface);\n"
 		out += space + "\n"
 		out += space + "template<class " + MACRO_BASE_NAME + "TYPE>\n"
-		out += space + "zeus::Service* create" + self.name[-1] + "(std::function<ememory::SharedPtr<" + MACRO_BASE_NAME + "TYPE>(ememory::SharedPtr<ClientProperty>)> _factory) {\n"
+		out += space + "zeus::Service* create" + self.name[-1] + "(std::function<ememory::SharedPtr<" + MACRO_BASE_NAME + "TYPE>(ememory::SharedPtr<ClientProperty>, const std::string& _userName)> _factory) {\n"
 		out += space + "	zeus::ServiceType<" + class_name + ">* tmp = nullptr;\n"
 		out += space + "	tmp = new zeus::ServiceType<" + class_name + ">(_factory);\n"
 		out += space + "	zeus::service::register" + self.name[-1] + "(*tmp);\n"
@@ -328,8 +357,8 @@ class ServiceDefinition:
 		
 		out += space + "#define " + MACRO_BASE_NAME + "DECLARE_DEFAULT(type) \\\n"
 		out += space + "	ETK_EXPORT_API zeus::Service* SERVICE_IO_instanciate() { \\\n"
-		out += space + "		return " + namespace + "create" + self.name[-1] + "<type>([](ememory::SharedPtr<zeus::ClientProperty> _client){ \\\n"
-		out += space + "		                                 	return ememory::makeShared<type>(_client); \\\n"
+		out += space + "		return " + namespace + "create" + self.name[-1] + "<type>([](ememory::SharedPtr<zeus::ClientProperty> _client, const std::string& _userName){ \\\n"
+		out += space + "		                                 	return ememory::makeShared<type>(_client, _userName); \\\n"
 		out += space + "		                                 }); \\\n"
 		out += space + "	}\n"
 		out += space + "\n"
@@ -427,34 +456,6 @@ class ServiceDefinition:
 		out += space + 'ZEUS_INFO("===========================================================");\n';
 		out += space + 'ZEUS_INFO("== Instanciate service: ' + self.name[-1] + ' [DONE]");\n';
 		out += space + 'ZEUS_INFO("===========================================================");\n';
-		"""
-		if (_serviceInterface.connect() == false) {
-			return false;
-		}
-		if (_serviceInterface.GateWayAlive() == false) {
-			APPL_INFO("===========================================================");
-			APPL_INFO("== ZEUS service: " << *_serviceInterface.propertyNameService << " [STOP] Can not connect to the GateWay");
-			APPL_INFO("===========================================================");
-			return false;
-		}
-		int32_t iii=0;
-		while (_serviceInterface.GateWayAlive() == true) {
-			std::this_thread::sleep_for(std::chrono::seconds(10));
-			_serviceInterface.pingIsAlive();
-			APPL_INFO("service in waiting ... " << iii << "/inf");
-			iii++;
-		}
-		APPL_INFO("Disconnect service ...");
-		_serviceInterface.disconnect();
-		APPL_INFO("===========================================================");
-		APPL_INFO("== ZEUS service: " << *_serviceInterface.propertyNameService << " [STOP] GateWay Stop");
-		APPL_INFO("===========================================================");
-		return true;
-		"""
-		
-		
-		
-		
 		
 		out += "}\n"
 		out += "\n"
@@ -498,6 +499,11 @@ class ServiceDefinition:
 		space += "	"
 		out += space + "protected:\n"
 		out += space + "	zeus::ServiceRemote m_srv; //!< Service instance handle\n"
+		out += space + "public:\n"
+		out += space + "	const Proxy" + self.name[-1] + "& operator= (const zeus::ServiceRemote& _srv) {\n"
+		out += space + "		m_srv = _srv;\n"
+		out += space + "		return *this;\n"
+		out += space + "	}\n"
 		out += space + "public:\n"
 		space += "	"
 		"""
@@ -696,21 +702,11 @@ def tool_generate_idl(target, module, data_path):
 	tmp_path = os.path.join(target.get_build_path_temporary_generate(module.get_name()), "idl_src")
 	module.add_generated_header_file(service_header[1], service_header[0], install_element=True)
 	module.add_generated_header_file(register_header[1], register_header[0], install_element=True)
-	
-	path_file = os.path.join(tmp_path, register_code[0])
-	tools.file_write_data(path_file, register_code[1], only_if_new=True)
-	module.add_src_file(path_file)
-	
+	module.add_generated_src_file(register_code[1], register_code[0])
 	module.add_generated_header_file(proxy_header[1], proxy_header[0], install_element=True)
+	module.add_generated_src_file(proxy_code[1], proxy_code[0])
 	
-	path_file = os.path.join(tmp_path, proxy_code[0])
-	tools.file_write_data(path_file, proxy_code[1], only_if_new=True)
-	module.add_src_file(path_file)
-	
-	debug.info("build in : " + tmp_path);
-	
-	
-	debug.warning("Parsing .zeus.idl [DONE]")
+	debug.debug("Parsing .zeus.idl [DONE]")
 
 
 def parse_service_idl(module, idl_path):

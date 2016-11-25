@@ -36,9 +36,11 @@ namespace appl {
 	class VideoService : public zeus::service::Video {
 		private:
 			ememory::SharedPtr<zeus::ClientProperty> m_client;
+			std::string m_userName;
 		public:
-			VideoService(ememory::SharedPtr<zeus::ClientProperty> _client) :
-			  m_client(_client) {
+			VideoService(ememory::SharedPtr<zeus::ClientProperty> _client, const std::string& _userName) :
+			  m_client(_client),
+			  m_userName(_userName) {
 				APPL_WARNING("New VideoService ... for user: ");
 			}
 			~VideoService() {

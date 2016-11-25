@@ -98,6 +98,7 @@ void zeus::Buffer::composeWith(const uint8_t* _buffer, uint32_t _lenght) {
 void zeus::Buffer::clear() {
 	m_header.transactionID = 1;
 	m_header.clientID = 0;
+	m_header.serviceID = 0;
 	m_header.flags = ZEUS_BUFFER_FLAG_FINISH;
 }
 
@@ -115,6 +116,7 @@ void zeus::Buffer::generateDisplay(std::ostream& _os) const {
 	_os << " if=" << etk::to_string(getInterfaceId());
 	_os << " tr-id=" << etk::to_string(getTransactionId());
 	_os << " cId=" << etk::to_string(getClientId());
+	_os << " sId=" << etk::to_string(getServiceId());
 	if (getPartFinish() == true) {
 		_os << " finish";
 	}
@@ -164,6 +166,14 @@ void zeus::Buffer::setClientId(uint32_t _value) {
 	m_header.clientID = _value;
 }
 
+uint32_t zeus::Buffer::getServiceId() const {
+	return m_header.serviceID;
+}
+
+void zeus::Buffer::setServiceId(uint32_t _value) {
+	m_header.serviceID = _value;
+}
+
 bool zeus::Buffer::getPartFinish() const {
 	return (m_header.flags & ZEUS_BUFFER_FLAG_FINISH) != 0;
 }
@@ -205,6 +215,7 @@ ememory::SharedPtr<zeus::Buffer> zeus::Buffer::create(const std::vector<uint8_t>
 				}
 				value->setTransactionId(header.transactionID);
 				value->setClientId(header.clientID);
+				value->setServiceId(header.serviceID);
 				value->setPartFinish((header.flags & ZEUS_BUFFER_FLAG_FINISH) != 0);
 				value->composeWith(&_buffer[sizeof(headerBin)],
 				                    _buffer.size() - sizeof(headerBin));
@@ -218,6 +229,7 @@ ememory::SharedPtr<zeus::Buffer> zeus::Buffer::create(const std::vector<uint8_t>
 				}
 				value->setTransactionId(header.transactionID);
 				value->setClientId(header.clientID);
+				value->setServiceId(header.serviceID);
 				value->setPartFinish((header.flags & ZEUS_BUFFER_FLAG_FINISH) != 0);
 				value->composeWith(&_buffer[sizeof(headerBin)],
 				                    _buffer.size() - sizeof(headerBin));
@@ -231,6 +243,7 @@ ememory::SharedPtr<zeus::Buffer> zeus::Buffer::create(const std::vector<uint8_t>
 				}
 				value->setTransactionId(header.transactionID);
 				value->setClientId(header.clientID);
+				value->setServiceId(header.serviceID);
 				value->setPartFinish((header.flags & ZEUS_BUFFER_FLAG_FINISH) != 0);
 				value->composeWith(&_buffer[sizeof(headerBin)],
 				                    _buffer.size() - sizeof(headerBin));
@@ -244,6 +257,7 @@ ememory::SharedPtr<zeus::Buffer> zeus::Buffer::create(const std::vector<uint8_t>
 				}
 				value->setTransactionId(header.transactionID);
 				value->setClientId(header.clientID);
+				value->setServiceId(header.serviceID);
 				value->setPartFinish((header.flags & ZEUS_BUFFER_FLAG_FINISH) != 0);
 				value->composeWith(&_buffer[sizeof(headerBin)],
 				                    _buffer.size() - sizeof(headerBin));

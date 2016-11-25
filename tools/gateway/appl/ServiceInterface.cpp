@@ -52,7 +52,6 @@ appl::ServiceInterface::ServiceInterface(enet::Tcp _connection, appl::GateWay* _
 }
 
 appl::ServiceInterface::~ServiceInterface() {
-	
 	APPL_INFO("--------------------");
 	APPL_INFO("-- DELETE Service --");
 	APPL_INFO("--------------------");
@@ -104,25 +103,15 @@ void appl::ServiceInterface::onServiceData(ememory::SharedPtr<zeus::Buffer> _val
 		*/
 		return;
 	}
-	/*
-	 DEPRECATED:
 	if (_value->getType() == zeus::Buffer::typeMessage::call) {
 		ememory::SharedPtr<zeus::BufferCall> callObj = ememory::staticPointerCast<zeus::BufferCall>(_value);
 		std::string callFunction = callObj->getCall();
-		if (callFunction == "connect-service") {
-			if (m_name != "") {
-				APPL_WARNING("Service interface ==> try change the service name after init: '" << callObj->getParameter<std::string>(0));
-				m_interfaceClient.answerValue(transactionId, false);
-				return;
-			}
-			m_name = callObj->getParameter<std::string>(0);
-			m_interfaceClient.setInterfaceName("srv-" + m_name);
-			m_interfaceClient.answerValue(transactionId, true);
+		if (callFunction == "getUserName") {
+			m_interfaceClient.answerValue(transactionId, *m_gatewayInterface->propertyUserName);
 			return;
 		}
 		answerProtocolError(transactionId, "unknow function");
 	}
-	*/
 	if (_value->getClientId() == 0) {
 		APPL_ERROR("Service interface ==> wrong service answer ==> missing 'client-id'");
 		return;

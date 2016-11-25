@@ -33,7 +33,8 @@ namespace zeus {
 	struct headerBin {
 		//uint16_t versionProtocol; // protocol Version (might be 1)
 		uint32_t transactionID;
-		uint32_t clientID; // same as sevice ID
+		uint32_t clientID; // Client Routing ID
+		uint32_t serviceID; // service routing ID
 		uint8_t flags; // List of flags & type message:
 		               //    - 0-2: Type of the message
 		               //    - 3-5: Reserved
@@ -191,7 +192,7 @@ namespace zeus {
 			 * @brief Get the Client identifier of the packet
 			 * @return Value of the Client identifier
 			 */
-			uint32_t getClientId() const;// this is the same as serviceId
+			uint32_t getClientId() const;
 			/**
 			 * @brief Set the Client identifier of the packet
 			 * @param[in] _value New value of the Client identifier
@@ -201,16 +202,12 @@ namespace zeus {
 			 * @brief Get the Service identifier of the packet (same as client)
 			 * @return Value of the Service identifier
 			 */
-			uint32_t getServiceId() const {
-				return getClientId();
-			}
+			uint32_t getServiceId() const;
 			/**
 			 * @brief Set the Service identifier of the packet (same as client)
 			 * @param[in] _value New value of the Service identifier
 			 */
-			void setServiceId(uint32_t _value) {
-				setClientId(_value);
-			}
+			void setServiceId(uint32_t _value);
 			/**
 			 * @brief Check if it is the last packet of the buffer
 			 * @return If "true" The Buffer wait no more datas

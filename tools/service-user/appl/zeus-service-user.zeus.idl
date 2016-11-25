@@ -3,17 +3,7 @@
 #srv-type:USER
 #srv-author:Heero Yui<yui.heero@gmail.com>
 
-// Idl comment example
-
-/*
-Multiple line comment example
-And an other line
-*/
-
-#brief:Get list of group availlable for a client name
-#param:clientName:Name of the client
-vector:string getGroups(string)
-
+// ----------------- Check authorisations -----------------------
 #brief:Check if a user tocken is correct or not
 #param:clientName:Name of the client
 #param:tocken:String containing the Tocken
@@ -25,7 +15,84 @@ bool checkTocken(string, string)
 #return: true if the pasword is validated or false if it is wrong
 bool checkAuth(string)
 
-#brief:Filter a list of service with the cuurent profile of the user (restrict area)
+// ----------------- Check GROUP right restriction for a client -----------------------
+#brief:Get list of group availlable for a client name
+#param:clientName:Name of the client
+vector:string clientGroupsGet(string)
+/*
+#brief:Add a group for a client
+#param:clientName:Name of the client
+#param:groupName:Name of the group to add
+void clientGroupsAdd(string, string)
+
+#brief:Remove a group for a client
+#param:clientName:Name of the client
+#param:groupName:Name of the group to remove
+void clientGroupsRemove(string, string)
+*/
+// ----------------- Check SERVICE right restriction for a client -----------------------
+#brief:Filter a list of service with for a the user (restrict area)
 #param:clientName:Name of the client
 #param:currentList:Vector of name of the services
-vector:string filterServices(string, vector:string)
+vector:string filterClientServices(string, vector:string)
+/*
+#brief:Add a Service acces for a client
+#param:clientName:Name of the client
+#param:serviceName:Name of the Service access to add
+void clientServiceAccessAdd(string, string)
+
+#brief:Remove a group for a client
+#param:clientName:Name of the client
+#param:serviceName:Name of the Service access to add
+void clientServiceAccessRemove(string, string)
+*/
+
+// ----------------- Add / remove Client access request -----------------------
+/*
+#brief:Request access form a client (the answer is asynchronous ... when user athorize it)
+#param:clientName:Name of the client
+#param:message:Message from the client to convince the user to athorise him to access
+void clientRequestAccess(string, string)
+
+#brief:Get the Number of client requesting an access of this user
+#return: The count of pending request
+uint32 getClientRequestAccessCount()
+
+#brief:Get a pending request
+#param:id:Id of the pending request
+#return: a pair of value: name,message
+// TODO: support real pair of value ...
+vector:string getClientRequestAccessList(uint32)
+
+#brief:Accept or refuse the access on a specific client (with message)
+#param:answer:true The access is athorized, false otherwise
+#param:clientName:Name of the client
+#param:message:Answer message of the request
+string getClientRequestAccessAnswer(bool, string, string)
+
+#brief:Remove the access request on a specific client
+#param:clientName:Name of the client
+string getClientRequestAccessRemove(string)
+*/
+
+// ----------------- Remove Client access -----------------------
+/*
+#brief:Get the list of all client reference for this user
+#return:All the client connected
+string clientGetList()
+
+#brief:Remove all Access of a specific client
+#param:clientName:Name of the client
+void clientRemove(string)
+
+#brief:Suspend all Access of a specific client
+#param:clientName:Name of the client
+#param:while:The duration while the client has been suspended, if 0 this is infinite
+void clientSuspend(string, duration)
+
+#brief:Get the last connection of a user
+#param:clientName:Name of the client
+#return:The last connection time
+time clientLastConnection(string, duration)
+*/
+

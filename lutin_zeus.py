@@ -29,7 +29,9 @@ def configure(target, my_module):
 	    'etk',
 	    'enet',
 	    'ememory',
-	    'eproperty'])
+	    'eproperty',
+	    'echrono'
+	    ])
 	my_module.add_src_file([
 	    'zeus/debug.cpp'
 	    ])

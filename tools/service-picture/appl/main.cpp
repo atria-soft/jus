@@ -36,9 +36,11 @@ namespace appl {
 	class PictureService : public zeus::service::Picture  {
 		private:
 			ememory::SharedPtr<zeus::ClientProperty> m_client;
+			std::string m_userName;
 		public:
-			PictureService(ememory::SharedPtr<zeus::ClientProperty> _client) :
-			  m_client(_client) {
+			PictureService(ememory::SharedPtr<zeus::ClientProperty> _client, const std::string& _userName) :
+			  m_client(_client),
+			  m_userName(_userName) {
 				APPL_WARNING("New PictureService ... for user: ");
 			}
 			~PictureService() {

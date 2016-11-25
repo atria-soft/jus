@@ -30,7 +30,7 @@ namespace appl {
 			std::string m_clientName;
 			std::vector<std::string> m_clientgroups;
 			std::vector<std::string> m_clientServices;
-			userSpecificInterface();
+			userSpecificInterface(const std::string& _userName);
 			~userSpecificInterface();
 			bool start(uint32_t _transactionId, appl::GateWay* _gatewayInterface, zeus::WebServer* _interfaceGateWayClient, uint64_t _id);
 			void onClientData(ememory::SharedPtr<zeus::Buffer> _value);
@@ -48,6 +48,7 @@ namespace appl {
 		private:
 			appl::GateWay* m_gatewayInterface;
 			zeus::WebServer m_interfaceRouterClient;
+			std::string m_userConnectionName;
 		public:
 			RouterInterface(const std::string& _ip, uint16_t _port, const std::string& _userName, appl::GateWay* _gatewayInterface);
 			virtual ~RouterInterface();

@@ -112,6 +112,7 @@ namespace zeus {
 			uint32_t m_id;
 			std::vector<std::string> m_newData;
 			std::vector<zeus::FutureBase> m_callMultiData;
+			std::string m_nameUser;
 		public:
 			/**
 			 * @brief 
@@ -245,9 +246,9 @@ namespace zeus {
 	template<class ZEUS_TYPE_SERVICE>
 	class ServiceType : public zeus::Service {
 		private:
-			std::function<ememory::SharedPtr<ZEUS_TYPE_SERVICE>(ememory::SharedPtr<ClientProperty>)> m_factory;
+			std::function<ememory::SharedPtr<ZEUS_TYPE_SERVICE>(ememory::SharedPtr<ClientProperty>, const std::string&)> m_factory;
 		public:
-			ServiceType(std::function<ememory::SharedPtr<ZEUS_TYPE_SERVICE>(ememory::SharedPtr<ClientProperty>)> _factory) {
+			ServiceType(std::function<ememory::SharedPtr<ZEUS_TYPE_SERVICE>(ememory::SharedPtr<ClientProperty>, const std::string&)> _factory) {
 				m_factory = _factory;
 			}
 		private:
@@ -312,7 +313,7 @@ namespace zeus {
 				ememory::SharedPtr<ClientProperty> tmpProperty = ememory::makeShared<ClientProperty>(_clientName, _groups);
 				ememory::SharedPtr<ZEUS_TYPE_SERVICE> tmpSrv;
 				if (m_factory != nullptr) {
-					tmpSrv = m_factory(tmpProperty);
+					tmpSrv = m_factory(tmpProperty, m_nameUser);
 				} else {
 					ZEUS_ERROR("Create service with no factory");
 				}

@@ -26,16 +26,18 @@ namespace appl {
 	class SystemService : public zeus::service::User {
 		private:
 			ememory::SharedPtr<zeus::ClientProperty> m_client;
+			std::string m_userName;
 		public:
-			SystemService(ememory::SharedPtr<zeus::ClientProperty> _client) :
-			  m_client(_client) {
+			SystemService(ememory::SharedPtr<zeus::ClientProperty> _client, const std::string& _userName) :
+			  m_client(_client),
+			  m_userName(_userName) {
 				APPL_WARNING("New SystemService ... for user: ");
 			}
 			~SystemService() {
 				APPL_WARNING("Delete service-user interface.");
 			}
 		public:
-			std::vector<std::string> getGroups(std::string _clientName) {
+			std::vector<std::string> clientGroupsGet(std::string _clientName) {
 				std::vector<std::string> out;
 				if (m_client == nullptr) {
 					return out;
@@ -71,13 +73,16 @@ namespace appl {
 			}
 			bool checkTocken(std::string _clientName, std::string _tocken) {
 				std::unique_lock<std::mutex> lock(g_mutex);
+				APPL_INFO("Check TOCKEN for : '" << _clientName << "' tocken='" << _clientName << "'");
 				ejson::Object clients = g_database["client"].toObject();
 				if (clients.exist() == false) {
+					APPL_INFO("     ==> return false");
 					// Section never created
 					return false;
 				}
 				ejson::Object client = clients[_clientName].toObject();
 				if (clients.exist() == false) {
+					APPL_INFO("     ==> return false");
 					// No specificity for this client (in case it have no special right)
 					return false;
 				}
@@ -85,12 +90,15 @@ namespace appl {
 				// TODO: Do it better ...
 				std::string registerTocken = client["tocken"].toString().get();
 				if (registerTocken == _tocken) {
+					APPL_INFO("     ==> return true");
 					return true;
 				}
+				APPL_INFO("     ==> return false");
 				return false;
 			}
 			bool checkAuth(std::string _password) {
 				std::unique_lock<std::mutex> lock(g_mutex);
+				APPL_INFO("Check AUTH for : '" << _password << "'");
 				std::string pass = g_database["password"].toString().get();
 				if (pass == "") {
 					// pb password
@@ -101,10 +109,12 @@ namespace appl {
 				}
 				return false;
 			}
-			std::vector<std::string> filterServices(std::string _clientName, std::vector<std::string> _currentList) {
+			std::vector<std::string> filterClientServices(std::string _clientName, std::vector<std::string> _currentList) {
 				std::unique_lock<std::mutex> lock(g_mutex);
+				APPL_INFO("Filter services : '" << _clientName << "' " << _currentList);
 				// When connected to our session ==> we have no control access ...
-				if (_clientName == g_basePath) {
+				if (_clientName == m_userName) {
+					APPL_INFO("    return all");
 					return _currentList;
 				}
 				std::vector<std::string> out;

@@ -26,7 +26,10 @@ def get_maintainer():
 
 def configure(target, my_module):
 	my_module.add_path(".")
-	my_module.add_depend(['zeus'])
+	my_module.add_depend([
+	    'zeus',
+	    'zeus-service-user'
+	    ])
 	my_module.add_src_file([
 	    'appl/debug.cpp',
 	    'appl/main.cpp'

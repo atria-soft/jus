@@ -14,6 +14,9 @@
 
 
 #include <etk/stdTools.hpp>
+#include <zeus/service/ProxyUser.hpp>
+#include <echrono/Steady.hpp>
+
 
 int main(int _argc, const char *_argv[]) {
 	etk::init(_argc, _argv);
@@ -86,12 +89,59 @@ int main(int _argc, const char *_argv[]) {
 	}
 	*/
 	
-	if (false) {
+	if (true) {
 		APPL_INFO("    ----------------------------------");
 		APPL_INFO("    -- Get service system-user");
 		APPL_INFO("    ----------------------------------");
 		
-		zeus::ServiceRemote remoteServiceUser = client1.getService("system-user");
+		#if 1
+		zeus::service::ProxyUser remoteServiceUser;
+		remoteServiceUser = client1.getService("user");
+		if (remoteServiceUser.exist() == true) {
+			zeus::Future<std::vector<std::string>> retCall = remoteServiceUser.getGroups("clientTest1#atria-soft.com");
+			retCall.wait();
+			APPL_INFO("system-user.getGroups() = " << retCall.get());
+			zeus::Future<std::string> retDesc = remoteServiceUser.sys.getDescription();
+			zeus::Future<std::string> retVersion = remoteServiceUser.sys.getVersion();
+			zeus::Future<std::string> retType = remoteServiceUser.sys.getType();
+			zeus::Future<std::vector<std::string>> retExtention = remoteServiceUser.srv.getExtention();
+			zeus::Future<std::vector<std::string>> retMaintainer = remoteServiceUser.sys.getAuthors();
+			retDesc.wait();
+			retVersion.wait();
+			retType.wait();
+			retExtention.wait();
+			retMaintainer.wait();
+			APPL_INFO("Service: system-user");
+			APPL_INFO("    version   : " << retVersion.get());
+			APPL_INFO("    type      : " << retType.get());
+			APPL_INFO("    Extention : " << retExtention.get().size());
+			for (auto &it : retExtention.get()) {
+				APPL_INFO("        - " << it);
+			}
+			APPL_INFO("    maintainer: " << retMaintainer.get().size());
+			for (auto &it : retMaintainer.get()) {
+				APPL_INFO("        - " << it);
+			}
+			APPL_INFO("    description:");
+			APPL_INFO("        " << retDesc.get());
+			APPL_INFO("    Function List:");
+			zeus::Future<std::vector<std::string>> retFuctions = remoteServiceUser.sys.getFunctions().wait();
+			for (auto it : retFuctions.get()) {
+				echrono::Steady start = echrono::Steady::now();
+				zeus::Future<std::string> retFunctionPrototype = remoteServiceUser.sys.getFunctionPrototype(it);
+				zeus::Future<std::string> retFunctionHelp = remoteServiceUser.sys.getFunctionDescription(it);
+				retFunctionPrototype.wait();
+				retFunctionHelp.wait();
+				echrono::Steady stop = echrono::Steady::now();
+				APPL_INFO("        - " << retFunctionPrototype.get());
+				APPL_INFO("            " << retFunctionHelp.get());
+				APPL_INFO("          IO1=" << int64_t(retFunctionPrototype.getTransmitionTime().count()/1000)/1000.0 << " ms");
+				APPL_INFO("          IO2=" << int64_t(retFunctionHelp.getTransmitionTime().count()/1000)/1000.0 << " ms");
+				APPL_INFO("          IO*=" << (stop-start));
+			}
+		}
+		#else
+		zeus::ServiceRemote remoteServiceUser = client1.getService("user");
 		if (remoteServiceUser.exist() == true) {
 			zeus::Future<std::vector<std::string>> retCall = remoteServiceUser.call("getGroups", "clientTest1#atria-soft.com");
 			retCall.wait();
@@ -135,11 +185,12 @@ int main(int _argc, const char *_argv[]) {
 				APPL_INFO("          IO*=" << int64_t((stop-start).count()/1000)/1000.0 << " ms");
 			}
 		}
+		#endif
 	}
 	APPL_INFO("    ----------------------------------");
 	APPL_INFO("    -- Get service picture");
 	APPL_INFO("    ----------------------------------");
-	if (true) {
+	if (false) {
 		zeus::ServiceRemote remoteServicePicture = client1.getService("picture");
 		if (remoteServicePicture.exist() == true) {
 			zeus::Future<std::vector<std::string>> retCall = remoteServicePicture.call("getAlbums").wait();

@@ -15,9 +15,10 @@
 
 static const std::string protocolError = "PROTOCOL-ERROR";
 
-appl::userSpecificInterface::userSpecificInterface() {
+appl::userSpecificInterface::userSpecificInterface(const std::string& _userName) {
 	m_uid = 0;
 	m_localIdUser = 0;
+	m_userConnectionName = _userName;
 	m_state = appl::clientState::unconnect;
 	APPL_INFO("----------------");
 	APPL_INFO("-- NEW Client --");
@@ -44,7 +45,7 @@ bool appl::userSpecificInterface::start(uint32_t _transactionId, appl::GateWay* 
 	m_state = appl::clientState::connect;
 	//m_interfaceRouterClient->setInterfaceName("cli-" + etk::to_string(m_uid));
 	
-	APPL_WARNING("[" << m_uid << "] New client");
+	APPL_WARNING("[" << m_uid << "] New client : " << m_clientName);
 	
 	m_userService = m_gatewayInterface->get("user");
 	if (m_userService == nullptr) {
@@ -121,6 +122,13 @@ void appl::userSpecificInterface::onClientData(ememory::SharedPtr<zeus::Buffer> 
 			}
 		case appl::clientState::connect:
 			{
+				uint32_t serviceId = callObj->getServiceId();
+				if (serviceId != 0) {
+					APPL_ERROR("Call at a service at this state is not allowed serviceID=" << serviceId);
+					answerProtocolError(transactionId, "MISSING IDENTIFICATION STEP");
+					return;
+				}
+				
 				m_clientServices.clear();
 				m_clientgroups.clear();
 				m_clientName.clear();
@@ -174,7 +182,7 @@ void appl::userSpecificInterface::onClientData(ememory::SharedPtr<zeus::Buffer> 
 				// --------------------------------
 				// -- Get groups:
 				// --------------------------------
-				zeus::Future<std::vector<std::string>> futGroup = m_userService->m_interfaceClient.callClient(m_localIdUser, "getGroups", m_clientName);
+				zeus::Future<std::vector<std::string>> futGroup = m_userService->m_interfaceClient.callClient(m_localIdUser, "clientGroupsGet", m_clientName);
 				futGroup.wait(); // TODO: Set timeout ...
 				if (futGroup.hasError() == true) {
 					APPL_ERROR("Get error from the service ...");
@@ -187,7 +195,7 @@ void appl::userSpecificInterface::onClientData(ememory::SharedPtr<zeus::Buffer> 
 				// -- Get services:
 				// --------------------------------
 				std::vector<std::string> currentServices = m_gatewayInterface->getAllServiceName();
-				zeus::Future<std::vector<std::string>> futServices = m_userService->m_interfaceClient.callClient(m_localIdUser, "filterServices", m_clientName, currentServices);
+				zeus::Future<std::vector<std::string>> futServices = m_userService->m_interfaceClient.callClient(m_localIdUser, "filterClientServices", m_clientName, currentServices);
 				futServices.wait(); // TODO: Set timeout ...
 				if (futServices.hasError() == true) {
 					APPL_ERROR("Get error from the service ...");
@@ -209,6 +217,7 @@ void appl::userSpecificInterface::onClientData(ememory::SharedPtr<zeus::Buffer> 
 		case appl::clientState::clientIdentify:
 			{
 				uint32_t serviceId = callObj->getServiceId();
+				
 				if (serviceId == 0) {
 					// This is 2 default service for the cient interface that manage the authorisation of view:
 					if (callFunction == "getServiceCount") {
@@ -334,7 +343,7 @@ appl::RouterInterface::RouterInterface(const std::string& _ip, uint16_t _port, c
 		return;
 	}
 	m_interfaceRouterClient.setInterface(std::move(connection), false, _userName);
-	//m_userConnectionName = _userName;
+	m_userConnectionName = _userName;
 	m_state = appl::clientState::connect;
 	m_interfaceRouterClient.connect(this, &appl::RouterInterface::onClientData);
 	m_interfaceRouterClient.connect(true);
@@ -388,7 +397,7 @@ void appl::RouterInterface::onClientData(ememory::SharedPtr<zeus::Buffer> _value
 		}
 	}
 	if (localId == -1) {
-		m_listUser.push_back(userSpecificInterface());
+		m_listUser.push_back(userSpecificInterface(m_userConnectionName));
 		localId = m_listUser.size()-1;
 		bool ret = m_listUser[localId].start(_value->getTransactionId(), m_gatewayInterface, &m_interfaceRouterClient, clientId);
 		if (ret == false) {

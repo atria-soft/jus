@@ -101,6 +101,12 @@ bool zeus::Service::connect(uint32_t _numberRetry){
 		ZEUS_ERROR("Can not connect service ...");
 		return false;
 	}
+	
+	zeus::Future<std::string> ret = m_interfaceClient->call("getUserName");
+	ret.wait();
+	m_nameUser = ret.get();
+	ZEUS_ERROR("Connect with name user: '" << m_nameUser << "'");
+	
 	ZEUS_DEBUG("connect [STOP]");
 	return true;
 }
