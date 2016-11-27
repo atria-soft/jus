@@ -38,6 +38,7 @@ namespace appl {
 			}
 		public:
 			std::vector<std::string> clientGroupsGet(std::string _clientName) {
+				APPL_WARNING("call clientGroupsGet : " << _clientName);
 				std::vector<std::string> out;
 				if (m_client == nullptr) {
 					return out;

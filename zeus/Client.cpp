@@ -28,7 +28,21 @@ void zeus::Client::onClientData(ememory::SharedPtr<zeus::Buffer> _value) {
 }
 
 zeus::ServiceRemote zeus::Client::getService(const std::string& _name) {
-	return zeus::ServiceRemote(m_interfaceClient, _name);
+	ZEUS_TODO("Lock here");
+	auto it = m_listConnectedService.begin();
+	while (it != m_listConnectedService.end()) {
+		ememory::SharedPtr<zeus::ServiceRemoteBase> val = it->lock();
+		if (val == nullptr) {
+			it = m_listConnectedService.erase(it);
+			continue;
+		}
+		if (val->getName() == _name) {
+			return zeus::ServiceRemote(val);
+		}
+	}
+	ememory::SharedPtr<zeus::ServiceRemoteBase> tmp = ememory::makeShared<zeus::ServiceRemoteBase>(m_interfaceClient, _name);
+	m_listConnectedService.push_back(tmp);
+	return zeus::ServiceRemote(tmp);
 }
 
 void zeus::Client::onPropertyChangeIp() {

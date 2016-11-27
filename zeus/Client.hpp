@@ -24,6 +24,7 @@ namespace zeus {
 			eproperty::Value<uint16_t> propertyPort; //!< Port of the WebSocket connection
 		private:
 			ememory::SharedPtr<zeus::WebServer> m_interfaceClient; //!< Interface on the Websocket interface
+			std::vector<ememory::WeakPtr<zeus::ServiceRemoteBase>> m_listConnectedService; //!< Connect only one time on each service, not needed more.
 		public:
 			/**
 			 * @brief Create a client on a specific user in a client mode with the tocken associated

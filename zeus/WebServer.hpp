@@ -12,6 +12,10 @@
 #include <zeus/AbstractFunction.hpp>
 #include <zeus/FutureBase.hpp>
 
+//#define ZEUS_NO_ID_CLIENT (0xFFFFFFFF)
+#define ZEUS_NO_ID_CLIENT (0x00000000)
+#define ZEUS_ID_SERVICE_ROOT (0x00000000)
+
 namespace zeus {
 	/**
 	 * @brief 
@@ -289,7 +293,7 @@ namespace zeus {
 			 * @return 
 			 */
 			template<class... _ARGS>
-			zeus::FutureBase callService(uint32_t _serviceId, const std::string& _functionName, _ARGS&&... _args) {
+			zeus::FutureBase callService(uint32_t _clientId, uint32_t _serviceId, const std::string& _functionName, _ARGS&&... _args) {
 				uint16_t id = getId();
 				ememory::SharedPtr<zeus::BufferCall> callElem = zeus::createCallService(id, _serviceId, _functionName, std::forward<_ARGS>(_args)...);
 				return callBinary(id, callElem);
@@ -299,8 +303,9 @@ namespace zeus {
 			 * @param[in] 
 			 * @return 
 			 */
+			// TODO: Remove the callback to add it in future with the "then(_callback)" and "else(_callback)" and "abort(_callbacl)" ...
 			template<class... _ARGS>
-			zeus::FutureBase callServiceAction(uint32_t _serviceId, const std::string& _functionName, _ARGS&&... _args, zeus::FutureData::ObserverFinish _callback) {
+			zeus::FutureBase callServiceAction(uint32_t _clientId, uint32_t _serviceId, const std::string& _functionName, _ARGS&&... _args, zeus::FutureData::ObserverFinish _callback) {
 				uint16_t id = getId();
 				ememory::SharedPtr<zeus::BufferCall> callElem = zeus::createCallService(id, _serviceId, _functionName, std::forward<_ARGS>(_args)...);
 				return callBinary(id, callElem, _callback);
@@ -312,21 +317,24 @@ namespace zeus {
 			 */
 			template<class... _ARGS>
 			zeus::FutureBase callClient(uint32_t _clientId,
+			                            uint32_t _serviceId,
 			                            const std::string& _functionName,
 			                            _ARGS&&... _args) {
-				return callService(_clientId, _functionName, _args...);
+				return callService(_clientId, _serviceId, _functionName, _args...);
 			}
 			/**
 			 * @brief 
 			 * @param[in] 
 			 * @return 
 			 */
+			// TODO: Remove the callback to add it in future with the "then(_callback)" and "else(_callback)" and "abort(_callbacl)" ...
 			template<class... _ARGS>
 			zeus::FutureBase callClientAction(uint32_t _clientId,
+			                                  uint32_t _serviceId,
 			                                  const std::string& _functionName,
 			                                  _ARGS&&... _args,
 			                                  zeus::FutureData::ObserverFinish _callback) {
-				return callServiceAction(_clientId, _functionName, _args..., _callback);
+				return callServiceAction(_clientId, _serviceId, _functionName, _args..., _callback);
 			}
 			/**
 			 * @brief 
@@ -360,7 +368,7 @@ namespace zeus {
 			 * @param[in] _clientId Client to send control
 			 */
 			template<class ZEUS_ARG>
-			void answerValue(uint64_t _clientTransactionId, ZEUS_ARG _value, uint32_t _clientId=0) {
+			void answerValue(uint64_t _clientTransactionId, ZEUS_ARG _value, uint32_t _clientId=0, uint32_t _serviceId=0) {
 				ememory::SharedPtr<zeus::BufferAnswer> answer = zeus::BufferAnswer::create();
 				answer->setTransactionId(_clientTransactionId);
 				answer->setClientId(_clientId);
@@ -372,7 +380,7 @@ namespace zeus {
 			 * @param[in] _clientTransactionId Transaction ID
 			 * @param[in] _clientId Client to send control
 			 */
-			void answerVoid(uint64_t _clientTransactionId, uint32_t _clientId=0);
+			void answerVoid(uint64_t _clientTransactionId, uint32_t _clientId=0, uint32_t _serviceId=0);
 			/**
 			 * @brief Send an Answer error of a function
 			 * @param[in] _clientTransactionId Transaction ID
@@ -380,7 +388,7 @@ namespace zeus {
 			 * @param[in] _errorComment Help comment of the error
 			 * @param[in] _clientId Client to send control
 			 */
-			void answerError(uint64_t _clientTransactionId, const std::string& _errorValue, const std::string& _errorComment="", uint32_t _clientId=0);
+			void answerError(uint64_t _clientTransactionId, const std::string& _errorValue, const std::string& _errorComment="", uint32_t _clientId=0, uint32_t _serviceId=0);
 			/**
 			 * @brief  Send a control on the Interface
 			 * @param[in] _clientTransactionId Transaction ID
@@ -388,7 +396,7 @@ namespace zeus {
 			 * @param[in] _clientId Client to send control
 			 * @return 
 			 */
-			void sendCtrl(const std::string& _ctrlValue, uint32_t _clientId);
+			void sendCtrl(const std::string& _ctrlValue, uint32_t _clientId, uint32_t _serviceId=0);
 	};
 }
 

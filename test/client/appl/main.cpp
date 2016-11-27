@@ -98,7 +98,7 @@ int main(int _argc, const char *_argv[]) {
 		zeus::service::ProxyUser remoteServiceUser;
 		remoteServiceUser = client1.getService("user");
 		if (remoteServiceUser.exist() == true) {
-			zeus::Future<std::vector<std::string>> retCall = remoteServiceUser.getGroups("clientTest1#atria-soft.com");
+			zeus::Future<std::vector<std::string>> retCall = remoteServiceUser.clientGroupsGet("clientTest1#atria-soft.com");
 			retCall.wait();
 			APPL_INFO("system-user.getGroups() = " << retCall.get());
 			zeus::Future<std::string> retDesc = remoteServiceUser.sys.getDescription();
@@ -143,7 +143,7 @@ int main(int _argc, const char *_argv[]) {
 		#else
 		zeus::ServiceRemote remoteServiceUser = client1.getService("user");
 		if (remoteServiceUser.exist() == true) {
-			zeus::Future<std::vector<std::string>> retCall = remoteServiceUser.call("getGroups", "clientTest1#atria-soft.com");
+			zeus::Future<std::vector<std::string>> retCall = remoteServiceUser.call("clientGroupsGet", "clientTest1#atria-soft.com");
 			retCall.wait();
 			APPL_INFO("system-user.getGroups() = " << retCall.get());
 			zeus::Future<std::string> retDesc = remoteServiceUser.call("sys.getDescription");

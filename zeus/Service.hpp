@@ -89,6 +89,7 @@ namespace zeus {
 			 * @return 
 			 */
 			bool isFunctionAuthorized(const std::string& _funcName) {
+				ZEUS_ERROR("plop: " << _funcName << "  " << m_listAthorizedFunction);
 				return std::find(m_listAthorizedFunction.begin(), m_listAthorizedFunction.end(), _funcName) != m_listAthorizedFunction.end();
 			}
 	};
@@ -296,6 +297,7 @@ namespace zeus {
 			bool isFunctionAuthorized(uint64_t _clientId, const std::string& _funcName) {
 				auto it = m_interface.find(_clientId);
 				if (it == m_interface.end()) {
+					ZEUS_ERROR("CLIENT does not exist ... " << _clientId << "  " << _funcName);
 					return false;
 				}
 				return it->second.first->isFunctionAuthorized(_funcName);

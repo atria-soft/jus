@@ -53,7 +53,7 @@ bool appl::userSpecificInterface::start(uint32_t _transactionId, appl::GateWay* 
 		answerProtocolError(_transactionId, "Gateway internal error 'No user interface'");
 		return false;
 	}
-	zeus::Future<bool> futLocalService = m_userService->m_interfaceClient.callClient(m_localIdUser, "_new", m_userConnectionName, "**Gateway**", std::vector<std::string>());
+	zeus::Future<bool> futLocalService = m_userService->m_interfaceClient.callClient(m_localIdUser, ZEUS_ID_SERVICE_ROOT, "_new", m_userConnectionName, "**Gateway**", std::vector<std::string>());
 	futLocalService.wait(); // TODO: Set timeout ...
 	if (futLocalService.get() == false) {
 		answerProtocolError(_transactionId, "Gateway internal error 'Can not create client in user backend'");
@@ -146,7 +146,7 @@ void appl::userSpecificInterface::onClientData(ememory::SharedPtr<zeus::Buffer> 
 						return;
 					}
 					
-					zeus::Future<bool> fut = m_userService->m_interfaceClient.callClient(m_localIdUser, "checkTocken", clientName, clientTocken);
+					zeus::Future<bool> fut = m_userService->m_interfaceClient.callClient(ZEUS_NO_ID_CLIENT, m_localIdUser, "checkTocken", clientName, clientTocken);
 					fut.wait(); // TODO: Set timeout ...
 					if (fut.hasError() == true) {
 						APPL_ERROR("Get error from the service ...");
@@ -162,7 +162,7 @@ void appl::userSpecificInterface::onClientData(ememory::SharedPtr<zeus::Buffer> 
 				}
 				if (callFunction == "auth") {
 					std::string password = callObj->getParameter<std::string>(0);
-					zeus::Future<bool> fut = m_userService->m_interfaceClient.callClient(m_localIdUser, "checkAuth", password);
+					zeus::Future<bool> fut = m_userService->m_interfaceClient.callClient(ZEUS_NO_ID_CLIENT, m_localIdUser, "checkAuth", password);
 					fut.wait(); // TODO: Set timeout ...
 					if (fut.hasError() == true) {
 						APPL_ERROR("Get error from the service ...");
@@ -182,7 +182,7 @@ void appl::userSpecificInterface::onClientData(ememory::SharedPtr<zeus::Buffer> 
 				// --------------------------------
 				// -- Get groups:
 				// --------------------------------
-				zeus::Future<std::vector<std::string>> futGroup = m_userService->m_interfaceClient.callClient(m_localIdUser, "clientGroupsGet", m_clientName);
+				zeus::Future<std::vector<std::string>> futGroup = m_userService->m_interfaceClient.callClient(ZEUS_NO_ID_CLIENT, m_localIdUser, "clientGroupsGet", m_clientName);
 				futGroup.wait(); // TODO: Set timeout ...
 				if (futGroup.hasError() == true) {
 					APPL_ERROR("Get error from the service ...");
@@ -195,7 +195,7 @@ void appl::userSpecificInterface::onClientData(ememory::SharedPtr<zeus::Buffer> 
 				// -- Get services:
 				// --------------------------------
 				std::vector<std::string> currentServices = m_gatewayInterface->getAllServiceName();
-				zeus::Future<std::vector<std::string>> futServices = m_userService->m_interfaceClient.callClient(m_localIdUser, "filterClientServices", m_clientName, currentServices);
+				zeus::Future<std::vector<std::string>> futServices = m_userService->m_interfaceClient.callClient(ZEUS_NO_ID_CLIENT, m_localIdUser, "filterClientServices", m_clientName, currentServices);
 				futServices.wait(); // TODO: Set timeout ...
 				if (futServices.hasError() == true) {
 					APPL_ERROR("Get error from the service ...");
@@ -232,6 +232,7 @@ void appl::userSpecificInterface::onClientData(ememory::SharedPtr<zeus::Buffer> 
 					if (callFunction == "link") {
 						// first param:
 						std::string serviceName = callObj->getParameter<std::string>(0);
+						ZEUS_ERROR("Connect to service : " << serviceName << " " << m_uid);
 						// Check if service already link:
 						auto it = m_listConnectedService.begin();
 						while (it != m_listConnectedService.end()) {
@@ -253,7 +254,7 @@ void appl::userSpecificInterface::onClientData(ememory::SharedPtr<zeus::Buffer> 
 							}
 							ememory::SharedPtr<appl::ServiceInterface> srv = m_gatewayInterface->get(serviceName);
 							if (srv != nullptr) {
-								zeus::Future<bool> futLink = srv->m_interfaceClient.callClient(m_uid, "_new", m_userConnectionName, m_clientName, m_clientgroups);
+								zeus::Future<bool> futLink = srv->m_interfaceClient.callClient(ZEUS_NO_ID_CLIENT, m_uid, "_new", m_userConnectionName, m_clientName, m_clientgroups);
 								futLink.wait(); // TODO: Set timeout ...
 								if (futLink.hasError() == true) {
 									APPL_ERROR("Get error from the service ... LINK");
@@ -261,6 +262,7 @@ void appl::userSpecificInterface::onClientData(ememory::SharedPtr<zeus::Buffer> 
 									return;
 								}
 								m_listConnectedService.push_back(srv);
+								ZEUS_ERROR("      ==> get ID : " << m_uid);
 								m_interfaceRouterClient->answerValue(transactionId, m_listConnectedService.size(), m_uid);
 								return;
 							}
@@ -271,6 +273,7 @@ void appl::userSpecificInterface::onClientData(ememory::SharedPtr<zeus::Buffer> 
 						return;
 					}
 					if (callFunction == "unlink") {
+						ZEUS_ERROR("Disconnnect from service : " << m_uid);
 						// first param: the service we want to unconnect ...
 						int64_t localServiceID = callObj->getParameter<int64_t>(0)-1;
 						// Check if service already link:
@@ -278,7 +281,7 @@ void appl::userSpecificInterface::onClientData(ememory::SharedPtr<zeus::Buffer> 
 							m_interfaceRouterClient->answerError(transactionId, "NOT-CONNECTED-SERVICE");
 							return;
 						}
-						zeus::Future<bool> futUnLink = m_listConnectedService[localServiceID]->m_interfaceClient.callClient(m_uid, "_delete");
+						zeus::Future<bool> futUnLink = m_listConnectedService[localServiceID]->m_interfaceClient.callClient(ZEUS_NO_ID_CLIENT, m_uid, "_delete");
 						futUnLink.wait(); // TODO: Set timeout ...
 						if (futUnLink.hasError() == true) {
 							APPL_ERROR("Get error from the service ... UNLINK");

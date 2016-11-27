@@ -381,36 +381,39 @@ void zeus::WebServer::callForwardMultiple(uint32_t _clientId,
 	ZEUS_ERROR("Can not transfer part of a message ...");
 }
 
-void zeus::WebServer::sendCtrl(const std::string& _ctrlValue, uint32_t _clientId) {
+void zeus::WebServer::sendCtrl(const std::string& _ctrlValue, uint32_t _clientId, uint32_t _serviceId) {
 	auto ctrl = zeus::BufferCtrl::create();
 	if (ctrl == nullptr) {
 		return;
 	}
 	ctrl->setTransactionId(getId());
 	ctrl->setClientId(_clientId);
+	ctrl->setServiceId(_serviceId);
 	ctrl->setCtrl(_ctrlValue);
 	writeBinary(ctrl);
 }
 
-void zeus::WebServer::answerError(uint64_t _clientTransactionId, const std::string& _errorValue, const std::string& _errorHelp, uint32_t _clientId) {
+void zeus::WebServer::answerError(uint64_t _clientTransactionId, const std::string& _errorValue, const std::string& _errorHelp, uint32_t _clientId, uint32_t _serviceId) {
 	auto answer = zeus::BufferAnswer::create();
 	if (answer == nullptr) {
 		return;
 	}
 	answer->setTransactionId(_clientTransactionId);
 	answer->setClientId(_clientId);
+	answer->setServiceId(_serviceId);
 	answer->addError(_errorValue, _errorHelp);
 	writeBinary(answer);
 }
 
 
-void zeus::WebServer::answerVoid(uint64_t _clientTransactionId, uint32_t _clientId) {
+void zeus::WebServer::answerVoid(uint64_t _clientTransactionId, uint32_t _clientId, uint32_t _serviceId) {
 	auto answer = zeus::BufferAnswer::create();
 	if (answer == nullptr) {
 		return;
 	}
 	answer->setTransactionId(_clientTransactionId);
 	answer->setClientId(_clientId);
+	answer->setServiceId(_serviceId);
 	answer->addParameter();
 	writeBinary(answer);
 }

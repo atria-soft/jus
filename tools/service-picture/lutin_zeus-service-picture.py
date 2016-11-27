@@ -5,7 +5,7 @@ import lutin.macro as macro
 
 
 def get_type():
-	return "LIBRARY_DYNAMIC"
+	return "LIBRARY"
 	#return "BINARY"
 
 def get_sub_type():

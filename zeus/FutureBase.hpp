@@ -40,6 +40,12 @@ namespace zeus {
 			 * @param[in] _clientId Client/sevice Id waiting answer
 			 */
 			FutureBase(uint32_t _transactionId, ememory::SharedPtr<zeus::Buffer> _returnData, zeus::FutureData::ObserverFinish _callback=nullptr, uint32_t _clientId=0);
+			// TODO: Add this to have generic nec C++ interface:
+			/*
+			void andThen(zeus::FutureData::ObserverFinish _callback); // no error in the return
+			void andElse(zeus::FutureData::ObserverFinish _callback); // an error occured in the return
+			void andAbort(zeus::FutureData::ObserverFinish _callback); // an abort is  requested in the actiron ...
+			*/
 			/**
 			 * @brief Asignement operator with an other future
 			 * @param[in] _base Generic base Future

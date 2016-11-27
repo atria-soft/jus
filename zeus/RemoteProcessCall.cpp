@@ -190,5 +190,6 @@ std::string zeus::RemoteProcessCall::getFunctionDescription(std::string _funcNam
 }
 
 bool zeus::RemoteProcessCall::isFunctionAuthorized(uint64_t _clientSessionID, const std::string& _funcName) {
+	ZEUS_ERROR("lllllllllllllllllllllllllllllllllllllllllllllllllllllllllll");
 	return true;
 }

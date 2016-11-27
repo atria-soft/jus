@@ -7,7 +7,7 @@
 #include <zeus/ServiceRemote.hpp>
 #include <zeus/Client.hpp>
 
-zeus::ServiceRemote::ServiceRemote(ememory::SharedPtr<zeus::WebServer> _clientLink, const std::string& _name):
+zeus::ServiceRemoteBase::ServiceRemoteBase(ememory::SharedPtr<zeus::WebServer> _clientLink, const std::string& _name):
   m_interfaceClient(_clientLink),
   m_name(_name),
   m_serviceId(0),
@@ -16,7 +16,7 @@ zeus::ServiceRemote::ServiceRemote(ememory::SharedPtr<zeus::WebServer> _clientLi
 		return;
 	}
 	// little hack : Call the service manager with the service ID=0 ...
-	zeus::Future<uint32_t> ret = call("link", _name);
+	zeus::Future<uint32_t> ret = m_interfaceClient->callService(ZEUS_NO_ID_CLIENT, m_serviceId, "link", _name);
 	ret.wait();
 	if (ret.hasError() == true) {
 		ZEUS_WARNING("Can not link with the service named: '" << _name << "' ==> link error");
@@ -26,12 +26,12 @@ zeus::ServiceRemote::ServiceRemote(ememory::SharedPtr<zeus::WebServer> _clientLi
 	m_serviceId = ret.get();
 }
 
-zeus::ServiceRemote::~ServiceRemote() {
+zeus::ServiceRemoteBase::~ServiceRemoteBase() {
 	if (m_isLinked == true) {
 		uint32_t tmpLocalService = m_serviceId;
 		// little hack : Call the service manager with the service ID=0 ...
 		m_serviceId = 0;
-		zeus::Future<bool> ret = call("unlink", tmpLocalService);
+		zeus::Future<bool> ret = m_interfaceClient->callService(ZEUS_NO_ID_CLIENT, m_serviceId, "unlink", tmpLocalService);
 		ret.wait();
 		if (ret.hasError() == true) {
 			ZEUS_WARNING("Can not unlink with the service id: '" << tmpLocalService << "' ==> link error");
@@ -47,7 +47,29 @@ zeus::ServiceRemote::~ServiceRemote() {
 	}
 }
 
-bool zeus::ServiceRemote::exist() {
+bool zeus::ServiceRemoteBase::exist() const {
 	return m_isLinked;
+}
+
+const std::string& zeus::ServiceRemoteBase::getName() const {
+	return m_name;
+}
+
+zeus::ServiceRemote::ServiceRemote(ememory::SharedPtr<zeus::ServiceRemoteBase> _interface):
+  m_interface(_interface) {
+	if (m_interface == nullptr) {
+		return;
+	}
+}
+
+zeus::ServiceRemote::~ServiceRemote() {
+	
+}
+
+bool zeus::ServiceRemote::exist() const {
+	if (m_interface == nullptr) {
+		return false;
+	}
+	return m_interface->m_isLinked;
 }
 

@@ -59,6 +59,9 @@ def configure(target, my_module):
 	    'zeus/ServiceRemote.cpp',
 	    'zeus/WebServer.cpp',
 	    'zeus/mineType.cpp',
+	    'zeus/BaseProxy.cpp',
+	    'zeus/ServiceProxy.cpp',
+	    'zeus/SystemProxy.cpp',
 	    ])
 	my_module.add_header_file([
 	    'zeus/zeus.hpp',
@@ -85,6 +88,9 @@ def configure(target, my_module):
 	    'zeus/ServiceRemote.hpp',
 	    'zeus/WebServer.hpp',
 	    'zeus/mineType.hpp',
+	    'zeus/BaseProxy.hpp',
+	    'zeus/ServiceProxy.hpp',
+	    'zeus/SystemProxy.hpp',
 	    ])
 	if target.config["compilator"] == "clang":
 		my_module.add_flag('c++', "-Wno-unsequenced", export=True)
