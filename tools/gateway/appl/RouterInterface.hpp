@@ -21,8 +21,11 @@ namespace appl {
 		public:
 			zeus::WebServer* m_interfaceRouterClient;
 			appl::GateWay* m_gatewayInterface;
+			uint64_t m_routeurUID;
+		private:
 			uint64_t m_uid;
 			uint64_t m_localIdUser;
+		public:
 			enum clientState m_state; // state machine ...
 			std::vector<ememory::SharedPtr<appl::ServiceInterface>> m_listConnectedService;
 			ememory::SharedPtr<appl::ServiceInterface> m_userService;
@@ -32,7 +35,7 @@ namespace appl {
 			std::vector<std::string> m_clientServices;
 			userSpecificInterface(const std::string& _userName);
 			~userSpecificInterface();
-			bool start(uint32_t _transactionId, appl::GateWay* _gatewayInterface, zeus::WebServer* _interfaceGateWayClient, uint64_t _id);
+			bool start(uint32_t _transactionId, appl::GateWay* _gatewayInterface, zeus::WebServer* _interfaceGateWayClient, uint64_t _routerId, uint64_t _id);
 			void onClientData(ememory::SharedPtr<zeus::Buffer> _value);
 			void returnMessage(ememory::SharedPtr<zeus::Buffer> _data);
 			bool checkId(uint64_t _id) const {
@@ -42,6 +45,8 @@ namespace appl {
 			void answerProtocolError(uint32_t _transactionId, const std::string& _errorHelp);
 	};
 	class RouterInterface {
+		private:
+			uint32_t m_clientUID;
 		private:
 			enum clientState m_state; // state machine ..
 			std::vector<userSpecificInterface> m_listUser;

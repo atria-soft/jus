@@ -108,12 +108,12 @@ void appl::GateWayInterface::onServiceData(ememory::SharedPtr<zeus::Buffer> _val
 		if (callFunction == "connect-service") {
 			if (m_name != "") {
 				ZEUS_WARNING("Service interface ==> try change the servie name after init: '" << callObj->getParameter<std::string>(0));
-				m_interfaceClient.answerValue(transactionId, false);
+				m_interfaceClient.answerValue(transactionId, _value->getClientId(), _value->getServiceId(), false);
 				return;
 			}
 			m_name = callObj->getParameter<std::string>(0);
 			m_interfaceClient.setInterfaceName("srv-" + m_name);
-			m_interfaceClient.answerValue(transactionId, true);
+			m_interfaceClient.answerValue(transactionId, _value->getClientId(), _value->getServiceId(), true);
 			return;
 		}
 		answerProtocolError(transactionId, "unknow function");
@@ -127,6 +127,6 @@ void appl::GateWayInterface::onServiceData(ememory::SharedPtr<zeus::Buffer> _val
 
 
 void appl::GateWayInterface::answerProtocolError(uint32_t _transactionId, const std::string& _errorHelp) {
-	m_interfaceClient.answerError(_transactionId, protocolError, _errorHelp);
+	m_interfaceClient.answerError(_transactionId, 0, 0, protocolError, _errorHelp);
 	m_interfaceClient.disconnect(true);
 }

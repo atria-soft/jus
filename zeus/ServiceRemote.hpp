@@ -103,7 +103,7 @@ namespace zeus {
 					}
 					return zeus::FutureBase(0, ret);
 				}
-				return m_interface->m_interfaceClient->callService(ZEUS_NO_ID_CLIENT, m_interface->m_serviceId, _functionName, _args...);
+				return m_interface->m_interfaceClient->call(ZEUS_NO_ID_CLIENT, m_interface->m_serviceId, _functionName, _args...);
 			}
 			/**
 			 * @brief 
@@ -111,6 +111,7 @@ namespace zeus {
 			 * @return 
 			 */
 			// TODO: Remove the callback to add it in future with the "then(_callback)" and "else(_callback)" and "abort(_callbacl)" ...
+			/*
 			template<class... _ARGS>
 			zeus::FutureBase callAction(const std::string& _functionName, _ARGS&&... _args, zeus::FutureData::ObserverFinish _callback) {
 				if (    m_interface == nullptr
@@ -123,6 +124,7 @@ namespace zeus {
 				}
 				return m_interface->m_interfaceClient->callServiceAction(ZEUS_NO_ID_CLIENT, m_interface->m_serviceId, _functionName, _args..., _callback);
 			}
+			*/
 	};
 	
 	

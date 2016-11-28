@@ -27,24 +27,38 @@ namespace zeus {
 			/**
 			 * @brief Contructor of the FutureBase with an ofserver
 			 * @param[in] _transactionId Transaction waiting answer
-			 * @param[in] _callback Observer pointer
 			 * @param[in] _clientId Client/sevice Id waiting answer
 			 */
-			FutureBase(uint32_t _transactionId, zeus::FutureData::ObserverFinish _callback=nullptr, uint32_t _clientId=0);
+			FutureBase(uint32_t _transactionId, uint32_t _clientId=0);
 			/**
 			 * @brief Contructor of the FutureBase for direct error answer
 			 * @param[in] _transactionId Transaction waiting answer
 			 * @param[in] _isFinished set state finish or not
 			 * @param[in] _returnData Set return value
-			 * @param[in] _callback Observer pointer
 			 * @param[in] _clientId Client/sevice Id waiting answer
 			 */
-			FutureBase(uint32_t _transactionId, ememory::SharedPtr<zeus::Buffer> _returnData, zeus::FutureData::ObserverFinish _callback=nullptr, uint32_t _clientId=0);
-			// TODO: Add this to have generic nec C++ interface:
+			FutureBase(uint32_t _transactionId, ememory::SharedPtr<zeus::Buffer> _returnData, uint32_t _clientId=0);
+			/**
+			 * @brief Attach callback on all return type of value
+			 * @param[in] _callback Handle on the function to call in all case
+			 */
+			void andAll(zeus::FutureData::Observer _callback);
+			/**
+			 * @brief Attach callback on a specific return action (SUCESS)
+			 * @param[in] _callback Handle on the function to call in case of sucess on the call
+			 */
+			void andThen(zeus::FutureData::Observer _callback);
+			/**
+			 * @brief Attach callback on a specific return action (ERROR)
+			 * @param[in] _callback Handle on the function to call in case of error on the call
+			 */
+			void andElse(zeus::FutureData::Observer _callback);
 			/*
-			void andThen(zeus::FutureData::ObserverFinish _callback); // no error in the return
-			void andElse(zeus::FutureData::ObserverFinish _callback); // an error occured in the return
-			void andAbort(zeus::FutureData::ObserverFinish _callback); // an abort is  requested in the actiron ...
+			/ **
+			 * @brief Attach callback on a specific return action (ABORT)
+			 * @param[in] _callback Handle on the function to call in case of abort on the call
+			 * /
+			void andAbort(zeus::FutureData::Observer _callback); // an abort is  requested in the actiron ...
 			*/
 			/**
 			 * @brief Asignement operator with an other future

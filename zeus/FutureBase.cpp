@@ -17,7 +17,7 @@ zeus::FutureBase::FutureBase() {
 	m_data = nullptr;
 }
 
-zeus::FutureBase::FutureBase(uint32_t _transactionId, zeus::FutureData::ObserverFinish _callback, uint32_t _clientId) {
+zeus::FutureBase::FutureBase(uint32_t _transactionId, /*zeus::FutureData::ObserverFinish _callback, */uint32_t _clientId) {
 	m_data = ememory::makeShared<zeus::FutureData>();
 	if (m_data == nullptr) {
 		return;
@@ -26,7 +26,7 @@ zeus::FutureBase::FutureBase(uint32_t _transactionId, zeus::FutureData::Observer
 	m_data->m_transactionId = _transactionId;
 	m_data->m_clientId = _clientId;
 	m_data->m_isSynchronous = false;
-	m_data->m_callbackFinish = _callback;
+	//m_data->m_callbackFinish = _callback;
 }
 
 ememory::SharedPtr<zeus::Buffer> zeus::FutureBase::getRaw() {
@@ -36,7 +36,7 @@ ememory::SharedPtr<zeus::Buffer> zeus::FutureBase::getRaw() {
 	return m_data->m_returnData;
 }
 
-zeus::FutureBase::FutureBase(uint32_t _transactionId, ememory::SharedPtr<zeus::Buffer> _returnData, zeus::FutureData::ObserverFinish _callback, uint32_t _clientId) {
+zeus::FutureBase::FutureBase(uint32_t _transactionId, ememory::SharedPtr<zeus::Buffer> _returnData, /*zeus::FutureData::ObserverFinish _callback, */uint32_t _clientId) {
 	m_data = ememory::makeShared<zeus::FutureData>();
 	if (m_data == nullptr) {
 		return;
@@ -46,6 +46,7 @@ zeus::FutureBase::FutureBase(uint32_t _transactionId, ememory::SharedPtr<zeus::B
 	m_data->m_clientId = _clientId;
 	m_data->m_isSynchronous = false;
 	m_data->m_returnData = _returnData;
+	#if 0
 	m_data->m_callbackFinish = _callback;
 	if (isFinished() == true) {
 		m_data->m_receiveTime = std::chrono::steady_clock::now();
@@ -53,7 +54,71 @@ zeus::FutureBase::FutureBase(uint32_t _transactionId, ememory::SharedPtr<zeus::B
 			m_data->m_callbackFinish(*this);
 		}
 	}
+	#else
+	if (isFinished() == true) {
+		m_data->m_receiveTime = std::chrono::steady_clock::now();
+	}
+	#endif
 }
+
+void zeus::FutureBase::andAll(zeus::FutureData::Observer _callback) {
+	if (m_data == nullptr) {
+		return;
+	}
+	// TODO : Lock ...
+	m_data->m_callbackThen = _callback;
+	m_data->m_callbackElse = _callback;
+	if (isFinished() == false) {
+		return;
+	}
+	if (hasError() == false) {
+		if (m_data->m_callbackThen != nullptr) {
+			m_data->m_callbackThen(*this);
+		}
+	} else {
+		if (m_data->m_callbackElse != nullptr) {
+			m_data->m_callbackElse(*this);
+		}
+	}
+}
+
+void zeus::FutureBase::andThen(zeus::FutureData::Observer _callback) {
+	if (m_data == nullptr) {
+		return;
+	}
+	// TODO : Lock ...
+	m_data->m_callbackThen = _callback;
+	if (isFinished() == false) {
+		return;
+	}
+	if (hasError() == true) {
+		return;
+	}
+	if (m_data->m_callbackThen == nullptr) {
+		return;
+	}
+	m_data->m_callbackThen(*this);
+}
+
+void zeus::FutureBase::andElse(zeus::FutureData::Observer _callback) {
+	if (m_data == nullptr) {
+		return;
+	}
+	// TODO : Lock ...
+	m_data->m_callbackElse = _callback;
+	if (isFinished() == false) {
+		return;
+	}
+	if (hasError() == false) {
+		return;
+	}
+	if (m_data->m_callbackElse == nullptr) {
+		return;
+	}
+	m_data->m_callbackElse(*this);
+}
+
+
 std::chrono::nanoseconds zeus::FutureBase::getTransmitionTime() const {
 	if (m_data == nullptr) {
 		return std::chrono::nanoseconds(0);
@@ -77,8 +142,14 @@ bool zeus::FutureBase::appendData(ememory::SharedPtr<zeus::Buffer> _value) {
 	m_data->m_receiveTime = std::chrono::steady_clock::now();
 	if (m_data->m_isSynchronous == true) {
 		m_data->m_returnData = _value;
-		if (m_data->m_callbackFinish != nullptr) {
-			return m_data->m_callbackFinish(*this);
+		if (hasError() == false) {
+			if (m_data->m_callbackThen != nullptr) {
+				return m_data->m_callbackThen(*this);
+			}
+		} else {
+			if (m_data->m_callbackElse != nullptr) {
+				return m_data->m_callbackElse(*this);
+			}
 		}
 		return true;
 	}
@@ -93,8 +164,14 @@ bool zeus::FutureBase::appendData(ememory::SharedPtr<zeus::Buffer> _value) {
 		return true;
 	}
 	if (m_data->m_returnData->getPartFinish() == true) {
-		if (m_data->m_callbackFinish != nullptr) {
-			return m_data->m_callbackFinish(*this);
+		if (hasError() == false) {
+			if (m_data->m_callbackThen != nullptr) {
+				return m_data->m_callbackThen(*this);
+			}
+		} else {
+			if (m_data->m_callbackElse != nullptr) {
+				return m_data->m_callbackElse(*this);
+			}
 		}
 		return true;
 	}

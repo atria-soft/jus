@@ -67,7 +67,6 @@ void appl::GateWay::newService(enet::Tcp _connection) {
 }
 
 appl::GateWay::GateWay() :
-  m_clientUID(1),
   propertyUserName(this, "user", "no-name", "User name of the interface"), // must be set befor start ...
   propertyRouterIp(this, "router-ip", "127.0.0.1", "Ip to listen client", &appl::GateWay::onPropertyChangeClientIp),
   propertyRouterPort(this, "router-port", 1984, "Port to listen client", &appl::GateWay::onPropertyChangeClientPort),

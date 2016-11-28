@@ -191,7 +191,6 @@ namespace zeus {
 			 * @return 
 			 */
 			virtual void clientDisconnect(uint64_t _clientId) = 0;
-			// Genenric function call:
 			/**
 			 * @brief 
 			 * @param[in] 
@@ -380,7 +379,7 @@ namespace zeus {
 			void callBinary2(const std::string& _call, ememory::SharedPtr<zeus::BufferCall> _obj) {
 				auto it = m_interface.find(_obj->getClientId());
 				if (it == m_interface.end()) {
-					m_interfaceClient->answerError(_obj->getTransactionId(), "CLIENT-UNKNOW", "", _obj->getClientId());
+					m_interfaceClient->answerError(_obj->getTransactionId(), _obj->getClientId(), _obj->getServiceId(), "CLIENT-UNKNOW", "");
 					return;
 				}
 				for (auto &it2 : m_listFunction) {
@@ -413,7 +412,7 @@ namespace zeus {
 							break;
 					}
 				}
-				m_interfaceClient->answerError(_obj->getTransactionId(), "FUNCTION-UNKNOW", "", _obj->getClientId());
+				m_interfaceClient->answerError(_obj->getTransactionId(), _obj->getClientId(), _obj->getServiceId(), "FUNCTION-UNKNOW", "");
 				return;
 			}
 	};

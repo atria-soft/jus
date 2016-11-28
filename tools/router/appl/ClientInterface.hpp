@@ -25,11 +25,7 @@ namespace appl {
 			bool requestURI(const std::string& _uri);
 		public:
 			ememory::SharedPtr<appl::GateWayInterface> m_userGateWay;
-			uint64_t m_uid;
-			std::string m_userConnectionName;
-			std::string m_clientName;
-			std::vector<std::string> m_clientgroups;
-			std::vector<std::string> m_clientServices;
+			uint64_t m_uid; //!< gateway unique ID ==> to have an internal routage ...
 		public:
 			ClientInterface(enet::Tcp _connection, appl::Router* _routerInterface);
 			virtual ~ClientInterface();

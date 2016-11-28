@@ -33,7 +33,7 @@ namespace zeus {
 			ret = _func(_obj->getParameter<ZEUS_TYPES>(idParam--)...);
 		}
 		_interfaceClient->addAsync([=](WebServer* _interface) {
-			    _interface->answerValue(_obj->getTransactionId(), ret, _obj->getClientId());
+			    _interface->answerValue(_obj->getTransactionId(), _obj->getClientId(), _obj->getServiceId(), ret);
 			    return true;
 			});
 	}
@@ -60,7 +60,7 @@ namespace zeus {
 			_func(_obj->getParameter<ZEUS_TYPES>(idParam--)...);
 		}
 		_interfaceClient->addAsync([=](WebServer* _interface) {
-			    _interface->answerVoid(_obj->getTransactionId(), _obj->getClientId());
+			    _interface->answerVoid(_obj->getTransactionId(), _obj->getClientId(), _obj->getServiceId());
 			    return true;
 			});
 	}
@@ -110,18 +110,20 @@ namespace zeus {
 					help += " parameters. prototype function:";
 					help += getPrototype();
 					_interfaceClient->answerError(_obj->getTransactionId(),
+					                              _obj->getClientId(),
+					                              _obj->getServiceId(),
 					                              "WRONG-PARAMETER-NUMBER",
-					                              help,
-					                              _obj->getClientId());
+					                              help);
 					return;
 				}
 				// check parameter compatibility
 				for (size_t iii=0; iii<sizeof...(ZEUS_TYPES); ++iii) {
 					if (checkCompatibility(m_paramType[iii], _obj->getParameterType(iii)) == false) {
 						_interfaceClient->answerError(_obj->getTransactionId(),
+						                              _obj->getClientId(),
+						                              _obj->getServiceId(),
 						                              "WRONG-PARAMETER-TYPE",
-						                              std::string("Parameter id ") + etk::to_string(iii) + " not compatible with type: '" + m_paramType[iii].getName() + "'",
-						                              _obj->getClientId());
+						                              std::string("Parameter id ") + etk::to_string(iii) + " not compatible with type: '" + m_paramType[iii].getName() + "'");
 						return;
 					}
 				}

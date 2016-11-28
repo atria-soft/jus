@@ -59,7 +59,7 @@ void zeus::Service::onClientData(ememory::SharedPtr<zeus::Buffer> _value) {
 		return;
 	}
 	ZEUS_WARNING("direct call");
-	zeus::FutureBase futData(tmpID, _value, nullptr, clientId);
+	zeus::FutureBase futData(tmpID, _value, clientId);
 	if (futData.isFinished() == true) {
 		ZEUS_INFO("Call Binary ..");
 		callBinary(futData.getRaw());
@@ -102,7 +102,7 @@ bool zeus::Service::connect(uint32_t _numberRetry){
 		return false;
 	}
 	
-	zeus::Future<std::string> ret = m_interfaceClient->call("getUserName");
+	zeus::Future<std::string> ret = m_interfaceClient->call(ZEUS_NO_ID_CLIENT, ZEUS_ID_SERVICE_ROOT, "getUserName");
 	ret.wait();
 	m_nameUser = ret.get();
 	ZEUS_ERROR("Connect with name user: '" << m_nameUser << "'");
@@ -166,7 +166,7 @@ void zeus::Service::callBinary(ememory::SharedPtr<zeus::Buffer> _obj) {
 			} else if (callFunction == "_delete") {
 				clientDisconnect(clientId);
 			}
-			m_interfaceClient->answerValue(callObj->getTransactionId(), true, clientId);
+			m_interfaceClient->answerValue(callObj->getTransactionId(), clientId, m_id, true);
 			return;
 		} else if (isFunctionAuthorized(clientId, callFunction) == true) {
 			ZEUS_INFO("plop 6 ...");
@@ -174,7 +174,7 @@ void zeus::Service::callBinary(ememory::SharedPtr<zeus::Buffer> _obj) {
 			return;
 		} else {
 			ZEUS_INFO("plop 7 ...");
-			m_interfaceClient->answerError(callObj->getTransactionId(), "NOT-AUTHORIZED-FUNCTION", "", clientId);
+			m_interfaceClient->answerError(callObj->getTransactionId(), clientId, m_id, "NOT-AUTHORIZED-FUNCTION", "");
 			return;
 		}
 	}

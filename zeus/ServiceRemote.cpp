@@ -16,7 +16,7 @@ zeus::ServiceRemoteBase::ServiceRemoteBase(ememory::SharedPtr<zeus::WebServer> _
 		return;
 	}
 	// little hack : Call the service manager with the service ID=0 ...
-	zeus::Future<uint32_t> ret = m_interfaceClient->callService(ZEUS_NO_ID_CLIENT, m_serviceId, "link", _name);
+	zeus::Future<uint32_t> ret = m_interfaceClient->call(ZEUS_NO_ID_CLIENT, m_serviceId, "link", _name);
 	ret.wait();
 	if (ret.hasError() == true) {
 		ZEUS_WARNING("Can not link with the service named: '" << _name << "' ==> link error");
@@ -31,7 +31,7 @@ zeus::ServiceRemoteBase::~ServiceRemoteBase() {
 		uint32_t tmpLocalService = m_serviceId;
 		// little hack : Call the service manager with the service ID=0 ...
 		m_serviceId = 0;
-		zeus::Future<bool> ret = m_interfaceClient->callService(ZEUS_NO_ID_CLIENT, m_serviceId, "unlink", tmpLocalService);
+		zeus::Future<bool> ret = m_interfaceClient->call(ZEUS_NO_ID_CLIENT, m_serviceId, "unlink", tmpLocalService);
 		ret.wait();
 		if (ret.hasError() == true) {
 			ZEUS_WARNING("Can not unlink with the service id: '" << tmpLocalService << "' ==> link error");

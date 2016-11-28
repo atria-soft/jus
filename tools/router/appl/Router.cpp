@@ -76,7 +76,7 @@ void appl::Router::newClient(enet::Tcp _connection) {
 	ZEUS_WARNING("New TCP connection (client)");
 	ememory::SharedPtr<appl::ClientInterface> tmp = ememory::makeShared<appl::ClientInterface>(std::move(_connection), this);
 	tmp->start(m_clientUID);
-	m_clientUID += 2; // Need to do it, it is une impair ID by the Gateway
+	m_clientUID++;
 	m_clientList.push_back(tmp);
 }
 

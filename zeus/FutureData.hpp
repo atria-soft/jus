@@ -18,13 +18,16 @@ namespace zeus {
 	 */
 	class FutureData {
 		public:
-			using ObserverFinish = std::function<bool(zeus::FutureBase)>; //!< Define an Observer: function pointer
+			//using ObserverFinish = std::function<bool(zeus::FutureBase)>; //!< Define an Observer: function pointer
+			using Observer = std::function<bool(zeus::FutureBase)>; //!< Define an Observer: function pointer
 		public:
 			uint32_t m_transactionId; //!< waiting answer data
 			uint32_t m_clientId; //!< need to anser at this client.
 			bool m_isSynchronous; //!< the future is synchronous. (call when receive data)
 			ememory::SharedPtr<zeus::Buffer> m_returnData; //!< all buffer concatenate or last buffer if synchronous
-			ObserverFinish m_callbackFinish; //!< ofserver of the finish data
+			Observer m_callbackThen; //!< observer callback When data arrive and NO error appear
+			Observer m_callbackElse; //!< observer callback When data arrive and AN error appear
+			//Observer m_callbackAbort; //!< observer callback When Action is abort by user
 			std::chrono::steady_clock::time_point m_sendTime; //!< time when the future has been sended request
 			std::chrono::steady_clock::time_point m_receiveTime; //!< time when the future has receve answer
 	};

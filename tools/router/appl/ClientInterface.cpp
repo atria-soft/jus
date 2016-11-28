@@ -77,7 +77,7 @@ bool appl::ClientInterface::isAlive() {
 }
 
 void appl::ClientInterface::answerProtocolError(uint32_t _transactionId, const std::string& _errorHelp) {
-	m_interfaceClient.answerError(_transactionId, protocolError, _errorHelp);
+	m_interfaceClient.answerError(_transactionId, 0, 0, protocolError, _errorHelp);
 	m_state = appl::ClientInterface::state::disconnect;
 	m_interfaceClient.disconnect(true);
 }
@@ -94,6 +94,11 @@ void appl::ClientInterface::onClientData(ememory::SharedPtr<zeus::Buffer> _value
 		answerProtocolError(transactionId, "missing parameter: 'id'");
 		return;
 	}
+	if (_value->getClientId() != 0) {
+		APPL_ERROR("Protocol error ==> client ID != 0");
+		answerProtocolError(transactionId, "clent ID is != 0");
+		return;
+	}
 	// Directly send to the user-GateWay
 	if (m_userGateWay == nullptr) {
 		APPL_ERROR("USER is not existing ...");
@@ -103,24 +108,21 @@ void appl::ClientInterface::onClientData(ememory::SharedPtr<zeus::Buffer> _value
 	}
 	// Special case for data, they are transiting messages ...
 	if (_value->getType() != zeus::Buffer::typeMessage::data) {
-		m_userGateWay->m_interfaceClient.callForward(
-		    m_uid,
-		    _value,
-		    (uint64_t(m_uid) << 32) + uint64_t(transactionId),
-		    [=](zeus::FutureBase _ret) {
-		    		ememory::SharedPtr<zeus::Buffer> tmpp = _ret.getRaw();
-		    		if (tmpp == nullptr) {
-		    			return true;
-		    		}
-		    		APPL_DEBUG("    ==> transmit : " << tmpp->getTransactionId() << " -> " << transactionId);
-		    		APPL_DEBUG("    msg=" << tmpp);
-		    		tmpp->setTransactionId(transactionId);
-		    		//tmpp->setServiceId(serviceId+1);
-		    		APPL_DEBUG("transmit=" << tmpp);
-		    		m_interfaceClient.writeBinary(tmpp);
-		    		// multiple send element ...
-		    		return tmpp->getPartFinish();
-		    });
+		auto fut = m_userGateWay->m_interfaceClient.callForward(m_uid, _value, (uint64_t(m_uid) << 32) + uint64_t(transactionId));
+		fut.andAll([=](zeus::FutureBase _ret) {
+		           		ememory::SharedPtr<zeus::Buffer> tmpp = _ret.getRaw();
+		           		if (tmpp == nullptr) {
+		           			return true;
+		           		}
+		           		APPL_DEBUG("    ==> transmit : " << tmpp->getTransactionId() << " -> " << transactionId);
+		           		APPL_DEBUG("    msg=" << tmpp);
+		           		tmpp->setTransactionId(transactionId);
+		           		tmpp->setClientId(0);
+		           		APPL_DEBUG("transmit=" << tmpp);
+		           		m_interfaceClient.writeBinary(tmpp);
+		           		// multiple send element ...
+		           		return tmpp->getPartFinish();
+		           });
 	} else {
 		// simply forward messages to the user gateWay ...
 		m_userGateWay->m_interfaceClient.callForwardMultiple(

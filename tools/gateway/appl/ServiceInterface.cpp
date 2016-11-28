@@ -107,7 +107,7 @@ void appl::ServiceInterface::onServiceData(ememory::SharedPtr<zeus::Buffer> _val
 		ememory::SharedPtr<zeus::BufferCall> callObj = ememory::staticPointerCast<zeus::BufferCall>(_value);
 		std::string callFunction = callObj->getCall();
 		if (callFunction == "getUserName") {
-			m_interfaceClient.answerValue(transactionId, *m_gatewayInterface->propertyUserName);
+			m_interfaceClient.answerValue(transactionId, _value->getClientId(), _value->getServiceId(), *m_gatewayInterface->propertyUserName);
 			return;
 		}
 		answerProtocolError(transactionId, "unknow function");
@@ -121,6 +121,6 @@ void appl::ServiceInterface::onServiceData(ememory::SharedPtr<zeus::Buffer> _val
 
 
 void appl::ServiceInterface::answerProtocolError(uint32_t _transactionId, const std::string& _errorHelp) {
-	m_interfaceClient.answerError(_transactionId, protocolError, _errorHelp);
+	m_interfaceClient.answerError(_transactionId, 0, 0, protocolError, _errorHelp);
 	m_interfaceClient.disconnect(true);
 }

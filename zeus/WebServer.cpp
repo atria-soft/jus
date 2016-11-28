@@ -11,12 +11,13 @@
 #include <zeus/BufferCtrl.hpp>
 
 
-ememory::SharedPtr<zeus::BufferCall> zeus::createBaseCall(uint64_t _transactionId, const std::string& _functionName, const uint32_t& _serviceId) {
+ememory::SharedPtr<zeus::BufferCall> zeus::createBaseCall(uint64_t _transactionId, const uint32_t& _clientId, const uint32_t& _serviceId, const std::string& _functionName) {
 	ememory::SharedPtr<zeus::BufferCall> obj = zeus::BufferCall::create();
 	if (obj == nullptr) {
 		return nullptr;
 	}
 	obj->setServiceId(_serviceId);
+	obj->setClientId(_clientId);
 	obj->setCall(_functionName);
 	obj->setTransactionId(_transactionId);
 	return obj;
@@ -318,15 +319,14 @@ void zeus::WebServer::threadAsyncCallback() {
 
 zeus::FutureBase zeus::WebServer::callBinary(uint64_t _transactionId,
                                              ememory::SharedPtr<zeus::Buffer> _obj,
-                                             zeus::FutureData::ObserverFinish _callback,
                                              const uint32_t& _serviceId) {
 	if (isActive() == false) {
 		ZEUS_ERROR("Send [STOP] ==> not connected (no TCP)");
 		ememory::SharedPtr<zeus::BufferAnswer> obj = zeus::BufferAnswer::create();
 		obj->addError("NOT-CONNECTED", "Client interface not connected (no TCP)");
-		return zeus::FutureBase(_transactionId, obj, _callback);
+		return zeus::FutureBase(_transactionId, obj);
 	}
-	zeus::FutureBase tmpFuture(_transactionId, _callback);
+	zeus::FutureBase tmpFuture(_transactionId);
 	{
 		std::unique_lock<std::mutex> lock(m_pendingCallMutex);
 		m_pendingCall.push_back(std::make_pair(uint64_t(0), tmpFuture));
@@ -337,20 +337,19 @@ zeus::FutureBase zeus::WebServer::callBinary(uint64_t _transactionId,
 
 zeus::FutureBase zeus::WebServer::callForward(uint32_t _clientId,
                                               ememory::SharedPtr<zeus::Buffer> _buffer,
-                                              uint64_t _singleReferenceId,
-                                              zeus::FutureData::ObserverFinish _callback) {
+                                              uint64_t _singleReferenceId) {
 	//zeus::FutureBase ret = callBinary(id, _Buffer, async, _callback);
 	//ret.setSynchronous();
 	
 	if (isActive() == false) {
 		auto obj = zeus::BufferAnswer::create();
 		obj->addError("NOT-CONNECTED", "Client interface not connected (no TCP)");
-		return zeus::FutureBase(0, obj, _callback);
+		return zeus::FutureBase(0, obj);
 	}
 	uint64_t id = getId();
 	_buffer->setTransactionId(id);
 	_buffer->setClientId(_clientId);
-	zeus::FutureBase tmpFuture(id, _callback);
+	zeus::FutureBase tmpFuture(id);
 	tmpFuture.setSynchronous();
 	{
 		std::unique_lock<std::mutex> lock(m_pendingCallMutex);
@@ -381,7 +380,7 @@ void zeus::WebServer::callForwardMultiple(uint32_t _clientId,
 	ZEUS_ERROR("Can not transfer part of a message ...");
 }
 
-void zeus::WebServer::sendCtrl(const std::string& _ctrlValue, uint32_t _clientId, uint32_t _serviceId) {
+void zeus::WebServer::sendCtrl(uint32_t _clientId, uint32_t _serviceId, const std::string& _ctrlValue) {
 	auto ctrl = zeus::BufferCtrl::create();
 	if (ctrl == nullptr) {
 		return;
@@ -393,7 +392,7 @@ void zeus::WebServer::sendCtrl(const std::string& _ctrlValue, uint32_t _clientId
 	writeBinary(ctrl);
 }
 
-void zeus::WebServer::answerError(uint64_t _clientTransactionId, const std::string& _errorValue, const std::string& _errorHelp, uint32_t _clientId, uint32_t _serviceId) {
+void zeus::WebServer::answerError(uint64_t _clientTransactionId, uint32_t _clientId, uint32_t _serviceId, const std::string& _errorValue, const std::string& _errorHelp) {
 	auto answer = zeus::BufferAnswer::create();
 	if (answer == nullptr) {
 		return;

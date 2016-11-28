@@ -97,7 +97,7 @@ namespace zeus {
 			void onClientData(ememory::SharedPtr<zeus::Buffer> _value);
 		public:
 			/**
-			 * @brief Create a call on the interface gateway
+			 * @brief Create a call on the interface gateway (threw the router)
 			 * @param[in] _functionName name of the function to call
 			 * @param[in] _args... multiple argument neededs
 			 * @return a future that will contain the aswer when receiveed (need to transmit over ethernet)
@@ -109,23 +109,7 @@ namespace zeus {
 					ret->addError("NULLPTR", "call " + _functionName + " with no interface open");
 					return zeus::FutureBase(0, ret);
 				}
-				return m_interfaceClient->call(_functionName, _args...);
-			}
-			/**
-			 * @brief Create a call on the interface gateway
-			 * @param[in] _functionName name of the function to call
-			 * @param[in] _args... multiple argument neededs
-			 * @param[in] _callback Observer to call when the data is compleately arrived
-			 * @return a future that will contain the aswer when receiveed (need to transmit over ethernet)
-			 */
-			template<class... _ARGS>
-			zeus::FutureBase callAction(const std::string& _functionName, _ARGS&&... _args, zeus::FutureData::ObserverFinish _callback) {
-				if (m_interfaceClient == nullptr) {
-					ememory::SharedPtr<zeus::BufferAnswer> ret = zeus::BufferAnswer::create();
-					ret->addError("NULLPTR", "call " + _functionName + " with no interface open");
-					return zeus::FutureBase(0, ret, _callback);
-				}
-				return m_interfaceClient->callAction(_functionName, _args..., _callback);
+				return m_interfaceClient->call(ZEUS_NO_ID_CLIENT, ZEUS_ID_SERVICE_ROOT, _functionName, _args...);
 			}
 		private:
 			/**
