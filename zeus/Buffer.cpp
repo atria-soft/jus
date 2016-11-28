@@ -96,9 +96,11 @@ void zeus::Buffer::composeWith(const uint8_t* _buffer, uint32_t _lenght) {
 }
 
 void zeus::Buffer::clear() {
-	m_header.transactionID = 1;
-	m_header.clientID = 0;
-	m_header.serviceID = 0;
+	m_header.transactionId = 1;
+	m_header.sourceId = 0;
+	m_header.sourceObjectId = 0;
+	m_header.destinationId = 0;
+	m_header.destinationObjectId = 0;
 	m_header.flags = ZEUS_BUFFER_FLAG_FINISH;
 }
 
@@ -115,8 +117,8 @@ void zeus::Buffer::generateDisplay(std::ostream& _os) const {
 	//out += " v=" + etk::to_string(m_header.versionProtocol); // set it in the websocket
 	_os << " if=" << etk::to_string(getInterfaceId());
 	_os << " tr-id=" << etk::to_string(getTransactionId());
-	_os << " cId=" << etk::to_string(getClientId());
-	_os << " sId=" << etk::to_string(getServiceId());
+	_os << " src=" << etk::to_string(getSourceId()) << "/" << etk::to_string(getSourceObjectId());
+	_os << " dst=" << etk::to_string(getDestinationId()) << "/" << etk::to_string(getDestinationObjectId());
 	if (getPartFinish() == true) {
 		_os << " finish";
 	}
@@ -150,28 +152,45 @@ uint32_t zeus::Buffer::getInterfaceId() const {
 void zeus::Buffer::setInterfaceId(uint32_t _value) {
 	m_interfaceID = _value;
 }
+
 uint32_t zeus::Buffer::getTransactionId() const {
-	return m_header.transactionID;
+	return m_header.transactionId;
 }
 
-void zeus::Buffer::setTransactionId(uint32_t _value) {
-	m_header.transactionID = _value;
+void zeus::Buffer::settransactionId(uint16_t _value) {
+	m_header.transactionId = _value;
 }
 
-uint32_t zeus::Buffer::getClientId() const {
-	return m_header.clientID;
+uint16_t zeus::Buffer::getSourceId() const {
+	return m_header.sourceId;
 }
 
-void zeus::Buffer::setClientId(uint32_t _value) {
-	m_header.clientID = _value;
+void zeus::Buffer::setSourceId(uint16_t _value) {
+	m_header.sourceId = _value;
 }
 
-uint32_t zeus::Buffer::getServiceId() const {
-	return m_header.serviceID;
+uint16_t zeus::Buffer::getSourceObjectId() const {
+	return m_header.sourceObjectId;
 }
 
-void zeus::Buffer::setServiceId(uint32_t _value) {
-	m_header.serviceID = _value;
+void zeus::Buffer::setSourceObjectId(uint16_t _value) {
+	m_header.sourceObjectId = _value;
+}
+
+uint16_t zeus::Buffer::getDestinationId() const {
+	return m_header.destinationId;
+}
+
+void zeus::Buffer::setDestinationId(uint32_t _value) {
+	m_header.destinationId = _value;
+}
+
+uint16_t zeus::Buffer::getDestinationObjectId() const {
+	return m_header.destinationObjectId;
+}
+
+void zeus::Buffer::setDestinationObjectId(uint16_t _value) {
+	m_header.destinationObjectId = _value;
 }
 
 bool zeus::Buffer::getPartFinish() const {
@@ -213,9 +232,11 @@ ememory::SharedPtr<zeus::Buffer> zeus::Buffer::create(const std::vector<uint8_t>
 				if (value == nullptr) {
 					return nullptr;
 				}
-				value->setTransactionId(header.transactionID);
-				value->setClientId(header.clientID);
-				value->setServiceId(header.serviceID);
+				value->settransactionId(header.transactionId);
+				value->setSourceId(header.sourceId);
+				value->setSourceOjectId(header.sourceObjectId);
+				value->setDestinationId(header.destinationId);
+				value->setDestinationObjectId(header.destinationObjectId);
 				value->setPartFinish((header.flags & ZEUS_BUFFER_FLAG_FINISH) != 0);
 				value->composeWith(&_buffer[sizeof(headerBin)],
 				                    _buffer.size() - sizeof(headerBin));
@@ -227,9 +248,11 @@ ememory::SharedPtr<zeus::Buffer> zeus::Buffer::create(const std::vector<uint8_t>
 				if (value == nullptr) {
 					return nullptr;
 				}
-				value->setTransactionId(header.transactionID);
-				value->setClientId(header.clientID);
-				value->setServiceId(header.serviceID);
+				value->settransactionId(header.transactionId);
+				value->setSourceId(header.sourceId);
+				value->setSourceOjectId(header.sourceObjectId);
+				value->setDestinationId(header.destinationId);
+				value->setDestinationObjectId(header.destinationObjectId);
 				value->setPartFinish((header.flags & ZEUS_BUFFER_FLAG_FINISH) != 0);
 				value->composeWith(&_buffer[sizeof(headerBin)],
 				                    _buffer.size() - sizeof(headerBin));
@@ -241,9 +264,11 @@ ememory::SharedPtr<zeus::Buffer> zeus::Buffer::create(const std::vector<uint8_t>
 				if (value == nullptr) {
 					return nullptr;
 				}
-				value->setTransactionId(header.transactionID);
-				value->setClientId(header.clientID);
-				value->setServiceId(header.serviceID);
+				value->settransactionId(header.transactionId);
+				value->setSourceId(header.sourceId);
+				value->setSourceOjectId(header.sourceObjectId);
+				value->setDestinationId(header.destinationId);
+				value->setDestinationObjectId(header.destinationObjectId);
 				value->setPartFinish((header.flags & ZEUS_BUFFER_FLAG_FINISH) != 0);
 				value->composeWith(&_buffer[sizeof(headerBin)],
 				                    _buffer.size() - sizeof(headerBin));
@@ -255,9 +280,11 @@ ememory::SharedPtr<zeus::Buffer> zeus::Buffer::create(const std::vector<uint8_t>
 				if (value == nullptr) {
 					return nullptr;
 				}
-				value->setTransactionId(header.transactionID);
-				value->setClientId(header.clientID);
-				value->setServiceId(header.serviceID);
+				value->settransactionId(header.transactionId);
+				value->setSourceId(header.sourceId);
+				value->setSourceOjectId(header.sourceObjectId);
+				value->setDestinationId(header.destinationId);
+				value->setDestinationObjectId(header.destinationObjectId);
 				value->setPartFinish((header.flags & ZEUS_BUFFER_FLAG_FINISH) != 0);
 				value->composeWith(&_buffer[sizeof(headerBin)],
 				                    _buffer.size() - sizeof(headerBin));

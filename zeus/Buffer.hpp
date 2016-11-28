@@ -20,21 +20,13 @@ namespace zeus {
 	class BufferData;
 	//U32 message lenght
 	#pragma pack(push,1)
-	/*
 	struct headerBin {
 		//uint16_t versionProtocol; // protocol Version (might be 1)
-		uint32_t transactionID;
-		uint32_t clientID; // same as sevice ID
-		int16_t partID; // if < 0 the partId ifs the last (start at 0 if multiple or 0x8000 if single message)
-		uint16_t typeMessage; //TypeMessgae (1:call, 2:Answer, 4:event)
-		uint16_t numberOfParameter;
-	};
-	*/
-	struct headerBin {
-		//uint16_t versionProtocol; // protocol Version (might be 1)
-		uint32_t transactionID;
-		uint32_t clientID; // Client Routing ID
-		uint32_t serviceID; // service routing ID
+		uint32_t transactionId; //!< Transaction ID : Note the Upper byte is reserved for next protocol version (like change in protocol v2 with changing header)
+		uint16_t sourceId; //!< Source of the message
+		uint16_t sourceObjectId; //!< Source Object ID
+		uint16_t destinationId; //!< Destination  of the message
+		uint16_t destinationObjectId; //!< Destination Object ID
 		uint8_t flags; // List of flags & type message:
 		               //    - 0-2: Type of the message
 		               //    - 3-5: Reserved
@@ -73,13 +65,13 @@ namespace zeus {
 	 [param 3]
 	 [param 4]
 	---------------------------
-	parameter and return value is contituated like : 
+	parameter and return value is contituated like:
 	TYPE,DATAs....(in raw)
 	Type is write in ascii in the list end with '\0':
 	    - void
 	    - bool
-	    - float
-	    - double
+	    - float32
+	    - float64
 	    - int64
 	    - int32
 	    - int16
@@ -90,8 +82,8 @@ namespace zeus {
 	    - uint8
 	    - string
 	    - vector:bool
-	    - vector:float
-	    - vector:double
+	    - vector:float32
+	    - vector:float64
 	    - vector:int64
 	    - vector:int32
 	    - vector:int16
@@ -102,6 +94,8 @@ namespace zeus {
 	    - vector:uint8
 	    - vector:string
 	    - obj:file
+	    - duration
+	    - time
 	*/
 	#define ZEUS_BUFFER_FLAG_FINISH (0x80)
 	#define ZEUS_BUFFER_FLAG_TYPE_MESSAGE (0x07)
@@ -181,7 +175,7 @@ namespace zeus {
 			/**
 			 * @brief Get the transaction identifier of the packet
 			 * @return value of the transaction
-			 */
+			 */getTransactionId
 			uint32_t getTransactionId() const;
 			/**
 			 * @brief Set the transaction identifier of the packet
@@ -189,25 +183,45 @@ namespace zeus {
 			 */
 			void setTransactionId(uint32_t _value);
 			/**
-			 * @brief Get the Client identifier of the packet
-			 * @return Value of the Client identifier
+			 * @brief Get the Source identifier of the packet
+			 * @return Value of the Source identifier
 			 */
-			uint32_t getClientId() const;
+			uint16_t getSourceId() const;
 			/**
-			 * @brief Set the Client identifier of the packet
-			 * @param[in] _value New value of the Client identifier
+			 * @brief Set the Source identifier of the packet
+			 * @param[in] _value New value of the Source identifier
 			 */
-			void setClientId(uint32_t _value);
+			void setSourceId(uint16_t _value);
 			/**
-			 * @brief Get the Service identifier of the packet (same as client)
-			 * @return Value of the Service identifier
+			 * @brief Get the Source Object identifier of the packet
+			 * @return Value of the Source Object identifier
 			 */
-			uint32_t getServiceId() const;
+			uint16_t getSourceObjectId() const;
 			/**
-			 * @brief Set the Service identifier of the packet (same as client)
-			 * @param[in] _value New value of the Service identifier
+			 * @brief Set the Source Object identifier of the packet
+			 * @param[in] _value New value of the Source Object identifier
 			 */
-			void setServiceId(uint32_t _value);
+			void setSourceObjectId(uint16_t _value);
+			/**
+			 * @brief Get the Destination identifier of the packet
+			 * @return Value of the Destination identifier
+			 */
+			uint16_t getDestinationId() const;
+			/**
+			 * @brief Set the Destination identifier of the packet
+			 * @param[in] _value New value of the Destination identifier
+			 */
+			void setDestinationId(uint16_t _value);
+			/**
+			 * @brief Get the Destination Object identifier of the packet
+			 * @return Value of the Destination Object identifier
+			 */
+			uint16_t getDestinationObjectId() const;
+			/**
+			 * @brief Set the Destination Object identifier of the packet
+			 * @param[in] _value New value of the Destination Object identifier
+			 */
+			void setDestinationObjectId(uint16_t _value);
 			/**
 			 * @brief Check if it is the last packet of the buffer
 			 * @return If "true" The Buffer wait no more datas

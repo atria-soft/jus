@@ -24,6 +24,14 @@ void zeus::Client::onClientData(ememory::SharedPtr<zeus::Buffer> _value) {
 	if (_value == nullptr) {
 		return;
 	}
+	// TODO : We will receive here some notification and call ...like : 
+	if (call && id = 0 && objectid == 0) {
+		we will have :
+		if call == "ValidateConnection"
+		in param : local interface ID (can not change it...)
+		local name like clientname::subID (if multiple connection in parallele)
+		... and after we can do many thing like provide servies ...
+	}
 	ZEUS_ERROR("Get Data On the Communication interface that is not understand ... : " << _value);
 }
 
@@ -88,7 +96,24 @@ bool zeus::Client::connectTo(const std::string& _address) {
 	return true;
 }
 
+bool zeus::Client::connect() {
+	bool ret = connectTo("srvIO");
+	if (ret==false) {
+		return false;
+	}
+	zeus::Future<bool> retIdentify = call("anonymous").wait();
+	if (retIdentify.hasError() == true) {
+		disconnect();
+		return false;
+	}
+	if (retIdentify.get() == false) {
+		disconnect();
+	}
+	return retIdentify.get();
+}
+
 bool zeus::Client::connect(const std::string& _address) {
+	m_clientName = _address;
 	bool ret = connectTo(_address);
 	if (ret==false) {
 		return false;
@@ -105,6 +130,7 @@ bool zeus::Client::connect(const std::string& _address) {
 }
 
 bool zeus::Client::connect(const std::string& _address, const std::string& _userPassword) {
+	m_clientName = _address;
 	bool ret = connectTo(_address);
 	if (ret==false) {
 		return false;
@@ -121,6 +147,7 @@ bool zeus::Client::connect(const std::string& _address, const std::string& _user
 }
 
 bool zeus::Client::connect(const std::string& _address, const std::string& _clientName, const std::string& _clientTocken) {
+	m_clientName = _clientName;
 	bool ret = connectTo(_address);
 	if (ret==false) {
 		return false;
