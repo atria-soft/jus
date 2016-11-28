@@ -9,7 +9,7 @@ vector:string getSubAlbums(string)
 uint32 getAlbumCount(string)
 vector:string getAlbumListPicture(string)
 //file getAlbumPicture(string)
-//string addFile(file)
+string addFile(file)
 bool removeFile(string)
 /*
 // ----------------- Get media with their ID -----------------------

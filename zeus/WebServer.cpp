@@ -118,12 +118,14 @@ class SendAsyncBinary {
 	private:
 		std::vector<zeus::ActionAsyncClient> m_async;
 		uint64_t m_transactionId;
+		uint32_t m_clientId;
 		uint32_t m_serviceId;
 		uint32_t m_partId;
 	public:
-		SendAsyncBinary(uint64_t _transactionId, const uint32_t& _serviceId, std::vector<zeus::ActionAsyncClient> _async) :
+		SendAsyncBinary(uint64_t _transactionId, const uint32_t& _clientId, const uint32_t& _serviceId, std::vector<zeus::ActionAsyncClient> _async) :
 		  m_async(std::move(_async)),
 		  m_transactionId(_transactionId),
+		  m_clientId(_clientId),
 		  m_serviceId(_serviceId),
 		  m_partId(1) {
 			
@@ -131,7 +133,7 @@ class SendAsyncBinary {
 		bool operator() (zeus::WebServer* _interface){
 			auto it = m_async.begin();
 			while (it != m_async.end()) {
-				bool ret = (*it)(_interface, m_serviceId, m_transactionId, m_partId);
+				bool ret = (*it)(_interface, m_clientId, m_serviceId, m_transactionId, m_partId);
 				if (ret == true) {
 					// Remove it ...
 					it = m_async.erase(it);
@@ -146,6 +148,7 @@ class SendAsyncBinary {
 					return true;
 				}
 				//obj->setInterfaceId(m_interfaceId);
+				obj->setClientId(m_clientId);
 				obj->setServiceId(m_serviceId);
 				obj->setTransactionId(m_transactionId);
 				obj->setPartId(m_partId);
@@ -173,7 +176,7 @@ int32_t zeus::WebServer::writeBinary(ememory::SharedPtr<zeus::Buffer> _obj) {
 	if (_obj->writeOn(m_connection) == true) {
 		m_connection.send();
 		if (_obj->haveAsync() == true) {
-			addAsync(SendAsyncBinary(_obj->getTransactionId(), _obj->getServiceId(), std::move(_obj->moveAsync())));
+			addAsync(SendAsyncBinary(_obj->getTransactionId(), _obj->getClientId(), _obj->getServiceId(), std::move(_obj->moveAsync())));
 		}
 		return 1;
 	}
