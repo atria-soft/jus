@@ -184,13 +184,13 @@ namespace zeus {
 			 * @param[in] _userName User name of the client to connect
 			 * @todo Set a relur like ==> service not availlable / service close / service maintenance / service right reject
 			 */
-			virtual void clientConnect(uint16_t _sourceId, const std::string& _userName, const std::string& _clientName, const std::vector<std::string>& _groups) = 0;
+			//virtual void clientConnect(uint16_t _sourceId, const std::string& _userName, const std::string& _clientName, const std::vector<std::string>& _groups) = 0;
 			/**
 			 * @brief 
 			 * @param[in] 
 			 * @return 
 			 */
-			virtual void clientDisconnect(uint16_t _sourceId) = 0;
+			//virtual void clientDisconnect(uint16_t _sourceId) = 0;
 			/**
 			 * @brief 
 			 * @param[in] 
@@ -247,8 +247,8 @@ namespace zeus {
 	class ServiceType : public zeus::Service {
 		private:
 			// no need of shared_ptr or unique_ptr (if service die all is lost and is client die, the gateway notify us...)
-			ememory::SharedPtr<ClientProperty> m_property
-			ZEUS_TYPE_SERVICE m_interface;
+			ememory::SharedPtr<ClientProperty> m_property;
+			ememory::SharedPtr<ZEUS_TYPE_SERVICE> m_interface;
 		public:
 			/**
 			 * @brief 

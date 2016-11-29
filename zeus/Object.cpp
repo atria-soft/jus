@@ -12,11 +12,13 @@
 
 
 zeus::Object::Object() {
+	/*
 	zeus::AbstractFunction* func = advertise("getExtention", &zeus::Object::getExtention);
 	if (func != nullptr) {
 		func->setDescription("Get List of availlable extention of this Object");
 		func->setReturn("A list of extention register in the Object");
 	}
+	*/
 }
 
 zeus::Object::~Object() {
@@ -84,6 +86,7 @@ void zeus::Object::callBinary(ememory::SharedPtr<zeus::Buffer> _obj) {
 		uint32_t sourceId = callObj->getSourceId();
 		std::string callFunction = callObj->getCall();
 		ZEUS_INFO("plop - ... " << callFunction);
+		/*
 		if (callFunction[0] == '_') {
 			if (callFunction == "_new") {
 				std::string userName = callObj->getParameter<std::string>(0);
@@ -95,13 +98,13 @@ void zeus::Object::callBinary(ememory::SharedPtr<zeus::Buffer> _obj) {
 			}
 			m_interfaceClient->answerValue(callObj->getTransactionId(), uint32_t(m_id)<<16, source, true);
 			return;
-		} else if (isFunctionAuthorized(sourceId, callFunction) == true) {
+		} else */if (isFunctionAuthorized(sourceId, callFunction) == true) {
 			ZEUS_INFO("plop 6 ...");
 			callBinary2(callFunction, callObj);
 			return;
 		} else {
 			ZEUS_INFO("plop 7 ...");
-			m_interfaceClient->answerError(callObj->getTransactionId(), uint32_t(m_id)<<16, source, "NOT-AUTHORIZED-FUNCTION", "");
+			m_interfaceClient->answerError(callObj->getTransactionId(), uint32_t(m_ObjectId)<<16, source, "NOT-AUTHORIZED-FUNCTION", "");
 			return;
 		}
 	}

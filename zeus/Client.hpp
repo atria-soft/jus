@@ -33,6 +33,7 @@ namespace zeus {
 			std::vector<ememory::SharedPtr<zeus::Service>> m_listProvicedService; //!< Connect only one time on each service, not needed more.
 			std::vector<ememory::SharedPtr<zeus::Object>> m_listLocalObject;
 		public:
+			void answerProtocolError(uint32_t _transactionId, const std::string& _errorHelp);
 			/**
 			 * @brief 
 			 * @param[in] 
@@ -86,7 +87,7 @@ namespace zeus {
 			 * @return Pointer on an interface of remote service
 			 */
 			zeus::ServiceRemote getService(const std::string& _serviceName);
-			using factoryService = std::function<ememory::SharedPtr<zeus::Object>, zeus::Client&, uint16_t objId)>;
+			using factoryService = std::function<ememory::SharedPtr<zeus::Object>(zeus::Client&, uint16_t)>;
 			
 			std::map<std::string,factoryService> m_listServicesAvaillable; //!< list of all factory availlable
 			/**

@@ -158,7 +158,7 @@ void zeus::Service::callBinary(ememory::SharedPtr<zeus::Buffer> _obj) {
 		uint32_t sourceId = callObj->getSourceId();
 		std::string callFunction = callObj->getCall();
 		ZEUS_INFO("plop - ... " << callFunction);
-		if (callFunction[0] == '_') {
+		/*if (callFunction[0] == '_') {
 			if (callFunction == "_new") {
 				std::string userName = callObj->getParameter<std::string>(0);
 				std::string clientName = callObj->getParameter<std::string>(1);
@@ -169,7 +169,7 @@ void zeus::Service::callBinary(ememory::SharedPtr<zeus::Buffer> _obj) {
 			}
 			m_interfaceClient->answerValue(callObj->getTransactionId(), uint32_t(m_id)<<16, source, true);
 			return;
-		} else if (isFunctionAuthorized(sourceId, callFunction) == true) {
+		} else */if (isFunctionAuthorized(sourceId, callFunction) == true) {
 			ZEUS_INFO("plop 6 ...");
 			callBinary2(callFunction, callObj);
 			return;

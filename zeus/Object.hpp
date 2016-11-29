@@ -28,7 +28,7 @@ namespace zeus {
 		protected:
 			ememory::SharedPtr<zeus::WebServer> m_interfaceClient;
 			uint16_t m_ObjectId;
-			//std::vector<zeus::FutureBase> m_callMultiData;
+			std::vector<zeus::FutureBase> m_callMultiData;
 		public:
 			/**
 			 * @brief 
@@ -61,7 +61,7 @@ namespace zeus {
 			 * @param[in] 
 			 * @return 
 			 */
-			virtual void callBinary2(const std::string& _call, ememory::SharedPtr<zeus::BufferCall> _obj);
+			virtual void callBinary2(const std::string& _call, ememory::SharedPtr<zeus::BufferCall> _obj) = 0;
 		public:
 			/**
 			 * @brief 
@@ -99,7 +99,7 @@ namespace zeus {
 	template<class ZEUS_TYPE_OBJECT>
 	class ObjectType : public zeus::Object {
 		private:
-			ZEUS_TYPE_OBJECT m_interface; // direct handle on the data;
+			ememory::SharedPtr<ZEUS_TYPE_OBJECT> m_interface; // direct handle on the data;
 		public:
 			/**
 			 * @brief 

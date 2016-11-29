@@ -8,7 +8,14 @@
 #include <zeus/Client.hpp>
 #include <zeus/debug.hpp>
 
+static const std::string protocolError = "PROTOCOL-ERROR";
 
+
+void zeus::Client::answerProtocolError(uint32_t _transactionId, const std::string& _errorHelp) {
+	m_interfaceWeb->answerError(_transactionId, 0, ZEUS_ID_SERVICE_ROOT, protocolError, _errorHelp);
+	m_interfaceWeb->disconnect();
+	ZEUS_TODO("Do this error return ... " << _errorHelp);
+}
 
 zeus::Client::Client() :
   propertyIp(this, "ip", "127.0.0.1", "Ip to connect server", &zeus::Client::onPropertyChangeIp),
@@ -44,13 +51,13 @@ void zeus::Client::onClientData(ememory::SharedPtr<zeus::Buffer> _value) {
 	//APPL_ERROR("    ==> parse DATA ...");
 	uint32_t transactionId = _value->getTransactionId();
 	if (transactionId == 0) {
-		APPL_ERROR("Protocol error ==>missing id");
+		ZEUS_ERROR("Protocol error ==>missing id");
 		answerProtocolError(transactionId, "missing parameter: 'id'");
 		return;
 	}
 	// Check if we are the destinated Of this message 
 	if (_value->getDestinationId() != m_localAddress) {
-		APPL_ERROR("Protocol error ==> Wrong ID of the interface " << _value->getDestinationId() << " != " << m_localAddress);
+		ZEUS_ERROR("Protocol error ==> Wrong ID of the interface " << _value->getDestinationId() << " != " << m_localAddress);
 		answerProtocolError(transactionId, "wrong adress: request " + etk::to_string(m_localAddress) + " have " + etk::to_string(m_localAddress));
 		return;
 	}
@@ -103,7 +110,7 @@ bool zeus::Client::serviceAdd(const std::string& _serviceName, factoryService _f
 		ZEUS_ERROR("Can not provide a new sevice ... '" << futValidate.getErrorType() << "' help:" << futValidate.getErrorHelp());
 		return false;
 	}
-	m_listServicesAvaillable.add(std::make_pair(_serviceName, _factory));
+	m_listServicesAvaillable.insert(std::make_pair(_serviceName, _factory));
 	return true;
 }
 
