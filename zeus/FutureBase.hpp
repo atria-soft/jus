@@ -27,17 +27,17 @@ namespace zeus {
 			/**
 			 * @brief Contructor of the FutureBase with an ofserver
 			 * @param[in] _transactionId Transaction waiting answer
-			 * @param[in] _clientId Client/sevice Id waiting answer
+			 * @param[in] _source Client/sevice Id waiting answer
 			 */
-			FutureBase(uint32_t _transactionId, uint32_t _clientId=0);
+			FutureBase(uint32_t _transactionId, uint32_t _source=0);
 			/**
 			 * @brief Contructor of the FutureBase for direct error answer
 			 * @param[in] _transactionId Transaction waiting answer
 			 * @param[in] _isFinished set state finish or not
 			 * @param[in] _returnData Set return value
-			 * @param[in] _clientId Client/sevice Id waiting answer
+			 * @param[in] _source Source that is waiting for answer
 			 */
-			FutureBase(uint32_t _transactionId, ememory::SharedPtr<zeus::Buffer> _returnData, uint32_t _clientId=0);
+			FutureBase(uint32_t _transactionId, ememory::SharedPtr<zeus::Buffer> _returnData, uint32_t _source=0);
 			/**
 			 * @brief Attach callback on all return type of value
 			 * @param[in] _callback Handle on the function to call in all case
@@ -86,7 +86,7 @@ namespace zeus {
 			 * @brief Get the client Id of the Future
 			 * @return Client id requested or 0
 			 */
-			uint32_t getClientId() const;
+			uint32_t getSource() const;
 			/**
 			 * @brief check if the answer have an error
 			 * @return return true if an error is registered

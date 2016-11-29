@@ -75,8 +75,7 @@ void appl::Router::newClientGateWay(enet::Tcp _connection) {
 void appl::Router::newClient(enet::Tcp _connection) {
 	ZEUS_WARNING("New TCP connection (client)");
 	ememory::SharedPtr<appl::ClientInterface> tmp = ememory::makeShared<appl::ClientInterface>(std::move(_connection), this);
-	tmp->start(m_clientUID);
-	m_clientUID++;
+	tmp->start();
 	m_clientList.push_back(tmp);
 }
 
@@ -135,18 +134,6 @@ std::vector<std::string> appl::Router::getAllUserName() {
 }
 
 
-void appl::Router::answer(uint64_t _userSessionId, const ememory::SharedPtr<zeus::Buffer>& _data) {
-	for (auto &it : m_clientList) {
-		if (it == nullptr) {
-			continue;
-		}
-		if (it->checkId(_userSessionId) == false) {
-			continue;
-		}
-		it->returnMessage(_data);
-		return;
-	}
-}
 
 void appl::Router::cleanIO() {
 	

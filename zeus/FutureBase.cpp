@@ -17,16 +17,15 @@ zeus::FutureBase::FutureBase() {
 	m_data = nullptr;
 }
 
-zeus::FutureBase::FutureBase(uint32_t _transactionId, /*zeus::FutureData::ObserverFinish _callback, */uint32_t _clientId) {
+zeus::FutureBase::FutureBase(uint32_t _transactionId, uint32_t _source) {
 	m_data = ememory::makeShared<zeus::FutureData>();
 	if (m_data == nullptr) {
 		return;
 	}
 	m_data->m_sendTime = std::chrono::steady_clock::now();
 	m_data->m_transactionId = _transactionId;
-	m_data->m_clientId = _clientId;
+	m_data->m_source = _source;
 	m_data->m_isSynchronous = false;
-	//m_data->m_callbackFinish = _callback;
 }
 
 ememory::SharedPtr<zeus::Buffer> zeus::FutureBase::getRaw() {
@@ -36,29 +35,19 @@ ememory::SharedPtr<zeus::Buffer> zeus::FutureBase::getRaw() {
 	return m_data->m_returnData;
 }
 
-zeus::FutureBase::FutureBase(uint32_t _transactionId, ememory::SharedPtr<zeus::Buffer> _returnData, /*zeus::FutureData::ObserverFinish _callback, */uint32_t _clientId) {
+zeus::FutureBase::FutureBase(uint32_t _transactionId, ememory::SharedPtr<zeus::Buffer> _returnData, uint32_t _source) {
 	m_data = ememory::makeShared<zeus::FutureData>();
 	if (m_data == nullptr) {
 		return;
 	}
 	m_data->m_sendTime = std::chrono::steady_clock::now();
 	m_data->m_transactionId = _transactionId;
-	m_data->m_clientId = _clientId;
+	m_data->m_source = _source;
 	m_data->m_isSynchronous = false;
 	m_data->m_returnData = _returnData;
-	#if 0
-	m_data->m_callbackFinish = _callback;
-	if (isFinished() == true) {
-		m_data->m_receiveTime = std::chrono::steady_clock::now();
-		if (m_data->m_callbackFinish != nullptr) {
-			m_data->m_callbackFinish(*this);
-		}
-	}
-	#else
 	if (isFinished() == true) {
 		m_data->m_receiveTime = std::chrono::steady_clock::now();
 	}
-	#endif
 }
 
 void zeus::FutureBase::andAll(zeus::FutureData::Observer _callback) {
@@ -191,11 +180,11 @@ uint32_t zeus::FutureBase::getTransactionId() const {
 	return m_data->m_transactionId;
 }
 
-uint32_t zeus::FutureBase::getClientId() const {
+uint32_t zeus::FutureBase::getSource() const {
 	if (m_data == nullptr) {
 		return 0;
 	}
-	return m_data->m_clientId;
+	return m_data->m_source;
 }
 
 bool zeus::FutureBase::hasError() const {

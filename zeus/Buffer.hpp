@@ -175,13 +175,23 @@ namespace zeus {
 			/**
 			 * @brief Get the transaction identifier of the packet
 			 * @return value of the transaction
-			 */getTransactionId
+			 */
 			uint32_t getTransactionId() const;
 			/**
 			 * @brief Set the transaction identifier of the packet
 			 * @param[in] _value New transaction id
 			 */
 			void setTransactionId(uint32_t _value);
+			/**
+			 * @brief Get the Source handle (getSourceId()<<16 + getSourceObjectId())
+			 * @return Value of the Source handle
+			 */
+			uint32_t getSource() const;
+			/**
+			 * @brief Set the Source handle (getSourceId()<<16 + getSourceObjectId())
+			 * @param[in] _value New value of the Source handle
+			 */
+			void setSource(uint32_t _value);
 			/**
 			 * @brief Get the Source identifier of the packet
 			 * @return Value of the Source identifier
@@ -202,6 +212,16 @@ namespace zeus {
 			 * @param[in] _value New value of the Source Object identifier
 			 */
 			void setSourceObjectId(uint16_t _value);
+			/**
+			 * @brief Get the Destination handle (getDestinationId()<<16 + getDestinationObjectId())
+			 * @return Value of the Destination identifier
+			 */
+			uint32_t getDestination() const;
+			/**
+			 * @brief Set the Destination handle (getDestinationId()<<16 + getDestinationObjectId())
+			 * @param[in] _value New value of the Destination handle
+			 */
+			void setDestination(uint32_t _value);
 			/**
 			 * @brief Get the Destination identifier of the packet
 			 * @return Value of the Destination identifier

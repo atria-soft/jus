@@ -36,7 +36,6 @@ namespace appl {
 			ememory::SharedPtr<appl::GateWayInterface> get(const std::string& _userName);
 			
 			std::vector<std::string> getAllUserName();
-			void answer(uint64_t _userSessionId, const ememory::SharedPtr<zeus::Buffer>& _data);
 			void newClientGateWay(enet::Tcp _connection);
 			void newClient(enet::Tcp _connection);
 			void cleanIO();

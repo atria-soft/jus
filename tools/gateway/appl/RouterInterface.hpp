@@ -7,63 +7,40 @@
 
 #include <zeus/WebServer.hpp>
 #include <appl/GateWay.hpp>
-#include <appl/ServiceInterface.hpp>
+#include <appl/IOInterface.hpp>
 
 namespace appl {
 	class GateWay;
-	enum class clientState {
-		unconnect, // starting sate
-		connect, // zeust get a TCP connection
-		clientIdentify, // client defien the mode of the acces (anonymous,client/user)
-		disconnect // client is dead or loal disconnection
-	};
-	class userSpecificInterface {
+	class clientSpecificInterface : public appl::IOInterface {
 		public:
-			zeus::WebServer* m_interfaceRouterClient;
-			appl::GateWay* m_gatewayInterface;
-			uint64_t m_routeurUID;
-		private:
-			uint64_t m_uid;
-			uint64_t m_localIdUser;
+			zeus::WebServer* m_interfaceWeb;
 		public:
-			enum clientState m_state; // state machine ...
-			std::vector<ememory::SharedPtr<appl::ServiceInterface>> m_listConnectedService;
-			ememory::SharedPtr<appl::ServiceInterface> m_userService;
-			std::string m_userConnectionName;
 			std::string m_clientName;
-			std::vector<std::string> m_clientgroups;
-			std::vector<std::string> m_clientServices;
-			userSpecificInterface(const std::string& _userName);
-			~userSpecificInterface();
-			bool start(uint32_t _transactionId, appl::GateWay* _gatewayInterface, zeus::WebServer* _interfaceGateWayClient, uint64_t _routerId, uint64_t _id);
-			void onClientData(ememory::SharedPtr<zeus::Buffer> _value);
-			void returnMessage(ememory::SharedPtr<zeus::Buffer> _data);
-			bool checkId(uint64_t _id) const {
-				return    m_uid == _id
-				       || m_localIdUser == _id;
+			clientSpecificInterface();
+			~clientSpecificInterface();
+			bool start(appl::GateWay* _gateway, zeus::WebServer* _interfaceWeb, uint16_t _id);
+			void send(ememory::SharedPtr<zeus::Buffer> _data);
+			//void answerProtocolError(uint32_t _transactionId, const std::string& _errorHelp);
+			zeus::WebServer* getInterface() {
+				return m_interfaceWeb;
 			}
-			void answerProtocolError(uint32_t _transactionId, const std::string& _errorHelp);
 	};
+	
 	class RouterInterface {
 		private:
-			uint32_t m_clientUID;
-		private:
 			enum clientState m_state; // state machine ..
-			std::vector<userSpecificInterface> m_listUser;
+			std::vector<ememory::SharedPtr<clientSpecificInterface>> m_listClients;
 		private:
-			appl::GateWay* m_gatewayInterface;
-			zeus::WebServer m_interfaceRouterClient;
-			std::string m_userConnectionName;
+			appl::GateWay* m_gateway;
+			zeus::WebServer m_interfaceWeb;
 		public:
-			RouterInterface(const std::string& _ip, uint16_t _port, const std::string& _userName, appl::GateWay* _gatewayInterface);
+			RouterInterface(const std::string& _ip, uint16_t _port, std::string _userName, appl::GateWay* _gateway);
 			virtual ~RouterInterface();
 			void stop();
 			void onClientData(ememory::SharedPtr<zeus::Buffer> _value);
 			bool isAlive();
-			void answer(uint64_t _userSessionId, const ememory::SharedPtr<zeus::Buffer>& _data);
+			void send(const ememory::SharedPtr<zeus::Buffer>& _data);
 			void clean();
-			
-			
 	};
 }
 

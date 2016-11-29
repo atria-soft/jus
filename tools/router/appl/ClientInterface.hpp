@@ -8,32 +8,27 @@
 #include <zeus/WebServer.hpp>
 #include <appl/Router.hpp>
 #include <appl/GateWayInterface.hpp>
+#include <ememory/memory.hpp>
 
 namespace appl {
 	class Router;
-	class ClientInterface {
-		private:
-			enum class state {
-				unconnect, // starting sate
-				connect, // zeust get a TCP connection
-				disconnect // client is dead or loal disconnection
-			};
-			enum state m_state; // state machine ...
+	class GateWayInterface;
+	class ClientInterface : public ememory::EnableSharedFromThis<appl::ClientInterface> {
 		private:
 			appl::Router* m_routerInterface;
 			zeus::WebServer m_interfaceClient;
 			bool requestURI(const std::string& _uri);
 		public:
 			ememory::SharedPtr<appl::GateWayInterface> m_userGateWay;
-			uint64_t m_uid; //!< gateway unique ID ==> to have an internal routage ...
+			uint16_t m_uid; //!< gateway unique ID ==> to have an internal routage ...
 		public:
 			ClientInterface(enet::Tcp _connection, appl::Router* _routerInterface);
 			virtual ~ClientInterface();
-			void start(uint64_t _uid);
+			void start();
 			void stop();
 			void onClientData(ememory::SharedPtr<zeus::Buffer> _value);
-			void returnMessage(ememory::SharedPtr<zeus::Buffer> _data);
-			bool checkId(uint64_t _id) const {
+			void send(ememory::SharedPtr<zeus::Buffer> _data);
+			bool checkId(uint16_t _id) const {
 				return m_uid == _id;
 			}
 			bool isAlive();

@@ -326,14 +326,14 @@ namespace zeus {
 				
 			}
 			bool operator() (zeus::WebServer* _interface,
-			                 uint32_t _clientId,
-			                 uint32_t _serviceId,
+			                 uint32_t _source,
+			                 uint32_t _destination,
 			                 uint32_t _transactionId,
 			                 uint32_t _partId) {
 				ememory::SharedPtr<zeus::BufferData> answer = zeus::BufferData::create();
 				answer->setTransactionId(_transactionId);
-				answer->setClientId(_clientId);
-				answer->setServiceId(_serviceId);
+				answer->setSource(_source);
+				answer->setDestination(_destination);
 				answer->setPartId(_partId);
 				answer->setPartFinish(false);
 				int32_t tmpSize = ZEUS_MINIMUM_SIZE_MULTIPLE;
@@ -396,8 +396,8 @@ namespace zeus {
 				
 			}
 			bool operator() (zeus::WebServer* _interface,
-			                 uint32_t _clientId,
-			                 uint32_t _serviceId,
+			                 uint32_t _source,
+			                 uint32_t _destination,
 			                 uint32_t _transactionId,
 			                 uint32_t _partId) {
 				if (m_node.fileIsOpen() == false) {
@@ -405,8 +405,8 @@ namespace zeus {
 				}
 				ememory::SharedPtr<zeus::BufferData> answer = zeus::BufferData::create();
 				answer->setTransactionId(_transactionId);
-				answer->setClientId(_clientId);
-				answer->setServiceId(_serviceId);
+				answer->setSource(_source);
+				answer->setDestination(_destination);
 				answer->setPartId(_partId);
 				answer->setPartFinish(false);
 				int32_t tmpSize = ZEUS_MINIMUM_SIZE_MULTIPLE;

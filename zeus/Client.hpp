@@ -12,8 +12,10 @@
 
 #include <zeus/Future.hpp>
 #include <zeus/ServiceRemote.hpp>
+#include <zeus/Object.hpp>
 
 namespace zeus {
+	class Service;
 	/**
 	 * @brief Client interface to acces on the remote service and gateway
 	 */
@@ -23,10 +25,13 @@ namespace zeus {
 			eproperty::Value<std::string> propertyIp; //!< Ip of WebSocket TCP connection
 			eproperty::Value<uint16_t> propertyPort; //!< Port of the WebSocket connection
 		private:
+			uint16_t m_localAddress;
+			uint16_t m_licalIdObjectIncrement; //!< attribute a unique ID for an object
 			std::string m_clientName; //!< Local client name to generate the local serrvice name if needed (if direct connection ==> no name)
-			ememory::SharedPtr<zeus::WebServer> m_interfaceClient; //!< Interface on the Websocket interface
+			ememory::SharedPtr<zeus::WebServer> m_interfaceWeb; //!< Interface on the Websocket interface
 			std::vector<ememory::WeakPtr<zeus::ServiceRemoteBase>> m_listConnectedService; //!< Connect only one time on each service, not needed more.
 			std::vector<ememory::SharedPtr<zeus::Service>> m_listProvicedService; //!< Connect only one time on each service, not needed more.
+			std::vector<ememory::SharedPtr<zeus::Object>> m_listLocalObject;
 		public:
 			/**
 			 * @brief 
@@ -81,13 +86,17 @@ namespace zeus {
 			 * @return Pointer on an interface of remote service
 			 */
 			zeus::ServiceRemote getService(const std::string& _serviceName);
+			using factoryService = std::function<ememory::SharedPtr<zeus::Object>, zeus::Client&, uint16_t objId)>;
+			
+			std::map<std::string,factoryService> m_listServicesAvaillable; //!< list of all factory availlable
 			/**
 			 * @brief Provide a service with a specific name
 			 * @param[in] _serviceName Name of the service
 			 * @param[in] _service handle on the service provided
 			 * @return true if the service is acepted or false if not
 			 */
-			bool provideService(const std::string& _serviceName, ememory::SharedPtr<zeus::Service>& _service);
+			bool serviceAdd(const std::string& _serviceName, factoryService _factory);
+			bool serviceRemove(const std::string& _serviceName);
 		private:
 			/**
 			 * @brief When receive data from the websocket ... call this ...
@@ -101,17 +110,22 @@ namespace zeus {
 			 * @param[in] _args... multiple argument neededs
 			 * @return a future that will contain the aswer when receiveed (need to transmit over ethernet)
 			 */
-			 /*
 			template<class... _ARGS>
-			zeus::FutureBase call(const std::string& _functionName, _ARGS&&... _args) {
-				if (m_interfaceClient == nullptr) {
+			zeus::FutureBase call(uint16_t _srcObjectId,
+			                      uint32_t _destination,
+			                      const std::string& _functionName,
+			                      _ARGS&&... _args) {
+				if (m_interfaceWeb == nullptr) {
 					ememory::SharedPtr<zeus::BufferAnswer> ret = zeus::BufferAnswer::create();
 					ret->addError("NULLPTR", "call " + _functionName + " with no interface open");
 					return zeus::FutureBase(0, ret);
 				}
-				return m_interfaceClient->call(ZEUS_NO_ID_CLIENT, ZEUS_ID_SERVICE_ROOT, _functionName, _args...);
+				uint32_t source = (uint32_t(m_localAddress) << 16) + _srcObjectId;
+				return m_interfaceWeb->call(source, _destination, _functionName, _args...);
 			}
-			*/
+			uint16_t getlocalAddress() {
+				return m_localAddress;
+			}
 		private:
 			/**
 			 * @brief Internal (called when user change the Ip of the client interface)
@@ -121,6 +135,19 @@ namespace zeus {
 			 * @brief  Internal (called when user change the port of the client interface)
 			 */
 			void onPropertyChangePort();
+		public:
+			/**
+			 * @brief 
+			 * @param[in] 
+			 * @return 
+			 */
+			void pingIsAlive();
+			/**
+			 * @brief 
+			 * @param[in] 
+			 * @return 
+			 */
+			bool isAlive();
 	};
 }
 

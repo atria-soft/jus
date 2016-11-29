@@ -94,7 +94,6 @@ namespace zeus {
 			 */
 			template<class... _ARGS>
 			zeus::FutureBase call(const std::string& _functionName, _ARGS&&... _args) {
-				
 				if (    m_interface == nullptr
 				     || m_interface->m_interfaceClient == nullptr) {
 					ememory::SharedPtr<zeus::BufferAnswer> ret = zeus::BufferAnswer::create();
@@ -105,26 +104,6 @@ namespace zeus {
 				}
 				return m_interface->m_interfaceClient->call(ZEUS_NO_ID_CLIENT, m_interface->m_serviceId, _functionName, _args...);
 			}
-			/**
-			 * @brief 
-			 * @param[in] 
-			 * @return 
-			 */
-			// TODO: Remove the callback to add it in future with the "then(_callback)" and "else(_callback)" and "abort(_callbacl)" ...
-			/*
-			template<class... _ARGS>
-			zeus::FutureBase callAction(const std::string& _functionName, _ARGS&&... _args, zeus::FutureData::ObserverFinish _callback) {
-				if (    m_interface == nullptr
-				     || m_interface->m_interfaceClient == nullptr) {
-					ememory::SharedPtr<zeus::BufferAnswer> ret = zeus::BufferAnswer::create();
-					if (ret != nullptr) {
-						ret->addError("NULLPTR", "call " + _functionName + " with no interface open");
-					}
-					return zeus::FutureBase(0, ret, _callback);
-				}
-				return m_interface->m_interfaceClient->callServiceAction(ZEUS_NO_ID_CLIENT, m_interface->m_serviceId, _functionName, _args..., _callback);
-			}
-			*/
 	};
 	
 	

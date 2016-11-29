@@ -157,8 +157,17 @@ uint32_t zeus::Buffer::getTransactionId() const {
 	return m_header.transactionId;
 }
 
-void zeus::Buffer::settransactionId(uint16_t _value) {
+void zeus::Buffer::setTransactionId(uint32_t _value) {
 	m_header.transactionId = _value;
+}
+
+uint32_t zeus::Buffer::getSource() const {
+	return (uint32_t(m_header.sourceId) << 16) + m_header.sourceObjectId;
+}
+
+void zeus::Buffer::setSource(uint32_t _value) {
+	m_header.sourceId = _value >> 16;
+	m_header.sourceObjectId = _value & 0xFFFF;
 }
 
 uint16_t zeus::Buffer::getSourceId() const {
@@ -177,11 +186,20 @@ void zeus::Buffer::setSourceObjectId(uint16_t _value) {
 	m_header.sourceObjectId = _value;
 }
 
+uint32_t zeus::Buffer::getDestination() const {
+	return (uint32_t(m_header.destinationId) << 16) + m_header.destinationObjectId;
+}
+
+void zeus::Buffer::setDestination(uint32_t _value) {
+	m_header.destinationId = _value >> 16;
+	m_header.destinationObjectId = _value & 0xFFFF;
+}
+
 uint16_t zeus::Buffer::getDestinationId() const {
 	return m_header.destinationId;
 }
 
-void zeus::Buffer::setDestinationId(uint32_t _value) {
+void zeus::Buffer::setDestinationId(uint16_t _value) {
 	m_header.destinationId = _value;
 }
 
@@ -232,9 +250,9 @@ ememory::SharedPtr<zeus::Buffer> zeus::Buffer::create(const std::vector<uint8_t>
 				if (value == nullptr) {
 					return nullptr;
 				}
-				value->settransactionId(header.transactionId);
+				value->setTransactionId(header.transactionId);
 				value->setSourceId(header.sourceId);
-				value->setSourceOjectId(header.sourceObjectId);
+				value->setSourceObjectId(header.sourceObjectId);
 				value->setDestinationId(header.destinationId);
 				value->setDestinationObjectId(header.destinationObjectId);
 				value->setPartFinish((header.flags & ZEUS_BUFFER_FLAG_FINISH) != 0);
@@ -248,9 +266,9 @@ ememory::SharedPtr<zeus::Buffer> zeus::Buffer::create(const std::vector<uint8_t>
 				if (value == nullptr) {
 					return nullptr;
 				}
-				value->settransactionId(header.transactionId);
+				value->setTransactionId(header.transactionId);
 				value->setSourceId(header.sourceId);
-				value->setSourceOjectId(header.sourceObjectId);
+				value->setSourceObjectId(header.sourceObjectId);
 				value->setDestinationId(header.destinationId);
 				value->setDestinationObjectId(header.destinationObjectId);
 				value->setPartFinish((header.flags & ZEUS_BUFFER_FLAG_FINISH) != 0);
@@ -264,9 +282,9 @@ ememory::SharedPtr<zeus::Buffer> zeus::Buffer::create(const std::vector<uint8_t>
 				if (value == nullptr) {
 					return nullptr;
 				}
-				value->settransactionId(header.transactionId);
+				value->setTransactionId(header.transactionId);
 				value->setSourceId(header.sourceId);
-				value->setSourceOjectId(header.sourceObjectId);
+				value->setSourceObjectId(header.sourceObjectId);
 				value->setDestinationId(header.destinationId);
 				value->setDestinationObjectId(header.destinationObjectId);
 				value->setPartFinish((header.flags & ZEUS_BUFFER_FLAG_FINISH) != 0);
@@ -280,9 +298,9 @@ ememory::SharedPtr<zeus::Buffer> zeus::Buffer::create(const std::vector<uint8_t>
 				if (value == nullptr) {
 					return nullptr;
 				}
-				value->settransactionId(header.transactionId);
+				value->setTransactionId(header.transactionId);
 				value->setSourceId(header.sourceId);
-				value->setSourceOjectId(header.sourceObjectId);
+				value->setSourceObjectId(header.sourceObjectId);
 				value->setDestinationId(header.destinationId);
 				value->setDestinationObjectId(header.destinationObjectId);
 				value->setPartFinish((header.flags & ZEUS_BUFFER_FLAG_FINISH) != 0);

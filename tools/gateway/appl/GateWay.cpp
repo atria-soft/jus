@@ -7,6 +7,8 @@
 #include <appl/GateWay.hpp>
 #include <appl/debug.hpp>
 #include <enet/TcpServer.hpp>
+#include <appl/DirectInterface.hpp>
+#include <appl/RouterInterface.hpp>
 
 
 namespace appl {
@@ -61,18 +63,19 @@ namespace appl {
 
 void appl::GateWay::newService(enet::Tcp _connection) {
 	APPL_WARNING("New TCP connection (service)");
-	ememory::SharedPtr<appl::ServiceInterface> tmp = ememory::makeShared<appl::ServiceInterface>(std::move(_connection), this);
-	tmp->start();
-	m_serviceList.push_back(tmp);
+	ememory::SharedPtr<appl::DirectInterface> tmp = ememory::makeShared<appl::DirectInterface>(std::move(_connection));
+	tmp->start(this, m_idIncrement++);
+	m_listIODirect.push_back(tmp);
 }
 
 appl::GateWay::GateWay() :
+  m_idIncrement(10),
   propertyUserName(this, "user", "no-name", "User name of the interface"), // must be set befor start ...
   propertyRouterIp(this, "router-ip", "127.0.0.1", "Ip to listen client", &appl::GateWay::onPropertyChangeClientIp),
   propertyRouterPort(this, "router-port", 1984, "Port to listen client", &appl::GateWay::onPropertyChangeClientPort),
   propertyServiceIp(this, "service-ip", "127.0.0.1", "Ip to listen client", &appl::GateWay::onPropertyChangeServiceIp),
   propertyServicePort(this, "service-port", 1982, "Port to listen client", &appl::GateWay::onPropertyChangeServicePort),
-  propertyServiceMax(this, "service-max", 80, "Maximum of client at the same time", &appl::GateWay::onPropertyChangeServiceMax) {
+  propertyServiceMax(this, "service-max", 0x7FFF, "Maximum of client at the same time", &appl::GateWay::onPropertyChangeServiceMax) {
 	m_interfaceNewService = ememory::makeShared<appl::TcpServerInput>(this);
 }
 
@@ -90,7 +93,7 @@ void appl::GateWay::stop() {
 	m_routerClient.reset();
 	
 }
-
+/*
 ememory::SharedPtr<appl::ServiceInterface> appl::GateWay::get(const std::string& _serviceName) {
 	for (auto &it : m_serviceList) {
 		if (it == nullptr) {
@@ -103,40 +106,51 @@ ememory::SharedPtr<appl::ServiceInterface> appl::GateWay::get(const std::string&
 	}
 	return nullptr;
 }
+*/
 
 std::vector<std::string> appl::GateWay::getAllServiceName() {
 	std::vector<std::string> out;
+	// TODO : Change this it is old and deprecated ...
+	/*
 	for (auto &it : m_serviceList) {
 		if (it == nullptr) {
 			continue;
 		}
 		out.push_back(it->getName());
 	}
+	*/
 	return out;
 }
 
 
-void appl::GateWay::answer(uint64_t _userSessionId, const ememory::SharedPtr<zeus::Buffer>& _data) {
+void appl::GateWay::send(ememory::SharedPtr<zeus::Buffer> _data) {
+	APPL_TODO("Implement Send to a specific IO ...");
+	
+	
+	/*
 	if (m_routerClient != nullptr) {
 		m_routerClient->answer(_userSessionId, _data);
 	}
+	*/
 }
 
 void appl::GateWay::cleanIO() {
 	APPL_VERBOSE("Check if something need to be clean ...");
-	auto it = m_serviceList.begin();
-	while (it != m_serviceList.end()) {
+	/*
+	auto it = m_listIODirect.begin();
+	while (it != m_listIODirect.end()) {
 		if (*it != nullptr) {
 			if ((*it)->isAlive() == false) {
-				it = m_serviceList.erase(it);
+				it = m_listIODirect.erase(it);
 				continue;
 			}
 		} else {
-			it = m_serviceList.erase(it);
+			it = m_listIODirect.erase(it);
 			continue;
 		}
 		++it;
 	}
+	*/
 	if (m_routerClient != nullptr) {
 		m_routerClient->clean();
 	}

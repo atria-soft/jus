@@ -180,17 +180,17 @@ namespace zeus {
 			void onPropertyChangePort();
 			/**
 			 * @brief A extern client connect on specific user
-			 * @param[in] _clientId Source session Id on the client
+			 * @param[in] _sourceId Source session Id on the client
 			 * @param[in] _userName User name of the client to connect
 			 * @todo Set a relur like ==> service not availlable / service close / service maintenance / service right reject
 			 */
-			virtual void clientConnect(uint64_t _clientId, const std::string& _userName, const std::string& _clientName, const std::vector<std::string>& _groups) = 0;
+			virtual void clientConnect(uint16_t _sourceId, const std::string& _userName, const std::string& _clientName, const std::vector<std::string>& _groups) = 0;
 			/**
 			 * @brief 
 			 * @param[in] 
 			 * @return 
 			 */
-			virtual void clientDisconnect(uint64_t _clientId) = 0;
+			virtual void clientDisconnect(uint16_t _sourceId) = 0;
 			/**
 			 * @brief 
 			 * @param[in] 
@@ -246,14 +246,9 @@ namespace zeus {
 	template<class ZEUS_TYPE_SERVICE>
 	class ServiceType : public zeus::Service {
 		private:
-			std::function<ememory::SharedPtr<ZEUS_TYPE_SERVICE>(ememory::SharedPtr<ClientProperty>, const std::string&)> m_factory;
-		public:
-			ServiceType(std::function<ememory::SharedPtr<ZEUS_TYPE_SERVICE>(ememory::SharedPtr<ClientProperty>, const std::string&)> _factory) {
-				m_factory = _factory;
-			}
-		private:
 			// no need of shared_ptr or unique_ptr (if service die all is lost and is client die, the gateway notify us...)
-			std::map<uint64_t, std::pair<ememory::SharedPtr<ClientProperty>, ememory::SharedPtr<ZEUS_TYPE_SERVICE>>> m_interface;
+			ememory::SharedPtr<ClientProperty> m_property
+			ZEUS_TYPE_SERVICE m_interface;
 		public:
 			/**
 			 * @brief 
@@ -294,21 +289,25 @@ namespace zeus {
 			 * @return 
 			 */
 			bool isFunctionAuthorized(uint64_t _clientId, const std::string& _funcName) {
+				/*
 				auto it = m_interface.find(_clientId);
 				if (it == m_interface.end()) {
 					ZEUS_ERROR("CLIENT does not exist ... " << _clientId << "  " << _funcName);
 					return false;
 				}
 				return it->second.first->isFunctionAuthorized(_funcName);
+				*/
+				return true;
 			}
 			/**
 			 * @brief 
 			 * @param[in] 
 			 * @return 
 			 */
-			void clientConnect(uint64_t _clientId, const std::string& _userName, const std::string& _clientName, const std::vector<std::string>& _groups) {
+			/*
+			void clientConnect(uint16_t _sourceId, const std::string& _userName, const std::string& _clientName, const std::vector<std::string>& _groups) {
 				std::unique_lock<std::mutex> lock(m_mutex);
-				ZEUS_DEBUG("connect: " << _clientId << " to '" << _userName << "'");
+				ZEUS_DEBUG("connect: " << _sourceId << " to '" << _userName << "'");
 				ZEUS_DEBUG("    client name='" << _clientName << "'");
 				ZEUS_DEBUG("    groups=" << etk::to_string(_groups));
 				ememory::SharedPtr<ClientProperty> tmpProperty = ememory::makeShared<ClientProperty>(_clientName, _groups);
@@ -318,7 +317,7 @@ namespace zeus {
 				} else {
 					ZEUS_ERROR("Create service with no factory");
 				}
-				m_interface.insert(std::make_pair(_clientId, std::make_pair(tmpProperty, tmpSrv)));
+				m_interface.insert(std::make_pair(_sourceId, std::make_pair(tmpProperty, tmpSrv)));
 				// enable list of function availlable:
 				for (auto &it : m_listFunction) {
 					if (it == nullptr) {
@@ -327,61 +326,70 @@ namespace zeus {
 					tmpProperty->addAuthorized(it->getName());
 				}
 			}
+			*/
 			/**
 			 * @brief 
 			 * @param[in] 
 			 * @return 
 			 */
-			void clientDisconnect(uint64_t _clientId) {
+			/*
+			void clientDisconnect(uint16_t _sourceId) {
 				std::unique_lock<std::mutex> lock(m_mutex);
-				ZEUS_DEBUG("disconnect: " << _clientId);
-				auto it = m_interface.find(_clientId);
+				ZEUS_DEBUG("disconnect: " << _sourceId);
+				auto it = m_interface.find(_sourceId);
 				if (it == m_interface.end()) {
-					ZEUS_WARNING("disconnect ==> Not find Client ID " << _clientId);
+					ZEUS_WARNING("disconnect ==> Not find Client ID " << _sourceId);
 					// noting to do ==> user never conected.
 					return;
 				}
 				m_interface.erase(it);
 			}
+			*/
 			/**
 			 * @brief 
 			 * @param[in] 
 			 * @return 
 			 */
-			void clientSetName(uint64_t _clientId, const std::string& _clientName) {
+			/*
+			void clientSetName(uint16_t _sourceId, const std::string& _clientName) {
 				std::unique_lock<std::mutex> lock(m_mutex);
-				auto it = m_interface.find(_clientId);
+				auto it = m_interface.find(_sourceId);
 				if (it == m_interface.end()) {
 					ZEUS_ERROR("Change the client property but client was not created ...");
 					return;
 				}
 				it->second.first->setName(_clientName);
 			}
+			*/
 			/**
 			 * @brief 
 			 * @param[in] 
 			 * @return 
 			 */
-			void clientSetGroup(uint64_t _clientId, const std::vector<std::string>& _clientGroups) {
+			/*
+			void clientSetGroup(uint16_t _sourceId, const std::vector<std::string>& _clientGroups) {
 				std::unique_lock<std::mutex> lock(m_mutex);
-				auto it = m_interface.find(_clientId);
+				auto it = m_interface.find(_sourceId);
 				if (it == m_interface.end()) {
 					ZEUS_ERROR("Change the client property but client was not created ...");
 					return;
 				}
 				it->second.first->setGroups(_clientGroups);
 			}
+			*/
 			/**
 			 * @brief 
 			 * @param[in] 
 			 * @return 
 			 */
 			void callBinary2(const std::string& _call, ememory::SharedPtr<zeus::BufferCall> _obj) {
-				auto it = m_interface.find(_obj->getClientId());
+				/*
+				auto it = m_interface.find(_obj->getSourceId());
 				if (it == m_interface.end()) {
-					m_interfaceClient->answerError(_obj->getTransactionId(), _obj->getClientId(), _obj->getServiceId(), "CLIENT-UNKNOW", "");
+					m_interfaceClient->answerError(_obj->getTransactionId(), _obj->getDestination(), _obj->getSource(), "CLIENT-UNKNOW", "");
 					return;
 				}
+				*/
 				for (auto &it2 : m_listFunction) {
 					if (it2 == nullptr) {
 						continue;
@@ -391,8 +399,9 @@ namespace zeus {
 					}
 					switch (it2->getType()) {
 						case zeus::AbstractFunction::type::object: {
-							ZEUS_TYPE_SERVICE* elem = it->second.second.get();
-							it2->execute(m_interfaceClient, _obj, (void*)elem);
+							//ZEUS_TYPE_SERVICE* elem = it->second.second.get();
+							//it2->execute(m_interfaceClient, _obj, (void*)elem);
+							it2->execute(m_interfaceClient, _obj, (void*)m_interface);
 							return;
 						}
 						case zeus::AbstractFunction::type::local: {
@@ -412,7 +421,7 @@ namespace zeus {
 							break;
 					}
 				}
-				m_interfaceClient->answerError(_obj->getTransactionId(), _obj->getClientId(), _obj->getServiceId(), "FUNCTION-UNKNOW", "");
+				m_interfaceClient->answerError(_obj->getTransactionId(), _obj->getDestination(), _obj->getSource(), "FUNCTION-UNKNOW", "");
 				return;
 			}
 	};

@@ -17,7 +17,6 @@
 static const std::string protocolError = "PROTOCOL-ERROR";
 
 appl::ClientInterface::ClientInterface(enet::Tcp _connection, appl::Router* _routerInterface) :
-  m_state(appl::ClientInterface::state::unconnect),
   m_routerInterface(_routerInterface),
   m_interfaceClient(std::move(_connection), true) {
 	APPL_INFO("----------------");
@@ -49,21 +48,19 @@ bool appl::ClientInterface::requestURI(const std::string& _uri) {
 	}
 	// TODO : Remove subParameters xxx?YYY
 	m_userGateWay = m_routerInterface->get(tmpURI);
+	APPL_INFO("Connect on client done : '" << tmpURI << "'");
 	if (m_userGateWay == nullptr) {
 		APPL_ERROR("Can not connect on Client ==> it does not exist ...");
 		return false;
 	}
-	APPL_INFO("Connect on client done : '" << tmpURI << "'");
 	return true;
 }
 
-void appl::ClientInterface::start(uint64_t _uid) {
-	m_uid = _uid;
-	m_state = appl::ClientInterface::state::connect;
+void appl::ClientInterface::start() {
 	m_interfaceClient.connect(this, &appl::ClientInterface::onClientData);
 	m_interfaceClient.connectUri(this, &appl::ClientInterface::requestURI);
 	m_interfaceClient.connect(true);
-	m_interfaceClient.setInterfaceName("cli-" + etk::to_string(m_uid));
+	m_interfaceClient.setInterfaceName("cli-");
 }
 
 void appl::ClientInterface::stop() {
@@ -78,7 +75,6 @@ bool appl::ClientInterface::isAlive() {
 
 void appl::ClientInterface::answerProtocolError(uint32_t _transactionId, const std::string& _errorHelp) {
 	m_interfaceClient.answerError(_transactionId, 0, 0, protocolError, _errorHelp);
-	m_state = appl::ClientInterface::state::disconnect;
 	m_interfaceClient.disconnect(true);
 }
 
@@ -87,60 +83,59 @@ void appl::ClientInterface::onClientData(ememory::SharedPtr<zeus::Buffer> _value
 	if (_value == nullptr) {
 		return;
 	}
-	//APPL_ERROR("receive data : " << _value);
+	// check transaction ID != 0
 	uint32_t transactionId = _value->getTransactionId();
 	if (transactionId == 0) {
 		APPL_ERROR("Protocol error ==>missing id");
 		answerProtocolError(transactionId, "missing parameter: 'id'");
 		return;
 	}
-	if (_value->getClientId() != 0) {
-		APPL_ERROR("Protocol error ==> client ID != 0");
-		answerProtocolError(transactionId, "clent ID is != 0");
+	// check correct SourceID
+	if (_value->getSourceId() != m_uid) {
+		answerProtocolError(transactionId, "message with the wrong source ID");
 		return;
 	}
-	// Directly send to the user-GateWay
+	// Check gateway corectly connected
 	if (m_userGateWay == nullptr) {
-		APPL_ERROR("USER is not existing ...");
 		answerProtocolError(transactionId, "GateWay error");
-		// TODO : Need to kill socket ...
 		return;
 	}
-	// Special case for data, they are transiting messages ...
-	if (_value->getType() != zeus::Buffer::typeMessage::data) {
-		auto fut = m_userGateWay->m_interfaceClient.callForward(m_uid, _value, (uint64_t(m_uid) << 32) + uint64_t(transactionId));
-		fut.andAll([=](zeus::FutureBase _ret) {
-		           		ememory::SharedPtr<zeus::Buffer> tmpp = _ret.getRaw();
-		           		if (tmpp == nullptr) {
-		           			return true;
-		           		}
-		           		APPL_DEBUG("    ==> transmit : " << tmpp->getTransactionId() << " -> " << transactionId);
-		           		APPL_DEBUG("    msg=" << tmpp);
-		           		tmpp->setTransactionId(transactionId);
-		           		tmpp->setClientId(0);
-		           		APPL_DEBUG("transmit=" << tmpp);
-		           		m_interfaceClient.writeBinary(tmpp);
-		           		// multiple send element ...
-		           		return tmpp->getPartFinish();
-		           });
+	// TODO: Special hook for the first call that we need to get the curretn ID of the connection, think to set this at an other position ...
+	if (m_uid == 0) {
+		APPL_INFO("special case, we need to get the ID Of the client:");
+		if (_value->getType() != zeus::Buffer::typeMessage::call) {
+			answerProtocolError(transactionId, "Must get first the Client ID... call 'getAddress'");
+			return;
+		}
+		ememory::SharedPtr<zeus::BufferCall> callObj = ememory::staticPointerCast<zeus::BufferCall>(_value);
+		if (callObj->getCall() != "getAddress") {
+			answerProtocolError(transactionId, "Must get first the Client ID... call 'getAddress' and not '" + callObj->getCall() + "'");
+			return;
+		}
+		APPL_INFO("Get the unique ID...");
+		m_uid = m_userGateWay->addClient(sharedFromThis());
+		APPL_INFO("get ID : " << m_uid);
+		if (m_uid == 0) {
+			answerProtocolError(transactionId, "Can not get the Client ID...");
+			return;
+		}
+		m_interfaceClient.setInterfaceName("cli-" + etk::to_string(m_uid));
+		m_interfaceClient.answerValue(transactionId, _value->getDestination(), _value->getSource(), m_uid);
 	} else {
-		// simply forward messages to the user gateWay ...
-		m_userGateWay->m_interfaceClient.callForwardMultiple(
-		    m_uid,
-		    _value,
-		    (uint64_t(m_uid) << 32) + uint64_t(transactionId));
-		// TODO : Check errors ...
+		// send data to the gateway
+		m_userGateWay->send(_value);
 	}
 }
 
-void appl::ClientInterface::returnMessage(ememory::SharedPtr<zeus::Buffer> _data) {
+void appl::ClientInterface::send(ememory::SharedPtr<zeus::Buffer> _data) {
 	if (_data == nullptr) {
 		return;
 	}
+	m_interfaceClient.writeBinary(_data);
+	/*
 	if (_data->getType() == zeus::Buffer::typeMessage::ctrl) {
 		std::string value = static_cast<zeus::BufferCtrl*>(_data.get())->getCtrl();
 		if (value == "DISCONNECT") {
-			m_state = appl::ClientInterface::state::disconnect;
 			m_interfaceClient.disconnect(true);
 			return;
 		}
@@ -148,5 +143,6 @@ void appl::ClientInterface::returnMessage(ememory::SharedPtr<zeus::Buffer> _data
 		return;
 	}
 	APPL_ERROR("Get call from the Service to the user ... " << _data);
+	*/
 }
 

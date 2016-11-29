@@ -12,7 +12,9 @@
 
 zeus::Client::Client() :
   propertyIp(this, "ip", "127.0.0.1", "Ip to connect server", &zeus::Client::onPropertyChangeIp),
-  propertyPort(this, "port", 1983, "Port to connect server", &zeus::Client::onPropertyChangePort) {
+  propertyPort(this, "port", 1983, "Port to connect server", &zeus::Client::onPropertyChangePort),
+  m_localAddress(0),
+  m_licalIdObjectIncrement(1) {
 	
 }
 
@@ -25,6 +27,7 @@ void zeus::Client::onClientData(ememory::SharedPtr<zeus::Buffer> _value) {
 		return;
 	}
 	// TODO : We will receive here some notification and call ...like : 
+	/*
 	if (call && id = 0 && objectid == 0) {
 		we will have :
 		if call == "ValidateConnection"
@@ -32,7 +35,88 @@ void zeus::Client::onClientData(ememory::SharedPtr<zeus::Buffer> _value) {
 		local name like clientname::subID (if multiple connection in parallele)
 		... and after we can do many thing like provide servies ...
 	}
+	*/
+	// TODO: all the basic checks ...
+	
+	if (_value == nullptr) {
+		return;
+	}
+	//APPL_ERROR("    ==> parse DATA ...");
+	uint32_t transactionId = _value->getTransactionId();
+	if (transactionId == 0) {
+		APPL_ERROR("Protocol error ==>missing id");
+		answerProtocolError(transactionId, "missing parameter: 'id'");
+		return;
+	}
+	// Check if we are the destinated Of this message 
+	if (_value->getDestinationId() != m_localAddress) {
+		APPL_ERROR("Protocol error ==> Wrong ID of the interface " << _value->getDestinationId() << " != " << m_localAddress);
+		answerProtocolError(transactionId, "wrong adress: request " + etk::to_string(m_localAddress) + " have " + etk::to_string(m_localAddress));
+		return;
+	}
+	if (_value->getDestinationObjectId() == ZEUS_ID_GATEWAY_OBJECT) {
+		if (_value->getType() == zeus::Buffer::typeMessage::call) {
+			ememory::SharedPtr<zeus::BufferCall> callObj = ememory::staticPointerCast<zeus::BufferCall>(_value);
+			std::string callFunction = callObj->getCall();
+			if (    callFunction != "link"
+			     && callFunction != "unlink") {
+				answerProtocolError(transactionId, "interact with client, musty only call: link/unlink");
+				return;
+			}
+			if (callFunction != "link") {
+				// link with a specific service:
+				std::string serviceName = callObj->getParameter<std::string>(0);
+				for (auto &it : m_listServicesAvaillable) {
+					if (it.first == serviceName) {
+						ZEUS_INFO("find service : " << it.first);
+						// TODO: ...
+						// Check if it is not already connected to this service, if it is true ==> reject IT
+						
+						// Create new service object
+						
+						ememory::SharedPtr<zeus::Object> newService = it.second(*this, m_licalIdObjectIncrement);
+						// TODO : Do it better ...
+						
+						m_listLocalObject.push_back(newService);
+						// Return the Value of the object service .... this is really bad, Maybe add a message type for this...
+						m_interfaceWeb->answerValue(transactionId, _value->getDestination(), _value->getSource(), (uint32_t(m_localAddress)<<16)+m_licalIdObjectIncrement );
+						m_licalIdObjectIncrement++;
+						return;
+					}
+				}
+				m_interfaceWeb->answerError(transactionId, _value->getDestination(), _value->getSource(), "UNKNOW-SERVICE");
+			}
+		}
+		m_interfaceWeb->answerError(transactionId, _value->getDestination(), _value->getSource(), "UNKNOW-ACTION");
+		return;
+	}
+	// find the object to communicate the adress to send value ...
+	
 	ZEUS_ERROR("Get Data On the Communication interface that is not understand ... : " << _value);
+}
+
+bool zeus::Client::serviceAdd(const std::string& _serviceName, factoryService _factory) {
+	// Check if we can provide new service:
+	zeus::Future<bool> futValidate = m_interfaceWeb->call(m_localAddress, ZEUS_GATEWAY_ADDRESS, "serviceAdd", _serviceName);
+	futValidate.wait(); // TODO: Set timeout ...
+	if (futValidate.hasError() == true) {
+		ZEUS_ERROR("Can not provide a new sevice ... '" << futValidate.getErrorType() << "' help:" << futValidate.getErrorHelp());
+		return false;
+	}
+	m_listServicesAvaillable.add(std::make_pair(_serviceName, _factory));
+	return true;
+}
+
+bool zeus::Client::serviceRemove(const std::string& _serviceName) {
+	// Check if we can provide new service:
+	zeus::Future<bool> futValidate = m_interfaceWeb->call(m_localAddress, ZEUS_GATEWAY_ADDRESS, "serviceRemove", _serviceName);
+	futValidate.wait(); // TODO: Set timeout ...
+	if (futValidate.hasError() == true) {
+		ZEUS_ERROR("Can not provide a new sevice ... '" << futValidate.getErrorType() << "' help:" << futValidate.getErrorHelp());
+		return false;
+	}
+	ZEUS_TODO("remove service : " << _serviceName);
+	return true;
 }
 
 zeus::ServiceRemote zeus::Client::getService(const std::string& _name) {
@@ -48,7 +132,7 @@ zeus::ServiceRemote zeus::Client::getService(const std::string& _name) {
 			return zeus::ServiceRemote(val);
 		}
 	}
-	ememory::SharedPtr<zeus::ServiceRemoteBase> tmp = ememory::makeShared<zeus::ServiceRemoteBase>(m_interfaceClient, _name);
+	ememory::SharedPtr<zeus::ServiceRemoteBase> tmp = ememory::makeShared<zeus::ServiceRemoteBase>(m_interfaceWeb, _name);
 	m_listConnectedService.push_back(tmp);
 	return zeus::ServiceRemote(tmp);
 }
@@ -66,17 +150,25 @@ bool zeus::Client::connectTo(const std::string& _address) {
 	ZEUS_DEBUG("connect [START]");
 	disconnect();
 	enet::Tcp connection = std::move(enet::connectTcpClient(*propertyIp, *propertyPort));
-	m_interfaceClient = ememory::makeShared<zeus::WebServer>();
-	if (m_interfaceClient == nullptr) {
+	m_interfaceWeb = ememory::makeShared<zeus::WebServer>();
+	if (m_interfaceWeb == nullptr) {
 		ZEUS_ERROR("Allocate connection error");
 		return false;
 	}
 	ZEUS_WARNING("Request connect user " << _address);
-	m_interfaceClient->connect(this, &zeus::Client::onClientData);
-	m_interfaceClient->setInterface(std::move(connection), false, _address);
-	m_interfaceClient->connect();
+	m_interfaceWeb->connect(this, &zeus::Client::onClientData);
+	m_interfaceWeb->setInterface(std::move(connection), false, _address);
+	m_interfaceWeb->connect();
+	
+	zeus::Future<uint16_t> retIdentify = call(0, ZEUS_ID_GATEWAY, "getAddress").wait();
+	if (retIdentify.hasError() == true) {
+		disconnect();
+		return false;
+	}
+	m_localAddress = retIdentify.get();
+	
 	/*
-	ZEUS_WARNING("Request connect user " << _address);
+	ZEUS_WARNING("Now, we get information relative with our name and adress" << _address);
 	zeus::Future<bool> ret = call("connectToUser", _address, "zeus-client");
 	ret.wait();
 	if (ret.hasError() == true) {
@@ -97,11 +189,11 @@ bool zeus::Client::connectTo(const std::string& _address) {
 }
 
 bool zeus::Client::connect() {
-	bool ret = connectTo("srvIO");
+	bool ret = connectTo("directIO");
 	if (ret==false) {
 		return false;
 	}
-	zeus::Future<bool> retIdentify = call("anonymous").wait();
+	zeus::Future<bool> retIdentify = call(0, ZEUS_ID_GATEWAY, "service").wait();
 	if (retIdentify.hasError() == true) {
 		disconnect();
 		return false;
@@ -118,7 +210,7 @@ bool zeus::Client::connect(const std::string& _address) {
 	if (ret==false) {
 		return false;
 	}
-	zeus::Future<bool> retIdentify = call("anonymous").wait();
+	zeus::Future<bool> retIdentify = call(0, ZEUS_ID_GATEWAY, "anonymous").wait();
 	if (retIdentify.hasError() == true) {
 		disconnect();
 		return false;
@@ -135,7 +227,7 @@ bool zeus::Client::connect(const std::string& _address, const std::string& _user
 	if (ret==false) {
 		return false;
 	}
-	zeus::Future<bool> retIdentify = call("auth", _userPassword).wait();
+	zeus::Future<bool> retIdentify = call(0, ZEUS_ID_GATEWAY, "auth", _userPassword).wait();
 	if (retIdentify.hasError() == true) {
 		disconnect();
 		return false;
@@ -152,7 +244,7 @@ bool zeus::Client::connect(const std::string& _address, const std::string& _clie
 	if (ret==false) {
 		return false;
 	}
-	zeus::Future<bool> retIdentify = call("identify", _clientName, _clientTocken).wait();
+	zeus::Future<bool> retIdentify = call(0, ZEUS_ID_GATEWAY, "identify", _clientName, _clientTocken).wait();
 	if (retIdentify.hasError() == true) {
 		disconnect();
 		return false;
@@ -165,11 +257,25 @@ bool zeus::Client::connect(const std::string& _address, const std::string& _clie
 
 void zeus::Client::disconnect() {
 	ZEUS_DEBUG("disconnect [START]");
-	if (m_interfaceClient != nullptr) {
-		m_interfaceClient->disconnect();
-		m_interfaceClient.reset();
+	if (m_interfaceWeb != nullptr) {
+		m_interfaceWeb->disconnect();
+		m_interfaceWeb.reset();
 	} else {
 		ZEUS_VERBOSE("Nothing to disconnect ...");
 	}
 	ZEUS_DEBUG("disconnect [STOP]");
 }
+
+bool zeus::Client::isAlive() {
+	if (m_interfaceWeb == nullptr) {
+		return false;
+	}
+	return m_interfaceWeb->isActive();
+}
+
+void zeus::Client::pingIsAlive() {
+	if (std::chrono::steady_clock::now() - m_interfaceWeb->getLastTimeSend() >= std::chrono::seconds(30)) {
+		m_interfaceWeb->ping();
+	}
+}
+

@@ -14,7 +14,12 @@
 
 //#define ZEUS_NO_ID_CLIENT (0xFFFFFFFF)
 #define ZEUS_NO_ID_CLIENT (0x00000000)
+#define ZEUS_NO_ID_OBJECT (0x00000000)
 #define ZEUS_ID_SERVICE_ROOT (0x00000000)
+#define ZEUS_ID_GATEWAY (0x00000000)
+#define ZEUS_ID_GATEWAY_OBJECT (0x0000)
+#define ZEUS_GATEWAY_ADDRESS (0x00000000)
+
 
 namespace zeus {
 	/**
@@ -22,7 +27,7 @@ namespace zeus {
 	 * @param[in] 
 	 * @return 
 	 */
-	ememory::SharedPtr<zeus::BufferCall> createBaseCall(uint64_t _transactionId, const uint32_t& _clientId, const uint32_t& _serviceId, const std::string& _functionName);
+	ememory::SharedPtr<zeus::BufferCall> createBaseCall(uint64_t _transactionId, const uint32_t& _source, const uint32_t& _destination, const std::string& _functionName);
 	/**
 	 * @brief 
 	 * @param[in] 
@@ -64,8 +69,8 @@ namespace zeus {
 	 * @return 
 	 */
 	template<class... _ARGS>
-	ememory::SharedPtr<zeus::BufferCall> createCall(uint64_t _transactionId, const uint32_t& _clientId, const uint32_t& _serviceId, const std::string& _functionName, _ARGS&&... _args) {
-		ememory::SharedPtr<zeus::BufferCall> callElem = createBaseCall(_transactionId, _clientId, _serviceId, _functionName);
+	ememory::SharedPtr<zeus::BufferCall> createCall(uint64_t _transactionId, const uint32_t& _source, const uint32_t& _destination, const std::string& _functionName, _ARGS&&... _args) {
+		ememory::SharedPtr<zeus::BufferCall> callElem = createBaseCall(_transactionId, _source, _destination, _functionName);
 		if (callElem == nullptr) {
 			return nullptr;
 		}
@@ -253,18 +258,19 @@ namespace zeus {
 			 * @return 
 			 */
 			template<class... _ARGS>
-			zeus::FutureBase call(const uint32_t& _clientId, const uint32_t& _serviceId, const std::string& _functionName, _ARGS&&... _args) {
+			zeus::FutureBase call(const uint32_t& _source, const uint32_t& _destination, const std::string& _functionName, _ARGS&&... _args) {
 				uint16_t id = getId();
-				ememory::SharedPtr<zeus::BufferCall> callElem = zeus::createCall(id, _clientId, _serviceId, _functionName, std::forward<_ARGS>(_args)...);
+				ememory::SharedPtr<zeus::BufferCall> callElem = zeus::createCall(id, _source, _destination, _functionName, std::forward<_ARGS>(_args)...);
 				return callBinary(id, callElem);
 			}
 		public:
+		#if 0
 			/**
 			 * @brief 
 			 * @param[in] 
 			 * @return 
 			 */
-			zeus::FutureBase callForward(uint32_t _clientId,
+			zeus::FutureBase callForward(uint32_t _source,
 			                             ememory::SharedPtr<zeus::Buffer> _Buffer,
 			                             uint64_t _singleReferenceId);
 			/**
@@ -272,9 +278,10 @@ namespace zeus {
 			 * @param[in] 
 			 * @return 
 			 */
-			void callForwardMultiple(uint32_t _clientId,
+			void callForwardMultiple(uint32_t _source,
 			                         ememory::SharedPtr<zeus::Buffer> _Buffer,
 			                         uint64_t _singleReferenceId);
+		#endif
 		public: // answers ...
 			/**
 			 * @brief 
@@ -287,38 +294,39 @@ namespace zeus {
 			 * @brief Send an Answer of a function with single value
 			 * @param[in] _clientTransactionId Transaction ID
 			 * @param[in] _value ... Value to return
-			 * @param[in] _clientId Client to send control
+			 * @param[in] _srcObjectId Client to send control
 			 */
 			template<class ZEUS_ARG>
-			void answerValue(uint64_t _clientTransactionId, uint32_t _clientId, uint32_t _serviceId, ZEUS_ARG _value) {
+			void answerValue(uint32_t _clientTransactionId, uint32_t _source, uint32_t _destination, ZEUS_ARG _value) {
 				ememory::SharedPtr<zeus::BufferAnswer> answer = zeus::BufferAnswer::create();
 				answer->setTransactionId(_clientTransactionId);
-				answer->setClientId(_clientId);
+				answer->setSource(_source);
+				answer->setDestination(_destination);
 				answer->addAnswer(_value);
 				writeBinary(answer);
 			}
 			/**
 			 * @brief Send an Answer value (no value to set ==> void return of function)
 			 * @param[in] _clientTransactionId Transaction ID
-			 * @param[in] _clientId Client to send control
+			 * @param[in] _srcObjectId Client to send control
 			 */
-			void answerVoid(uint64_t _clientTransactionId, uint32_t _clientId, uint32_t _serviceId);
+			void answerVoid(uint32_t _clientTransactionId, uint32_t _source, uint32_t _destination);
 			/**
 			 * @brief Send an Answer error of a function
 			 * @param[in] _clientTransactionId Transaction ID
 			 * @param[in] _errorValue Value of the error
 			 * @param[in] _errorComment Help comment of the error
-			 * @param[in] _clientId Client to send control
+			 * @param[in] _srcObjectId Client to send control
 			 */
-			void answerError(uint64_t _clientTransactionId, uint32_t _clientId, uint32_t _serviceId, const std::string& _errorValue, const std::string& _errorComment="");
+			void answerError(uint32_t _clientTransactionId, uint32_t _source, uint32_t _destination, const std::string& _errorValue, const std::string& _errorComment="");
 			/**
 			 * @brief  Send a control on the Interface
-			 * @param[in] _clientTransactionId Transaction ID
-			 * @param[in] _ctrlValue Value of the control
-			 * @param[in] _clientId Client to send control
+			 * @param[in] _source Source of the message
+			 * @param[in] _destination Destination of the message
+			 * @param[in] _ctrlValue Control to send
 			 * @return 
 			 */
-			void sendCtrl(uint32_t _clientId, uint32_t _serviceId, const std::string& _ctrlValue);
+			void sendCtrl(uint32_t _source, uint32_t _destination, const std::string& _ctrlValue);
 	};
 }
 

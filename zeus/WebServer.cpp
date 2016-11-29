@@ -11,13 +11,13 @@
 #include <zeus/BufferCtrl.hpp>
 
 
-ememory::SharedPtr<zeus::BufferCall> zeus::createBaseCall(uint64_t _transactionId, const uint32_t& _clientId, const uint32_t& _serviceId, const std::string& _functionName) {
+ememory::SharedPtr<zeus::BufferCall> zeus::createBaseCall(uint64_t _transactionId, const uint32_t& _source, const uint32_t& _destination, const std::string& _functionName) {
 	ememory::SharedPtr<zeus::BufferCall> obj = zeus::BufferCall::create();
 	if (obj == nullptr) {
 		return nullptr;
 	}
-	obj->setServiceId(_serviceId);
-	obj->setClientId(_clientId);
+	obj->setSource(_source);
+	obj->setDestination(_destination);
 	obj->setCall(_functionName);
 	obj->setTransactionId(_transactionId);
 	return obj;
@@ -118,22 +118,22 @@ class SendAsyncBinary {
 	private:
 		std::vector<zeus::ActionAsyncClient> m_async;
 		uint64_t m_transactionId;
-		uint32_t m_clientId;
-		uint32_t m_serviceId;
+		uint32_t m_source;
+		uint32_t m_destination;
 		uint32_t m_partId;
 	public:
-		SendAsyncBinary(uint64_t _transactionId, const uint32_t& _clientId, const uint32_t& _serviceId, std::vector<zeus::ActionAsyncClient> _async) :
+		SendAsyncBinary(uint64_t _transactionId, const uint32_t& _source, const uint32_t& _destination, std::vector<zeus::ActionAsyncClient> _async) :
 		  m_async(std::move(_async)),
 		  m_transactionId(_transactionId),
-		  m_clientId(_clientId),
-		  m_serviceId(_serviceId),
+		  m_source(_source),
+		  m_destination(_destination),
 		  m_partId(1) {
 			
 		}
 		bool operator() (zeus::WebServer* _interface){
 			auto it = m_async.begin();
 			while (it != m_async.end()) {
-				bool ret = (*it)(_interface, m_clientId, m_serviceId, m_transactionId, m_partId);
+				bool ret = (*it)(_interface, m_source, m_destination, m_transactionId, m_partId);
 				if (ret == true) {
 					// Remove it ...
 					it = m_async.erase(it);
@@ -148,8 +148,8 @@ class SendAsyncBinary {
 					return true;
 				}
 				//obj->setInterfaceId(m_interfaceId);
-				obj->setClientId(m_clientId);
-				obj->setServiceId(m_serviceId);
+				obj->setSource(m_source);
+				obj->setDestination(m_destination);
 				obj->setTransactionId(m_transactionId);
 				obj->setPartId(m_partId);
 				obj->setPartFinish(true);
@@ -176,7 +176,7 @@ int32_t zeus::WebServer::writeBinary(ememory::SharedPtr<zeus::Buffer> _obj) {
 	if (_obj->writeOn(m_connection) == true) {
 		m_connection.send();
 		if (_obj->haveAsync() == true) {
-			addAsync(SendAsyncBinary(_obj->getTransactionId(), _obj->getClientId(), _obj->getServiceId(), std::move(_obj->moveAsync())));
+			addAsync(SendAsyncBinary(_obj->getTransactionId(), _obj->getSource(), _obj->getDestination(), std::move(_obj->moveAsync())));
 		}
 		return 1;
 	}
@@ -322,7 +322,7 @@ void zeus::WebServer::threadAsyncCallback() {
 
 zeus::FutureBase zeus::WebServer::callBinary(uint64_t _transactionId,
                                              ememory::SharedPtr<zeus::Buffer> _obj,
-                                             const uint32_t& _serviceId) {
+                                             const uint32_t& _destination) {
 	if (isActive() == false) {
 		ZEUS_ERROR("Send [STOP] ==> not connected (no TCP)");
 		ememory::SharedPtr<zeus::BufferAnswer> obj = zeus::BufferAnswer::create();
@@ -337,8 +337,8 @@ zeus::FutureBase zeus::WebServer::callBinary(uint64_t _transactionId,
 	writeBinary(_obj);
 	return tmpFuture;
 }
-
-zeus::FutureBase zeus::WebServer::callForward(uint32_t _clientId,
+/*
+zeus::FutureBase zeus::WebServer::callForward(uint16_t _srcObjectId,
                                               ememory::SharedPtr<zeus::Buffer> _buffer,
                                               uint64_t _singleReferenceId) {
 	//zeus::FutureBase ret = callBinary(id, _Buffer, async, _callback);
@@ -351,7 +351,7 @@ zeus::FutureBase zeus::WebServer::callForward(uint32_t _clientId,
 	}
 	uint64_t id = getId();
 	_buffer->setTransactionId(id);
-	_buffer->setClientId(_clientId);
+	_buffer->setClientId(_srcObjectId);
 	zeus::FutureBase tmpFuture(id);
 	tmpFuture.setSynchronous();
 	{
@@ -362,7 +362,7 @@ zeus::FutureBase zeus::WebServer::callForward(uint32_t _clientId,
 	return tmpFuture;
 }
 
-void zeus::WebServer::callForwardMultiple(uint32_t _clientId,
+void zeus::WebServer::callForwardMultiple(uint16_t _srcObjectId,
                                           ememory::SharedPtr<zeus::Buffer> _buffer,
                                           uint64_t _singleReferenceId){
 	if (_buffer == nullptr) {
@@ -375,47 +375,48 @@ void zeus::WebServer::callForwardMultiple(uint32_t _clientId,
 		if (itCall.first == _singleReferenceId) {
 			// Find element ==> transmit it ...
 			_buffer->setTransactionId(itCall.second.getTransactionId());
-			_buffer->setClientId(_clientId);
+			_buffer->setClientId(_srcObjectId);
 			writeBinary(_buffer);
 			return;
 		}
 	}
 	ZEUS_ERROR("Can not transfer part of a message ...");
 }
+*/
 
-void zeus::WebServer::sendCtrl(uint32_t _clientId, uint32_t _serviceId, const std::string& _ctrlValue) {
+void zeus::WebServer::sendCtrl(uint32_t _source, uint32_t _destination, const std::string& _ctrlValue) {
 	auto ctrl = zeus::BufferCtrl::create();
 	if (ctrl == nullptr) {
 		return;
 	}
 	ctrl->setTransactionId(getId());
-	ctrl->setClientId(_clientId);
-	ctrl->setServiceId(_serviceId);
+	ctrl->setSource(_source);
+	ctrl->setDestination(_destination);
 	ctrl->setCtrl(_ctrlValue);
 	writeBinary(ctrl);
 }
 
-void zeus::WebServer::answerError(uint64_t _clientTransactionId, uint32_t _clientId, uint32_t _serviceId, const std::string& _errorValue, const std::string& _errorHelp) {
+void zeus::WebServer::answerError(uint32_t _clientTransactionId, uint32_t _source, uint32_t _destination, const std::string& _errorValue, const std::string& _errorHelp) {
 	auto answer = zeus::BufferAnswer::create();
 	if (answer == nullptr) {
 		return;
 	}
 	answer->setTransactionId(_clientTransactionId);
-	answer->setClientId(_clientId);
-	answer->setServiceId(_serviceId);
+	answer->setSource(_source);
+	answer->setDestination(_destination);
 	answer->addError(_errorValue, _errorHelp);
 	writeBinary(answer);
 }
 
 
-void zeus::WebServer::answerVoid(uint64_t _clientTransactionId, uint32_t _clientId, uint32_t _serviceId) {
+void zeus::WebServer::answerVoid(uint32_t _clientTransactionId, uint32_t _source, uint32_t _destination) {
 	auto answer = zeus::BufferAnswer::create();
 	if (answer == nullptr) {
 		return;
 	}
 	answer->setTransactionId(_clientTransactionId);
-	answer->setClientId(_clientId);
-	answer->setServiceId(_serviceId);
+	answer->setSource(_source);
+	answer->setDestination(_destination);
 	answer->addParameter();
 	writeBinary(answer);
 }

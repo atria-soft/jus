@@ -73,10 +73,10 @@ int main(int _argc, const char *_argv[]) {
 	APPL_INFO("    ----------------------------------");
 	APPL_INFO("    -- Get service count");
 	APPL_INFO("    ----------------------------------");
-	zeus::Future<int32_t> retNbService = client1.call("getServiceCount");
+	zeus::Future<int32_t> retNbService = client1.call(ZEUS_NO_ID_OBJECT, ZEUS_ID_GATEWAY, "getServiceCount");
 	retNbService.wait();
 	APPL_INFO("Nb services = " << retNbService.get());
-	zeus::Future<std::vector<std::string>> retServiceList = client1.call("getServiceList");
+	zeus::Future<std::vector<std::string>> retServiceList = client1.call(ZEUS_NO_ID_OBJECT, ZEUS_ID_GATEWAY, "getServiceList");
 	retServiceList.wait();
 	APPL_INFO("List services:");
 	for (auto &it: retServiceList.get()) {
@@ -145,7 +145,7 @@ int main(int _argc, const char *_argv[]) {
 	APPL_INFO("    ----------------------------------");
 	APPL_INFO("    -- Get service picture");
 	APPL_INFO("    ----------------------------------");
-	if (true) {
+	if (false) {
 		zeus::service::ProxyPicture remoteServicePicture = client1.getService("picture");
 		if (remoteServicePicture.exist() == true) {
 			zeus::Future<std::vector<std::string>> retCall = remoteServicePicture.getAlbums().wait();

@@ -22,7 +22,7 @@ namespace zeus {
 			using Observer = std::function<bool(zeus::FutureBase)>; //!< Define an Observer: function pointer
 		public:
 			uint32_t m_transactionId; //!< waiting answer data
-			uint32_t m_clientId; //!< need to anser at this client.
+			uint32_t m_source; //!< Source of the message.
 			bool m_isSynchronous; //!< the future is synchronous. (call when receive data)
 			ememory::SharedPtr<zeus::Buffer> m_returnData; //!< all buffer concatenate or last buffer if synchronous
 			Observer m_callbackThen; //!< observer callback When data arrive and NO error appear

@@ -29,8 +29,10 @@ def configure(target, my_module):
 	my_module.add_depend(['zeus'])
 	my_module.add_src_file([
 	    'appl/debug.cpp',
+	    'appl/IOInterface.cpp',
 	    'appl/RouterInterface.cpp',
-	    'appl/ServiceInterface.cpp',
+	    #'appl/ServiceInterface.cpp',
+	    'appl/DirectInterface.cpp',
 	    'appl/GateWay.cpp',
 	    'appl/main.cpp'
 	    ])

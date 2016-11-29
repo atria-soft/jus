@@ -16,6 +16,7 @@
 #include <thread>
 #include <etk/stdTools.hpp>
 #include <zeus/Service.hpp>
+#include <zeus/Client.hpp>
 #include <zeus/zeus.hpp>
 
 typedef bool (*SERVICE_IO_init_t)(int _argc, const char *_argv[], std::string _basePath);
@@ -29,6 +30,7 @@ class PlugginAccess {
 		SERVICE_IO_init_t m_SERVICE_IO_init;
 		SERVICE_IO_uninit_t m_SERVICE_IO_uninit;
 		SERVICE_IO_instanciate_t m_SERVICE_IO_instanciate;
+		zeus::Client m_client;
 		zeus::Service* m_srv;
 	public:
 		PlugginAccess(const std::string& _name) :
@@ -96,19 +98,20 @@ class PlugginAccess {
 			return m_srv != nullptr;
 		}
 		bool connect(std::string _ip, uint16_t _port) {
+			if (_ip != "") {
+				m_client.propertyIp.set(_ip);
+			}
+			if (_port != 0) {
+				m_client.propertyPort.set(_port);
+			}
+			if (m_client.connect() == false) {
+				return false;
+			}
+			
 			if (m_srv == nullptr) {
 				return false;
 			}
-			if (_ip != "") {
-				m_srv->propertyIp.set(_ip);
-			}
-			if (_port != 0) {
-				m_srv->propertyPort.set(_port);
-			}
-			if (m_srv->connect() == false) {
-				return false;
-			}
-			if (m_srv->GateWayAlive() == false) {
+			if (m_client.isAlive() == false) {
 				APPL_INFO("===========================================================");
 				APPL_INFO("== ZEUS service: " << *m_srv->propertyNameService << " [STOP] Can not connect to the GateWay");
 				APPL_INFO("===========================================================");
@@ -122,16 +125,17 @@ class PlugginAccess {
 			if (m_srv == nullptr) {
 				return false;
 			}
-			if (m_srv->GateWayAlive() == true) {
-				m_srv->pingIsAlive();
+			if (m_client.isAlive() == true) {
+				m_client.pingIsAlive();
 			}
-			return m_srv->GateWayAlive();
+			return m_client.isAlive();
 		}
 		bool disconnect() {
+			m_client.disconnect();
+			
 			if (m_srv == nullptr) {
 				return false;
 			}
-			m_srv->disconnect();
 			APPL_INFO("===========================================================");
 			APPL_INFO("== ZEUS service: " << *m_srv->propertyNameService << " [STOP] GateWay Stop");
 			APPL_INFO("===========================================================");

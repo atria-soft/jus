@@ -38,7 +38,7 @@ namespace zeus {
 			ret = (*_pointer.*_func)(_obj->getParameter<ZEUS_TYPES>(idParam--)...);
 		}
 		_interfaceClient->addAsync([=](WebServer* _interface) {
-			    _interface->answerValue(_obj->getTransactionId(), _obj->getClientId(), _obj->getServiceId(), ret);
+			    _interface->answerValue(_obj->getTransactionId(), _obj->getDestination(), _obj->getSource(), ret);
 			    return true;
 			});
 	}
@@ -67,7 +67,7 @@ namespace zeus {
 			(*_pointer.*_func)(_obj->getParameter<ZEUS_TYPES>(idParam--)...);
 		}
 		_interfaceClient->addAsync([=](WebServer* _interface) {
-			    _interface->answerVoid(_obj->getTransactionId(), _obj->getClientId(), _obj->getServiceId());
+			    _interface->answerVoid(_obj->getTransactionId(), _obj->getDestination(), _obj->getSource());
 			    return true;
 			});
 	}
@@ -122,8 +122,8 @@ namespace zeus {
 					help += " parameters. prototype function:";
 					help += getPrototype();
 					_interfaceClient->answerError(_obj->getTransactionId(),
-					                              _obj->getClientId(),
-					                              _obj->getServiceId(),
+					                              _obj->getDestination(),
+					                              _obj->getSource(),
 					                              "WRONG-PARAMETER-NUMBER",
 					                              help);
 					return;
@@ -132,8 +132,8 @@ namespace zeus {
 				for (size_t iii=0; iii<sizeof...(ZEUS_TYPES); ++iii) {
 					if (checkCompatibility(m_paramType[iii], _obj->getParameterType(iii)) == false) {
 						_interfaceClient->answerError(_obj->getTransactionId(),
-						                              _obj->getClientId(),
-						                              _obj->getServiceId(),
+						                              _obj->getDestination(),
+						                              _obj->getSource(),
 						                              "WRONG-PARAMETER-TYPE",
 						                              std::string("Parameter id ") + etk::to_string(iii) + " not compatible with type: '" + m_paramType[iii].getName() + "'");
 						return;

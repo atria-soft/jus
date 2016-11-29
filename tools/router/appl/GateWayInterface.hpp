@@ -12,10 +12,11 @@ namespace appl {
 	class Router;
 	class ClientInterface;
 	class GateWayInterface {
-		friend class appl::ClientInterface;
 		private:
 			appl::Router* m_routerInterface;
 			zeus::WebServer m_interfaceClient;
+			uint16_t m_lastSourceID; //!< The source dynbamic generated ID is manage in 2 part the value <= 0x7FFF is used by the gateway and the value >= 0x8000 is manage by the router
+			std::vector<ememory::SharedPtr<appl::ClientInterface>> m_clientConnected;
 			std::string m_name;
 			bool requestURI(const std::string& _uri);
 		public:
@@ -25,7 +26,9 @@ namespace appl {
 			void stop();
 			void onServiceData(ememory::SharedPtr<zeus::Buffer> _value);
 		public:
-			void SendData(uint64_t _userSessionId, ememory::SharedPtr<zeus::Buffer> _data);
+			uint16_t addClient(ememory::SharedPtr<appl::ClientInterface> _value);
+			void rmClient(ememory::SharedPtr<appl::ClientInterface> _value);
+			void send(ememory::SharedPtr<zeus::Buffer> _data);
 			const std::string& getName() {
 				return m_name;
 			}
