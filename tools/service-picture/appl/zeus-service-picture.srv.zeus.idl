@@ -1,7 +1,7 @@
-#srv-brief: picture interface management
-#srv-version: 1.0
-#srv-type:PICTURE
-#srv-author:Heero Yui<yui.heero@gmail.com
+#elem-brief: picture interface management
+#elem-version: 1.0
+#elem-type:PICTURE
+#elem-author:Heero Yui<yui.heero@gmail.com
 
 
 vector:string getAlbums()

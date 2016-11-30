@@ -1,7 +1,7 @@
-#srv-brief: video interface management
-#srv-version: 1.0
-#srv-type:VIDEO
-#srv-author:Heero Yui<yui.heero@gmail.com>
+#elem-brief: video interface management
+#elem-version: 1.0
+#elem-type:VIDEO
+#elem-author:Heero Yui<yui.heero@gmail.com>
 
 vector:string getAlbums()
 vector:string getSubAlbums(string)

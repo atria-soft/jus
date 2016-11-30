@@ -32,7 +32,7 @@ def configure(target, my_module):
 	    ])
 	
 	zeus_macro = macro.load_macro('zeus')
-	zeus_macro.parse_service_idl(my_module, 'appl/zeus-service-video.zeus.idl')
+	zeus_macro.parse_service_idl(my_module, 'appl/zeus-service-video.srv.zeus.idl')
 	#module_zeus = target.get_module('zeus')
 	#module_zeus.parse_service_idl(my_module, 'appl/zeus-service-video.zeus.idl')
 	

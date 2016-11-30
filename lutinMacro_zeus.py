@@ -64,6 +64,77 @@ def remove_start_stop_spacer(data):
 	return dataout
 
 
+class AttributeDefinition:
+	def __init__(self):
+		self.name = "";
+		self.brief = "";
+		self.type = "";
+	
+	def set_name(self, name):
+		self.name = remove_start_stop_spacer(name);
+	
+	def set_brief(self, desc):
+		self.name = "";
+		self.brief = remove_start_stop_spacer(desc);
+		self.type = "";
+	
+	def set_type(self, type):
+		self.type = remove_start_stop_spacer(type);
+	
+	def display(self):
+		debug.info("       BRIEF: " + self.brief)
+		debug.info("       " + self.type + " " + self.name + ";")
+	
+	def generate_doxy_get(self, space):
+		out = ""
+		out += space + "/**\n"
+		out += space + " * @brief Get parameter " + self.brief + "\n"
+		out += space + " * @return Requested parameter\n"
+		out += space + " */\n"
+		return out
+	
+	def generate_doxy_set(self, space):
+		out = ""
+		out += space + "/**\n"
+		out += space + " * @brief Set parameter " + self.brief + "\n"
+		out += space + " * @param[in] _value New parameter value\n"
+		out += space + " */\n"
+		return out
+	
+	def generate_cpp(self, space):
+		out = "";
+		# TODO : Set it in protected
+		out += space + convert_type_in_cpp(self.type) + " m_" + self.name + "; //!<" + self.brief + "\n"
+		# TODO: set it in public ...
+		out += self.generate_doxy_get(space)
+		out += space + "virtual " + convert_type_in_cpp(self.type) + " get" + self.name.title() + "() {\n"
+		out += space + "	return m_" + self.name.title() + ";\n"
+		out += space + "}\n"
+		out += self.generate_doxy_set(space)
+		out += space + "virtual void set" + self.name.title() + "(" + convert_type_in_cpp(self.type) + " _value);\n"
+		out += space + "	m_" + self.name.title() + " = _value;\n"
+		out += space + "}\n"
+		return out;
+		
+	def generate_hpp_proxy(self, space):
+		out = "";
+		out += self.generate_doxy_get(space)
+		out += space + "virtual zeus::Future<" + convert_type_in_cpp(self.type) + "> get" + self.name.title() + "();\n"
+		out += self.generate_doxy_set(space)
+		out += space + "virtual zeus::Future<void> set" + self.name.title() + "(" + convert_type_in_cpp(self.type) + " _value);\n"
+		return out;
+	
+	def generate_cpp_proxy(self, space, class_name):
+		out = "";
+		out += space + "zeus::Future<" + convert_type_in_cpp(self.type) + "> " + class_name + "::get" + self.name.title() + "() {\n"
+		out += space + '	return m_srv.call("' + self.name + '.get");\n'
+		out += space + "}\n"
+		out += space + "zeus::Future<void> " + class_name + "::set" + self.name.title() + "(" + convert_type_in_cpp(self.type) + " _value) {\n"
+		out += space + '	return m_srv.call("' + self.name + '.set", _value);\n'
+		out += space + "}\n"
+		return out;
+
+
 class FunctionDefinition:
 	def __init__(self):
 		self.name = "";
@@ -210,6 +281,7 @@ class FunctionDefinition:
 		space = space[:-1]
 		return out;
 
+
 class ServiceDefinition:
 	def __init__(self):
 		self.name = [""];
@@ -217,6 +289,7 @@ class ServiceDefinition:
 		self.version = "";
 		self.api = "";
 		self.authors = []
+		self.attributes = []
 		self.functions = []
 	
 	def set_name(self, value):
@@ -237,7 +310,12 @@ class ServiceDefinition:
 		self.authors.append(remove_start_stop_spacer(value))
 	
 	def add_function(self, value):
+		# TODO : Check if function already exist
 		self.functions.append(value)
+	
+	def add_attribute(self, value):
+		# TODO : Check if attribute already exist
+		self.attributes.append(value)
 	
 	def display(self):
 		debug.info("Display service definition : ")
@@ -291,6 +369,9 @@ class ServiceDefinition:
 		out += space + " * @brief Generic virtual destructor\n"
 		out += space + " */\n"
 		out += space + "virtual ~" + self.name[-1] + "() = default;\n"
+		
+		for elem in self.attributes:
+			out += elem.generate_cpp(space)
 		
 		for elem in self.functions:
 			out += elem.generate_cpp(space)
@@ -415,17 +496,6 @@ class ServiceDefinition:
 		out += space + 'ZEUS_INFO("===========================================================");\n';
 		out += space + 'ZEUS_INFO("== Instanciate service: ' + self.name[-1] + '");\n';
 		out += space + 'ZEUS_INFO("===========================================================");\n';
-		"""
-		zeus::ServiceType<appl::SystemService> _serviceInterface([](ememory::SharedPtr<zeus::ClientProperty> _client){
-		                                                        	return ememory::makeShared<appl::SystemService>(_client);
-		                                                        });
-		if (_ip != "") {
-			_serviceInterface.propertyIp.set(_ip);
-		}
-		if (_port != 0) {
-			_serviceInterface.propertyPort.set(_port);
-		}
-		"""
 		#out += space + '_serviceInterface.propertyNameService.set("' + self.name[-1].lower() + '");\n'
 		if self.brief != "":
 			out += space + '_serviceInterface.setDescription("' + self.brief + '");\n';
@@ -437,12 +507,25 @@ class ServiceDefinition:
 			out += space + '_serviceInterface.addAuthor("' + elem.split("<")[0] + '", "' + elem.split("<")[1].replace(">","") + '");\n';
 		if len(self.functions) != 0:
 			out += space + "zeus::AbstractFunction* func = nullptr;\n"
+		for elem in self.attributes:
+			out += space + 'func = _serviceInterface.advertise("' + elem.name.title() + '.set", &' + class_name + '::set' + elem.name.title() + ');\n'
+			out += space + 'if (func != nullptr) {\n'
+			space += "	"
+			if elem.brief != "":
+				out += space + 'func->setDescription("Set parameter ' + elem.brief + '");\n'
+			out += space + '}\n'
+			out += space + 'func = _serviceInterface.advertise("' + elem.name.title() + '.get", &' + class_name + '::get' + elem.name.title() + ');\n'
+			out += space + 'if (func != nullptr) {\n'
+			space += "	"
+			if elem.brief != "":
+				out += space + 'func->setDescription("Get parameter ' + elem.brief + '");\n'
+			out += space + '}\n'
 		for elem in self.functions:
 			out += space + 'func = _serviceInterface.advertise("' + elem.name + '", &' + class_name + '::' + elem.name + ');\n'
 			out += space + 'if (func != nullptr) {\n'
 			space += "	"
 			if elem.brief != "":
-				out += space + 'func->setDescription("' + elem.name + '");\n'
+				out += space + 'func->setDescription("' + elem.brief + '");\n'
 			for elem_p in elem.parameters:
 				if     elem_p["name"] == "" \
 				   and elem_p["brief"] == "":
@@ -527,6 +610,8 @@ class ServiceDefinition:
 		out += space + " */\n"
 		out += space + "virtual ~" + self.name[-1] + "() = default;\n"
 		"""
+		for elem in self.attributes:
+			out += elem.generate_hpp_proxy(space)
 		for elem in self.functions:
 			out += elem.generate_hpp_proxy(space)
 		
@@ -559,21 +644,37 @@ class ServiceDefinition:
 		out += "#include <" + filename.replace(".cpp",".hpp") + ">\n"
 		out += "\n"
 		
+		for elem in self.attributes:
+			out += elem.generate_cpp_proxy("", class_name)
+		
 		for elem in self.functions:
 			out += elem.generate_cpp_proxy("", class_name)
 		return [filename, out]
 	
 
 
-def tool_generate_idl(target, module, data_path):
+def tool_generate_idl(target, module, data_option):
+	data_path = data_option["path"]
 	debug.debug("Parsing .zeus.idl [start] " + str(data_path))
 	name_file = os.path.basename(data_path)
-	if len(name_file) < 9 \
+	if     len(name_file) < 9 \
 	   and name_file[-9:] != ".zeus.idl":
 		debug.error("IDL must have an extention ended with '.zeus.idl' and not with '" + name_file[-9:] + "'")
+	elem_name = ""
+	if     len(name_file) >= 13 \
+	   and name_file[-13:] == ".srv.zeus.idl":
+		elem_name = name_file[:-13]
+	elif     len(name_file) >= 16 \
+	     and name_file[-16:] == ".struct.zeus.idl":
+		elem_name = name_file[:-16]
+	elif     len(name_file) >= 13 \
+	     and name_file[-13:] == ".obj.zeus.idl":
+		elem_name = name_file[:-13]
+	else:
+		debug.error("IDL must have an extention ended with '(struct|obj|srv).zeus.idl' and not with '" + name_file + "'")
 	
 	service_def = ServiceDefinition()
-	service_def.set_name(name_file[:-9].split("-"))
+	service_def.set_name(elem_name.split("-"))
 	data = tools.file_read_data(os.path.join(module.get_origin_path(), data_path))
 	if len(data) == 0:
 		debug.error("Can not parse zeus.idl ==> no data in the file, or no file : " + os.path.join(module.get_origin_path(), data_path))
@@ -584,6 +685,7 @@ def tool_generate_idl(target, module, data_path):
 	id_line = 0
 	multi_comment = False
 	current_def = FunctionDefinition()
+	current_attr = AttributeDefinition()
 	for line in data.split("\n"):
 		id_line += 1;
 		if len(line) == 0:
@@ -631,6 +733,7 @@ def tool_generate_idl(target, module, data_path):
 				debug.extreme_verbose("    BRIEF: '" + doc_data + "'")
 				current_def = FunctionDefinition()
 				current_def.set_brief(doc_data)
+				current_attr.set_brief(doc_data)
 			elif doc_keyword == "#param:":
 				debug.extreme_verbose("    PARAMETER: '" + doc_data + "'")
 				# TODO : Do it better ...
@@ -638,31 +741,31 @@ def tool_generate_idl(target, module, data_path):
 			elif doc_keyword == "#return:":
 				debug.extreme_verbose("    RETURN: '" + doc_data + "'")
 				current_def.set_return_comment(doc_data)
-			elif doc_keyword == "#srv-brief:":
+			elif doc_keyword == "#elem-brief:":
 				debug.extreme_verbose("    SRV-BRIEF: '" + doc_data + "'")
 				service_def.set_brief(doc_data)
-			elif doc_keyword == "#srv-version:":
+			elif doc_keyword == "#elem-version:":
 				debug.extreme_verbose("    SRV-VERSION: '" + doc_data + "'")
 				service_def.set_version(doc_data)
-			elif doc_keyword == "#srv-type:":
+			elif doc_keyword == "#elem-type:":
 				debug.extreme_verbose("    SRV-TYPE: '" + doc_data + "'")
 				service_def.set_api(doc_data)
-			elif doc_keyword == "#srv-author:":
+			elif doc_keyword == "#elem-author:":
 				debug.extreme_verbose("    SRV-AUTHOR: '" + doc_data + "'")
 				service_def.add_author(doc_data)
 			else:
 				debug.warning("line " + str(id_line) + " ==> Unknow: keyword: '" + doc_keyword + "'")
-				debug.error("        support only: '#brief:' '#param:' '#return:' '#srv-brief:' '#srv-version:' '#srv-type:' '#srv-author:'")
+				debug.error("        support only: '#brief:' '#param:' '#return:' '#elem-brief:' '#elem-version:' '#elem-type:' '#elem-author:'")
 			continue
-		debug.extreme_verbose("Need to parse the fucntion line:")
+		debug.extreme_verbose("Need to parse the fucntion/attribute line:")
 		debug.extreme_verbose("    '" + line + "'")
-		if True:
-			if line[-1] != ")":
-				debug.error("line " + str(id_line) + " Can not parse function the line dos not ended by a ')'")
+		if line[-1] == ")":
+			# Find a fundtion ==> parse it
+			#debug.error("line " + str(id_line) + " Can not parse function the line dos not ended by a ')'")
 			#get first part (befor '('):
 			list_elems = line.split("(")
 			if len(list_elems) <= 1:
-				debug.error("line " + str(id_line) + " fucntion parsing error missing the '(' element")
+				debug.error("line " + str(id_line) + " function parsing error missing the '(' element")
 			fist_part = list_elems[0].replace("   ", " ").replace("  ", " ").replace("  ", " ")
 			argument_list = list_elems[1].replace("   ", "").replace("  ", "").replace(" ", "")[:-1]
 			if len(argument_list) != 0:
@@ -690,7 +793,21 @@ def tool_generate_idl(target, module, data_path):
 			for elem in argument_list:
 				current_def.add_parameter_type(elem)
 			service_def.add_function(current_def)
-			current_def = FunctionDefinition()
+		else:
+			# if must be a simple element separate with a space
+			if len(line.split("(")) != 1:
+				debug.error("line " + str(id_line) + " Can not parse function the line does not ended by a ')'")
+			elem = line.split(" ")
+			if len(elem) != 2:
+				debug.error("line " + str(id_line) + " Can not parse attribute must be constituated with the type and the name")
+			if elem[0] not in get_list_type():
+				debug.error("line " + str(id_line) + " Attribute type unknow : '" + elem[0] + "' not in " + str(get_list_type()))
+			current_attr.set_type(elem[0]);
+			current_attr.set_name(elem[1]);
+			service_def.add_attribute(current_attr)
+		# reset it ...
+		current_def = FunctionDefinition()
+		current_attr = AttributeDefinition()
 	if multi_comment == True:
 		debug.error("reach end of file and missing end of multi-line comment */")
 	debug.verbose("Parsing idl Done (no error ...)")
@@ -725,7 +842,13 @@ def tool_generate_idl(target, module, data_path):
 
 
 def parse_service_idl(module, idl_path):
-	module.add_action(tool_generate_idl, data=idl_path)
+	module.add_action(tool_generate_idl, data={"path":idl_path, "type":"service"})
+
+def parse_object_idl(module, idl_path):
+	module.add_action(tool_generate_idl, data={"path":idl_path, "type":"object"})
+
+def parse_struct_idl(module, idl_path):
+	module.add_action(tool_generate_idl, data={"path":idl_path, "type":"struct"})
 
 
 
