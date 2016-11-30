@@ -17,6 +17,7 @@
  * @brief Main zeus library namespace
  */
 namespace zeus {
+	class Client;
 	/**
 	 * @brief 
 	 * @param[in] 
@@ -27,22 +28,24 @@ namespace zeus {
 			std::mutex m_mutex;
 		protected:
 			ememory::SharedPtr<zeus::WebServer> m_interfaceClient;
-			uint16_t m_ObjectId;
+			uint16_t m_clientId;
+			uint16_t m_objectId;
 			std::vector<zeus::FutureBase> m_callMultiData;
 		public:
+			uint16_t getObjectId() { return m_objectId; }
 			/**
 			 * @brief 
 			 * @param[in] 
 			 * @return 
 			 */
-			Object();
+			Object(zeus::Client* _client, uint16_t _objectId);
 			/**
 			 * @brief 
 			 * @param[in] 
 			 * @return 
 			 */
 			virtual ~Object();
-		private:
+		public:
 			/**
 			 * @brief 
 			 * @param[in] 
@@ -100,6 +103,11 @@ namespace zeus {
 	class ObjectType : public zeus::Object {
 		private:
 			ememory::SharedPtr<ZEUS_TYPE_OBJECT> m_interface; // direct handle on the data;
+		public:
+			ObjectType(zeus::Client* _client, uint16_t _objectId, uint16_t _clientId) :
+			  Object(_client, _objectId) {
+				m_interface = ememory::makeShared<ZEUS_TYPE_OBJECT>(_clientId);
+			}
 		public:
 			/**
 			 * @brief 

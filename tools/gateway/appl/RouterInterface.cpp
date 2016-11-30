@@ -315,7 +315,7 @@ appl::RouterInterface::RouterInterface(const std::string& _ip, uint16_t _port, s
   m_gateway(_gateway),
   m_interfaceWeb() {
 	APPL_INFO("----------------------------------------");
-	APPL_INFO("-- NEW Connection to GateWay Font-end --");
+	APPL_INFO("-- NEW Connection to the ROUTER       --");
 	APPL_INFO("----------------------------------------");
 	enet::Tcp connection = std::move(enet::connectTcpClient(_ip, _port));
 	if (connection.getConnectionStatus() != enet::Tcp::status::link) {
@@ -325,7 +325,7 @@ appl::RouterInterface::RouterInterface(const std::string& _ip, uint16_t _port, s
 	m_interfaceWeb.setInterface(std::move(connection), false, _userName);
 	m_interfaceWeb.connect(this, &appl::RouterInterface::onClientData);
 	m_interfaceWeb.connect(true);
-	m_interfaceWeb.setInterfaceName("cli-GateWay-front-end");
+	m_interfaceWeb.setInterfaceName("cli-GW-to-router");
 	// TODO : Check if user name is accepted ...
 }
 
@@ -333,7 +333,7 @@ appl::RouterInterface::~RouterInterface() {
 	APPL_TODO("Call All unlink ...");
 	stop();
 	APPL_INFO("-------------------------------------------");
-	APPL_INFO("-- DELETE Connection to GateWay Font-end --");
+	APPL_INFO("-- DELETE Connection to the ROUTER       --");
 	APPL_INFO("-------------------------------------------");
 }
 

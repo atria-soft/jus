@@ -27,6 +27,7 @@ appl::IOInterface::~IOInterface() {
 	APPL_INFO("---------------");
 	APPL_INFO("-- DELETE IO --");
 	APPL_INFO("---------------");
+	// TODO : ... m_gateway->removeIO(sharedFromThis());
 }
 
 void appl::IOInterface::answerProtocolError(uint32_t _transactionId, const std::string& _errorHelp) {
@@ -40,12 +41,19 @@ void appl::IOInterface::answerProtocolError(uint32_t _transactionId, const std::
 bool appl::IOInterface::start(appl::GateWay* _gateway, uint16_t _id) {
 	m_gateway = _gateway;
 	m_uid = _id;
-	m_state = appl::clientState::connect;
+	if (m_uid != 0) {
+		m_state = appl::clientState::connect;
+	} else {
+		m_state = appl::clientState::connectDirect;
+	}
 	//m_interfaceRouterClient->setInterfaceName("cli-" + etk::to_string(m_uid));
 	APPL_WARNING("[" << m_uid << "] New IO interface");
 	return true;
 }
 
+const std::vector<std::string>& appl::IOInterface::getServiceList() {
+	return m_listService;
+}
 
 void appl::IOInterface::receive(ememory::SharedPtr<zeus::Buffer> _value) {
 	if (_value == nullptr) {
@@ -76,6 +84,20 @@ void appl::IOInterface::receive(ememory::SharedPtr<zeus::Buffer> _value) {
 					answerProtocolError(transactionId, "Gateway internal error");
 					return;
 				}
+			case appl::clientState::connectDirect:
+				{
+					if (callFunction != "service") {
+						answerProtocolError(transactionId, "Client must call: service");
+						return;
+					}
+					if (callFunction == "service") {
+						zeus::WebServer* iface = getInterface();
+						iface->answerValue(transactionId, _value->getDestination(), _value->getSource(), true);
+						m_gateway->addIO(sharedFromThis());
+						m_state = appl::clientState::clientIdentify;
+						return;
+					}
+				}
 			case appl::clientState::connect:
 				{
 					/*
@@ -85,8 +107,9 @@ void appl::IOInterface::receive(ememory::SharedPtr<zeus::Buffer> _value) {
 					*/
 					if (    callFunction != "identify"
 					     && callFunction != "auth"
-					     && callFunction != "anonymous") {
-						answerProtocolError(transactionId, "Client must call: identify/auth/anonymous");
+					     && callFunction != "anonymous"
+					     && callFunction != "link") {
+						answerProtocolError(transactionId, "Client must call: identify/auth/anonymous/link");
 						return;
 					}
 					#if 0
@@ -162,106 +185,130 @@ void appl::IOInterface::receive(ememory::SharedPtr<zeus::Buffer> _value) {
 						APPL_WARNING("       groups: " << etk::to_string(m_clientgroups));
 						APPL_WARNING("     services: " << etk::to_string(m_clientServices));
 					#endif
+					m_gateway->addIO(sharedFromThis());
+					
 					zeus::WebServer* iface = getInterface();
 					iface->answerValue(transactionId, _value->getDestination(), _value->getSource(), true);
 					m_state = appl::clientState::clientIdentify;
 					return;
 				}
+				if (callFunction == "link") {
+					// TODO : Filter services access ...
+					std::string serviceName = callObj->getParameter<std::string>(0);
+					if (m_gateway->serviceExist(serviceName) == false) {
+						zeus::WebServer* iface = getInterface();
+						iface->answerValue(transactionId, _value->getDestination(), _value->getSource(), false);
+						return;
+					}
+					uint16_t serviceClientId = m_gateway->serviceClientIdGet(serviceName);
+					if (serviceClientId == 0) {
+						zeus::WebServer* iface = getInterface();
+						iface->answerValue(transactionId, _value->getDestination(), _value->getSource(), false);
+						return;
+					}
+					// Replace the destination with the real owner ID
+					_value->setDestinationId(serviceClientId);
+					// Forward Call
+					if (m_gateway->send(_value) == false) {
+						zeus::WebServer* iface = getInterface();
+						iface->answerError(transactionId, _value->getDestination(), _value->getSource(), "UNEXISTING-CLIENT");
+					}
+					// We do not answer, we just transmit the message to the interface that manage the service that might answer ot this call ...
+					return;
+				}
 				break;
 			case appl::clientState::clientIdentify:
 				{
-					uint32_t serviceId = callObj->getSourceId();
-					
-					if (serviceId == 0) {
-						// This is 2 default service for the cient interface that manage the authorisation of view:
-						if (callFunction == "getServiceCount") {
-							// TODO : m_interfaceRouterClient->answerValue(transactionId, _value->getClientId(), _value->getServiceId(), m_clientServices.size());
-							
-							return;
-						}
-						if (callFunction == "getServiceList") {
-							// TODO : m_interfaceRouterClient->answerValue(transactionId, _value->getClientId(), _value->getServiceId(), m_clientServices);
-							//"ServiceManager/v0.1.0"
-							return;
-						}
-						if (callFunction == "link") {
-							// first param:
-							std::string serviceName = callObj->getParameter<std::string>(0);
-							ZEUS_ERROR("Connect to service : " << serviceName << " " << m_uid);
-							// Check if service already link:
-							/*
-							auto it = m_listConnectedService.begin();
-							while (it != m_listConnectedService.end()) {
-								if (*it == nullptr) {
-									++it;
-									continue;
-								}
-								if ((*it)->getName() != serviceName) {
-									++it;
-									continue;
-								}
-								break;
-							}
-							if (it == m_listConnectedService.end()) {
-								// check if service is connectable ...
-								if (std::find(m_clientServices.begin(), m_clientServices.end(), serviceName) == m_clientServices.end()) {
-									m_interfaceRouterClient->answerError(transactionId, _value->getClientId(), _value->getServiceId(), "UN-AUTHORIZED-SERVICE");
-									return;
-								}
-								ememory::SharedPtr<appl::ServiceInterface> srv = m_gatewayInterface->get(serviceName);
-								if (srv != nullptr) {
-									zeus::Future<bool> futLink = srv->m_interfaceClient.call(m_uid, ZEUS_ID_SERVICE_ROOT, "_new", m_userConnectionName, m_clientName, m_clientgroups);
-									futLink.wait(); // TODO: Set timeout ...
-									if (futLink.hasError() == true) {
-										APPL_ERROR("Get error from the service ... LINK");
-										m_interfaceRouterClient->answerError(transactionId, _value->getClientId(), _value->getServiceId(), "ERROR-CREATE-SERVICE-INSTANCE");
-										return;
-									}
-									m_listConnectedService.push_back(srv);
-									ZEUS_ERROR("      ==> get ID : " << m_uid);
-									m_interfaceRouterClient->answerValue(transactionId, _value->getClientId(), _value->getServiceId(), m_listConnectedService.size());
-									return;
-								}
-								m_interfaceRouterClient->answerError(transactionId, _value->getClientId(), _value->getServiceId(), "CAN-NOT-CONNECT-SERVICE");
-								return;
-							}
-							m_interfaceRouterClient->answerError(transactionId, _value->getClientId(), _value->getServiceId(), "SERVICE-ALREADY-CONNECTED");;
-							return;
-							*/
-						}
-						if (callFunction == "unlink") {
-							ZEUS_ERROR("Disconnnect from service : " << m_uid);
-							// first param: the service we want to unconnect ...
-							/*
-							int64_t localServiceID = callObj->getParameter<int64_t>(0)-1;
-							// Check if service already link:
-							if (localServiceID >= m_listConnectedService.size()) {
-								m_interfaceRouterClient->answerError(transactionId, _value->getClientId(), _value->getServiceId(), "NOT-CONNECTED-SERVICE");
-								return;
-							}
-							zeus::Future<bool> futUnLink = m_listConnectedService[localServiceID]->m_interfaceClient.call(m_uid, ZEUS_ID_SERVICE_ROOT, "_delete");
-							futUnLink.wait(); // TODO: Set timeout ...
-							if (futUnLink.hasError() == true) {
-								APPL_ERROR("Get error from the service ... UNLINK");
-								m_interfaceRouterClient->answerError(transactionId, _value->getClientId(), _value->getServiceId(), "ERROR-CREATE-SERVICE-INSTANCE");
-								return;
-							}
-							m_listConnectedService[localServiceID] = nullptr;
-							m_interfaceRouterClient->answerValue(transactionId, _value->getClientId(), _value->getServiceId(), true);
-							return;
-							*/
-						}
-						APPL_ERROR("Function does not exist ... '" << callFunction << "'");
+					if (callFunction == "serviceAdd") {
 						zeus::WebServer* iface = getInterface();
-						iface->answerError(transactionId, _value->getDestination(), _value->getSource(), "CALL-UNEXISTING");
+						std::string serviceName = callObj->getParameter<std::string>(0);
+						if (serviceName == "") {
+							iface->answerValue(transactionId, _value->getDestination(), _value->getSource(), false);
+							return;
+						}
+						// Check if service exist or not:
+						if (m_gateway->serviceExist(serviceName) == true) {
+							iface->answerValue(transactionId, _value->getDestination(), _value->getSource(), false);
+							return;
+						}
+						ZEUS_INFO("Register new service '" << serviceName << "' in " << m_uid);
+						m_listService.push_back(serviceName);
+						iface->answerValue(transactionId, _value->getDestination(), _value->getSource(), true);
 						return;
 					}
+					if (callFunction == "serviceRemove") {
+						zeus::WebServer* iface = getInterface();
+						std::string serviceName = callObj->getParameter<std::string>(0);
+						if (serviceName == "") {
+							iface->answerValue(transactionId, _value->getDestination(), _value->getSource(), false);
+						}
+						auto it = m_listService.begin();
+						while (it != m_listService.end()) {
+							if (*it == serviceName) {
+								it = m_listService.erase(it);
+								iface->answerValue(transactionId, _value->getDestination(), _value->getSource(), true);
+								ZEUS_INFO("Remove new service " << serviceName << "' in " << m_uid);
+								return;
+							}
+							++it;
+						}
+						iface->answerValue(transactionId, _value->getDestination(), _value->getSource(), false);
+						return;
+					}
+					// This is 2 default service for the cient interface that manage the authorisation of view:
+					if (callFunction == "getServiceCount") {
+						// TODO : Fileter the size of accessible services
+						zeus::WebServer* iface = getInterface();
+						iface->answerValue(transactionId, _value->getDestination(), _value->getSource(), m_gateway->getAllServiceName().size());
+						return;
+					}
+					if (callFunction == "getServiceList") {
+						// TODO : Fileter the size of accessible services
+						zeus::WebServer* iface = getInterface();
+						iface->answerValue(transactionId, _value->getDestination(), _value->getSource(), m_gateway->getAllServiceName());
+						return;
+					}
+					if (callFunction == "link") {
+						// TODO : Filter services access ...
+						std::string serviceName = callObj->getParameter<std::string>(0);
+						if (m_gateway->serviceExist(serviceName) == false) {
+							zeus::WebServer* iface = getInterface();
+							iface->answerValue(transactionId, _value->getDestination(), _value->getSource(), false);
+							return;
+						}
+						uint16_t serviceClientId = m_gateway->serviceClientIdGet(serviceName);
+						if (serviceClientId == 0) {
+							zeus::WebServer* iface = getInterface();
+							iface->answerValue(transactionId, _value->getDestination(), _value->getSource(), false);
+							return;
+						}
+						// Replace the destination with the real owner ID
+						_value->setDestinationId(serviceClientId);
+						// Forward Call
+						if (m_gateway->send(_value) == false) {
+							zeus::WebServer* iface = getInterface();
+							iface->answerError(transactionId, _value->getDestination(), _value->getSource(), "UNEXISTING-CLIENT");
+						}
+						// We do not answer, we just transmit the message to the interface that manage the service that might answer ot this call ...
+						return;
+					}
+					APPL_ERROR("Function does not exist ... '" << callFunction << "'");
+					zeus::WebServer* iface = getInterface();
+					iface->answerError(transactionId, _value->getDestination(), _value->getSource(), "CALL-UNEXISTING");
+					return;
 				}
 				return;
 		}
-	}
-	if (m_gateway != nullptr) {
-		m_gateway->send(_value);
+		{
+			APPL_ERROR("UNKNOW error ... " << _value);
+			zeus::WebServer* iface = getInterface();
+			iface->answerError(transactionId, _value->getDestination(), _value->getSource(), "REQUEST-ERROR");
+		}
+	} else {
+		// TODO: Check here if the user is athorised to send data to a specific client ...
+		if (m_gateway != nullptr) {
+			m_gateway->send(_value);
+		}
 	}
 }
 

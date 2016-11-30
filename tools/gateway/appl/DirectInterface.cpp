@@ -59,8 +59,8 @@ bool appl::DirectInterface::requestURI(const std::string& _uri) {
 	return true;
 }
 
-bool appl::DirectInterface::start(appl::GateWay* _gateway, uint16_t _id) {
-	appl::IOInterface::start(_gateway, _id);
+bool appl::DirectInterface::start(appl::GateWay* _gateway) {
+	appl::IOInterface::start(_gateway, 0);
 	m_interfaceWeb.connect(this, &appl::DirectInterface::receive);
 	m_interfaceWeb.connectUri(this, &appl::DirectInterface::requestURI);
 	m_interfaceWeb.connect();
@@ -70,7 +70,50 @@ bool appl::DirectInterface::start(appl::GateWay* _gateway, uint16_t _id) {
 }
 
 void appl::DirectInterface::receive(ememory::SharedPtr<zeus::Buffer> _value) {
-	appl::IOInterface::receive(_value);
+	if (_value == nullptr) {
+		return;
+	}
+	// check transaction ID != 0
+	uint32_t transactionId = _value->getTransactionId();
+	if (transactionId == 0) {
+		APPL_ERROR("Protocol error ==>missing id");
+		answerProtocolError(transactionId, "missing parameter: 'id'");
+		return;
+	}
+	// check correct SourceID
+	if (_value->getSourceId() != m_uid) {
+		answerProtocolError(transactionId, "message with the wrong source ID");
+		return;
+	}
+	// Check gateway corectly connected
+	if (m_gateway == nullptr) {
+		answerProtocolError(transactionId, "GateWay error");
+		return;
+	}
+	// TODO: Special hook for the first call that we need to get the curretn ID of the connection, think to set this at an other position ...
+	if (m_uid == 0) {
+		APPL_INFO("special case, we need to get the ID Of the client:");
+		if (_value->getType() != zeus::Buffer::typeMessage::call) {
+			answerProtocolError(transactionId, "Must get first the Client ID... call 'getAddress'");
+			return;
+		}
+		ememory::SharedPtr<zeus::BufferCall> callObj = ememory::staticPointerCast<zeus::BufferCall>(_value);
+		if (callObj->getCall() != "getAddress") {
+			answerProtocolError(transactionId, "Must get first the Client ID... call 'getAddress' and not '" + callObj->getCall() + "'");
+			return;
+		}
+		APPL_INFO("Get the unique ID...");
+		m_uid = m_gateway->getId();
+		APPL_INFO("get ID : " << m_uid);
+		if (m_uid == 0) {
+			answerProtocolError(transactionId, "Can not get the Client ID...");
+			return;
+		}
+		m_interfaceWeb.setInterfaceName("cli-" + etk::to_string(m_uid));
+		m_interfaceWeb.answerValue(transactionId, _value->getDestination(), _value->getSource(), m_uid);
+	} else {
+		appl::IOInterface::receive(_value);
+	}
 }
 
 void appl::DirectInterface::send(ememory::SharedPtr<zeus::Buffer> _value) {

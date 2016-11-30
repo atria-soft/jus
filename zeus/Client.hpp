@@ -15,7 +15,6 @@
 #include <zeus/Object.hpp>
 
 namespace zeus {
-	class Service;
 	/**
 	 * @brief Client interface to acces on the remote service and gateway
 	 */
@@ -24,16 +23,19 @@ namespace zeus {
 		public:
 			eproperty::Value<std::string> propertyIp; //!< Ip of WebSocket TCP connection
 			eproperty::Value<uint16_t> propertyPort; //!< Port of the WebSocket connection
-		private:
+		public:
 			uint16_t m_localAddress;
 			uint16_t m_licalIdObjectIncrement; //!< attribute a unique ID for an object
 			std::string m_clientName; //!< Local client name to generate the local serrvice name if needed (if direct connection ==> no name)
 			ememory::SharedPtr<zeus::WebServer> m_interfaceWeb; //!< Interface on the Websocket interface
 			std::vector<ememory::WeakPtr<zeus::ServiceRemoteBase>> m_listConnectedService; //!< Connect only one time on each service, not needed more.
-			std::vector<ememory::SharedPtr<zeus::Service>> m_listProvicedService; //!< Connect only one time on each service, not needed more.
+			std::vector<ememory::SharedPtr<zeus::Object>> m_listProvicedService; //!< Connect only one time on each service, not needed more.
 			std::vector<ememory::SharedPtr<zeus::Object>> m_listLocalObject;
 		public:
 			void answerProtocolError(uint32_t _transactionId, const std::string& _errorHelp);
+			ememory::SharedPtr<zeus::WebServer> getWebInterface() {
+				return m_interfaceWeb;
+			}
 			/**
 			 * @brief 
 			 * @param[in] 
@@ -87,7 +89,7 @@ namespace zeus {
 			 * @return Pointer on an interface of remote service
 			 */
 			zeus::ServiceRemote getService(const std::string& _serviceName);
-			using factoryService = std::function<ememory::SharedPtr<zeus::Object>(zeus::Client&, uint16_t)>;
+			using factoryService = std::function<ememory::SharedPtr<zeus::Object>(zeus::Client*, uint16_t, uint16_t)>; // pointer on this, object ID, client creator ID
 			
 			std::map<std::string,factoryService> m_listServicesAvaillable; //!< list of all factory availlable
 			/**

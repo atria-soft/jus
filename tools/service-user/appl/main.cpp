@@ -28,10 +28,15 @@ namespace appl {
 			ememory::SharedPtr<zeus::ClientProperty> m_client;
 			std::string m_userName;
 		public:
+			/*
 			SystemService(ememory::SharedPtr<zeus::ClientProperty> _client, const std::string& _userName) :
 			  m_client(_client),
 			  m_userName(_userName) {
 				APPL_WARNING("New SystemService ... for user: ");
+			}
+			*/
+			SystemService(uint16_t _clientId) {
+				APPL_WARNING("New SystemService ... for user: " << _clientId);
 			}
 			~SystemService() {
 				APPL_WARNING("Delete service-user interface.");
@@ -148,11 +153,4 @@ ETK_EXPORT_API bool SERVICE_IO_uninit() {
 	return true;
 }
 
-#if 1
-ZEUS_SERVICE_USER_DECLARE_DEFAULT(appl::SystemService);
-#else
-ZEUS_SERVICE_USER_DECLARE(appl::SystemService,
-                          [](ememory::SharedPtr<zeus::ClientProperty> _client){
-                          	return ememory::makeShared<appl::SystemService>(_client);
-                          })
-#endif
+ZEUS_SERVICE_USER_DECLARE(appl::SystemService);

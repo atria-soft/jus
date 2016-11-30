@@ -17,7 +17,6 @@ namespace appl {
 		private:
 			ememory::SharedPtr<appl::RouterInterface> m_routerClient; //!< Interface with the Gateway Front End
 			ememory::SharedPtr<appl::TcpServerInput> m_interfaceNewService;
-			
 		public:
 			eproperty::Value<std::string> propertyUserName;
 			eproperty::Value<std::string> propertyRouterIp;
@@ -28,6 +27,8 @@ namespace appl {
 		public:
 			std::vector<ememory::SharedPtr<appl::DirectInterface>> m_listIODirect; //!< List of all service availlable with their specific connection interface
 			std::vector<ememory::SharedPtr<appl::IOInterface>> m_listIO;
+			void addIO(const ememory::SharedPtr<appl::IOInterface>& _io);
+			void removeIO(const ememory::SharedPtr<appl::IOInterface>& _io);
 			
 		public:
 			GateWay();
@@ -36,7 +37,7 @@ namespace appl {
 			void stop();
 			//ememory::SharedPtr<appl::ServiceInterface> get(const std::string& _serviceName);
 			std::vector<std::string> getAllServiceName();
-			void send(ememory::SharedPtr<zeus::Buffer> _data);
+			bool send(ememory::SharedPtr<zeus::Buffer> _data);
 			void newService(enet::Tcp _connection);
 			void cleanIO();
 		private:
@@ -48,6 +49,10 @@ namespace appl {
 			void onPropertyChangeServiceMax();
 			void onClientConnect(const bool& _value);
 			void onServiceConnect(const bool& _value);
+		public:
+			uint16_t getId();
+			bool serviceExist(const std::string& _service);
+			uint16_t serviceClientIdGet(const std::string& _service);
 	};
 }
 

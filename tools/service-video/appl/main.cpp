@@ -38,9 +38,14 @@ namespace appl {
 			ememory::SharedPtr<zeus::ClientProperty> m_client;
 			std::string m_userName;
 		public:
+			/*
 			VideoService(ememory::SharedPtr<zeus::ClientProperty> _client, const std::string& _userName) :
 			  m_client(_client),
 			  m_userName(_userName) {
+				APPL_WARNING("New VideoService ... for user: ");
+			}
+			*/
+			VideoService(uint16_t _clientId) {
 				APPL_WARNING("New VideoService ... for user: ");
 			}
 			~VideoService() {
@@ -314,5 +319,5 @@ ETK_EXPORT_API bool SERVICE_IO_uninit() {
 	return true;
 }
 
-ZEUS_SERVICE_VIDEO_DECLARE_DEFAULT(appl::VideoService);
+ZEUS_SERVICE_VIDEO_DECLARE(appl::VideoService);
 

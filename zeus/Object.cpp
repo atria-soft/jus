@@ -8,10 +8,14 @@
 #include <zeus/debug.hpp>
 #include <etk/stdTools.hpp>
 #include <enet/TcpClient.hpp>
+#include <zeus/Client.hpp>
 
 
 
-zeus::Object::Object() {
+zeus::Object::Object(zeus::Client* _client, uint16_t _objectId) :
+  m_clientId(_client->m_localAddress),
+  m_objectId(_objectId) {
+	m_interfaceClient = _client->getWebInterface();
 	/*
 	zeus::AbstractFunction* func = advertise("getExtention", &zeus::Object::getExtention);
 	if (func != nullptr) {
@@ -104,7 +108,7 @@ void zeus::Object::callBinary(ememory::SharedPtr<zeus::Buffer> _obj) {
 			return;
 		} else {
 			ZEUS_INFO("plop 7 ...");
-			m_interfaceClient->answerError(callObj->getTransactionId(), uint32_t(m_ObjectId)<<16, source, "NOT-AUTHORIZED-FUNCTION", "");
+			m_interfaceClient->answerError(callObj->getTransactionId(), (uint32_t(m_clientId)<<16) + m_objectId, source, "NOT-AUTHORIZED-FUNCTION", "");
 			return;
 		}
 	}

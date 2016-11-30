@@ -145,7 +145,7 @@ int main(int _argc, const char *_argv[]) {
 	APPL_INFO("    ----------------------------------");
 	APPL_INFO("    -- Get service picture");
 	APPL_INFO("    ----------------------------------");
-	if (false) {
+	if (true) {
 		zeus::service::ProxyPicture remoteServicePicture = client1.getService("picture");
 		if (remoteServicePicture.exist() == true) {
 			zeus::Future<std::vector<std::string>> retCall = remoteServicePicture.getAlbums().wait();

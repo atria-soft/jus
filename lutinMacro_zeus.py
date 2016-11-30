@@ -324,6 +324,7 @@ class ServiceDefinition:
 		out += "\n"
 		out += "#include <etk/types.hpp>\n"
 		out += "#include <zeus/Service.hpp>\n"
+		out += "#include <zeus/Client.hpp>\n"
 		out += "#include <" + class_name.replace("::","/") + ".hpp>\n"
 		out += "#include <string>\n"
 		out += "#include <vector>\n"
@@ -343,9 +344,9 @@ class ServiceDefinition:
 		out += space + "void register" + self.name[-1] + "(zeus::ServiceType<" + class_name + ">& _serviceInterface);\n"
 		out += space + "\n"
 		out += space + "template<class " + MACRO_BASE_NAME + "TYPE>\n"
-		out += space + "zeus::Service* create" + self.name[-1] + "(std::function<ememory::SharedPtr<" + MACRO_BASE_NAME + "TYPE>(ememory::SharedPtr<ClientProperty>, const std::string& _userName)> _factory) {\n"
+		out += space + "zeus::Object* create" + self.name[-1] + "(zeus::Client* _client, uint16_t _objectId, uint16_t _clientId, zeus::ServiceType<" + class_name + ">::factory _factory) {\n"
 		out += space + "	zeus::ServiceType<" + class_name + ">* tmp = nullptr;\n"
-		out += space + "	tmp = new zeus::ServiceType<" + class_name + ">(_factory);\n"
+		out += space + "	tmp = new zeus::ServiceType<" + class_name + ">(_client, _objectId, _clientId, _factory);\n"
 		out += space + "	zeus::service::register" + self.name[-1] + "(*tmp);\n"
 		out += space + "	return tmp;\n"
 		out += space + "}\n"
@@ -355,17 +356,21 @@ class ServiceDefinition:
 			out += space + "}\n"
 		out += space + "\n"
 		
-		out += space + "#define " + MACRO_BASE_NAME + "DECLARE_DEFAULT(type) \\\n"
-		out += space + "	ETK_EXPORT_API zeus::Service* SERVICE_IO_instanciate() { \\\n"
-		out += space + "		return " + namespace + "create" + self.name[-1] + "<type>([](ememory::SharedPtr<zeus::ClientProperty> _client, const std::string& _userName){ \\\n"
-		out += space + "		                                 	return ememory::makeShared<type>(_client, _userName); \\\n"
+		out += space + "#define " + MACRO_BASE_NAME + "DECLARE(type) \\\n"
+		out += space + "	ETK_EXPORT_API zeus::Object* SERVICE_IO_instanciate(zeus::Client* _client, uint16_t _objectId, uint16_t _clientId) { \\\n"
+		out += space + "		return " + namespace + "create" + self.name[-1] + "<type>(_client, _objectId, _clientId, \\\n"
+		out += space + "		                                 [](uint16_t _clientId){ \\\n"
+		out += space + "		                                 	return ememory::makeShared<type>(_clientId); \\\n"
 		out += space + "		                                 }); \\\n"
 		out += space + "	}\n"
 		out += space + "\n"
-		out += space + "#define " + MACRO_BASE_NAME + "DECLARE(type, factory) \\\n"
+		"""
+		out += space + "#define " + MACRO_BASE_NAME + "DECLARE_FACTORY(type, factory) \\\n"
 		out += space + "	ETK_EXPORT_API zeus::Service* SERVICE_IO_instanciate() { \\\n"
 		out += space + "		return " + namespace + "create" + self.name[-1] + "<type>(factory); \\\n"
 		out += space + "	}\n"
+		"""
+		
 		
 		return [filename, out]
 	
@@ -421,7 +426,7 @@ class ServiceDefinition:
 			_serviceInterface.propertyPort.set(_port);
 		}
 		"""
-		out += space + '_serviceInterface.propertyNameService.set("' + self.name[-1].lower() + '");\n'
+		#out += space + '_serviceInterface.propertyNameService.set("' + self.name[-1].lower() + '");\n'
 		if self.brief != "":
 			out += space + '_serviceInterface.setDescription("' + self.brief + '");\n';
 		if self.version != "":

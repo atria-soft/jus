@@ -70,7 +70,7 @@ void zeus::Client::onClientData(ememory::SharedPtr<zeus::Buffer> _value) {
 				answerProtocolError(transactionId, "interact with client, musty only call: link/unlink");
 				return;
 			}
-			if (callFunction != "link") {
+			if (callFunction == "link") {
 				// link with a specific service:
 				std::string serviceName = callObj->getParameter<std::string>(0);
 				for (auto &it : m_listServicesAvaillable) {
@@ -81,10 +81,10 @@ void zeus::Client::onClientData(ememory::SharedPtr<zeus::Buffer> _value) {
 						
 						// Create new service object
 						
-						ememory::SharedPtr<zeus::Object> newService = it.second(*this, m_licalIdObjectIncrement);
+						ememory::SharedPtr<zeus::Object> newService = it.second(this, m_licalIdObjectIncrement, _value->getSourceId());
 						// TODO : Do it better ...
 						
-						m_listLocalObject.push_back(newService);
+						m_listProvicedService.push_back(newService);
 						// Return the Value of the object service .... this is really bad, Maybe add a message type for this...
 						m_interfaceWeb->answerValue(transactionId, _value->getDestination(), _value->getSource(), (uint32_t(m_localAddress)<<16)+m_licalIdObjectIncrement );
 						m_licalIdObjectIncrement++;
@@ -98,13 +98,22 @@ void zeus::Client::onClientData(ememory::SharedPtr<zeus::Buffer> _value) {
 		return;
 	}
 	// find the object to communicate the adress to send value ...
-	
+	uint16_t objId = _value->getDestinationObjectId();
+	for (auto &it : m_listProvicedService) {
+		if (it == nullptr) {
+			continue;
+		}
+		if (it->getObjectId() == objId) {
+			it->receive(_value);
+			return;
+		}
+	}
 	ZEUS_ERROR("Get Data On the Communication interface that is not understand ... : " << _value);
 }
 
 bool zeus::Client::serviceAdd(const std::string& _serviceName, factoryService _factory) {
 	// Check if we can provide new service:
-	zeus::Future<bool> futValidate = m_interfaceWeb->call(m_localAddress, ZEUS_GATEWAY_ADDRESS, "serviceAdd", _serviceName);
+	zeus::Future<bool> futValidate = m_interfaceWeb->call(uint32_t(m_localAddress)<<16, ZEUS_GATEWAY_ADDRESS, "serviceAdd", _serviceName);
 	futValidate.wait(); // TODO: Set timeout ...
 	if (futValidate.hasError() == true) {
 		ZEUS_ERROR("Can not provide a new sevice ... '" << futValidate.getErrorType() << "' help:" << futValidate.getErrorHelp());
@@ -116,7 +125,7 @@ bool zeus::Client::serviceAdd(const std::string& _serviceName, factoryService _f
 
 bool zeus::Client::serviceRemove(const std::string& _serviceName) {
 	// Check if we can provide new service:
-	zeus::Future<bool> futValidate = m_interfaceWeb->call(m_localAddress, ZEUS_GATEWAY_ADDRESS, "serviceRemove", _serviceName);
+	zeus::Future<bool> futValidate = m_interfaceWeb->call(uint32_t(m_localAddress)<<16, ZEUS_GATEWAY_ADDRESS, "serviceRemove", _serviceName);
 	futValidate.wait(); // TODO: Set timeout ...
 	if (futValidate.hasError() == true) {
 		ZEUS_ERROR("Can not provide a new sevice ... '" << futValidate.getErrorType() << "' help:" << futValidate.getErrorHelp());
@@ -139,7 +148,7 @@ zeus::ServiceRemote zeus::Client::getService(const std::string& _name) {
 			return zeus::ServiceRemote(val);
 		}
 	}
-	ememory::SharedPtr<zeus::ServiceRemoteBase> tmp = ememory::makeShared<zeus::ServiceRemoteBase>(m_interfaceWeb, _name);
+	ememory::SharedPtr<zeus::ServiceRemoteBase> tmp = ememory::makeShared<zeus::ServiceRemoteBase>(m_interfaceWeb, _name, m_localAddress, m_licalIdObjectIncrement++);
 	m_listConnectedService.push_back(tmp);
 	return zeus::ServiceRemote(tmp);
 }

@@ -12,6 +12,7 @@
 #include <zeus/debug.hpp>
 #include <zeus/RemoteProcessCall.hpp>
 #include <zeus/Future.hpp>
+#include <zeus/Object.hpp>
 
 /**
  * @brief Main zeus library namespace
@@ -96,159 +97,25 @@ namespace zeus {
 }
 
 namespace zeus {
-	/**
-	 * @brief 
-	 * @param[in] 
-	 * @return 
-	 */
-	class Service : public eproperty::Interface, public zeus::RemoteProcessCall {
-		protected:
-			std::mutex m_mutex;
-		public:
-			eproperty::Value<std::string> propertyIp; //!< Ip of WebSocket TCP connection
-			eproperty::Value<uint16_t> propertyPort; //!< Port of the WebSocket connection
-			eproperty::Value<std::string> propertyNameService; //!< Service name
-		protected:
-			ememory::SharedPtr<zeus::WebServer> m_interfaceClient;
-			uint32_t m_id;
-			std::vector<std::string> m_newData;
-			std::vector<zeus::FutureBase> m_callMultiData;
-			std::string m_nameUser;
-		public:
-			/**
-			 * @brief 
-			 * @param[in] 
-			 * @return 
-			 */
-			Service();
-			/**
-			 * @brief 
-			 * @param[in] 
-			 * @return 
-			 */
-			virtual ~Service();
-			/**
-			 * @brief 
-			 * @param[in] 
-			 * @return true The connection is done corectly, false otherwise
-			 */
-			bool connect(uint32_t _numberRetry = 1);
-			/**
-			 * @brief 
-			 * @param[in] 
-			 * @return 
-			 */
-			void disconnect();
-		private:
-			/**
-			 * @brief 
-			 * @param[in] 
-			 * @return 
-			 */
-			void onClientData(ememory::SharedPtr<zeus::Buffer> _value);
-		public:
-			/**
-			 * @brief 
-			 * @param[in] 
-			 * @return 
-			 */
-			void pingIsAlive();
-			/**
-			 * @brief 
-			 * @param[in] 
-			 * @return 
-			 */
-			bool GateWayAlive();
-		private:
-			/**
-			 * @brief 
-			 * @param[in] 
-			 * @return 
-			 */
-			void onPropertyChangeServiceName();
-			/**
-			 * @brief 
-			 * @param[in] 
-			 * @return 
-			 */
-			void onPropertyChangeIp();
-			/**
-			 * @brief 
-			 * @param[in] 
-			 * @return 
-			 */
-			void onPropertyChangePort();
-			/**
-			 * @brief A extern client connect on specific user
-			 * @param[in] _sourceId Source session Id on the client
-			 * @param[in] _userName User name of the client to connect
-			 * @todo Set a relur like ==> service not availlable / service close / service maintenance / service right reject
-			 */
-			//virtual void clientConnect(uint16_t _sourceId, const std::string& _userName, const std::string& _clientName, const std::vector<std::string>& _groups) = 0;
-			/**
-			 * @brief 
-			 * @param[in] 
-			 * @return 
-			 */
-			//virtual void clientDisconnect(uint16_t _sourceId) = 0;
-			/**
-			 * @brief 
-			 * @param[in] 
-			 * @return 
-			 */
-			void callBinary(ememory::SharedPtr<zeus::Buffer> _obj);
-			/**
-			 * @brief 
-			 * @param[in] 
-			 * @return 
-			 */
-			virtual void callBinary2(const std::string& _call, ememory::SharedPtr<zeus::BufferCall> _obj) = 0;
-			/**
-			 * @brief 
-			 * @param[in] 
-			 * @return 
-			 */
-			std::vector<std::string> getExtention();
-		public:
-			/**
-			 * @brief 
-			 * @param[in] 
-			 * @return 
-			 */
-			// Add Local fuction (depend on this class)
-			template<class ZEUS_RETURN_VALUE,
-			         class ZEUS_CLASS_TYPE,
-			         class... ZEUS_FUNC_ARGS_TYPE>
-			zeus::AbstractFunction* advertise(std::string _name,
-			                                  ZEUS_RETURN_VALUE (ZEUS_CLASS_TYPE::*_func)(ZEUS_FUNC_ARGS_TYPE... _args)) {
-				_name = "srv." + _name;
-				for (auto &it : m_listFunction) {
-					if (it == nullptr) {
-						continue;
-					}
-					if (it->getName() == _name) {
-						ZEUS_ERROR("Advertise function already bind .. ==> can not be done...: '" << _name << "'");
-						return nullptr;
-					}
-				}
-				AbstractFunction* tmp = createAbstractFunctionClass(_name, _func);
-				if (tmp == nullptr) {
-					ZEUS_ERROR("can not create abstract function ... '" << _name << "'");
-					return nullptr;
-				}
-				tmp->setType(zeus::AbstractFunction::type::service);
-				ZEUS_INFO("Add function '" << _name << "' in local mode");
-				m_listFunction.push_back(tmp);
-				return tmp;
-			}
-			
-	};
 	template<class ZEUS_TYPE_SERVICE>
-	class ServiceType : public zeus::Service {
+	class ServiceType : public zeus::Object {
+		public:
+			using factory = std::function<ememory::SharedPtr<ZEUS_TYPE_SERVICE>(uint16_t)>;
 		private:
 			// no need of shared_ptr or unique_ptr (if service die all is lost and is client die, the gateway notify us...)
 			ememory::SharedPtr<ClientProperty> m_property;
 			ememory::SharedPtr<ZEUS_TYPE_SERVICE> m_interface;
+		public:
+			ServiceType(zeus::Client* _client, uint16_t _objectId, uint16_t _clientId, factory _factory) :
+			  Object(_client, _objectId) {
+				m_interface = _factory(_clientId);
+			}
+			/*
+			ServiceType(zeus::Client* _client, uint16_t _objectId, ememory::makeShared<ZEUS_TYPE_SERVICE> _instance) :
+			  Object(_client, _objectId),
+			  m_interface(_instance) {
+				
+			}*/
 		public:
 			/**
 			 * @brief 
@@ -399,9 +266,8 @@ namespace zeus {
 					}
 					switch (it2->getType()) {
 						case zeus::AbstractFunction::type::object: {
-							//ZEUS_TYPE_SERVICE* elem = it->second.second.get();
-							//it2->execute(m_interfaceClient, _obj, (void*)elem);
-							it2->execute(m_interfaceClient, _obj, (void*)m_interface);
+							ZEUS_TYPE_SERVICE* elem = m_interface.get();
+							it2->execute(m_interfaceClient, _obj, (void*)elem);
 							return;
 						}
 						case zeus::AbstractFunction::type::local: {

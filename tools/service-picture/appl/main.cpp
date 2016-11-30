@@ -35,12 +35,18 @@ static uint64_t createFileID() {
 namespace appl {
 	class PictureService : public zeus::service::Picture  {
 		private:
+			//ememory::SharedPtr<zeus::ClientProperty>& m_client;
 			ememory::SharedPtr<zeus::ClientProperty> m_client;
 			std::string m_userName;
 		public:
-			PictureService(ememory::SharedPtr<zeus::ClientProperty> _client, const std::string& _userName) :
+			/*
+			PictureService(ememory::SharedPtr<zeus::ClientProperty>& _client, const std::string& _userName) :
 			  m_client(_client),
 			  m_userName(_userName) {
+				APPL_WARNING("New PictureService ... for user: ");
+			}
+			*/
+			PictureService(uint16_t _clientId) {
 				APPL_WARNING("New PictureService ... for user: ");
 			}
 			~PictureService() {
@@ -315,4 +321,17 @@ ETK_EXPORT_API bool SERVICE_IO_uninit() {
 }
 
 
-ZEUS_SERVICE_PICTURE_DECLARE_DEFAULT(appl::PictureService);
+ZEUS_SERVICE_PICTURE_DECLARE(appl::PictureService);
+/*
+	ETK_EXPORT_API zeus::Object* SERVICE_IO_instanciate(zeus::Client* _client, uint16_t _objectId, uint16_t _clientId) { \
+		return zeus::service::createPicture<appl::PictureService>(_client, _objectId, _clientId); \
+	}
+*/
+/*
+	ETK_EXPORT_API zeus::Object* SERVICE_IO_instanciate(zeus::Client* _client, uint16_t _objectId, uint16_t _clientId) { \
+		return zeus::service::createPicture<appl::PictureService>(_client, _objectId, _clientId, \
+		                                 [](uint16_t _clientId){ \
+		                                 	return ememory::makeShared<appl::PictureService>(_clientId); \
+		                                 }); \
+	}
+*/

@@ -38,7 +38,7 @@ int main(int _argc, const char *_argv[]) {
 			APPL_PRINT("        --router-ip=XXX      Router connection IP (default: 1.7.0.0.1)");
 			APPL_PRINT("        --router-port=XXX    Router connection PORT (default: 1984)");
 			APPL_PRINT("        --service-ip=XXX     Service connection IP (default: 1.7.0.0.1)");
-			APPL_PRINT("        --service-port=XXX   Service connection PORT (default: 1982)");
+			APPL_PRINT("        --service-port=XXX   Service connection PORT (default: 1985)");
 			APPL_PRINT("        --service-max=XXX    Service Maximum IO (default: 15)");
 			return -1;
 		}

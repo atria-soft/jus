@@ -37,6 +37,10 @@ namespace zeus {
 			int32_t idParam = int32_t(sizeof...(ZEUS_TYPES))-1;
 			ret = (*_pointer.*_func)(_obj->getParameter<ZEUS_TYPES>(idParam--)...);
 		}
+		if (_interfaceClient == nullptr) {
+			ZEUS_ERROR("Nullptr for _interfaceWeb");
+			return;
+		}
 		_interfaceClient->addAsync([=](WebServer* _interface) {
 			    _interface->answerValue(_obj->getTransactionId(), _obj->getDestination(), _obj->getSource(), ret);
 			    return true;
@@ -65,6 +69,10 @@ namespace zeus {
 		} else {
 			int32_t idParam = int32_t(sizeof...(ZEUS_TYPES))-1;
 			(*_pointer.*_func)(_obj->getParameter<ZEUS_TYPES>(idParam--)...);
+		}
+		if (_interfaceClient == nullptr) {
+			ZEUS_ERROR("Nullptr for _interfaceWeb");
+			return;
 		}
 		_interfaceClient->addAsync([=](WebServer* _interface) {
 			    _interface->answerVoid(_obj->getTransactionId(), _obj->getDestination(), _obj->getSource());
@@ -112,6 +120,10 @@ namespace zeus {
 					tmpClass = (ZEUS_CLASS_TYPE*)_class;
 				}
 				
+				if (_interfaceClient == nullptr) {
+					ZEUS_ERROR("Nullptr for _interfaceWeb");
+					return;
+				}
 				// check parameter number
 				if (_obj->getNumberParameter() != sizeof...(ZEUS_TYPES)) {
 					ZEUS_ERROR("Wrong number of Parameters ...");

@@ -17,7 +17,7 @@ namespace appl {
 		public:
 			DirectInterface(enet::Tcp _connection);
 			~DirectInterface();
-			bool start(appl::GateWay* _gateway, uint16_t _id);
+			bool start(appl::GateWay* _gateway);
 			void receive(ememory::SharedPtr<zeus::Buffer> _data);
 			void send(ememory::SharedPtr<zeus::Buffer> _data);
 			bool requestURI(const std::string& _uri);

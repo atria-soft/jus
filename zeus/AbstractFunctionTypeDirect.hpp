@@ -32,6 +32,10 @@ namespace zeus {
 			int32_t idParam = int32_t(sizeof...(ZEUS_TYPES))-1;
 			ret = _func(_obj->getParameter<ZEUS_TYPES>(idParam--)...);
 		}
+		if (_interfaceClient == nullptr) {
+			ZEUS_ERROR("Nullptr for _interfaceWeb");
+			return;
+		}
 		_interfaceClient->addAsync([=](WebServer* _interface) {
 			    _interface->answerValue(_obj->getTransactionId(), _obj->getDestination(), _obj->getSource(), ret);
 			    return true;
@@ -58,6 +62,10 @@ namespace zeus {
 		} else {
 			int32_t idParam = int32_t(sizeof...(ZEUS_TYPES))-1;
 			_func(_obj->getParameter<ZEUS_TYPES>(idParam--)...);
+		}
+		if (_interfaceClient == nullptr) {
+			ZEUS_ERROR("Nullptr for _interfaceWeb");
+			return;
 		}
 		_interfaceClient->addAsync([=](WebServer* _interface) {
 			    _interface->answerVoid(_obj->getTransactionId(), _obj->getDestination(), _obj->getSource());
@@ -99,6 +107,10 @@ namespace zeus {
 			             ememory::SharedPtr<zeus::BufferCall> _obj,
 			             void* _class) override {
 				if (_obj == nullptr) {
+					return;
+				}
+				if (_interfaceClient == nullptr) {
+					ZEUS_ERROR("Nullptr for _interfaceWeb");
 					return;
 				}
 				// check parameter number

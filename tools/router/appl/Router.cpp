@@ -83,10 +83,10 @@ appl::Router::Router() :
   m_clientUID(2),
   propertyClientIp(this, "client-ip", "127.0.0.1", "Ip to listen client", &appl::Router::onPropertyChangeClientIp),
   propertyClientPort(this, "client-port", 1983, "Port to listen client", &appl::Router::onPropertyChangeClientPort),
-  propertyClientMax(this, "client-max", 80, "Maximum of client at the same time", &appl::Router::onPropertyChangeClientMax),
-  propertyGateWayIp(this, "gw-ip", "127.0.0.1", "Ip to listen client", &appl::Router::onPropertyChangeGateWayIp),
-  propertyGateWayPort(this, "gw-port", 1984, "Port to listen client", &appl::Router::onPropertyChangeGateWayPort),
-  propertyGateWayMax(this, "gw-max", 80, "Maximum of client at the same time", &appl::Router::onPropertyChangeGateWayMax) {
+  propertyClientMax(this, "client-max", 8000, "Maximum of client at the same time", &appl::Router::onPropertyChangeClientMax),
+  propertyGateWayIp(this, "gw-ip", "127.0.0.1", "Ip to listen Gateway", &appl::Router::onPropertyChangeGateWayIp),
+  propertyGateWayPort(this, "gw-port", 1984, "Port to listen Gateway", &appl::Router::onPropertyChangeGateWayPort),
+  propertyGateWayMax(this, "gw-max", 8000, "Maximum of Gateway at the same time", &appl::Router::onPropertyChangeGateWayMax) {
 	m_interfaceClientServer = ememory::makeShared<appl::TcpServerInput>(this, false);
 	m_interfaceGateWayServer = ememory::makeShared<appl::TcpServerInput>(this, true);
 }

@@ -18,17 +18,17 @@ appl::GateWayInterface::GateWayInterface(enet::Tcp _connection, appl::Router* _r
   m_routerInterface(_routerInterface),
   m_interfaceClient(std::move(_connection), true),
   m_lastSourceID(0x8000) {
-	ZEUS_INFO("--------------------------");
-	ZEUS_INFO("-- NEW GateWay Back-end --");
-	ZEUS_INFO("--------------------------");
+	ZEUS_INFO("-----------------");
+	ZEUS_INFO("-- NEW GateWay --");
+	ZEUS_INFO("-----------------");
 	
 }
 
 appl::GateWayInterface::~GateWayInterface() {
 	
-	ZEUS_INFO("------------------------------");
-	ZEUS_INFO("-- DELETE GateWay Back-end  --");
-	ZEUS_INFO("------------------------------");
+	ZEUS_INFO("---------------------");
+	ZEUS_INFO("-- DELETE GateWay  --");
+	ZEUS_INFO("---------------------");
 }
 
 bool appl::GateWayInterface::isAlive() {

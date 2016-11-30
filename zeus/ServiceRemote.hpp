@@ -25,6 +25,8 @@ namespace zeus {
 		private:
 			ememory::SharedPtr<zeus::WebServer> m_interfaceClient;
 			std::string m_name;
+			uint16_t m_localId;
+			uint16_t m_localObjectId;
 			uint32_t m_serviceId;
 			bool m_isLinked;
 		public:
@@ -39,7 +41,7 @@ namespace zeus {
 			 * @param[in] 
 			 * @return 
 			 */
-			ServiceRemoteBase(ememory::SharedPtr<zeus::WebServer> _clientLink, const std::string& _name);
+			ServiceRemoteBase(ememory::SharedPtr<zeus::WebServer> _clientLink, const std::string& _name, uint16_t _localId, uint16_t _localObjectId);
 			/**
 			 * @brief 
 			 * @param[in] 
@@ -102,7 +104,10 @@ namespace zeus {
 					}
 					return zeus::FutureBase(0, ret);
 				}
-				return m_interface->m_interfaceClient->call(ZEUS_NO_ID_CLIENT, m_interface->m_serviceId, _functionName, _args...);
+				return m_interface->m_interfaceClient->call((uint32_t(m_interface->m_localId)<<16)+m_interface->m_localObjectId,
+				                                            m_interface->m_serviceId,
+				                                            _functionName,
+				                                            _args...);
 			}
 	};
 	
