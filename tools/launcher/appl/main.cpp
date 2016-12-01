@@ -21,7 +21,7 @@
 
 typedef bool (*SERVICE_IO_init_t)(int _argc, const char *_argv[], std::string _basePath);
 typedef bool (*SERVICE_IO_uninit_t)();
-typedef zeus::Object* (*SERVICE_IO_instanciate_t)(zeus::Client* _realClient, uint16_t _serviceId, uint16_t _clientId);
+typedef zeus::Object* (*SERVICE_IO_instanciate_t)(uint32_t, ememory::SharedPtr<zeus::WebServer>&, uint32_t);
 
 class PlugginAccess {
 	private:
@@ -83,9 +83,8 @@ class PlugginAccess {
 			if (m_SERVICE_IO_instanciate == nullptr) {
 				return false;
 			}
-			_client.serviceAdd(m_name,  [=](zeus::Client* _realClient, uint16_t _serviceId, uint16_t _clientId) {
-			                            	ememory::SharedPtr<zeus::Object> out((*m_SERVICE_IO_instanciate)(_realClient, _serviceId, _clientId));
-			                            	return out;
+			_client.serviceAdd(m_name,  [=](uint32_t _transactionId, ememory::SharedPtr<zeus::WebServer>& _iface, uint32_t _destination) {
+			                            	(*m_SERVICE_IO_instanciate)(_transactionId, _iface, _destination);
 			                            });
 			return true;
 		}

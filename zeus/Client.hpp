@@ -15,6 +15,7 @@
 #include <zeus/Object.hpp>
 
 namespace zeus {
+	class Object;
 	/**
 	 * @brief Client interface to acces on the remote service and gateway
 	 */
@@ -24,13 +25,11 @@ namespace zeus {
 			eproperty::Value<std::string> propertyIp; //!< Ip of WebSocket TCP connection
 			eproperty::Value<uint16_t> propertyPort; //!< Port of the WebSocket connection
 		public:
-			uint16_t m_localAddress;
-			uint16_t m_licalIdObjectIncrement; //!< attribute a unique ID for an object
 			std::string m_clientName; //!< Local client name to generate the local serrvice name if needed (if direct connection ==> no name)
 			ememory::SharedPtr<zeus::WebServer> m_interfaceWeb; //!< Interface on the Websocket interface
 			std::vector<ememory::WeakPtr<zeus::ServiceRemoteBase>> m_listConnectedService; //!< Connect only one time on each service, not needed more.
-			std::vector<ememory::SharedPtr<zeus::Object>> m_listProvicedService; //!< Connect only one time on each service, not needed more.
-			std::vector<ememory::SharedPtr<zeus::Object>> m_listLocalObject;
+			//std::vector<ememory::SharedPtr<zeus::Object>> m_listProvicedService; //!< Connect only one time on each service, not needed more.
+			//std::vector<ememory::SharedPtr<zeus::Object>> m_listLocalObject;
 		public:
 			void answerProtocolError(uint32_t _transactionId, const std::string& _errorHelp);
 			ememory::SharedPtr<zeus::WebServer> getWebInterface() {
@@ -89,7 +88,7 @@ namespace zeus {
 			 * @return Pointer on an interface of remote service
 			 */
 			zeus::ServiceRemote getService(const std::string& _serviceName);
-			using factoryService = std::function<ememory::SharedPtr<zeus::Object>(zeus::Client*, uint16_t, uint16_t)>; // pointer on this, object ID, client creator ID
+			using factoryService = std::function<void(uint32_t, ememory::SharedPtr<zeus::WebServer>& _iface, uint32_t _destination)>; // call this function anser to the callter the requested Object
 			
 			std::map<std::string,factoryService> m_listServicesAvaillable; //!< list of all factory availlable
 			/**
@@ -123,11 +122,11 @@ namespace zeus {
 					ret->addError("NULLPTR", "call " + _functionName + " with no interface open");
 					return zeus::FutureBase(0, ret);
 				}
-				uint32_t source = (uint32_t(m_localAddress) << 16) + _srcObjectId;
+				uint32_t source = (uint32_t(m_interfaceWeb->getAddress()) << 16) + _srcObjectId;
 				return m_interfaceWeb->call(source, _destination, _functionName, _args...);
 			}
 			uint16_t getlocalAddress() {
-				return m_localAddress;
+				return m_interfaceWeb->getAddress();
 			}
 		private:
 			/**

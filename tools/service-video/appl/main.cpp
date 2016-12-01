@@ -19,6 +19,7 @@
 
 #include <zeus/service/Video.hpp>
 #include <zeus/service/registerVideo.hpp>
+#include <zeus/ProxyClientProperty.hpp>
 
 static std::mutex g_mutex;
 static std::string g_basePath;
@@ -35,7 +36,7 @@ static uint64_t createFileID() {
 namespace appl {
 	class VideoService : public zeus::service::Video {
 		private:
-			ememory::SharedPtr<zeus::ClientProperty> m_client;
+			zeus::ProxyClientProperty m_client;
 			std::string m_userName;
 		public:
 			/*

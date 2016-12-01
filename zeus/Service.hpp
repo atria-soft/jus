@@ -100,15 +100,21 @@ namespace zeus {
 	template<class ZEUS_TYPE_SERVICE>
 	class ServiceType : public zeus::Object {
 		public:
-			using factory = std::function<ememory::SharedPtr<ZEUS_TYPE_SERVICE>(uint16_t)>;
+			//using factory = std::function<ememory::SharedPtr<ZEUS_TYPE_SERVICE>(uint16_t)>;
 		private:
 			// no need of shared_ptr or unique_ptr (if service die all is lost and is client die, the gateway notify us...)
 			ememory::SharedPtr<ClientPropertyddd> m_property;
 			ememory::SharedPtr<ZEUS_TYPE_SERVICE> m_interface;
 		public:
-			ServiceType(zeus::Client* _client, uint16_t _objectId, uint16_t _clientId, factory _factory) :
-			  Object(_client, _objectId) {
+			/*
+			ServiceType(const ememory::SharedPtr<zeus::WebServer>& _iface, uint16_t _objectId, uint16_t _clientId, factory _factory) :
+			  Object(_iface, _objectId) {
 				m_interface = _factory(_clientId);
+			}*/
+			ServiceType(const ememory::SharedPtr<zeus::WebServer>& _iface, uint16_t _objectId, const ememory::SharedPtr<ZEUS_TYPE_SERVICE>& _element) :
+			  Object(_iface, _objectId),
+			  m_interface(_element) {
+				// nothing else to do ...
 			}
 			/*
 			ServiceType(zeus::Client* _client, uint16_t _objectId, ememory::makeShared<ZEUS_TYPE_SERVICE> _instance) :
@@ -253,7 +259,7 @@ namespace zeus {
 				/*
 				auto it = m_interface.find(_obj->getSourceId());
 				if (it == m_interface.end()) {
-					m_interfaceClient->answerError(_obj->getTransactionId(), _obj->getDestination(), _obj->getSource(), "CLIENT-UNKNOW", "");
+					m_interfaceWeb->answerError(_obj->getTransactionId(), _obj->getDestination(), _obj->getSource(), "CLIENT-UNKNOW", "");
 					return;
 				}
 				*/
@@ -267,19 +273,19 @@ namespace zeus {
 					switch (it2->getType()) {
 						case zeus::AbstractFunction::type::object: {
 							ZEUS_TYPE_SERVICE* elem = m_interface.get();
-							it2->execute(m_interfaceClient, _obj, (void*)elem);
+							it2->execute(m_interfaceWeb, _obj, (void*)elem);
 							return;
 						}
 						case zeus::AbstractFunction::type::local: {
-							it2->execute(m_interfaceClient, _obj, (void*)((RemoteProcessCall*)this));
+							it2->execute(m_interfaceWeb, _obj, (void*)((RemoteProcessCall*)this));
 							return;
 						}
 						case zeus::AbstractFunction::type::service: {
-							it2->execute(m_interfaceClient, _obj, (void*)this);
+							it2->execute(m_interfaceWeb, _obj, (void*)this);
 							return;
 						}
 						case zeus::AbstractFunction::type::global: {
-							it2->execute(m_interfaceClient, _obj, nullptr);
+							it2->execute(m_interfaceWeb, _obj, nullptr);
 							return;
 						}
 						case zeus::AbstractFunction::type::unknow:
@@ -287,7 +293,7 @@ namespace zeus {
 							break;
 					}
 				}
-				m_interfaceClient->answerError(_obj->getTransactionId(), _obj->getDestination(), _obj->getSource(), "FUNCTION-UNKNOW", "");
+				m_interfaceWeb->answerError(_obj->getTransactionId(), _obj->getDestination(), _obj->getSource(), "FUNCTION-UNKNOW", "");
 				return;
 			}
 	};

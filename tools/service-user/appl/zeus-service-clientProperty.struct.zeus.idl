@@ -1,0 +1,12 @@
+#elem-brief: client property struture
+#elem-version: 1.0
+#elem-author:Heero Yui<yui.heero@gmail.com>
+
+#brief:Name of the client
+string name
+
+#brief:List of group of the Client
+vector:string groups
+
+#brief:List of the authorised functions
+vector:string listAthorizedFunction

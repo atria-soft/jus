@@ -16,6 +16,7 @@
 
 #include <zeus/service/User.hpp>
 #include <zeus/service/registerUser.hpp>
+#include <zeus/ProxyClientProperty.hpp>
 
 static std::mutex g_mutex;
 static std::string g_basePath;
@@ -25,7 +26,7 @@ static ejson::Document g_database;
 namespace appl {
 	class SystemService : public zeus::service::User {
 		private:
-			ememory::SharedPtr<zeus::ClientProperty> m_client;
+			zeus::ProxyClientProperty m_client;
 			std::string m_userName;
 		public:
 			/*
@@ -45,11 +46,13 @@ namespace appl {
 			std::vector<std::string> clientGroupsGet(std::string _clientName) {
 				APPL_WARNING("call clientGroupsGet : " << _clientName);
 				std::vector<std::string> out;
+				/*
 				if (m_client == nullptr) {
 					return out;
 				}
+				*/
 				// TODO: check if basished ...
-				if (m_client->getName() != "") {
+				if (m_client.getName().get() != "") {
 					std::unique_lock<std::mutex> lock(g_mutex);
 					std::vector<std::string> out;
 					ejson::Object clients = g_database["client"].toObject();
@@ -57,7 +60,7 @@ namespace appl {
 						// Section never created
 						return out;
 					}
-					ejson::Object client = clients[m_client->getName()].toObject();
+					ejson::Object client = clients[m_client.getName().get()].toObject();
 					if (clients.exist() == false) {
 						// No specificity for this client (in case it have no special right)
 						return out;

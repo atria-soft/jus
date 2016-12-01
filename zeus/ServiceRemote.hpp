@@ -14,7 +14,7 @@
 #include <zeus/WebObj.hpp>
 
 namespace zeus {
-	class Client;
+	//class Client;
 	class ServiceRemote;
 	/**
 	 * @brief 

@@ -186,7 +186,7 @@ int main(int _argc, const char *_argv[]) {
 					}
 				}
 			}
-			#if 1
+			#if 0
 				echrono::Steady start = echrono::Steady::now();
 				//zeus::File tmp("./testzz.png");
 				zeus::File tmp("./tmpResult.bmp");

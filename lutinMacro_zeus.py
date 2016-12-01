@@ -390,6 +390,7 @@ class ServiceDefinition:
 		filename = ""
 		for elem in self.name[:-1]:
 			filename += elem + "/"
+		register_filename = filename + "register" + self.name[-1] + ".hpp";
 		filename += self.name[-1] + ".cpp";
 		out = ""
 		
@@ -409,6 +410,7 @@ class ServiceDefinition:
 		out += " */\n"
 		out += "\n"
 		out += "#include <" + filename.replace(".cpp",".hpp") + ">\n"
+		out += "#include <" + register_filename + ">\n"
 		out += "#include <etk/types.hpp>\n"
 		out += "#include <zeus/Buffer.hpp>\n"
 		out += "#include <zeus/BufferData.hpp>\n"
@@ -418,37 +420,47 @@ class ServiceDefinition:
 		out += "#include <zeus/AbstractFunction.hpp>\n"
 		out += "#include <climits>\n"
 		out += "#include <etk/os/FSNode.hpp>\n"
-		out += "#include <zeus/mineType.hpp>\n"
+		out += "#include <zeus/BufferParameter.hpp>\n"
 		out += "#include <zeus/WebServer.hpp>\n"
+		out += "#include <zeus/Object.hpp>\n"
 		out += "\n"
 		
 		# now gebnerate the get and set parameter object ...
 		out += "namespace zeus {\n"
-		"""
-		out += "	template<> const zeus::ParamType& createType<" + class_name + ">() {\n"
-		out += "		static zeus::ParamType type(\"obj:" + class_name + "\", zeus::paramTypeObject, false, false);\n"
+		out += "	template<> const zeus::ParamType& createType<ememory::SharedPtr<" + class_name + ">>() {\n"
+		if object == True:
+			out += "		static zeus::ParamType type(\"obj:" + class_name + "\", zeus::paramTypeObject, false, false);\n"
+		else:
+			out += "		static zeus::ParamType type(\"srv:" + class_name + "\", zeus::paramTypeService, false, false);\n"
 		out += "		return type;\n"
 		out += "	}\n"
-		"""
 		out += "	template<>\n"
-		out += "	void BufferParameter::addParameter<" + class_name + ">(const ememory::SharedPtr<zeus::WebServer>& _iface, uint16_t _paramId, const ememory::SharedPtr<" + class_name + ">& _value) {\n"
+		out += "	void BufferParameter::addParameter<ememory::SharedPtr<" + class_name + ">>(const ememory::SharedPtr<zeus::WebServer>& _iface, uint16_t _paramId, const ememory::SharedPtr<" + class_name + ">& _value) {\n"
 		out += "		std::vector<uint8_t> data;\n"
 		"""
 		out += "		addType(data, createType<" + class_name + ">());\n"
 		"""
-		out += "		addTypeObject(data, \"" + class_name + "\");\n"
+		if object == True:
+			out += "		addTypeObject(data, \"" + class_name + "\");\n"
+		else:
+			out += "		addTypeService(data, \"" + class_name + "\");\n"
 		out += "		int32_t currentOffset = data.size();\n"
 		out += "		int32_t startOffset = data.size();\n"
 		out += "		data.resize(data.size()+4);\n"
 		out += "		uint32_t fullId = 0;\n"
 		# convert the object in a real System Object ....
 		out += "		if (_iface != nullptr) {\n"
-		out += "			uint16_t id    = _iface->getAdress();\n"
-		out += "			uint16_t idObj = _iface->getNewObjectId();\n"
-		out += "			ememory::SharedPtr<zeus::ObjectType<" + class_name + ">> obj(_iface, idObj, _value);\n"
-		out += "			" + namespace + "register" + self.name[-1] + "(_value);\n"
-		out += "			_iface->addObject(obj)\n"
-		out += "			fullId = (uint32_t(id)<<16)+idObj\n"
+		out += "			ememory::SharedPtr<zeus::WebServer> _iface2 = _iface;\n"
+		out += "			uint16_t id    = _iface2->getAddress();\n"
+		out += "			uint16_t idObj = _iface2->getNewObjectId();\n"
+		if object == True:
+			out += "			ememory::SharedPtr<zeus::ObjectType<" + class_name + ">> obj = ememory::makeShared<zeus::ObjectType<" + class_name + ">>(_iface, idObj, _value);\n"
+		else:
+			out += "			ememory::SharedPtr<zeus::ServiceType<" + class_name + ">> obj = ememory::makeShared<zeus::ServiceType<" + class_name + ">>(_iface, idObj, _value);\n"
+		
+		out += "			" + namespace + "register" + self.name[-1] + "(*obj);\n"
+		out += "			_iface2->addWebObj(obj);\n"
+		out += "			fullId = (uint32_t(id)<<16)+idObj;\n"
 		out += "		}\n"
 		# return Object ID and interface adress
 		out += "		memcpy(&data[currentOffset], &fullId, 4);\n"
@@ -505,26 +517,17 @@ class ServiceDefinition:
 		else:
 			out += space + "void register" + self.name[-1] + "(zeus::ServiceType<" + class_name + ">& _interface);\n"
 		out += space + "\n"
-		if object == False:
-			out += space + "template<class " + MACRO_BASE_NAME + "TYPE>\n"
-			out += space + "zeus::Object* create" + self.name[-1] + "(zeus::Client* _client, uint16_t _objectId, uint16_t _clientId, zeus::ServiceType<" + class_name + ">::factory _factory) {\n"
-			out += space + "	zeus::ServiceType<" + class_name + ">* tmp = nullptr;\n"
-			out += space + "	tmp = new zeus::ServiceType<" + class_name + ">(_client, _objectId, _clientId, _factory);\n"
-			out += space + "	zeus::service::register" + self.name[-1] + "(*tmp);\n"
-			out += space + "	return tmp;\n"
-			out += space + "}\n"
-			out += space + "\n"
 		for elem in self.name[:-1]:
 			space = space[:-1]
 			out += space + "}\n"
 		out += space + "\n"
 		if object == False:
 			out += space + "#define " + MACRO_BASE_NAME + "DECLARE(type) \\\n"
-			out += space + "	ETK_EXPORT_API zeus::Object* SERVICE_IO_instanciate(zeus::Client* _client, uint16_t _objectId, uint16_t _clientId) { \\\n"
-			out += space + "		return " + namespace + "create" + self.name[-1] + "<type>(_client, _objectId, _clientId, \\\n"
-			out += space + "		                                 [](uint16_t _clientId){ \\\n"
-			out += space + "		                                 	return ememory::makeShared<type>(_clientId); \\\n"
-			out += space + "		                                 }); \\\n"
+			out += space + "	ETK_EXPORT_API void SERVICE_IO_instanciate(uint32_t _transactionId, ememory::SharedPtr<zeus::WebServer>& _iface, uint32_t _destination) { \\\n"
+			out += space + "		ememory::SharedPtr<type> tmp; \\\n"
+			out += space + "		tmp = ememory::makeShared<type>(_destination>>16); \\\n"
+			out += space + "		ememory::SharedPtr<" + class_name + "> tmp2 = tmp; \\\n"
+			out += space + "		_iface->answerValue(_transactionId, _destination, uint32_t(_iface->getAddress())<<16, tmp2); \\\n"
 			out += space + "	}\n"
 			out += space + "\n"
 			"""

@@ -12,22 +12,22 @@
 
 
 
-zeus::Object::Object(zeus::Client* _client, uint16_t _objectId) :
+/*zeus::Object::Object(zeus::Client* _client, uint16_t _objectId) :
   zeus::RemoteProcessCall(_client->getWebInterface(), _client->m_localAddress, _objectId),
   m_clientId(_client->m_localAddress),
   m_objectId(_objectId) {
-	/*
+	/ *
 	zeus::AbstractFunction* func = advertise("getExtention", &zeus::Object::getExtention);
 	if (func != nullptr) {
 		func->setDescription("Get List of availlable extention of this Object");
 		func->setReturn("A list of extention register in the Object");
 	}
-	*/
+	* /
 }
-
+*/
 zeus::Object::Object(const ememory::SharedPtr<zeus::WebServer>& _iface, uint16_t _objectId) :
-  zeus::RemoteProcessCall(_iface, _iface->getAdress(), _objectId),
-  m_clientId(_iface->getAdress()),
+  zeus::RemoteProcessCall(_iface, _iface->getAddress(), _objectId),
+  m_clientId(_iface->getAddress()),
   m_objectId(_objectId) {
 	
 }

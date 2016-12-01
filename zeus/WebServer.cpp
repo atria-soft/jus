@@ -32,6 +32,8 @@ static uint32_t interfaceId = 1;
 
 zeus::WebServer::WebServer() :
   m_connection(),
+  m_localAddress(0),
+  m_licalIdObjectIncrement(1),
   m_observerElement(nullptr),
   m_threadAsync(nullptr) {
 	m_interfaceId = interfaceId++;
@@ -41,6 +43,8 @@ zeus::WebServer::WebServer() :
 
 zeus::WebServer::WebServer(enet::Tcp _connection, bool _isServer) :
   m_connection(),
+  m_localAddress(0),
+  m_licalIdObjectIncrement(1),
   m_observerElement(nullptr),
   m_threadAsync(nullptr) {
 	m_interfaceId = interfaceId++;
@@ -69,6 +73,10 @@ zeus::WebServer::~WebServer() {
 
 void zeus::WebServer::setInterfaceName(const std::string& _name) {
 	//ethread::setName(*m_thread, "Tcp-" + _name);
+}
+
+void zeus::WebServer::addWebObj(ememory::SharedPtr<zeus::WebObj> _obj) {
+	m_listObject.push_back(_obj);
 }
 
 
@@ -257,6 +265,16 @@ void zeus::WebServer::newBuffer(ememory::SharedPtr<zeus::Buffer> _buffer) {
 		}
 	}
 	if (future.isValid() == false) {
+		uint32_t dest = _buffer->getDestination();
+		for (auto &it : m_listObject) {
+			if (it == nullptr) {
+				continue;
+			}
+			if (it->getFullId() == dest) {
+				it->receive(_buffer);
+				return;
+			}
+		}
 		// not a pending call ==> simple event or call ...
 		if (m_observerElement != nullptr) {
 			m_observerElement(_buffer);

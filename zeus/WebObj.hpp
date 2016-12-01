@@ -26,6 +26,9 @@ namespace zeus {
 			uint32_t getFullId() {
 				return (uint32_t(m_id) << 16 ) + m_objectId;
 			}
+			virtual void receive(ememory::SharedPtr<zeus::Buffer> _value) {
+				ZEUS_ERROR("Receive a message ==> not implemented magaging ..." << _value);
+			}
 		
 	};
 }

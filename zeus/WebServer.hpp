@@ -91,6 +91,24 @@ namespace zeus {
 			std::vector<ememory::SharedPtr<zeus::WebObj>> m_actifObject; //!< List of all active object created and that remove is in progress ...
 		private:
 			enet::WebSocket m_connection;
+			
+			uint16_t m_localAddress;
+			uint16_t m_licalIdObjectIncrement; //!< attribute a unique ID for an object
+		public:
+			uint16_t getAddress() const {
+				return m_localAddress;
+			}
+			void setAddress(uint16_t _address) {
+				m_localAddress = _address;
+			}
+			uint16_t getNewObjectId() {
+				return m_licalIdObjectIncrement++;
+			}
+		private:
+			std::vector<ememory::SharedPtr<zeus::WebObj>> m_listObject;
+		public:
+			void addWebObj(ememory::SharedPtr<zeus::WebObj> _obj);
+		private:
 			uint32_t m_interfaceId;
 			uint16_t m_transmissionId;
 			uint16_t getId() {

@@ -19,6 +19,7 @@
 
 #include <zeus/service/Picture.hpp>
 #include <zeus/service/registerPicture.hpp>
+#include <zeus/ProxyClientProperty.hpp>
 
 static std::mutex g_mutex;
 static std::string g_basePath;
@@ -36,7 +37,7 @@ namespace appl {
 	class PictureService : public zeus::service::Picture  {
 		private:
 			//ememory::SharedPtr<zeus::ClientProperty>& m_client;
-			ememory::SharedPtr<zeus::ClientProperty> m_client;
+			zeus::ProxyClientProperty m_client;
 			std::string m_userName;
 		public:
 			/*

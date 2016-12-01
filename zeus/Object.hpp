@@ -12,6 +12,7 @@
 #include <zeus/debug.hpp>
 #include <zeus/RemoteProcessCall.hpp>
 #include <zeus/Future.hpp>
+#include <zeus/Client.hpp>
 
 /**
  * @brief Main zeus library namespace
@@ -37,7 +38,7 @@ namespace zeus {
 			 * @param[in] 
 			 * @return 
 			 */
-			Object(zeus::Client* _client, uint16_t _objectId);
+			//Object(zeus::Client* _client, uint16_t _objectId);
 			Object(const ememory::SharedPtr<zeus::WebServer>& _iface, uint16_t _objectId);
 			/**
 			 * @brief 
@@ -46,11 +47,6 @@ namespace zeus {
 			 */
 			virtual ~Object();
 		public:
-			/**
-			 * @brief 
-			 * @param[in] 
-			 * @return 
-			 */
 			void receive(ememory::SharedPtr<zeus::Buffer> _value);
 		private:
 			/**
@@ -107,11 +103,11 @@ namespace zeus {
 			/*
 			ObjectType(zeus::Client* _client, uint16_t _objectId, uint16_t _clientId) :
 			  Object(_client, _objectId) {
-				m_interface = ememory::makeShared<ZEUS_TYPE_OBJECT>(_clientId);
+				m_interface = ememory::makeShared<ZEUS_TYPE_OBJECT>(/ *_clientId* /);
 			}
 			*/
-			ObjectType(zeus::Client* _client, uint16_t _objectId, const ememory::SharedPtr<ZEUS_TYPE_OBJECT>& _element) :
-			  Object(_client, _objectId),
+			ObjectType(const ememory::SharedPtr<zeus::WebServer>& _iface, uint16_t _objectId, const ememory::SharedPtr<ZEUS_TYPE_OBJECT>& _element) :
+			  Object(_iface, _objectId),
 			  m_interface(_element) {
 				// nothing else to do ...
 			}
@@ -181,19 +177,19 @@ namespace zeus {
 					switch (it2->getType()) {
 						case zeus::AbstractFunction::type::object: {
 							ZEUS_TYPE_OBJECT* elem = m_interface.get();
-							it2->execute(m_interfaceClient, _obj, (void*)elem);
+							it2->execute(m_interfaceWeb, _obj, (void*)elem);
 							return;
 						}
 						case zeus::AbstractFunction::type::local: {
-							it2->execute(m_interfaceClient, _obj, (void*)((RemoteProcessCall*)this));
+							it2->execute(m_interfaceWeb, _obj, (void*)((RemoteProcessCall*)this));
 							return;
 						}
 						case zeus::AbstractFunction::type::service: {
-							it2->execute(m_interfaceClient, _obj, (void*)this);
+							it2->execute(m_interfaceWeb, _obj, (void*)this);
 							return;
 						}
 						case zeus::AbstractFunction::type::global: {
-							it2->execute(m_interfaceClient, _obj, nullptr);
+							it2->execute(m_interfaceWeb, _obj, nullptr);
 							return;
 						}
 						case zeus::AbstractFunction::type::unknow:
@@ -201,7 +197,7 @@ namespace zeus {
 							break;
 					}
 				}
-				m_interfaceClient->answerError(_obj->getTransactionId(), _obj->getDestination(), _obj->getSource(), "FUNCTION-UNKNOW", "not find function name: '" + _call + "'");
+				m_interfaceWeb->answerError(_obj->getTransactionId(), _obj->getDestination(), _obj->getSource(), "FUNCTION-UNKNOW", "not find function name: '" + _call + "'");
 				return;
 			}
 	};
