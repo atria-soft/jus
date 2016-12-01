@@ -15,7 +15,7 @@ namespace zeus {
 	 */
 	class BaseProxy {
 		protected:
-			zeus::ServiceRemote m_srv; //!< Service instance handle
+			zeus::ServiceRemote m_obj; //!< Service instance handle
 		public:
 			zeus::SystemProxy sys;
 			zeus::ServiceProxy srv;

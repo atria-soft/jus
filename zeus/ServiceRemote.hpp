@@ -11,6 +11,7 @@
 #include <zeus/ServiceRemote.hpp>
 #include <zeus/Future.hpp>
 #include <zeus/WebServer.hpp>
+#include <zeus/WebObj.hpp>
 
 namespace zeus {
 	class Client;
@@ -20,13 +21,10 @@ namespace zeus {
 	 * @param[in] 
 	 * @return 
 	 */
-	class ServiceRemoteBase {
+	class ServiceRemoteBase : public zeus::WebObj {
 		friend class ServiceRemote;
 		private:
-			ememory::SharedPtr<zeus::WebServer> m_interfaceClient;
 			std::string m_name;
-			uint16_t m_localId;
-			uint16_t m_localObjectId;
 			uint32_t m_serviceId;
 			bool m_isLinked;
 		public:
@@ -35,7 +33,10 @@ namespace zeus {
 			 * @param[in] 
 			 * @return 
 			 */
-			ServiceRemoteBase() = default;
+			ServiceRemoteBase():
+			  zeus::WebObj(nullptr, 0, 0) {
+				
+			}
 			/**
 			 * @brief 
 			 * @param[in] 
@@ -97,17 +98,17 @@ namespace zeus {
 			template<class... _ARGS>
 			zeus::FutureBase call(const std::string& _functionName, _ARGS&&... _args) {
 				if (    m_interface == nullptr
-				     || m_interface->m_interfaceClient == nullptr) {
+				     || m_interface->m_interfaceWeb == nullptr) {
 					ememory::SharedPtr<zeus::BufferAnswer> ret = zeus::BufferAnswer::create();
 					if (ret != nullptr) {
 						ret->addError("NULLPTR", "call " + _functionName + " with no interface open");
 					}
 					return zeus::FutureBase(0, ret);
 				}
-				return m_interface->m_interfaceClient->call((uint32_t(m_interface->m_localId)<<16)+m_interface->m_localObjectId,
-				                                            m_interface->m_serviceId,
-				                                            _functionName,
-				                                            _args...);
+				return m_interface->m_interfaceWeb->call(m_interface->getFullId(),
+				                                         m_interface->m_serviceId,
+				                                         _functionName,
+				                                         _args...);
 			}
 	};
 	

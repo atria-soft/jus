@@ -23,7 +23,7 @@ ememory::SharedPtr<zeus::BufferCall> zeus::createBaseCall(uint64_t _transactionI
 	return obj;
 }
 
-void zeus::createParam(int32_t _paramId, ememory::SharedPtr<zeus::BufferCall> _obj) {
+void zeus::createParam(const ememory::SharedPtr<zeus::WebServer>& _iface, int32_t _paramId, ememory::SharedPtr<zeus::BufferCall> _obj) {
 	// Finish recursive parse ...
 }
 
@@ -384,6 +384,7 @@ void zeus::WebServer::callForwardMultiple(uint16_t _srcObjectId,
 }
 */
 
+/*
 void zeus::WebServer::sendCtrl(uint32_t _source, uint32_t _destination, const std::string& _ctrlValue) {
 	auto ctrl = zeus::BufferCtrl::create();
 	if (ctrl == nullptr) {
@@ -395,6 +396,7 @@ void zeus::WebServer::sendCtrl(uint32_t _source, uint32_t _destination, const st
 	ctrl->setCtrl(_ctrlValue);
 	writeBinary(ctrl);
 }
+*/
 
 void zeus::WebServer::answerError(uint32_t _clientTransactionId, uint32_t _source, uint32_t _destination, const std::string& _errorValue, const std::string& _errorHelp) {
 	auto answer = zeus::BufferAnswer::create();

@@ -10,17 +10,15 @@
 
 
 zeus::ServiceRemoteBase::ServiceRemoteBase(ememory::SharedPtr<zeus::WebServer> _clientLink, const std::string& _name, uint16_t _localId, uint16_t _localObjectId):
-  m_interfaceClient(_clientLink),
+  zeus::WebObj(_clientLink, _localId, _localObjectId),
   m_name(_name),
-  m_localId(_localId),
-  m_localObjectId(_localObjectId),
   m_serviceId(0),
   m_isLinked(false) {
-	if (m_interfaceClient == nullptr) {
+	if (m_interfaceWeb == nullptr) {
 		return;
 	}
 	// little hack : Call the service manager with the service ID=0 ...
-	zeus::Future<uint32_t> ret = m_interfaceClient->call((uint32_t(m_localId)<<16)+m_localObjectId, ZEUS_GATEWAY_ADDRESS, "link", _name);
+	zeus::Future<uint32_t> ret = m_interfaceWeb->call(getFullId(), ZEUS_GATEWAY_ADDRESS, "link", _name);
 	ret.wait();
 	if (ret.hasError() == true) {
 		ZEUS_WARNING("Can not link with the service named: '" << _name << "' ==> link error");
@@ -35,7 +33,7 @@ zeus::ServiceRemoteBase::~ServiceRemoteBase() {
 		uint32_t tmpLocalService = m_serviceId;
 		// little hack : Call the service manager with the service ID=0 ...
 		m_serviceId = 0;
-		zeus::Future<bool> ret = m_interfaceClient->call((uint32_t(m_localId)<<16)+m_localObjectId, m_serviceId, "unlink", tmpLocalService);
+		zeus::Future<bool> ret = m_interfaceWeb->call(getFullId(), m_serviceId, "unlink", tmpLocalService);
 		ret.wait();
 		if (ret.hasError() == true) {
 			ZEUS_WARNING("Can not unlink with the service id: '" << tmpLocalService << "' ==> link error");

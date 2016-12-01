@@ -10,7 +10,7 @@
 #include <zeus/BufferParameter.hpp>
 
 namespace zeus {
-
+	class WebServer;
 	class BufferAnswer :
 	  public BufferParameter {
 		friend class zeus::Buffer;
@@ -43,8 +43,8 @@ namespace zeus {
 			 * @param[in] _value Value to add
 			 */
 			template<class ZEUS_TYPE_DATA>
-			void addAnswer(const ZEUS_TYPE_DATA& _value) {
-				addParameter(_value);
+			void addAnswer(const ememory::SharedPtr<zeus::WebServer>& _iface, const ZEUS_TYPE_DATA& _value) {
+				addParameter(_iface, _value);
 			}
 			/**
 			 * @brief get the answer value

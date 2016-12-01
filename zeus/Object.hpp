@@ -27,9 +27,8 @@ namespace zeus {
 		protected:
 			std::mutex m_mutex;
 		protected:
-			ememory::SharedPtr<zeus::WebServer> m_interfaceClient;
-			uint16_t m_clientId;
-			uint16_t m_objectId;
+			uint16_t m_clientId; // TODO : Remove it
+			uint16_t m_objectId; // TODO : Remove it
 			std::vector<zeus::FutureBase> m_callMultiData;
 		public:
 			uint16_t getObjectId() { return m_objectId; }
@@ -39,6 +38,7 @@ namespace zeus {
 			 * @return 
 			 */
 			Object(zeus::Client* _client, uint16_t _objectId);
+			Object(const ememory::SharedPtr<zeus::WebServer>& _iface, uint16_t _objectId);
 			/**
 			 * @brief 
 			 * @param[in] 
@@ -104,9 +104,16 @@ namespace zeus {
 		private:
 			ememory::SharedPtr<ZEUS_TYPE_OBJECT> m_interface; // direct handle on the data;
 		public:
+			/*
 			ObjectType(zeus::Client* _client, uint16_t _objectId, uint16_t _clientId) :
 			  Object(_client, _objectId) {
 				m_interface = ememory::makeShared<ZEUS_TYPE_OBJECT>(_clientId);
+			}
+			*/
+			ObjectType(zeus::Client* _client, uint16_t _objectId, const ememory::SharedPtr<ZEUS_TYPE_OBJECT>& _element) :
+			  Object(_client, _objectId),
+			  m_interface(_element) {
+				// nothing else to do ...
 			}
 		public:
 			/**
@@ -173,7 +180,8 @@ namespace zeus {
 					}
 					switch (it2->getType()) {
 						case zeus::AbstractFunction::type::object: {
-							it2->execute(m_interfaceClient, _obj, (void*)m_interface);
+							ZEUS_TYPE_OBJECT* elem = m_interface.get();
+							it2->execute(m_interfaceClient, _obj, (void*)elem);
 							return;
 						}
 						case zeus::AbstractFunction::type::local: {

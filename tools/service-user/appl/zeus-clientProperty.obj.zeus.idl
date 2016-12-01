@@ -1,0 +1,13 @@
+#elem-brief: Client Property object
+#elem-version: 1.0
+#elem-type:USER-PROPERTY
+#elem-author:Heero Yui<yui.heero@gmail.com>
+
+#brief:Name of the user
+string name
+
+#brief:Groups of the user
+vector:string groups
+
+#brief:list of function athorised
+vector:string functionList

@@ -88,6 +88,7 @@ def configure(target, my_module):
 	    'zeus/RemoteProcessCall.hpp',
 	    'zeus/Service.hpp',
 	    'zeus/ServiceRemote.hpp',
+	    'zeus/WebObj.hpp',
 	    'zeus/WebServer.hpp',
 	    'zeus/mineType.hpp',
 	    'zeus/BaseProxy.hpp',

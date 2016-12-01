@@ -11,6 +11,7 @@
 #include <ememory/memory.hpp>
 #include <zeus/AbstractFunction.hpp>
 #include <zeus/FutureBase.hpp>
+#include <zeus/WebObj.hpp>
 
 //#define ZEUS_NO_ID_CLIENT (0xFFFFFFFF)
 #define ZEUS_NO_ID_CLIENT (0x00000000)
@@ -22,6 +23,7 @@
 
 
 namespace zeus {
+	class WebServer;
 	/**
 	 * @brief 
 	 * @param[in] 
@@ -33,7 +35,8 @@ namespace zeus {
 	 * @param[in] 
 	 * @return 
 	 */
-	void createParam(int32_t _paramId,
+	void createParam(const ememory::SharedPtr<zeus::WebServer>& _iface,
+	                 int32_t _paramId,
 	                 ememory::SharedPtr<zeus::BufferCall> _obj);
 	
 	/**
@@ -42,13 +45,14 @@ namespace zeus {
 	 * @return 
 	 */
 	template<class ZEUS_TYPE, class... _ARGS>
-	void createParam(int32_t _paramId,
+	void createParam(const ememory::SharedPtr<zeus::WebServer>& _iface,
+	                 int32_t _paramId,
 	                 ememory::SharedPtr<zeus::BufferCall> _obj,
 	                 const ZEUS_TYPE& _param,
 	                 _ARGS&&... _args) {
-		_obj->addParameter<ZEUS_TYPE>(_param);
+		_obj->addParameter<ZEUS_TYPE>(_iface, _param);
 		_paramId++;
-		createParam(_paramId, _obj, std::forward<_ARGS>(_args)...);
+		createParam(_iface, _paramId, _obj, std::forward<_ARGS>(_args)...);
 	}
 	/**
 	 * @brief 
@@ -57,11 +61,12 @@ namespace zeus {
 	 */
 	// convert const char in std::string ...
 	template<class... _ARGS>
-	void createParam(int32_t _paramId,
+	void createParam(const ememory::SharedPtr<zeus::WebServer>& _iface,
+	                 int32_t _paramId,
 	                 ememory::SharedPtr<zeus::BufferCall> _obj,
 	                 const char* _param,
 	                 _ARGS&&... _args) {
-		createParam(_paramId, _obj, std::string(_param), std::forward<_ARGS>(_args)...);
+		createParam(_iface, _paramId, _obj, std::string(_param), std::forward<_ARGS>(_args)...);
 	}
 	/**
 	 * @brief 
@@ -69,19 +74,21 @@ namespace zeus {
 	 * @return 
 	 */
 	template<class... _ARGS>
-	ememory::SharedPtr<zeus::BufferCall> createCall(uint64_t _transactionId, const uint32_t& _source, const uint32_t& _destination, const std::string& _functionName, _ARGS&&... _args) {
+	ememory::SharedPtr<zeus::BufferCall> createCall(const ememory::SharedPtr<zeus::WebServer>& _iface, uint64_t _transactionId, const uint32_t& _source, const uint32_t& _destination, const std::string& _functionName, _ARGS&&... _args) {
 		ememory::SharedPtr<zeus::BufferCall> callElem = createBaseCall(_transactionId, _source, _destination, _functionName);
 		if (callElem == nullptr) {
 			return nullptr;
 		}
-		createParam(0, callElem, std::forward<_ARGS>(_args)...);
+		createParam(_iface, 0, callElem, std::forward<_ARGS>(_args)...);
 		return callElem;
 	}
 	
 	/**
 	 * @brief 
 	 */
-	class WebServer {
+	class WebServer : public ememory::EnableSharedFromThis<zeus::WebServer> {
+		public:
+			std::vector<ememory::SharedPtr<zeus::WebObj>> m_actifObject; //!< List of all active object created and that remove is in progress ...
 		private:
 			enet::WebSocket m_connection;
 			uint32_t m_interfaceId;
@@ -260,7 +267,7 @@ namespace zeus {
 			template<class... _ARGS>
 			zeus::FutureBase call(const uint32_t& _source, const uint32_t& _destination, const std::string& _functionName, _ARGS&&... _args) {
 				uint16_t id = getId();
-				ememory::SharedPtr<zeus::BufferCall> callElem = zeus::createCall(id, _source, _destination, _functionName, std::forward<_ARGS>(_args)...);
+				ememory::SharedPtr<zeus::BufferCall> callElem = zeus::createCall(sharedFromThis(), id, _source, _destination, _functionName, std::forward<_ARGS>(_args)...);
 				return callBinary(id, callElem);
 			}
 		public:
@@ -302,7 +309,7 @@ namespace zeus {
 				answer->setTransactionId(_clientTransactionId);
 				answer->setSource(_source);
 				answer->setDestination(_destination);
-				answer->addAnswer(_value);
+				answer->addAnswer(sharedFromThis(), _value);
 				writeBinary(answer);
 			}
 			/**
@@ -326,7 +333,7 @@ namespace zeus {
 			 * @param[in] _ctrlValue Control to send
 			 * @return 
 			 */
-			void sendCtrl(uint32_t _source, uint32_t _destination, const std::string& _ctrlValue);
+			//void sendCtrl(uint32_t _source, uint32_t _destination, const std::string& _ctrlValue);
 	};
 }
 

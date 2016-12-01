@@ -9,17 +9,18 @@
 #include <zeus/AbstractFunctionTypeDirect.hpp>
 #include <zeus/AbstractFunctionTypeClass.hpp>
 #include <zeus/debug.hpp>
+#include <zeus/WebObj.hpp>
 
 namespace zeus {
 	/**
 	 * @brief Local declaration of call local data
 	 */
-	class RemoteProcessCall {
+	class RemoteProcessCall : public zeus::WebObj {
 		public:
 			/**
 			 * @brief Basic constructor
 			 */
-			RemoteProcessCall();
+			RemoteProcessCall(const ememory::SharedPtr<zeus::WebServer>& _iface, uint16_t _id, uint16_t _objectId);
 		protected:
 			std::vector<zeus::AbstractFunction*> m_listFunction; //!< List of all functions callable
 		protected:

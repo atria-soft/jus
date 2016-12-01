@@ -23,14 +23,14 @@ namespace zeus {
 	 * @param[in] 
 	 * @return 
 	 */
-	class ClientProperty {
+	class ClientPropertyddd {
 		public:
 			/**
 			 * @brief 
 			 * @param[in] 
 			 * @return 
 			 */
-			ClientProperty(const std::string& _clientName="", const std::vector<std::string>& _groups = std::vector<std::string>()) :
+			ClientPropertyddd(const std::string& _clientName="", const std::vector<std::string>& _groups = std::vector<std::string>()) :
 			  m_name(_clientName),
 			  m_groups(_groups) {
 				
@@ -103,7 +103,7 @@ namespace zeus {
 			using factory = std::function<ememory::SharedPtr<ZEUS_TYPE_SERVICE>(uint16_t)>;
 		private:
 			// no need of shared_ptr or unique_ptr (if service die all is lost and is client die, the gateway notify us...)
-			ememory::SharedPtr<ClientProperty> m_property;
+			ememory::SharedPtr<ClientPropertyddd> m_property;
 			ememory::SharedPtr<ZEUS_TYPE_SERVICE> m_interface;
 		public:
 			ServiceType(zeus::Client* _client, uint16_t _objectId, uint16_t _clientId, factory _factory) :
@@ -177,7 +177,7 @@ namespace zeus {
 				ZEUS_DEBUG("connect: " << _sourceId << " to '" << _userName << "'");
 				ZEUS_DEBUG("    client name='" << _clientName << "'");
 				ZEUS_DEBUG("    groups=" << etk::to_string(_groups));
-				ememory::SharedPtr<ClientProperty> tmpProperty = ememory::makeShared<ClientProperty>(_clientName, _groups);
+				ememory::SharedPtr<ClientPropertyddd> tmpProperty = ememory::makeShared<ClientPropertyddd>(_clientName, _groups);
 				ememory::SharedPtr<ZEUS_TYPE_SERVICE> tmpSrv;
 				if (m_factory != nullptr) {
 					tmpSrv = m_factory(tmpProperty, m_nameUser);

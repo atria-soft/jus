@@ -7,9 +7,10 @@
 #include <etk/types.hpp>
 #include <enet/WebSocket.hpp>
 #include <zeus/ParamType.hpp>
+#include <ememory/memory.hpp>
 
 namespace zeus {
-
+	class WebServer;
 	class BufferParameter:
 	  public Buffer {
 		protected:
@@ -68,11 +69,11 @@ namespace zeus {
 			 * @param[in] _value Value to add in parameter
 			 */
 			template<class ZEUS_TYPE_DATA>
-			void addParameter(uint16_t _paramId, const ZEUS_TYPE_DATA& _value);
+			void addParameter(const ememory::SharedPtr<zeus::WebServer>& _iface, uint16_t _paramId, const ZEUS_TYPE_DATA& _value);
 		public:
 			template<class ZEUS_TYPE_DATA>
-			void addParameter(const ZEUS_TYPE_DATA& _value) {
-				addParameter(m_parameter.size(), _value);
+			void addParameter(const ememory::SharedPtr<zeus::WebServer>& _iface, const ZEUS_TYPE_DATA& _value) {
+				addParameter(_iface, m_parameter.size(), _value);
 			}
 			void parameterAppendBufferData(ememory::SharedPtr<zeus::BufferData> _obj);
 	};

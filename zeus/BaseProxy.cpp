@@ -7,21 +7,21 @@
 #include <zeus/BaseProxy.hpp>
 #include <zeus/debug.hpp>
 
-const zeus::BaseProxy& zeus::BaseProxy::operator= (const zeus::ServiceRemote& _srv) {
-	m_srv = _srv;
+const zeus::BaseProxy& zeus::BaseProxy::operator= (const zeus::ServiceRemote& _obj) {
+	m_obj = _obj;
 	return *this;
 }
 zeus::BaseProxy::BaseProxy():
-  sys(m_srv),
-  srv(m_srv) {
+  sys(m_obj),
+  srv(m_obj) {
 	
 }
-zeus::BaseProxy::BaseProxy(const zeus::ServiceRemote& _srv):
-  m_srv(_srv),
-  sys(m_srv),
-  srv(m_srv) {
+zeus::BaseProxy::BaseProxy(const zeus::ServiceRemote& _obj):
+  m_obj(_obj),
+  sys(m_obj),
+  srv(m_obj) {
 	
 }
 bool zeus::BaseProxy::exist() const {
-	return m_srv.exist();
+	return m_obj.exist();
 }
