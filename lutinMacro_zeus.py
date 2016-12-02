@@ -35,7 +35,7 @@ list_of_known_type = [
     ["file", "zeus::File"],
     ["stream", "zeus::Stream"],
     ["json", "ejson::Object"],
-    ["buffer", "zeus::Buffer"],
+    ["raw", "zeus::Raw"],
     ]
 
 
@@ -78,7 +78,7 @@ class AttributeDefinition:
 	
 	def set_brief(self, desc):
 		self.name = "";
-		self.brief = remove_start_stop_spacer(desc);
+		self.brief = remove_start_stop_spacer(desc).replace("\"", "\\\"")
 		self.type = "";
 	
 	def set_type(self, type):
@@ -123,7 +123,7 @@ class FunctionDefinition:
 	
 	def set_brief(self, desc):
 		self.name = "";
-		self.brief = remove_start_stop_spacer(desc);
+		self.brief = remove_start_stop_spacer(desc).replace("\"", "\\\"")
 		self.return_type = "";
 		self.return_brief = "";
 		self.parameters = []
@@ -132,8 +132,8 @@ class FunctionDefinition:
 		for elem in self.parameters:
 			if     elem["name"] == "" \
 			   and elem["brief"] == "":
-				elem["name"] = remove_start_stop_spacer(name);
-				elem["brief"] = remove_start_stop_spacer(desc);
+				elem["name"] = remove_start_stop_spacer(name)
+				elem["brief"] = remove_start_stop_spacer(desc).replace("\"", "\\\"")
 				return;
 		self.parameters.append({
 		    "type":"",
@@ -142,15 +142,15 @@ class FunctionDefinition:
 		    })
 	
 	def set_return_comment(self, desc):
-		self.return_brief = remove_start_stop_spacer(desc);
+		self.return_brief = remove_start_stop_spacer(desc)
 	
 	def set_return_type(self, type):
-		self.return_type = remove_start_stop_spacer(type);
+		self.return_type = remove_start_stop_spacer(type)
 	
 	def add_parameter_type(self, type):
 		for elem in self.parameters:
 			if elem["type"] == "":
-				elem["type"] = remove_start_stop_spacer(type);
+				elem["type"] = remove_start_stop_spacer(type)
 				return;
 		self.parameters.append({
 		    "type":remove_start_stop_spacer(type),
@@ -273,7 +273,7 @@ class ServiceDefinition:
 		self.name[-1] = capital_first(self.name[-1])
 	
 	def set_brief(self, value):
-		self.brief = remove_start_stop_spacer(value)
+		self.brief = remove_start_stop_spacer(value).replace("\"", "\\\"")
 	
 	def set_version(self, value):
 		self.version = remove_start_stop_spacer(value)
@@ -282,7 +282,7 @@ class ServiceDefinition:
 		self.api = remove_start_stop_spacer(value)
 	
 	def add_author(self, value):
-		self.authors.append(remove_start_stop_spacer(value))
+		self.authors.append(remove_start_stop_spacer(value).replace("\"", "\\\""))
 	
 	def add_function(self, value):
 		# TODO : Check if function already exist
@@ -319,6 +319,7 @@ class ServiceDefinition:
 		out += "\n"
 		out += "#include <etk/types.hpp>\n"
 		out += "#include <eproperty/Value.hpp>\n"
+		out += "#include <zeus/Raw.hpp>\n"
 		out += "#include <string>\n"
 		out += "#include <vector>\n"
 		out += "\n"

@@ -99,20 +99,20 @@ namespace zeus { \
 	} \
 }
 
-generate_basic_type(void, "void", 0x1, false, false);
-generate_basic_type(bool, "bool", 0x2, false, false);
-generate_basic_type(float, "float", 0x3, true, false);
-generate_basic_type(double, "double", 0x4, true, false);
-generate_basic_type(int64_t, "int64", 0x5, true, false);
-generate_basic_type(int32_t, "int32", 0x6, true, false);
-generate_basic_type(int16_t, "int16", 0x7, true, false);
-generate_basic_type(int8_t, "int8", 0x8, true, false);
-generate_basic_type(uint64_t, "uint64", 0x9, true, false);
-generate_basic_type(uint32_t, "uint32", 0xA, true, false);
-generate_basic_type(uint16_t, "uint16", 0xB, true, false);
-generate_basic_type(uint8_t, "uint8", 0xC, true, false);
-generate_basic_type(std::string, "string", 0xD, false, false);
-
+generate_basic_type(void, "void", 0x0001, false, false);
+generate_basic_type(bool, "bool", 0x0002, false, false);
+generate_basic_type(float, "float", 0x0003, true, false);
+generate_basic_type(double, "double", 0x0004, true, false);
+generate_basic_type(int64_t, "int64", 0x0005, true, false);
+generate_basic_type(int32_t, "int32", 0x0006, true, false);
+generate_basic_type(int16_t, "int16", 0x0007, true, false);
+generate_basic_type(int8_t, "int8", 0x0008, true, false);
+generate_basic_type(uint64_t, "uint64", 0x0009, true, false);
+generate_basic_type(uint32_t, "uint32", 0x000A, true, false);
+generate_basic_type(uint16_t, "uint16", 0x000B, true, false);
+generate_basic_type(uint8_t, "uint8", 0x000C, true, false);
+generate_basic_type(std::string, "string", 0x000D, false, false);
+generate_basic_type(zeus::Raw, "raw", 0x000E, false, false);
 
 generate_basic_type(std::vector<void>, "vector:empty", 0x0102, true, true);
 generate_basic_type(std::vector<bool>, "vector:bool", 0x0102, false, true);
@@ -127,6 +127,7 @@ generate_basic_type(std::vector<uint32_t>, "vector:uint32", 0x010A, true, true);
 generate_basic_type(std::vector<uint16_t>, "vector:uint16", 0x010B, true, true);
 generate_basic_type(std::vector<uint8_t>, "vector:uint8", 0x010C, true, true);
 generate_basic_type(std::vector<std::string>, "vector:string", 0x010D, false, true);
+
 
 #if 0
 generate_basic_type(zeus::File, "file", 0x000E, false, false);

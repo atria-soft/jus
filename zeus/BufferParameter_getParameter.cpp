@@ -10,6 +10,7 @@
 #include <etk/stdTools.hpp>
 #include <zeus/AbstractFunction.hpp>
 #include <zeus/ObjectRemote.hpp>
+#include <zeus/Raw.hpp>
 #include <climits>
 namespace zeus {
 	template<>
@@ -1471,6 +1472,21 @@ namespace zeus {
 		return out;
 	}
 	*/
+	template<>
+	zeus::Raw BufferParameter::getParameter<zeus::Raw>(int32_t _id) const {
+		zeus::ParamType type = getParameterType(_id);
+		const uint8_t* pointer = getParameterPointer(_id);
+		uint32_t dataSize = getParameterSize(_id);
+		// TODO : Check size ...
+		if (createType<zeus::Raw>() == type) {
+			// get size if the file in int32_t
+			uint32_t size = 0;
+			memcpy(&size, pointer, sizeof(uint32_t));
+			return zeus::Raw(size, &pointer[sizeof(uint32_t)]);
+		}
+		ZEUS_ERROR("Can not get type from '" << type << "'");
+		return zeus::Raw();
+	}
 	template<>
 	ememory::SharedPtr<zeus::ObjectRemoteBase> BufferParameter::getParameter<ememory::SharedPtr<zeus::ObjectRemoteBase>>(const ememory::SharedPtr<zeus::WebServer>& _iface, int32_t _id) const {
 		ememory::SharedPtr<zeus::ObjectRemoteBase> out;

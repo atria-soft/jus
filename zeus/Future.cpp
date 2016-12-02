@@ -7,7 +7,7 @@
 #include <zeus/BufferAnswer.hpp>
 #include <zeus/debug.hpp>
 
-#include <zeus/File.hpp>
+#include <zeus/Raw.hpp>
 #include <zeus/ObjectRemote.hpp>
 
 namespace zeus {
@@ -324,18 +324,16 @@ namespace zeus {
 		return out;
 	}
 	template<>
-	zeus::File zeus::Future<zeus::File>::get() {
-		zeus::File out;
+	zeus::Raw zeus::Future<zeus::Raw>::get() {
 		if (    m_data == nullptr
 		     || m_data->m_returnData == nullptr) {
-			return out;
+			return zeus::Raw();
 		}
 		if (m_data->m_returnData->getType() != zeus::Buffer::typeMessage::answer) {
 			ZEUS_WARNING("No Return value ...");
-			return out;
+			return zeus::Raw();
 		}
-		out = static_cast<zeus::BufferAnswer*>(m_data->m_returnData.get())->getAnswer<zeus::File>();
-		return out;
+		return static_cast<zeus::BufferAnswer*>(m_data->m_returnData.get())->getAnswer<zeus::Raw>();
 	}
 }
 

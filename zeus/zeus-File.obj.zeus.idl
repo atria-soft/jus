@@ -17,4 +17,4 @@ string getMineType()
 
 #brief:get a part of the file (size < 64ko)
 #return:Buffer with the data
-buffer getPart(uint64, uint64)
+raw getPart(uint64, uint64)
