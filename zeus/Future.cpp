@@ -8,7 +8,7 @@
 #include <zeus/debug.hpp>
 
 #include <zeus/File.hpp>
-#include <zeus/ServiceRemote.hpp>
+#include <zeus/ObjectRemote.hpp>
 
 namespace zeus {
 	template<>
@@ -343,8 +343,8 @@ namespace zeus {
 
 namespace zeus {
 	template<>
-	ememory::SharedPtr<zeus::ServiceRemoteBase> zeus::Future<ememory::SharedPtr<zeus::ServiceRemoteBase>>::get(const ememory::SharedPtr<zeus::WebServer>& _iface) {
-		ememory::SharedPtr<zeus::ServiceRemoteBase> out;
+	ememory::SharedPtr<zeus::ObjectRemoteBase> zeus::Future<ememory::SharedPtr<zeus::ObjectRemoteBase>>::get(const ememory::SharedPtr<zeus::WebServer>& _iface) {
+		ememory::SharedPtr<zeus::ObjectRemoteBase> out;
 		if (    m_data == nullptr
 		     || m_data->m_returnData == nullptr) {
 			return out;
@@ -353,7 +353,7 @@ namespace zeus {
 			ZEUS_WARNING("No Return value ...");
 			return out;
 		}
-		out = static_cast<zeus::BufferAnswer*>(m_data->m_returnData.get())->getAnswer<ememory::SharedPtr<zeus::ServiceRemoteBase>>(_iface);
+		out = static_cast<zeus::BufferAnswer*>(m_data->m_returnData.get())->getAnswer<ememory::SharedPtr<zeus::ObjectRemoteBase>>(_iface);
 		return out;
 	}
 }

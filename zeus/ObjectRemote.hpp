@@ -8,24 +8,24 @@
 #include <zeus/WebServer.hpp>
 #include <zeus/debug.hpp>
 #include <zeus/AbstractFunction.hpp>
-#include <zeus/ServiceRemote.hpp>
+#include <zeus/ObjectRemote.hpp>
 #include <zeus/Future.hpp>
 #include <zeus/WebServer.hpp>
 #include <zeus/WebObj.hpp>
 
 namespace zeus {
 	//class Client;
-	class ServiceRemote;
+	class ObjectRemote;
 	/**
 	 * @brief 
 	 * @param[in] 
 	 * @return 
 	 */
-	class ServiceRemoteBase : public zeus::WebObj {
-		friend class ServiceRemote;
+	class ObjectRemoteBase : public zeus::WebObj {
+		friend class ObjectRemote;
 		private:
 			std::string m_type;
-			uint32_t m_serviceId;
+			uint32_t m_remoteAddress;
 			bool m_isLinked;
 		public:
 			/**
@@ -33,7 +33,7 @@ namespace zeus {
 			 * @param[in] 
 			 * @return 
 			 */
-			ServiceRemoteBase():
+			ObjectRemoteBase():
 			  zeus::WebObj(nullptr, 0, 0) {
 				
 			}
@@ -42,13 +42,13 @@ namespace zeus {
 			 * @param[in] 
 			 * @return 
 			 */
-			ServiceRemoteBase(const ememory::SharedPtr<zeus::WebServer>& _iface, uint16_t _localId, uint16_t _localObjectId, uint32_t _address, const std::string& _type);
+			ObjectRemoteBase(const ememory::SharedPtr<zeus::WebServer>& _iface, uint16_t _localId, uint16_t _localObjectId, uint32_t _address, const std::string& _type);
 			/**
 			 * @brief 
 			 * @param[in] 
 			 * @return 
 			 */
-			~ServiceRemoteBase();
+			~ObjectRemoteBase();
 			/**
 			 * @brief 
 			 * @param[in] 
@@ -67,22 +67,22 @@ namespace zeus {
 	 * @param[in] 
 	 * @return 
 	 */
-	class ServiceRemote {
+	class ObjectRemote {
 		private:
-			ememory::SharedPtr<zeus::ServiceRemoteBase> m_interface;
+			ememory::SharedPtr<zeus::ObjectRemoteBase> m_interface;
 		public:
 			/**
 			 * @brief 
 			 * @param[in] 
 			 * @return 
 			 */
-			ServiceRemote(ememory::SharedPtr<zeus::ServiceRemoteBase> _interface = nullptr);
+			ObjectRemote(ememory::SharedPtr<zeus::ObjectRemoteBase> _interface = nullptr);
 			/**
 			 * @brief 
 			 * @param[in] 
 			 * @return 
 			 */
-			~ServiceRemote();
+			~ObjectRemote();
 			/**
 			 * @brief 
 			 * @param[in] 
@@ -106,7 +106,7 @@ namespace zeus {
 					return zeus::FutureBase(0, ret);
 				}
 				return m_interface->m_interfaceWeb->call(m_interface->getFullId(),
-				                                         m_interface->m_serviceId,
+				                                         m_interface->m_remoteAddress,
 				                                         _functionName,
 				                                         _args...);
 			}

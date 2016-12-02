@@ -33,7 +33,7 @@ def configure(target, my_module):
 	    ])
 	
 	zeus_macro = macro.load_macro('zeus')
-	zeus_macro.parse_service_idl(my_module, 'appl/zeus-service-user.srv.zeus.idl')
+	zeus_macro.parse_object_idl(my_module, 'appl/zeus-service-user.srv.zeus.idl')
 	# use object for a first step ...
 	zeus_macro.parse_object_idl(my_module, 'appl/zeus-clientProperty.obj.zeus.idl')
 	

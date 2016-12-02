@@ -98,8 +98,7 @@ zeus::ParamType zeus::BufferParameter::getParameterType(int32_t _id) const {
 		m_parameter[_id].first = sizeof(uint16_t);
 		return zeus::ParamType("raw", paramTypeRaw);
 	}
-	if (    typeId == paramTypeObject
-	     || typeId == paramTypeService) {
+	if (typeId == paramTypeObject) {
 		const char* tmp = reinterpret_cast<const char*>(&m_parameter[_id].second[2]);
 		bool find = false;
 		for (int32_t iii=0; iii<1024; ++iii) {

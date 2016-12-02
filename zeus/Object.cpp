@@ -12,23 +12,8 @@
 
 
 
-/*zeus::Object::Object(zeus::Client* _client, uint16_t _objectId) :
-  zeus::RemoteProcessCall(_client->getWebInterface(), _client->m_localAddress, _objectId),
-  m_clientId(_client->m_localAddress),
-  m_objectId(_objectId) {
-	/ *
-	zeus::AbstractFunction* func = advertise("getExtention", &zeus::Object::getExtention);
-	if (func != nullptr) {
-		func->setDescription("Get List of availlable extention of this Object");
-		func->setReturn("A list of extention register in the Object");
-	}
-	* /
-}
-*/
 zeus::Object::Object(const ememory::SharedPtr<zeus::WebServer>& _iface, uint16_t _objectId) :
-  zeus::RemoteProcessCall(_iface, _iface->getAddress(), _objectId),
-  m_clientId(_iface->getAddress()),
-  m_objectId(_objectId) {
+  zeus::RemoteProcessCall(_iface, _iface->getAddress(), _objectId) {
 	
 }
 
@@ -76,47 +61,27 @@ void zeus::Object::receive(ememory::SharedPtr<zeus::Buffer> _value) {
 }
 
 void zeus::Object::callBinary(ememory::SharedPtr<zeus::Buffer> _obj) {
-	ZEUS_INFO("plop 1 ...");
 	if (_obj == nullptr) {
 		return;
 	}
-	ZEUS_INFO("plop 2 ...");
 	if (_obj->getType() == zeus::Buffer::typeMessage::event) {
 		ZEUS_ERROR("Unknow event: '...'");
 		return;
 	}
-	ZEUS_INFO("plop 3 ...");
 	if (_obj->getType() == zeus::Buffer::typeMessage::answer) {
 		ZEUS_ERROR("Local Answer: '...'");
 		return;
 	}
-	ZEUS_INFO("plop 4 ...");
 	if (_obj->getType() == zeus::Buffer::typeMessage::call) {
-		ZEUS_INFO("plop 5 ... ");
 		ememory::SharedPtr<zeus::BufferCall> callObj = ememory::staticPointerCast<zeus::BufferCall>(_obj);
 		uint32_t source = callObj->getSource();
 		uint32_t sourceId = callObj->getSourceId();
 		std::string callFunction = callObj->getCall();
-		ZEUS_INFO("plop - ... " << callFunction);
-		/*
-		if (callFunction[0] == '_') {
-			if (callFunction == "_new") {
-				std::string userName = callObj->getParameter<std::string>(0);
-				std::string clientName = callObj->getParameter<std::string>(1);
-				std::vector<std::string> clientGroup = callObj->getParameter<std::vector<std::string>>(2);
-				clientConnect(sourceId, userName, clientName, clientGroup);
-			} else if (callFunction == "_delete") {
-				clientDisconnect(sourceId);
-			}
-			m_interfaceWeb->answerValue(callObj->getTransactionId(), uint32_t(m_id)<<16, source, true);
-			return;
-		} else */if (isFunctionAuthorized(sourceId, callFunction) == true) {
-			ZEUS_INFO("plop 6 ...");
+		if (isFunctionAuthorized(sourceId, callFunction) == true) {
 			callBinary2(callFunction, callObj);
 			return;
 		} else {
-			ZEUS_INFO("plop 7 ...");
-			m_interfaceWeb->answerError(callObj->getTransactionId(), (uint32_t(m_clientId)<<16) + m_objectId, source, "NOT-AUTHORIZED-FUNCTION", "");
+			m_interfaceWeb->answerError(callObj->getTransactionId(), getFullId(), source, "NOT-AUTHORIZED-FUNCTION", "");
 			return;
 		}
 	}

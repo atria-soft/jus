@@ -6,7 +6,7 @@
 
 #include <zeus/SystemProxy.hpp>
 
-zeus::SystemProxy::SystemProxy(zeus::ServiceRemote& _srv):
+zeus::SystemProxy::SystemProxy(zeus::ObjectRemote& _srv):
   m_srv(_srv) {
 	
 }

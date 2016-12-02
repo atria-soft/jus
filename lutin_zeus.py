@@ -55,13 +55,13 @@ def configure(target, my_module):
 	    'zeus/ParamType.cpp',
 	    'zeus/Client.cpp',
 	    'zeus/Object.cpp',
+	    'zeus/ObjectRemote.cpp',
 	    'zeus/RemoteProcessCall.cpp',
-	    'zeus/Service.cpp',
-	    'zeus/ServiceRemote.cpp',
 	    'zeus/WebServer.cpp',
 	    'zeus/mineType.cpp',
 	    'zeus/BaseProxy.cpp',
 	    'zeus/SystemProxy.cpp',
+	    'zeus/RemoteProperty.cpp',
 	    ])
 	my_module.add_header_file([
 	    'zeus/zeus.hpp',
@@ -84,13 +84,13 @@ def configure(target, my_module):
 	    'zeus/debug.hpp',
 	    'zeus/Client.hpp',
 	    'zeus/Object.hpp',
+	    'zeus/ObjectRemote.hpp',
 	    'zeus/RemoteProcessCall.hpp',
-	    'zeus/Service.hpp',
-	    'zeus/ServiceRemote.hpp',
 	    'zeus/WebObj.hpp',
 	    'zeus/WebServer.hpp',
 	    'zeus/mineType.hpp',
 	    'zeus/BaseProxy.hpp',
+	    'zeus/RemoteProperty.hpp',
 	    'zeus/SystemProxy.hpp',
 	    ])
 	if target.config["compilator"] == "clang":

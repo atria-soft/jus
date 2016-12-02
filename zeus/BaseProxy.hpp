@@ -5,7 +5,7 @@
  */
 #pragma once
 
-#include <zeus/ServiceRemote.hpp>
+#include <zeus/ObjectRemote.hpp>
 #include <zeus/SystemProxy.hpp>
 
 namespace zeus {
@@ -14,14 +14,14 @@ namespace zeus {
 	 */
 	class BaseProxy {
 		protected:
-			zeus::ServiceRemote m_obj; //!< Service instance handle
+			zeus::ObjectRemote m_obj; //!< Service instance handle
 		public:
 			zeus::SystemProxy sys;
 		public:
-			const BaseProxy& operator= (const zeus::ServiceRemote& _srv);
+			const BaseProxy& operator= (const zeus::ObjectRemote& _srv);
 			BaseProxy();
 			virtual ~BaseProxy() = default;
-			BaseProxy(const zeus::ServiceRemote& _srv);
+			BaseProxy(const zeus::ObjectRemote& _srv);
 			bool exist() const;
 	};
 }

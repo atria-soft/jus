@@ -31,7 +31,7 @@ def configure(target, my_module):
 	    'zeus'
 	    ])
 	zeus_macro = macro.load_macro('zeus')
-	zeus_macro.parse_service_idl(my_module, 'appl/zeus-service-picture.srv.zeus.idl')
+	zeus_macro.parse_object_idl(my_module, 'appl/zeus-service-picture.srv.zeus.idl')
 	#module_zeus = target.get_module('zeus')
 	#module_zeus.parse_service_idl(my_module, 'appl/zeus-service-picture.zeus.idl')
 	

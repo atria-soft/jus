@@ -15,7 +15,7 @@
 #include <dlfcn.h>
 #include <thread>
 #include <etk/stdTools.hpp>
-#include <zeus/Service.hpp>
+#include <zeus/Object.hpp>
 #include <zeus/Client.hpp>
 #include <zeus/zeus.hpp>
 

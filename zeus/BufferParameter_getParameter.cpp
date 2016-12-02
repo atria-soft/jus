@@ -9,7 +9,7 @@
 #include <zeus/ParamType.hpp>
 #include <etk/stdTools.hpp>
 #include <zeus/AbstractFunction.hpp>
-#include <zeus/ServiceRemote.hpp>
+#include <zeus/ObjectRemote.hpp>
 #include <climits>
 namespace zeus {
 	template<>
@@ -1471,13 +1471,13 @@ namespace zeus {
 		return out;
 	}
 	template<>
-	ememory::SharedPtr<zeus::ServiceRemoteBase> BufferParameter::getParameter<ememory::SharedPtr<zeus::ServiceRemoteBase>>(const ememory::SharedPtr<zeus::WebServer>& _iface, int32_t _id) const {
-		ememory::SharedPtr<zeus::ServiceRemoteBase> out;
+	ememory::SharedPtr<zeus::ObjectRemoteBase> BufferParameter::getParameter<ememory::SharedPtr<zeus::ObjectRemoteBase>>(const ememory::SharedPtr<zeus::WebServer>& _iface, int32_t _id) const {
+		ememory::SharedPtr<zeus::ObjectRemoteBase> out;
 		zeus::ParamType type = getParameterType(_id);
 		const uint8_t* pointer = getParameterPointer(_id);
 		uint32_t dataSize = getParameterSize(_id);
 		// TODO : Check size ...
-		if (type.getId() == zeus::paramTypeService) {
+		if (type.getId() == zeus::paramTypeObject) {
 			// Get the type string of the parameter:
 			ZEUS_VERBOSE("Get type : " << type.getName());
 			ZEUS_VERBOSE("Get id : " << getSourceId() << "/" << getSourceObjectId());
@@ -1491,7 +1491,7 @@ namespace zeus {
 				ememory::SharedPtr<zeus::WebServer> _iface2 = _iface;
 				uint16_t id    = _iface2->getAddress();
 				uint16_t idObj = _iface2->getNewObjectId();
-				out = ememory::makeShared<zeus::ServiceRemoteBase>(_iface, id, idObj, serviceAddress, type.getName());
+				out = ememory::makeShared<zeus::ObjectRemoteBase>(_iface, id, idObj, serviceAddress, type.getName());
 				_iface2->addWebObj(out);
 			} else {
 				ZEUS_ERROR("missing interface to crate object: '" << type << "'");

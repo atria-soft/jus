@@ -89,7 +89,6 @@ namespace zeus {
 			bool isVector() const;
 	};
 	extern const uint16_t paramTypeObject; //!< van not automatic create a type with the string named object
-	extern const uint16_t paramTypeService; //!< van not automatic create a type with the string named object
 	extern const uint16_t paramTypeRaw; //!< Raw type (special case of data)
 	/**
 	 * @brief Create human readable stream to debug

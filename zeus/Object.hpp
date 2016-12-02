@@ -28,8 +28,6 @@ namespace zeus {
 		protected:
 			std::mutex m_mutex;
 		protected:
-			uint16_t m_clientId; // TODO : Remove it
-			uint16_t m_objectId; // TODO : Remove it
 			std::vector<zeus::FutureBase> m_callMultiData;
 		public:
 			uint16_t getObjectId() { return m_objectId; }
@@ -38,7 +36,6 @@ namespace zeus {
 			 * @param[in] 
 			 * @return 
 			 */
-			//Object(zeus::Client* _client, uint16_t _objectId);
 			Object(const ememory::SharedPtr<zeus::WebServer>& _iface, uint16_t _objectId);
 			/**
 			 * @brief 

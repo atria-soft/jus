@@ -5,14 +5,14 @@
  */
 #pragma once
 
-#include <zeus/ServiceRemote.hpp>
+#include <zeus/ObjectRemote.hpp>
 
 namespace zeus {
 	class SystemProxy {
 		protected:
-			zeus::ServiceRemote& m_srv; //!< Service instance handle
+			zeus::ObjectRemote& m_srv; //!< Service instance handle
 		public:
-			SystemProxy(zeus::ServiceRemote& _srv);
+			SystemProxy(zeus::ObjectRemote& _srv);
 			zeus::Future<std::string> getDescription();
 			zeus::Future<std::string> getVersion();
 			zeus::Future<std::string> getType();

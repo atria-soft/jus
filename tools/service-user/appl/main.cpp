@@ -5,7 +5,7 @@
  */
 
 #include <appl/debug.hpp>
-#include <zeus/Service.hpp>
+#include <zeus/Object.hpp>
 #include <etk/etk.hpp>
 #include <zeus/zeus.hpp>
 

@@ -11,7 +11,7 @@
 #include <chrono>
 
 #include <zeus/Future.hpp>
-#include <zeus/ServiceRemote.hpp>
+#include <zeus/ObjectRemote.hpp>
 #include <zeus/Object.hpp>
 
 namespace zeus {
@@ -20,16 +20,14 @@ namespace zeus {
 	 * @brief Client interface to acces on the remote service and gateway
 	 */
 	class Client : public eproperty::Interface {
-		friend class ServiceRemote;
+		friend class ObjectRemote;
 		public:
 			eproperty::Value<std::string> propertyIp; //!< Ip of WebSocket TCP connection
 			eproperty::Value<uint16_t> propertyPort; //!< Port of the WebSocket connection
 		public:
 			std::string m_clientName; //!< Local client name to generate the local serrvice name if needed (if direct connection ==> no name)
 			ememory::SharedPtr<zeus::WebServer> m_interfaceWeb; //!< Interface on the Websocket interface
-			std::vector<ememory::WeakPtr<zeus::ServiceRemoteBase>> m_listConnectedService; //!< Connect only one time on each service, not needed more.
-			//std::vector<ememory::SharedPtr<zeus::Object>> m_listProvicedService; //!< Connect only one time on each service, not needed more.
-			//std::vector<ememory::SharedPtr<zeus::Object>> m_listLocalObject;
+			std::vector<ememory::WeakPtr<zeus::ObjectRemoteBase>> m_listConnectedService; //!< Connect only one time on each service, not needed more.
 		public:
 			void answerProtocolError(uint32_t _transactionId, const std::string& _errorHelp);
 			ememory::SharedPtr<zeus::WebServer> getWebInterface() {
@@ -87,7 +85,7 @@ namespace zeus {
 			 * @param[in] _serviceName Name of the service
 			 * @return Pointer on an interface of remote service
 			 */
-			zeus::ServiceRemote getService(const std::string& _serviceName);
+			zeus::ObjectRemote getService(const std::string& _serviceName);
 			using factoryService = std::function<void(uint32_t, ememory::SharedPtr<zeus::WebServer>& _iface, uint32_t _destination)>; // call this function anser to the callter the requested Object
 			
 			std::map<std::string,factoryService> m_listServicesAvaillable; //!< list of all factory availlable

@@ -6,7 +6,7 @@
 
 #include <appl/debug.hpp>
 #include <zeus/Client.hpp>
-#include <zeus/ServiceRemote.hpp>
+#include <zeus/ObjectRemote.hpp>
 #include <zeus/mineType.hpp>
 #include <etk/etk.hpp>
 #include <zeus/zeus.hpp>

@@ -7,7 +7,7 @@
 #include <zeus/BaseProxy.hpp>
 #include <zeus/debug.hpp>
 
-const zeus::BaseProxy& zeus::BaseProxy::operator= (const zeus::ServiceRemote& _obj) {
+const zeus::BaseProxy& zeus::BaseProxy::operator= (const zeus::ObjectRemote& _obj) {
 	m_obj = _obj;
 	return *this;
 }
@@ -17,7 +17,7 @@ zeus::BaseProxy::BaseProxy():
 	
 }
 
-zeus::BaseProxy::BaseProxy(const zeus::ServiceRemote& _obj):
+zeus::BaseProxy::BaseProxy(const zeus::ObjectRemote& _obj):
   m_obj(_obj),
   sys(m_obj) {
 	

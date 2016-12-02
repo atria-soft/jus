@@ -87,55 +87,27 @@ class AttributeDefinition:
 		debug.info("       BRIEF: " + self.brief)
 		debug.info("       " + self.type + " " + self.name + ";")
 	
-	def generate_doxy_get(self, space, object):
-		out = ""
-		out += space + "/**\n"
-		out += space + " * @brief Get parameter " + self.brief + "\n"
-		out += space + " * @return Requested parameter\n"
-		out += space + " */\n"
-		return out
-	
-	def generate_doxy_set(self, space, object):
-		out = ""
-		out += space + "/**\n"
-		out += space + " * @brief Set parameter " + self.brief + "\n"
-		out += space + " * @param[in] _value New parameter value\n"
-		out += space + " */\n"
-		return out
-	
-	def generate_cpp(self, space, object):
+	def generate_cpp(self, space):
 		out = "";
-		out += space[:-1] + "protected:"
-		out += space + convert_type_in_cpp(self.type) + " m_" + self.name + "; //!<" + self.brief + "\n"
-		out += space[:-1] + "public:"
-		out += self.generate_doxy_get(space, object)
-		out += space + "virtual " + convert_type_in_cpp(self.type) + " get" + capital_first(self.name) + "() {\n"
-		out += space + "	return m_" + self.name + ";\n"
+		out += space + "eproperty::Value<" + convert_type_in_cpp(self.type) + "> " + self.name + "; //!<" + self.brief + "\n"
+		out += space + "//! Internal interface to call property\n"
+		out += space + "virtual " + convert_type_in_cpp(self.type) + " _internalWrapperProperty_get" + capital_first(self.name) + "() {\n"
+		out += space + "	return " + self.name + ".get();\n"
 		out += space + "}\n"
-		out += self.generate_doxy_set(space, object)
-		out += space + "virtual void set" + capital_first(self.name) + "(" + convert_type_in_cpp(self.type) + " _value) {\n"
-		out += space + "	m_" + self.name + " = _value;\n"
+		out += space + "//! Internal interface to call property\n"
+		out += space + "virtual void _internalWrapperProperty_set" + capital_first(self.name) + "(" + convert_type_in_cpp(self.type) + " _value) {\n"
+		out += space + "	" + self.name + ".set(_value);\n"
 		out += space + "}\n"
 		return out;
 		
-	def generate_hpp_proxy(self, space, object):
+	def generate_hpp_proxy(self, space):
 		out = "";
-		out += self.generate_doxy_get(space, object)
-		out += space + "virtual zeus::Future<" + convert_type_in_cpp(self.type) + "> get" + capital_first(self.name) + "();\n"
-		out += self.generate_doxy_set(space, object)
-		out += space + "virtual zeus::Future<void> set" + capital_first(self.name) + "(const " + convert_type_in_cpp(self.type) + "& _value);\n"
+		out += space + "zeus::RemoteProperty<" + convert_type_in_cpp(self.type) + "> " + self.name + "; //!<" + self.brief + "\n"
 		return out;
 	
-	def generate_cpp_proxy(self, space, class_name, object):
+	def generate_cpp_proxy(self, space, class_name):
 		out = "";
-		out += space + "zeus::Future<" + convert_type_in_cpp(self.type) + "> " + class_name + "::get" + capital_first(self.name) + "() {\n"
-		out += space + '	return m_obj.call("' + self.name + '.get");\n'
-		out += space + "}\n"
-		out += space + "zeus::Future<void> " + class_name + "::set" + capital_first(self.name) + "(const " + convert_type_in_cpp(self.type) + "& _value) {\n"
-		out += space + '	return m_obj.call("' + self.name + '.set", _value);\n'
-		out += space + "}\n"
 		return out;
-
 
 class FunctionDefinition:
 	def __init__(self):
@@ -193,7 +165,7 @@ class FunctionDefinition:
 			debug.info("               " + elem["type"] + " " + elem["name"] + ", # " + elem["brief"])
 		debug.info("       )")
 	
-	def generate_doxy(self, space, object):
+	def generate_doxy(self, space):
 		# generate doxygen comment:
 		out = space + "/**\n"
 		if self.brief != "":
@@ -213,9 +185,9 @@ class FunctionDefinition:
 		out += space + " */\n"
 		return out
 	
-	def generate_cpp(self, space, object):
+	def generate_cpp(self, space):
 		out = "";
-		out += self.generate_doxy(space, object)
+		out += self.generate_doxy(space)
 		out += space + "virtual "
 		out += convert_type_in_cpp(self.return_type) + " " + self.name + "("
 		param_data = ""
@@ -233,9 +205,9 @@ class FunctionDefinition:
 		out += ") = 0;\n"
 		return out;
 		
-	def generate_hpp_proxy(self, space, object):
+	def generate_hpp_proxy(self, space):
 		out = "";
-		out += self.generate_doxy(space, object)
+		out += self.generate_doxy(space)
 		out += space + "virtual zeus::Future<" + convert_type_in_cpp(self.return_type) + "> " + self.name + "("
 		param_data = ""
 		id_parameter = 0
@@ -251,7 +223,7 @@ class FunctionDefinition:
 		out += param_data
 		out += ");\n"
 		return out;
-	def generate_cpp_proxy(self, space, class_name, object):
+	def generate_cpp_proxy(self, space, class_name):
 		out = "";
 		out += space + "zeus::Future<" + convert_type_in_cpp(self.return_type) + "> " + class_name + "::" + self.name + "("
 		param_data = ""
@@ -330,7 +302,7 @@ class ServiceDefinition:
 		for elem in self.functions:
 			elem.display();
 	
-	def generate_header(self, object):
+	def generate_header(self):
 		filename = ""
 		for elem in self.name[:-1]:
 			filename += elem + "/"
@@ -345,6 +317,7 @@ class ServiceDefinition:
 		out += "#pragma once\n"
 		out += "\n"
 		out += "#include <etk/types.hpp>\n"
+		out += "#include <eproperty/Value.hpp>\n"
 		out += "#include <string>\n"
 		out += "#include <vector>\n"
 		out += "\n"
@@ -373,10 +346,10 @@ class ServiceDefinition:
 		out += space + "virtual ~" + self.name[-1] + "() = default;\n"
 		
 		for elem in self.attributes:
-			out += elem.generate_cpp(space, object)
+			out += elem.generate_cpp(space)
 		
 		for elem in self.functions:
-			out += elem.generate_cpp(space, object)
+			out += elem.generate_cpp(space)
 		
 		space = space[:-2]
 		out += space + "};\n"
@@ -386,7 +359,7 @@ class ServiceDefinition:
 			out += space + "}\n"
 		return [filename, out]
 	
-	def generate_source(self, object):
+	def generate_source(self):
 		filename = ""
 		for elem in self.name[:-1]:
 			filename += elem + "/"
@@ -428,10 +401,7 @@ class ServiceDefinition:
 		# now gebnerate the get and set parameter object ...
 		out += "namespace zeus {\n"
 		out += "	template<> const zeus::ParamType& createType<ememory::SharedPtr<" + class_name + ">>() {\n"
-		if object == True:
-			out += "		static zeus::ParamType type(\"obj:" + class_name + "\", zeus::paramTypeObject, false, false);\n"
-		else:
-			out += "		static zeus::ParamType type(\"srv:" + class_name + "\", zeus::paramTypeService, false, false);\n"
+		out += "		static zeus::ParamType type(\"obj:" + class_name + "\", zeus::paramTypeObject, false, false);\n"
 		out += "		return type;\n"
 		out += "	}\n"
 		out += "	template<>\n"
@@ -440,10 +410,7 @@ class ServiceDefinition:
 		"""
 		out += "		addType(data, createType<" + class_name + ">());\n"
 		"""
-		if object == True:
-			out += "		addTypeObject(data, \"" + class_name + "\");\n"
-		else:
-			out += "		addTypeService(data, \"" + class_name + "\");\n"
+		out += "		addTypeObject(data, \"" + class_name + "\");\n"
 		out += "		int32_t currentOffset = data.size();\n"
 		out += "		int32_t startOffset = data.size();\n"
 		out += "		data.resize(data.size()+4);\n"
@@ -453,10 +420,7 @@ class ServiceDefinition:
 		out += "			ememory::SharedPtr<zeus::WebServer> _iface2 = _iface;\n"
 		out += "			uint16_t id    = _iface2->getAddress();\n"
 		out += "			uint16_t idObj = _iface2->getNewObjectId();\n"
-		if object == True:
-			out += "			ememory::SharedPtr<zeus::ObjectType<" + class_name + ">> obj = ememory::makeShared<zeus::ObjectType<" + class_name + ">>(_iface, idObj, _value);\n"
-		else:
-			out += "			ememory::SharedPtr<zeus::ServiceType<" + class_name + ">> obj = ememory::makeShared<zeus::ServiceType<" + class_name + ">>(_iface, idObj, _value);\n"
+		out += "			ememory::SharedPtr<zeus::ObjectType<" + class_name + ">> obj = ememory::makeShared<zeus::ObjectType<" + class_name + ">>(_iface, idObj, _value);\n"
 		
 		out += "			" + namespace + "register" + self.name[-1] + "(*obj);\n"
 		out += "			_iface2->addWebObj(obj);\n"
@@ -472,7 +436,7 @@ class ServiceDefinition:
 		
 		return [filename, out]
 	
-	def generate_register_header(self, object):
+	def generate_register_header(self):
 		filename = ""
 		for elem in self.name[:-1]:
 			filename += elem + "/"
@@ -492,10 +456,7 @@ class ServiceDefinition:
 		out += "#pragma once\n"
 		out += "\n"
 		out += "#include <etk/types.hpp>\n"
-		if object == True:
-			out += "#include <zeus/Object.hpp>\n"
-		else:
-			out += "#include <zeus/Service.hpp>\n"
+		out += "#include <zeus/Object.hpp>\n"
 		out += "#include <zeus/Client.hpp>\n"
 		out += "#include <" + class_name.replace("::","/") + ".hpp>\n"
 		out += "#include <string>\n"
@@ -513,35 +474,25 @@ class ServiceDefinition:
 			MACRO_BASE_NAME += elem.upper() + "_"
 		
 		out += space + "\n"
-		if object == True:
-			out += space + "void register" + self.name[-1] + "(zeus::ObjectType<" + class_name + ">& _interface);\n"
-		else:
-			out += space + "void register" + self.name[-1] + "(zeus::ServiceType<" + class_name + ">& _interface);\n"
+		out += space + "void register" + self.name[-1] + "(zeus::ObjectType<" + class_name + ">& _interface);\n"
 		out += space + "\n"
 		for elem in self.name[:-1]:
 			space = space[:-1]
 			out += space + "}\n"
 		out += space + "\n"
-		if object == False:
-			out += space + "#define " + MACRO_BASE_NAME + "DECLARE(type) \\\n"
-			out += space + "	ETK_EXPORT_API void SERVICE_IO_instanciate(uint32_t _transactionId, ememory::SharedPtr<zeus::WebServer>& _iface, uint32_t _destination) { \\\n"
-			out += space + "		ememory::SharedPtr<type> tmp; \\\n"
-			out += space + "		tmp = ememory::makeShared<type>(_destination>>16); \\\n"
-			out += space + "		ememory::SharedPtr<" + class_name + "> tmp2 = tmp; \\\n"
-			out += space + "		_iface->answerValue(_transactionId, uint32_t(_iface->getAddress())<<16, _destination, tmp2); \\\n"
-			out += space + "	}\n"
-			out += space + "\n"
-			"""
-			out += space + "#define " + MACRO_BASE_NAME + "DECLARE_FACTORY(type, factory) \\\n"
-			out += space + "	ETK_EXPORT_API zeus::Service* SERVICE_IO_instanciate() { \\\n"
-			out += space + "		return " + namespace + "create" + self.name[-1] + "<type>(factory); \\\n"
-			out += space + "	}\n"
-			"""
+		out += space + "#define " + MACRO_BASE_NAME + "DECLARE(type) \\\n"
+		out += space + "	ETK_EXPORT_API void SERVICE_IO_instanciate(uint32_t _transactionId, ememory::SharedPtr<zeus::WebServer>& _iface, uint32_t _destination) { \\\n"
+		out += space + "		ememory::SharedPtr<type> tmp; \\\n"
+		out += space + "		tmp = ememory::makeShared<type>(_destination>>16); \\\n"
+		out += space + "		ememory::SharedPtr<" + class_name + "> tmp2 = tmp; \\\n"
+		out += space + "		_iface->answerValue(_transactionId, uint32_t(_iface->getAddress())<<16, _destination, tmp2); \\\n"
+		out += space + "	}\n"
+		out += space + "\n"
 		
 		
 		return [filename, out]
 	
-	def generate_register_code(self, object):
+	def generate_register_code(self):
 		filename = ""
 		for elem in self.name[:-1]:
 			filename += elem + "/"
@@ -572,10 +523,7 @@ class ServiceDefinition:
 		for elem in self.name[:-1]:
 			class_name += "" + elem + "::"
 		class_name += self.name[-1];
-		if object == True:
-			out += space + "void " + function_name + "(zeus::ObjectType<" + class_name + ">& _interface) {\n"
-		else:
-			out += space + "void " + function_name + "(zeus::ServiceType<" + class_name + ">& _interface) {\n"
+		out += space + "void " + function_name + "(zeus::ObjectType<" + class_name + ">& _interface) {\n"
 		
 		space += "	"
 		
@@ -595,12 +543,12 @@ class ServiceDefinition:
 		   or len(self.attributes) != 0:
 			out += space + "zeus::AbstractFunction* func = nullptr;\n"
 		for elem in self.attributes:
-			out += space + 'func = _interface.advertise("' + elem.name + '.set", &' + class_name + '::set' + capital_first(elem.name) + ');\n'
+			out += space + 'func = _interface.advertise("' + elem.name + '.set", &' + class_name + '::_internalWrapperProperty_set' + capital_first(elem.name) + ');\n'
 			out += space + 'if (func != nullptr) {\n'
 			if elem.brief != "":
 				out += space + '	func->setDescription("Set parameter ' + elem.brief + '");\n'
 			out += space + '}\n'
-			out += space + 'func = _interface.advertise("' + elem.name + '.get", &' + class_name + '::get' + capital_first(elem.name) + ');\n'
+			out += space + 'func = _interface.advertise("' + elem.name + '.get", &' + class_name + '::_internalWrapperProperty_get' + capital_first(elem.name) + ');\n'
 			out += space + 'if (func != nullptr) {\n'
 			if elem.brief != "":
 				out += space + '	func->setDescription("Get parameter ' + elem.brief + '");\n'
@@ -634,7 +582,7 @@ class ServiceDefinition:
 		out += "\n"
 		return [filename, out]
 	
-	def generate_proxy_header(self, object):
+	def generate_proxy_header(self):
 		filename = ""
 		for elem in self.name[:-1]:
 			filename += elem + "/"
@@ -648,8 +596,9 @@ class ServiceDefinition:
 		out += " */\n"
 		out += "#pragma once\n"
 		out += "\n"
-		out += "#include <zeus/ServiceRemote.hpp>\n"
+		out += "#include <zeus/ObjectRemote.hpp>\n"
 		out += "#include <zeus/BaseProxy.hpp>\n"
+		out += "#include <zeus/RemoteProperty.hpp>\n"
 		out += "#include <string>\n"
 		out += "#include <vector>\n"
 		out += "\n"
@@ -672,14 +621,29 @@ class ServiceDefinition:
 		out += space + "class Proxy" + self.name[-1] + " :public zeus::BaseProxy {\n"
 		space += "	"
 		out += space + "public:\n"
-		out += space + "	const Proxy" + self.name[-1] + "& operator= (const zeus::ServiceRemote& _srv) {\n"
+		out += space + "	const Proxy" + self.name[-1] + "& operator= (const zeus::ObjectRemote& _srv) {\n"
 		out += space + "		m_obj = _srv;\n"
 		out += space + "		return *this;\n"
 		out += space + "	}\n"
 		out += space + "	~Proxy" + self.name[-1] + "() = default;\n"
-		out += space + "	Proxy" + self.name[-1] + "() = default;\n"
-		out += space + "	Proxy" + self.name[-1] + "(const zeus::ServiceRemote& _srv) :\n"
-		out += space + "	  zeus::BaseProxy(_srv) {\n"
+		out += space + "	Proxy" + self.name[-1] + "()"
+		if len(self.attributes) != 0:
+			out += ": \n"
+			first = True
+			for elem in self.attributes:
+				if first == False:
+					out += ",\n"
+				out += space + "	  " + elem.name + "(m_obj, \"" + elem.name + "\")"
+				first = False
+		out += " {}\n"
+		
+		out += space + "	Proxy" + self.name[-1] + "(const zeus::ObjectRemote& _srv) :\n"
+		out += space + "	  zeus::BaseProxy(_srv)"
+		for elem in self.attributes:
+			out += ",\n"
+			out += space + "	  " + elem.name + "(m_obj, \"" + elem.name + "\")"
+			first = False
+		out += " {\n"
 		out += space + "		\n"
 		out += space + "	}\n"
 		"""
@@ -696,9 +660,9 @@ class ServiceDefinition:
 		out += space + "virtual ~" + self.name[-1] + "() = default;\n"
 		"""
 		for elem in self.attributes:
-			out += elem.generate_hpp_proxy(space, object)
+			out += elem.generate_hpp_proxy(space)
 		for elem in self.functions:
-			out += elem.generate_hpp_proxy(space, object)
+			out += elem.generate_hpp_proxy(space)
 		
 		space = space[:-2]
 		out += space + "};\n"
@@ -708,7 +672,7 @@ class ServiceDefinition:
 			out += space + "}\n"
 		return [filename, out]
 	
-	def generate_proxy_code(self, object):
+	def generate_proxy_code(self):
 		filename = ""
 		for elem in self.name[:-1]:
 			filename += elem + "/"
@@ -733,10 +697,10 @@ class ServiceDefinition:
 		out += "\n"
 		
 		for elem in self.attributes:
-			out += elem.generate_cpp_proxy("", proxy_class_name, object)
+			out += elem.generate_cpp_proxy("", proxy_class_name)
 		
 		for elem in self.functions:
-			out += elem.generate_cpp_proxy("", proxy_class_name, object)
+			out += elem.generate_cpp_proxy("", proxy_class_name)
 		
 		return [filename, out]
 	
@@ -903,12 +867,12 @@ def tool_generate_idl(target, module, data_option):
 	
 	#service_def.display()
 	
-	service_header = service_def.generate_header(data_option["type"] == "object")
-	service_source = service_def.generate_source(data_option["type"] == "object")
-	register_header = service_def.generate_register_header(data_option["type"] == "object")
-	register_code = service_def.generate_register_code(data_option["type"] == "object")
-	proxy_header = service_def.generate_proxy_header(data_option["type"] == "object")
-	proxy_code = service_def.generate_proxy_code(data_option["type"] == "object")
+	service_header = service_def.generate_header()
+	service_source = service_def.generate_source()
+	register_header = service_def.generate_register_header()
+	register_code = service_def.generate_register_code()
+	proxy_header = service_def.generate_proxy_header()
+	proxy_code = service_def.generate_proxy_code()
 	
 	debug.verbose("-----------------  " + service_header[0] + "  -----------------")
 	debug.verbose("\n" + service_header[1])
@@ -932,10 +896,6 @@ def tool_generate_idl(target, module, data_option):
 	module.add_generated_src_file(proxy_code[1], proxy_code[0])
 	
 	debug.debug("Parsing .zeus.idl [DONE]")
-
-
-def parse_service_idl(module, idl_path):
-	module.add_action(tool_generate_idl, data={"path":idl_path, "type":"service"})
 
 def parse_object_idl(module, idl_path):
 	module.add_action(tool_generate_idl, data={"path":idl_path, "type":"object"})

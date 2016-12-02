@@ -30,15 +30,6 @@ void zeus::addTypeObject(std::vector<uint8_t>& _data, const std::string _type) {
 	_data.push_back(0);
 }
 
-void zeus::addTypeService(std::vector<uint8_t>& _data, const std::string _type) {
-	_data.push_back(uint8_t(zeus::paramTypeService>>8));
-	_data.push_back(uint8_t(zeus::paramTypeService));
-	for (auto &it : _type) {
-		_data.push_back(uint8_t(it));
-	}
-	_data.push_back(0);
-}
-
 void zeus::addTypeRaw(std::vector<uint8_t>& _data) {
 	_data.push_back(uint8_t(zeus::paramTypeRaw>>8));
 	_data.push_back(uint8_t(zeus::paramTypeRaw));
