@@ -141,10 +141,27 @@ zeus::ServiceRemote zeus::Client::getService(const std::string& _name) {
 			return zeus::ServiceRemote(val);
 		}
 	}
+	// little hack : Call the service manager with the service ID=0 ...
+	zeus::Future<ememory::SharedPtr<zeus::ServiceRemoteBase>> ret = m_interfaceWeb->call(uint32_t(m_interfaceWeb->getAddress())<<16, ZEUS_GATEWAY_ADDRESS, "link", _name);
+	ret.wait();
+	if (ret.hasError() == true) {
+		ZEUS_WARNING("Can not unlink with the service id: '" << _name << "' ==> link error");
+		return zeus::ServiceRemote();
+	}
+	//m_listConnectedService.push_back(tmp);
+	//return zeus::ServiceRemote(tmp);
+	return zeus::ServiceRemote(ret.get(m_interfaceWeb));
+	/*
+	if (ret.get() == true) {
+		m_isLinked = false;
+	} else {
+		ZEUS_ERROR("Can not unlink with this service ....");
+		m_serviceId = tmpLocalService;
+	}
 	uint16_t tmpId = m_interfaceWeb->getNewObjectId();
 	ememory::SharedPtr<zeus::ServiceRemoteBase> tmp = ememory::makeShared<zeus::ServiceRemoteBase>(m_interfaceWeb, _name, m_interfaceWeb->getAddress(), tmpId);
-	m_listConnectedService.push_back(tmp);
-	return zeus::ServiceRemote(tmp);
+	*/
+
 }
 
 void zeus::Client::onPropertyChangeIp() {

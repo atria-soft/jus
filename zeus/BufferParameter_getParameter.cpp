@@ -9,6 +9,7 @@
 #include <zeus/ParamType.hpp>
 #include <etk/stdTools.hpp>
 #include <zeus/AbstractFunction.hpp>
+#include <zeus/ServiceRemote.hpp>
 #include <climits>
 namespace zeus {
 	template<>
@@ -1464,6 +1465,37 @@ namespace zeus {
 			out.preSetDataSize(dataSize);
 			// Get the datas:
 			out.setData(0, &pointer[currentOffset], dataSize);
+			return out;
+		}
+		ZEUS_ERROR("Can not get type from '" << type << "'");
+		return out;
+	}
+	template<>
+	ememory::SharedPtr<zeus::ServiceRemoteBase> BufferParameter::getParameter<ememory::SharedPtr<zeus::ServiceRemoteBase>>(const ememory::SharedPtr<zeus::WebServer>& _iface, int32_t _id) const {
+		ememory::SharedPtr<zeus::ServiceRemoteBase> out;
+		zeus::ParamType type = getParameterType(_id);
+		const uint8_t* pointer = getParameterPointer(_id);
+		uint32_t dataSize = getParameterSize(_id);
+		// TODO : Check size ...
+		if (type.getId() == zeus::paramTypeService) {
+			// Get the type string of the parameter:
+			ZEUS_VERBOSE("Get type : " << type.getName());
+			ZEUS_VERBOSE("Get id : " << getSourceId() << "/" << getSourceObjectId());
+			const uint32_t* tmp = reinterpret_cast<const uint32_t*>(pointer);
+			uint32_t serviceAddress = *tmp;
+			ZEUS_VERBOSE("Get id : " << (*tmp>>16) << "/" << (*tmp&0xFFFF));
+			
+			// get new local ID:
+			
+			if (_iface != nullptr) {
+				ememory::SharedPtr<zeus::WebServer> _iface2 = _iface;
+				uint16_t id    = _iface2->getAddress();
+				uint16_t idObj = _iface2->getNewObjectId();
+				out = ememory::makeShared<zeus::ServiceRemoteBase>(_iface, id, idObj, serviceAddress, type.getName());
+				_iface2->addWebObj(out);
+			} else {
+				ZEUS_ERROR("missing interface to crate object: '" << type << "'");
+			}
 			return out;
 		}
 		ZEUS_ERROR("Can not get type from '" << type << "'");

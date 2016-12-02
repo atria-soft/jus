@@ -38,6 +38,11 @@ namespace zeus {
 			 * @return requested value
 			 */
 			ZEUS_RETURN get();
+			/**
+			 * @brief Get the value Requested with the type expecially for object and services
+			 * @return requested value
+			 */
+			ZEUS_RETURN get(const ememory::SharedPtr<zeus::WebServer>& _iface);
 	};
 	/**
 	 * @brief future template to cast type in a void methode (fallback)

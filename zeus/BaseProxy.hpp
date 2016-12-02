@@ -6,7 +6,6 @@
 #pragma once
 
 #include <zeus/ServiceRemote.hpp>
-#include <zeus/ServiceProxy.hpp>
 #include <zeus/SystemProxy.hpp>
 
 namespace zeus {
@@ -18,7 +17,6 @@ namespace zeus {
 			zeus::ServiceRemote m_obj; //!< Service instance handle
 		public:
 			zeus::SystemProxy sys;
-			zeus::ServiceProxy srv;
 		public:
 			const BaseProxy& operator= (const zeus::ServiceRemote& _srv);
 			BaseProxy();

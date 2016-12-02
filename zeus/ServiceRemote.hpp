@@ -24,7 +24,7 @@ namespace zeus {
 	class ServiceRemoteBase : public zeus::WebObj {
 		friend class ServiceRemote;
 		private:
-			std::string m_name;
+			std::string m_type;
 			uint32_t m_serviceId;
 			bool m_isLinked;
 		public:
@@ -42,7 +42,7 @@ namespace zeus {
 			 * @param[in] 
 			 * @return 
 			 */
-			ServiceRemoteBase(ememory::SharedPtr<zeus::WebServer> _clientLink, const std::string& _name, uint16_t _localId, uint16_t _localObjectId);
+			ServiceRemoteBase(const ememory::SharedPtr<zeus::WebServer>& _iface, uint16_t _localId, uint16_t _localObjectId, uint32_t _address, const std::string& _type);
 			/**
 			 * @brief 
 			 * @param[in] 

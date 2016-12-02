@@ -55,6 +55,10 @@ namespace zeus {
 			ZEUS_TYPE_DATA getAnswer() const {
 				return getParameter<ZEUS_TYPE_DATA>(0);
 			}
+			template<class ZEUS_TYPE_DATA>
+			ZEUS_TYPE_DATA getAnswer(const ememory::SharedPtr<zeus::WebServer>& _iface) const {
+				return getParameter<ZEUS_TYPE_DATA>(_iface, 0);
+			}
 			/**
 			 * @brief Ann an error on the message answer
 			 * @param[in] _value error value (simple string with no space with all capital letter separaete with '_'

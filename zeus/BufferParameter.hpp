@@ -24,6 +24,13 @@ namespace zeus {
 			template<class ZEUS_TYPE_DATA>
 			ZEUS_TYPE_DATA getParameter(int32_t _id) const;
 			/**
+			 * @brief Template to get a parameter with a specific type
+			 * @param[in] _id Number of the parameter
+			 * @return Converted type of the parameter (or empty value)
+			 */
+			template<class ZEUS_TYPE_DATA>
+			ZEUS_TYPE_DATA getParameter(const ememory::SharedPtr<zeus::WebServer>& _iface, int32_t _id) const;
+			/**
 			 * @brief Get the type of a parameter.
 			 * @param[in] _id Number of the parameter
 			 * @return type of the parameter

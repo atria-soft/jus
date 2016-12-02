@@ -105,15 +105,15 @@ class AttributeDefinition:
 	
 	def generate_cpp(self, space, object):
 		out = "";
-		# TODO : Set it in protected
+		out += space[:-1] + "protected:"
 		out += space + convert_type_in_cpp(self.type) + " m_" + self.name + "; //!<" + self.brief + "\n"
-		# TODO: set it in public ...
+		out += space[:-1] + "public:"
 		out += self.generate_doxy_get(space, object)
 		out += space + "virtual " + convert_type_in_cpp(self.type) + " get" + capital_first(self.name) + "() {\n"
 		out += space + "	return m_" + self.name + ";\n"
 		out += space + "}\n"
 		out += self.generate_doxy_set(space, object)
-		out += space + "virtual void set" + capital_first(self.name) + "(const " + convert_type_in_cpp(self.type) + "& _value) {\n"
+		out += space + "virtual void set" + capital_first(self.name) + "(" + convert_type_in_cpp(self.type) + " _value) {\n"
 		out += space + "	m_" + self.name + " = _value;\n"
 		out += space + "}\n"
 		return out;
@@ -460,6 +460,7 @@ class ServiceDefinition:
 		
 		out += "			" + namespace + "register" + self.name[-1] + "(*obj);\n"
 		out += "			_iface2->addWebObj(obj);\n"
+		out += "			ZEUS_INFO(\"Create object ID : \" << idObj);\n"
 		out += "			fullId = (uint32_t(id)<<16)+idObj;\n"
 		out += "		}\n"
 		# return Object ID and interface adress
@@ -527,7 +528,7 @@ class ServiceDefinition:
 			out += space + "		ememory::SharedPtr<type> tmp; \\\n"
 			out += space + "		tmp = ememory::makeShared<type>(_destination>>16); \\\n"
 			out += space + "		ememory::SharedPtr<" + class_name + "> tmp2 = tmp; \\\n"
-			out += space + "		_iface->answerValue(_transactionId, _destination, uint32_t(_iface->getAddress())<<16, tmp2); \\\n"
+			out += space + "		_iface->answerValue(_transactionId, uint32_t(_iface->getAddress())<<16, _destination, tmp2); \\\n"
 			out += space + "	}\n"
 			out += space + "\n"
 			"""

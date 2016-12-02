@@ -105,20 +105,13 @@ int main(int _argc, const char *_argv[]) {
 			zeus::Future<std::string> retVersion = remoteServiceUser.sys.getVersion();
 			zeus::Future<std::string> retType = remoteServiceUser.sys.getType();
 			zeus::Future<std::vector<std::string>> retMaintainer = remoteServiceUser.sys.getAuthors();
-			//service DOC
-			zeus::Future<std::vector<std::string>> retExtention = remoteServiceUser.srv.getExtention();
 			retDesc.wait();
 			retVersion.wait();
 			retType.wait();
-			retExtention.wait();
 			retMaintainer.wait();
 			APPL_INFO("Service: system-user");
 			APPL_INFO("    version   : " << retVersion.get());
 			APPL_INFO("    type      : " << retType.get());
-			APPL_INFO("    Extention : " << retExtention.get().size());
-			for (auto &it : retExtention.get()) {
-				APPL_INFO("        - " << it);
-			}
 			APPL_INFO("    maintainer: " << retMaintainer.get().size());
 			for (auto &it : retMaintainer.get()) {
 				APPL_INFO("        - " << it);

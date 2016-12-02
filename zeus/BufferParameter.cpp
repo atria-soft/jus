@@ -98,11 +98,24 @@ zeus::ParamType zeus::BufferParameter::getParameterType(int32_t _id) const {
 		m_parameter[_id].first = sizeof(uint16_t);
 		return zeus::ParamType("raw", paramTypeRaw);
 	}
-	if (typeId == paramTypeObject) {
-		std::string type = reinterpret_cast<const char*>(&m_parameter[_id].second[2]);
-		m_parameter[_id].first = type.size() + sizeof(uint16_t);
-		// TODO : Check error of \0 ==> limit at 256 char ...
-		return zeus::ParamType(type, paramTypeObject);
+	if (    typeId == paramTypeObject
+	     || typeId == paramTypeService) {
+		const char* tmp = reinterpret_cast<const char*>(&m_parameter[_id].second[2]);
+		bool find = false;
+		for (int32_t iii=0; iii<1024; ++iii) {
+			if (tmp[iii] == 0) {
+				find = true;
+				break;
+			}
+		}
+		if (find == false) {
+			ZEUS_ERROR("Request object with a name too big ==> error ...");
+			m_parameter[_id].first = 0;
+			return zeus::ParamType("no-name", typeId);
+		}
+		std::string type(tmp);
+		m_parameter[_id].first = type.size() + sizeof(uint16_t) + 1; // add \0
+		return zeus::ParamType(type, typeId);
 	}
 	ZEUS_ERROR("Can not get type of parameter ... ");
 	return createType<void>();

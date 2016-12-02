@@ -34,22 +34,24 @@ zeus::WebServer::WebServer() :
   m_connection(),
   m_localAddress(0),
   m_licalIdObjectIncrement(1),
+  m_interfaceId(0),
+  m_transmissionId(1),
   m_observerElement(nullptr),
   m_threadAsync(nullptr) {
 	m_interfaceId = interfaceId++;
 	m_threadAsyncRunning = false;
-	m_transmissionId = 1;
 }
 
 zeus::WebServer::WebServer(enet::Tcp _connection, bool _isServer) :
   m_connection(),
   m_localAddress(0),
   m_licalIdObjectIncrement(1),
+  m_interfaceId(0),
+  m_transmissionId(1),
   m_observerElement(nullptr),
   m_threadAsync(nullptr) {
 	m_interfaceId = interfaceId++;
 	m_threadAsyncRunning = false;
-	m_transmissionId = 1;
 	setInterface(std::move(_connection), _isServer);
 }
 
@@ -217,6 +219,18 @@ void zeus::WebServer::onReceiveData(std::vector<uint8_t>& _frame, bool _isBinary
 		return;
 	}
 	ememory::SharedPtr<zeus::Buffer> dataRaw = zeus::Buffer::create(_frame);
+	if (dataRaw == nullptr) {
+		ZEUS_ERROR("Buffer Allocation ERROR ... ");
+		disconnect(true);
+		return;
+	}
+	if (    m_localAddress != 0
+	     && dataRaw->getSource() == 0
+	     && dataRaw->getDestination() == 0) {
+		ZEUS_ERROR("Protocol ERROR ... " << dataRaw);
+		disconnect(true);
+		return;
+	}
 	dataRaw->setInterfaceId(m_interfaceId);
 	newBuffer(dataRaw);
 }

@@ -11,17 +11,18 @@ const zeus::BaseProxy& zeus::BaseProxy::operator= (const zeus::ServiceRemote& _o
 	m_obj = _obj;
 	return *this;
 }
+
 zeus::BaseProxy::BaseProxy():
-  sys(m_obj),
-  srv(m_obj) {
+  sys(m_obj) {
 	
 }
+
 zeus::BaseProxy::BaseProxy(const zeus::ServiceRemote& _obj):
   m_obj(_obj),
-  sys(m_obj),
-  srv(m_obj) {
+  sys(m_obj) {
 	
 }
+
 bool zeus::BaseProxy::exist() const {
 	return m_obj.exist();
 }

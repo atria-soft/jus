@@ -9,23 +9,12 @@
 
 
 
-zeus::ServiceRemoteBase::ServiceRemoteBase(ememory::SharedPtr<zeus::WebServer> _clientLink, const std::string& _name, uint16_t _localId, uint16_t _localObjectId):
-  zeus::WebObj(_clientLink, _localId, _localObjectId),
-  m_name(_name),
-  m_serviceId(0),
+zeus::ServiceRemoteBase::ServiceRemoteBase(const ememory::SharedPtr<zeus::WebServer>& _iface, uint16_t _localId, uint16_t _localObjectId, uint32_t _address, const std::string& _type):
+  zeus::WebObj(_iface, _localId, _localObjectId),
+  m_type(_type),
+  m_serviceId(_address),
   m_isLinked(false) {
-	if (m_interfaceWeb == nullptr) {
-		return;
-	}
-	// little hack : Call the service manager with the service ID=0 ...
-	zeus::Future<uint32_t> ret = m_interfaceWeb->call(getFullId(), ZEUS_GATEWAY_ADDRESS, "link", _name);
-	ret.wait();
-	if (ret.hasError() == true) {
-		ZEUS_WARNING("Can not link with the service named: '" << _name << "' ==> link error");
-		return;
-	}
 	m_isLinked = true;
-	m_serviceId = ret.get();
 }
 
 zeus::ServiceRemoteBase::~ServiceRemoteBase() {
@@ -54,7 +43,7 @@ bool zeus::ServiceRemoteBase::exist() const {
 }
 
 const std::string& zeus::ServiceRemoteBase::getName() const {
-	return m_name;
+	return m_type;
 }
 
 zeus::ServiceRemote::ServiceRemote(ememory::SharedPtr<zeus::ServiceRemoteBase> _interface):
