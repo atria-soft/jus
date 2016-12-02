@@ -3,6 +3,7 @@
  * @copyright 2016, Edouard DUPIN, all right reserved
  * @license APACHE v2.0 (see license file)
  */
+#if 0
 #include <zeus/File.hpp>
 #include <zeus/debug.hpp>
 #include <etk/types.hpp>
@@ -10,7 +11,6 @@
 #include <zeus/mineType.hpp>
 #include <etk/os/FSNode.hpp>
 #include <cstring>
-
 
 
 zeus::File::File() {
@@ -74,4 +74,5 @@ namespace etk {
 	}
 }
 
+#endif
 

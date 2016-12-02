@@ -35,6 +35,7 @@ list_of_known_type = [
     ["file", "zeus::File"],
     ["stream", "zeus::Stream"],
     ["json", "ejson::Object"],
+    ["buffer", "zeus::Buffer"],
     ]
 
 

@@ -1,6 +1,7 @@
 #!/usr/bin/python
 import lutin.debug as debug
 import lutin.tools as tools
+import lutin.macro as macro
 
 
 def get_type():
@@ -41,7 +42,6 @@ def configure(target, my_module):
 	    'zeus/AbstractFunction.cpp',
 	    'zeus/FutureBase.cpp',
 	    'zeus/Future.cpp',
-	    'zeus/File.cpp',
 	    'zeus/Buffer.cpp',
 	    'zeus/BufferParameter.cpp',
 	    'zeus/BufferCall.cpp',
@@ -71,7 +71,6 @@ def configure(target, my_module):
 	    'zeus/FutureData.hpp',
 	    'zeus/FutureBase.hpp',
 	    'zeus/Future.hpp',
-	    'zeus/File.hpp',
 	    'zeus/Buffer.hpp',
 	    'zeus/BufferParameter.hpp',
 	    'zeus/BufferCall.hpp',
@@ -93,6 +92,11 @@ def configure(target, my_module):
 	    'zeus/RemoteProperty.hpp',
 	    'zeus/SystemProxy.hpp',
 	    ])
+	
+	# add basic object:
+	zeus_macro = macro.load_macro('zeus')
+	zeus_macro.parse_object_idl(my_module, 'zeus/zeus-File.obj.zeus.idl')
+	
 	if target.config["compilator"] == "clang":
 		my_module.add_flag('c++', "-Wno-unsequenced", export=True)
 	# build in C++ mode

@@ -6,6 +6,8 @@
 #pragma once
 #include <etk/types.hpp>
 
+
+#if 0
 namespace zeus {
 	/**
 	 * @brief File inetrface
@@ -118,4 +120,6 @@ namespace zeus {
 			}
 	};
 }
+
+#endif
 

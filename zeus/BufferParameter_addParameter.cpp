@@ -307,7 +307,7 @@ namespace zeus {
 		m_parameter.push_back(std::make_pair(2,data));
 	}
 	#define ZEUS_MINIMUM_SIZE_MULTIPLE (1024*50)
-	
+	#if 0
 	class SendData {
 		private:
 			std::vector<uint8_t> m_data;
@@ -446,5 +446,6 @@ namespace zeus {
 			m_multipleSend.push_back(zeus::SendFile(_value.getFileName(), _paramId, size));
 		}
 	}
+	#endif
 }
 

@@ -1,0 +1,20 @@
+#elem-brief: File Object interface
+#elem-version: 1.0
+#elem-type:FILE
+#elem-author:Heero Yui<yui.heero@gmail.com>
+
+#brief:Get size of the file
+#return:current size of the file
+uint64 size()
+
+#brief:Get the name of the file
+#return:Full name of the file (sha512)
+string name()
+
+#brief:Get the file "mine-type"
+#return:string of the mine-type
+string getMineType()
+
+#brief:get a part of the file (size < 64ko)
+#return:Buffer with the data
+buffer getPart(uint64, uint64)

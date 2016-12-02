@@ -1434,7 +1434,7 @@ namespace zeus {
 		ZEUS_ERROR("Can not get type from '" << type << "'");
 		return out;
 	}
-	
+	/*
 	template<>
 	zeus::File BufferParameter::getParameter<zeus::File>(int32_t _id) const {
 		zeus::File out;
@@ -1470,6 +1470,7 @@ namespace zeus {
 		ZEUS_ERROR("Can not get type from '" << type << "'");
 		return out;
 	}
+	*/
 	template<>
 	ememory::SharedPtr<zeus::ObjectRemoteBase> BufferParameter::getParameter<ememory::SharedPtr<zeus::ObjectRemoteBase>>(const ememory::SharedPtr<zeus::WebServer>& _iface, int32_t _id) const {
 		ememory::SharedPtr<zeus::ObjectRemoteBase> out;
