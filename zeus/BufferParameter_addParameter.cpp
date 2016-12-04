@@ -307,15 +307,14 @@ namespace zeus {
 		m_parameter.push_back(std::make_pair(2,data));
 	}
 	#define ZEUS_MINIMUM_SIZE_MULTIPLE (1024*50)
-	#if 0
 	class SendData {
 		private:
-			std::vector<uint8_t> m_data;
+			zeus::Raw m_data;
 			uint16_t m_parameterId;
 			int64_t m_size;
 			uint64_t m_offset;
 		public:
-			SendData(const std::vector<uint8_t>& _data, uint16_t _parameterId) :
+			SendData(const zeus::Raw& _data, uint16_t _parameterId) :
 			  m_data(_data),
 			  m_parameterId(_parameterId),
 			  m_size(_data.size()-1),
@@ -340,7 +339,7 @@ namespace zeus {
 				if (m_size < ZEUS_MINIMUM_SIZE_MULTIPLE) {
 					tmpSize = m_size;
 				}
-				answer->addData(m_parameterId, &m_data[m_offset], tmpSize);
+				answer->addData(m_parameterId, (void *)(&m_data.data()[m_offset]), tmpSize);
 				m_size -= tmpSize;
 				m_offset += tmpSize;
 				_interface->writeBinary(answer);;
@@ -351,101 +350,20 @@ namespace zeus {
 			}
 	};
 	template<>
-	void BufferParameter::addParameter<zeus::File>(const ememory::SharedPtr<zeus::WebServer>& _iface, uint16_t _paramId, const zeus::File& _value) {
+	void BufferParameter::addParameter<zeus::Raw>(const ememory::SharedPtr<zeus::WebServer>& _iface, uint16_t _paramId, const zeus::Raw& _value) {
 		std::vector<uint8_t> data;
-		addType(data, createType<zeus::File>());
+		addType(data, createType<zeus::Raw>());
 		// set mine type in string:
-		std::string name = _value.getMineType();
 		int32_t currentOffset = data.size();
-		data.resize(data.size()+name.size()+1);
-		memcpy(&data[currentOffset], &name[0], name.size());
-		// finish with '\0'
-		currentOffset = data.size()-1;
-		data[currentOffset] = 0;
-		// set size if the file in int32_t
-		int32_t size = _value.getTheoricFileSize();
-		currentOffset = data.size();
-		data.resize(data.size()+sizeof(int32_t));
-		memcpy(&data[currentOffset], &size, sizeof(int32_t));
-		// and now the data (can be none ...):
-		const std::vector<uint8_t>& dataFile = _value.getData();
-		if (dataFile.size() != 0) {
-			currentOffset = data.size();
-			if (dataFile.size() < ZEUS_MINIMUM_SIZE_MULTIPLE) {
-				data.resize(data.size()+dataFile.size());
-				memcpy(&data[currentOffset], &dataFile[0], dataFile.size());
+		if (_value.size() != 0) {
+			if (_value.size() < ZEUS_MINIMUM_SIZE_MULTIPLE) {
+				data.resize(data.size()+_value.size());
+				memcpy(&data[currentOffset], _value.data(), _value.size());
 			} else {
-				m_multipleSend.push_back(zeus::SendData(dataFile, _paramId));
+				m_multipleSend.push_back(zeus::SendData(_value, _paramId));
 			}
 		}
 		m_parameter.push_back(std::make_pair(2,data));
 	}
-	class SendFile {
-		private:
-			etk::FSNode m_node;
-			uint16_t m_parameterId;
-			int64_t m_size;
-		public:
-			SendFile(const std::string& _data, uint16_t _parameterId, uint32_t _size) :
-			  m_node(_data),
-			  m_parameterId(_parameterId),
-			  m_size(_size) {
-				
-			}
-			~SendFile() {
-				
-			}
-			bool operator() (zeus::WebServer* _interface,
-			                 uint32_t _source,
-			                 uint32_t _destination,
-			                 uint32_t _transactionId,
-			                 uint32_t _partId) {
-				if (m_node.fileIsOpen() == false) {
-					m_node.fileOpenRead();
-				}
-				ememory::SharedPtr<zeus::BufferData> answer = zeus::BufferData::create();
-				answer->setTransactionId(_transactionId);
-				answer->setSource(_source);
-				answer->setDestination(_destination);
-				answer->setPartId(_partId);
-				answer->setPartFinish(false);
-				int32_t tmpSize = ZEUS_MINIMUM_SIZE_MULTIPLE;
-				if (m_size < ZEUS_MINIMUM_SIZE_MULTIPLE) {
-					tmpSize = m_size;
-				}
-				uint8_t tmpData[ZEUS_MINIMUM_SIZE_MULTIPLE];
-				m_node.fileRead(tmpData, 1, tmpSize);
-				answer->addData(m_parameterId, tmpData, tmpSize);
-				m_size -= tmpSize;
-				_interface->writeBinary(answer);;
-				if (m_size <= 0) {
-					m_node.fileClose();
-					return true;
-				}
-				return false;
-			}
-	};
-	
-	template<>
-	void BufferParameter::addParameter<zeus::FileServer>(const ememory::SharedPtr<zeus::WebServer>& _iface, uint16_t _paramId, const zeus::FileServer& _value) {
-		etk::FSNode node(_value.getFileName());
-		node.fileOpenRead();
-		std::string extention = std::string(_value.getFileName().begin()+_value.getFileName().size() -3, _value.getFileName().end());
-		ZEUS_WARNING("send file: '" << _value.getFileName() << "' with extention: '" << extention << "'");
-		uint64_t size = node.fileSize();
-		std::vector<uint8_t> fileData;
-		if (size < ZEUS_MINIMUM_SIZE_MULTIPLE) {
-			// if the file is small ==> send directly ...
-			fileData.resize(size);
-			node.fileRead(&fileData[0], 1, size);
-		}
-		zeus::File tmpFile(zeus::getMineType(extention), fileData, size);
-		addParameter(_iface, _paramId, tmpFile);
-		node.fileClose();
-		if (size >= ZEUS_MINIMUM_SIZE_MULTIPLE) {
-			m_multipleSend.push_back(zeus::SendFile(_value.getFileName(), _paramId, size));
-		}
-	}
-	#endif
 }
 

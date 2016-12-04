@@ -165,7 +165,7 @@ namespace appl {
 				return out;
 			}
 			// Return a File Data (might be a picture .tiff/.png/.jpg)
-			zeus::FileServer getAlbumPicture(std::string _pictureName) {
+			ememory::SharedPtr<zeus::File> getAlbumPicture(std::string _pictureName) {
 				std::unique_lock<std::mutex> lock(g_mutex);
 				// TODO : Check right ...
 				uint64_t id = etk::string_to_uint64_t(_pictureName);
@@ -173,23 +173,30 @@ namespace appl {
 				{
 					auto it = m_listFile.find(id);
 					if (it != m_listFile.end()) {
-						return zeus::FileServer(g_basePath + it->second);
+						return zeus::File::create(g_basePath + it->second);
 					}
 				}
 				for (auto &it : m_listFile) {
 					APPL_WARNING("compare: " << it.first << " with " << id << " " << it.second);
 					if (it.first == id) {
-						return zeus::FileServer(g_basePath + it.second);
+						return zeus::File::create(g_basePath + it.second);
 					}
 				}
 				APPL_ERROR("    ==> Not find ...");
-				return zeus::FileServer();
+				return nullptr;
 			}
-			std::string addFile(zeus::File _dataFile) {
+			std::string addFile(ememory::SharedPtr<zeus::File> _dataFile) {
 				std::unique_lock<std::mutex> lock(g_mutex);
 				// TODO : Check right ...
-				APPL_ERROR("    ==> Receive FILE " << _dataFile.getMineType() << " size=" << _dataFile.getData().size());
 				uint64_t id = createFileID();
+				auto fut = _dataFile.getPart(0, 6400);
+				fut.andThen([](zeus::FutureBase _data){
+					zeus::Future<zeus::Raw> data(_data);
+					zeus::Raw ppp = data.get();
+					APPL_ERROR("Get data In andThen " << ppp.size());
+					});
+				/*
+				APPL_ERROR("    ==> Receive FILE " << _dataFile.getMineType() << " size=" << _dataFile.getData().size());
 				std::stringstream val;
 				val << std::hex << std::setw(16) << std::setfill('0') << id;
 				std::string filename = val.str();
@@ -197,6 +204,7 @@ namespace appl {
 				filename += zeus::getExtention(_dataFile.getMineType());
 				_dataFile.storeIn(g_basePath + filename);
 				m_listFile.insert(std::make_pair(id, filename));
+				*/
 				return etk::to_string(id);//zeus::FileServer();
 			}
 			/*
