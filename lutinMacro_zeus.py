@@ -45,10 +45,36 @@ def get_list_type():
 		out.append(elem[0])
 	return out
 
-def convert_type_in_cpp(data):
+def validate_type(data):
+	if data in get_list_type():
+		return True
+	val = data.split(":")
+	if val[0] == "obj":
+		return True
+	return False
+
+def convert_type_in_cpp(data, proxy=False, argument=False):
 	for elem in list_of_known_type:
 		if data == elem[0]:
 			return elem[1]
+	val = data.split(":")
+	if val[0] == "obj":
+		# this is a generated object:
+		listElem = val[1].split("-")
+		out = ""
+		for elem in listElem[:-1]:
+			out += elem + "::"
+		if proxy == True:
+			if argument == False:
+				out += "Proxy" + listElem[-1]
+			else:
+				out = "ememory::SharedPtr<" + out + listElem[-1] + ">"
+		else:
+			if argument == True:
+				out += "Proxy" + listElem[-1]
+			else:
+				out = "ememory::SharedPtr<" + out + listElem[-1] + ">"
+		return out
 	debug.error(" can not find type in IDL : '" + data + "'")
 
 
@@ -190,14 +216,14 @@ class FunctionDefinition:
 		out = "";
 		out += self.generate_doxy(space)
 		out += space + "virtual "
-		out += convert_type_in_cpp(self.return_type) + " " + self.name + "("
+		out += convert_type_in_cpp(self.return_type, False, False) + " " + self.name + "("
 		param_data = ""
 		id_parameter = 0
 		for elem in self.parameters:
 			id_parameter += 1
 			if len(param_data) != 0:
 				param_data += ", "
-			param_data += convert_type_in_cpp(elem["type"]) + " _"
+			param_data += convert_type_in_cpp(elem["type"], False, True) + " _"
 			if elem["name"] == "":
 				param_data += "no_name_param_" + str(id_parameter)
 			else:
@@ -209,14 +235,14 @@ class FunctionDefinition:
 	def generate_hpp_proxy(self, space):
 		out = "";
 		out += self.generate_doxy(space)
-		out += space + "virtual zeus::Future<" + convert_type_in_cpp(self.return_type) + "> " + self.name + "("
+		out += space + "virtual zeus::Future<" + convert_type_in_cpp(self.return_type, True, False) + "> " + self.name + "("
 		param_data = ""
 		id_parameter = 0
 		for elem in self.parameters:
 			id_parameter += 1
 			if len(param_data) != 0:
 				param_data += ", "
-			param_data += "const " + convert_type_in_cpp(elem["type"]) + "& _"
+			param_data += "const " + convert_type_in_cpp(elem["type"], True, True) + "& _"
 			if elem["name"] == "":
 				param_data += "no_name_param_" + str(id_parameter)
 			else:
@@ -226,14 +252,14 @@ class FunctionDefinition:
 		return out;
 	def generate_cpp_proxy(self, space, class_name):
 		out = "";
-		out += space + "zeus::Future<" + convert_type_in_cpp(self.return_type) + "> " + class_name + "::" + self.name + "("
+		out += space + "zeus::Future<" + convert_type_in_cpp(self.return_type, True, False) + "> " + class_name + "::" + self.name + "("
 		param_data = ""
 		id_parameter = 0
 		for elem in self.parameters:
 			id_parameter += 1
 			if len(param_data) != 0:
 				param_data += ", "
-			param_data += "const " + convert_type_in_cpp(elem["type"]) + "& _"
+			param_data += "const " + convert_type_in_cpp(elem["type"], True, True) + "& _"
 			if elem["name"] == "":
 				param_data += "no_name_param_" + str(id_parameter)
 			else:
@@ -266,6 +292,7 @@ class ServiceDefinition:
 		self.authors = []
 		self.attributes = []
 		self.functions = []
+		self.imports = []
 	
 	def set_name(self, value):
 		self.name = value
@@ -291,6 +318,9 @@ class ServiceDefinition:
 	def add_attribute(self, value):
 		# TODO : Check if attribute already exist
 		self.attributes.append(value)
+	
+	def add_import(self, value):
+		self.imports.append(value)
 	
 	def display(self):
 		debug.info("Display service definition : ")
@@ -322,11 +352,18 @@ class ServiceDefinition:
 		out += "#include <zeus/Raw.hpp>\n"
 		out += "#include <string>\n"
 		out += "#include <vector>\n"
+		out += "#include <ememory/memory.hpp>\n"
+		for elem in self.imports:
+			out += "#include <" + elem.replace("-","/") + ".hpp>\n"
+			out += "#include <" + elem.replace("-","/Proxy") + ".hpp>\n"
 		out += "\n"
 		space = ""
+		class_name = ""
 		for elem in self.name[:-1]:
 			out += space + "namespace " + elem + " {\n"
 			space += "	"
+			class_name += elem + "::"
+		class_name += self.name[-1]
 		
 		out += space + " /**\n"
 		if self.brief != "":
@@ -342,6 +379,11 @@ class ServiceDefinition:
 		space += "	"
 		out += space + "public:\n"
 		space += "	"
+		out += space + "/**\n"
+		out += space + " * @brief Generic virtual destructor\n"
+		out += space + " */\n"
+		out += space + "template<typename ... ZEUS_OBJECT_CREATE>\n"
+		out += space + "static ememory::SharedPtr<" + class_name + "> create(ZEUS_OBJECT_CREATE ...);\n"
 		out += space + "/**\n"
 		out += space + " * @brief Generic virtual destructor\n"
 		out += space + " */\n"
@@ -366,12 +408,14 @@ class ServiceDefinition:
 		for elem in self.name[:-1]:
 			filename += elem + "/"
 		register_filename = filename + "register" + self.name[-1] + ".hpp";
+		register_filename_proxy = filename + "Proxy" + self.name[-1] + ".hpp";
 		filename += self.name[-1] + ".cpp";
 		out = ""
 		
 		class_name = ""
 		for elem in self.name[:-1]:
 			class_name += "" + elem + "::"
+		class_name_proxy = class_name + "Proxy" + self.name[-1];
 		class_name += self.name[-1];
 		
 		namespace = ""
@@ -386,6 +430,7 @@ class ServiceDefinition:
 		out += "\n"
 		out += "#include <" + filename.replace(".cpp",".hpp") + ">\n"
 		out += "#include <" + register_filename + ">\n"
+		out += "#include <" + register_filename_proxy + ">\n"
 		out += "#include <etk/types.hpp>\n"
 		out += "#include <zeus/Buffer.hpp>\n"
 		out += "#include <zeus/BufferData.hpp>\n"
@@ -406,6 +451,12 @@ class ServiceDefinition:
 		out += "		static zeus::ParamType type(\"obj:" + class_name + "\", zeus::paramTypeObject, false, false);\n"
 		out += "		return type;\n"
 		out += "	}\n"
+		out += "	\n"
+		out += "	template<> const zeus::ParamType& createType<" + class_name_proxy + ">() {\n"
+		out += "		static zeus::ParamType type(\"obj:" + class_name + "\", zeus::paramTypeObject, false, false);\n"
+		out += "		return type;\n"
+		out += "	}\n"
+		out += "	\n"
 		out += "	template<>\n"
 		out += "	void BufferParameter::addParameter<ememory::SharedPtr<" + class_name + ">>(const ememory::SharedPtr<zeus::WebServer>& _iface, uint16_t _paramId, const ememory::SharedPtr<" + class_name + ">& _value) {\n"
 		out += "		std::vector<uint8_t> data;\n"
@@ -433,7 +484,13 @@ class ServiceDefinition:
 		out += "		memcpy(&data[currentOffset], &fullId, 4);\n"
 		out += "		m_parameter.push_back(std::make_pair(startOffset,data));\n"
 		out += "	}\n"
-		
+		out += "	\n"
+		out += "	template<>\n"
+		out += "	" + class_name_proxy + " BufferParameter::getParameter<" + class_name_proxy + ">(const ememory::SharedPtr<zeus::WebServer>& _iface, int32_t _id) const {\n"
+		out += "		ememory::SharedPtr<zeus::ObjectRemoteBase> out;\n"
+		out += "		out = zeus::BufferParameter::getParameter<ememory::SharedPtr<zeus::ObjectRemoteBase>>(_iface, _id);\n"
+		out += "		return zeus::ObjectRemote(out);\n"
+		out += "	}\n"
 		out += "}\n"
 		
 		return [filename, out]
@@ -814,7 +871,11 @@ def tool_generate_idl(target, module, data_option):
 			continue
 		debug.extreme_verbose("Need to parse the fucntion/attribute line:")
 		debug.extreme_verbose("    '" + line + "'")
-		if line[-1] == ")":
+		if line[:7] == "import ":
+			debug.debug("find import : " + line)
+			# TODO : Add check ...
+			service_def.add_import(line.split(" ")[1])
+		elif line[-1] == ")":
 			# Find a fundtion ==> parse it
 			#debug.error("line " + str(id_line) + " Can not parse function the line dos not ended by a ')'")
 			#get first part (befor '('):
@@ -834,10 +895,10 @@ def tool_generate_idl(target, module, data_option):
 			return_value = list_elems[0]
 			function_name = list_elems[1]
 			# check types:
-			if return_value not in get_list_type():
+			if validate_type(return_value) == False:
 				debug.error("line " + str(id_line) + " fucntion return type unknow : '" + return_value + "' not in " + str(get_list_type()))
 			for elem in argument_list:
-				if elem not in get_list_type():
+				if validate_type(elem) == False:
 					debug.error("line " + str(id_line) + " fucntion argument type unknow : '" + elem + "' not in " + str(get_list_type()))
 			debug.extreme_verbose("        Parse of function done :")
 			debug.extreme_verbose("            return:" + return_value)
@@ -855,7 +916,7 @@ def tool_generate_idl(target, module, data_option):
 			elem = line.split(" ")
 			if len(elem) != 2:
 				debug.error("line " + str(id_line) + " Can not parse attribute must be constituated with the type and the name")
-			if elem[0] not in get_list_type():
+			if validate_type(elem[0]) == False:
 				debug.error("line " + str(id_line) + " Attribute type unknow : '" + elem[0] + "' not in " + str(get_list_type()))
 			current_attr.set_type(elem[0]);
 			current_attr.set_name(elem[1]);

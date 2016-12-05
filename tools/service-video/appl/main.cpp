@@ -163,6 +163,7 @@ namespace appl {
 				}
 				return out;
 			}
+			/*
 			// Return a File Data (might be a picture .tiff/.png/.jpg)
 			zeus::FileServer getAlbumPicture(std::string _pictureName) {
 				std::unique_lock<std::mutex> lock(g_mutex);
@@ -198,6 +199,11 @@ namespace appl {
 				m_listFile.insert(std::make_pair(id, filename));
 				return etk::to_string(id);//zeus::FileServer();
 			}
+			
+			
+			
+			
+			*/
 			/*
 			// Return a global UTC time
 			zeus::Time getAlbumPictureTime(std::string _pictureName) {

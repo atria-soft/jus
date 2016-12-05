@@ -32,6 +32,7 @@ static uint32_t interfaceId = 1;
 
 zeus::WebServer::WebServer() :
   m_connection(),
+  m_processingPool(20),
   m_localAddress(0),
   m_licalIdObjectIncrement(1),
   m_interfaceId(0),
@@ -40,10 +41,12 @@ zeus::WebServer::WebServer() :
   m_threadAsync(nullptr) {
 	m_interfaceId = interfaceId++;
 	m_threadAsyncRunning = false;
+	
 }
 
 zeus::WebServer::WebServer(enet::Tcp _connection, bool _isServer) :
   m_connection(),
+  m_processingPool(20),
   m_localAddress(0),
   m_licalIdObjectIncrement(1),
   m_interfaceId(0),
@@ -71,6 +74,9 @@ void zeus::WebServer::setInterface(enet::Tcp _connection, bool _isServer, const 
 
 zeus::WebServer::~WebServer() {
 	disconnect();
+	m_processingPool.stop();
+	std::this_thread::sleep_for(std::chrono::milliseconds(100)); // TODO : Remove this ...
+	m_processingPool.join();
 }
 
 void zeus::WebServer::setInterfaceName(const std::string& _name) {
@@ -241,27 +247,9 @@ void zeus::WebServer::ping() {
 
 void zeus::WebServer::newBuffer(ememory::SharedPtr<zeus::Buffer> _buffer) {
 	ZEUS_LOG_INPUT_OUTPUT("Receive :" << _buffer);
+	// Try to find in the current call that has been done to add data in an answer :
 	zeus::FutureBase future;
 	uint64_t tid = _buffer->getTransactionId();
-	if (tid == 0) {
-		ZEUS_ERROR("Get a Protocol error ... No ID ...");
-		/*
-		if (obj["error"].toString().get() == "PROTOCOL-ERROR") {
-			ZEUS_ERROR("Get a Protocol error ...");
-			std::unique_lock<std::mutex> lock(m_mutex);
-			for (auto &it : m_pendingCall) {
-				if (it.isValid() == false) {
-					continue;
-				}
-				it.appendData(obj);
-			}
-			m_pendingCall.clear();
-		} else {
-			ZEUS_ERROR("call with no ID ==> error ...");
-		}
-		*/
-		return;
-	}
 	{
 		std::unique_lock<std::mutex> lock(m_pendingCallMutex);
 		auto it = m_pendingCall.begin();
@@ -278,6 +266,7 @@ void zeus::WebServer::newBuffer(ememory::SharedPtr<zeus::Buffer> _buffer) {
 			break;
 		}
 	}
+	// Not find a pen,ding call ==> execute it ...
 	if (future.isValid() == false) {
 		uint32_t dest = _buffer->getDestination();
 		for (auto &it : m_listObject) {
@@ -285,33 +274,51 @@ void zeus::WebServer::newBuffer(ememory::SharedPtr<zeus::Buffer> _buffer) {
 				continue;
 			}
 			if (it->getFullId() == dest) {
-				it->receive(_buffer);
+				// send in an other async to syncronize the 
+				m_processingPool.async(
+				    [=](){
+				    	ememory::SharedPtr<zeus::WebObj> tmpObj = it;
+				    	tmpObj->receive(_buffer);
+				    },
+				    dest
+				    );
 				return;
 			}
 		}
-		// not a pending call ==> simple event or call ...
 		if (m_observerElement != nullptr) {
-			m_observerElement(_buffer);
+			m_processingPool.async(
+			    [=](){
+			    	// not a pending call ==> simple event or call ...
+			    	m_observerElement(_buffer); //!< all input arrive at the same element
+			    },
+			    9);
 		}
 		return;
 	}
-	bool ret = future.appendData(_buffer);
-	if (ret == true) {
-		std::unique_lock<std::mutex> lock(m_pendingCallMutex);
-		auto it = m_pendingCall.begin();
-		while (it != m_pendingCall.end()) {
-			if (it->second.isValid() == false) {
-				it = m_pendingCall.erase(it);
-				continue;
-			}
-			if (it->second.getTransactionId() != tid) {
-				++it;
-				continue;
-			}
-			it = m_pendingCall.erase(it);
-			break;
-		}
-	}
+	m_processingPool.async(
+	    [=](){
+	    	zeus::FutureBase fut = future;
+	    	// add data ...
+	    	bool ret = fut.appendData(_buffer);
+	    	if (ret == true) {
+	    		std::unique_lock<std::mutex> lock(m_pendingCallMutex);
+	    		auto it = m_pendingCall.begin();
+	    		while (it != m_pendingCall.end()) {
+	    			if (it->second.isValid() == false) {
+	    				it = m_pendingCall.erase(it);
+	    				continue;
+	    			}
+	    			if (it->second.getTransactionId() != tid) {
+	    				++it;
+	    				continue;
+	    			}
+	    			it = m_pendingCall.erase(it);
+	    			break;
+	    		}
+	    	}
+	    },
+	    tid); // force at the transaction Id to have a correct order in the processing of the data ...
+	
 }
 
 void zeus::WebServer::addAsync(zeus::WebServer::ActionAsync _elem) {

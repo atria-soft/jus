@@ -20,6 +20,8 @@
 #include <zeus/service/Picture.hpp>
 #include <zeus/service/registerPicture.hpp>
 #include <zeus/ProxyClientProperty.hpp>
+#include <zeus/File.hpp>
+#include <zeus/ProxyFile.hpp>
 
 static std::mutex g_mutex;
 static std::string g_basePath;
@@ -185,7 +187,7 @@ namespace appl {
 				APPL_ERROR("    ==> Not find ...");
 				return nullptr;
 			}
-			std::string addFile(ememory::SharedPtr<zeus::File> _dataFile) {
+			std::string addFile(zeus::ProxyFile _dataFile) {
 				std::unique_lock<std::mutex> lock(g_mutex);
 				// TODO : Check right ...
 				uint64_t id = createFileID();
@@ -194,6 +196,7 @@ namespace appl {
 					zeus::Future<zeus::Raw> data(_data);
 					zeus::Raw ppp = data.get();
 					APPL_ERROR("Get data In andThen " << ppp.size());
+					return true;
 					});
 				/*
 				APPL_ERROR("    ==> Receive FILE " << _dataFile.getMineType() << " size=" << _dataFile.getData().size());

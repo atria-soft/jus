@@ -52,6 +52,7 @@ namespace appl {
 				}
 				*/
 				// TODO: check if basished ...
+				/*
 				if (m_client.getName().get() != "") {
 					std::unique_lock<std::mutex> lock(g_mutex);
 					std::vector<std::string> out;
@@ -74,6 +75,7 @@ namespace appl {
 						out.push_back(it.toString().get());
 					}
 				}
+				*/
 				// TODO: Check default visibility ... (if user want to have default visibility at Noone ==> then public must be removed...
 				if (true) {
 					out.push_back("public");

@@ -43,6 +43,31 @@ namespace zeus {
 			 * @return requested value
 			 */
 			ZEUS_RETURN get(const ememory::SharedPtr<zeus::WebServer>& _iface);
+			
+			const Future<ZEUS_RETURN>& wait() const {
+				zeus::FutureBase::wait();
+				return *this;
+			}
+			Future<ZEUS_RETURN>& wait() {
+				zeus::FutureBase::wait();
+				return *this;
+			}
+			const Future<ZEUS_RETURN>& waitFor(std::chrono::microseconds _delta = std::chrono::seconds(30)) const {
+				zeus::FutureBase::waitFor(_delta);
+				return *this;
+			}
+			Future<ZEUS_RETURN>& waitFor(std::chrono::microseconds _delta = std::chrono::seconds(30)) {
+				zeus::FutureBase::waitFor(_delta);
+				return *this;
+			}
+			const Future<ZEUS_RETURN>& waitUntil(std::chrono::steady_clock::time_point _endTime) const {
+				zeus::FutureBase::waitUntil(_endTime);
+				return *this;
+			}
+			Future<ZEUS_RETURN>& waitUntil(std::chrono::steady_clock::time_point _endTime) {
+				zeus::FutureBase::waitUntil(_endTime);
+				return *this;
+			}
 	};
 	/**
 	 * @brief future template to cast type in a void methode (fallback)
@@ -65,6 +90,30 @@ namespace zeus {
 			 */
 			zeus::Future<void>& operator= (const zeus::FutureBase& _base) {
 				m_data = _base.m_data;
+				return *this;
+			}
+			const Future<void>& wait() const {
+				zeus::FutureBase::wait();
+				return *this;
+			}
+			Future<void>& wait() {
+				zeus::FutureBase::wait();
+				return *this;
+			}
+			const Future<void>& waitFor(std::chrono::microseconds _delta = std::chrono::seconds(30)) const {
+				zeus::FutureBase::waitFor(_delta);
+				return *this;
+			}
+			Future<void>& waitFor(std::chrono::microseconds _delta = std::chrono::seconds(30)) {
+				zeus::FutureBase::waitFor(_delta);
+				return *this;
+			}
+			const Future<void>& waitUntil(std::chrono::steady_clock::time_point _endTime) const {
+				zeus::FutureBase::waitUntil(_endTime);
+				return *this;
+			}
+			Future<void>& waitUntil(std::chrono::steady_clock::time_point _endTime) {
+				zeus::FutureBase::waitUntil(_endTime);
 				return *this;
 			}
 	};

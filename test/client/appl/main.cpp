@@ -16,6 +16,8 @@
 #include <etk/stdTools.hpp>
 #include <zeus/service/ProxyUser.hpp>
 #include <zeus/service/ProxyPicture.hpp>
+#include <zeus/ProxyFile.hpp>
+#include <zeus/ObjectRemote.hpp>
 #include <echrono/Steady.hpp>
 
 
@@ -162,28 +164,32 @@ int main(int _argc, const char *_argv[]) {
 						zeus::Future<std::vector<std::string>> retListImage = remoteServicePicture.getAlbumListPicture(it2).wait();
 						for (auto &it3 : retListImage.get()) {
 							APPL_INFO("                - " << it3);
-							zeus::Future<zeus::File> retListImage = remoteServicePicture.getAlbumListPicture(it3).wait();
-							zeus::File tmpFile = retListImage.get();
-							APPL_INFO("                    mine-type: " << tmpFile.getMineType());
-							APPL_INFO("                    size: " << tmpFile.getData().size());
+							// TODO : This is really bad : Do it better ...
+							zeus::Future<ememory::SharedPtr<zeus::ObjectRemoteBase>> retListImage = remoteServicePicture.getAlbumListPicture(it3).wait();
+							zeus::ProxyFile tmpFile = zeus::ObjectRemote(retListImage.get(client1.m_interfaceWeb));
+							APPL_INFO("                    mine-type: " << tmpFile.getMineType().wait().get());
+							APPL_INFO("                    size: " << tmpFile.size().wait().get());
 							APPL_INFO("                    receive in =" << int64_t(retListImage.getTransmitionTime().count()/1000)/1000.0 << " ms");
-							std::string tmpFileName = std::string("./out/") + it + "_" + it2 + "_" + it3 + "." + zeus::getExtention(tmpFile.getMineType());
+							std::string tmpFileName = std::string("./out/") + it + "_" + it2 + "_" + it3 + "." + zeus::getExtention(tmpFile.getMineType().wait().get());
 							APPL_INFO("                    store in: " << tmpFileName);
+							/*
 							etk::FSNode node(tmpFileName);
 							node.fileOpenWrite();
 							node.fileWrite(&tmpFile.getData()[0], 1, tmpFile.getData().size());
 							node.fileClose();
+							*/
 						}
 					} else {
 						APPL_INFO("            - " << it2);
 					}
 				}
 			}
-			#if 0
+			#if 1
 				echrono::Steady start = echrono::Steady::now();
 				//zeus::File tmp("./testzz.png");
-				zeus::File tmp("./tmpResult.bmp");
-				int32_t size = tmp.getData().size();
+				// TODO : Read file size before ..
+				int32_t size = 1024;
+				ememory::SharedPtr<zeus::File> tmp = zeus::File::create("./tmpResult.bmp");
 				zeus::FutureBase retSendImage = remoteServicePicture.addFile(tmp).wait();
 				echrono::Steady stop = echrono::Steady::now();
 				APPL_WARNING("          IO*=" << (stop-start));

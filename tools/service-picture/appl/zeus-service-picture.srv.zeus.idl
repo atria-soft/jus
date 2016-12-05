@@ -3,13 +3,14 @@
 #elem-type:PICTURE
 #elem-author:Heero Yui<yui.heero@gmail.com
 
+import zeus-File
 
 vector:string getAlbums()
 vector:string getSubAlbums(string)
 uint32 getAlbumCount(string)
 vector:string getAlbumListPicture(string)
-//file getAlbumPicture(string)
-//string addFile(file)
+//obj:zeus-File getAlbumPicture(string)
+string addFile(obj:zeus-File)
 bool removeFile(string)
 /*
 // ----------------- Get media with their ID -----------------------

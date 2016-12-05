@@ -12,6 +12,7 @@
 #include <zeus/AbstractFunction.hpp>
 #include <zeus/FutureBase.hpp>
 #include <zeus/WebObj.hpp>
+#include <ethread/Pool.hpp>
 
 //#define ZEUS_NO_ID_CLIENT (0xFFFFFFFF)
 #define ZEUS_NO_ID_CLIENT (0x00000000)
@@ -91,6 +92,7 @@ namespace zeus {
 			std::vector<ememory::SharedPtr<zeus::WebObj>> m_actifObject; //!< List of all active object created and that remove is in progress ...
 		private:
 			enet::WebSocket m_connection;
+			ethread::Pool m_processingPool;
 			
 			uint16_t m_localAddress;
 			uint16_t m_licalIdObjectIncrement; //!< attribute a unique ID for an object

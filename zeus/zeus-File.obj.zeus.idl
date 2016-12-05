@@ -16,5 +16,7 @@ string name()
 string getMineType()
 
 #brief:get a part of the file (size < 64ko)
+#param:_start:Start position in the file
+#param:_stop:Stop position in the file
 #return:Buffer with the data
 raw getPart(uint64, uint64)
