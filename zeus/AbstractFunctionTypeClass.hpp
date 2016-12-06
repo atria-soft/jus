@@ -32,10 +32,10 @@ namespace zeus {
 			// clang generate a basic warning:
 			//      warning: multiple unsequenced modifications to 'idParam' [-Wunsequenced]
 			int32_t idParam = 0;
-			ret = (*_pointer.*_func)(_obj->getParameter<ZEUS_TYPES>(idParam++)...);
+			ret = (*_pointer.*_func)(_obj->getParameter<ZEUS_TYPES>(_interfaceClient, idParam++)...);
 		} else {
 			int32_t idParam = int32_t(sizeof...(ZEUS_TYPES))-1;
-			ret = (*_pointer.*_func)(_obj->getParameter<ZEUS_TYPES>(idParam--)...);
+			ret = (*_pointer.*_func)(_obj->getParameter<ZEUS_TYPES>(_interfaceClient, idParam--)...);
 		}
 		if (_interfaceClient == nullptr) {
 			ZEUS_ERROR("Nullptr for _interfaceWeb");
@@ -65,10 +65,10 @@ namespace zeus {
 			// clang generate a basic warning:
 			//      warning: multiple unsequenced modifications to 'idParam' [-Wunsequenced]
 			int32_t idParam = 0;
-			(*_pointer.*_func)(_obj->getParameter<ZEUS_TYPES>(idParam++)...);
+			(*_pointer.*_func)(_obj->getParameter<ZEUS_TYPES>(_interfaceClient, idParam++)...);
 		} else {
 			int32_t idParam = int32_t(sizeof...(ZEUS_TYPES))-1;
-			(*_pointer.*_func)(_obj->getParameter<ZEUS_TYPES>(idParam--)...);
+			(*_pointer.*_func)(_obj->getParameter<ZEUS_TYPES>(_interfaceClient, idParam--)...);
 		}
 		if (_interfaceClient == nullptr) {
 			ZEUS_ERROR("Nullptr for _interfaceWeb");

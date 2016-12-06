@@ -16,20 +16,24 @@ namespace zeus {
 		protected:
 			mutable std::vector<std::pair<int32_t,std::vector<uint8_t>>> m_parameter; //!< list of the parameter (offset of start data and buffer of data (subprotocol...)
 		public:
+			BufferParameter(ememory::SharedPtr<zeus::WebServer> _iface);
 			/**
 			 * @brief Template to get a parameter with a specific type
 			 * @param[in] _id Number of the parameter
-			 * @return Converted type of the parameter (or empty value)
-			 */
-			template<class ZEUS_TYPE_DATA>
-			ZEUS_TYPE_DATA getParameter(int32_t _id) const;
-			/**
-			 * @brief Template to get a parameter with a specific type
-			 * @param[in] _id Number of the parameter
+			 * @param[in] _iface IO Web interface
 			 * @return Converted type of the parameter (or empty value)
 			 */
 			template<class ZEUS_TYPE_DATA>
 			ZEUS_TYPE_DATA getParameter(const ememory::SharedPtr<zeus::WebServer>& _iface, int32_t _id) const;
+			/**
+			 * @brief Template to get a parameter with a specific type
+			 * @param[in] _id Number of the parameter
+			 * @return Converted type of the parameter (or empty value)
+			 */
+			template<class ZEUS_TYPE_DATA>
+			ZEUS_TYPE_DATA getParameter(int32_t _id) const {
+				return getParameter<ZEUS_TYPE_DATA>(m_iface, _id);
+			}
 			/**
 			 * @brief Get the type of a parameter.
 			 * @param[in] _id Number of the parameter

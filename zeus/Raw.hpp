@@ -15,52 +15,26 @@ namespace zeus {
 		private:
 			uint32_t m_size;
 			const uint8_t* m_dataExternal;
-			uint8_t* m_dataInternal;
+			std::vector<uint8_t> m_dataInternal;
 		public:
 			/**
 			 * @brief generic constructor
 			 */
-			Raw() :
-			  m_size(0),
-			  m_dataExternal(nullptr),
-			  m_dataInternal(nullptr) {
-				
-			}
+			Raw();
 			/**
 			 * @brief generic constructor
 			 */
-			Raw(uint32_t _size) :
-			  m_size(_size),
-			  m_dataExternal(nullptr),
-			  m_dataInternal(new uint8_t[_size]) {
-				
-			}
+			Raw(uint32_t _size);
 			
-			Raw(uint32_t _size, const uint8_t* _data) :
-			  m_size(_size),
-			  m_dataExternal(_data),
-			  m_dataInternal(nullptr) {
-				
-			}
+			Raw(uint32_t _size, const uint8_t* _data);
 			
-			~Raw() {
-				if (m_dataInternal != nullptr) {
-					delete[] m_dataInternal;
-					m_dataInternal = nullptr;
-				}
-			}
+			~Raw();
 			
 			
-			uint32_t size() const {
-				return m_size;
-			}
+			uint32_t size() const;
 			
-			const uint8_t* data() const {
-				if (m_dataExternal != nullptr) {
-					return m_dataExternal;
-				}
-				return m_dataInternal;
-			}
+			const uint8_t* data() const;
+			uint8_t* writeData();
 	};
 }
 

@@ -62,6 +62,6 @@ void zeus::BufferData::composeWith(const uint8_t* _buffer, uint32_t _lenght) {
 // -- Factory
 // ------------------------------------------------------------------------------------
 
-ememory::SharedPtr<zeus::BufferData> zeus::BufferData::create() {
-	return ememory::SharedPtr<zeus::BufferData>(new zeus::BufferData);
+ememory::SharedPtr<zeus::BufferData> zeus::BufferData::create(ememory::SharedPtr<zeus::WebServer> _iface) {
+	return ememory::SharedPtr<zeus::BufferData>(new zeus::BufferData(_iface));
 }

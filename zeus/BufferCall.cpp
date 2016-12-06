@@ -64,6 +64,6 @@ void zeus::BufferCall::appendBufferData(ememory::SharedPtr<zeus::BufferData> _ob
 // ------------------------------------------------------------------------------------
 
 
-ememory::SharedPtr<zeus::BufferCall> zeus::BufferCall::create() {
-	return ememory::SharedPtr<zeus::BufferCall>(new zeus::BufferCall);
+ememory::SharedPtr<zeus::BufferCall> zeus::BufferCall::create(ememory::SharedPtr<zeus::WebServer> _iface) {
+	return ememory::SharedPtr<zeus::BufferCall>(new zeus::BufferCall(_iface));
 }

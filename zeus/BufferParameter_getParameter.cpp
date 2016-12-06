@@ -14,7 +14,7 @@
 #include <climits>
 namespace zeus {
 	template<>
-	bool BufferParameter::getParameter<bool>(int32_t _id) const {
+	bool BufferParameter::getParameter<bool>(const ememory::SharedPtr<zeus::WebServer>& _iface, int32_t _id) const {
 		zeus::ParamType type = getParameterType(_id);
 		const uint8_t* pointer = getParameterPointer(_id);
 		uint32_t dataSize = getParameterSize(_id);
@@ -31,7 +31,7 @@ namespace zeus {
 	}
 	
 	template<>
-	std::string BufferParameter::getParameter<std::string>(int32_t _id) const {
+	std::string BufferParameter::getParameter<std::string>(const ememory::SharedPtr<zeus::WebServer>& _iface, int32_t _id) const {
 		std::string out;
 		zeus::ParamType type = getParameterType(_id);
 		const uint8_t* pointer = getParameterPointer(_id);
@@ -43,7 +43,7 @@ namespace zeus {
 	
 	
 	template<>
-	uint8_t BufferParameter::getParameter<uint8_t>(int32_t _id) const {
+	uint8_t BufferParameter::getParameter<uint8_t>(const ememory::SharedPtr<zeus::WebServer>& _iface, int32_t _id) const {
 		zeus::ParamType type = getParameterType(_id);
 		const uint8_t* pointer = getParameterPointer(_id);
 		uint32_t dataSize = getParameterSize(_id);
@@ -83,7 +83,7 @@ namespace zeus {
 		return 0;
 	}
 	template<>
-	uint16_t BufferParameter::getParameter<uint16_t>(int32_t _id) const {
+	uint16_t BufferParameter::getParameter<uint16_t>(const ememory::SharedPtr<zeus::WebServer>& _iface, int32_t _id) const {
 		zeus::ParamType type = getParameterType(_id);
 		const uint8_t* pointer = getParameterPointer(_id);
 		uint32_t dataSize = getParameterSize(_id);
@@ -124,7 +124,7 @@ namespace zeus {
 	}
 	
 	template<>
-	uint32_t BufferParameter::getParameter<uint32_t>(int32_t _id) const {
+	uint32_t BufferParameter::getParameter<uint32_t>(const ememory::SharedPtr<zeus::WebServer>& _iface, int32_t _id) const {
 		zeus::ParamType type = getParameterType(_id);
 		const uint8_t* pointer = getParameterPointer(_id);
 		uint32_t dataSize = getParameterSize(_id);
@@ -165,7 +165,7 @@ namespace zeus {
 	}
 	
 	template<>
-	uint64_t BufferParameter::getParameter<uint64_t>(int32_t _id) const {
+	uint64_t BufferParameter::getParameter<uint64_t>(const ememory::SharedPtr<zeus::WebServer>& _iface, int32_t _id) const {
 		zeus::ParamType type = getParameterType(_id);
 		const uint8_t* pointer = getParameterPointer(_id);
 		uint32_t dataSize = getParameterSize(_id);
@@ -208,12 +208,12 @@ namespace zeus {
 	#if    defined(__TARGET_OS__MacOs) \
 	    || defined(__TARGET_OS__IOs)
 	template<>
-	size_t BufferParameter::getParameter<size_t>(int32_t _id) const {
+	size_t BufferParameter::getParameter<size_t>(const ememory::SharedPtr<zeus::WebServer>& _iface, int32_t _id) const {
 		return getParameter<uint64_t>(_id);
 	}
 	#endif
 	template<>
-	int8_t BufferParameter::getParameter<int8_t>(int32_t _id) const {
+	int8_t BufferParameter::getParameter<int8_t>(const ememory::SharedPtr<zeus::WebServer>& _iface, int32_t _id) const {
 		zeus::ParamType type = getParameterType(_id);
 		const uint8_t* pointer = getParameterPointer(_id);
 		uint32_t dataSize = getParameterSize(_id);
@@ -254,7 +254,7 @@ namespace zeus {
 	}
 	
 	template<>
-	int16_t BufferParameter::getParameter<int16_t>(int32_t _id) const {
+	int16_t BufferParameter::getParameter<int16_t>(const ememory::SharedPtr<zeus::WebServer>& _iface, int32_t _id) const {
 		zeus::ParamType type = getParameterType(_id);
 		const uint8_t* pointer = getParameterPointer(_id);
 		uint32_t dataSize = getParameterSize(_id);
@@ -295,7 +295,7 @@ namespace zeus {
 	}
 	
 	template<>
-	int32_t BufferParameter::getParameter<int32_t>(int32_t _id) const {
+	int32_t BufferParameter::getParameter<int32_t>(const ememory::SharedPtr<zeus::WebServer>& _iface, int32_t _id) const {
 		zeus::ParamType type = getParameterType(_id);
 		const uint8_t* pointer = getParameterPointer(_id);
 		uint32_t dataSize = getParameterSize(_id);
@@ -336,7 +336,7 @@ namespace zeus {
 	}
 	
 	template<>
-	int64_t BufferParameter::getParameter<int64_t>(int32_t _id) const {
+	int64_t BufferParameter::getParameter<int64_t>(const ememory::SharedPtr<zeus::WebServer>& _iface, int32_t _id) const {
 		zeus::ParamType type = getParameterType(_id);
 		const uint8_t* pointer = getParameterPointer(_id);
 		uint32_t dataSize = getParameterSize(_id);
@@ -377,7 +377,7 @@ namespace zeus {
 	}
 	
 	template<>
-	float BufferParameter::getParameter<float>(int32_t _id) const {
+	float BufferParameter::getParameter<float>(const ememory::SharedPtr<zeus::WebServer>& _iface, int32_t _id) const {
 		zeus::ParamType type = getParameterType(_id);
 		const uint8_t* pointer = getParameterPointer(_id);
 		uint32_t dataSize = getParameterSize(_id);
@@ -417,7 +417,7 @@ namespace zeus {
 		return 0.0f;
 	}
 	template<>
-	double BufferParameter::getParameter<double>(int32_t _id) const {
+	double BufferParameter::getParameter<double>(const ememory::SharedPtr<zeus::WebServer>& _iface, int32_t _id) const {
 		zeus::ParamType type = getParameterType(_id);
 		const uint8_t* pointer = getParameterPointer(_id);
 		uint32_t dataSize = getParameterSize(_id);
@@ -481,7 +481,7 @@ namespace zeus {
 	
 	
 	template<>
-	std::vector<uint8_t> BufferParameter::getParameter<std::vector<uint8_t>>(int32_t _id) const {
+	std::vector<uint8_t> BufferParameter::getParameter<std::vector<uint8_t>>(const ememory::SharedPtr<zeus::WebServer>& _iface, int32_t _id) const {
 		std::vector<uint8_t> out;
 		zeus::ParamType type = getParameterType(_id);
 		const uint8_t* pointer = getParameterPointer(_id);
@@ -571,7 +571,7 @@ namespace zeus {
 		return out;
 	}
 	template<>
-	std::vector<uint16_t> BufferParameter::getParameter<std::vector<uint16_t>>(int32_t _id) const {
+	std::vector<uint16_t> BufferParameter::getParameter<std::vector<uint16_t>>(const ememory::SharedPtr<zeus::WebServer>& _iface, int32_t _id) const {
 		std::vector<uint16_t> out;
 		zeus::ParamType type = getParameterType(_id);
 		const uint8_t* pointer = getParameterPointer(_id);
@@ -662,7 +662,7 @@ namespace zeus {
 	}
 	
 	template<>
-	std::vector<uint32_t> BufferParameter::getParameter<std::vector<uint32_t>>(int32_t _id) const {
+	std::vector<uint32_t> BufferParameter::getParameter<std::vector<uint32_t>>(const ememory::SharedPtr<zeus::WebServer>& _iface, int32_t _id) const {
 		std::vector<uint32_t> out;
 		zeus::ParamType type = getParameterType(_id);
 		const uint8_t* pointer = getParameterPointer(_id);
@@ -753,7 +753,7 @@ namespace zeus {
 	}
 	
 	template<>
-	std::vector<uint64_t> BufferParameter::getParameter<std::vector<uint64_t>>(int32_t _id) const {
+	std::vector<uint64_t> BufferParameter::getParameter<std::vector<uint64_t>>(const ememory::SharedPtr<zeus::WebServer>& _iface, int32_t _id) const {
 		std::vector<uint64_t> out;
 		zeus::ParamType type = getParameterType(_id);
 		const uint8_t* pointer = getParameterPointer(_id);
@@ -844,7 +844,7 @@ namespace zeus {
 	}
 	
 	template<>
-	std::vector<int8_t> BufferParameter::getParameter<std::vector<int8_t>>(int32_t _id) const {
+	std::vector<int8_t> BufferParameter::getParameter<std::vector<int8_t>>(const ememory::SharedPtr<zeus::WebServer>& _iface, int32_t _id) const {
 		std::vector<int8_t> out;
 		zeus::ParamType type = getParameterType(_id);
 		const uint8_t* pointer = getParameterPointer(_id);
@@ -935,7 +935,7 @@ namespace zeus {
 	}
 	
 	template<>
-	std::vector<int16_t> BufferParameter::getParameter<std::vector<int16_t>>(int32_t _id) const {
+	std::vector<int16_t> BufferParameter::getParameter<std::vector<int16_t>>(const ememory::SharedPtr<zeus::WebServer>& _iface, int32_t _id) const {
 		std::vector<int16_t> out;
 		zeus::ParamType type = getParameterType(_id);
 		const uint8_t* pointer = getParameterPointer(_id);
@@ -1026,7 +1026,7 @@ namespace zeus {
 	}
 	
 	template<>
-	std::vector<int32_t> BufferParameter::getParameter<std::vector<int32_t>>(int32_t _id) const {
+	std::vector<int32_t> BufferParameter::getParameter<std::vector<int32_t>>(const ememory::SharedPtr<zeus::WebServer>& _iface, int32_t _id) const {
 		std::vector<int32_t> out;
 		zeus::ParamType type = getParameterType(_id);
 		const uint8_t* pointer = getParameterPointer(_id);
@@ -1117,7 +1117,7 @@ namespace zeus {
 	}
 	
 	template<>
-	std::vector<int64_t> BufferParameter::getParameter<std::vector<int64_t>>(int32_t _id) const {
+	std::vector<int64_t> BufferParameter::getParameter<std::vector<int64_t>>(const ememory::SharedPtr<zeus::WebServer>& _iface, int32_t _id) const {
 		std::vector<int64_t> out;
 		zeus::ParamType type = getParameterType(_id);
 		const uint8_t* pointer = getParameterPointer(_id);
@@ -1208,7 +1208,7 @@ namespace zeus {
 	}
 	
 	template<>
-	std::vector<float> BufferParameter::getParameter<std::vector<float>>(int32_t _id) const {
+	std::vector<float> BufferParameter::getParameter<std::vector<float>>(const ememory::SharedPtr<zeus::WebServer>& _iface, int32_t _id) const {
 		std::vector<float> out;
 		zeus::ParamType type = getParameterType(_id);
 		const uint8_t* pointer = getParameterPointer(_id);
@@ -1299,7 +1299,7 @@ namespace zeus {
 	}
 	
 	template<>
-	std::vector<double> BufferParameter::getParameter<std::vector<double>>(int32_t _id) const {
+	std::vector<double> BufferParameter::getParameter<std::vector<double>>(const ememory::SharedPtr<zeus::WebServer>& _iface, int32_t _id) const {
 		std::vector<double> out;
 		zeus::ParamType type = getParameterType(_id);
 		const uint8_t* pointer = getParameterPointer(_id);
@@ -1390,7 +1390,7 @@ namespace zeus {
 	}
 	
 	template<>
-	std::vector<bool> BufferParameter::getParameter<std::vector<bool>>(int32_t _id) const {
+	std::vector<bool> BufferParameter::getParameter<std::vector<bool>>(const ememory::SharedPtr<zeus::WebServer>& _iface, int32_t _id) const {
 		std::vector<bool> out;
 		zeus::ParamType type = getParameterType(_id);
 		const uint8_t* pointer = getParameterPointer(_id);
@@ -1412,7 +1412,7 @@ namespace zeus {
 	}
 	
 	template<>
-	std::vector<std::string> BufferParameter::getParameter<std::vector<std::string>>(int32_t _id) const {
+	std::vector<std::string> BufferParameter::getParameter<std::vector<std::string>>(const ememory::SharedPtr<zeus::WebServer>& _iface, int32_t _id) const {
 		std::vector<std::string> out;
 		zeus::ParamType type = getParameterType(_id);
 		const uint8_t* pointer = getParameterPointer(_id);
@@ -1473,7 +1473,7 @@ namespace zeus {
 	}
 	*/
 	template<>
-	zeus::Raw BufferParameter::getParameter<zeus::Raw>(int32_t _id) const {
+	zeus::Raw BufferParameter::getParameter<zeus::Raw>(const ememory::SharedPtr<zeus::WebServer>& _iface, int32_t _id) const {
 		zeus::ParamType type = getParameterType(_id);
 		const uint8_t* pointer = getParameterPointer(_id);
 		uint32_t dataSize = getParameterSize(_id);

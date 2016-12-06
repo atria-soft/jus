@@ -189,8 +189,11 @@ namespace appl {
 			}
 			std::string addFile(zeus::ProxyFile _dataFile) {
 				std::unique_lock<std::mutex> lock(g_mutex);
+				APPL_ERROR("Call add file ... ");
 				// TODO : Check right ...
 				uint64_t id = createFileID();
+				APPL_ERROR("New ID : " << id);
+				/*
 				auto fut = _dataFile.getPart(0, 6400);
 				fut.andThen([](zeus::FutureBase _data){
 					zeus::Future<zeus::Raw> data(_data);
@@ -198,6 +201,29 @@ namespace appl {
 					APPL_ERROR("Get data In andThen " << ppp.size());
 					return true;
 					});
+				*/
+				auto futType = _dataFile.getMineType();
+				auto futName = _dataFile.getName();
+				auto futSize = _dataFile.getSize();
+				futType.wait();
+				APPL_ERROR("mine-type : " << futType.get());
+				futName.wait();
+				APPL_ERROR("name : " << futName.get());
+				futSize.wait();
+				APPL_ERROR("size : " << futSize.get());
+				int64_t retSize = futSize.get();
+				int64_t offset = 0;
+				while (retSize > 0) {
+					int32_t nbElement = 4096;
+					if (retSize<nbElement) {
+						nbElement = retSize;
+					}
+					auto futData = _dataFile.getPart(offset, offset + nbElement);
+					futData.wait();
+					offset += nbElement;
+					retSize -= nbElement;
+				}
+				
 				/*
 				APPL_ERROR("    ==> Receive FILE " << _dataFile.getMineType() << " size=" << _dataFile.getData().size());
 				std::stringstream val;
@@ -208,7 +234,7 @@ namespace appl {
 				_dataFile.storeIn(g_basePath + filename);
 				m_listFile.insert(std::make_pair(id, filename));
 				*/
-				return etk::to_string(id);//zeus::FileServer();
+				return etk::to_string(id);
 			}
 			/*
 			// Return a global UTC time

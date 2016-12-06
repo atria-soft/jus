@@ -12,6 +12,11 @@
 #include <zeus/BufferParameter.hpp>
 #include <zeus/File.hpp>
 
+zeus::BufferParameter::BufferParameter(ememory::SharedPtr<zeus::WebServer> _iface):
+  Buffer(_iface) {
+	
+}
+
 bool zeus::BufferParameter::writeOn(enet::WebSocket& _interface) {
 	uint8_t* data = nullptr;
 	uint32_t dataSize = 0;

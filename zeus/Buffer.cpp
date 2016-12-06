@@ -16,6 +16,8 @@
 #include <zeus/BufferData.hpp>
 #include <zeus/BufferFlow.hpp>
 #include <zeus/BufferEvent.hpp>
+#include <zeus/WebServer.hpp>
+
 
 namespace etk {
 	template<> std::string to_string<enum zeus::Buffer::typeMessage>(const enum zeus::Buffer::typeMessage& _value) {
@@ -59,7 +61,8 @@ static enum zeus::Buffer::typeMessage getTypeType(uint16_t _value) {
 	return zeus::Buffer::typeMessage::unknow;
 }
 
-zeus::Buffer::Buffer() {
+zeus::Buffer::Buffer(ememory::SharedPtr<zeus::WebServer> _iface):
+  m_iface(_iface) {
 	clear();
 }
 
@@ -230,11 +233,11 @@ enum zeus::Buffer::typeMessage zeus::Buffer::getType() const {
 // ------------------------------------------------------------------------------------
 // -- Factory
 // ------------------------------------------------------------------------------------
-ememory::SharedPtr<zeus::Buffer> zeus::Buffer::create() {
-	return ememory::SharedPtr<zeus::Buffer>(new zeus::Buffer);
+ememory::SharedPtr<zeus::Buffer> zeus::Buffer::create(ememory::SharedPtr<zeus::WebServer> _iface) {
+	return ememory::SharedPtr<zeus::Buffer>(new zeus::Buffer(_iface));
 }
 
-ememory::SharedPtr<zeus::Buffer> zeus::Buffer::create(const std::vector<uint8_t>& _buffer) {
+ememory::SharedPtr<zeus::Buffer> zeus::Buffer::create(ememory::SharedPtr<zeus::WebServer> _iface, const std::vector<uint8_t>& _buffer) {
 	headerBin header;
 	if (_buffer.size() < sizeof(headerBin)) {
 		ZEUS_ERROR("wrong size of the buffer");
@@ -246,7 +249,7 @@ ememory::SharedPtr<zeus::Buffer> zeus::Buffer::create(const std::vector<uint8_t>
 		case zeus::Buffer::typeMessage::unknow:
 			return nullptr;
 		case zeus::Buffer::typeMessage::ctrl: {
-				ememory::SharedPtr<zeus::BufferCtrl> value = zeus::BufferCtrl::create();
+				ememory::SharedPtr<zeus::BufferCtrl> value = zeus::BufferCtrl::create(_iface);
 				if (value == nullptr) {
 					return nullptr;
 				}
@@ -262,7 +265,7 @@ ememory::SharedPtr<zeus::Buffer> zeus::Buffer::create(const std::vector<uint8_t>
 			}
 			break;
 		case zeus::Buffer::typeMessage::call: {
-				ememory::SharedPtr<zeus::BufferCall> value = zeus::BufferCall::create();
+				ememory::SharedPtr<zeus::BufferCall> value = zeus::BufferCall::create(_iface);
 				if (value == nullptr) {
 					return nullptr;
 				}
@@ -278,7 +281,7 @@ ememory::SharedPtr<zeus::Buffer> zeus::Buffer::create(const std::vector<uint8_t>
 			}
 			break;
 		case zeus::Buffer::typeMessage::answer: {
-				ememory::SharedPtr<zeus::BufferAnswer> value = zeus::BufferAnswer::create();
+				ememory::SharedPtr<zeus::BufferAnswer> value = zeus::BufferAnswer::create(_iface);
 				if (value == nullptr) {
 					return nullptr;
 				}
@@ -294,7 +297,7 @@ ememory::SharedPtr<zeus::Buffer> zeus::Buffer::create(const std::vector<uint8_t>
 			}
 			break;
 		case zeus::Buffer::typeMessage::data: {
-				ememory::SharedPtr<zeus::BufferData> value = zeus::BufferData::create();
+				ememory::SharedPtr<zeus::BufferData> value = zeus::BufferData::create(_iface);
 				if (value == nullptr) {
 					return nullptr;
 				}

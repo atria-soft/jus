@@ -5,11 +5,11 @@
 
 #brief:Get size of the file
 #return:current size of the file
-uint64 size()
+uint64 getSize()
 
 #brief:Get the name of the file
 #return:Full name of the file (sha512)
-string name()
+string getName()
 
 #brief:Get the file "mine-type"
 #return:string of the mine-type

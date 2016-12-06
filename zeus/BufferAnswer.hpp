@@ -21,7 +21,8 @@ namespace zeus {
 			/**
 			 * @brief basic constructor (hidden to force the use of ememory::SharedPtr) @ref zeus::BufferAnswer::create
 			 */
-			BufferAnswer() {
+			BufferAnswer(ememory::SharedPtr<zeus::WebServer> _iface):
+			  zeus::BufferParameter(_iface) {
 				m_header.flags = ZEUS_BUFFER_FLAG_FINISH + uint8_t(zeus::Buffer::typeMessage::answer);
 			};
 			void composeWith(const uint8_t* _buffer, uint32_t _lenght) override;
@@ -33,7 +34,7 @@ namespace zeus {
 			 * @brief Create a shared pointer on the BufferAnswer
 			 * @return Allocated Buffer.
 			 */
-			static ememory::SharedPtr<zeus::BufferAnswer> create();
+			static ememory::SharedPtr<zeus::BufferAnswer> create(ememory::SharedPtr<zeus::WebServer> _iface);
 		public:
 			enum zeus::Buffer::typeMessage getType() const override {
 				return zeus::Buffer::typeMessage::answer;
@@ -50,14 +51,9 @@ namespace zeus {
 			 * @brief get the answer value
 			 * @param[in] Data of the answer
 			 */
-			// TODO : Do it better check error ... ==> can be good ...
 			template<class ZEUS_TYPE_DATA>
 			ZEUS_TYPE_DATA getAnswer() const {
-				return getParameter<ZEUS_TYPE_DATA>(0);
-			}
-			template<class ZEUS_TYPE_DATA>
-			ZEUS_TYPE_DATA getAnswer(const ememory::SharedPtr<zeus::WebServer>& _iface) const {
-				return getParameter<ZEUS_TYPE_DATA>(_iface, 0);
+				return getParameter<ZEUS_TYPE_DATA>(m_iface, 0);
 			}
 			/**
 			 * @brief Ann an error on the message answer

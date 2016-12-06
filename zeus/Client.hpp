@@ -116,7 +116,7 @@ namespace zeus {
 			                      const std::string& _functionName,
 			                      _ARGS&&... _args) {
 				if (m_interfaceWeb == nullptr) {
-					ememory::SharedPtr<zeus::BufferAnswer> ret = zeus::BufferAnswer::create();
+					ememory::SharedPtr<zeus::BufferAnswer> ret = zeus::BufferAnswer::create(nullptr); // TODO : This is really a bad case ...
 					ret->addError("NULLPTR", "call " + _functionName + " with no interface open");
 					return zeus::FutureBase(0, ret);
 				}

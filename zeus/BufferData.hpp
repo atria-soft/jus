@@ -22,7 +22,8 @@ namespace zeus {
 			/**
 			 * @brief basic constructor (hidden to force the use of ememory::SharedPtr) @ref zeus::BufferData::create
 			 */
-			BufferData():
+			BufferData(ememory::SharedPtr<zeus::WebServer> _iface):
+			  zeus::Buffer(_iface),
 			  m_partId(0) {
 				m_header.flags = ZEUS_BUFFER_FLAG_FINISH + uint8_t(zeus::Buffer::typeMessage::data);
 			};
@@ -35,7 +36,7 @@ namespace zeus {
 			 * @brief Create a shared pointer on the BufferData
 			 * @return Allocated Buffer.
 			 */
-			static ememory::SharedPtr<zeus::BufferData> create();
+			static ememory::SharedPtr<zeus::BufferData> create(ememory::SharedPtr<zeus::WebServer> _iface);
 		public:
 			enum zeus::Buffer::typeMessage getType() const override {
 				return zeus::Buffer::typeMessage::data;

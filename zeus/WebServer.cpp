@@ -11,8 +11,8 @@
 #include <zeus/BufferCtrl.hpp>
 
 
-ememory::SharedPtr<zeus::BufferCall> zeus::createBaseCall(uint64_t _transactionId, const uint32_t& _source, const uint32_t& _destination, const std::string& _functionName) {
-	ememory::SharedPtr<zeus::BufferCall> obj = zeus::BufferCall::create();
+ememory::SharedPtr<zeus::BufferCall> zeus::createBaseCall(const ememory::SharedPtr<zeus::WebServer>& _iface, uint64_t _transactionId, const uint32_t& _source, const uint32_t& _destination, const std::string& _functionName) {
+	ememory::SharedPtr<zeus::BufferCall> obj = zeus::BufferCall::create(_iface);
 	if (obj == nullptr) {
 		return nullptr;
 	}
@@ -146,6 +146,7 @@ class SendAsyncBinary {
 		  m_partId(1) {
 			
 		}
+		// TODO : Use shared ptr instaed of pointer ....
 		bool operator() (zeus::WebServer* _interface){
 			auto it = m_async.begin();
 			while (it != m_async.end()) {
@@ -159,7 +160,7 @@ class SendAsyncBinary {
 				m_partId++;
 			}
 			if (m_async.size() == 0) {
-				ememory::SharedPtr<zeus::BufferData> obj = zeus::BufferData::create();
+				ememory::SharedPtr<zeus::BufferData> obj = zeus::BufferData::create(_interface->sharedFromThis());
 				if (obj == nullptr) {
 					return true;
 				}
@@ -224,7 +225,7 @@ void zeus::WebServer::onReceiveData(std::vector<uint8_t>& _frame, bool _isBinary
 		disconnect(true);
 		return;
 	}
-	ememory::SharedPtr<zeus::Buffer> dataRaw = zeus::Buffer::create(_frame);
+	ememory::SharedPtr<zeus::Buffer> dataRaw = zeus::Buffer::create(sharedFromThis(), _frame);
 	if (dataRaw == nullptr) {
 		ZEUS_ERROR("Buffer Allocation ERROR ... ");
 		disconnect(true);
@@ -250,7 +251,8 @@ void zeus::WebServer::newBuffer(ememory::SharedPtr<zeus::Buffer> _buffer) {
 	// Try to find in the current call that has been done to add data in an answer :
 	zeus::FutureBase future;
 	uint64_t tid = _buffer->getTransactionId();
-	{
+	// TODO : Check the UDI reaaly utility ...
+	if (_buffer->getType() == zeus::Buffer::typeMessage::answer) {
 		std::unique_lock<std::mutex> lock(m_pendingCallMutex);
 		auto it = m_pendingCall.begin();
 		while (it != m_pendingCall.end()) {
@@ -278,6 +280,7 @@ void zeus::WebServer::newBuffer(ememory::SharedPtr<zeus::Buffer> _buffer) {
 				m_processingPool.async(
 				    [=](){
 				    	ememory::SharedPtr<zeus::WebObj> tmpObj = it;
+				    	ZEUS_INFO("PROCESS :  " << _buffer);
 				    	tmpObj->receive(_buffer);
 				    },
 				    dest
@@ -298,6 +301,7 @@ void zeus::WebServer::newBuffer(ememory::SharedPtr<zeus::Buffer> _buffer) {
 	m_processingPool.async(
 	    [=](){
 	    	zeus::FutureBase fut = future;
+	    	ZEUS_INFO("PROCESS FUTURE :  " << _buffer);
 	    	// add data ...
 	    	bool ret = fut.appendData(_buffer);
 	    	if (ret == true) {
@@ -364,7 +368,7 @@ zeus::FutureBase zeus::WebServer::callBinary(uint64_t _transactionId,
                                              const uint32_t& _destination) {
 	if (isActive() == false) {
 		ZEUS_ERROR("Send [STOP] ==> not connected (no TCP)");
-		ememory::SharedPtr<zeus::BufferAnswer> obj = zeus::BufferAnswer::create();
+		ememory::SharedPtr<zeus::BufferAnswer> obj = zeus::BufferAnswer::create(sharedFromThis());
 		obj->addError("NOT-CONNECTED", "Client interface not connected (no TCP)");
 		return zeus::FutureBase(_transactionId, obj);
 	}
@@ -376,56 +380,10 @@ zeus::FutureBase zeus::WebServer::callBinary(uint64_t _transactionId,
 	writeBinary(_obj);
 	return tmpFuture;
 }
-/*
-zeus::FutureBase zeus::WebServer::callForward(uint16_t _srcObjectId,
-                                              ememory::SharedPtr<zeus::Buffer> _buffer,
-                                              uint64_t _singleReferenceId) {
-	//zeus::FutureBase ret = callBinary(id, _Buffer, async, _callback);
-	//ret.setSynchronous();
-	
-	if (isActive() == false) {
-		auto obj = zeus::BufferAnswer::create();
-		obj->addError("NOT-CONNECTED", "Client interface not connected (no TCP)");
-		return zeus::FutureBase(0, obj);
-	}
-	uint64_t id = getId();
-	_buffer->setTransactionId(id);
-	_buffer->setClientId(_srcObjectId);
-	zeus::FutureBase tmpFuture(id);
-	tmpFuture.setSynchronous();
-	{
-		std::unique_lock<std::mutex> lock(m_pendingCallMutex);
-		m_pendingCall.push_back(std::make_pair(_singleReferenceId, tmpFuture));
-	}
-	writeBinary(_buffer);
-	return tmpFuture;
-}
-
-void zeus::WebServer::callForwardMultiple(uint16_t _srcObjectId,
-                                          ememory::SharedPtr<zeus::Buffer> _buffer,
-                                          uint64_t _singleReferenceId){
-	if (_buffer == nullptr) {
-		return;
-	}
-	// subMessage ... ==> try to forward message:
-	std::unique_lock<std::mutex> lock(m_pendingCallMutex);
-	for (auto &itCall : m_pendingCall) {
-		ZEUS_INFO(" compare : " << itCall.first << " =?= " << _singleReferenceId);
-		if (itCall.first == _singleReferenceId) {
-			// Find element ==> transmit it ...
-			_buffer->setTransactionId(itCall.second.getTransactionId());
-			_buffer->setClientId(_srcObjectId);
-			writeBinary(_buffer);
-			return;
-		}
-	}
-	ZEUS_ERROR("Can not transfer part of a message ...");
-}
-*/
 
 /*
 void zeus::WebServer::sendCtrl(uint32_t _source, uint32_t _destination, const std::string& _ctrlValue) {
-	auto ctrl = zeus::BufferCtrl::create();
+	auto ctrl = zeus::BufferCtrl::create(sharedFromThis());
 	if (ctrl == nullptr) {
 		return;
 	}
@@ -438,7 +396,7 @@ void zeus::WebServer::sendCtrl(uint32_t _source, uint32_t _destination, const st
 */
 
 void zeus::WebServer::answerError(uint32_t _clientTransactionId, uint32_t _source, uint32_t _destination, const std::string& _errorValue, const std::string& _errorHelp) {
-	auto answer = zeus::BufferAnswer::create();
+	auto answer = zeus::BufferAnswer::create(sharedFromThis());
 	if (answer == nullptr) {
 		return;
 	}
@@ -451,7 +409,7 @@ void zeus::WebServer::answerError(uint32_t _clientTransactionId, uint32_t _sourc
 
 
 void zeus::WebServer::answerVoid(uint32_t _clientTransactionId, uint32_t _source, uint32_t _destination) {
-	auto answer = zeus::BufferAnswer::create();
+	auto answer = zeus::BufferAnswer::create(sharedFromThis());
 	if (answer == nullptr) {
 		return;
 	}

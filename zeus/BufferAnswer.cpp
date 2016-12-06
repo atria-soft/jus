@@ -80,7 +80,7 @@ void zeus::BufferAnswer::appendBufferData(ememory::SharedPtr<zeus::BufferData> _
 // -- Factory
 // ------------------------------------------------------------------------------------
 
-ememory::SharedPtr<zeus::BufferAnswer> zeus::BufferAnswer::create() {
-	return ememory::SharedPtr<zeus::BufferAnswer>(new zeus::BufferAnswer);
+ememory::SharedPtr<zeus::BufferAnswer> zeus::BufferAnswer::create(ememory::SharedPtr<zeus::WebServer> _iface) {
+	return ememory::SharedPtr<zeus::BufferAnswer>(new zeus::BufferAnswer(_iface));
 }
 

@@ -105,10 +105,12 @@ namespace zeus {
 	class Buffer {
 		friend std::ostream& operator<<(std::ostream&, zeus::Buffer*);
 		protected:
+			ememory::SharedPtr<zeus::WebServer> m_iface;
+		protected:
 			/**
 			 * @brief basic constructor (hidden to force the use of ememory::SharedPtr) @ref zeus::Buffer::create
 			 */
-			Buffer();
+			Buffer(ememory::SharedPtr<zeus::WebServer> _iface);
 		public:
 			/**
 			 * Virtualize the buffer class
@@ -118,13 +120,13 @@ namespace zeus {
 			 * @brief Create a shared pointer on the buffer
 			 * @return Allocated Buffer.
 			 */
-			static ememory::SharedPtr<zeus::Buffer> create();
+			static ememory::SharedPtr<zeus::Buffer> create(ememory::SharedPtr<zeus::WebServer> _iface);
 			/**
 			 * @brief Create a shared pointer on the buffer
 			 * @param[in] _buffer Buffer on the data
 			 * @return Allocated Buffer.
 			 */
-			static ememory::SharedPtr<zeus::Buffer> create(const std::vector<uint8_t>& _buffer);
+			static ememory::SharedPtr<zeus::Buffer> create(ememory::SharedPtr<zeus::WebServer> _iface, const std::vector<uint8_t>& _buffer);
 		protected:
 			uint32_t m_interfaceID; //!< For debug ==> unterface ID ...
 			headerBin m_header; //!< header of the protocol

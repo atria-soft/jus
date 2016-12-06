@@ -324,12 +324,13 @@ namespace zeus {
 			~SendData() {
 				
 			}
+			// TODO : Set it with a sharedPtr instaed of pointer ...
 			bool operator() (zeus::WebServer* _interface,
 			                 uint32_t _source,
 			                 uint32_t _destination,
 			                 uint32_t _transactionId,
 			                 uint32_t _partId) {
-				ememory::SharedPtr<zeus::BufferData> answer = zeus::BufferData::create();
+				ememory::SharedPtr<zeus::BufferData> answer = zeus::BufferData::create(_interface->sharedFromThis());
 				answer->setTransactionId(_transactionId);
 				answer->setSource(_source);
 				answer->setDestination(_destination);

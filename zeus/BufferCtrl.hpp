@@ -19,7 +19,8 @@ namespace zeus {
 			/**
 			 * @brief basic constructor (hidden to force the use of ememory::SharedPtr) @ref zeus::BufferCall::create
 			 */
-			BufferCtrl() {
+			BufferCtrl(ememory::SharedPtr<zeus::WebServer> _iface):
+			  zeus::Buffer(_iface) {
 				m_header.flags = ZEUS_BUFFER_FLAG_FINISH + uint8_t(zeus::Buffer::typeMessage::ctrl);
 			};
 			void composeWith(const uint8_t* _buffer, uint32_t _lenght) override;
@@ -31,7 +32,7 @@ namespace zeus {
 			 * @brief Create a shared pointer on the BufferCall
 			 * @return Allocated Buffer.
 			 */
-			static ememory::SharedPtr<zeus::BufferCtrl> create();
+			static ememory::SharedPtr<zeus::BufferCtrl> create(ememory::SharedPtr<zeus::WebServer> _iface);
 		public:
 			enum zeus::Buffer::typeMessage getType() const override {
 				return zeus::Buffer::typeMessage::ctrl;

@@ -463,7 +463,7 @@ class ServiceDefinition:
 		"""
 		out += "		addType(data, createType<" + class_name + ">());\n"
 		"""
-		out += "		addTypeObject(data, \"" + class_name + "\");\n"
+		out += "		addTypeObject(data, \"obj:" + class_name + "\");\n"
 		out += "		int32_t currentOffset = data.size();\n"
 		out += "		int32_t startOffset = data.size();\n"
 		out += "		data.resize(data.size()+4);\n"

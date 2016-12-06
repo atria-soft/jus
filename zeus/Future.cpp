@@ -335,13 +335,8 @@ namespace zeus {
 		}
 		return static_cast<zeus::BufferAnswer*>(m_data->m_returnData.get())->getAnswer<zeus::Raw>();
 	}
-}
-
-// NamespaceSpace for Object and services
-
-namespace zeus {
 	template<>
-	ememory::SharedPtr<zeus::ObjectRemoteBase> zeus::Future<ememory::SharedPtr<zeus::ObjectRemoteBase>>::get(const ememory::SharedPtr<zeus::WebServer>& _iface) {
+	ememory::SharedPtr<zeus::ObjectRemoteBase> zeus::Future<ememory::SharedPtr<zeus::ObjectRemoteBase>>::get() {
 		ememory::SharedPtr<zeus::ObjectRemoteBase> out;
 		if (    m_data == nullptr
 		     || m_data->m_returnData == nullptr) {
@@ -351,7 +346,7 @@ namespace zeus {
 			ZEUS_WARNING("No Return value ...");
 			return out;
 		}
-		out = static_cast<zeus::BufferAnswer*>(m_data->m_returnData.get())->getAnswer<ememory::SharedPtr<zeus::ObjectRemoteBase>>(_iface);
+		out = static_cast<zeus::BufferAnswer*>(m_data->m_returnData.get())->getAnswer<ememory::SharedPtr<zeus::ObjectRemoteBase>>();
 		return out;
 	}
 }

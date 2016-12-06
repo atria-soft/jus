@@ -30,7 +30,11 @@ namespace zeus {
 	 * @param[in] 
 	 * @return 
 	 */
-	ememory::SharedPtr<zeus::BufferCall> createBaseCall(uint64_t _transactionId, const uint32_t& _source, const uint32_t& _destination, const std::string& _functionName);
+	ememory::SharedPtr<zeus::BufferCall> createBaseCall(const ememory::SharedPtr<zeus::WebServer>& _iface,
+	                                                    uint64_t _transactionId,
+	                                                    const uint32_t& _source,
+	                                                    const uint32_t& _destination,
+	                                                    const std::string& _functionName);
 	/**
 	 * @brief 
 	 * @param[in] 
@@ -76,7 +80,7 @@ namespace zeus {
 	 */
 	template<class... _ARGS>
 	ememory::SharedPtr<zeus::BufferCall> createCall(const ememory::SharedPtr<zeus::WebServer>& _iface, uint64_t _transactionId, const uint32_t& _source, const uint32_t& _destination, const std::string& _functionName, _ARGS&&... _args) {
-		ememory::SharedPtr<zeus::BufferCall> callElem = createBaseCall(_transactionId, _source, _destination, _functionName);
+		ememory::SharedPtr<zeus::BufferCall> callElem = createBaseCall(_iface, _transactionId, _source, _destination, _functionName);
 		if (callElem == nullptr) {
 			return nullptr;
 		}
@@ -158,7 +162,7 @@ namespace zeus {
 			 * @param[in] 
 			 * @return 
 			 */
-			WebServer();
+			WebServer(); // TODO : Set it in a factory to force the use of sharedPtr
 			/**
 			 * @brief 
 			 * @param[in] 
@@ -325,7 +329,7 @@ namespace zeus {
 			 */
 			template<class ZEUS_ARG>
 			void answerValue(uint32_t _clientTransactionId, uint32_t _source, uint32_t _destination, ZEUS_ARG _value) {
-				ememory::SharedPtr<zeus::BufferAnswer> answer = zeus::BufferAnswer::create();
+				ememory::SharedPtr<zeus::BufferAnswer> answer = zeus::BufferAnswer::create(sharedFromThis());
 				answer->setTransactionId(_clientTransactionId);
 				answer->setSource(_source);
 				answer->setDestination(_destination);

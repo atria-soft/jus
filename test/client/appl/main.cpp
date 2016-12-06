@@ -11,6 +11,7 @@
 #include <etk/etk.hpp>
 #include <zeus/zeus.hpp>
 #include <etk/os/FSNode.hpp>
+#include <elog/elog.hpp>
 
 
 #include <etk/stdTools.hpp>
@@ -23,6 +24,7 @@
 
 int main(int _argc, const char *_argv[]) {
 	etk::init(_argc, _argv);
+	elog::init(_argc, _argv);
 	zeus::init(_argc, _argv);
 	zeus::Client client1;
 	for (int32_t iii=0; iii<_argc ; ++iii) {
@@ -92,7 +94,7 @@ int main(int _argc, const char *_argv[]) {
 	}
 	*/
 	
-	if (true) {
+	if (false) {
 		APPL_INFO("    ----------------------------------");
 		APPL_INFO("    -- Get service system-user");
 		APPL_INFO("    ----------------------------------");
@@ -143,6 +145,7 @@ int main(int _argc, const char *_argv[]) {
 	if (true) {
 		zeus::service::ProxyPicture remoteServicePicture = client1.getService("picture");
 		if (remoteServicePicture.exist() == true) {
+			#if 0
 			zeus::Future<std::vector<std::string>> retCall = remoteServicePicture.getAlbums().wait();
 			APPL_INFO("    album list: ");
 			for (auto &it : retCall.get()) {
@@ -166,7 +169,7 @@ int main(int _argc, const char *_argv[]) {
 							APPL_INFO("                - " << it3);
 							// TODO : This is really bad : Do it better ...
 							zeus::Future<ememory::SharedPtr<zeus::ObjectRemoteBase>> retListImage = remoteServicePicture.getAlbumListPicture(it3).wait();
-							zeus::ProxyFile tmpFile = zeus::ObjectRemote(retListImage.get(client1.m_interfaceWeb));
+							zeus::ProxyFile tmpFile = zeus::ObjectRemote(retListImage.get());
 							APPL_INFO("                    mine-type: " << tmpFile.getMineType().wait().get());
 							APPL_INFO("                    size: " << tmpFile.size().wait().get());
 							APPL_INFO("                    receive in =" << int64_t(retListImage.getTransmitionTime().count()/1000)/1000.0 << " ms");
@@ -184,15 +187,16 @@ int main(int _argc, const char *_argv[]) {
 					}
 				}
 			}
+			#endif
 			#if 1
 				echrono::Steady start = echrono::Steady::now();
 				//zeus::File tmp("./testzz.png");
 				// TODO : Read file size before ..
 				int32_t size = 1024;
 				ememory::SharedPtr<zeus::File> tmp = zeus::File::create("./tmpResult.bmp");
-				zeus::FutureBase retSendImage = remoteServicePicture.addFile(tmp).wait();
+				auto retSendImage = remoteServicePicture.addFile(tmp).wait();
 				echrono::Steady stop = echrono::Steady::now();
-				APPL_WARNING("          IO*=" << (stop-start));
+				APPL_WARNING("          IO*=" << (stop-start) << "                    " << retSendImage.get());
 				double megaParSec = double(size)/(double((stop-start).count())/1000000000.0);
 				APPL_WARNING("          speed=" << int64_t(megaParSec/1024.0)/1024.0 << " Mo/s");
 			#endif

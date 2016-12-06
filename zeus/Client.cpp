@@ -148,7 +148,7 @@ zeus::ObjectRemote zeus::Client::getService(const std::string& _name) {
 		ZEUS_WARNING("Can not unlink with the service id: '" << _name << "' ==> link error");
 		return zeus::ObjectRemote();
 	}
-	return zeus::ObjectRemote(ret.get(m_interfaceWeb));
+	return zeus::ObjectRemote(ret.get());
 }
 
 void zeus::Client::onPropertyChangeIp() {
