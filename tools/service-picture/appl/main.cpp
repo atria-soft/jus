@@ -214,7 +214,7 @@ namespace appl {
 				int64_t retSize = futSize.get();
 				int64_t offset = 0;
 				while (retSize > 0) {
-					int32_t nbElement = 4096;
+					int32_t nbElement = 1*1024*1024;
 					if (retSize<nbElement) {
 						nbElement = retSize;
 					}

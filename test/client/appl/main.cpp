@@ -190,10 +190,8 @@ int main(int _argc, const char *_argv[]) {
 			#endif
 			#if 1
 				echrono::Steady start = echrono::Steady::now();
-				//zeus::File tmp("./testzz.png");
-				// TODO : Read file size before ..
-				int32_t size = 1024;
 				ememory::SharedPtr<zeus::File> tmp = zeus::File::create("./tmpResult.bmp");
+				int32_t size = tmp->getSize();
 				auto retSendImage = remoteServicePicture.addFile(tmp).wait();
 				echrono::Steady stop = echrono::Steady::now();
 				APPL_WARNING("          IO*=" << (stop-start) << "                    " << retSendImage.get());

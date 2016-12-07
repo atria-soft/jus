@@ -25,7 +25,6 @@ zeus::FutureBase::FutureBase(uint32_t _transactionId, uint32_t _source) {
 	m_data->m_sendTime = std::chrono::steady_clock::now();
 	m_data->m_transactionId = _transactionId;
 	m_data->m_source = _source;
-	m_data->m_isSynchronous = false;
 }
 
 ememory::SharedPtr<zeus::Buffer> zeus::FutureBase::getRaw() {
@@ -43,7 +42,6 @@ zeus::FutureBase::FutureBase(uint32_t _transactionId, ememory::SharedPtr<zeus::B
 	m_data->m_sendTime = std::chrono::steady_clock::now();
 	m_data->m_transactionId = _transactionId;
 	m_data->m_source = _source;
-	m_data->m_isSynchronous = false;
 	m_data->m_returnData = _returnData;
 	if (isFinished() == true) {
 		m_data->m_receiveTime = std::chrono::steady_clock::now();
@@ -123,54 +121,30 @@ zeus::FutureBase zeus::FutureBase::operator= (const zeus::FutureBase& _base) {
 	return *this;
 }
 
-bool zeus::FutureBase::appendData(ememory::SharedPtr<zeus::Buffer> _value) {
+bool zeus::FutureBase::setBuffer(ememory::SharedPtr<zeus::Buffer> _value) {
 	if (m_data == nullptr) {
 		ZEUS_ERROR(" Not a valid future ...");
 		return true;
 	}
 	m_data->m_receiveTime = std::chrono::steady_clock::now();
-	if (m_data->m_isSynchronous == true) {
-		m_data->m_returnData = _value;
-		if (hasError() == false) {
-			if (m_data->m_callbackThen != nullptr) {
-				return m_data->m_callbackThen(*this);
-			}
-		} else {
-			if (m_data->m_callbackElse != nullptr) {
-				return m_data->m_callbackElse(*this);
-			}
-		}
-		return true;
-	}
-	if (_value->getType() == zeus::Buffer::typeMessage::data) {
-		if (m_data->m_returnData != nullptr) {
-			m_data->m_returnData->appendBuffer(_value);
-		}
-	} else {
-		m_data->m_returnData = _value;
-	}
+	m_data->m_returnData = _value;
 	if (m_data->m_returnData == nullptr) {
 		return true;
 	}
-	if (m_data->m_returnData->getPartFinish() == true) {
-		if (hasError() == false) {
-			if (m_data->m_callbackThen != nullptr) {
-				return m_data->m_callbackThen(*this);
-			}
-		} else {
-			if (m_data->m_callbackElse != nullptr) {
-				return m_data->m_callbackElse(*this);
-			}
+	if (m_data->m_returnData->getPartFinish() == false) {
+		ZEUS_ERROR("set buffer that is not finished ...");
+		return false;
+	}
+	if (hasError() == false) {
+		if (m_data->m_callbackThen != nullptr) {
+			return m_data->m_callbackThen(*this);
 		}
-		return true;
+	} else {
+		if (m_data->m_callbackElse != nullptr) {
+			return m_data->m_callbackElse(*this);
+		}
 	}
-	return false;
-}
-void zeus::FutureBase::setSynchronous() {
-	if (m_data == nullptr) {
-		return;
-	}
-	m_data->m_isSynchronous = true;
+	return true;
 }
 
 uint32_t zeus::FutureBase::getTransactionId() const {

@@ -135,5 +135,4 @@ generate_basic_type(zeus::FileServer, "file", 0x000E, false, false);
 #endif
 
 const uint16_t zeus::paramTypeObject = 0xFFFF;
-const uint16_t zeus::paramTypeRaw = 0xFFFE;
 

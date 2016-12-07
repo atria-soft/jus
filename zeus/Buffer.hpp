@@ -307,16 +307,5 @@ namespace zeus {
 	 * @param[in] _type string of the type to add
 	 */
 	void addTypeObject(std::vector<uint8_t>& _data, const std::string _type);
-	/**
-	 * @brief Add a parameter object type in the buffer
-	 * @param[in] _data Buffer to add type
-	 * @param[in] _type string of the type to add
-	 */
-	void addTypeService(std::vector<uint8_t>& _data, const std::string _type);
-	/**
-	 * @brief Add a parameter RAW type in the buffer
-	 * @param[in] _data Buffer to add type
-	 */
-	void addTypeRaw(std::vector<uint8_t>& _data);
 }
 

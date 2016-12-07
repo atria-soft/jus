@@ -30,25 +30,6 @@ void zeus::Object::receive(ememory::SharedPtr<zeus::Buffer> _value) {
 	ZEUS_WARNING("BUFFER" << _value);
 	uint32_t tmpID = _value->getTransactionId();
 	uint32_t source = _value->getSource();
-	if (_value->getType() == zeus::Buffer::typeMessage::data) {
-		auto it = m_callMultiData.begin();
-		while (it != m_callMultiData.end()) {
-			if (    it->getTransactionId() == tmpID
-			     && it->getSource() == source) {
-				ZEUS_WARNING("Append data ... " << tmpID);
-				it->appendData(_value);
-				if (it->isFinished() == true) {
-					ZEUS_WARNING("CALL Function ...");
-					callBinary(it->getRaw());
-					it = m_callMultiData.erase(it);
-				}
-				return;
-			}
-			++it;
-		}
-		ZEUS_ERROR("Un-associated data ...");
-		return;
-	}
 	ZEUS_WARNING("direct call");
 	zeus::FutureBase futData(tmpID, _value, source);
 	if (futData.isFinished() == true) {

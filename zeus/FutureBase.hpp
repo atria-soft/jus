@@ -71,12 +71,7 @@ namespace zeus {
 			 * @param[in] _returnValue Returned buffer
 			 * @return return true if an error occured
 			 */
-			bool appendData(ememory::SharedPtr<zeus::Buffer> _returnValue);
-			/**
-			 * @brief Set the future syncronous
-			 * @note this mean that the system call the observer every time a packet arrive in the Future
-			 */
-			void setSynchronous();
+			bool setBuffer(ememory::SharedPtr<zeus::Buffer> _returnValue);
 			/**
 			 * @brief Get the transaction Id of the Future
 			 * @return Transaction Id requested or 0

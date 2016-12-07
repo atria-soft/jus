@@ -97,7 +97,7 @@ namespace zeus {
 		private:
 			enet::WebSocket m_connection;
 			ethread::Pool m_processingPool;
-			
+			std::vector<ememory::SharedPtr<zeus::Buffer>> m_listPartialBuffer;
 			uint16_t m_localAddress;
 			uint16_t m_licalIdObjectIncrement; //!< attribute a unique ID for an object
 		public:

@@ -98,11 +98,7 @@ zeus::ParamType zeus::BufferParameter::getParameterType(int32_t _id) const {
 	if (typeId == createType<std::vector<uint16_t>>().getId()) { m_parameter[_id].first = 2; return createType<std::vector<uint16_t>>(); }
 	if (typeId == createType<std::vector<uint8_t>>().getId()) { m_parameter[_id].first = 2; return createType<std::vector<uint8_t>>(); }
 	if (typeId == createType<std::vector<std::string>>().getId()) { m_parameter[_id].first = 2; return createType<std::vector<std::string>>(); }
-	//if (typeId == createType<zeus::File>().getId()) { m_parameter[_id].first = 2; return createType<zeus::File>(); }
-	if (typeId == paramTypeRaw) {
-		m_parameter[_id].first = sizeof(uint16_t);
-		return zeus::ParamType("raw", paramTypeRaw);
-	}
+	if (typeId == createType<zeus::Raw>().getId()) { m_parameter[_id].first = 2; return createType<zeus::Raw>(); }
 	if (typeId == paramTypeObject) {
 		const char* tmp = reinterpret_cast<const char*>(&m_parameter[_id].second[2]);
 		bool find = false;

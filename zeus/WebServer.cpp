@@ -248,11 +248,59 @@ void zeus::WebServer::ping() {
 
 void zeus::WebServer::newBuffer(ememory::SharedPtr<zeus::Buffer> _buffer) {
 	ZEUS_LOG_INPUT_OUTPUT("Receive :" << _buffer);
+	// if an adress id different ... just transmit it ... 
+	if (m_localAddress != _buffer->getDestinationId()) {
+		// TODO : Change the callback ...
+		if (m_observerElement != nullptr) {
+			m_processingPool.async(
+			    [=](){
+			    	// not a pending call ==> simple event or call ...
+			    	m_observerElement(_buffer); //!< all input arrive at the same element
+			    },
+			    8);
+		}
+		return;
+	}
+	if (    _buffer->getPartFinish() == false
+	     && _buffer->getType() != zeus::Buffer::typeMessage::data) {
+		m_listPartialBuffer.push_back(_buffer);
+		return;
+	}
+	if (_buffer->getType() == zeus::Buffer::typeMessage::data) {
+		// Add data in a previous buffer...
+		auto it = m_listPartialBuffer.begin();
+		while (it != m_listPartialBuffer.end()) {
+			if (*it == nullptr) {
+				it = m_listPartialBuffer.erase(it);
+				continue;
+			}
+			if ((*it)->getDestination() != _buffer->getDestination()) {
+				++it;
+				continue;
+			}
+			if ((*it)->getTransactionId() == _buffer->getTransactionId()) {
+				(*it)->appendBuffer(_buffer);
+				if (_buffer->getPartFinish() != true) {
+					return;
+				}
+				(*it)->setPartFinish(true);
+				_buffer = *it;
+				it = m_listPartialBuffer.erase(it);
+				break;
+			}
+		}
+	}
+	if (_buffer->getPartFinish() != true) {
+		ZEUS_ERROR("Get a buffer with no finished data ... (remove)" << _buffer);
+		return;
+	}
+	
 	// Try to find in the current call that has been done to add data in an answer :
 	zeus::FutureBase future;
 	uint64_t tid = _buffer->getTransactionId();
 	// TODO : Check the UDI reaaly utility ...
-	if (_buffer->getType() == zeus::Buffer::typeMessage::answer) {
+	if (    _buffer->getType() == zeus::Buffer::typeMessage::answer
+	     || _buffer->getType() == zeus::Buffer::typeMessage::data) {
 		std::unique_lock<std::mutex> lock(m_pendingCallMutex);
 		auto it = m_pendingCall.begin();
 		while (it != m_pendingCall.end()) {
@@ -303,7 +351,7 @@ void zeus::WebServer::newBuffer(ememory::SharedPtr<zeus::Buffer> _buffer) {
 	    	zeus::FutureBase fut = future;
 	    	ZEUS_INFO("PROCESS FUTURE :  " << _buffer);
 	    	// add data ...
-	    	bool ret = fut.appendData(_buffer);
+	    	bool ret = fut.setBuffer(_buffer);
 	    	if (ret == true) {
 	    		std::unique_lock<std::mutex> lock(m_pendingCallMutex);
 	    		auto it = m_pendingCall.begin();
