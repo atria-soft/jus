@@ -21,14 +21,18 @@ zeus::FutureBase::FutureBase(uint32_t _transactionId, uint32_t _source) {
 	m_promise = ememory::makeShared<zeus::Promise>(_transactionId, _source);
 }
 
-ememory::SharedPtr<zeus::message::Message> zeus::FutureBase::getRaw() {
+zeus::FutureBase::FutureBase(ememory::SharedPtr<zeus::Promise> _promise) {
+	m_promise = _promise;
+}
+
+ememory::SharedPtr<zeus::Message> zeus::FutureBase::getRaw() {
 	if (m_promise == nullptr) {
 		return nullptr;
 	}
 	return m_promise->getRaw();
 }
 
-zeus::FutureBase::FutureBase(uint32_t _transactionId, ememory::SharedPtr<zeus::message::Message> _returnData, uint32_t _source) {
+zeus::FutureBase::FutureBase(uint32_t _transactionId, ememory::SharedPtr<zeus::Message> _returnData, uint32_t _source) {
 	m_promise = ememory::makeShared<zeus::Promise>(_transactionId, _returnData, _source);
 }
 
@@ -66,12 +70,12 @@ zeus::FutureBase zeus::FutureBase::operator= (const zeus::FutureBase& _base) {
 	return *this;
 }
 
-bool zeus::FutureBase::setBuffer(ememory::SharedPtr<zeus::message::Message> _value) {
+bool zeus::FutureBase::setMessage(ememory::SharedPtr<zeus::Message> _value) {
 	if (m_promise == nullptr) {
 		ZEUS_ERROR(" Not a valid future ...");
 		return true;
 	}
-	return m_promise->setBuffer(_value);
+	return m_promise->setMessage(_value);
 }
 
 uint32_t zeus::FutureBase::getTransactionId() const {
@@ -106,7 +110,7 @@ std::string zeus::FutureBase::getErrorHelp() const {
 	if (m_promise == nullptr) {
 		return "This is a nullptr future";
 	}
-	m_promise->getErrorHelp();
+	return m_promise->getErrorHelp();
 }
 
 bool zeus::FutureBase::isValid() const {
@@ -124,7 +128,7 @@ const zeus::FutureBase& zeus::FutureBase::wait() const {
 	if (m_promise == nullptr) {
 		return *this;
 	}
-	m_promise.waitFor(echrono::seconds(5));
+	m_promise->waitFor(echrono::seconds(5));
 	return *this;
 }
 
@@ -132,7 +136,7 @@ const zeus::FutureBase& zeus::FutureBase::waitFor(echrono::Duration _delta) cons
 	if (m_promise == nullptr) {
 		return *this;
 	}
-	m_promise.waitFor(_delta);
+	m_promise->waitFor(_delta);
 	return *this;
 }
 
@@ -140,7 +144,7 @@ const zeus::FutureBase& zeus::FutureBase::waitUntil(echrono::Steady _endTime) co
 	if (m_promise == nullptr) {
 		return *this;
 	}
-	m_promise.waitUntil(_endTime);
+	m_promise->waitUntil(_endTime);
 	return *this;
 }
 

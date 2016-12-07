@@ -27,7 +27,7 @@ zeus::Client::~Client() {
 	
 }
 
-void zeus::Client::onClientData(ememory::SharedPtr<zeus::Buffer> _value) {
+void zeus::Client::onClientData(ememory::SharedPtr<zeus::Message> _value) {
 	if (_value == nullptr) {
 		return;
 	}
@@ -60,8 +60,8 @@ void zeus::Client::onClientData(ememory::SharedPtr<zeus::Buffer> _value) {
 		return;
 	}
 	if (_value->getDestinationObjectId() == ZEUS_ID_GATEWAY_OBJECT) {
-		if (_value->getType() == zeus::Buffer::typeMessage::call) {
-			ememory::SharedPtr<zeus::BufferCall> callObj = ememory::staticPointerCast<zeus::BufferCall>(_value);
+		if (_value->getType() == zeus::message::type::call) {
+			ememory::SharedPtr<zeus::message::Call> callObj = ememory::staticPointerCast<zeus::message::Call>(_value);
 			std::string callFunction = callObj->getCall();
 			if (    callFunction != "link"
 			     && callFunction != "unlink") {

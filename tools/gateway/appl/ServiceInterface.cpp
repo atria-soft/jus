@@ -73,18 +73,18 @@ void appl::ServiceInterface::stop() {
 }
 
 
-void appl::ServiceInterface::SendData(uint64_t _userSessionId, ememory::SharedPtr<zeus::Buffer> _data) {
+void appl::ServiceInterface::SendData(uint64_t _userSessionId, ememory::SharedPtr<zeus::Message> _data) {
 	_data->setClientId(_userSessionId);
 	m_interfaceClient.writeBinary(_data);
 }
 
-void appl::ServiceInterface::onServiceData(ememory::SharedPtr<zeus::Buffer> _value) {
+void appl::ServiceInterface::onServiceData(ememory::SharedPtr<zeus::Message> _value) {
 	if (_value == nullptr) {
 		return;
 	}
 	uint32_t transactionId = _value->getTransactionId();
 	//data.add("from-service", ejson::String(m_name));
-	if (_value->getType() == zeus::Buffer::typeMessage::event) {
+	if (_value->getType() == zeus::Message::type::event) {
 		/*
 		if (data.valueExist("event") == true) {
 			// No need to have a user ID ...
@@ -103,8 +103,8 @@ void appl::ServiceInterface::onServiceData(ememory::SharedPtr<zeus::Buffer> _val
 		*/
 		return;
 	}
-	if (_value->getType() == zeus::Buffer::typeMessage::call) {
-		ememory::SharedPtr<zeus::BufferCall> callObj = ememory::staticPointerCast<zeus::BufferCall>(_value);
+	if (_value->getType() == zeus::Message::type::call) {
+		ememory::SharedPtr<zeus::message::Call> callObj = ememory::staticPointerCast<zeus::message::Call>(_value);
 		std::string callFunction = callObj->getCall();
 		if (callFunction == "getUserName") {
 			m_interfaceClient.answerValue(transactionId, _value->getClientId(), _value->getServiceId(), *m_gatewayInterface->propertyUserName);

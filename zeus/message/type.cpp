@@ -24,12 +24,12 @@ namespace etk {
 		return "???";
 	}
 }
-std::ostream& zeus::operator <<(std::ostream& _os, enum zeus::message::type _value) {
+std::ostream& zeus::message::operator <<(std::ostream& _os, enum zeus::message::type _value) {
 	_os << etk::to_string(_value);
 	return _os;
 }
 
-static enum zeus::message::type getTypeType(uint16_t _value) {
+enum zeus::message::type zeus::message::getTypeFromInt(uint16_t _value) {
 	switch (_value) {
 		case 0:
 			return zeus::message::type::unknow;

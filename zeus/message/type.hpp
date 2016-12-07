@@ -27,6 +27,8 @@ namespace zeus {
 		 * @return a reference of the stream
 		 */
 		std::ostream& operator <<(std::ostream& _os, enum zeus::message::type _value);
+		
+		enum zeus::message::type getTypeFromInt(uint16_t _value);
 	}
 }
 

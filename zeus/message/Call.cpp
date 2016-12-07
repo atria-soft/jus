@@ -11,7 +11,7 @@
 #include <zeus/message/Call.hpp>
 
 void zeus::message::Call::generateDisplay(std::ostream& _os) const {
-	zeus::Buffer::generateDisplay(_os);
+	zeus::Message::generateDisplay(_os);
 	_os << " '" + m_callName + "'";
 	_os << " nbParam=" + etk::to_string(getNumberParameter());
 	if (getNumberParameter() != 0) {
@@ -35,9 +35,9 @@ void zeus::message::Call::setCall(const std::string& _value) {
 }
 
 bool zeus::message::Call::writeOn(enet::WebSocket& _interface) {
-	zeus::Buffer::writeOn(_interface);
+	zeus::Message::writeOn(_interface);
 	_interface.writeData((uint8_t*)m_callName.c_str(), m_callName.size() + 1);
-	return BufferParameter::writeOn(_interface);
+	return message::Parameter::writeOn(_interface);
 }
 
 void zeus::message::Call::composeWith(const uint8_t* _buffer, uint32_t _lenght) {
@@ -52,11 +52,11 @@ void zeus::message::Call::composeWith(const uint8_t* _buffer, uint32_t _lenght) 
 	}
 	pos++;
 	// parse parameters:
-	BufferParameter::composeWith(&_buffer[pos], _lenght-pos);
+	message::Parameter::composeWith(&_buffer[pos], _lenght-pos);
 }
 
-void zeus::message::Call::appendBufferData(ememory::SharedPtr<zeus::message::Data> _obj) {
-	parameterAppendBufferData(_obj);
+void zeus::message::Call::appendMessageData(ememory::SharedPtr<zeus::message::Data> _obj) {
+	parameterAppendMessageData(_obj);
 }
 
 // ------------------------------------------------------------------------------------

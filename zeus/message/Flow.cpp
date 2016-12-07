@@ -15,8 +15,8 @@
 // -- Factory
 // ------------------------------------------------------------------------------------
 
-ememory::SharedPtr<zeus::BufferFlow> zeus::BufferFlow::create() {
-	return ememory::SharedPtr<zeus::BufferFlow>(new zeus::BufferFlow);
+ememory::SharedPtr<zeus::MessageFlow> zeus::MessageFlow::create() {
+	return ememory::SharedPtr<zeus::MessageFlow>(new zeus::MessageFlow);
 }
 */
 

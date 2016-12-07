@@ -19,7 +19,7 @@ namespace appl {
 			clientSpecificInterface();
 			~clientSpecificInterface();
 			bool start(appl::GateWay* _gateway, zeus::WebServer* _interfaceWeb, uint16_t _id);
-			void send(ememory::SharedPtr<zeus::Buffer> _data);
+			void send(ememory::SharedPtr<zeus::Message> _data);
 			//void answerProtocolError(uint32_t _transactionId, const std::string& _errorHelp);
 			zeus::WebServer* getInterface() {
 				return m_interfaceWeb;
@@ -37,10 +37,11 @@ namespace appl {
 			RouterInterface(const std::string& _ip, uint16_t _port, std::string _userName, appl::GateWay* _gateway);
 			virtual ~RouterInterface();
 			void stop();
-			void onClientData(ememory::SharedPtr<zeus::Buffer> _value);
+			void onClientData(ememory::SharedPtr<zeus::Message> _value);
 			bool isAlive();
-			void send(const ememory::SharedPtr<zeus::Buffer>& _data);
+			void send(const ememory::SharedPtr<zeus::Message>& _data);
 			void clean();
+			bool isConnected() { return m_interfaceWeb.isActive(); };
 	};
 }
 

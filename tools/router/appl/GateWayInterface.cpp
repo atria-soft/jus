@@ -73,7 +73,7 @@ void appl::GateWayInterface::stop() {
 }
 
 
-void appl::GateWayInterface::send(ememory::SharedPtr<zeus::Buffer> _data) {
+void appl::GateWayInterface::send(ememory::SharedPtr<zeus::Message> _data) {
 	m_interfaceClient.writeBinary(_data);
 }
 
@@ -93,14 +93,14 @@ void appl::GateWayInterface::rmClient(ememory::SharedPtr<appl::ClientInterface> 
 	}
 }
 
-void appl::GateWayInterface::onServiceData(ememory::SharedPtr<zeus::Buffer> _value) {
+void appl::GateWayInterface::onServiceData(ememory::SharedPtr<zeus::Message> _value) {
 	if (_value == nullptr) {
 		return;
 	}
 	if (m_name == "") {
 		uint32_t transactionId = _value->getTransactionId();
-		if (_value->getType() == zeus::Buffer::typeMessage::call) {
-			ememory::SharedPtr<zeus::BufferCall> callObj = ememory::staticPointerCast<zeus::BufferCall>(_value);
+		if (_value->getType() == zeus::message::type::call) {
+			ememory::SharedPtr<zeus::message::Call> callObj = ememory::staticPointerCast<zeus::message::Call>(_value);
 			std::string callFunction = callObj->getCall();
 			if (callFunction == "connect-service") {
 				if (m_name != "") {

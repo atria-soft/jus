@@ -16,15 +16,16 @@ namespace appl {
 			zeus::WebServer m_interfaceWeb;
 		public:
 			DirectInterface(enet::Tcp _connection);
-			~DirectInterface();
+			virtual ~DirectInterface();
 			bool start(appl::GateWay* _gateway);
-			void receive(ememory::SharedPtr<zeus::Buffer> _data);
-			void send(ememory::SharedPtr<zeus::Buffer> _data);
+			void receive(ememory::SharedPtr<zeus::Message> _data);
+			void send(ememory::SharedPtr<zeus::Message> _data);
 			bool requestURI(const std::string& _uri);
 			//void answerProtocolError(uint32_t _transactionId, const std::string& _errorHelp);
 			zeus::WebServer* getInterface() {
 				return &m_interfaceWeb;
 			}
+			bool isConnected() { return m_interfaceWeb.isActive(); };
 	};
 }
 

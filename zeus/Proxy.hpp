@@ -6,7 +6,7 @@
 #pragma once
 
 #include <zeus/ObjectRemote.hpp>
-#include <zeus/ObjectIntrospection.hpp>
+#include <zeus/ObjectIntrospect.hpp>
 
 namespace zeus {
 	/**
@@ -16,7 +16,7 @@ namespace zeus {
 		protected:
 			zeus::ObjectRemote m_obj; //!< Service instance handle
 		public:
-			zeus::ObjectIntrospection sys;
+			zeus::ObjectIntrospect sys;
 		public:
 			const Proxy& operator= (const zeus::ObjectRemote& _srv);
 			Proxy();

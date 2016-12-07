@@ -93,9 +93,11 @@ bool zeus::message::ParamType::operator != (const uint16_t& _value) const {
 
 #define generate_basic_type(_type, _name, _id, _num, _vect) \
 namespace zeus { \
-	template<> const zeus::message::ParamType& createType<_type>() {\
-		static zeus::message::ParamType type(_name, _id, _num, _vect); \
-		return type; \
+	namespace message { \
+		template<> const zeus::message::ParamType& createType<_type>() {\
+			static zeus::message::ParamType type(_name, _id, _num, _vect); \
+			return type; \
+		} \
 	} \
 }
 
@@ -134,5 +136,5 @@ generate_basic_type(zeus::File, "file", 0x000E, false, false);
 generate_basic_type(zeus::FileServer, "file", 0x000E, false, false);
 #endif
 
-const uint16_t zeus::message::ParamTypeObject = 0xFFFF;
+const uint16_t zeus::message::paramTypeObject = 0xFFFF;
 

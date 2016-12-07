@@ -24,10 +24,10 @@ namespace appl {
 			virtual ~ServiceInterface();
 			void start();
 			void stop();
-			void onServiceData(ememory::SharedPtr<zeus::Buffer> _value);
+			void onServiceData(ememory::SharedPtr<zeus::Message> _value);
 			bool requestURI(const std::string& _uri);
 		public:
-			void SendData(uint64_t _userSessionId, ememory::SharedPtr<zeus::Buffer> _data);
+			void SendData(uint64_t _userSessionId, ememory::SharedPtr<zeus::Message> _data);
 			const std::string& getName() {
 				return m_name;
 			}

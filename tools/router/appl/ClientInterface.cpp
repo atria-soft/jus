@@ -8,7 +8,6 @@
 #include <appl/ClientInterface.hpp>
 #include <zeus/Future.hpp>
 #include <appl/Router.hpp>
-#include <zeus/message/Ctrl.hpp>
 
 
 #include <zeus/AbstractFunction.hpp>
@@ -79,7 +78,7 @@ void appl::ClientInterface::answerProtocolError(uint32_t _transactionId, const s
 }
 
 
-void appl::ClientInterface::onClientData(ememory::SharedPtr<zeus::Buffer> _value) {
+void appl::ClientInterface::onClientData(ememory::SharedPtr<zeus::Message> _value) {
 	if (_value == nullptr) {
 		return;
 	}
@@ -103,11 +102,11 @@ void appl::ClientInterface::onClientData(ememory::SharedPtr<zeus::Buffer> _value
 	// TODO: Special hook for the first call that we need to get the curretn ID of the connection, think to set this at an other position ...
 	if (m_uid == 0) {
 		APPL_INFO("special case, we need to get the ID Of the client:");
-		if (_value->getType() != zeus::Buffer::typeMessage::call) {
+		if (_value->getType() != zeus::message::type::call) {
 			answerProtocolError(transactionId, "Must get first the Client ID... call 'getAddress'");
 			return;
 		}
-		ememory::SharedPtr<zeus::BufferCall> callObj = ememory::staticPointerCast<zeus::BufferCall>(_value);
+		ememory::SharedPtr<zeus::message::Call> callObj = ememory::staticPointerCast<zeus::message::Call>(_value);
 		if (callObj->getCall() != "getAddress") {
 			answerProtocolError(transactionId, "Must get first the Client ID... call 'getAddress' and not '" + callObj->getCall() + "'");
 			return;
@@ -127,14 +126,14 @@ void appl::ClientInterface::onClientData(ememory::SharedPtr<zeus::Buffer> _value
 	}
 }
 
-void appl::ClientInterface::send(ememory::SharedPtr<zeus::Buffer> _data) {
+void appl::ClientInterface::send(ememory::SharedPtr<zeus::Message> _data) {
 	if (_data == nullptr) {
 		return;
 	}
 	m_interfaceClient.writeBinary(_data);
 	/*
-	if (_data->getType() == zeus::Buffer::typeMessage::ctrl) {
-		std::string value = static_cast<zeus::BufferCtrl*>(_data.get())->getCtrl();
+	if (_data->getType() == zeus::Message::type::ctrl) {
+		std::string value = static_cast<zeus::MessageCtrl*>(_data.get())->getCtrl();
 		if (value == "DISCONNECT") {
 			m_interfaceClient.disconnect(true);
 			return;

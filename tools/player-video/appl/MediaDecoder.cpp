@@ -88,7 +88,7 @@ static int32_t nextP2(int32_t _value) {
 	return val;
 }
 
-void appl::BufferElementVideo::setSize(const ivec2& _size) {
+void appl::MessageElementVideo::setSize(const ivec2& _size) {
 	if (m_imagerealSize != _size) {
 		// Resize the buffer:
 		m_imagerealSize = _size;
@@ -97,7 +97,7 @@ void appl::BufferElementVideo::setSize(const ivec2& _size) {
 		//m_image.getSize();
 	}
 }
-void appl::BufferElementAudio::configure(audio::format _format, uint32_t _sampleRate, int32_t _nbChannel, int32_t _nbSample) {
+void appl::MessageElementAudio::configure(audio::format _format, uint32_t _sampleRate, int32_t _nbChannel, int32_t _nbSample) {
 	// resize the buffer:
 	m_buffer.resize(_nbSample*_nbChannel*audio::getFormatBytes(_format));
 	m_format = _format;
@@ -243,7 +243,7 @@ int appl::MediaDecoder::decode_packet(int *_gotFrame, int _cached) {
 					if (format == audio::format_unknow) {
 						APPL_ERROR("Unsupported audio format :" << m_frame->format << " ...");
 					} else {
-						// configure Buffer:
+						// configure Message:
 						m_audioPool[slotId].configure(format, m_frame->sample_rate, m_frame->channels, m_frame->nb_samples);
 						if (av_sample_fmt_is_planar((enum AVSampleFormat)m_frame->format) == 1) {
 							for (int32_t ccc=0; ccc<m_frame->channels; ++ccc) {
@@ -467,7 +467,7 @@ void appl::MediaDecoder::stop() {
 	m_stopRequested = true;
 }
 
-void appl::MediaDecoder::flushBuffer() {
+void appl::MediaDecoder::flushMessage() {
 	// flush all decoders ...
 	avcodec_flush_buffers(m_audioStream->codec);
 	avcodec_flush_buffers(m_videoStream->codec);
@@ -483,7 +483,7 @@ void appl::MediaDecoder::flushBuffer() {
 
 void appl::MediaDecoder::applySeek(echrono::Duration _time) {
 	APPL_INFO("Apply seek : " << _time);
-	flushBuffer();
+	flushMessage();
 	int64_t seekPos = int64_t(_time.toSeconds() * double(AV_TIME_BASE));
 	
 	int32_t id = -1;

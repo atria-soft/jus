@@ -44,20 +44,20 @@ namespace zeus {
 			 */
 			virtual ~Object();
 		public:
-			void receive(ememory::SharedPtr<zeus::Buffer> _value);
+			void receive(ememory::SharedPtr<zeus::Message> _value);
 		private:
 			/**
 			 * @brief 
 			 * @param[in] 
 			 * @return 
 			 */
-			void callBinary(ememory::SharedPtr<zeus::Buffer> _obj);
+			void callBinary(ememory::SharedPtr<zeus::Message> _obj);
 			/**
 			 * @brief 
 			 * @param[in] 
 			 * @return 
 			 */
-			virtual void callBinary2(const std::string& _call, ememory::SharedPtr<zeus::BufferCall> _obj) = 0;
+			virtual void callBinary2(const std::string& _call, ememory::SharedPtr<zeus::message::Call> _obj) = 0;
 		public:
 			/**
 			 * @brief 
@@ -163,7 +163,7 @@ namespace zeus {
 			 * @param[in] 
 			 * @return 
 			 */
-			void callBinary2(const std::string& _call, ememory::SharedPtr<zeus::BufferCall> _obj) {
+			void callBinary2(const std::string& _call, ememory::SharedPtr<zeus::message::Call> _obj) {
 				for (auto &it2 : m_listFunction) {
 					if (it2 == nullptr) {
 						continue;

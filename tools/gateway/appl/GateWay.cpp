@@ -56,22 +56,23 @@ namespace appl {
 					// READ section data:
 					enet::Tcp data = std::move(m_interface.waitNext());
 					APPL_VERBOSE("New connection");
-					m_gateway->newService(std::move(data));
+					m_gateway->newDirectInterface(std::move(data));
 				}
 			}
 	};
 }
 
-void appl::GateWay::newService(enet::Tcp _connection) {
+void appl::GateWay::newDirectInterface(enet::Tcp _connection) {
 	APPL_WARNING("New TCP connection (service)");
 	ememory::SharedPtr<appl::DirectInterface> tmp = ememory::makeShared<appl::DirectInterface>(std::move(_connection));
 	tmp->start(this);
-	m_listIODirect.push_back(tmp);
+	m_listTemporaryIO.push_back(tmp);
 }
 
 appl::GateWay::GateWay() :
   m_idIncrement(10),
   propertyUserName(this, "user", "no-name", "User name of the interface"), // must be set befor start ...
+  propertyRouterNo(this, "no-router", false, "No connection on the router"),
   propertyRouterIp(this, "router-ip", "127.0.0.1", "Ip to listen client", &appl::GateWay::onPropertyChangeClientIp),
   propertyRouterPort(this, "router-port", 1984, "Port to listen client", &appl::GateWay::onPropertyChangeClientPort),
   propertyServiceIp(this, "service-ip", "127.0.0.1", "Ip to listen client", &appl::GateWay::onPropertyChangeServiceIp),
@@ -86,6 +87,16 @@ appl::GateWay::~GateWay() {
 
 void appl::GateWay::addIO(const ememory::SharedPtr<appl::IOInterface>& _io) {
 	m_listIO.push_back(_io);
+	// REMOVE of temporary element in the temporary list:
+	auto it = m_listTemporaryIO.begin();
+	while (it != m_listTemporaryIO.end()) {
+		ememory::SharedPtr<appl::IOInterface> tmp = *it;
+		if (tmp.get() == _io.get()) {
+			it = m_listTemporaryIO.erase(it);
+		} else {
+			++it;
+		}
+	}
 }
 
 void appl::GateWay::removeIO(const ememory::SharedPtr<appl::IOInterface>& _io) {
@@ -104,13 +115,20 @@ uint16_t appl::GateWay::getId() {
 }
 
 void appl::GateWay::start() {
-	m_routerClient = ememory::makeShared<appl::RouterInterface>(*propertyRouterIp, *propertyRouterPort, *propertyUserName, this);
-	
+	if (*propertyRouterNo == false) {
+		m_routerClient = ememory::makeShared<appl::RouterInterface>(*propertyRouterIp, *propertyRouterPort, *propertyUserName, this);
+		if (m_routerClient->isAlive() == false) {
+			APPL_ERROR("Can not connect the Router (if it is the normal case, use option '--no-router'");
+			throw std::runtime_error("Can not connect router");
+		}
+	}
 	m_interfaceNewService->start(*propertyServiceIp, *propertyServicePort);
 }
 
 void appl::GateWay::stop() {
 	m_routerClient.reset();
+	m_listTemporaryIO.clear();
+	m_listIO.clear();
 }
 
 bool appl::GateWay::serviceExist(const std::string& _service) {
@@ -141,20 +159,6 @@ uint16_t appl::GateWay::serviceClientIdGet(const std::string& _service) {
 	return 0;
 }
 
-/*
-ememory::SharedPtr<appl::ServiceInterface> appl::GateWay::get(const std::string& _serviceName) {
-	for (auto &it : m_serviceList) {
-		if (it == nullptr) {
-			continue;
-		}
-		if (it->getName() != _serviceName) {
-			continue;
-		}
-		return it;
-	}
-	return nullptr;
-}
-*/
 
 std::vector<std::string> appl::GateWay::getAllServiceName() {
 	std::vector<std::string> out;
@@ -171,7 +175,7 @@ std::vector<std::string> appl::GateWay::getAllServiceName() {
 }
 
 
-bool appl::GateWay::send(ememory::SharedPtr<zeus::Buffer> _data) {
+bool appl::GateWay::send(ememory::SharedPtr<zeus::Message> _data) {
 	auto it = m_listIO.begin();
 	uint16_t id = _data->getDestinationId();
 	while (it != m_listIO.end()) {
@@ -188,24 +192,47 @@ bool appl::GateWay::send(ememory::SharedPtr<zeus::Buffer> _data) {
 }
 
 void appl::GateWay::cleanIO() {
-	APPL_VERBOSE("Check if something need to be clean ...");
-	/*
-	auto it = m_listIODirect.begin();
-	while (it != m_listIODirect.end()) {
-		if (*it != nullptr) {
-			if ((*it)->isAlive() == false) {
-				it = m_listIODirect.erase(it);
+	APPL_INFO("Check if something need to be clean ...");
+	std::vector<uint16_t> tmpIDToRemove;
+	// Clean all IOs...
+	{
+		auto it = m_listIO.begin();
+		while (it != m_listIO.end()) {
+			if (*it != nullptr) {
+				if ((*it)->isConnected() == false) {
+					tmpIDToRemove.push_back((*it)->getId());
+					it = m_listIO.erase(it);
+					continue;
+				}
+			} else {
+				it = m_listIO.erase(it);
 				continue;
 			}
-		} else {
-			it = m_listIODirect.erase(it);
-			continue;
+			++it;
 		}
-		++it;
 	}
-	*/
+	// Clean all temporary connecting IO
+	{
+		auto it = m_listTemporaryIO.begin();
+		while (it != m_listTemporaryIO.end()) {
+			if (*it != nullptr) {
+				if ((*it)->isConnected() == false) {
+					it = m_listTemporaryIO.erase(it);
+					continue;
+				}
+			} else {
+				it = m_listTemporaryIO.erase(it);
+				continue;
+			}
+			++it;
+		}
+	}
+	// Clean router IO
 	if (m_routerClient != nullptr) {
 		m_routerClient->clean();
+	}
+	if (tmpIDToRemove.size() != 0) {
+		APPL_TODO("Remove Ids ... " << tmpIDToRemove);
 	}
 }
 

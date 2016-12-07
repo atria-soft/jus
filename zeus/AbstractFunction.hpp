@@ -18,7 +18,7 @@ namespace zeus {
 	 */
 	bool checkOrderFunctionParameter();
 	/**
-	 * @brief Interface to store a function and call it after with a @ref zeus::Buffer
+	 * @brief Interface to store a function and call it after with a @ref zeus::Message
 	 */
 	class AbstractFunction {
 		protected:
@@ -129,7 +129,7 @@ namespace zeus {
 			 * @param[in] _class Pointer on the object that might be call (note: brut cast)
 			 */
 			virtual void execute(ememory::SharedPtr<zeus::WebServer> _interfaceClient,
-			                     ememory::SharedPtr<zeus::BufferCall> _obj,
+			                     ememory::SharedPtr<zeus::message::Call> _obj,
 			                     void* _class=nullptr) = 0;
 	};
 }

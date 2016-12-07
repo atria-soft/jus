@@ -9,7 +9,7 @@
 
 namespace zeus {
 	/**
-	 * @brief Raw data Buffer
+	 * @brief Raw data Message
 	 */
 	class Raw {
 		private:

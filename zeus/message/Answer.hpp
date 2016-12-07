@@ -14,28 +14,28 @@ namespace zeus {
 	namespace message {
 		class Answer :
 		  public message::Parameter {
-			friend class zeus::message::Message;
+			friend class zeus::Message;
 			protected:
 				std::string m_errorType;
 				std::string m_errorHelp;
 			protected:
 				/**
-				 * @brief basic constructor (hidden to force the use of ememory::SharedPtr) @ref zeus::Answer::create
+				 * @brief basic constructor (hidden to force the use of ememory::SharedPtr) @ref zeus::message::Answer::create
 				 */
 				Answer(ememory::SharedPtr<zeus::WebServer> _iface):
 				  zeus::message::Parameter(_iface) {
 					m_header.flags = ZEUS_BUFFER_FLAG_FINISH + uint8_t(zeus::message::type::answer);
 				};
 				void composeWith(const uint8_t* _buffer, uint32_t _lenght) override;
-				void appendBufferData(ememory::SharedPtr<zeus::message::Data> _obj) override;
+				void appendMessageData(ememory::SharedPtr<zeus::message::Data> _obj) override;
 				bool writeOn(enet::WebSocket& _interface) override;
 				void generateDisplay(std::ostream& _os) const override;
 			public:
 				/**
 				 * @brief Create a shared pointer on the Answer
-				 * @return Allocated Buffer.
+				 * @return Allocated Message.
 				 */
-				static ememory::SharedPtr<zeus::Answer> create(ememory::SharedPtr<zeus::WebServer> _iface);
+				static ememory::SharedPtr<zeus::message::Answer> create(ememory::SharedPtr<zeus::WebServer> _iface);
 			public:
 				enum zeus::message::type getType() const override {
 					return zeus::message::type::answer;

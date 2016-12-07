@@ -30,7 +30,7 @@ namespace zeus {
 	 * @param[in] 
 	 * @return 
 	 */
-	ememory::SharedPtr<zeus::BufferCall> createBaseCall(const ememory::SharedPtr<zeus::WebServer>& _iface,
+	ememory::SharedPtr<zeus::message::Call> createBaseCall(const ememory::SharedPtr<zeus::WebServer>& _iface,
 	                                                    uint64_t _transactionId,
 	                                                    const uint32_t& _source,
 	                                                    const uint32_t& _destination,
@@ -42,7 +42,7 @@ namespace zeus {
 	 */
 	void createParam(const ememory::SharedPtr<zeus::WebServer>& _iface,
 	                 int32_t _paramId,
-	                 ememory::SharedPtr<zeus::BufferCall> _obj);
+	                 ememory::SharedPtr<zeus::message::Call> _obj);
 	
 	/**
 	 * @brief 
@@ -52,7 +52,7 @@ namespace zeus {
 	template<class ZEUS_TYPE, class... _ARGS>
 	void createParam(const ememory::SharedPtr<zeus::WebServer>& _iface,
 	                 int32_t _paramId,
-	                 ememory::SharedPtr<zeus::BufferCall> _obj,
+	                 ememory::SharedPtr<zeus::message::Call> _obj,
 	                 const ZEUS_TYPE& _param,
 	                 _ARGS&&... _args) {
 		_obj->addParameter<ZEUS_TYPE>(_iface, _param);
@@ -68,7 +68,7 @@ namespace zeus {
 	template<class... _ARGS>
 	void createParam(const ememory::SharedPtr<zeus::WebServer>& _iface,
 	                 int32_t _paramId,
-	                 ememory::SharedPtr<zeus::BufferCall> _obj,
+	                 ememory::SharedPtr<zeus::message::Call> _obj,
 	                 const char* _param,
 	                 _ARGS&&... _args) {
 		createParam(_iface, _paramId, _obj, std::string(_param), std::forward<_ARGS>(_args)...);
@@ -79,8 +79,8 @@ namespace zeus {
 	 * @return 
 	 */
 	template<class... _ARGS>
-	ememory::SharedPtr<zeus::BufferCall> createCall(const ememory::SharedPtr<zeus::WebServer>& _iface, uint64_t _transactionId, const uint32_t& _source, const uint32_t& _destination, const std::string& _functionName, _ARGS&&... _args) {
-		ememory::SharedPtr<zeus::BufferCall> callElem = createBaseCall(_iface, _transactionId, _source, _destination, _functionName);
+	ememory::SharedPtr<zeus::message::Call> createCall(const ememory::SharedPtr<zeus::WebServer>& _iface, uint64_t _transactionId, const uint32_t& _source, const uint32_t& _destination, const std::string& _functionName, _ARGS&&... _args) {
+		ememory::SharedPtr<zeus::message::Call> callElem = createBaseCall(_iface, _transactionId, _source, _destination, _functionName);
 		if (callElem == nullptr) {
 			return nullptr;
 		}
@@ -97,7 +97,7 @@ namespace zeus {
 		private:
 			enet::WebSocket m_connection;
 			ethread::Pool m_processingPool;
-			std::vector<ememory::SharedPtr<zeus::Buffer>> m_listPartialBuffer;
+			std::vector<ememory::SharedPtr<zeus::Message>> m_listPartialMessage;
 			uint16_t m_localAddress;
 			uint16_t m_licalIdObjectIncrement; //!< attribute a unique ID for an object
 		public:
@@ -123,7 +123,7 @@ namespace zeus {
 			std::mutex m_pendingCallMutex;
 			std::vector<std::pair<uint64_t, zeus::FutureBase>> m_pendingCall;
 		public:
-			using Observer = std::function<void(ememory::SharedPtr<zeus::Buffer>)>; //!< Define an Observer: function pointer
+			using Observer = std::function<void(ememory::SharedPtr<zeus::Message>)>; //!< Define an Observer: function pointer
 			Observer m_observerElement;
 			/**
 			 * @brief Connect an function member on the signal with the shared_ptr object.
@@ -131,8 +131,8 @@ namespace zeus {
 			 * @param[in] _func Function to call.
 			 */
 			template<class CLASS_TYPE>
-			void connect(CLASS_TYPE* _class, void (CLASS_TYPE::*_func)(ememory::SharedPtr<zeus::Buffer>)) {
-				m_observerElement = [=](ememory::SharedPtr<zeus::Buffer> _value){
+			void connect(CLASS_TYPE* _class, void (CLASS_TYPE::*_func)(ememory::SharedPtr<zeus::Message>)) {
+				m_observerElement = [=](ememory::SharedPtr<zeus::Message> _value){
 					(*_class.*_func)(_value);
 				};
 			}
@@ -210,7 +210,7 @@ namespace zeus {
 			 * @param[in] 
 			 * @return 
 			 */
-			int32_t writeBinary(ememory::SharedPtr<zeus::Buffer> _data);
+			int32_t writeBinary(ememory::SharedPtr<zeus::Message> _data);
 			/**
 			 * @brief 
 			 * @param[in] 
@@ -234,7 +234,7 @@ namespace zeus {
 			 * @param[in] 
 			 * @return 
 			 */
-			void newBuffer(ememory::SharedPtr<zeus::Buffer> _buffer);
+			void newMessage(ememory::SharedPtr<zeus::Message> _buffer);
 		public:
 			/**
 			 * @brief 
@@ -280,7 +280,7 @@ namespace zeus {
 			 * @return 
 			 */
 			zeus::FutureBase callBinary(uint64_t _transactionId,
-			                            ememory::SharedPtr<zeus::Buffer> _obj,
+			                            ememory::SharedPtr<zeus::Message> _obj,
 			                            const uint32_t& _service=0);
 		public:
 			/**
@@ -291,7 +291,7 @@ namespace zeus {
 			template<class... _ARGS>
 			zeus::FutureBase call(const uint32_t& _source, const uint32_t& _destination, const std::string& _functionName, _ARGS&&... _args) {
 				uint16_t id = getId();
-				ememory::SharedPtr<zeus::BufferCall> callElem = zeus::createCall(sharedFromThis(), id, _source, _destination, _functionName, std::forward<_ARGS>(_args)...);
+				ememory::SharedPtr<zeus::message::Call> callElem = zeus::createCall(sharedFromThis(), id, _source, _destination, _functionName, std::forward<_ARGS>(_args)...);
 				return callBinary(id, callElem);
 			}
 		public:
@@ -302,7 +302,7 @@ namespace zeus {
 			 * @return 
 			 */
 			zeus::FutureBase callForward(uint32_t _source,
-			                             ememory::SharedPtr<zeus::Buffer> _Buffer,
+			                             ememory::SharedPtr<zeus::Message> _Message,
 			                             uint64_t _singleReferenceId);
 			/**
 			 * @brief 
@@ -310,7 +310,7 @@ namespace zeus {
 			 * @return 
 			 */
 			void callForwardMultiple(uint32_t _source,
-			                         ememory::SharedPtr<zeus::Buffer> _Buffer,
+			                         ememory::SharedPtr<zeus::Message> _Message,
 			                         uint64_t _singleReferenceId);
 		#endif
 		public: // answers ...
@@ -329,7 +329,7 @@ namespace zeus {
 			 */
 			template<class ZEUS_ARG>
 			void answerValue(uint32_t _clientTransactionId, uint32_t _source, uint32_t _destination, ZEUS_ARG _value) {
-				ememory::SharedPtr<zeus::BufferAnswer> answer = zeus::BufferAnswer::create(sharedFromThis());
+				ememory::SharedPtr<zeus::message::Answer> answer = zeus::message::Answer::create(sharedFromThis());
 				answer->setTransactionId(_clientTransactionId);
 				answer->setSource(_source);
 				answer->setDestination(_destination);

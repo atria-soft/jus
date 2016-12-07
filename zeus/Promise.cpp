@@ -4,6 +4,7 @@
  * @license APACHE v2.0 (see license file)
  */
 #include <zeus/Promise.hpp>
+#include <zeus/FutureBase.hpp>
 #include <zeus/message/Answer.hpp>
 #include <zeus/debug.hpp>
 
@@ -14,11 +15,11 @@ zeus::Promise::Promise(uint32_t _transactionId, uint32_t _source) {
 	m_source = _source;
 }
 
-ememory::SharedPtr<zeus::message::Message> zeus::Promise::getRaw() {
+ememory::SharedPtr<zeus::Message> zeus::Promise::getRaw() {
 	return m_message;
 }
 
-zeus::Promise::Promise(uint32_t _transactionId, ememory::SharedPtr<zeus::message::Message> _returnData, uint32_t _source) {
+zeus::Promise::Promise(uint32_t _transactionId, ememory::SharedPtr<zeus::Message> _returnData, uint32_t _source) {
 	m_sendTime = echrono::Steady::now();
 	m_transactionId = _transactionId;
 	m_source = _source;
@@ -37,11 +38,11 @@ void zeus::Promise::andAll(zeus::Promise::Observer _callback) {
 	}
 	if (hasError() == false) {
 		if (m_callbackThen != nullptr) {
-			m_callbackThen(*this);
+			m_callbackThen(zeus::FutureBase(sharedFromThis()));
 		}
 	} else {
 		if (m_callbackElse != nullptr) {
-			m_callbackElse(*this);
+			m_callbackElse(zeus::FutureBase(sharedFromThis()));
 		}
 	}
 }
@@ -58,7 +59,7 @@ void zeus::Promise::andThen(zeus::Promise::Observer _callback) {
 	if (m_callbackThen == nullptr) {
 		return;
 	}
-	m_callbackThen(*this);
+	m_callbackThen(zeus::FutureBase(sharedFromThis()));
 }
 
 void zeus::Promise::andElse(zeus::Promise::Observer _callback) {
@@ -73,7 +74,7 @@ void zeus::Promise::andElse(zeus::Promise::Observer _callback) {
 	if (m_callbackElse == nullptr) {
 		return;
 	}
-	m_callbackElse(*this);
+	m_callbackElse(zeus::FutureBase(sharedFromThis()));
 }
 
 
@@ -84,7 +85,7 @@ echrono::Duration zeus::Promise::getTransmitionTime() const {
 	return m_receiveTime - m_sendTime;
 }
 
-bool zeus::Promise::setBuffer(ememory::SharedPtr<zeus::message::Message> _value) {
+bool zeus::Promise::setMessage(ememory::SharedPtr<zeus::Message> _value) {
 	m_receiveTime = echrono::Steady::now();
 	m_message = _value;
 	if (m_message == nullptr) {
@@ -96,11 +97,11 @@ bool zeus::Promise::setBuffer(ememory::SharedPtr<zeus::message::Message> _value)
 	}
 	if (hasError() == false) {
 		if (m_callbackThen != nullptr) {
-			return m_callbackThen(*this);
+			return m_callbackThen(zeus::FutureBase(sharedFromThis()));
 		}
 	} else {
 		if (m_callbackElse != nullptr) {
-			return m_callbackElse(*this);
+			return m_callbackElse(zeus::FutureBase(sharedFromThis()));
 		}
 	}
 	return true;
@@ -118,7 +119,7 @@ bool zeus::Promise::hasError() const {
 	if (m_message == nullptr) {
 		return true;
 	}
-	if (m_message->getType() != zeus::message::Message::typeMessage::answer) {
+	if (m_message->getType() != zeus::message::type::answer) {
 		return true;
 	}
 	return static_cast<const zeus::message::Answer*>(m_message.get())->hasError();
@@ -128,7 +129,7 @@ std::string zeus::Promise::getErrorType() const {
 	if (m_message == nullptr) {
 		return "NULL_PTR";
 	}
-	if (m_message->getType() != zeus::message::Message::typeMessage::answer) {
+	if (m_message->getType() != zeus::message::type::answer) {
 		return "NOT_ANSWER_MESSAGE";
 	}
 	return static_cast<const zeus::message::Answer*>(m_message.get())->getError();
@@ -138,7 +139,7 @@ std::string zeus::Promise::getErrorHelp() const {
 	if (m_message == nullptr) {
 		return "This is a nullptr future";
 	}
-	if (m_message->getType() != zeus::message::Message::typeMessage::answer) {
+	if (m_message->getType() != zeus::message::type::answer) {
 		return "This answer is not a anwser type";
 	}
 	return static_cast<const zeus::message::Answer*>(m_message.get())->getErrorHelp();
@@ -153,15 +154,14 @@ bool zeus::Promise::isFinished() const {
 	return m_message->getPartFinish();
 }
 
-const zeus::Promise& zeus::Promise::wait() const {
+void zeus::Promise::wait() const {
 	while (isFinished() == false) {
 		// TODO : Do it better ... like messaging/mutex_locked ...
 		std::this_thread::sleep_for(echrono::milliseconds(10));
 	}
-	return *this;
 }
 
-const zeus::Promise& zeus::Promise::waitFor(echrono::Duration _delta) const {
+void zeus::Promise::waitFor(echrono::Duration _delta) const {
 	echrono::Steady start = echrono::Steady::now();
 	while (    echrono::Steady::now() - start < _delta
 	        && isFinished() == false) {
@@ -169,15 +169,13 @@ const zeus::Promise& zeus::Promise::waitFor(echrono::Duration _delta) const {
 		std::this_thread::sleep_for(echrono::milliseconds(10));
 		start = echrono::Steady::now();
 	}
-	return *this;
 }
 
-const zeus::Promise& zeus::Promise::waitUntil(echrono::Steady _endTime) const {
+void zeus::Promise::waitUntil(echrono::Steady _endTime) const {
 	while (    echrono::Steady::now() < _endTime
 	        && isFinished() == false) {
 		// TODO : Do it better ... like messaging/mutex_locked ...
 		std::this_thread::sleep_for(echrono::milliseconds(10));
 	}
-	return *this;
 }
 

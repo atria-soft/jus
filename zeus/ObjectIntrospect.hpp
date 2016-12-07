@@ -8,11 +8,11 @@
 #include <zeus/ObjectRemote.hpp>
 
 namespace zeus {
-	class SystemProxy {
+	class ObjectIntrospect {
 		protected:
 			zeus::ObjectRemote& m_srv; //!< Service instance handle
 		public:
-			SystemProxy(zeus::ObjectRemote& _srv);
+			ObjectIntrospect(zeus::ObjectRemote& _srv);
 			zeus::Future<std::string> getDescription();
 			zeus::Future<std::string> getVersion();
 			zeus::Future<std::string> getType();

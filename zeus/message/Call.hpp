@@ -11,29 +11,29 @@
 
 namespace zeus {
 	namespace message {
-		class BufferCall :
-		  public BufferParameter {
-			friend class zeus::Buffer;
+		class Call :
+		  public message::Parameter {
+			friend class zeus::Message;
 			protected:
 				std::string m_callName;
 			protected:
 				/**
-				 * @brief basic constructor (hidden to force the use of ememory::SharedPtr) @ref zeus::BufferCall::create
+				 * @brief basic constructor (hidden to force the use of ememory::SharedPtr) @ref zeus::message::Call::create
 				 */
-				BufferCall(ememory::SharedPtr<zeus::WebServer> _iface):
-				  zeus::BufferParameter(_iface) {
+				Call(ememory::SharedPtr<zeus::WebServer> _iface):
+				  zeus::message::Parameter(_iface) {
 					m_header.flags = ZEUS_BUFFER_FLAG_FINISH + uint8_t(zeus::message::type::call);
 				};
 				void composeWith(const uint8_t* _buffer, uint32_t _lenght) override;
-				void appendBufferData(ememory::SharedPtr<zeus::message::Data> _obj) override;
+				void appendMessageData(ememory::SharedPtr<zeus::message::Data> _obj) override;
 				bool writeOn(enet::WebSocket& _interface) override;
 				void generateDisplay(std::ostream& _os) const override;
 			public:
 				/**
-				 * @brief Create a shared pointer on the BufferCall
-				 * @return Allocated Buffer.
+				 * @brief Create a shared pointer on the MessageCall
+				 * @return Allocated Message.
 				 */
-				static ememory::SharedPtr<zeus::BufferCall> create(ememory::SharedPtr<zeus::WebServer> _iface);
+				static ememory::SharedPtr<zeus::message::Call> create(ememory::SharedPtr<zeus::WebServer> _iface);
 			public:
 				enum zeus::message::type getType() const override {
 					return zeus::message::type::call;

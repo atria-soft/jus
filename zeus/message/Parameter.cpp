@@ -13,7 +13,7 @@
 #include <zeus/File.hpp>
 
 zeus::message::Parameter::Parameter(ememory::SharedPtr<zeus::WebServer> _iface):
-  Buffer(_iface) {
+  Message(_iface) {
 	
 }
 
@@ -62,7 +62,7 @@ void zeus::message::Parameter::composeWith(const uint8_t* _buffer, uint32_t _len
 	}
 }
 
-zeus::ParamType zeus::message::Parameter::getParameterType(int32_t _id) const {
+zeus::message::ParamType zeus::message::Parameter::getParameterType(int32_t _id) const {
 	if (m_parameter.size() <= _id) {
 		ZEUS_ERROR("out of range Id for parameter ... " << _id << " have " << m_parameter.size());
 		return createType<void>();
@@ -111,11 +111,11 @@ zeus::ParamType zeus::message::Parameter::getParameterType(int32_t _id) const {
 		if (find == false) {
 			ZEUS_ERROR("Request object with a name too big ==> error ...");
 			m_parameter[_id].first = 0;
-			return zeus::ParamType("no-name", typeId);
+			return zeus::message::ParamType("no-name", typeId);
 		}
 		std::string type(tmp);
 		m_parameter[_id].first = type.size() + sizeof(uint16_t) + 1; // add \0
-		return zeus::ParamType(type, typeId);
+		return zeus::message::ParamType(type, typeId);
 	}
 	ZEUS_ERROR("Can not get type of parameter ... ");
 	return createType<void>();
@@ -151,7 +151,7 @@ uint16_t zeus::message::Parameter::getNumberParameter() const {
 }
 
 std::string zeus::message::Parameter::simpleStringParam(uint32_t _id) const {
-	zeus::ParamType paramType = getParameterType(_id);
+	zeus::message::ParamType paramType = getParameterType(_id);
 	if (paramType.isVector() == false) {
 		if (paramType.isNumber() == true) {
 			return etk::to_string(getParameter<int64_t>(_id));
@@ -169,7 +169,7 @@ std::string zeus::message::Parameter::simpleStringParam(uint32_t _id) const {
 	return paramType.getName();
 }
 
-void zeus::message::Parameter::parameterAppendBufferData(ememory::SharedPtr<zeus::BufferData> _obj) {
+void zeus::message::Parameter::parameterAppendMessageData(ememory::SharedPtr<zeus::message::Data> _obj) {
 	// At this point we just add data at the parameter value:
 	uint16_t parameterID = _obj->getParameterId();
 	

@@ -9,6 +9,8 @@
 #include <zeus/message/Message.hpp>
 #include <functional>
 #include <ememory/memory.hpp>
+#include <echrono/Steady.hpp>
+#include <echrono/Duration.hpp>
 
 
 namespace zeus {
@@ -16,13 +18,13 @@ namespace zeus {
 	/**
 	 * @brief Data interface of the future (the future can be copied, but the data need to stay...
 	 */
-	class Promise {
+	class Promise : public ememory::EnableSharedFromThis<zeus::Promise> {
 		public:
 			using Observer = std::function<bool(zeus::FutureBase)>; //!< Define an Observer: function pointer
 		private:
 			uint32_t m_transactionId; //!< waiting answer data
 			uint32_t m_source; //!< Source of the message.
-			ememory::SharedPtr<zeus::message::Message> m_message; //!< all buffer concatenate or last buffer if synchronous
+			ememory::SharedPtr<zeus::Message> m_message; //!< all buffer concatenate or last buffer if synchronous
 			Observer m_callbackThen; //!< observer callback When data arrive and NO error appear
 			Observer m_callbackElse; //!< observer callback When data arrive and AN error appear
 			//Observer m_callbackAbort; //!< observer callback When Action is abort by user
@@ -42,7 +44,7 @@ namespace zeus {
 			 * @param[in] _returnData Set return value
 			 * @param[in] _source Source that is waiting for answer
 			 */
-			Promise(uint32_t _transactionId, ememory::SharedPtr<zeus::message::Message> _returnData, uint32_t _source=0);
+			Promise(uint32_t _transactionId, ememory::SharedPtr<zeus::Message> _returnData, uint32_t _source=0);
 			/**
 			 * @brief Attach callback on all return type of value
 			 * @param[in] _callback Handle on the function to call in all case
@@ -70,7 +72,7 @@ namespace zeus {
 			 * @param[in] _returnValue Returned buffer
 			 * @return return true if an error occured
 			 */
-			bool setBuffer(ememory::SharedPtr<zeus::message::Message> _returnValue);
+			bool setMessage(ememory::SharedPtr<zeus::Message> _returnValue);
 			/**
 			 * @brief Get the transaction Id of the Future
 			 * @return Transaction Id requested or 0
@@ -105,24 +107,24 @@ namespace zeus {
 			 * @brief Wait the Future receive data
 			 * @return reference on the current futur
 			 */
-			const FutureBase& wait() const;
+			void wait() const;
 			/**
 			 * @brief Wait the Future receive data
 			 * @param[in] _delta delay to wait the data arrive
 			 * @return reference on the current futur
 			 */
-			const FutureBase& waitFor(echrono::Duration _delta = echrono::seconds(30)) const;
+			void waitFor(echrono::Duration _delta = echrono::seconds(30)) const;
 			/**
 			 * @brief Wait the Future receive data
 			 * @param[in] _endTime tiem to wait the data
 			 * @return reference on the current futur
 			 */
-			const FutureBase& waitUntil(echrono::Steady _endTime) const;
+			void waitUntil(echrono::Steady _endTime) const;
 			/**
-			 * @brief Get the Buffer receive
+			 * @brief Get the Message receive
 			 * @return pointer on the receive data
 			 */
-			ememory::SharedPtr<zeus::message::Message> getRaw();
+			ememory::SharedPtr<zeus::Message> getRaw();
 			/**
 			 * @brief Get duration of the current trasaction take
 			 * @return Tile in nanosecond to wait answer

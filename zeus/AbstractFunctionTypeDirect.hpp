@@ -12,12 +12,12 @@ namespace zeus {
 	/**
 	 * @brief Execute a call on the global function with a return value
 	 * @param[in] _interfaceClient Web interface to send data
-	 * @param[in] _obj Buffer input call (that have parameter already check)
+	 * @param[in] _obj Message input call (that have parameter already check)
 	 * @param[in] _func pointer on the function to call
 	 */
 	template <class ZEUS_RETURN, class... ZEUS_TYPES>
 	void executeCall(ememory::SharedPtr<zeus::WebServer> _interfaceClient,
-	                 ememory::SharedPtr<zeus::BufferParameter> _obj,
+	                 ememory::SharedPtr<zeus::message::Parameter> _obj,
 	                 ZEUS_RETURN (*_func)(ZEUS_TYPES...)) {
 		if (_obj == nullptr) {
 			return;
@@ -44,12 +44,12 @@ namespace zeus {
 	/**
 	 * @brief Execute a call on the global function with NO return value
 	 * @param[in] _interfaceClient Web interface to send data
-	 * @param[in] _obj Buffer input call (that have parameter already check)
+	 * @param[in] _obj Message input call (that have parameter already check)
 	 * @param[in] _func pointer on the function to call
 	 */
 	template <class... ZEUS_TYPES>
 	void executeCall(ememory::SharedPtr<zeus::WebServer> _interfaceClient,
-	                 ememory::SharedPtr<zeus::BufferParameter> _obj,
+	                 ememory::SharedPtr<zeus::message::Parameter> _obj,
 	                 void (*_func)(ZEUS_TYPES...)) {
 		if (_obj == nullptr) {
 			return;
@@ -79,8 +79,8 @@ namespace zeus {
 	template <class ZEUS_RETURN, class... ZEUS_TYPES>
 	class AbstractFunctionTypeDirect: public zeus::AbstractFunction {
 		protected:
-			static const ParamType m_returnType;
-			static const ParamType m_paramType[sizeof...(ZEUS_TYPES)];
+			static const zeus::message::ParamType m_returnType;
+			static const zeus::message::ParamType m_paramType[sizeof...(ZEUS_TYPES)];
 		public:
 			using functionType = ZEUS_RETURN (*)(ZEUS_TYPES...);
 			functionType m_function;
@@ -104,7 +104,7 @@ namespace zeus {
 				return out;
 			}
 			void execute(ememory::SharedPtr<zeus::WebServer> _interfaceClient,
-			             ememory::SharedPtr<zeus::BufferCall> _obj,
+			             ememory::SharedPtr<zeus::message::Call> _obj,
 			             void* _class) override {
 				if (_obj == nullptr) {
 					return;
@@ -145,10 +145,10 @@ namespace zeus {
 	};
 	// specialization
 	template <class ZEUS_RETURN, class... ZEUS_TYPES>
-	const ParamType AbstractFunctionTypeDirect<ZEUS_RETURN, ZEUS_TYPES...>::m_returnType = createType<ZEUS_RETURN>();
+	const zeus::message::ParamType AbstractFunctionTypeDirect<ZEUS_RETURN, ZEUS_TYPES...>::m_returnType = zeus::message::createType<ZEUS_RETURN>();
 	// specialization
 	template <class ZEUS_RETURN, class... ZEUS_TYPES>
-	const ParamType AbstractFunctionTypeDirect<ZEUS_RETURN, ZEUS_TYPES...>::m_paramType[sizeof...(ZEUS_TYPES)] = {createType<ZEUS_TYPES>()...};
+	const zeus::message::ParamType AbstractFunctionTypeDirect<ZEUS_RETURN, ZEUS_TYPES...>::m_paramType[sizeof...(ZEUS_TYPES)] = {zeus::message::createType<ZEUS_TYPES>()...};
 	/**
 	 * @brief Create a function information with the function type
 	 * @param[in] _name Name of the function

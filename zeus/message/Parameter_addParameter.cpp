@@ -16,12 +16,12 @@
 #include <zeus/WebServer.hpp>
 
 
-void zeus::addType(std::vector<uint8_t>& _data, zeus::message::ParamType _type) {
+void zeus::message::addType(std::vector<uint8_t>& _data, zeus::message::ParamType _type) {
 	_data.push_back(uint8_t(_type.getId()>>8));
 	_data.push_back(uint8_t(_type.getId()));
 }
 
-void zeus::addTypeObject(std::vector<uint8_t>& _data, const std::string _type) {
+void zeus::message::addTypeObject(std::vector<uint8_t>& _data, const std::string _type) {
 	_data.push_back(uint8_t(zeus::message::paramTypeObject>>8));
 	_data.push_back(uint8_t(zeus::message::paramTypeObject));
 	for (auto &it : _type) {
@@ -31,12 +31,12 @@ void zeus::addTypeObject(std::vector<uint8_t>& _data, const std::string _type) {
 }
 
 
-void zeus::Parameter::addParameter() {
+void zeus::message::Parameter::addParameter() {
 	std::vector<uint8_t> data;
 	addType(data, createType<void>());
 	m_parameter.push_back(std::make_pair(2,data));
 }
-void zeus::Parameter::addParameterEmptyVector() {
+void zeus::message::Parameter::addParameterEmptyVector() {
 	// special case of json change mode
 	std::vector<uint8_t> data;
 	addType(data, createType<std::vector<void>>());
@@ -326,7 +326,7 @@ namespace zeus {
 				                 uint32_t _destination,
 				                 uint32_t _transactionId,
 				                 uint32_t _partId) {
-					ememory::SharedPtr<zeus::BufferData> answer = zeus::BufferData::create(_interface->sharedFromThis());
+					ememory::SharedPtr<zeus::message::Data> answer = zeus::message::Data::create(_interface->sharedFromThis());
 					answer->setTransactionId(_transactionId);
 					answer->setSource(_source);
 					answer->setDestination(_destination);
@@ -357,7 +357,7 @@ namespace zeus {
 					data.resize(data.size()+_value.size());
 					memcpy(&data[currentOffset], _value.data(), _value.size());
 				} else {
-					m_multipleSend.push_back(zeus::SendData(_value, _paramId));
+					m_multipleSend.push_back(zeus::message::SendData(_value, _paramId));
 				}
 			}
 			m_parameter.push_back(std::make_pair(2,data));

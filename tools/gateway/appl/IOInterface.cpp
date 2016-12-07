@@ -55,7 +55,7 @@ const std::vector<std::string>& appl::IOInterface::getServiceList() {
 	return m_listService;
 }
 
-void appl::IOInterface::receive(ememory::SharedPtr<zeus::Buffer> _value) {
+void appl::IOInterface::receive(ememory::SharedPtr<zeus::Message> _value) {
 	if (_value == nullptr) {
 		return;
 	}
@@ -69,12 +69,12 @@ void appl::IOInterface::receive(ememory::SharedPtr<zeus::Buffer> _value) {
 	// Check if we are the destinated Of this message 
 	if (    _value->getDestinationId() == ZEUS_ID_GATEWAY
 	     && _value->getDestinationObjectId() == ZEUS_ID_GATEWAY_OBJECT) {
-		if (_value->getType() != zeus::Buffer::typeMessage::call) {
+		if (_value->getType() != zeus::message::type::call) {
 			APPL_ERROR("Protocol error ==>missing 'call'");
 			answerProtocolError(transactionId, "missing parameter: 'call' / wrong type 'call'");
 			return;
 		}
-		ememory::SharedPtr<zeus::BufferCall> callObj = ememory::staticPointerCast<zeus::BufferCall>(_value);
+		ememory::SharedPtr<zeus::message::Call> callObj = ememory::staticPointerCast<zeus::message::Call>(_value);
 		std::string callFunction = callObj->getCall();
 		switch (m_state) {
 			case appl::clientState::disconnect:

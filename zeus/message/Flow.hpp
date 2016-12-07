@@ -11,23 +11,23 @@
 namespace zeus {
 	namespace message {
 		/*
-		class BufferFlow:
-		  public Buffer {
-			friend class zeus::Buffer;
+		class MessageFlow:
+		  public Message {
+			friend class zeus::Message;
 			protected:
 				/ **
-				 * @brief basic constructor (hidden to force the use of ememory::SharedPtr) @ref zeus::BufferFlow::create
+				 * @brief basic constructor (hidden to force the use of ememory::SharedPtr) @ref zeus::MessageFlow::create
 				 * /
-				BufferFlow() {
+				MessageFlow() {
 					m_header.flags = ZEUS_BUFFER_FLAG_FINISH + uint8_t(zeus::message::type::flow);
 				};
 				void composeWith(const uint8_t* _buffer, uint32_t _lenght) override;
 			public:
 				/ **
-				 * @brief Create a shared pointer on the BufferFlow
-				 * @return Allocated Buffer.
+				 * @brief Create a shared pointer on the MessageFlow
+				 * @return Allocated Message.
 				 * /
-				static ememory::SharedPtr<zeus::BufferFlow> create();
+				static ememory::SharedPtr<zeus::MessageFlow> create();
 			public:
 				enum zeus::message::type getType() const override {
 					return zeus::message::type::flow;

@@ -21,6 +21,11 @@ namespace zeus {
 			 */
 			FutureBase(const zeus::FutureBase& _base);
 			/**
+			 * @brief Copy contructor of a FutureBase
+			 * @param[in] _base the FutureBase to copy
+			 */
+			FutureBase(ememory::SharedPtr<zeus::Promise> _promise);
+			/**
 			 * @brief contructor of a FutureBase
 			 */
 			FutureBase();
@@ -37,7 +42,7 @@ namespace zeus {
 			 * @param[in] _returnData Set return value
 			 * @param[in] _source Source that is waiting for answer
 			 */
-			FutureBase(uint32_t _transactionId, ememory::SharedPtr<zeus::message::Message> _returnData, uint32_t _source=0);
+			FutureBase(uint32_t _transactionId, ememory::SharedPtr<zeus::Message> _returnData, uint32_t _source=0);
 			/**
 			 * @brief Attach callback on all return type of value
 			 * @param[in] _callback Handle on the function to call in all case
@@ -71,7 +76,7 @@ namespace zeus {
 			 * @param[in] _returnValue Returned buffer
 			 * @return return true if an error occured
 			 */
-			bool setBuffer(ememory::SharedPtr<zeus::message::Message> _returnValue);
+			bool setMessage(ememory::SharedPtr<zeus::Message> _returnValue);
 			/**
 			 * @brief Get the transaction Id of the Future
 			 * @return Transaction Id requested or 0
@@ -125,10 +130,10 @@ namespace zeus {
 			 */
 			const FutureBase& waitUntil(echrono::Steady _endTime) const;
 			/**
-			 * @brief Get the Buffer receive
+			 * @brief Get the Message receive
 			 * @return pointer on the receive data
 			 */
-			ememory::SharedPtr<zeus::message::Message> getRaw();
+			ememory::SharedPtr<zeus::Message> getRaw();
 			/**
 			 * @brief Get duration of the current trasaction take
 			 * @return Tile in nanosecond to wait answer

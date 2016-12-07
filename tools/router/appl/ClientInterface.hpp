@@ -26,8 +26,8 @@ namespace appl {
 			virtual ~ClientInterface();
 			void start();
 			void stop();
-			void onClientData(ememory::SharedPtr<zeus::Buffer> _value);
-			void send(ememory::SharedPtr<zeus::Buffer> _data);
+			void onClientData(ememory::SharedPtr<zeus::Message> _value);
+			void send(ememory::SharedPtr<zeus::Message> _data);
 			bool checkId(uint16_t _id) const {
 				return m_uid == _id;
 			}

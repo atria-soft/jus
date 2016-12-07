@@ -11,24 +11,24 @@
 namespace zeus {
 	namespace message {
 		/*
-		class BufferEvent :
-		  public BufferParameter {
-			friend class zeus::Buffer;
+		class MessageEvent :
+		  public message::Parameter {
+			friend class zeus::Message;
 			protected:
 				/ **
-				 * @brief basic constructor (hidden to force the use of ememory::SharedPtr) @ref zeus::BufferEvent::create
+				 * @brief basic constructor (hidden to force the use of ememory::SharedPtr) @ref zeus::MessageEvent::create
 				 * /
-				BufferEvent() {
+				MessageEvent() {
 					m_header.flags = ZEUS_BUFFER_FLAG_FINISH + uint8_t(zeus::message::type::event);
 				};
 				void composeWith(const uint8_t* _buffer, uint32_t _lenght) override;
-				void appendBufferData(ememory::SharedPtr<zeus::BufferData> _obj) override;
+				void appendMessageData(ememory::SharedPtr<zeus::message::Data> _obj) override;
 			public:
 				/ **
-				 * @brief Create a shared pointer on the BufferEvent
-				 * @return Allocated Buffer.
+				 * @brief Create a shared pointer on the MessageEvent
+				 * @return Allocated Message.
 				 * /
-				static ememory::SharedPtr<zeus::BufferEvent> create();
+				static ememory::SharedPtr<zeus::MessageEvent> create();
 			public:
 				enum zeus::message::type getType() const override {
 					return zeus::message::type::event;

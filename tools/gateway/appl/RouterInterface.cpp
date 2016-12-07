@@ -42,12 +42,12 @@ bool appl::clientSpecificInterface::start(appl::GateWay* _gateway, zeus::WebServ
 	return true;
 }
 
-void appl::clientSpecificInterface::send(ememory::SharedPtr<zeus::Buffer> _value) {
+void appl::clientSpecificInterface::send(ememory::SharedPtr<zeus::Message> _value) {
 	m_interfaceWeb->writeBinary(_value);
 }
 
 #if 0
-void appl::clientSpecificInterface::receive(ememory::SharedPtr<zeus::Buffer> _value) {
+void appl::clientSpecificInterface::receive(ememory::SharedPtr<zeus::Message> _value) {
 	if (_value == nullptr) {
 		return;
 	}
@@ -58,7 +58,7 @@ void appl::clientSpecificInterface::receive(ememory::SharedPtr<zeus::Buffer> _va
 		answerProtocolError(transactionId, "missing parameter: 'id'");
 		return;
 	}
-	if (_value->getType() == zeus::Buffer::typeMessage::data) {
+	if (_value->getType() == zeus::Message::type::data) {
 		// TRANSMIT DATA ...
 		if (m_state != appl::clientState::clientIdentify) {
 			answerProtocolError(transactionId, "Not identify to send 'data' buffer (multiple packet element)");
@@ -85,12 +85,12 @@ void appl::clientSpecificInterface::receive(ememory::SharedPtr<zeus::Buffer> _va
 		    (uint64_t(m_uid) << 32) + uint64_t(transactionId));
 		return;
 	}
-	if (_value->getType() != zeus::Buffer::typeMessage::call) {
+	if (_value->getType() != zeus::Message::type::call) {
 		APPL_ERROR("Protocol error ==>missing 'call'");
 		answerProtocolError(transactionId, "missing parameter: 'call' / wrong type 'call'");
 		return;
 	}
-	ememory::SharedPtr<zeus::BufferCall> callObj = ememory::staticPointerCast<zeus::BufferCall>(_value);
+	ememory::SharedPtr<zeus::message::Call> callObj = ememory::staticPointerCast<zeus::message::Call>(_value);
 	std::string callFunction = callObj->getCall();
 	switch (m_state) {
 		case appl::clientState::disconnect:
@@ -289,7 +289,7 @@ void appl::clientSpecificInterface::receive(ememory::SharedPtr<zeus::Buffer> _va
 					}
 					auto fut = m_listConnectedService[serviceId]->m_interfaceClient.callForward(m_uid, _value, (uint64_t(m_uid) << 32) + uint64_t(transactionId));
 					fut.andAll([=](zeus::FutureBase _ret) {
-					           		ememory::SharedPtr<zeus::Buffer> tmpp = _ret.getRaw();
+					           		ememory::SharedPtr<zeus::Message> tmpp = _ret.getRaw();
 					           		if (tmpp == nullptr) {
 					           			return true;
 					           		}
@@ -360,7 +360,7 @@ bool appl::RouterInterface::isAlive() {
 
 
 
-void appl::RouterInterface::onClientData(ememory::SharedPtr<zeus::Buffer> _value) {
+void appl::RouterInterface::onClientData(ememory::SharedPtr<zeus::Message> _value) {
 	if (_value == nullptr) {
 		return;
 	}
@@ -382,7 +382,7 @@ void appl::RouterInterface::onClientData(ememory::SharedPtr<zeus::Buffer> _value
 	m_listClients[localId]->receive(_value);
 }
 
-void appl::RouterInterface::send(const ememory::SharedPtr<zeus::Buffer>& _data) {
+void appl::RouterInterface::send(const ememory::SharedPtr<zeus::Message>& _data) {
 	m_interfaceWeb.writeBinary(_data);
 }
 

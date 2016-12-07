@@ -28,6 +28,8 @@ appl::DirectInterface::~DirectInterface() {
 	APPL_INFO("--------------------------");
 	APPL_INFO("-- DELETE Direct Client --");
 	APPL_INFO("--------------------------");
+	m_interfaceWeb.disconnect();
+	APPL_INFO("--------------------------");
 }
 /*
 void appl::clientSpecificInterface::answerProtocolError(uint32_t _transactionId, const std::string& _errorHelp) {
@@ -69,7 +71,7 @@ bool appl::DirectInterface::start(appl::GateWay* _gateway) {
 	return true;
 }
 
-void appl::DirectInterface::receive(ememory::SharedPtr<zeus::Buffer> _value) {
+void appl::DirectInterface::receive(ememory::SharedPtr<zeus::Message> _value) {
 	if (_value == nullptr) {
 		return;
 	}
@@ -93,11 +95,11 @@ void appl::DirectInterface::receive(ememory::SharedPtr<zeus::Buffer> _value) {
 	// TODO: Special hook for the first call that we need to get the curretn ID of the connection, think to set this at an other position ...
 	if (m_uid == 0) {
 		APPL_INFO("special case, we need to get the ID Of the client:");
-		if (_value->getType() != zeus::Buffer::typeMessage::call) {
+		if (_value->getType() != zeus::message::type::call) {
 			answerProtocolError(transactionId, "Must get first the Client ID... call 'getAddress'");
 			return;
 		}
-		ememory::SharedPtr<zeus::BufferCall> callObj = ememory::staticPointerCast<zeus::BufferCall>(_value);
+		ememory::SharedPtr<zeus::message::Call> callObj = ememory::staticPointerCast<zeus::message::Call>(_value);
 		if (callObj->getCall() != "getAddress") {
 			answerProtocolError(transactionId, "Must get first the Client ID... call 'getAddress' and not '" + callObj->getCall() + "'");
 			return;
@@ -116,7 +118,7 @@ void appl::DirectInterface::receive(ememory::SharedPtr<zeus::Buffer> _value) {
 	}
 }
 
-void appl::DirectInterface::send(ememory::SharedPtr<zeus::Buffer> _value) {
+void appl::DirectInterface::send(ememory::SharedPtr<zeus::Message> _value) {
 	m_interfaceWeb.writeBinary(_value);
 }
 

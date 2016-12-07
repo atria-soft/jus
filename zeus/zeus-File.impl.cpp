@@ -4,7 +4,7 @@
  * @license APACHE v2.0 (see license file)
  */
 
-#include <zeus/FileImpl.hpp>
+#include <zeus/zeus-File.impl.hpp>
 #include <zeus/mineType.hpp>
 #include "debug.hpp"
 

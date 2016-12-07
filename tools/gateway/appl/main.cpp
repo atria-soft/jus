@@ -20,6 +20,8 @@ int main(int _argc, const char *_argv[]) {
 		std::string data = _argv[iii];
 		if (etk::start_with(data, "--user=") == true) {
 			basicGateway.propertyUserName.set(std::string(&data[7]));
+		} else if (data == "--no-router") {
+			basicGateway.propertyRouterNo.set(true);
 		} else if (etk::start_with(data, "--router-ip=") == true) {
 			basicGateway.propertyRouterIp.set(std::string(&data[12]));
 		} else if (etk::start_with(data, "--router-port=") == true) {
@@ -35,6 +37,7 @@ int main(int _argc, const char *_argv[]) {
 			APPL_PRINT(etk::getApplicationName() << " - help : ");
 			APPL_PRINT("    " << _argv[0] << " [options]");
 			APPL_PRINT("        --user=XXX           Name of the user that we are connected.");
+			APPL_PRINT("        --no-router          Router connection disable ==> this enable the direct donnection of external client like on the router");
 			APPL_PRINT("        --router-ip=XXX      Router connection IP (default: 1.7.0.0.1)");
 			APPL_PRINT("        --router-port=XXX    Router connection PORT (default: 1984)");
 			APPL_PRINT("        --service-ip=XXX     Service connection IP (default: 1.7.0.0.1)");
@@ -48,7 +51,7 @@ int main(int _argc, const char *_argv[]) {
 	APPL_INFO("==================================");
 	basicGateway.start();
 	while (true) {
-		std::this_thread::sleep_for(std::chrono::milliseconds(100));
+		std::this_thread::sleep_for(std::chrono::milliseconds(10000));
 		basicGateway.cleanIO();
 	}
 	basicGateway.stop();

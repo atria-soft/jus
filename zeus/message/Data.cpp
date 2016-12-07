@@ -11,7 +11,7 @@
 #include <zeus/message/Data.hpp>
 
 void zeus::message::Data::generateDisplay(std::ostream& _os) const {
-	zeus::Buffer::generateDisplay(_os);
+	zeus::Message::generateDisplay(_os);
 	_os << " paramId=" << etk::to_string(m_parameterId);
 	_os << " part=" << etk::to_string(m_partId);
 	_os << " nbData=" << etk::to_string(m_data.size());
@@ -37,7 +37,7 @@ void zeus::message::Data::setPartId(uint32_t _value) {
 }
 
 bool zeus::message::Data::writeOn(enet::WebSocket& _interface) {
-	zeus::Buffer::writeOn(_interface);
+	zeus::Message::writeOn(_interface);
 	_interface.writeData((uint8_t*)&m_partId, sizeof(uint32_t));
 	_interface.writeData((uint8_t*)&m_parameterId, sizeof(uint16_t));
 	_interface.writeData((uint8_t*)&m_data[0], m_data.size());

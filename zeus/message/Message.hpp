@@ -121,13 +121,13 @@ namespace zeus {
 			virtual ~Message() = default;
 			/**
 			 * @brief Create a shared pointer on the buffer
-			 * @return Allocated Buffer.
+			 * @return Allocated Message.
 			 */
 			static ememory::SharedPtr<zeus::Message> create(ememory::SharedPtr<zeus::WebServer> _iface);
 			/**
 			 * @brief Create a shared pointer on the buffer
-			 * @param[in] _buffer Buffer on the data
-			 * @return Allocated Buffer.
+			 * @param[in] _buffer Message on the data
+			 * @return Allocated Message.
 			 */
 			static ememory::SharedPtr<zeus::Message> create(ememory::SharedPtr<zeus::WebServer> _iface, const std::vector<uint8_t>& _buffer);
 		protected:
@@ -151,10 +151,10 @@ namespace zeus {
 			}
 			/**
 			 * @brief When multiple frame buffer, they need to concatenate the data... call this function with the new data to append it ...
-			 * @param[in] _obj Buffer to add
+			 * @param[in] _obj Message to add
 			 */
-			void appendBuffer(ememory::SharedPtr<zeus::Message> _obj);
-			virtual void appendBufferData(ememory::SharedPtr<zeus::MessageData> _obj);
+			void appendMessage(ememory::SharedPtr<zeus::Message> _obj);
+			virtual void appendMessageData(ememory::SharedPtr<zeus::message::Data> _obj);
 		protected:
 			/**
 			 * @brief When receive new data form websocket, it might be added by this input (set all the frame ...)
@@ -249,7 +249,7 @@ namespace zeus {
 			void setDestinationObjectId(uint16_t _value);
 			/**
 			 * @brief Check if it is the last packet of the buffer
-			 * @return If "true" The Buffer wait no more datas
+			 * @return If "true" The Message wait no more datas
 			 */
 			bool getPartFinish() const;
 			/**
@@ -274,7 +274,7 @@ namespace zeus {
 	/**
 	 * @brief generate a display of the typemessage
 	 * @param[in] _os stream to add data
-	 * @value[in] _obj Buffer to display
+	 * @value[in] _obj Message to display
 	 * @return a reference of the stream
 	 */
 	std::ostream& operator <<(std::ostream& _os, ememory::SharedPtr<zeus::Message> _obj);
@@ -283,13 +283,13 @@ namespace zeus {
 		// internal:
 		/**
 		 * @brief Add a parameter generic type in the buffer
-		 * @param[in] _data Buffer to add type
+		 * @param[in] _data Message to add type
 		 * @param[in] _type generic type to add
 		 */
-		void addType(std::vector<uint8_t>& _data, zeus::ParamType _type);
+		void addType(std::vector<uint8_t>& _data, zeus::message::ParamType _type);
 		/**
 		 * @brief Add a parameter object type in the buffer
-		 * @param[in] _data Buffer to add type
+		 * @param[in] _data Message to add type
 		 * @param[in] _type string of the type to add
 		 */
 		void addTypeObject(std::vector<uint8_t>& _data, const std::string _type);

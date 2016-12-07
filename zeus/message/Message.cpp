@@ -18,16 +18,16 @@
 #include <zeus/WebServer.hpp>
 
 
-zeus::message::Message(ememory::SharedPtr<zeus::WebServer> _iface):
+zeus::Message::Message(ememory::SharedPtr<zeus::WebServer> _iface):
   m_iface(_iface) {
 	clear();
 }
 
-void zeus::message::appendBufferData(ememory::SharedPtr<zeus::MessageData> _obj) {
+void zeus::Message::appendMessageData(ememory::SharedPtr<zeus::message::Data> _obj) {
 	ZEUS_ERROR("Can not append datas ... Not managed");
 }
 
-void zeus::message::appendBuffer(ememory::SharedPtr<zeus::Message> _obj) {
+void zeus::Message::appendMessage(ememory::SharedPtr<zeus::Message> _obj) {
 	if (_obj == nullptr) {
 		return;
 	}
@@ -39,23 +39,23 @@ void zeus::message::appendBuffer(ememory::SharedPtr<zeus::Message> _obj) {
 		return;
 	}
 	setPartFinish(_obj->getPartFinish());
-	appendBufferData(ememory::staticPointerCast<zeus::MessageData>(_obj));
+	appendMessageData(ememory::staticPointerCast<zeus::message::Data>(_obj));
 }
 
-bool zeus::message::writeOn(enet::WebSocket& _interface) {
+bool zeus::Message::writeOn(enet::WebSocket& _interface) {
 	if (_interface.configHeader(false) == false) {
 		return false;
 	}
-	_interface.writeData((uint8_t*)&m_header, sizeof(headerBin));
+	_interface.writeData((uint8_t*)&m_header, sizeof(zeus::message::headerBin));
 	return true;
 }
 
 
-void zeus::message::composeWith(const uint8_t* _buffer, uint32_t _lenght) {
+void zeus::Message::composeWith(const uint8_t* _buffer, uint32_t _lenght) {
 	// impossible case
 }
 
-void zeus::message::clear() {
+void zeus::Message::clear() {
 	m_header.transactionId = 1;
 	m_header.sourceId = 0;
 	m_header.sourceObjectId = 0;
@@ -73,7 +73,7 @@ std::ostream& zeus::operator <<(std::ostream& _os, ememory::SharedPtr<zeus::Mess
 	}
 	return _os;
 }
-void zeus::message::generateDisplay(std::ostream& _os) const {
+void zeus::Message::generateDisplay(std::ostream& _os) const {
 	//out += " v=" + etk::to_string(m_header.versionProtocol); // set it in the websocket
 	_os << " if=" << etk::to_string(getInterfaceId());
 	_os << " tr-id=" << etk::to_string(getTransactionId());
@@ -86,9 +86,6 @@ void zeus::message::generateDisplay(std::ostream& _os) const {
 	switch (type) {
 		case zeus::message::type::unknow:
 			_os << " -UNKNOW-";
-			break;
-		case zeus::message::type::ctrl:
-			_os << " -CTRL-";
 			break;
 		case zeus::message::type::call:
 			_os << " -CALL-";
@@ -105,77 +102,77 @@ void zeus::message::generateDisplay(std::ostream& _os) const {
 	}
 }
 
-uint32_t zeus::message::getInterfaceId() const {
+uint32_t zeus::Message::getInterfaceId() const {
 	return m_interfaceID;
 }
 
-void zeus::message::setInterfaceId(uint32_t _value) {
+void zeus::Message::setInterfaceId(uint32_t _value) {
 	m_interfaceID = _value;
 }
 
-uint32_t zeus::message::getTransactionId() const {
+uint32_t zeus::Message::getTransactionId() const {
 	return m_header.transactionId;
 }
 
-void zeus::message::setTransactionId(uint32_t _value) {
+void zeus::Message::setTransactionId(uint32_t _value) {
 	m_header.transactionId = _value;
 }
 
-uint32_t zeus::message::getSource() const {
+uint32_t zeus::Message::getSource() const {
 	return (uint32_t(m_header.sourceId) << 16) + m_header.sourceObjectId;
 }
 
-void zeus::message::setSource(uint32_t _value) {
+void zeus::Message::setSource(uint32_t _value) {
 	m_header.sourceId = _value >> 16;
 	m_header.sourceObjectId = _value & 0xFFFF;
 }
 
-uint16_t zeus::message::getSourceId() const {
+uint16_t zeus::Message::getSourceId() const {
 	return m_header.sourceId;
 }
 
-void zeus::message::setSourceId(uint16_t _value) {
+void zeus::Message::setSourceId(uint16_t _value) {
 	m_header.sourceId = _value;
 }
 
-uint16_t zeus::message::getSourceObjectId() const {
+uint16_t zeus::Message::getSourceObjectId() const {
 	return m_header.sourceObjectId;
 }
 
-void zeus::message::setSourceObjectId(uint16_t _value) {
+void zeus::Message::setSourceObjectId(uint16_t _value) {
 	m_header.sourceObjectId = _value;
 }
 
-uint32_t zeus::message::getDestination() const {
+uint32_t zeus::Message::getDestination() const {
 	return (uint32_t(m_header.destinationId) << 16) + m_header.destinationObjectId;
 }
 
-void zeus::message::setDestination(uint32_t _value) {
+void zeus::Message::setDestination(uint32_t _value) {
 	m_header.destinationId = _value >> 16;
 	m_header.destinationObjectId = _value & 0xFFFF;
 }
 
-uint16_t zeus::message::getDestinationId() const {
+uint16_t zeus::Message::getDestinationId() const {
 	return m_header.destinationId;
 }
 
-void zeus::message::setDestinationId(uint16_t _value) {
+void zeus::Message::setDestinationId(uint16_t _value) {
 	m_header.destinationId = _value;
 }
 
-uint16_t zeus::message::getDestinationObjectId() const {
+uint16_t zeus::Message::getDestinationObjectId() const {
 	return m_header.destinationObjectId;
 }
 
-void zeus::message::setDestinationObjectId(uint16_t _value) {
+void zeus::Message::setDestinationObjectId(uint16_t _value) {
 	m_header.destinationObjectId = _value;
 }
 
-bool zeus::message::getPartFinish() const {
+bool zeus::Message::getPartFinish() const {
 	return (m_header.flags & ZEUS_BUFFER_FLAG_FINISH) != 0;
 }
 
-void zeus::message::setPartFinish(bool _value) {
+void zeus::Message::setPartFinish(bool _value) {
 	if (_value == true) {
 		m_header.flags = (m_header.flags & 0x7F) | ZEUS_BUFFER_FLAG_FINISH;
 	} else {
@@ -183,46 +180,30 @@ void zeus::message::setPartFinish(bool _value) {
 	}
 }
 
-enum zeus::message::type zeus::message::getType() const {
+enum zeus::message::type zeus::Message::getType() const {
 	return zeus::message::type::unknow;
 }
 
 // ------------------------------------------------------------------------------------
 // -- Factory
 // ------------------------------------------------------------------------------------
-ememory::SharedPtr<zeus::Message> zeus::message::create(ememory::SharedPtr<zeus::WebServer> _iface) {
+ememory::SharedPtr<zeus::Message> zeus::Message::create(ememory::SharedPtr<zeus::WebServer> _iface) {
 	return ememory::SharedPtr<zeus::Message>(new zeus::Message(_iface));
 }
 
-ememory::SharedPtr<zeus::Message> zeus::message::create(ememory::SharedPtr<zeus::WebServer> _iface, const std::vector<uint8_t>& _buffer) {
-	headerBin header;
-	if (_buffer.size() < sizeof(headerBin)) {
+ememory::SharedPtr<zeus::Message> zeus::Message::create(ememory::SharedPtr<zeus::WebServer> _iface, const std::vector<uint8_t>& _buffer) {
+	zeus::message::headerBin header;
+	if (_buffer.size() < sizeof(zeus::message::headerBin)) {
 		ZEUS_ERROR("wrong size of the buffer");
 		return nullptr;
 	}
-	memcpy(reinterpret_cast<char*>(&header), &_buffer[0], sizeof(headerBin));
-	enum zeus::message::type type = getTypeType(uint16_t(header.flags & 0x07));
+	memcpy(reinterpret_cast<char*>(&header), &_buffer[0], sizeof(zeus::message::headerBin));
+	enum zeus::message::type type = zeus::message::getTypeFromInt(uint16_t(header.flags & 0x07));
 	switch (type) {
 		case zeus::message::type::unknow:
 			return nullptr;
-		case zeus::message::type::ctrl: {
-				ememory::SharedPtr<zeus::MessageCtrl> value = zeus::MessageCtrl::create(_iface);
-				if (value == nullptr) {
-					return nullptr;
-				}
-				value->setTransactionId(header.transactionId);
-				value->setSourceId(header.sourceId);
-				value->setSourceObjectId(header.sourceObjectId);
-				value->setDestinationId(header.destinationId);
-				value->setDestinationObjectId(header.destinationObjectId);
-				value->setPartFinish((header.flags & ZEUS_BUFFER_FLAG_FINISH) != 0);
-				value->composeWith(&_buffer[sizeof(headerBin)],
-				                    _buffer.size() - sizeof(headerBin));
-				return value;
-			}
-			break;
 		case zeus::message::type::call: {
-				ememory::SharedPtr<zeus::MessageCall> value = zeus::MessageCall::create(_iface);
+				ememory::SharedPtr<zeus::message::Call> value = zeus::message::Call::create(_iface);
 				if (value == nullptr) {
 					return nullptr;
 				}
@@ -232,13 +213,13 @@ ememory::SharedPtr<zeus::Message> zeus::message::create(ememory::SharedPtr<zeus:
 				value->setDestinationId(header.destinationId);
 				value->setDestinationObjectId(header.destinationObjectId);
 				value->setPartFinish((header.flags & ZEUS_BUFFER_FLAG_FINISH) != 0);
-				value->composeWith(&_buffer[sizeof(headerBin)],
-				                    _buffer.size() - sizeof(headerBin));
+				value->composeWith(&_buffer[sizeof(zeus::message::headerBin)],
+				                    _buffer.size() - sizeof(zeus::message::headerBin));
 				return value;
 			}
 			break;
 		case zeus::message::type::answer: {
-				ememory::SharedPtr<zeus::MessageAnswer> value = zeus::MessageAnswer::create(_iface);
+				ememory::SharedPtr<zeus::message::Answer> value = zeus::message::Answer::create(_iface);
 				if (value == nullptr) {
 					return nullptr;
 				}
@@ -248,13 +229,13 @@ ememory::SharedPtr<zeus::Message> zeus::message::create(ememory::SharedPtr<zeus:
 				value->setDestinationId(header.destinationId);
 				value->setDestinationObjectId(header.destinationObjectId);
 				value->setPartFinish((header.flags & ZEUS_BUFFER_FLAG_FINISH) != 0);
-				value->composeWith(&_buffer[sizeof(headerBin)],
-				                    _buffer.size() - sizeof(headerBin));
+				value->composeWith(&_buffer[sizeof(zeus::message::headerBin)],
+				                    _buffer.size() - sizeof(zeus::message::headerBin));
 				return value;
 			}
 			break;
 		case zeus::message::type::data: {
-				ememory::SharedPtr<zeus::MessageData> value = zeus::MessageData::create(_iface);
+				ememory::SharedPtr<zeus::message::Data> value = zeus::message::Data::create(_iface);
 				if (value == nullptr) {
 					return nullptr;
 				}
@@ -264,8 +245,8 @@ ememory::SharedPtr<zeus::Message> zeus::message::create(ememory::SharedPtr<zeus:
 				value->setDestinationId(header.destinationId);
 				value->setDestinationObjectId(header.destinationObjectId);
 				value->setPartFinish((header.flags & ZEUS_BUFFER_FLAG_FINISH) != 0);
-				value->composeWith(&_buffer[sizeof(headerBin)],
-				                    _buffer.size() - sizeof(headerBin));
+				value->composeWith(&_buffer[sizeof(zeus::message::headerBin)],
+				                    _buffer.size() - sizeof(zeus::message::headerBin));
 				return value;
 			}
 			break;

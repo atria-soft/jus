@@ -16,7 +16,7 @@ namespace zeus {
 	namespace message {
 		template<>
 		bool Parameter::getParameter<bool>(const ememory::SharedPtr<zeus::WebServer>& _iface, int32_t _id) const {
-			zeus::ParamType type = getParameterType(_id);
+			zeus::message::ParamType type = getParameterType(_id);
 			const uint8_t* pointer = getParameterPointer(_id);
 			uint32_t dataSize = getParameterSize(_id);
 			if (createType<bool>() != type) {
@@ -34,7 +34,7 @@ namespace zeus {
 		template<>
 		std::string Parameter::getParameter<std::string>(const ememory::SharedPtr<zeus::WebServer>& _iface, int32_t _id) const {
 			std::string out;
-			zeus::ParamType type = getParameterType(_id);
+			zeus::message::ParamType type = getParameterType(_id);
 			const uint8_t* pointer = getParameterPointer(_id);
 			uint32_t dataSize = getParameterSize(_id);
 			out.resize(dataSize, 0);
@@ -45,7 +45,7 @@ namespace zeus {
 		
 		template<>
 		uint8_t Parameter::getParameter<uint8_t>(const ememory::SharedPtr<zeus::WebServer>& _iface, int32_t _id) const {
-			zeus::ParamType type = getParameterType(_id);
+			zeus::message::ParamType type = getParameterType(_id);
 			const uint8_t* pointer = getParameterPointer(_id);
 			uint32_t dataSize = getParameterSize(_id);
 			// TODO : Check size ...
@@ -85,7 +85,7 @@ namespace zeus {
 		}
 		template<>
 		uint16_t Parameter::getParameter<uint16_t>(const ememory::SharedPtr<zeus::WebServer>& _iface, int32_t _id) const {
-			zeus::ParamType type = getParameterType(_id);
+			zeus::message::ParamType type = getParameterType(_id);
 			const uint8_t* pointer = getParameterPointer(_id);
 			uint32_t dataSize = getParameterSize(_id);
 			// TODO : Check size ...
@@ -126,7 +126,7 @@ namespace zeus {
 		
 		template<>
 		uint32_t Parameter::getParameter<uint32_t>(const ememory::SharedPtr<zeus::WebServer>& _iface, int32_t _id) const {
-			zeus::ParamType type = getParameterType(_id);
+			zeus::message::ParamType type = getParameterType(_id);
 			const uint8_t* pointer = getParameterPointer(_id);
 			uint32_t dataSize = getParameterSize(_id);
 			// TODO : Check size ...
@@ -167,7 +167,7 @@ namespace zeus {
 		
 		template<>
 		uint64_t Parameter::getParameter<uint64_t>(const ememory::SharedPtr<zeus::WebServer>& _iface, int32_t _id) const {
-			zeus::ParamType type = getParameterType(_id);
+			zeus::message::ParamType type = getParameterType(_id);
 			const uint8_t* pointer = getParameterPointer(_id);
 			uint32_t dataSize = getParameterSize(_id);
 			// TODO : Check size ...
@@ -215,7 +215,7 @@ namespace zeus {
 		#endif
 		template<>
 		int8_t Parameter::getParameter<int8_t>(const ememory::SharedPtr<zeus::WebServer>& _iface, int32_t _id) const {
-			zeus::ParamType type = getParameterType(_id);
+			zeus::message::ParamType type = getParameterType(_id);
 			const uint8_t* pointer = getParameterPointer(_id);
 			uint32_t dataSize = getParameterSize(_id);
 			// TODO : Check size ...
@@ -256,7 +256,7 @@ namespace zeus {
 		
 		template<>
 		int16_t Parameter::getParameter<int16_t>(const ememory::SharedPtr<zeus::WebServer>& _iface, int32_t _id) const {
-			zeus::ParamType type = getParameterType(_id);
+			zeus::message::ParamType type = getParameterType(_id);
 			const uint8_t* pointer = getParameterPointer(_id);
 			uint32_t dataSize = getParameterSize(_id);
 			// TODO : Check size ...
@@ -297,7 +297,7 @@ namespace zeus {
 		
 		template<>
 		int32_t Parameter::getParameter<int32_t>(const ememory::SharedPtr<zeus::WebServer>& _iface, int32_t _id) const {
-			zeus::ParamType type = getParameterType(_id);
+			zeus::message::ParamType type = getParameterType(_id);
 			const uint8_t* pointer = getParameterPointer(_id);
 			uint32_t dataSize = getParameterSize(_id);
 			// TODO : Check size ...
@@ -338,7 +338,7 @@ namespace zeus {
 		
 		template<>
 		int64_t Parameter::getParameter<int64_t>(const ememory::SharedPtr<zeus::WebServer>& _iface, int32_t _id) const {
-			zeus::ParamType type = getParameterType(_id);
+			zeus::message::ParamType type = getParameterType(_id);
 			const uint8_t* pointer = getParameterPointer(_id);
 			uint32_t dataSize = getParameterSize(_id);
 			// TODO : Check size ...
@@ -379,7 +379,7 @@ namespace zeus {
 		
 		template<>
 		float Parameter::getParameter<float>(const ememory::SharedPtr<zeus::WebServer>& _iface, int32_t _id) const {
-			zeus::ParamType type = getParameterType(_id);
+			zeus::message::ParamType type = getParameterType(_id);
 			const uint8_t* pointer = getParameterPointer(_id);
 			uint32_t dataSize = getParameterSize(_id);
 			// TODO : Check size ...
@@ -419,7 +419,7 @@ namespace zeus {
 		}
 		template<>
 		double Parameter::getParameter<double>(const ememory::SharedPtr<zeus::WebServer>& _iface, int32_t _id) const {
-			zeus::ParamType type = getParameterType(_id);
+			zeus::message::ParamType type = getParameterType(_id);
 			const uint8_t* pointer = getParameterPointer(_id);
 			uint32_t dataSize = getParameterSize(_id);
 			// TODO : Check size ...
@@ -484,7 +484,7 @@ namespace zeus {
 		template<>
 		std::vector<uint8_t> Parameter::getParameter<std::vector<uint8_t>>(const ememory::SharedPtr<zeus::WebServer>& _iface, int32_t _id) const {
 			std::vector<uint8_t> out;
-			zeus::ParamType type = getParameterType(_id);
+			zeus::message::ParamType type = getParameterType(_id);
 			const uint8_t* pointer = getParameterPointer(_id);
 			uint32_t dataSize = getParameterSize(_id);
 			// TODO : Check size ...
@@ -574,7 +574,7 @@ namespace zeus {
 		template<>
 		std::vector<uint16_t> Parameter::getParameter<std::vector<uint16_t>>(const ememory::SharedPtr<zeus::WebServer>& _iface, int32_t _id) const {
 			std::vector<uint16_t> out;
-			zeus::ParamType type = getParameterType(_id);
+			zeus::message::ParamType type = getParameterType(_id);
 			const uint8_t* pointer = getParameterPointer(_id);
 			uint32_t dataSize = getParameterSize(_id);
 			// TODO : Check size ...
@@ -665,7 +665,7 @@ namespace zeus {
 		template<>
 		std::vector<uint32_t> Parameter::getParameter<std::vector<uint32_t>>(const ememory::SharedPtr<zeus::WebServer>& _iface, int32_t _id) const {
 			std::vector<uint32_t> out;
-			zeus::ParamType type = getParameterType(_id);
+			zeus::message::ParamType type = getParameterType(_id);
 			const uint8_t* pointer = getParameterPointer(_id);
 			uint32_t dataSize = getParameterSize(_id);
 			// TODO : Check size ...
@@ -756,7 +756,7 @@ namespace zeus {
 		template<>
 		std::vector<uint64_t> Parameter::getParameter<std::vector<uint64_t>>(const ememory::SharedPtr<zeus::WebServer>& _iface, int32_t _id) const {
 			std::vector<uint64_t> out;
-			zeus::ParamType type = getParameterType(_id);
+			zeus::message::ParamType type = getParameterType(_id);
 			const uint8_t* pointer = getParameterPointer(_id);
 			uint32_t dataSize = getParameterSize(_id);
 			// TODO : Check size ...
@@ -847,7 +847,7 @@ namespace zeus {
 		template<>
 		std::vector<int8_t> Parameter::getParameter<std::vector<int8_t>>(const ememory::SharedPtr<zeus::WebServer>& _iface, int32_t _id) const {
 			std::vector<int8_t> out;
-			zeus::ParamType type = getParameterType(_id);
+			zeus::message::ParamType type = getParameterType(_id);
 			const uint8_t* pointer = getParameterPointer(_id);
 			uint32_t dataSize = getParameterSize(_id);
 			// TODO : Check size ...
@@ -938,7 +938,7 @@ namespace zeus {
 		template<>
 		std::vector<int16_t> Parameter::getParameter<std::vector<int16_t>>(const ememory::SharedPtr<zeus::WebServer>& _iface, int32_t _id) const {
 			std::vector<int16_t> out;
-			zeus::ParamType type = getParameterType(_id);
+			zeus::message::ParamType type = getParameterType(_id);
 			const uint8_t* pointer = getParameterPointer(_id);
 			uint32_t dataSize = getParameterSize(_id);
 			// TODO : Check size ...
@@ -1029,7 +1029,7 @@ namespace zeus {
 		template<>
 		std::vector<int32_t> Parameter::getParameter<std::vector<int32_t>>(const ememory::SharedPtr<zeus::WebServer>& _iface, int32_t _id) const {
 			std::vector<int32_t> out;
-			zeus::ParamType type = getParameterType(_id);
+			zeus::message::ParamType type = getParameterType(_id);
 			const uint8_t* pointer = getParameterPointer(_id);
 			uint32_t dataSize = getParameterSize(_id);
 			// TODO : Check size ...
@@ -1120,7 +1120,7 @@ namespace zeus {
 		template<>
 		std::vector<int64_t> Parameter::getParameter<std::vector<int64_t>>(const ememory::SharedPtr<zeus::WebServer>& _iface, int32_t _id) const {
 			std::vector<int64_t> out;
-			zeus::ParamType type = getParameterType(_id);
+			zeus::message::ParamType type = getParameterType(_id);
 			const uint8_t* pointer = getParameterPointer(_id);
 			uint32_t dataSize = getParameterSize(_id);
 			// TODO : Check size ...
@@ -1211,7 +1211,7 @@ namespace zeus {
 		template<>
 		std::vector<float> Parameter::getParameter<std::vector<float>>(const ememory::SharedPtr<zeus::WebServer>& _iface, int32_t _id) const {
 			std::vector<float> out;
-			zeus::ParamType type = getParameterType(_id);
+			zeus::message::ParamType type = getParameterType(_id);
 			const uint8_t* pointer = getParameterPointer(_id);
 			uint32_t dataSize = getParameterSize(_id);
 			// TODO : Check size ...
@@ -1302,7 +1302,7 @@ namespace zeus {
 		template<>
 		std::vector<double> Parameter::getParameter<std::vector<double>>(const ememory::SharedPtr<zeus::WebServer>& _iface, int32_t _id) const {
 			std::vector<double> out;
-			zeus::ParamType type = getParameterType(_id);
+			zeus::message::ParamType type = getParameterType(_id);
 			const uint8_t* pointer = getParameterPointer(_id);
 			uint32_t dataSize = getParameterSize(_id);
 			// TODO : Check size ...
@@ -1393,7 +1393,7 @@ namespace zeus {
 		template<>
 		std::vector<bool> Parameter::getParameter<std::vector<bool>>(const ememory::SharedPtr<zeus::WebServer>& _iface, int32_t _id) const {
 			std::vector<bool> out;
-			zeus::ParamType type = getParameterType(_id);
+			zeus::message::ParamType type = getParameterType(_id);
 			const uint8_t* pointer = getParameterPointer(_id);
 			uint32_t dataSize = getParameterSize(_id);
 			// TODO : Check size ...
@@ -1415,7 +1415,7 @@ namespace zeus {
 		template<>
 		std::vector<std::string> Parameter::getParameter<std::vector<std::string>>(const ememory::SharedPtr<zeus::WebServer>& _iface, int32_t _id) const {
 			std::vector<std::string> out;
-			zeus::ParamType type = getParameterType(_id);
+			zeus::message::ParamType type = getParameterType(_id);
 			const uint8_t* pointer = getParameterPointer(_id);
 			uint32_t dataSize = getParameterSize(_id);
 			if (type == createType<std::vector<void>>()) {
@@ -1438,7 +1438,7 @@ namespace zeus {
 		}
 		template<>
 		zeus::Raw Parameter::getParameter<zeus::Raw>(const ememory::SharedPtr<zeus::WebServer>& _iface, int32_t _id) const {
-			zeus::ParamType type = getParameterType(_id);
+			zeus::message::ParamType type = getParameterType(_id);
 			const uint8_t* pointer = getParameterPointer(_id);
 			uint32_t dataSize = getParameterSize(_id);
 			// TODO : Check size ...
@@ -1454,11 +1454,11 @@ namespace zeus {
 		template<>
 		ememory::SharedPtr<zeus::ObjectRemoteBase> Parameter::getParameter<ememory::SharedPtr<zeus::ObjectRemoteBase>>(const ememory::SharedPtr<zeus::WebServer>& _iface, int32_t _id) const {
 			ememory::SharedPtr<zeus::ObjectRemoteBase> out;
-			zeus::ParamType type = getParameterType(_id);
+			zeus::message::ParamType type = getParameterType(_id);
 			const uint8_t* pointer = getParameterPointer(_id);
 			uint32_t dataSize = getParameterSize(_id);
 			// TODO : Check size ...
-			if (type.getId() == zeus::paramTypeObject) {
+			if (type.getId() == zeus::message::paramTypeObject) {
 				// Get the type string of the parameter:
 				ZEUS_VERBOSE("Get type : " << type.getName());
 				ZEUS_VERBOSE("Get id : " << getSourceId() << "/" << getSourceObjectId());

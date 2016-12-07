@@ -23,7 +23,7 @@ zeus::Object::~Object() {
 }
 
 
-void zeus::Object::receive(ememory::SharedPtr<zeus::Buffer> _value) {
+void zeus::Object::receive(ememory::SharedPtr<zeus::Message> _value) {
 	if (_value == nullptr) {
 		return;
 	}
@@ -41,20 +41,20 @@ void zeus::Object::receive(ememory::SharedPtr<zeus::Buffer> _value) {
 	}
 }
 
-void zeus::Object::callBinary(ememory::SharedPtr<zeus::Buffer> _obj) {
+void zeus::Object::callBinary(ememory::SharedPtr<zeus::Message> _obj) {
 	if (_obj == nullptr) {
 		return;
 	}
-	if (_obj->getType() == zeus::Buffer::typeMessage::event) {
+	if (_obj->getType() == zeus::message::type::event) {
 		ZEUS_ERROR("Unknow event: '...'");
 		return;
 	}
-	if (_obj->getType() == zeus::Buffer::typeMessage::answer) {
+	if (_obj->getType() == zeus::message::type::answer) {
 		ZEUS_ERROR("Local Answer: '...'");
 		return;
 	}
-	if (_obj->getType() == zeus::Buffer::typeMessage::call) {
-		ememory::SharedPtr<zeus::BufferCall> callObj = ememory::staticPointerCast<zeus::BufferCall>(_obj);
+	if (_obj->getType() == zeus::message::type::call) {
+		ememory::SharedPtr<zeus::message::Call> callObj = ememory::staticPointerCast<zeus::message::Call>(_obj);
 		uint32_t source = callObj->getSource();
 		uint32_t sourceId = callObj->getSourceId();
 		std::string callFunction = callObj->getCall();

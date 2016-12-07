@@ -29,7 +29,7 @@ namespace zeus {
 				 */
 				ParamType(const char* _name = "", uint16_t _id=0, bool _isNumber=false, bool _isVector=false);
 				/**
-				 * @copydoc zeus::ParamType::ParamType
+				 * @copydoc zeus::message::ParamType::ParamType
 				 */
 				ParamType(const std::string& _name, uint16_t _id, bool _isNumber=false, bool _isVector=false);
 				/**

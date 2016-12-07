@@ -31,9 +31,9 @@ namespace appl {
 			virtual ~IOInterface();
 			bool start(appl::GateWay* _gateway, uint16_t _id);
 			// Data arrive from the IO
-			virtual void receive(ememory::SharedPtr<zeus::Buffer> _value);
+			virtual void receive(ememory::SharedPtr<zeus::Message> _value);
 			// Data must be send to the IO
-			virtual void send(ememory::SharedPtr<zeus::Buffer> _data) = 0;
+			virtual void send(ememory::SharedPtr<zeus::Message> _data) = 0;
 			// Verify wich ID is provided by the IO
 			bool checkId(uint16_t _id) const {
 				return m_uid == _id;
@@ -43,6 +43,7 @@ namespace appl {
 			}
 			void answerProtocolError(uint32_t _transactionId, const std::string& _errorHelp);
 			virtual zeus::WebServer* getInterface() = 0;
+			virtual bool isConnected() { return false; };
 	};
 }
 

@@ -13,7 +13,7 @@ namespace zeus {
 	class WebServer;
 	namespace message {
 		class Parameter:
-		  public Buffer {
+		  public Message {
 			protected:
 				mutable std::vector<std::pair<int32_t,std::vector<uint8_t>>> m_parameter; //!< list of the parameter (offset of start data and buffer of data (subprotocol...)
 			public:
@@ -40,7 +40,7 @@ namespace zeus {
 				 * @param[in] _id Number of the parameter
 				 * @return type of the parameter
 				 */
-				zeus::ParamType getParameterType(int32_t _id) const;
+				zeus::message::ParamType getParameterType(int32_t _id) const;
 				/**
 				 * @brief Get the start pointer of the parameter
 				 * @param[in] _id Number of the parameter
@@ -87,7 +87,7 @@ namespace zeus {
 				void addParameter(const ememory::SharedPtr<zeus::WebServer>& _iface, const ZEUS_TYPE_DATA& _value) {
 					addParameter(_iface, m_parameter.size(), _value);
 				}
-				void parameterAppendBufferData(ememory::SharedPtr<zeus::BufferData> _obj);
+				void parameterAppendMessageData(ememory::SharedPtr<zeus::message::Data> _obj);
 		};
 	}
 }

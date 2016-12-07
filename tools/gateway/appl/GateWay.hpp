@@ -19,13 +19,14 @@ namespace appl {
 			ememory::SharedPtr<appl::TcpServerInput> m_interfaceNewService;
 		public:
 			eproperty::Value<std::string> propertyUserName;
+			eproperty::Value<bool> propertyRouterNo;
 			eproperty::Value<std::string> propertyRouterIp;
 			eproperty::Value<uint16_t> propertyRouterPort;
 			eproperty::Value<std::string> propertyServiceIp;
 			eproperty::Value<uint16_t> propertyServicePort;
 			eproperty::Value<uint16_t> propertyServiceMax;
 		public:
-			std::vector<ememory::SharedPtr<appl::DirectInterface>> m_listIODirect; //!< List of all service availlable with their specific connection interface
+			std::vector<ememory::SharedPtr<appl::DirectInterface>> m_listTemporaryIO; //!< List of all service availlable with their specific connection interface
 			std::vector<ememory::SharedPtr<appl::IOInterface>> m_listIO;
 			void addIO(const ememory::SharedPtr<appl::IOInterface>& _io);
 			void removeIO(const ememory::SharedPtr<appl::IOInterface>& _io);
@@ -37,8 +38,8 @@ namespace appl {
 			void stop();
 			//ememory::SharedPtr<appl::ServiceInterface> get(const std::string& _serviceName);
 			std::vector<std::string> getAllServiceName();
-			bool send(ememory::SharedPtr<zeus::Buffer> _data);
-			void newService(enet::Tcp _connection);
+			bool send(ememory::SharedPtr<zeus::Message> _data);
+			void newDirectInterface(enet::Tcp _connection);
 			void cleanIO();
 		private:
 			void onPropertyChangeClientIp();

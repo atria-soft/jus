@@ -102,7 +102,7 @@ namespace zeus {
 			 * @brief When receive data from the websocket ... call this ...
 			 * @param[in] _value New input buffer
 			 */
-			void onClientData(ememory::SharedPtr<zeus::Buffer> _value);
+			void onClientData(ememory::SharedPtr<zeus::Message> _value);
 		public:
 			/**
 			 * @brief Create a call on the interface gateway (threw the router)
@@ -116,7 +116,7 @@ namespace zeus {
 			                      const std::string& _functionName,
 			                      _ARGS&&... _args) {
 				if (m_interfaceWeb == nullptr) {
-					ememory::SharedPtr<zeus::BufferAnswer> ret = zeus::BufferAnswer::create(nullptr); // TODO : This is really a bad case ...
+					ememory::SharedPtr<zeus::message::Answer> ret = zeus::message::Answer::create(nullptr); // TODO : This is really a bad case ...
 					ret->addError("NULLPTR", "call " + _functionName + " with no interface open");
 					return zeus::FutureBase(0, ret);
 				}

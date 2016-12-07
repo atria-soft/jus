@@ -45,7 +45,7 @@ namespace appl {
 				static const int32_t m_vboIdCoord;
 				static const int32_t m_vboIdCoordTex;
 				static const int32_t m_vboIdColor;
-				ememory::SharedPtr<gale::resource::VirtualBufferObject> m_VBO;
+				ememory::SharedPtr<gale::resource::VirtualMessageObject> m_VBO;
 			protected:
 				etk::Color<float,4> m_color;
 				vec3 m_position;

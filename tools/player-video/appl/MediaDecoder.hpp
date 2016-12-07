@@ -19,32 +19,32 @@ extern "C" {
 }
 
 namespace appl {
-	class BufferElement {
+	class MessageElement {
 		public:
 			uint64_t m_id; //!< Id of the current image (must be unique)
-			echrono::Duration m_time; //!< Current time of the Buffer Element
+			echrono::Duration m_time; //!< Current time of the Message Element
 			echrono::Duration m_duration; //!< if the FPS is static ==> the duration can be set otherwise (0)
 			bool m_isUsed; //!< This buffer is used
-			BufferElement():
+			MessageElement():
 			  m_id(0),
 			  m_isUsed(false) {
 				
 			}
-			virtual ~BufferElement() = default;
+			virtual ~MessageElement() = default;
 	};
 	// class that contain all the element needed for a buffer image transfert:
-	class BufferElementVideo : public appl::BufferElement {
+	class MessageElementVideo : public appl::BufferElement {
 		public:
 			egami::Image m_image; //!< Image to manage internal data
 			ivec2 m_imagerealSize; //!< Real size of the image, in OpenGL we need power of 2 border size.
 			int32_t m_lineSize; //!< Size of a single line (in byte)
 			void setSize(const ivec2& _newSize);
-			BufferElementVideo():
+			MessageElementVideo():
 			  m_image(ivec2(32,32), egami::colorType::RGB8) {
 				
 			}
 	};
-	class BufferElementAudio : public appl::BufferElement {
+	class MessageElementAudio : public appl::BufferElement {
 		public:
 			std::vector<uint8_t> m_buffer; //!< raw audio data
 			audio::format m_format; //!< Audio format buffer
@@ -66,9 +66,9 @@ namespace appl {
 				return m_duration;
 			}
 		public:
-			std::vector<BufferElementAudio> m_audioPool;
+			std::vector<MessageElementAudio> m_audioPool;
 			echrono::Duration m_currentAudioTime;
-			std::vector<BufferElementVideo> m_videoPool;
+			std::vector<MessageElementVideo> m_videoPool;
 			echrono::Duration m_currentVideoTime;
 			bool m_updateVideoTimeStampAfterSeek;
 			int32_t audioGetOlderSlot();
@@ -126,7 +126,7 @@ namespace appl {
 			void seek(const echrono::Duration& _time) {
 				m_seek = _time;
 			}
-			void flushBuffer();
+			void flushMessage();
 			
 			void stop() override;
 	};
