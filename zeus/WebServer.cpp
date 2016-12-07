@@ -7,8 +7,8 @@
 #include <zeus/debug.hpp>
 #include <ethread/tools.hpp>
 
-#include <zeus/BufferData.hpp>
-#include <zeus/BufferCtrl.hpp>
+#include <zeus/message/Data.hpp>
+#include <zeus/message/Ctrl.hpp>
 
 
 ememory::SharedPtr<zeus::BufferCall> zeus::createBaseCall(const ememory::SharedPtr<zeus::WebServer>& _iface, uint64_t _transactionId, const uint32_t& _source, const uint32_t& _destination, const std::string& _functionName) {

@@ -4,8 +4,8 @@
  * @license APACHE v2.0 (see license file)
  */
 #pragma once
-#include <zeus/Buffer.hpp>
-#include <zeus/BufferAnswer.hpp>
+#include <zeus/message/Message.hpp>
+#include <zeus/message/Answer.hpp>
 #include <enet/WebSocket.hpp>
 #include <thread>
 #include <ememory/memory.hpp>

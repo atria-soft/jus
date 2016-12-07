@@ -4,19 +4,19 @@
  * @license APACHE v2.0 (see license file)
  */
 #include <etk/types.hpp>
-#include <zeus/Buffer.hpp>
+#include <zeus/message/Message.hpp>
 #include <zeus/debug.hpp>
-#include <zeus/ParamType.hpp>
+#include <zeus/message/ParamType.hpp>
 #include <etk/stdTools.hpp>
-#include <zeus/BufferEvent.hpp>
+#include <zeus/message/Flow.hpp>
 
 /*
 // ------------------------------------------------------------------------------------
 // -- Factory
 // ------------------------------------------------------------------------------------
 
-ememory::SharedPtr<zeus::BufferEvent> zeus::BufferEvent::create() {
-	return ememory::SharedPtr<zeus::BufferEvent>(new zeus::BufferEvent);
+ememory::SharedPtr<zeus::BufferFlow> zeus::BufferFlow::create() {
+	return ememory::SharedPtr<zeus::BufferFlow>(new zeus::BufferFlow);
 }
 */
 

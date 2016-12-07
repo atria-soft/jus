@@ -4,25 +4,25 @@
  * @license APACHE v2.0 (see license file)
  */
 
-#include <zeus/BaseProxy.hpp>
+#include <zeus/Proxy.hpp>
 #include <zeus/debug.hpp>
 
-const zeus::BaseProxy& zeus::BaseProxy::operator= (const zeus::ObjectRemote& _obj) {
+const zeus::Proxy& zeus::Proxy::operator= (const zeus::ObjectRemote& _obj) {
 	m_obj = _obj;
 	return *this;
 }
 
-zeus::BaseProxy::BaseProxy():
+zeus::Proxy::Proxy():
   sys(m_obj) {
 	
 }
 
-zeus::BaseProxy::BaseProxy(const zeus::ObjectRemote& _obj):
+zeus::Proxy::Proxy(const zeus::ObjectRemote& _obj):
   m_obj(_obj),
   sys(m_obj) {
 	
 }
 
-bool zeus::BaseProxy::exist() const {
+bool zeus::Proxy::exist() const {
 	return m_obj.exist();
 }

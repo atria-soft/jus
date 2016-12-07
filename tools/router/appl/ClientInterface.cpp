@@ -8,7 +8,7 @@
 #include <appl/ClientInterface.hpp>
 #include <zeus/Future.hpp>
 #include <appl/Router.hpp>
-#include <zeus/BufferCtrl.hpp>
+#include <zeus/message/Ctrl.hpp>
 
 
 #include <zeus/AbstractFunction.hpp>

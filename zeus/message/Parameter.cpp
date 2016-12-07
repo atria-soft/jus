@@ -4,20 +4,20 @@
  * @license APACHE v2.0 (see license file)
  */
 #include <etk/types.hpp>
-#include <zeus/Buffer.hpp>
-#include <zeus/BufferData.hpp>
+#include <zeus/message/Message.hpp>
+#include <zeus/message/Data.hpp>
 #include <zeus/debug.hpp>
-#include <zeus/ParamType.hpp>
+#include <zeus/message/ParamType.hpp>
 #include <etk/stdTools.hpp>
-#include <zeus/BufferParameter.hpp>
+#include <zeus/message/Parameter.hpp>
 #include <zeus/File.hpp>
 
-zeus::BufferParameter::BufferParameter(ememory::SharedPtr<zeus::WebServer> _iface):
+zeus::message::Parameter::Parameter(ememory::SharedPtr<zeus::WebServer> _iface):
   Buffer(_iface) {
 	
 }
 
-bool zeus::BufferParameter::writeOn(enet::WebSocket& _interface) {
+bool zeus::message::Parameter::writeOn(enet::WebSocket& _interface) {
 	uint8_t* data = nullptr;
 	uint32_t dataSize = 0;
 	uint16_t nbParameters = m_parameter.size();
@@ -30,7 +30,7 @@ bool zeus::BufferParameter::writeOn(enet::WebSocket& _interface) {
 	return true;
 }
 
-void zeus::BufferParameter::composeWith(const uint8_t* _buffer, uint32_t _lenght) {
+void zeus::message::Parameter::composeWith(const uint8_t* _buffer, uint32_t _lenght) {
 	m_parameter.clear();
 	uint16_t nbParameters = 0;
 	if (_lenght < sizeof(uint16_t)) {
@@ -62,7 +62,7 @@ void zeus::BufferParameter::composeWith(const uint8_t* _buffer, uint32_t _lenght
 	}
 }
 
-zeus::ParamType zeus::BufferParameter::getParameterType(int32_t _id) const {
+zeus::ParamType zeus::message::Parameter::getParameterType(int32_t _id) const {
 	if (m_parameter.size() <= _id) {
 		ZEUS_ERROR("out of range Id for parameter ... " << _id << " have " << m_parameter.size());
 		return createType<void>();
@@ -121,7 +121,7 @@ zeus::ParamType zeus::BufferParameter::getParameterType(int32_t _id) const {
 	return createType<void>();
 }
 
-const uint8_t* zeus::BufferParameter::getParameterPointer(int32_t _id) const {
+const uint8_t* zeus::message::Parameter::getParameterPointer(int32_t _id) const {
 	const uint8_t* out = nullptr;
 	if (m_parameter.size() <= _id) {
 		ZEUS_ERROR("out of range Id for parameter ... " << _id << " have " << m_parameter.size());
@@ -134,7 +134,7 @@ const uint8_t* zeus::BufferParameter::getParameterPointer(int32_t _id) const {
 	return out;
 }
 
-uint32_t zeus::BufferParameter::getParameterSize(int32_t _id) const {
+uint32_t zeus::message::Parameter::getParameterSize(int32_t _id) const {
 	int32_t out = 0;
 	if (m_parameter.size() <= _id) {
 		ZEUS_ERROR("out of range Id for parameter ... " << _id << " have " << m_parameter.size());
@@ -146,11 +146,11 @@ uint32_t zeus::BufferParameter::getParameterSize(int32_t _id) const {
 	return m_parameter[_id].second.size() - m_parameter[_id].first;
 }
 
-uint16_t zeus::BufferParameter::getNumberParameter() const {
+uint16_t zeus::message::Parameter::getNumberParameter() const {
 	return m_parameter.size();
 }
 
-std::string zeus::BufferParameter::simpleStringParam(uint32_t _id) const {
+std::string zeus::message::Parameter::simpleStringParam(uint32_t _id) const {
 	zeus::ParamType paramType = getParameterType(_id);
 	if (paramType.isVector() == false) {
 		if (paramType.isNumber() == true) {
@@ -169,7 +169,7 @@ std::string zeus::BufferParameter::simpleStringParam(uint32_t _id) const {
 	return paramType.getName();
 }
 
-void zeus::BufferParameter::parameterAppendBufferData(ememory::SharedPtr<zeus::BufferData> _obj) {
+void zeus::message::Parameter::parameterAppendBufferData(ememory::SharedPtr<zeus::BufferData> _obj) {
 	// At this point we just add data at the parameter value:
 	uint16_t parameterID = _obj->getParameterId();
 	

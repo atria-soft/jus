@@ -6,22 +6,22 @@
 #pragma once
 
 #include <zeus/ObjectRemote.hpp>
-#include <zeus/SystemProxy.hpp>
+#include <zeus/ObjectIntrospection.hpp>
 
 namespace zeus {
 	/**
 	 * @brief Proxy base interface
 	 */
-	class BaseProxy {
+	class Proxy {
 		protected:
 			zeus::ObjectRemote m_obj; //!< Service instance handle
 		public:
-			zeus::SystemProxy sys;
+			zeus::ObjectIntrospection sys;
 		public:
-			const BaseProxy& operator= (const zeus::ObjectRemote& _srv);
-			BaseProxy();
-			virtual ~BaseProxy() = default;
-			BaseProxy(const zeus::ObjectRemote& _srv);
+			const Proxy& operator= (const zeus::ObjectRemote& _srv);
+			Proxy();
+			virtual ~Proxy() = default;
+			Proxy(const zeus::ObjectRemote& _srv);
 			bool exist() const;
 	};
 }

@@ -37,69 +37,90 @@ def configure(target, my_module):
 	    'zeus/debug.cpp'
 	    ])
 	my_module.add_path(".")
+	# Future and promise interface
+	my_module.add_src_file([
+	    'zeus/FutureBase.cpp',
+	    'zeus/Future.cpp',
+	    'zeus/Promise.cpp',
+	    ])
+	my_module.add_header_file([
+	    'zeus/Promise.hpp',
+	    'zeus/FutureBase.hpp',
+	    'zeus/Future.hpp',
+	    ])
+	
+	# messaging interface
+	my_module.add_src_file([
+	    'zeus/message/Message.cpp',
+	    'zeus/message/Parameter.cpp',
+	    'zeus/message/Call.cpp',
+	    'zeus/message/Answer.cpp',
+	    'zeus/message/Data.cpp',
+	    'zeus/message/Event.cpp',
+	    'zeus/message/Flow.cpp',
+	    'zeus/message/Parameter_addParameter.cpp',
+	    'zeus/message/Parameter_getParameter.cpp',
+	    'zeus/message/ParamType.cpp',
+	    'zeus/message/type.cpp',
+	    ])
+	my_module.add_header_file([
+	    'zeus/message/Message.hpp',
+	    'zeus/message/Parameter.hpp',
+	    'zeus/message/Call.hpp',
+	    'zeus/message/Answer.hpp',
+	    'zeus/message/Data.hpp',
+	    'zeus/message/Event.hpp',
+	    'zeus/message/Flow.hpp',
+	    'zeus/message/ParamType.hpp',
+	    'zeus/message/type.hpp',
+	    ])
+	# complexe object interface
+	my_module.add_src_file([
+	    'zeus/Object.cpp',
+	    'zeus/ObjectIntrospect.cpp',
+	    'zeus/ObjectRemote.cpp',
+	    'zeus/Proxy.cpp',
+	    ])
+	my_module.add_header_file([
+	    'zeus/Object.hpp',
+	    'zeus/ObjectIntrospect.hpp',
+	    'zeus/ObjectRemote.hpp',
+	    'zeus/Proxy.hpp',
+	    ])
+	# other ...
 	my_module.add_src_file([
 	    'zeus/zeus.cpp',
 	    'zeus/AbstractFunction.cpp',
-	    'zeus/FutureBase.cpp',
-	    'zeus/Future.cpp',
 	    'zeus/Raw.cpp',
-	    'zeus/FileImpl.cpp',
-	    'zeus/Buffer.cpp',
-	    'zeus/BufferParameter.cpp',
-	    'zeus/BufferCall.cpp',
-	    'zeus/BufferCtrl.cpp',
-	    'zeus/BufferAnswer.cpp',
-	    'zeus/BufferData.cpp',
-	    'zeus/BufferEvent.cpp',
-	    'zeus/BufferFlow.cpp',
-	    'zeus/BufferParameter_addParameter.cpp',
-	    'zeus/BufferParameter_getParameter.cpp',
-	    'zeus/ParamType.cpp',
 	    'zeus/Client.cpp',
-	    'zeus/Object.cpp',
-	    'zeus/ObjectRemote.cpp',
 	    'zeus/RemoteProcessCall.cpp',
 	    'zeus/WebServer.cpp',
 	    'zeus/mineType.cpp',
-	    'zeus/BaseProxy.cpp',
-	    'zeus/SystemProxy.cpp',
-	    'zeus/RemoteProperty.cpp',
 	    ])
 	my_module.add_header_file([
+	    'zeus/Raw.hpp',
 	    'zeus/zeus.hpp',
 	    'zeus/AbstractFunction.hpp',
 	    'zeus/AbstractFunctionTypeDirect.hpp',
 	    'zeus/AbstractFunctionTypeClass.hpp',
-	    'zeus/FutureData.hpp',
-	    'zeus/FutureBase.hpp',
-	    'zeus/Future.hpp',
-	    'zeus/Raw.hpp',
-	    'zeus/FileImpl.hpp',
-	    'zeus/Buffer.hpp',
-	    'zeus/BufferParameter.hpp',
-	    'zeus/BufferCall.hpp',
-	    'zeus/BufferCtrl.hpp',
-	    'zeus/BufferAnswer.hpp',
-	    'zeus/BufferData.hpp',
-	    'zeus/BufferEvent.hpp',
-	    'zeus/BufferFlow.hpp',
-	    'zeus/ParamType.hpp',
 	    'zeus/debug.hpp',
 	    'zeus/Client.hpp',
-	    'zeus/Object.hpp',
-	    'zeus/ObjectRemote.hpp',
 	    'zeus/RemoteProcessCall.hpp',
 	    'zeus/WebObj.hpp',
 	    'zeus/WebServer.hpp',
 	    'zeus/mineType.hpp',
-	    'zeus/BaseProxy.hpp',
 	    'zeus/RemoteProperty.hpp',
-	    'zeus/SystemProxy.hpp',
 	    ])
 	
 	# add basic object:
 	zeus_macro = macro.load_macro('zeus')
 	zeus_macro.parse_object_idl(my_module, 'zeus/zeus-File.obj.zeus.idl')
+	my_module.add_src_file([
+	    'zeus/zeus-File.impl.cpp',
+	    ])
+	my_module.add_header_file([
+	    'zeus/zeus-File.impl.hpp',
+	    ])
 	
 	if target.config["compilator"] == "clang":
 		my_module.add_flag('c++', "-Wno-unsequenced", export=True)

@@ -5,31 +5,36 @@
  */
 #pragma once
 
-#include <zeus/Promise.hpp>
+#include <etk/types.hpp>
+#include <zeus/message/Message.hpp>
+#include <functional>
+#include <ememory/memory.hpp>
+
 
 namespace zeus {
+	class FutureBase;
 	/**
-	 * @brief Generic zeus Future interface to get data asynchronously
+	 * @brief Data interface of the future (the future can be copied, but the data need to stay...
 	 */
-	class FutureBase {
+	class Promise {
 		public:
-			ememory::SharedPtr<zeus::Promise> m_promise; // Reference on the data
+			using Observer = std::function<bool(zeus::FutureBase)>; //!< Define an Observer: function pointer
+		private:
+			uint32_t m_transactionId; //!< waiting answer data
+			uint32_t m_source; //!< Source of the message.
+			ememory::SharedPtr<zeus::message::Message> m_message; //!< all buffer concatenate or last buffer if synchronous
+			Observer m_callbackThen; //!< observer callback When data arrive and NO error appear
+			Observer m_callbackElse; //!< observer callback When data arrive and AN error appear
+			//Observer m_callbackAbort; //!< observer callback When Action is abort by user
+			echrono::Steady m_sendTime; //!< time when the future has been sended request
+			echrono::Steady m_receiveTime; //!< time when the future has receve answer
 		public:
-			/**
-			 * @brief Copy contructor of a FutureBase
-			 * @param[in] _base the FutureBase to copy
-			 */
-			FutureBase(const zeus::FutureBase& _base);
-			/**
-			 * @brief contructor of a FutureBase
-			 */
-			FutureBase();
 			/**
 			 * @brief Contructor of the FutureBase with an ofserver
 			 * @param[in] _transactionId Transaction waiting answer
 			 * @param[in] _source Client/sevice Id waiting answer
 			 */
-			FutureBase(uint32_t _transactionId, uint32_t _source=0);
+			Promise(uint32_t _transactionId, uint32_t _source=0);
 			/**
 			 * @brief Contructor of the FutureBase for direct error answer
 			 * @param[in] _transactionId Transaction waiting answer
@@ -37,7 +42,7 @@ namespace zeus {
 			 * @param[in] _returnData Set return value
 			 * @param[in] _source Source that is waiting for answer
 			 */
-			FutureBase(uint32_t _transactionId, ememory::SharedPtr<zeus::message::Message> _returnData, uint32_t _source=0);
+			Promise(uint32_t _transactionId, ememory::SharedPtr<zeus::message::Message> _returnData, uint32_t _source=0);
 			/**
 			 * @brief Attach callback on all return type of value
 			 * @param[in] _callback Handle on the function to call in all case
@@ -60,12 +65,6 @@ namespace zeus {
 			 * /
 			void andAbort(zeus::Promise::Observer _callback); // an abort is  requested in the actiron ...
 			*/
-			/**
-			 * @brief Asignement operator with an other future
-			 * @param[in] _base Generic base Future
-			 * @return the reference on the local element
-			 */
-			zeus::FutureBase operator= (const zeus::FutureBase& _base);
 			/**
 			 * @brief Add data on the call/answer
 			 * @param[in] _returnValue Returned buffer
@@ -97,11 +96,6 @@ namespace zeus {
 			 * @return the string of the error help
 			 */
 			std::string getErrorHelp() const;
-			/**
-			 * @brief Check if the Futur is a valid data
-			 * @return return true if the data is valid
-			 */
-			bool isValid() const;
 			/**
 			 * @brief Check if the futur have finish receiving data
 			 * @return status of the fisnish state

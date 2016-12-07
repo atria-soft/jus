@@ -30,7 +30,7 @@ namespace zeus {
 			 * @return the reference on the local element
 			 */
 			zeus::Future<ZEUS_RETURN>& operator= (const zeus::FutureBase& _base) {
-				m_data = _base.m_data;
+				m_promise = _base.m_promise;
 				return *this;
 			}
 			/**
@@ -46,19 +46,19 @@ namespace zeus {
 				zeus::FutureBase::wait();
 				return *this;
 			}
-			const Future<ZEUS_RETURN>& waitFor(std::chrono::microseconds _delta = std::chrono::seconds(30)) const {
+			const Future<ZEUS_RETURN>& waitFor(echrono::Duration _delta = echrono::seconds(30)) const {
 				zeus::FutureBase::waitFor(_delta);
 				return *this;
 			}
-			Future<ZEUS_RETURN>& waitFor(std::chrono::microseconds _delta = std::chrono::seconds(30)) {
+			Future<ZEUS_RETURN>& waitFor(echrono::Duration _delta = echrono::seconds(30)) {
 				zeus::FutureBase::waitFor(_delta);
 				return *this;
 			}
-			const Future<ZEUS_RETURN>& waitUntil(std::chrono::steady_clock::time_point _endTime) const {
+			const Future<ZEUS_RETURN>& waitUntil(echrono::Steady _endTime) const {
 				zeus::FutureBase::waitUntil(_endTime);
 				return *this;
 			}
-			Future<ZEUS_RETURN>& waitUntil(std::chrono::steady_clock::time_point _endTime) {
+			Future<ZEUS_RETURN>& waitUntil(echrono::Steady _endTime) {
 				zeus::FutureBase::waitUntil(_endTime);
 				return *this;
 			}
@@ -83,7 +83,7 @@ namespace zeus {
 			 * @return the reference on the local element
 			 */
 			zeus::Future<void>& operator= (const zeus::FutureBase& _base) {
-				m_data = _base.m_data;
+				m_promise = _base.m_promise;
 				return *this;
 			}
 			const Future<void>& wait() const {
@@ -94,19 +94,19 @@ namespace zeus {
 				zeus::FutureBase::wait();
 				return *this;
 			}
-			const Future<void>& waitFor(std::chrono::microseconds _delta = std::chrono::seconds(30)) const {
+			const Future<void>& waitFor(echrono::Duration _delta = echrono::seconds(30)) const {
 				zeus::FutureBase::waitFor(_delta);
 				return *this;
 			}
-			Future<void>& waitFor(std::chrono::microseconds _delta = std::chrono::seconds(30)) {
+			Future<void>& waitFor(echrono::Duration _delta = echrono::seconds(30)) {
 				zeus::FutureBase::waitFor(_delta);
 				return *this;
 			}
-			const Future<void>& waitUntil(std::chrono::steady_clock::time_point _endTime) const {
+			const Future<void>& waitUntil(echrono::Steady _endTime) const {
 				zeus::FutureBase::waitUntil(_endTime);
 				return *this;
 			}
-			Future<void>& waitUntil(std::chrono::steady_clock::time_point _endTime) {
+			Future<void>& waitUntil(echrono::Steady _endTime) {
 				zeus::FutureBase::waitUntil(_endTime);
 				return *this;
 			}

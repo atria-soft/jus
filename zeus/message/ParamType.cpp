@@ -4,12 +4,12 @@
  * @license APACHE v2.0 (see license file)
  */
 
-#include <zeus/ParamType.hpp>
+#include <zeus/message/ParamType.hpp>
 #include <zeus/debug.hpp>
 #include <zeus/File.hpp>
 
 
-bool zeus::checkCompatibility(const ParamType& _type, const ParamType& _params) {
+bool zeus::message::checkCompatibility(const ParamType& _type, const ParamType& _params) {
 	if (_params == _type) {
 		return true;
 	}
@@ -22,19 +22,19 @@ bool zeus::checkCompatibility(const ParamType& _type, const ParamType& _params) 
 }
 
 
-std::ostream& zeus::operator <<(std::ostream& _os, const zeus::ParamType& _obj) {
+std::ostream& zeus::message::operator <<(std::ostream& _os, const zeus::message::ParamType& _obj) {
 	_os << "{" << _obj.getId() << ":" << _obj.getName() << "}";
 	return _os;
 }
 
-zeus::ParamType::ParamType(const char* _name, uint16_t _id, bool _isNumber, bool _isVector):
+zeus::message::ParamType::ParamType(const char* _name, uint16_t _id, bool _isNumber, bool _isVector):
   m_typeName(_name),
   m_id(_id),
   m_isNumber(_isNumber),
   m_isVector(_isVector) {
 	
 }
-zeus::ParamType::ParamType(const std::string& _name, uint16_t _id, bool _isNumber, bool _isVector):
+zeus::message::ParamType::ParamType(const std::string& _name, uint16_t _id, bool _isNumber, bool _isVector):
   m_typeName(_name),
   m_id(_id),
   m_isNumber(_isNumber),
@@ -42,22 +42,22 @@ zeus::ParamType::ParamType(const std::string& _name, uint16_t _id, bool _isNumbe
 	
 }
 
-bool zeus::ParamType::isNumber() const {
+bool zeus::message::ParamType::isNumber() const {
 	return m_isNumber;
 }
 
-bool zeus::ParamType::isVector() const {
+bool zeus::message::ParamType::isVector() const {
 	return m_isVector;
 }
-const std::string& zeus::ParamType::getName() const {
+const std::string& zeus::message::ParamType::getName() const {
 	return m_typeName;
 }
 
-uint16_t zeus::ParamType::getId() const {
+uint16_t zeus::message::ParamType::getId() const {
 	return m_id;
 }
 
-bool zeus::ParamType::operator == (const ParamType& _obj) const {
+bool zeus::message::ParamType::operator == (const ParamType& _obj) const {
 	if (m_id != _obj.m_id) {
 		return false;
 	}
@@ -66,7 +66,7 @@ bool zeus::ParamType::operator == (const ParamType& _obj) const {
 	}
 	return true;
 }
-bool zeus::ParamType::operator != (const ParamType& _obj) const {
+bool zeus::message::ParamType::operator != (const ParamType& _obj) const {
 	if (m_id != _obj.m_id) {
 		return true;
 	}
@@ -76,25 +76,25 @@ bool zeus::ParamType::operator != (const ParamType& _obj) const {
 	return false;
 }
 
-bool zeus::ParamType::operator == (const std::string& _value) const {
+bool zeus::message::ParamType::operator == (const std::string& _value) const {
 	return _value == m_typeName;
 }
-bool zeus::ParamType::operator != (const std::string& _value) const {
+bool zeus::message::ParamType::operator != (const std::string& _value) const {
 	return _value != m_typeName;
 }
 
-bool zeus::ParamType::operator == (const uint16_t& _value) const {
+bool zeus::message::ParamType::operator == (const uint16_t& _value) const {
 	return _value == m_id;
 }
 
-bool zeus::ParamType::operator != (const uint16_t& _value) const {
+bool zeus::message::ParamType::operator != (const uint16_t& _value) const {
 	return _value != m_id;
 }
 
 #define generate_basic_type(_type, _name, _id, _num, _vect) \
 namespace zeus { \
-	template<> const zeus::ParamType& createType<_type>() {\
-		static zeus::ParamType type(_name, _id, _num, _vect); \
+	template<> const zeus::message::ParamType& createType<_type>() {\
+		static zeus::message::ParamType type(_name, _id, _num, _vect); \
 		return type; \
 	} \
 }
@@ -134,5 +134,5 @@ generate_basic_type(zeus::File, "file", 0x000E, false, false);
 generate_basic_type(zeus::FileServer, "file", 0x000E, false, false);
 #endif
 
-const uint16_t zeus::paramTypeObject = 0xFFFF;
+const uint16_t zeus::message::ParamTypeObject = 0xFFFF;
 

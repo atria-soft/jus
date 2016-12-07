@@ -4,13 +4,13 @@
  * @license APACHE v2.0 (see license file)
  */
 #include <etk/types.hpp>
-#include <zeus/Buffer.hpp>
+#include <zeus/message/Message.hpp>
 #include <zeus/debug.hpp>
-#include <zeus/ParamType.hpp>
+#include <zeus/message/ParamType.hpp>
 #include <etk/stdTools.hpp>
-#include <zeus/BufferAnswer.hpp>
+#include <zeus/message/Answer.hpp>
 
-void zeus::BufferAnswer::generateDisplay(std::ostream& _os) const {
+void zeus::message::Answer::generateDisplay(std::ostream& _os) const {
 	zeus::Buffer::generateDisplay(_os);
 	if (getNumberParameter() != 0) {
 		_os << " '" + simpleStringParam(0) + "'";
@@ -22,24 +22,24 @@ void zeus::BufferAnswer::generateDisplay(std::ostream& _os) const {
 	}
 }
 
-bool zeus::BufferAnswer::hasError() const {
+bool zeus::message::Answer::hasError() const {
 	return m_errorType.size() != 0;
 }
 
-const std::string& zeus::BufferAnswer::getError() const {
+const std::string& zeus::message::Answer::getError() const {
 	return m_errorType;
 }
 
-const std::string& zeus::BufferAnswer::getErrorHelp() const {
+const std::string& zeus::message::Answer::getErrorHelp() const {
 	return m_errorHelp;
 }
 
-void zeus::BufferAnswer::addError(const std::string& _value, const std::string& _comment) {
+void zeus::message::Answer::addError(const std::string& _value, const std::string& _comment) {
 	m_errorType = _value;
 	m_errorHelp = _comment;
 }
 
-bool zeus::BufferAnswer::writeOn(enet::WebSocket& _interface) {
+bool zeus::message::Answer::writeOn(enet::WebSocket& _interface) {
 	zeus::Buffer::writeOn(_interface);
 	_interface.writeData((uint8_t*)m_errorType.c_str(), m_errorType.size() + 1);
 	if (m_errorType.size() != 0) {
@@ -48,7 +48,7 @@ bool zeus::BufferAnswer::writeOn(enet::WebSocket& _interface) {
 	return BufferParameter::writeOn(_interface);
 }
 
-void zeus::BufferAnswer::composeWith(const uint8_t* _buffer, uint32_t _lenght) {
+void zeus::message::Answer::composeWith(const uint8_t* _buffer, uint32_t _lenght) {
 	// First element iw the call name, after, this is the parameters...
 	// parse the string: (call name)
 	uint32_t pos = 0;
@@ -72,7 +72,7 @@ void zeus::BufferAnswer::composeWith(const uint8_t* _buffer, uint32_t _lenght) {
 	BufferParameter::composeWith(&_buffer[pos], _lenght-pos);
 }
 
-void zeus::BufferAnswer::appendBufferData(ememory::SharedPtr<zeus::BufferData> _obj) {
+void zeus::message::Answer::appendBufferData(ememory::SharedPtr<zeus::message::Data> _obj) {
 	parameterAppendBufferData(_obj);
 }
 
@@ -80,7 +80,7 @@ void zeus::BufferAnswer::appendBufferData(ememory::SharedPtr<zeus::BufferData> _
 // -- Factory
 // ------------------------------------------------------------------------------------
 
-ememory::SharedPtr<zeus::BufferAnswer> zeus::BufferAnswer::create(ememory::SharedPtr<zeus::WebServer> _iface) {
-	return ememory::SharedPtr<zeus::BufferAnswer>(new zeus::BufferAnswer(_iface));
+ememory::SharedPtr<zeus::message::Answer> zeus::message::Answer::create(ememory::SharedPtr<zeus::WebServer> _iface) {
+	return ememory::SharedPtr<zeus::message::Answer>(new zeus::message::Answer(_iface));
 }
 

@@ -5,10 +5,10 @@
  */
 #pragma once
 #include <zeus/debug.hpp>
-#include <zeus/ParamType.hpp>
+#include <zeus/message/ParamType.hpp>
 #include <zeus/File.hpp>
-#include <zeus/Buffer.hpp>
-#include <zeus/BufferCall.hpp>
+#include <zeus/message/Message.hpp>
+#include <zeus/message/Call.hpp>
 #include <ememory/memory.hpp>
 
 
