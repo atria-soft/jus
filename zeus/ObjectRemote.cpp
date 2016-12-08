@@ -15,9 +15,15 @@ zeus::ObjectRemoteBase::ObjectRemoteBase(const ememory::SharedPtr<zeus::WebServe
   m_remoteAddress(_address),
   m_isLinked(false) {
 	m_isLinked = true;
+	ZEUS_INFO("[" << m_id << "/" << m_objectId << "] create => to remote [" << (m_remoteAddress>>16) << "/" << (m_remoteAddress&0xFFFF) << "]");
+}
+
+void zeus::ObjectRemoteBase::display() {
+	ZEUS_INFO("    - [" << m_id << "/" << m_objectId << "] => [" << (m_remoteAddress>>16) << "/" << (m_remoteAddress&0xFFFF) << "]");
 }
 
 zeus::ObjectRemoteBase::~ObjectRemoteBase() {
+	ZEUS_INFO("[" << m_id << "/" << m_objectId << "] DESTROY => to remote [" << (m_remoteAddress>>16) << "/" << (m_remoteAddress&0xFFFF) << "]");
 	if (m_isLinked == true) {
 		uint32_t tmpLocalService = m_remoteAddress;
 		// little hack : Call the service manager with the service ID=0 ...

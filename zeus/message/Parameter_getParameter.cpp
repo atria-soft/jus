@@ -1473,7 +1473,7 @@ namespace zeus {
 					uint16_t id    = _iface2->getAddress();
 					uint16_t idObj = _iface2->getNewObjectId();
 					out = ememory::makeShared<zeus::ObjectRemoteBase>(_iface, id, idObj, serviceAddress, type.getName());
-					_iface2->addWebObj(out);
+					_iface2->addWebObjRemote(out);
 				} else {
 					ZEUS_ERROR("missing interface to crate object: '" << type << "'");
 				}

@@ -31,6 +31,9 @@ namespace appl {
 			bool checkId(uint16_t _id) const {
 				return m_uid == _id;
 			}
+			uint16_t getId() const {
+				return m_uid;
+			}
 			bool isAlive();
 			
 			void answerProtocolError(uint32_t _transactionId, const std::string& _errorHelp);

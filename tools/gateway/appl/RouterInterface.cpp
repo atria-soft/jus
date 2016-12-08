@@ -18,15 +18,15 @@ static const std::string protocolError = "PROTOCOL-ERROR";
 appl::clientSpecificInterface::clientSpecificInterface() {
 	m_uid = 0;
 	m_state = appl::clientState::unconnect;
-	APPL_INFO("----------------");
-	APPL_INFO("-- NEW Client --");
-	APPL_INFO("----------------");
+	APPL_INFO("-------------------------------");
+	APPL_INFO("-- NEW Client (threw router) --");
+	APPL_INFO("-------------------------------");
 }
 
 appl::clientSpecificInterface::~clientSpecificInterface() {
-	APPL_INFO("-------------------");
-	APPL_INFO("-- DELETE Client --");
-	APPL_INFO("-------------------");
+	APPL_INFO("----------------------------------");
+	APPL_INFO("-- DELETE Client (threw router) --");
+	APPL_INFO("----------------------------------");
 }
 
 zeus::WebServer* appl::clientSpecificInterface::getInterface() {
@@ -35,6 +35,9 @@ zeus::WebServer* appl::clientSpecificInterface::getInterface() {
 
 bool appl::clientSpecificInterface::isConnected() {
 	if (m_interfaceWeb == nullptr) {
+		return false;
+	}
+	if (m_state == appl::clientState::unconnect) {
 		return false;
 	}
 	return m_interfaceWeb->isActive();

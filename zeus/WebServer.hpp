@@ -6,6 +6,8 @@
 #pragma once
 #include <zeus/message/Message.hpp>
 #include <zeus/message/Answer.hpp>
+#include <zeus/message/Event.hpp>
+#include <zeus/message/Call.hpp>
 #include <enet/WebSocket.hpp>
 #include <thread>
 #include <ememory/memory.hpp>
@@ -25,16 +27,18 @@
 
 namespace zeus {
 	class WebServer;
+	class ObjectRemoteBase;
 	/**
 	 * @brief 
 	 * @param[in] 
 	 * @return 
 	 */
-	ememory::SharedPtr<zeus::message::Call> createBaseCall(const ememory::SharedPtr<zeus::WebServer>& _iface,
-	                                                    uint64_t _transactionId,
-	                                                    const uint32_t& _source,
-	                                                    const uint32_t& _destination,
-	                                                    const std::string& _functionName);
+	ememory::SharedPtr<zeus::message::Call> createBaseCall(bool _isEvent,
+	                                                       const ememory::SharedPtr<zeus::WebServer>& _iface,
+	                                                       uint64_t _transactionId,
+	                                                       const uint32_t& _source,
+	                                                       const uint32_t& _destination,
+	                                                       const std::string& _functionName);
 	/**
 	 * @brief 
 	 * @param[in] 
@@ -79,15 +83,14 @@ namespace zeus {
 	 * @return 
 	 */
 	template<class... _ARGS>
-	ememory::SharedPtr<zeus::message::Call> createCall(const ememory::SharedPtr<zeus::WebServer>& _iface, uint64_t _transactionId, const uint32_t& _source, const uint32_t& _destination, const std::string& _functionName, _ARGS&&... _args) {
-		ememory::SharedPtr<zeus::message::Call> callElem = createBaseCall(_iface, _transactionId, _source, _destination, _functionName);
+	ememory::SharedPtr<zeus::message::Call> createCall(bool _isEvent, const ememory::SharedPtr<zeus::WebServer>& _iface, uint64_t _transactionId, const uint32_t& _source, const uint32_t& _destination, const std::string& _functionName, _ARGS&&... _args) {
+		ememory::SharedPtr<zeus::message::Call> callElem = createBaseCall(_isEvent, _iface, _transactionId, _source, _destination, _functionName);
 		if (callElem == nullptr) {
 			return nullptr;
 		}
 		createParam(_iface, 0, callElem, std::forward<_ARGS>(_args)...);
 		return callElem;
 	}
-	
 	/**
 	 * @brief 
 	 */
@@ -112,8 +115,14 @@ namespace zeus {
 			}
 		private:
 			std::vector<ememory::SharedPtr<zeus::WebObj>> m_listObject;
+			std::vector<ememory::WeakPtr<zeus::ObjectRemoteBase>> m_listRemoteObject;
 		public:
 			void addWebObj(ememory::SharedPtr<zeus::WebObj> _obj);
+			void addWebObjRemote(ememory::SharedPtr<zeus::ObjectRemoteBase> _obj);
+			/**
+			 * @brief Set the list of interface that has been removed ...
+			 */
+			void interfaceRemoved(std::vector<uint16_t> _list);
 		private:
 			uint32_t m_interfaceId;
 			uint16_t m_transmissionId;
@@ -291,28 +300,20 @@ namespace zeus {
 			template<class... _ARGS>
 			zeus::FutureBase call(const uint32_t& _source, const uint32_t& _destination, const std::string& _functionName, _ARGS&&... _args) {
 				uint16_t id = getId();
-				ememory::SharedPtr<zeus::message::Call> callElem = zeus::createCall(sharedFromThis(), id, _source, _destination, _functionName, std::forward<_ARGS>(_args)...);
+				ememory::SharedPtr<zeus::message::Call> callElem = zeus::createCall(false, sharedFromThis(), id, _source, _destination, _functionName, std::forward<_ARGS>(_args)...);
 				return callBinary(id, callElem);
 			}
-		public:
-		#if 0
 			/**
 			 * @brief 
 			 * @param[in] 
 			 * @return 
 			 */
-			zeus::FutureBase callForward(uint32_t _source,
-			                             ememory::SharedPtr<zeus::Message> _Message,
-			                             uint64_t _singleReferenceId);
-			/**
-			 * @brief 
-			 * @param[in] 
-			 * @return 
-			 */
-			void callForwardMultiple(uint32_t _source,
-			                         ememory::SharedPtr<zeus::Message> _Message,
-			                         uint64_t _singleReferenceId);
-		#endif
+			template<class... _ARGS>
+			void event(const uint32_t& _source, const uint32_t& _destination, const std::string& _eventName, _ARGS&&... _args) {
+				uint16_t id = getId();
+				ememory::SharedPtr<zeus::message::Call> callElem = zeus::createCall(true, sharedFromThis(), id, _source, _destination, _eventName, std::forward<_ARGS>(_args)...);
+				callBinary(id, callElem);
+			}
 		public: // answers ...
 			/**
 			 * @brief 
@@ -350,14 +351,9 @@ namespace zeus {
 			 * @param[in] _srcObjectId Client to send control
 			 */
 			void answerError(uint32_t _clientTransactionId, uint32_t _source, uint32_t _destination, const std::string& _errorValue, const std::string& _errorComment="");
-			/**
-			 * @brief  Send a control on the Interface
-			 * @param[in] _source Source of the message
-			 * @param[in] _destination Destination of the message
-			 * @param[in] _ctrlValue Control to send
-			 * @return 
-			 */
-			//void sendCtrl(uint32_t _source, uint32_t _destination, const std::string& _ctrlValue);
+		public:
+			// for debug only:
+			void listObjects();
 	};
 }
 

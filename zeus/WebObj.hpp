@@ -21,13 +21,22 @@ namespace zeus {
 			  m_interfaceWeb(_iface),
 			  m_id(_id),
 			  m_objectId(_objectId) {
-				
+				ZEUS_INFO("[" << m_id << "/" << m_objectId << "] Create");
+			}
+			virtual ~WebObj() {
+				ZEUS_INFO("[" << m_id << "/" << m_objectId << "] Delete");
+			}
+			uint32_t getInterfaceId() {
+				return m_id;
 			}
 			uint32_t getFullId() {
 				return (uint32_t(m_id) << 16 ) + m_objectId;
 			}
 			virtual void receive(ememory::SharedPtr<zeus::Message> _value) {
 				ZEUS_ERROR("Receive a message ==> not implemented magaging ..." << _value);
+			}
+			virtual void display() {
+				ZEUS_INFO("    - [" << m_id << "/" << m_objectId << "]");
 			}
 		
 	};

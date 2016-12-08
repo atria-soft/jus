@@ -148,6 +148,10 @@ namespace zeus {
 			 * @return 
 			 */
 			bool isAlive();
+			/**
+			 * @brief Display all connected object remote and local ...
+			 */
+			void displayConnectedObject();
 	};
 }
 

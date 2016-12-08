@@ -5,13 +5,24 @@
  */
 #include <zeus/WebServer.hpp>
 #include <zeus/debug.hpp>
+#include <zeus/ObjectRemote.hpp>
 #include <ethread/tools.hpp>
 
 #include <zeus/message/Data.hpp>
 
 
-ememory::SharedPtr<zeus::message::Call> zeus::createBaseCall(const ememory::SharedPtr<zeus::WebServer>& _iface, uint64_t _transactionId, const uint32_t& _source, const uint32_t& _destination, const std::string& _functionName) {
-	ememory::SharedPtr<zeus::message::Call> obj = zeus::message::Call::create(_iface);
+ememory::SharedPtr<zeus::message::Call> zeus::createBaseCall(bool _isEvent,
+                                                             const ememory::SharedPtr<zeus::WebServer>& _iface,
+                                                             uint64_t _transactionId,
+                                                             const uint32_t& _source,
+                                                             const uint32_t& _destination,
+                                                             const std::string& _functionName) {
+	ememory::SharedPtr<zeus::message::Call> obj;
+	if (_isEvent == false) {
+		obj = zeus::message::Call::create(_iface);
+	} else {
+		obj = zeus::message::Event::create(_iface);
+	}
 	if (obj == nullptr) {
 		return nullptr;
 	}
@@ -92,6 +103,31 @@ void zeus::WebServer::setInterfaceName(const std::string& _name) {
 
 void zeus::WebServer::addWebObj(ememory::SharedPtr<zeus::WebObj> _obj) {
 	m_listObject.push_back(_obj);
+}
+
+void zeus::WebServer::addWebObjRemote(ememory::SharedPtr<zeus::ObjectRemoteBase> _obj) {
+	m_listRemoteObject.push_back(_obj);
+}
+
+void zeus::WebServer::interfaceRemoved(std::vector<uint16_t> _list) {
+	for (int32_t iii=0; iii < _list.size(); ++iii) {
+		// Call local object
+		for (auto it=m_listRemoteObject.begin();
+		    it != m_listRemoteObject.end();
+		    /* no increment */) {
+			ememory::SharedPtr<zeus::ObjectRemoteBase> tmp = it->lock();
+			if (tmp == nullptr) {
+				it = m_listRemoteObject.erase(it);
+				continue;
+			}
+			if (tmp->getRemoteInterfaceId() == _list[iii]) {
+				tmp->setRemoteObjectRemoved();
+				it = m_listRemoteObject.erase(it);
+				continue;
+			}
+			++it;
+		}
+	}
 }
 
 
@@ -326,6 +362,7 @@ void zeus::WebServer::newMessage(ememory::SharedPtr<zeus::Message> _buffer) {
 	// Not find a pen,ding call ==> execute it ...
 	if (future.isValid() == false) {
 		uint32_t dest = _buffer->getDestination();
+		// Call local object
 		for (auto &it : m_listObject) {
 			if (it == nullptr) {
 				continue;
@@ -335,6 +372,25 @@ void zeus::WebServer::newMessage(ememory::SharedPtr<zeus::Message> _buffer) {
 				m_processingPool.async(
 				    [=](){
 				    	ememory::SharedPtr<zeus::WebObj> tmpObj = it;
+				    	ZEUS_INFO("PROCESS :  " << _buffer);
+				    	tmpObj->receive(_buffer);
+				    },
+				    dest
+				    );
+				return;
+			}
+		}
+		// call local map object on remote object
+		for (auto &it : m_listRemoteObject) {
+			ememory::SharedPtr<zeus::ObjectRemoteBase> tmp = it.lock();
+			if (tmp == nullptr) {
+				continue;
+			}
+			if (tmp->getFullId() == dest) {
+				// send in an other async to syncronize the 
+				m_processingPool.async(
+				    [=](){
+				    	ememory::SharedPtr<zeus::WebObj> tmpObj = tmp;
 				    	ZEUS_INFO("PROCESS :  " << _buffer);
 				    	tmpObj->receive(_buffer);
 				    },
@@ -378,6 +434,27 @@ void zeus::WebServer::newMessage(ememory::SharedPtr<zeus::Message> _buffer) {
 	    },
 	    tid); // force at the transaction Id to have a correct order in the processing of the data ...
 	
+}
+
+void zeus::WebServer::listObjects() {
+	if (    m_listObject.size() == 0
+	     && m_listRemoteObject.size() == 0) {
+		return;
+	}
+	ZEUS_INFO("[" << m_interfaceId << "] Interface WebServer:");
+	for (auto &it : m_listObject) {
+		if (it == nullptr) {
+			continue;
+		}
+		it->display();
+	}
+	for (auto &it : m_listRemoteObject) {
+		ememory::SharedPtr<zeus::ObjectRemoteBase> tmpp = it.lock();
+		if (tmpp == nullptr) {
+			continue;
+		}
+		tmpp->display();
+	}
 }
 
 void zeus::WebServer::addAsync(zeus::WebServer::ActionAsync _elem) {
@@ -435,20 +512,6 @@ zeus::FutureBase zeus::WebServer::callBinary(uint64_t _transactionId,
 	writeBinary(_obj);
 	return tmpFuture;
 }
-
-/*
-void zeus::WebServer::sendCtrl(uint32_t _source, uint32_t _destination, const std::string& _ctrlValue) {
-	auto ctrl = zeus::MessageCtrl::create(sharedFromThis());
-	if (ctrl == nullptr) {
-		return;
-	}
-	ctrl->setTransactionId(getId());
-	ctrl->setSource(_source);
-	ctrl->setDestination(_destination);
-	ctrl->setCtrl(_ctrlValue);
-	writeBinary(ctrl);
-}
-*/
 
 void zeus::WebServer::answerError(uint32_t _clientTransactionId, uint32_t _source, uint32_t _destination, const std::string& _errorValue, const std::string& _errorHelp) {
 	auto answer = zeus::message::Answer::create(sharedFromThis());

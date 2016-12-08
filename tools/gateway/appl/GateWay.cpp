@@ -245,7 +245,32 @@ void appl::GateWay::cleanIO() {
 	}
 	if (tmpIDToRemove.size() != 0) {
 		APPL_TODO("Remove Ids ... " << tmpIDToRemove);
+		for (auto &it : m_listIO) {
+			if (it == nullptr) {
+				continue;
+			}
+			if (it->isConnected() == false) {
+				continue;
+			}
+			// send the message the interface has been removed
+			zeus::WebServer* iface = it->getInterface();
+			uint16_t id = it->getId();
+			iface->event(ZEUS_ID_GATEWAY, uint32_t(id)<<16, "removeInterface", tmpIDToRemove);
+			APPL_WARNING("Send it to :" << id);
+		}
 	}
+	// Simply display All active objkect in all interfaces:
+	for( auto &it : m_listIO) {
+		if (it == nullptr) {
+			continue;
+		}
+		zeus::WebServer* tmpp = it->getInterface();
+		if (tmpp == nullptr) {
+			continue;
+		}
+		tmpp->listObjects();
+	}
+	
 }
 
 void appl::GateWay::onClientConnect(const bool& _value) {

@@ -35,7 +35,7 @@ namespace zeus {
 			 */
 			ObjectRemoteBase():
 			  zeus::WebObj(nullptr, 0, 0) {
-				
+				ZEUS_INFO("[XX/YY] Create");
 			}
 			/**
 			 * @brief 
@@ -61,6 +61,22 @@ namespace zeus {
 			 * @return 
 			 */
 			const std::string& getName() const;
+			/**
+			 * @brief Get the remote interface ID
+			 * @return The Id of the remote interface
+			 */
+			uint16_t getRemoteInterfaceId() {
+				return m_remoteAddress>>16;
+			}
+			/**
+			 * @brief Set the Remote object has been removed
+			 */
+			void setRemoteObjectRemoved() {
+				ZEUS_WARNING("The object remote has been removed : " << m_remoteAddress);
+				m_isLinked = false;
+				m_remoteAddress = 0;
+			}
+			void display();
 	};
 	/**
 	 * @brief 

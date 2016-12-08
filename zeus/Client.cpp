@@ -95,6 +95,18 @@ void zeus::Client::onClientData(ememory::SharedPtr<zeus::Message> _value) {
 				}
 				m_interfaceWeb->answerError(transactionId, _value->getDestination(), _value->getSource(), "UNKNOW-SERVICE");
 			}
+		} else if (_value->getType() == zeus::message::type::event) {
+			ememory::SharedPtr<zeus::message::Event> eventObj = ememory::staticPointerCast<zeus::message::Event>(_value);
+			std::string callFunction = eventObj->getCall();
+			if (callFunction != "removeInterface") {
+				answerProtocolError(transactionId, "interact with client, musty only call: removeInterface");
+				return;
+			}
+			if (callFunction == "removeInterface") {
+				ZEUS_VERBOSE("Remove Object : " << eventObj);
+				m_interfaceWeb->interfaceRemoved(eventObj->getParameter<std::vector<uint16_t>>(0));
+			}
+			return;
 		}
 		m_interfaceWeb->answerError(transactionId, _value->getDestination(), _value->getSource(), "UNKNOW-ACTION");
 		return;
@@ -291,5 +303,12 @@ void zeus::Client::pingIsAlive() {
 	if (std::chrono::steady_clock::now() - m_interfaceWeb->getLastTimeSend() >= std::chrono::seconds(30)) {
 		m_interfaceWeb->ping();
 	}
+}
+
+void zeus::Client::displayConnectedObject() {
+	if (m_interfaceWeb== nullptr) {
+		return;
+	}
+	m_interfaceWeb->listObjects();
 }
 

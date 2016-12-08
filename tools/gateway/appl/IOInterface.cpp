@@ -69,6 +69,18 @@ void appl::IOInterface::receive(ememory::SharedPtr<zeus::Message> _value) {
 	// Check if we are the destinated Of this message 
 	if (    _value->getDestinationId() == ZEUS_ID_GATEWAY
 	     && _value->getDestinationObjectId() == ZEUS_ID_GATEWAY_OBJECT) {
+		if (_value->getType() == zeus::message::type::event) {
+			ememory::SharedPtr<zeus::message::Event> eventObj = ememory::staticPointerCast<zeus::message::Event>(_value);
+			std::string event = eventObj->getCall();
+			if (event == "removeRouterClient") {
+				// TODO : Broadcast that an IO is remoed ...
+				m_state = appl::clientState::unconnect;
+			} else {
+				APPL_ERROR("Protocol error ==>missing 'call'");
+				answerProtocolError(transactionId, "missing parameter: 'event' ... ");
+			}
+			return;
+		}
 		if (_value->getType() != zeus::message::type::call) {
 			APPL_ERROR("Protocol error ==>missing 'call'");
 			answerProtocolError(transactionId, "missing parameter: 'call' / wrong type 'call'");

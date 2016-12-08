@@ -155,7 +155,9 @@ void appl::Router::cleanIO() {
 	while (it2 != m_clientList.end()) {
 		if (*it2 != nullptr) {
 			if ((*it2)->isAlive() == false) {
+				(*it2)->stop();
 				it2 = m_clientList.erase(it2);
+				APPL_INFO("remove DONE ... ");
 				continue;
 			}
 		} else {

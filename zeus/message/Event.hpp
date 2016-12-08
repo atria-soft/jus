@@ -4,38 +4,32 @@
  * @license APACHE v2.0 (see license file)
  */
 #pragma once
-#include <etk/types.hpp>
-#include <enet/WebSocket.hpp>
-#include <zeus/message/ParamType.hpp>
+#include <zeus/message/Call.hpp>
 
 namespace zeus {
 	namespace message {
-		/*
-		class MessageEvent :
-		  public message::Parameter {
+		class Event :
+		  public message::Call {
 			friend class zeus::Message;
 			protected:
-				/ **
-				 * @brief basic constructor (hidden to force the use of ememory::SharedPtr) @ref zeus::MessageEvent::create
-				 * /
-				MessageEvent() {
+				/**
+				 * @brief basic constructor (hidden to force the use of ememory::SharedPtr) @ref zeus::message::Call::create
+				 */
+				Event(ememory::SharedPtr<zeus::WebServer> _iface):
+				  zeus::message::Call(_iface) {
 					m_header.flags = ZEUS_BUFFER_FLAG_FINISH + uint8_t(zeus::message::type::event);
 				};
-				void composeWith(const uint8_t* _buffer, uint32_t _lenght) override;
-				void appendMessageData(ememory::SharedPtr<zeus::message::Data> _obj) override;
 			public:
-				/ **
-				 * @brief Create a shared pointer on the MessageEvent
+				/**
+				 * @brief Create a shared pointer on the MessageCall
 				 * @return Allocated Message.
-				 * /
-				static ememory::SharedPtr<zeus::MessageEvent> create();
+				 */
+				static ememory::SharedPtr<zeus::message::Event> create(ememory::SharedPtr<zeus::WebServer> _iface);
 			public:
 				enum zeus::message::type getType() const override {
 					return zeus::message::type::event;
 				}
-				
 		};
-		*/
 	}
 }
 

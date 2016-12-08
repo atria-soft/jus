@@ -155,7 +155,8 @@ int main(int _argc, const char *_argv[]) {
 	uint32_t iii = 0;
 	while(m_client.isAlive() == true) {
 		m_client.pingIsAlive();
-		std::this_thread::sleep_for(std::chrono::seconds(10));
+		m_client.displayConnectedObject();
+		std::this_thread::sleep_for(std::chrono::seconds(1));
 		APPL_INFO("service in waiting ... " << iii << "/inf");
 		iii++;
 	}

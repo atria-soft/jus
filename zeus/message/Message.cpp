@@ -250,8 +250,21 @@ ememory::SharedPtr<zeus::Message> zeus::Message::create(ememory::SharedPtr<zeus:
 				return value;
 			}
 			break;
-		case zeus::message::type::event:
-			
+		case zeus::message::type::event: {
+				ememory::SharedPtr<zeus::message::Event> value = zeus::message::Event::create(_iface);
+				if (value == nullptr) {
+					return nullptr;
+				}
+				value->setTransactionId(header.transactionId);
+				value->setSourceId(header.sourceId);
+				value->setSourceObjectId(header.sourceObjectId);
+				value->setDestinationId(header.destinationId);
+				value->setDestinationObjectId(header.destinationObjectId);
+				value->setPartFinish((header.flags & ZEUS_BUFFER_FLAG_FINISH) != 0);
+				value->composeWith(&_buffer[sizeof(zeus::message::headerBin)],
+				                    _buffer.size() - sizeof(zeus::message::headerBin));
+				return value;
+			}
 			break;
 	}
 	return nullptr;

@@ -17,7 +17,8 @@ static const std::string protocolError = "PROTOCOL-ERROR";
 
 appl::ClientInterface::ClientInterface(enet::Tcp _connection, appl::Router* _routerInterface) :
   m_routerInterface(_routerInterface),
-  m_interfaceClient(std::move(_connection), true) {
+  m_interfaceClient(std::move(_connection), true),
+  m_uid(0) {
 	APPL_INFO("----------------");
 	APPL_INFO("-- NEW Client --");
 	APPL_INFO("----------------");
@@ -66,9 +67,13 @@ void appl::ClientInterface::stop() {
 	if (m_interfaceClient.isActive() == true) {
 		m_interfaceClient.disconnect();
 	}
+	if (m_userGateWay != nullptr) {
+		m_userGateWay->rmClient(sharedFromThis());
+	}
 }
 
 bool appl::ClientInterface::isAlive() {
+	//APPL_INFO("is alive : " << m_interfaceClient.isActive());
 	return m_interfaceClient.isActive();
 }
 
@@ -91,7 +96,7 @@ void appl::ClientInterface::onClientData(ememory::SharedPtr<zeus::Message> _valu
 	}
 	// check correct SourceID
 	if (_value->getSourceId() != m_uid) {
-		answerProtocolError(transactionId, "message with the wrong source ID");
+		answerProtocolError(transactionId, "message with the wrong source ID : " + etk::to_string(_value->getSourceId()) + " != " + etk::to_string(m_uid));
 		return;
 	}
 	// Check gateway corectly connected
@@ -131,17 +136,5 @@ void appl::ClientInterface::send(ememory::SharedPtr<zeus::Message> _data) {
 		return;
 	}
 	m_interfaceClient.writeBinary(_data);
-	/*
-	if (_data->getType() == zeus::Message::type::ctrl) {
-		std::string value = static_cast<zeus::MessageCtrl*>(_data.get())->getCtrl();
-		if (value == "DISCONNECT") {
-			m_interfaceClient.disconnect(true);
-			return;
-		}
-		APPL_ERROR("Receive message from GateWay CTRL : '" << value << "' ==> not managed" );
-		return;
-	}
-	APPL_ERROR("Get call from the Service to the user ... " << _data);
-	*/
 }
 

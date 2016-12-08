@@ -28,7 +28,7 @@ namespace appl {
 	class RouterInterface {
 		private:
 			enum clientState m_state; // state machine ..
-			std::vector<ememory::SharedPtr<clientSpecificInterface>> m_listClients;
+			std::vector<ememory::SharedPtr<clientSpecificInterface>> m_listClients; // TODO : Maybe remove this ...
 		private:
 			appl::GateWay* m_gateway;
 			zeus::WebServer m_interfaceWeb;

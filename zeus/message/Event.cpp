@@ -10,13 +10,10 @@
 #include <etk/stdTools.hpp>
 #include <zeus/message/Event.hpp>
 
-/*
 // ------------------------------------------------------------------------------------
 // -- Factory
 // ------------------------------------------------------------------------------------
 
-ememory::SharedPtr<zeus::MessageEvent> zeus::MessageEvent::create() {
-	return ememory::SharedPtr<zeus::MessageEvent>(new zeus::MessageEvent);
+ememory::SharedPtr<zeus::message::Event> zeus::message::Event::create(ememory::SharedPtr<zeus::WebServer> _iface) {
+	return ememory::SharedPtr<zeus::message::Event>(new zeus::message::Event(_iface));
 }
-*/
-
