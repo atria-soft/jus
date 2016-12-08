@@ -32,7 +32,7 @@ def configure(target, my_module):
 	    'appl/ClientInterface.cpp',
 	    'appl/GateWayInterface.cpp',
 	    'appl/Router.cpp',
-	    'appl/main.cpp'
+	    'appl/main-router.cpp'
 	    ])
 	return True
 

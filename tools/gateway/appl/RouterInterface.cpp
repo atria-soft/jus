@@ -28,13 +28,18 @@ appl::clientSpecificInterface::~clientSpecificInterface() {
 	APPL_INFO("-- DELETE Client --");
 	APPL_INFO("-------------------");
 }
-/*
-void appl::clientSpecificInterface::answerProtocolError(uint32_t _transactionId, const std::string& _errorHelp) {
-	//m_interfaceWeb->answerError(_transactionId, m_routeurUID, ZEUS_ID_SERVICE_ROOT, protocolError, _errorHelp);
-	//m_interfaceWeb->sendCtrl(m_routeurUID, ZEUS_ID_SERVICE_ROOT, "DISCONNECT");
-	m_state = appl::clientState::disconnect;
+
+zeus::WebServer* appl::clientSpecificInterface::getInterface() {
+	return m_interfaceWeb;
 }
-*/
+
+bool appl::clientSpecificInterface::isConnected() {
+	if (m_interfaceWeb == nullptr) {
+		return false;
+	}
+	return m_interfaceWeb->isActive();
+};
+
 bool appl::clientSpecificInterface::start(appl::GateWay* _gateway, zeus::WebServer* _interfaceWeb, uint16_t _id) {
 	appl::IOInterface::start(_gateway, _id);
 	m_interfaceWeb = _interfaceWeb;

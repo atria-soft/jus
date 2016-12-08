@@ -136,6 +136,9 @@ bool appl::GateWay::serviceExist(const std::string& _service) {
 		if (it == nullptr) {
 			continue;
 		}
+		if (it->isConnected() == false) {
+			continue;
+		}
 		for (auto &srvIt : it->getServiceList()) {
 			if (srvIt == _service) {
 				return true;
@@ -148,6 +151,9 @@ bool appl::GateWay::serviceExist(const std::string& _service) {
 uint16_t appl::GateWay::serviceClientIdGet(const std::string& _service) {
 	for (auto &it : m_listIO) {
 		if (it == nullptr) {
+			continue;
+		}
+		if (it->isConnected() == false) {
 			continue;
 		}
 		for (auto &srvIt : it->getServiceList()) {
@@ -167,6 +173,9 @@ std::vector<std::string> appl::GateWay::getAllServiceName() {
 		if (it == nullptr) {
 			continue;
 		}
+		if (it->isConnected() == false) {
+			continue;
+		}
 		for (auto &srvIt : it->getServiceList()) {
 			out.push_back(srvIt);
 		}
@@ -182,6 +191,9 @@ bool appl::GateWay::send(ememory::SharedPtr<zeus::Message> _data) {
 		if (*it == nullptr) {
 			continue;
 		}
+		if ((*it)->isConnected() == false) {
+			continue;
+		}
 		if ((*it)->getId() == id) {
 			(*it)->send(_data);
 			return true;
@@ -192,7 +204,7 @@ bool appl::GateWay::send(ememory::SharedPtr<zeus::Message> _data) {
 }
 
 void appl::GateWay::cleanIO() {
-	APPL_INFO("Check if something need to be clean ...");
+	APPL_VERBOSE("Check if something need to be clean ...");
 	std::vector<uint16_t> tmpIDToRemove;
 	// Clean all IOs...
 	{

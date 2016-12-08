@@ -29,7 +29,7 @@ def configure(target, my_module):
 	my_module.add_depend(['zeus'])
 	my_module.add_src_file([
 	    'appl/debug.cpp',
-	    'appl/main.cpp'
+	    'appl/main-test-service.cpp'
 	    ])
 	return True
 

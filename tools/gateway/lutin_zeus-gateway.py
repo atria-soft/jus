@@ -34,7 +34,7 @@ def configure(target, my_module):
 	    #'appl/ServiceInterface.cpp',
 	    'appl/DirectInterface.cpp',
 	    'appl/GateWay.cpp',
-	    'appl/main.cpp'
+	    'appl/main-gateway.cpp'
 	    ])
 	return True
 

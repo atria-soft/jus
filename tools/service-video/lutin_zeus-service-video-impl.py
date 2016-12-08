@@ -35,7 +35,7 @@ def configure(target, my_module):
 	    ])
 	my_module.add_src_file([
 	    'appl/debug.cpp',
-	    'appl/main.cpp'
+	    'appl/main-service-video.cpp'
 	    ])
 	my_module.add_flag('c++', "-DSERVICE_NAME=\"\\\"video\\\"\"")
 	return True

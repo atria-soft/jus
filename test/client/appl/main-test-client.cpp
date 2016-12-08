@@ -206,6 +206,7 @@ int main(int _argc, const char *_argv[]) {
 		APPL_INFO("Appl in waiting ... " << iii << "/3");
 		iii++;
 	}
+	APPL_INFO("Request disconnect");
 	client1.disconnect();
 	APPL_INFO("==================================");
 	APPL_INFO("== ZEUS test client stop");
