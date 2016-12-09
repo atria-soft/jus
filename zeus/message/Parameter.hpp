@@ -25,16 +25,7 @@ namespace zeus {
 				 * @return Converted type of the parameter (or empty value)
 				 */
 				template<class ZEUS_TYPE_DATA>
-				ZEUS_TYPE_DATA getParameter(const ememory::SharedPtr<zeus::WebServer>& _iface, int32_t _id) const;
-				/**
-				 * @brief Template to get a parameter with a specific type
-				 * @param[in] _id Number of the parameter
-				 * @return Converted type of the parameter (or empty value)
-				 */
-				template<class ZEUS_TYPE_DATA>
-				ZEUS_TYPE_DATA getParameter(int32_t _id) const {
-					return getParameter<ZEUS_TYPE_DATA>(m_iface, _id);
-				}
+				ZEUS_TYPE_DATA getParameter(int32_t _id) const;
 				/**
 				 * @brief Get the type of a parameter.
 				 * @param[in] _id Number of the parameter
@@ -81,11 +72,12 @@ namespace zeus {
 				 * @param[in] _value Value to add in parameter
 				 */
 				template<class ZEUS_TYPE_DATA>
-				void addParameter(const ememory::SharedPtr<zeus::WebServer>& _iface, uint16_t _paramId, const ZEUS_TYPE_DATA& _value);
+				void addParameter(uint16_t _paramId,
+				                  const ZEUS_TYPE_DATA& _value);
 			public:
 				template<class ZEUS_TYPE_DATA>
-				void addParameter(const ememory::SharedPtr<zeus::WebServer>& _iface, const ZEUS_TYPE_DATA& _value) {
-					addParameter(_iface, m_parameter.size(), _value);
+				void addParameter(const ZEUS_TYPE_DATA& _value) {
+					addParameter(m_parameter.size(), _value);
 				}
 				void parameterAppendMessageData(ememory::SharedPtr<zeus::message::Data> _obj);
 		};

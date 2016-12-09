@@ -33,7 +33,8 @@ ememory::SharedPtr<zeus::message::Call> zeus::createBaseCall(bool _isEvent,
 	return obj;
 }
 
-void zeus::createParam(const ememory::SharedPtr<zeus::WebServer>& _iface, int32_t _paramId, ememory::SharedPtr<zeus::message::Call> _obj) {
+void zeus::createParam(int32_t _paramId,
+                       ememory::SharedPtr<zeus::message::Call> _obj) {
 	// Finish recursive parse ...
 }
 
@@ -110,8 +111,9 @@ void zeus::WebServer::addWebObjRemote(ememory::SharedPtr<zeus::ObjectRemoteBase>
 }
 
 void zeus::WebServer::interfaceRemoved(std::vector<uint16_t> _list) {
+	ZEUS_WARNING("Remove interface : " << _list);
 	for (int32_t iii=0; iii < _list.size(); ++iii) {
-		// Call local object
+		// Call All remote Object object
 		for (auto it=m_listRemoteObject.begin();
 		    it != m_listRemoteObject.end();
 		    /* no increment */) {
@@ -125,6 +127,19 @@ void zeus::WebServer::interfaceRemoved(std::vector<uint16_t> _list) {
 				it = m_listRemoteObject.erase(it);
 				continue;
 			}
+			++it;
+		}
+	}
+	for (int32_t iii=0; iii < _list.size(); ++iii) {
+		// Call All remote Object object
+		for (auto it=m_listObject.begin();
+		    it != m_listObject.end();
+		    /* no increment */) {
+			if (*it == nullptr) {
+				it = m_listObject.erase(it);
+				continue;
+			}
+			(*it)->rmRemoteInterface(_list[iii]);
 			++it;
 		}
 	}
@@ -455,6 +470,87 @@ void zeus::WebServer::listObjects() {
 		}
 		tmpp->display();
 	}
+}
+
+void zeus::WebServer::cleanDeadObject() {
+	if (    m_listObject.size() == 0
+	     && m_listRemoteObject.size() == 0) {
+		return;
+	}
+	for (auto it=m_listObject.begin();
+	     it!=m_listObject.end();
+	     /* no auto increment*/) {
+		if (*it == nullptr) {
+			it = m_listObject.erase(it);
+			continue;
+		}
+		if ((*it)->haveRemoteConnected() == false) {
+			it = m_listObject.erase(it);
+			continue;
+		}
+		++it;
+	}
+	for (auto it=m_listRemoteObject.begin();
+	     it!=m_listRemoteObject.end();
+	     /* no auto increment*/) {
+		if (it->expired() == true) {
+			it = m_listRemoteObject.erase(it);
+			continue;
+		}
+		++it;
+	}
+}
+
+bool zeus::WebServer::transferRemoteObjectOwnership(uint16_t _objectAddress, uint32_t _sourceAddress, uint32_t _destinataireAddress) {
+	if (    m_listObject.size() == 0
+	     && m_listRemoteObject.size() == 0) {
+		return false;
+	}
+	for (auto &it : m_listObject) {
+		if (it == nullptr) {
+			continue;
+		}
+		if (it->getObjectId() == _objectAddress) {
+			return it->transferOwnership(_sourceAddress, _destinataireAddress);
+		}
+	}
+	for (auto &it : m_listRemoteObject) {
+		ememory::SharedPtr<zeus::ObjectRemoteBase> tmp = it.lock();
+		if (tmp == nullptr) {
+			continue;
+		}
+		if (tmp->getObjectId() == _objectAddress) {
+			ZEUS_ERROR("return a remote Object is not permited ... ==> link directly to the original elements");
+			return false;
+		}
+	}
+	return false;
+}
+
+bool zeus::WebServer::remoteObjectOwnership(uint16_t _objectAddress, uint32_t _sourceAddress) {
+	if (    m_listObject.size() == 0
+	     && m_listRemoteObject.size() == 0) {
+		return false;
+	}
+	for (auto &it : m_listObject) {
+		if (it == nullptr) {
+			continue;
+		}
+		if (it->getObjectId() == _objectAddress) {
+			return it->removeOwnership(_sourceAddress);
+		}
+	}
+	for (auto &it : m_listRemoteObject) {
+		ememory::SharedPtr<zeus::ObjectRemoteBase> tmp = it.lock();
+		if (tmp == nullptr) {
+			continue;
+		}
+		if (tmp->getObjectId() == _objectAddress) {
+			ZEUS_ERROR("return a remote Object is not permited ... ==> link directly to the original elements");
+			return false;
+		}
+	}
+	return false;
 }
 
 void zeus::WebServer::addAsync(zeus::WebServer::ActionAsync _elem) {

@@ -20,27 +20,21 @@ zeus::ObjectRemoteBase::ObjectRemoteBase(const ememory::SharedPtr<zeus::WebServe
 
 void zeus::ObjectRemoteBase::display() {
 	ZEUS_INFO("    - [" << m_id << "/" << m_objectId << "] => [" << (m_remoteAddress>>16) << "/" << (m_remoteAddress&0xFFFF) << "]");
+	for (auto &it : m_listRemoteConnected) {
+		ZEUS_INFO("        * [" << (it>>16) << "/" << (it&0xFFFF) << "]");
+	}
 }
 
 zeus::ObjectRemoteBase::~ObjectRemoteBase() {
 	ZEUS_INFO("[" << m_id << "/" << m_objectId << "] DESTROY => to remote [" << (m_remoteAddress>>16) << "/" << (m_remoteAddress&0xFFFF) << "]");
 	if (m_isLinked == true) {
-		uint32_t tmpLocalService = m_remoteAddress;
-		// little hack : Call the service manager with the service ID=0 ...
-		m_remoteAddress = 0;
-		zeus::Future<bool> ret = m_interfaceWeb->call(getFullId(), m_remoteAddress, "unlink", tmpLocalService);
+		zeus::Future<bool> ret = m_interfaceWeb->call(getFullId(), m_remoteAddress&0xFFFF0000, "unlink", m_remoteAddress);
 		ret.wait();
 		if (ret.hasError() == true) {
-			ZEUS_WARNING("Can not unlink with the service id: '" << tmpLocalService << "' ==> link error");
-			m_remoteAddress = tmpLocalService;
+			ZEUS_WARNING("Can not unlink with the service id: '" << m_remoteAddress << "' ==> link error");
 			return;
 		}
-		if (ret.get() == true) {
-			m_isLinked = false;
-		} else {
-			ZEUS_ERROR("Can not unlink with this service ....");
-			m_remoteAddress = tmpLocalService;
-		}
+		m_isLinked = false;
 	}
 }
 

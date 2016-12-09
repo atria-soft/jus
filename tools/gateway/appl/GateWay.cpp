@@ -256,7 +256,7 @@ void appl::GateWay::cleanIO() {
 			zeus::WebServer* iface = it->getInterface();
 			uint16_t id = it->getId();
 			iface->event(ZEUS_ID_GATEWAY, uint32_t(id)<<16, "removeInterface", tmpIDToRemove);
-			APPL_WARNING("Send it to :" << id);
+			APPL_WARNING("Send it to :" << id << "  " << tmpIDToRemove);
 		}
 	}
 	// Simply display All active objkect in all interfaces:

@@ -152,6 +152,10 @@ namespace zeus {
 			 * @brief Display all connected object remote and local ...
 			 */
 			void displayConnectedObject();
+			/**
+			 * @brief Display all connected object remote and local ...
+			 */
+			void cleanDeadObject();
 	};
 }
 

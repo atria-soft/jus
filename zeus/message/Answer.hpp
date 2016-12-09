@@ -45,8 +45,8 @@ namespace zeus {
 				 * @param[in] _value Value to add
 				 */
 				template<class ZEUS_TYPE_DATA>
-				void addAnswer(const ememory::SharedPtr<zeus::WebServer>& _iface, const ZEUS_TYPE_DATA& _value) {
-					addParameter(_iface, _value);
+				void addAnswer(const ZEUS_TYPE_DATA& _value) {
+					addParameter(_value);
 				}
 				/**
 				 * @brief get the answer value
@@ -54,7 +54,7 @@ namespace zeus {
 				 */
 				template<class ZEUS_TYPE_DATA>
 				ZEUS_TYPE_DATA getAnswer() const {
-					return getParameter<ZEUS_TYPE_DATA>(m_iface, 0);
+					return getParameter<ZEUS_TYPE_DATA>(0);
 				}
 				/**
 				 * @brief Ann an error on the message answer

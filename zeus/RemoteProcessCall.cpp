@@ -53,7 +53,6 @@ zeus::RemoteProcessCall::RemoteProcessCall(const ememory::SharedPtr<zeus::WebSer
 	}
 }
 
-
 void zeus::RemoteProcessCall::setDescription(const std::string& _desc) {
 	m_description = _desc;
 }

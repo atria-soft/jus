@@ -198,6 +198,7 @@ int main(int _argc, const char *_argv[]) {
 				double megaParSec = double(size)/(double((stop-start).count())/1000000000.0);
 				APPL_WARNING("          speed=" << int64_t(megaParSec/1024.0)/1024.0 << " Mo/s");
 			#endif
+			std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 		}
 	}
 	int32_t iii=0;

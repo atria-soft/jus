@@ -63,11 +63,6 @@ void zeus::Client::onClientData(ememory::SharedPtr<zeus::Message> _value) {
 		if (_value->getType() == zeus::message::type::call) {
 			ememory::SharedPtr<zeus::message::Call> callObj = ememory::staticPointerCast<zeus::message::Call>(_value);
 			std::string callFunction = callObj->getCall();
-			if (    callFunction != "link"
-			     && callFunction != "unlink") {
-				answerProtocolError(transactionId, "interact with client, musty only call: link/unlink");
-				return;
-			}
 			if (callFunction == "link") {
 				// link with a specific service:
 				std::string serviceName = callObj->getParameter<std::string>(0);
@@ -94,18 +89,46 @@ void zeus::Client::onClientData(ememory::SharedPtr<zeus::Message> _value) {
 					}
 				}
 				m_interfaceWeb->answerError(transactionId, _value->getDestination(), _value->getSource(), "UNKNOW-SERVICE");
+				return;
+			} else if (callFunction == "unlink") {
+				uint32_t objectAddress = callObj->getParameter<uint32_t>(0);
+				if ((objectAddress>> 16) != m_interfaceWeb->getAddress()) {
+					m_interfaceWeb->answerError(transactionId, _value->getDestination(), _value->getSource(), "REMOVE-OWNERSHIP-WRONG-INTERFACE");
+					return;
+				}
+				bool ret = m_interfaceWeb->remoteObjectOwnership(objectAddress&0xFFFF, _value->getSource());
+				if (ret == true) {
+					m_interfaceWeb->answerVoid(transactionId, _value->getDestination(), _value->getSource());
+					return;
+				}
+				m_interfaceWeb->answerError(transactionId, _value->getDestination(), _value->getSource(), "REMOVE-OWNERSHIP-ERROR");
+				return;
+			} else if (callFunction == "movelink") {
+				uint32_t objectAddress = callObj->getParameter<uint32_t>(0);
+				uint32_t destinataireAddress = callObj->getParameter<uint32_t>(1);
+				if ((objectAddress>> 16) != m_interfaceWeb->getAddress()) {
+					m_interfaceWeb->answerError(transactionId, _value->getDestination(), _value->getSource(), "TRANSFER-OWNERSHIP-WRONG-INTERFACE");
+					return;
+				}
+				bool ret = m_interfaceWeb->transferRemoteObjectOwnership(objectAddress&0xFFFF, _value->getSource(), destinataireAddress);
+				if (ret == true) {
+					m_interfaceWeb->answerVoid(transactionId, _value->getDestination(), _value->getSource());
+					return;
+				}
+				m_interfaceWeb->answerError(transactionId, _value->getDestination(), _value->getSource(), "TRANSFER-OWNERSHIP-ERROR");
+				return;
 			}
+			answerProtocolError(transactionId, "interact with client, musty only call: link/unlink/movelink");
+			return;
 		} else if (_value->getType() == zeus::message::type::event) {
 			ememory::SharedPtr<zeus::message::Event> eventObj = ememory::staticPointerCast<zeus::message::Event>(_value);
 			std::string callFunction = eventObj->getCall();
-			if (callFunction != "removeInterface") {
-				answerProtocolError(transactionId, "interact with client, musty only call: removeInterface");
-				return;
-			}
 			if (callFunction == "removeInterface") {
 				ZEUS_VERBOSE("Remove Object : " << eventObj);
 				m_interfaceWeb->interfaceRemoved(eventObj->getParameter<std::vector<uint16_t>>(0));
+				return;
 			}
+			answerProtocolError(transactionId, "interact with client, musty only call: removeInterface");
 			return;
 		}
 		m_interfaceWeb->answerError(transactionId, _value->getDestination(), _value->getSource(), "UNKNOW-ACTION");
@@ -310,5 +333,13 @@ void zeus::Client::displayConnectedObject() {
 		return;
 	}
 	m_interfaceWeb->listObjects();
+}
+
+
+void zeus::Client::cleanDeadObject() {
+	if (m_interfaceWeb== nullptr) {
+		return;
+	}
+	m_interfaceWeb->cleanDeadObject();
 }
 

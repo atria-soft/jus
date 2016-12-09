@@ -94,6 +94,7 @@ def configure(target, my_module):
 	    'zeus/Raw.cpp',
 	    'zeus/Client.cpp',
 	    'zeus/RemoteProcessCall.cpp',
+	    'zeus/WebObj.cpp',
 	    'zeus/WebServer.cpp',
 	    'zeus/mineType.cpp',
 	    ])

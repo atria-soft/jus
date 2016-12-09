@@ -44,8 +44,7 @@ namespace zeus {
 	 * @param[in] 
 	 * @return 
 	 */
-	void createParam(const ememory::SharedPtr<zeus::WebServer>& _iface,
-	                 int32_t _paramId,
+	void createParam(int32_t _paramId,
 	                 ememory::SharedPtr<zeus::message::Call> _obj);
 	
 	/**
@@ -54,14 +53,13 @@ namespace zeus {
 	 * @return 
 	 */
 	template<class ZEUS_TYPE, class... _ARGS>
-	void createParam(const ememory::SharedPtr<zeus::WebServer>& _iface,
-	                 int32_t _paramId,
+	void createParam(int32_t _paramId,
 	                 ememory::SharedPtr<zeus::message::Call> _obj,
 	                 const ZEUS_TYPE& _param,
 	                 _ARGS&&... _args) {
-		_obj->addParameter<ZEUS_TYPE>(_iface, _param);
+		_obj->addParameter<ZEUS_TYPE>(_param);
 		_paramId++;
-		createParam(_iface, _paramId, _obj, std::forward<_ARGS>(_args)...);
+		createParam(_paramId, _obj, std::forward<_ARGS>(_args)...);
 	}
 	/**
 	 * @brief 
@@ -70,12 +68,11 @@ namespace zeus {
 	 */
 	// convert const char in std::string ...
 	template<class... _ARGS>
-	void createParam(const ememory::SharedPtr<zeus::WebServer>& _iface,
-	                 int32_t _paramId,
+	void createParam(int32_t _paramId,
 	                 ememory::SharedPtr<zeus::message::Call> _obj,
 	                 const char* _param,
 	                 _ARGS&&... _args) {
-		createParam(_iface, _paramId, _obj, std::string(_param), std::forward<_ARGS>(_args)...);
+		createParam(_paramId, _obj, std::string(_param), std::forward<_ARGS>(_args)...);
 	}
 	/**
 	 * @brief 
@@ -83,12 +80,18 @@ namespace zeus {
 	 * @return 
 	 */
 	template<class... _ARGS>
-	ememory::SharedPtr<zeus::message::Call> createCall(bool _isEvent, const ememory::SharedPtr<zeus::WebServer>& _iface, uint64_t _transactionId, const uint32_t& _source, const uint32_t& _destination, const std::string& _functionName, _ARGS&&... _args) {
+	ememory::SharedPtr<zeus::message::Call> createCall(bool _isEvent,
+	                                                   const ememory::SharedPtr<zeus::WebServer>& _iface,
+	                                                   uint64_t _transactionId,
+	                                                   const uint32_t& _source,
+	                                                   const uint32_t& _destination,
+	                                                   const std::string& _functionName,
+	                                                   _ARGS&&... _args) {
 		ememory::SharedPtr<zeus::message::Call> callElem = createBaseCall(_isEvent, _iface, _transactionId, _source, _destination, _functionName);
 		if (callElem == nullptr) {
 			return nullptr;
 		}
-		createParam(_iface, 0, callElem, std::forward<_ARGS>(_args)...);
+		createParam(0, callElem, std::forward<_ARGS>(_args)...);
 		return callElem;
 	}
 	/**
@@ -119,6 +122,7 @@ namespace zeus {
 		public:
 			void addWebObj(ememory::SharedPtr<zeus::WebObj> _obj);
 			void addWebObjRemote(ememory::SharedPtr<zeus::ObjectRemoteBase> _obj);
+			void cleanDeadObject();
 			/**
 			 * @brief Set the list of interface that has been removed ...
 			 */
@@ -334,7 +338,7 @@ namespace zeus {
 				answer->setTransactionId(_clientTransactionId);
 				answer->setSource(_source);
 				answer->setDestination(_destination);
-				answer->addAnswer(sharedFromThis(), _value);
+				answer->addAnswer(_value);
 				writeBinary(answer);
 			}
 			/**
@@ -354,6 +358,8 @@ namespace zeus {
 		public:
 			// for debug only:
 			void listObjects();
+			bool transferRemoteObjectOwnership(uint16_t _objectAddress, uint32_t _sourceAddress, uint32_t _destinataireAddress);
+			bool remoteObjectOwnership(uint16_t _objectAddress, uint32_t _sourceAddress);
 	};
 }
 

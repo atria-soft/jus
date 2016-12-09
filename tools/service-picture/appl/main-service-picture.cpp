@@ -50,7 +50,7 @@ namespace appl {
 			}
 			*/
 			PictureService(uint16_t _clientId) {
-				APPL_WARNING("New PictureService ... for user: ");
+				APPL_WARNING("New PictureService ... for user: " << _clientId);
 			}
 			~PictureService() {
 				APPL_WARNING("delete PictureService ...");
@@ -193,15 +193,6 @@ namespace appl {
 				// TODO : Check right ...
 				uint64_t id = createFileID();
 				APPL_ERROR("New ID : " << id);
-				/*
-				auto fut = _dataFile.getPart(0, 6400);
-				fut.andThen([](zeus::FutureBase _data){
-					zeus::Future<zeus::Raw> data(_data);
-					zeus::Raw ppp = data.get();
-					APPL_ERROR("Get data In andThen " << ppp.size());
-					return true;
-					});
-				*/
 				auto futType = _dataFile.getMineType();
 				auto futName = _dataFile.getName();
 				auto futSize = _dataFile.getSize();
@@ -360,16 +351,4 @@ ETK_EXPORT_API bool SERVICE_IO_uninit() {
 
 
 ZEUS_SERVICE_PICTURE_DECLARE(appl::PictureService);
-/*
-	ETK_EXPORT_API zeus::Object* SERVICE_IO_instanciate(zeus::Client* _client, uint16_t _objectId, uint16_t _clientId) { \
-		return zeus::service::createPicture<appl::PictureService>(_client, _objectId, _clientId); \
-	}
-*/
-/*
-	ETK_EXPORT_API zeus::Object* SERVICE_IO_instanciate(zeus::Client* _client, uint16_t _objectId, uint16_t _clientId) { \
-		return zeus::service::createPicture<appl::PictureService>(_client, _objectId, _clientId, \
-		                                 [](uint16_t _clientId){ \
-		                                 	return ememory::makeShared<appl::PictureService>(_clientId); \
-		                                 }); \
-	}
-*/
+
