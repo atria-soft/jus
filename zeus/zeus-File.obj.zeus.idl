@@ -3,6 +3,9 @@
 #elem-type:FILE
 #elem-author:Heero Yui<yui.heero@gmail.com>
 
+#param:_fileName: Name of the local file to instanciate
+//factory obj:zeus-File
+
 #brief:Get size of the file
 #return:current size of the file
 uint64 getSize()
@@ -20,3 +23,9 @@ string getMineType()
 #param:_stop:Stop position in the file
 #return:Buffer with the data
 raw getPart(uint64, uint64)
+
+
+#brief:Store all the data in a specific file
+#param:_file: Handle on the file
+#param:_filename:Local filename
+//tool void storeInTemporaryFile(obj:zeus-File, string)

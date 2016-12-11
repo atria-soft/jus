@@ -16,6 +16,7 @@
 #include <sstream>
 
 #include <etk/stdTools.hpp>
+#include <algue/sha512.hpp>
 
 #include <zeus/service/Picture.hpp>
 #include <zeus/service/registerPicture.hpp>
@@ -204,6 +205,9 @@ namespace appl {
 				APPL_ERROR("size : " << futSize.get());
 				int64_t retSize = futSize.get();
 				int64_t offset = 0;
+				algue::Sha512 shaCtx;
+				etk::FSNode nodeFile(g_basePath + "tmpImport_" + etk::to_string(id));
+				nodeFile.fileOpenWrite();
 				while (retSize > 0) {
 					int32_t nbElement = 1*1024*1024;
 					if (retSize<nbElement) {
@@ -211,9 +215,19 @@ namespace appl {
 					}
 					auto futData = _dataFile.getPart(offset, offset + nbElement);
 					futData.wait();
+					if (futData.hasError() == true) {
+						throw std::runtime_error("ErrorWhen loading data");
+					}
+					zeus::Raw buffer = futData.get();
+					APPL_ERROR(" get size ... : " << buffer.size() << "  " << nbElement);
+					shaCtx.update(buffer.data(), buffer.size());
+					nodeFile.fileWrite(buffer.data(), 1, buffer.size());
 					offset += nbElement;
 					retSize -= nbElement;
 				}
+				std::string sha256String = algue::stringConvert(shaCtx.finalize());
+				APPL_ERROR(" filename : " << sha256String);
+				return sha256String;
 				
 				/*
 				APPL_ERROR("    ==> Receive FILE " << _dataFile.getMineType() << " size=" << _dataFile.getData().size());

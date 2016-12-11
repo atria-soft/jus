@@ -11,10 +11,14 @@
 
 
 #include <etk/stdTools.hpp>
+#include <algue/sha512.hpp>
 
 int main(int _argc, const char *_argv[]) {
 	etk::init(_argc, _argv);
 	zeus::init(_argc, _argv);
+	//std::string OUT2 = algue::stringConvert(algue::sha512::encode("jkhlkjhlkjhlkjhlkjhlkjhlkjhiugouuyrtfkvjhbnj,owixhuvkfn r;,dcxwjo ppxicodsn,kwp<uivfknejc<wxphogkbezdsj<cxhwdséznreS<WJCXHKJ"));
+	//APPL_PRINT("2: " << OUT2);
+	//return 0;
 	appl::Router basicRouter;
 	for (int32_t iii=0; iii<_argc ; ++iii) {
 		std::string data = _argv[iii];
