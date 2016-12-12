@@ -27,20 +27,30 @@
 static std::mutex g_mutex;
 static std::string g_basePath;
 static std::string g_baseDBName = std::string(SERVICE_NAME) + "-database.json";
-static ejson::Document g_database;
 class FileProperty {
 	public:
+		uint64_t m_id; //!< use local reference ID to have faster access on the file ...
 		std::string m_fileName; // Sha 512
 		std::string m_name;
 		std::string m_mineType;
 		echrono::Time m_creationData;
 };
-
 static std::vector<FileProperty> m_listFile;
+
+class Album {
+	public:
+		uint32_t m_id; //!< use local reference ID to have faster access on the file ...
+		uint32_t m_parentId; //!< parent Album ID
+		std::string m_name; //!< name of the Album
+		std::string m_description; //!< description of the album
+		std::vector<uint64_t> m_listMedia; //!< List of media in this album
+};
+static std::vector<Album> m_listAlbum;
+
 static uint64_t m_lastMaxId = 0;
 static bool g_needToStore = false;
 
-static uint64_t createFileID() {
+static uint64_t createUniqueID() {
 	m_lastMaxId++;
 	return m_lastMaxId;
 }
@@ -66,6 +76,7 @@ namespace appl {
 				APPL_VERBOSE("delete PictureService ...");
 			}
 		public:
+			#if 0
 			std::vector<std::string> getAlbums() {
 				std::unique_lock<std::mutex> lock(g_mutex);
 				std::vector<std::string> out;
@@ -176,8 +187,20 @@ namespace appl {
 				}
 				return out;
 			}
+			#endif
+			uint32_t mediaIdCount() {
+				std::unique_lock<std::mutex> lock(g_mutex);
+				// TODO : Check right ...
+				
+			}
+			
+			std::vector<std::string> mediaIdGetName(uint32_t _start, uint32_t _stop) {
+				std::unique_lock<std::mutex> lock(g_mutex);
+				// TODO : Check right ...
+				
+			}
 			// Return a File Data (might be a picture .tiff/.png/.jpg)
-			ememory::SharedPtr<zeus::File> getAlbumPicture(std::string _mediaName) {
+			ememory::SharedPtr<zeus::File> mediaGet(std::string _mediaName) {
 				std::unique_lock<std::mutex> lock(g_mutex);
 				// TODO : Check right ...
 				//Check if the file exist:
@@ -194,32 +217,8 @@ namespace appl {
 					throw std::invalid_argument("Wrong file name ...");
 				}
 				return zeus::File::create(g_basePath + property.m_fileName + "." + zeus::getExtention(property.m_mineType), "", property.m_mineType);
-				
-				
-				
-				
-				//uint64_t id = etk::string_to_uint64_t(_pictureName);
-				//APPL_WARNING("try to get file : " << _pictureName << " with id=" << id);
-				{
-					/*
-					auto it = m_listFile.find(id);
-					if (it != m_listFile.end()) {
-						return zeus::File::create(g_basePath + it->second);
-					}
-					*/
-				}
-				/*
-				for (auto &it : m_listFile) {
-					APPL_WARNING("compare: " << it.first << " with " << id << " " << it.second);
-					if (it.first == id) {
-						return zeus::File::create(g_basePath + it.second);
-					}
-				}
-				*/
-				APPL_ERROR("    ==> Not find ...");
-				return nullptr;
 			}
-			std::string addFile(zeus::ProxyFile _dataFile) {
+			std::string mediaAdd(zeus::ProxyFile _dataFile) {
 				std::unique_lock<std::mutex> lock(g_mutex);
 				// TODO : Check right ...
 				uint64_t id = createFileID();
@@ -241,79 +240,174 @@ namespace appl {
 					}
 				}
 				// move the file at the good position:
-				APPL_ERROR("move temporay file in : " << g_basePath << sha512String);
+				APPL_DEBUG("move temporay file in : " << g_basePath << sha512String);
+				if (etk::FSNodeGetSize(tmpFileName) == 0) {
+					APPL_ERROR("try to store an empty file");
+					throw std::runtime_error("file size == 0");
+				}
 				etk::FSNodeMove(tmpFileName, g_basePath + sha512String + "." + zeus::getExtention(futType.get()));
 				FileProperty property;
+				property.m_id = createUniqueID();
 				property.m_fileName = sha512String;
 				property.m_name = futName.get();
 				property.m_mineType = futType.get();
 				property.m_creationData = echrono::Time::now();
-				APPL_ERROR("Current Time : " << echrono::Time::now());
 				m_listFile.push_back(property);
 				g_needToStore = true;
-				APPL_ERROR(" filename : " << sha512String);
+				APPL_DEBUG(" filename : " << sha512String);
 				return sha512String;
 			}
-			/*
-			// Return a global UTC time
-			zeus::Time getAlbumPictureTime(std::string _pictureName) {
-				return m_user->getAlbumPictureTime(_pictureName);
-			}
-			// Return a Geolocalization information (latitude, longitude)
-			zeus::Geo getAlbumPictureGeoLocalization(std::string _pictureName) {
-				return m_user->getAlbumPictureGeoLocalization(_pictureName);
-			}
-			*/
-			bool removeFile(std::string _file) {
+			void mediaRemove(std::string _mediaName) {
 				std::unique_lock<std::mutex> lock(g_mutex);
 				// TODO : Check right ...
-				return false;
+				//Check if the file exist:
+				bool find = false;
+				FileProperty property;
+				for (auto &it : m_listFile) {
+					if (it.m_fileName == _mediaName) {
+						find = true;
+						property = it;
+						break;
+					}
+				}
+				if (find == false) {
+					throw std::invalid_argument("Wrong file name ...");
+				}
+				if (etk::FSNodeRemove(g_basePath + _mediaName + "." + zeus::getExtention(property.m_mineType)) == false) {
+					throw std::runtime_error("Can not remove file ...");
+				}
 			}
 			
-			std::string createAlbum(std::string _name) {
-				std::unique_lock<std::mutex> lock(g_mutex);
-				// TODO : Check right ...
+			std::vector<std::string> mediaMetadataGetKeys(std::string _mediaName) {
+				std::vector<std::string> out;
+				return out;
+			}
+			std::string mediaMetadataGetKey(std::string _mediaName, std::string _key) {
 				return "";
 			}
-			bool removeAlbum(std::string _name) {
-				std::unique_lock<std::mutex> lock(g_mutex);
-				// TODO : Check right ...
-				return false;
+			void mediaMetadataSetKey(std::string _name, std::string _key, std::string _value) {
+				
 			}
-			bool setAlbumDescription(std::string _name, std::string _desc) {
+			uint32_t albumCreate(std::string _albumName) {
 				std::unique_lock<std::mutex> lock(g_mutex);
 				// TODO : Check right ...
-				return false;
+				for (auto &it : m_listAlbum) {
+					if (it.m_name == _albumName) {
+						return it.m_id;
+					}
+				}
+				Album album;
+				album.m_id = createUniqueID();
+				album.m_name = _albumName;
+				m_listAlbum.push_back(album);
+				return album.m_id;
 			}
-			std::string getAlbumDescription(std::string _name) {
+			
+			
+class Album {
+	public:
+		uint64_t m_id; //!< use local reference ID to have faster access on the file ...
+		uint64_t m_parentId; //!< parent Album ID
+		std::string m_name; //!< name of the Album
+		std::string m_description; //!< description of the album
+		std::vector<uint64_t> m_listMedia; //!< List of media in this album
+};
+static std::vector<Album> m_listAlbum;
+			
+			
+			void albumRemove(uint32_t _albumId) {
 				std::unique_lock<std::mutex> lock(g_mutex);
 				// TODO : Check right ...
+				for (auto it = m_listAlbum.begin();
+				     it != m_listAlbum.end();
+				     /* No increment */) {
+					if (it->m_id == _albumId) {
+						it = m_listAlbum.erase(it);
+						return;
+					}
+					++it;
+				}
+				throw std::invalid_argument("Wrong Album ID ...");
+			}
+			std::vector<uint32_t> albumGetList() {
+				std::unique_lock<std::mutex> lock(g_mutex);
+				std::vector<uint32_t> out;
+				for (auto &it : m_listAlbum) {
+					out.push_back(it.m_id);
+				}
+				return out;
+			}
+			std::string albumNameGet(uint32_t _albumId) {
+				std::unique_lock<std::mutex> lock(g_mutex);
+				for (auto &it : m_listAlbum) {
+					if (it.m_id == _albumId) {
+						return it.m_name;
+					}
+				}
+				throw std::invalid_argument("Wrong Album ID ...");
 				return "";
 			}
-			bool addInAlbum(std::string _nameAlbum, std::string _nameElement) {
+			void albumNameSet(uint32_t _albumId, std::string _albumName) {
 				std::unique_lock<std::mutex> lock(g_mutex);
-				// TODO : Check right ...
-				return false;
+				for (auto &it : m_listAlbum) {
+					if (it.m_id == _albumId) {
+						it.m_name = _albumName;
+						return;
+					}
+				}
+				throw std::invalid_argument("Wrong Album ID ...");
 			}
-			bool removeFromAlbum(std::string _nameAlbum, std::string _nameElement) {
+			std::string albumDescriptionGet(uint32_t _albumId) {
 				std::unique_lock<std::mutex> lock(g_mutex);
-				// TODO : Check right ...
-				return false;
+				for (auto &it : m_listAlbum) {
+					if (it.m_id == _albumId) {
+						return it.m_description;
+					}
+				}
+				throw std::invalid_argument("Wrong Album ID ...");
+				return "";
 			}
-			/*
-			// Return a global UTC time
-			zeus::Time getAlbumPictureTime(std::string _pictureName) {
+			void albumDescriptionSet(uint32_t _albumId, std::string _desc) {
 				std::unique_lock<std::mutex> lock(g_mutex);
-				// TODO : Check right ...
-				return zeus::Time();
+				for (auto &it : m_listAlbum) {
+					if (it.m_id == _albumId) {
+						it.m_description = _desc;
+						return;
+					}
+				}
+				throw std::invalid_argument("Wrong Album ID ...");
 			}
-			// Return a Geolocalization information (latitude, longitude)
-			zeus::Geo getAlbumPictureGeoLocalization(std::string _pictureName) {
+			void albumMediaAdd(uint32_t _albumId, std::string _mediaName) {
+				
+			}
+			void albumMediaRemove(uint32_t _albumId, std::string _mediaName) {
+				
+			}
+			uint32_t albumMediaCount(uint32_t _albumId) {
 				std::unique_lock<std::mutex> lock(g_mutex);
-				// TODO : Check right ...
-				return zeus::Geo();
+				for (auto &it : m_listAlbum) {
+					if (it.m_id == _albumId) {
+						it.m_description = _desc;
+						return it.m_listMedia.count();
+					}
+				}
+				throw std::invalid_argument("Wrong Album ID ...");
+				return 0;
 			}
-			*/
+			std::vector<std::string> albumMediaGetName(uint32_t _albumId, uint32_t _start, uint32_t _stop) {
+				std::vector<std::string> out;
+				
+				return out;
+			}
+			void albumParentSet(uint32_t _albumId, uint32_t _albumParentId) {
+				
+			}
+			void albumParentRemove(uint32_t _albumId) {
+				
+			}
+			uint32_t albumParentGet(uint32_t _albumId) {
+				return 0;
+			}
 	};
 }
 
@@ -324,11 +418,27 @@ static void store_db() {
 	database.add("list-files", listFilesArray);
 	for (auto &it : m_listFile) {
 		ejson::Object fileElement;
+		listFilesArray.add(fileElement);
+		fileElement.add("id", ejson::Number(it.m_id));
 		fileElement.add("file-name", ejson::String(it.m_fileName));
 		fileElement.add("name", ejson::String(it.m_name));
 		fileElement.add("mine-type", ejson::String(it.m_mineType));
 		fileElement.add("add-date", ejson::Number(it.m_creationData.count()));
-		listFilesArray.add(fileElement);
+	}
+	ejson::Array listAlbumArray;
+	database.add("list-album", listAlbumArray);
+	for (auto &it : m_listAlbum) {
+		ejson::Object albumElement;
+		listAlbumArray.add(AlbumElement);
+		albumElement.add("id", ejson::Number(it.m_id));
+		albumElement.add("parent", ejson::Number(it.m_parentId));
+		albumElement.add("name", ejson::String(it.m_name));
+		albumElement.add("desc", ejson::String(it.m_description));
+		ejson::Array listMediaArray;
+		albumElement.add("media", listMediaArray);
+		for (auto &it2 : it.m_listMedia) {
+			listMediaArray.add(ejson::Number(it2));
+		}
 	}
 	bool retGenerate = database.storeSafe(g_basePath + g_baseDBName);
 	APPL_ERROR("Store database [STOP] : " << (g_basePath + g_baseDBName) << " ret = " << retGenerate);
@@ -345,17 +455,34 @@ static void load_db() {
 	for (const auto itArray: listFilesArray) {
 		ejson::Object fileElement = itArray.toObject();
 		FileProperty property;
-		
+		property.m_id = fileElement["id"].toNumber().getU64();
 		property.m_fileName = fileElement["file-name"].toString().get();
 		property.m_name = fileElement["name"].toString().get();
 		property.m_mineType = fileElement["mine-type"].toString().get();
 		property.m_creationData = echrono::Time(fileElement["add-date"].toNumber().getU64()*1000);
-		
+		if (m_lastMaxId < property.m_id) {
+			m_lastMaxId = property.m_id+1;
+		}
 		if (property.m_fileName == "") {
 			APPL_ERROR("Can not access on the file : ... No name ");
 		} else {
 			m_listFile.push_back(property);
 		}
+	}
+	ejson::Array listAlbumArray = database["list-album"].toArray();
+	for (const auto itArray: listAlbumArray) {
+		ejson::Object albumElement = itArray.toObject();
+		Album album;
+		album.m_id = albumElement["id"].toNumber().getU64();
+		album.m_parentId = albumElement["parent"].toNumber().getU64()
+		album.m_name = albumElement["name"].toString().get();
+		album.m_description = albumElement["desc"].toString().get();
+		ejson::Array listMadiaArray = database["list-album"].toArray();
+		for (const auto itArrayMedia: listAlbumArray) {
+			uint64_t tmp = itArrayMedia.toNumber().getU64();
+			album.m_listMedia.push_back(tmp);
+		}
+		m_listAlbum.push_back(album);
 	}
 	g_needToStore = false;
 }

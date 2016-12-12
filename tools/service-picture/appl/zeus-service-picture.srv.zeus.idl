@@ -5,14 +5,6 @@
 
 import zeus-File
 
-vector:string getAlbums()
-vector:string getSubAlbums(string)
-uint32 getAlbumCount(string)
-vector:string getAlbumListPicture(string)
-//obj:zeus-File getAlbumPicture(string)
-string addFile(obj:zeus-File)
-bool removeFile(string)
-/*
 // ----------------- Get media with their ID -----------------------
 #brief:Get the number of media availlable (a media is a picture or a video)
 #return: Number of media
@@ -24,6 +16,7 @@ uint32 mediaIdCount()
 #return:List of the media names
 vector:string mediaIdGetName(uint32,uint32)
 
+/*
 // ----------------- Get media with their ID in a range of time -----------------------
 #brief:Get the number of media availlable in a range of time
 #param:timeStart:First time that the element is requested
@@ -38,32 +31,34 @@ uint32 mediaTimeCount(time, time)
 #param:stop:Last Id of the media stream requested (excluded) (range [0..+inf[)
 #return:List of the media names
 vector:string mediaTimeGetName(time, time, uint32,uint32)
-
+*/
 // ----------------- media Access -----------------------
 #brief:Get a media
 #param:mediaName:Name of the media
 #return:A file reference on the media (transmission is async)
-file mediaGet(string)
-
+obj:zeus-File mediaGet(string)
+/*
 #brief:Get a media in STREAM mode (usefull for video)
 #param:mediaName:Name of the media
 #return:A stream reference on the media (transmission is async)
-stream mediaStream(string)
-
+obj::zeus-Stream mediaStream(string)
+*/
 #brief:Add a new media in the service
 #param:data:A file reference on the media (transmission is async)
 #return:Full name of the media (created by the engine ==> not prefictible)
-string mediaAdd(file)
+string mediaAdd(obj:zeus-File)
 
 #brief:Remove a media in the service (no trash)
 #param:mediaName:Name of the media
 void mediaRemove(string)
 
 // ----------------- meta-data Access -----------------------
+/*
 #brief:Get all meta-data of a media
 #param:mediaName:Name of the media
 #return:a json description of the metadata
 json mediaMetadataGet(string)
+*/
 
 #brief:Get all meta-data keys of a media
 #param:mediaName:Name of the media
@@ -82,63 +77,78 @@ string mediaMetadataGetKey(string, string)
 #param:value:data in the key
 void mediaMetadataSetKey(string, string, string)
 
-#brief:Get all meta-data of a media
+/*
+#brief:Set all meta-data of a media
 #param:name:Name of the media
 #param:description: a json description of the metadata
 void mediaMetadataGet(string, json)
+*/
 
 // ----------------- Album Access -----------------------
 #brief: Create an album
 #param:albumName:Name of the Album
 #return:Id of the album
 uint32 albumCreate(string)
+
 #brief: Remove an album
 #param:albumId:Id of the Album
 void albumRemove(uint32)
+
 #brief:Get list of Id of all albums
 #return:List of all Id of the albums
 vector:uint32 albumGetList()
+
 #brief:Get the name of the album
 #param:albumId:Id of the Album
 #return:Name of the Album
 string albumNameGet(uint32)
+
 #brief:Set the name of the album
 #param:albumId:Id of the Album
 #param:albumName:Name of the Album
 void albumNameSet(uint32, string)
+
 #brief:Get the description of the album
 #param:albumId:Id of the Album
 #return:Description of the Album
 string albumDescriptionGet(uint32)
+
 #brief:Set the description of the album
 #param:albumId:Id of the Album
 #param:desc:Description of the Album
 void albumDescriptionSet(uint32, string)
+
 #brief:Add a media in an album
 #param:albumId:Id of the Album
 #param:mediaName:Name of the media to add
 void albumMediaAdd(uint32, string)
+
 #brief:Remove a media in an album
 #param:albumId:Id of the Album
 #param:mediaName:Name of the media to remove
 void albumMediaRemove(uint32, string)
+
 #brief:Get number of media in an album
 #param:albumId:Id of the Album
 #return:Number of medias
 uint32 albumMediaCount(uint32)
+
 #brief:Get list of name of the media in a specific range (<1024)
 #param:albumId:Id of the Album
 #param:start:First Id of the media stream requested (range [0..+inf[)
 #param:stop:Last Id of the media stream requested (excluded) (range [0..+inf[)
 #return:List of the media names
 vector:string albumMediaGetName(uint32, uint32,uint32)
+
 #brief:Set the parrent album at a specific album
 #param:albumId:Id of the Album
 #param:albumParentId:Id of the parent Album
 void albumParentSet(uint32, uint32)
+
 #brief:Remove the parrent album at a specific album
 #param:albumId:Id of the Album
 void albumParentRemove(uint32)
+
 #brief:Get the parrent album at a specific album
 #param:albumId:Id of the Album
 uint32 albumParentGet(uint32)
@@ -148,4 +158,3 @@ uint32 albumParentGet(uint32)
 
 // ----------------- Media Right Access -----------------------
 
-*/

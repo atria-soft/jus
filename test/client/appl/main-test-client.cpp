@@ -194,7 +194,7 @@ int main(int _argc, const char *_argv[]) {
 				ememory::SharedPtr<zeus::File> tmp = zeus::File::create("./testImage.png");
 				//ememory::SharedPtr<zeus::File> tmp = zeus::File::create("./test_log.txt");
 				int32_t size = tmp->getSize();
-				auto retSendImage = remoteServicePicture.addFile(tmp).wait();
+				auto retSendImage = remoteServicePicture.mediaAdd(tmp).wait();
 				echrono::Steady stop = echrono::Steady::now();
 				APPL_WARNING("          IO*=" << (stop-start) << "                    " << retSendImage.get());
 				double megaParSec = double(size)/(double((stop-start).count())/1000000000.0);
