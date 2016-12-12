@@ -35,9 +35,9 @@ void zeus::WebObj::receive(ememory::SharedPtr<zeus::Message> _value) {
 }
 
 void zeus::WebObj::display() {
-	ZEUS_INFO("    - [" << m_id << "/" << m_objectId << "]");
+	ZEUS_DEBUG("    - [" << m_id << "/" << m_objectId << "]");
 	for (auto &it : m_listRemoteConnected) {
-		ZEUS_INFO("        * [" << (it>>16) << "/" << (it&0xFFFF) << "]");
+		ZEUS_DEBUG("        * [" << (it>>16) << "/" << (it&0xFFFF) << "]");
 	}
 }
 

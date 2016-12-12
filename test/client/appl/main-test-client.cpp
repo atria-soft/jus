@@ -145,7 +145,7 @@ int main(int _argc, const char *_argv[]) {
 	if (true) {
 		zeus::service::ProxyPicture remoteServicePicture = client1.getService("picture");
 		if (remoteServicePicture.exist() == true) {
-			#if 0
+			#if 1
 			zeus::Future<std::vector<std::string>> retCall = remoteServicePicture.getAlbums().wait();
 			APPL_INFO("    album list: ");
 			for (auto &it : retCall.get()) {
@@ -171,7 +171,7 @@ int main(int _argc, const char *_argv[]) {
 							zeus::Future<ememory::SharedPtr<zeus::ObjectRemoteBase>> retListImage = remoteServicePicture.getAlbumListPicture(it3).wait();
 							zeus::ProxyFile tmpFile = zeus::ObjectRemote(retListImage.get());
 							APPL_INFO("                    mine-type: " << tmpFile.getMineType().wait().get());
-							APPL_INFO("                    size: " << tmpFile.size().wait().get());
+							APPL_INFO("                    size: " << tmpFile.getSize().wait().get());
 							APPL_INFO("                    receive in =" << int64_t(retListImage.getTransmitionTime().count()/1000)/1000.0 << " ms");
 							std::string tmpFileName = std::string("./out/") + it + "_" + it2 + "_" + it3 + "." + zeus::getExtention(tmpFile.getMineType().wait().get());
 							APPL_INFO("                    store in: " << tmpFileName);
@@ -190,7 +190,9 @@ int main(int _argc, const char *_argv[]) {
 			#endif
 			#if 1
 				echrono::Steady start = echrono::Steady::now();
-				ememory::SharedPtr<zeus::File> tmp = zeus::File::create("./tmpResult.bmp");
+				//ememory::SharedPtr<zeus::File> tmp = zeus::File::create("./tmpResult.bmp");
+				ememory::SharedPtr<zeus::File> tmp = zeus::File::create("./testImage.png");
+				//ememory::SharedPtr<zeus::File> tmp = zeus::File::create("./test_log.txt");
 				int32_t size = tmp->getSize();
 				auto retSendImage = remoteServicePicture.addFile(tmp).wait();
 				echrono::Steady stop = echrono::Steady::now();

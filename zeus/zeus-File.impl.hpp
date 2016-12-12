@@ -16,7 +16,8 @@ namespace zeus {
 			size_t m_size;
 			std::string m_mineType;
 		public:
-			FileImpl(std::string _filename);
+			FileImpl(std::string _fileNameReal, std::string _fileNameShow, std::string _mineType);
+			FileImpl(std::string _fileNameReal);
 			~FileImpl();
 			uint64_t getSize() override;
 			std::string getName() override;

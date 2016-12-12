@@ -235,8 +235,8 @@ class SendAsyncBinary {
 		}
 };
 
-#define ZEUS_LOG_INPUT_OUTPUT ZEUS_WARNING
-//#define ZEUS_LOG_INPUT_OUTPUT ZEUS_VERBOSE
+//#define ZEUS_LOG_INPUT_OUTPUT ZEUS_WARNING
+#define ZEUS_LOG_INPUT_OUTPUT ZEUS_VERBOSE
 
 
 int32_t zeus::WebServer::writeBinary(ememory::SharedPtr<zeus::Message> _obj) {
@@ -427,7 +427,7 @@ void zeus::WebServer::newMessage(ememory::SharedPtr<zeus::Message> _buffer) {
 	m_processingPool.async(
 	    [=](){
 	    	zeus::FutureBase fut = future;
-	    	ZEUS_INFO("PROCESS FUTURE :  " << _buffer);
+	    	ZEUS_LOG_INPUT_OUTPUT("PROCESS FUTURE :  " << _buffer);
 	    	// add data ...
 	    	bool ret = fut.setMessage(_buffer);
 	    	if (ret == true) {
@@ -456,7 +456,7 @@ void zeus::WebServer::listObjects() {
 	     && m_listRemoteObject.size() == 0) {
 		return;
 	}
-	ZEUS_INFO("[" << m_interfaceId << "] Interface WebServer:");
+	ZEUS_DEBUG("[" << m_interfaceId << "] Interface WebServer:");
 	for (auto &it : m_listObject) {
 		if (it == nullptr) {
 			continue;

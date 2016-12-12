@@ -5,27 +5,35 @@
  */
 
 #include <zeus/zeus-File.impl.hpp>
+#include <zeus/ProxyFile.hpp>
 #include <zeus/mineType.hpp>
+#include <algue/sha512.hpp>
 #include "debug.hpp"
 
-namespace zeus {
-	template<>
-	ememory::SharedPtr<zeus::File> File::create<std::string>(std::string _filename) {
-		return ememory::makeShared<zeus::FileImpl>(_filename);
-	}
-	template<>
-	ememory::SharedPtr<zeus::File> File::create<const char*>(const char* _filename) {
-		return ememory::makeShared<zeus::FileImpl>(_filename);
-	}
+
+ememory::SharedPtr<zeus::File> zeus::File::create(std::string _fileNameReal) {
+	return ememory::makeShared<zeus::FileImpl>(_fileNameReal);
 }
 
-zeus::FileImpl::FileImpl(std::string _filename) :
-  m_filename(_filename),
-  m_node(_filename) {
+ememory::SharedPtr<zeus::File> zeus::File::create(std::string _fileNameReal, std::string _fileNameShow, std::string _mineType) {
+	return ememory::makeShared<zeus::FileImpl>(_fileNameReal, _fileNameShow, _mineType);
+}
+
+zeus::FileImpl::FileImpl(std::string _fileNameReal) :
+  m_filename(_fileNameReal),
+  m_node(_fileNameReal) {
 	m_size = m_node.fileSize();
 	m_node.fileOpenRead();
-	std::string extention = std::string(_filename.begin()+_filename.size() -3, _filename.end());
+	std::string extention = std::string(_fileNameReal.begin()+_fileNameReal.size() -3, _fileNameReal.end());
 	m_mineType = zeus::getMineType(extention);
+}
+
+zeus::FileImpl::FileImpl(std::string _fileNameReal, std::string _fileNameShow, std::string _mineType) :
+  m_filename(_fileNameShow),
+  m_node(_fileNameReal),
+  m_mineType(_mineType) {
+	m_size = m_node.fileSize();
+	m_node.fileOpenRead();
 }
 
 zeus::FileImpl::~FileImpl() {
@@ -61,5 +69,36 @@ zeus::Raw zeus::FileImpl::getPart(uint64_t _start, uint64_t _stop) {
 	return std::move(tmp);
 }
 
+std::string zeus::storeInFile(zeus::ProxyFile _file, std::string _filename) {
+	auto futSize = _file.getSize();
+	futSize.wait();
+	int64_t retSize = futSize.get();
+	int64_t offset = 0;
+	
+	algue::Sha512 shaCtx;
+	etk::FSNode nodeFile(_filename);
+	nodeFile.fileOpenWrite();
+	while (retSize > 0) {
+		// get by batch of 1 MB
+		int32_t nbElement = 1*1024*1024;
+		if (retSize<nbElement) {
+			nbElement = retSize;
+		}
+		auto futData = _file.getPart(offset, offset + nbElement);
+		futData.wait();
+		if (futData.hasError() == true) {
+			throw std::runtime_error("Error when loading data");
+		}
+		zeus::Raw buffer = futData.get();
+		shaCtx.update(buffer.data(), buffer.size());
+		nodeFile.fileWrite(buffer.data(), 1, buffer.size());
+		offset += nbElement;
+		retSize -= nbElement;
+	}
+	nodeFile.fileClose();
+	// get the final sha512 of the file:
+	std::string sha512String = algue::stringConvert(shaCtx.finalize());
+	return sha512String;
+}
 
 

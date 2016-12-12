@@ -20,14 +20,13 @@ zeus::Raw::Raw(uint32_t _size) :
   m_dataExternal(nullptr),
   m_dataInternal() {
 	m_dataInternal.resize(_size);
-	ZEUS_ERROR("Create BUFFER 1 : " << m_size);
 }
 
 zeus::Raw::Raw(uint32_t _size, const uint8_t* _data) :
   m_size(_size),
   m_dataExternal(_data),
   m_dataInternal() {
-	ZEUS_ERROR("Create BUFFER 2 : " << m_size);
+	
 }
 
 zeus::Raw::~Raw() {

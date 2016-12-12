@@ -3,29 +3,48 @@
 #elem-type:FILE
 #elem-author:Heero Yui<yui.heero@gmail.com>
 
-#param:_fileName: Name of the local file to instanciate
-//factory obj:zeus-File
+// --------------------------
+// --       Factory        --
+// --------------------------
 
-#brief:Get size of the file
-#return:current size of the file
+#brief:Factory to create a local object.
+#param:fileName:Name of the local file to instanciate.
+[factory] create(string)
+#brief:Factory to create a local object.
+#param:fileNameReal:Name of the local file to instanciate.
+#param:fileNameShow:Name of the file like the remote user will se it.
+#param:mineType:Mine-type of the file.
+[factory] create(string, string, string)
+
+// --------------------------
+// --        Members       --
+// --------------------------
+
+#brief:Get size of the file.
+#return:current size of the file.
 uint64 getSize()
 
-#brief:Get the name of the file
-#return:Full name of the file (sha512)
+#brief:Get the name of the file.
+#return:Full name of the file (sha512).
 string getName()
 
-#brief:Get the file "mine-type"
-#return:string of the mine-type
+#brief:Get the file "mine-type".
+#return:string of the mine-type.
 string getMineType()
 
-#brief:get a part of the file (size < 64ko)
-#param:_start:Start position in the file
-#param:_stop:Stop position in the file
-#return:Buffer with the data
+#brief:get a part of the file (size < 64ko).
+#param:start:Start position in the file.
+#param:stop:Stop position in the file.
+#return:Buffer with the data.
 raw getPart(uint64, uint64)
 
+// --------------------------
+// --        Tools         --
+// --------------------------
 
-#brief:Store all the data in a specific file
-#param:_file: Handle on the file
-#param:_filename:Local filename
-//tool void storeInTemporaryFile(obj:zeus-File, string)
+#brief:Store all the data in a specific file.
+#param:file:Handle on the file.
+#param:filename:Local filename.
+#return:the sha512 of the file (calculated with the input stream.
+[tool-remote] string storeInFile(obj:zeus-File, string)
+

@@ -21,6 +21,7 @@
 
 typedef bool (*SERVICE_IO_init_t)(int _argc, const char *_argv[], std::string _basePath);
 typedef bool (*SERVICE_IO_uninit_t)();
+typedef void (*SERVICE_IO_peridic_call_t)();
 typedef zeus::Object* (*SERVICE_IO_instanciate_t)(uint32_t, ememory::SharedPtr<zeus::WebServer>&, uint32_t);
 
 class PlugginAccess {
@@ -29,6 +30,7 @@ class PlugginAccess {
 		void* m_handle;
 		SERVICE_IO_init_t m_SERVICE_IO_init;
 		SERVICE_IO_uninit_t m_SERVICE_IO_uninit;
+		SERVICE_IO_peridic_call_t m_SERVICE_IO_peridic_call;
 		SERVICE_IO_instanciate_t m_SERVICE_IO_instanciate;
 		zeus::Client m_client;
 	public:
@@ -53,6 +55,12 @@ class PlugginAccess {
 				APPL_WARNING("Can not function SERVICE_IO_init :" << error);
 			}
 			m_SERVICE_IO_uninit = (SERVICE_IO_uninit_t)dlsym(m_handle, "SERVICE_IO_uninit");
+			error = dlerror();
+			if (error != nullptr) {
+				m_SERVICE_IO_uninit = nullptr;
+				APPL_WARNING("Can not function SERVICE_IO_uninit :" << error);
+			}
+			m_SERVICE_IO_peridic_call = (SERVICE_IO_peridic_call_t)dlsym(m_handle, "SERVICE_IO_peridic_call");
 			error = dlerror();
 			if (error != nullptr) {
 				m_SERVICE_IO_uninit = nullptr;
@@ -97,6 +105,12 @@ class PlugginAccess {
 				return false;
 			}
 			return (*m_SERVICE_IO_uninit)();
+		}
+		void peridic_call() {
+			if (m_SERVICE_IO_peridic_call == nullptr) {
+				return;
+			}
+			(*m_SERVICE_IO_peridic_call)();
 		}
 };
 
@@ -157,6 +171,9 @@ int main(int _argc, const char *_argv[]) {
 		m_client.pingIsAlive();
 		m_client.displayConnectedObject();
 		m_client.cleanDeadObject();
+		for (auto &it: listElements) {
+			it->peridic_call();
+		}
 		std::this_thread::sleep_for(std::chrono::seconds(1));
 		APPL_INFO("service in waiting ... " << iii << "/inf");
 		iii++;

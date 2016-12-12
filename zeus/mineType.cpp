@@ -120,6 +120,35 @@ static std::vector<std::pair<std::string, std::string>> mineList = {
   { "rgb",     "image/x-raw/r8g8b8"},
   { "rgba",    "image/x-raw/r8g8b8a8"},
   
+  { "js",      "application/javascript"},
+  { "raw",     "application/octet-stream"},
+  { "ogg",     "application/ogg"},
+  { "pdf",     "application/pdf"},
+  { "xhtml",   "application/xhtml+xml"},
+  { "flw",     "application/x-shockwave-flash"},
+  { "json",    "application/json"},
+  { "xml",     "application/xml"},
+  { "zip",     "application/zip"},
+  { "gz",      "application/gzip"},
+  { "rar",     "application/rar"},
+  
+  { "css",     "text/css"},
+  { "csv",     "text/csv"},
+  { "html",    "text/html"},
+  { "js",      "text/javascript"}, // DEPRECATED application/javascript.
+  { "txt",     "text/plain"},
+  { "xml",     "text/xml"},
+  { "json",    "text/json"},
+  { "yml",     "text/yml"},
+  
+  { "c",       "code/c"},
+  { "h",       "header/c"},
+  { "cpp",     "code/c++"},
+  { "hpp",     "header/c++"},
+  { "c#",      "code/c#"},
+  { "py",      "code/python"},
+  { "java",    "code/java"},
+  { "js",      "code/javascript"},
 };
 
 std::string zeus::getMineType(const std::string& _extention) {

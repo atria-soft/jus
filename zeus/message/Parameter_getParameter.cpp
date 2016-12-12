@@ -1443,14 +1443,7 @@ namespace zeus {
 			uint32_t dataSize = getParameterSize(_id);
 			// TODO : Check size ...
 			if (createType<zeus::Raw>() == type) {
-				// get size if the file in int32_t
-				#if 0
-					uint32_t size = 0;
-					memcpy(&size, pointer, sizeof(uint32_t));
-				#else
-					uint32_t size = dataSize;
-				#endif
-				return zeus::Raw(size, &pointer[sizeof(uint32_t)]);
+				return zeus::Raw(dataSize, pointer);
 			}
 			ZEUS_ERROR("Can not get type from '" << type << "'");
 			return zeus::Raw();

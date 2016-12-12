@@ -212,11 +212,17 @@ class FunctionDefinition:
 		out += space + " */\n"
 		return out
 	
-	def generate_cpp(self, space):
+	def generate_cpp(self, space, class_name="", virtual=True):
 		out = "";
 		out += self.generate_doxy(space)
-		out += space + "virtual "
-		out += convert_type_in_cpp(self.return_type, False, False) + " " + self.name + "("
+		out += space
+		if self.return_type != "":
+			if virtual == True:
+				out += "virtual "
+			out += convert_type_in_cpp(self.return_type, False, False) + " "
+		else:
+			out += "static ememory::SharedPtr<" + class_name + "> "
+		out += self.name + "("
 		param_data = ""
 		id_parameter = 0
 		for elem in self.parameters:
@@ -229,7 +235,11 @@ class FunctionDefinition:
 			else:
 				param_data += elem["name"]
 		out += param_data
-		out += ") = 0;\n"
+		out += ")"
+		if     self.return_type != "" \
+		   and virtual == True:
+			out += " = 0"
+		out += ";\n"
 		return out;
 		
 	def generate_hpp_proxy(self, space):
@@ -292,6 +302,8 @@ class ServiceDefinition:
 		self.authors = []
 		self.attributes = []
 		self.functions = []
+		self.factories = []
+		self.tools = []
 		self.imports = []
 	
 	def set_name(self, value):
@@ -310,6 +322,14 @@ class ServiceDefinition:
 	
 	def add_author(self, value):
 		self.authors.append(remove_start_stop_spacer(value).replace("\"", "\\\""))
+	
+	def add_factory(self, value):
+		# TODO : Check if function already exist
+		self.factories.append(value)
+	
+	def add_tool(self, value):
+		# TODO : Check if function already exist
+		self.tools.append(value)
 	
 	def add_function(self, value):
 		# TODO : Check if function already exist
@@ -365,6 +385,7 @@ class ServiceDefinition:
 			class_name += elem + "::"
 		class_name += self.name[-1]
 		
+		out += space + "class Proxy" + self.name[-1] + ";\n"
 		out += space + " /**\n"
 		if self.brief != "":
 			out += space + " * @brief " + self.brief + " \n"
@@ -379,11 +400,16 @@ class ServiceDefinition:
 		space += "	"
 		out += space + "public:\n"
 		space += "	"
-		out += space + "/**\n"
-		out += space + " * @brief Generic virtual destructor\n"
-		out += space + " */\n"
-		out += space + "template<typename ... ZEUS_OBJECT_CREATE>\n"
-		out += space + "static ememory::SharedPtr<" + class_name + "> create(ZEUS_OBJECT_CREATE ...);\n"
+		if len(self.factories) == 0:
+			out += space + "/**\n"
+			out += space + " * @brief generic factory, pay attention when set arguments...\n"
+			out += space + " */\n"
+			out += space + "template<typename ... ZEUS_OBJECT_CREATE>\n"
+			out += space + "static ememory::SharedPtr<" + class_name + "> create(ZEUS_OBJECT_CREATE ...);\n"
+		else:
+			for elem in self.factories:
+				out += elem.generate_cpp(space, class_name)
+		
 		out += space + "/**\n"
 		out += space + " * @brief Generic virtual destructor\n"
 		out += space + " */\n"
@@ -397,6 +423,9 @@ class ServiceDefinition:
 		
 		space = space[:-2]
 		out += space + "};\n"
+		# now we simply add tools provided:
+		for elem in self.tools:
+			out += elem.generate_cpp(space, virtual=False)
 		
 		for elem in self.name[:-1]:
 			space = space[:-1]
@@ -880,7 +909,7 @@ def tool_generate_idl(target, module, data_option):
 			# Find a fundtion ==> parse it
 			#debug.error("line " + str(id_line) + " Can not parse function the line dos not ended by a ')'")
 			#get first part (befor '('):
-			list_elems = line.split("(")
+			list_elems = line.replace("[tool-remote] ", "[tool-remote]").split("(")
 			if len(list_elems) <= 1:
 				debug.error("line " + str(id_line) + " function parsing error missing the '(' element")
 			fist_part = list_elems[0].replace("   ", " ").replace("  ", " ").replace("  ", " ")
@@ -896,20 +925,39 @@ def tool_generate_idl(target, module, data_option):
 			return_value = list_elems[0]
 			function_name = list_elems[1]
 			# check types:
-			if validate_type(return_value) == False:
+			debug.extreme_verbose("        Parse of function done :")
+			current_def.set_function_name(function_name)
+			type_function = "normal"
+			if return_value[:13] == "[tool-remote]":
+				type_function = "tool"
+				current_def.set_return_type(return_value[13:])
+				debug.extreme_verbose("            return:" + return_value[13:])
+				if validate_type(return_value[13:]) == False:
+					debug.error("line " + str(id_line) + " fucntion return type unknow : '" + return_value + "' not in " + str(get_list_type()))
+			elif return_value == "[factory]":
+				type_function = "factory"
+				if function_name != "create":
+					debug.error("line " + str(id_line) + " factory function name must be 'create' not '" + function_name + "'")
+				debug.extreme_verbose("            return: --- ")
+			elif validate_type(return_value) == False:
 				debug.error("line " + str(id_line) + " fucntion return type unknow : '" + return_value + "' not in " + str(get_list_type()))
+			else:
+				current_def.set_return_type(return_value)
+				debug.extreme_verbose("            return:" + return_value)
+			
 			for elem in argument_list:
 				if validate_type(elem) == False:
 					debug.error("line " + str(id_line) + " fucntion argument type unknow : '" + elem + "' not in " + str(get_list_type()))
-			debug.extreme_verbose("        Parse of function done :")
-			debug.extreme_verbose("            return:" + return_value)
 			debug.extreme_verbose("            name:" + function_name)
 			debug.extreme_verbose("            arguments:" + str(argument_list))
-			current_def.set_function_name(function_name)
-			current_def.set_return_type(return_value)
 			for elem in argument_list:
 				current_def.add_parameter_type(elem)
-			service_def.add_function(current_def)
+			if type_function == "normal":
+				service_def.add_function(current_def)
+			elif type_function == "factory":
+				service_def.add_factory(current_def)
+			else:
+				service_def.add_tool(current_def)
 		else:
 			# if must be a simple element separate with a space
 			if len(line.split("(")) != 1:

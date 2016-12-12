@@ -9,6 +9,7 @@
 #include <zeus/File.hpp>
 #include <etk/etk.hpp>
 #include <zeus/zeus.hpp>
+#include <echrono/Time.hpp>
 
 #include <mutex>
 #include <ejson/ejson.hpp>
@@ -16,7 +17,6 @@
 #include <sstream>
 
 #include <etk/stdTools.hpp>
-#include <algue/sha512.hpp>
 
 #include <zeus/service/Picture.hpp>
 #include <zeus/service/registerPicture.hpp>
@@ -28,8 +28,17 @@ static std::mutex g_mutex;
 static std::string g_basePath;
 static std::string g_baseDBName = std::string(SERVICE_NAME) + "-database.json";
 static ejson::Document g_database;
-static std::map<uint64_t,std::string> m_listFile;
+class FileProperty {
+	public:
+		std::string m_fileName; // Sha 512
+		std::string m_name;
+		std::string m_mineType;
+		echrono::Time m_creationData;
+};
+
+static std::vector<FileProperty> m_listFile;
 static uint64_t m_lastMaxId = 0;
+static bool g_needToStore = false;
 
 static uint64_t createFileID() {
 	m_lastMaxId++;
@@ -51,10 +60,10 @@ namespace appl {
 			}
 			*/
 			PictureService(uint16_t _clientId) {
-				APPL_WARNING("New PictureService ... for user: " << _clientId);
+				APPL_VERBOSE("New PictureService ... for user: " << _clientId);
 			}
 			~PictureService() {
-				APPL_WARNING("delete PictureService ...");
+				APPL_VERBOSE("delete PictureService ...");
 			}
 		public:
 			std::vector<std::string> getAlbums() {
@@ -168,78 +177,82 @@ namespace appl {
 				return out;
 			}
 			// Return a File Data (might be a picture .tiff/.png/.jpg)
-			ememory::SharedPtr<zeus::File> getAlbumPicture(std::string _pictureName) {
+			ememory::SharedPtr<zeus::File> getAlbumPicture(std::string _mediaName) {
 				std::unique_lock<std::mutex> lock(g_mutex);
 				// TODO : Check right ...
-				uint64_t id = etk::string_to_uint64_t(_pictureName);
-				APPL_WARNING("try to get file : " << _pictureName << " with id=" << id);
+				//Check if the file exist:
+				bool find = false;
+				FileProperty property;
+				for (auto &it : m_listFile) {
+					if (it.m_fileName == _mediaName) {
+						find = true;
+						property = it;
+						break;
+					}
+				}
+				if (find == false) {
+					throw std::invalid_argument("Wrong file name ...");
+				}
+				return zeus::File::create(g_basePath + property.m_fileName + "." + zeus::getExtention(property.m_mineType), "", property.m_mineType);
+				
+				
+				
+				
+				//uint64_t id = etk::string_to_uint64_t(_pictureName);
+				//APPL_WARNING("try to get file : " << _pictureName << " with id=" << id);
 				{
+					/*
 					auto it = m_listFile.find(id);
 					if (it != m_listFile.end()) {
 						return zeus::File::create(g_basePath + it->second);
 					}
+					*/
 				}
+				/*
 				for (auto &it : m_listFile) {
 					APPL_WARNING("compare: " << it.first << " with " << id << " " << it.second);
 					if (it.first == id) {
 						return zeus::File::create(g_basePath + it.second);
 					}
 				}
+				*/
 				APPL_ERROR("    ==> Not find ...");
 				return nullptr;
 			}
 			std::string addFile(zeus::ProxyFile _dataFile) {
 				std::unique_lock<std::mutex> lock(g_mutex);
-				APPL_ERROR("Call add file ... ");
 				// TODO : Check right ...
 				uint64_t id = createFileID();
-				APPL_ERROR("New ID : " << id);
+				
 				auto futType = _dataFile.getMineType();
 				auto futName = _dataFile.getName();
-				auto futSize = _dataFile.getSize();
+				std::string tmpFileName = g_basePath + "tmpImport_" + etk::to_string(id);
+				std::string sha512String = zeus::storeInFile(_dataFile, tmpFileName);
 				futType.wait();
-				APPL_ERROR("mine-type : " << futType.get());
 				futName.wait();
-				APPL_ERROR("name : " << futName.get());
-				futSize.wait();
-				APPL_ERROR("size : " << futSize.get());
-				int64_t retSize = futSize.get();
-				int64_t offset = 0;
-				algue::Sha512 shaCtx;
-				etk::FSNode nodeFile(g_basePath + "tmpImport_" + etk::to_string(id));
-				nodeFile.fileOpenWrite();
-				while (retSize > 0) {
-					int32_t nbElement = 1*1024*1024;
-					if (retSize<nbElement) {
-						nbElement = retSize;
+				// TODO : Get internal data of the file and remove all the meta-data ==> proper files ...
+				for (auto &it : m_listFile) {
+					if (it.m_fileName == sha512String) {
+						APPL_INFO("File already registered at " << it.m_creationData);
+						// TODO : Check if data is identical ...
+						// remove temporary file
+						etk::FSNodeRemove(tmpFileName);
+						return sha512String;
 					}
-					auto futData = _dataFile.getPart(offset, offset + nbElement);
-					futData.wait();
-					if (futData.hasError() == true) {
-						throw std::runtime_error("ErrorWhen loading data");
-					}
-					zeus::Raw buffer = futData.get();
-					APPL_ERROR(" get size ... : " << buffer.size() << "  " << nbElement);
-					shaCtx.update(buffer.data(), buffer.size());
-					nodeFile.fileWrite(buffer.data(), 1, buffer.size());
-					offset += nbElement;
-					retSize -= nbElement;
 				}
-				std::string sha256String = algue::stringConvert(shaCtx.finalize());
-				APPL_ERROR(" filename : " << sha256String);
-				return sha256String;
-				
-				/*
-				APPL_ERROR("    ==> Receive FILE " << _dataFile.getMineType() << " size=" << _dataFile.getData().size());
-				std::stringstream val;
-				val << std::hex << std::setw(16) << std::setfill('0') << id;
-				std::string filename = val.str();
-				filename += ".";
-				filename += zeus::getExtention(_dataFile.getMineType());
-				_dataFile.storeIn(g_basePath + filename);
-				m_listFile.insert(std::make_pair(id, filename));
-				*/
-				return etk::to_string(id);
+				// move the file at the good position:
+				APPL_ERROR("move temporay file in : " << g_basePath << sha512String);
+				etk::FSNodeMove(tmpFileName, g_basePath + sha512String + "." + zeus::getExtention(futType.get()));
+				FileProperty property;
+				property.m_fileName = sha512String;
+				property.m_name = futName.get();
+				property.m_mineType = futType.get();
+				property.m_creationData = echrono::Time::now();
+				APPL_ERROR("Current Time : " << echrono::Time::now());
+				m_listFile.push_back(property);
+				g_needToStore = true;
+				APPL_ERROR(" filename : " << sha512String);
+				return sha512String;
 			}
 			/*
 			// Return a global UTC time
@@ -304,14 +317,58 @@ namespace appl {
 	};
 }
 
+static void store_db() {
+	APPL_ERROR("Store database [START]");
+	ejson::Document database;
+	ejson::Array listFilesArray;
+	database.add("list-files", listFilesArray);
+	for (auto &it : m_listFile) {
+		ejson::Object fileElement;
+		fileElement.add("file-name", ejson::String(it.m_fileName));
+		fileElement.add("name", ejson::String(it.m_name));
+		fileElement.add("mine-type", ejson::String(it.m_mineType));
+		fileElement.add("add-date", ejson::Number(it.m_creationData.count()));
+		listFilesArray.add(fileElement);
+	}
+	bool retGenerate = database.storeSafe(g_basePath + g_baseDBName);
+	APPL_ERROR("Store database [STOP] : " << (g_basePath + g_baseDBName) << " ret = " << retGenerate);
+	g_needToStore = false;
+}
+
+static void load_db() {
+	ejson::Document database;
+	bool ret = database.load(g_basePath + g_baseDBName);
+	if (ret == false) {
+		APPL_WARNING("    ==> LOAD error");
+	}
+	ejson::Array listFilesArray = database["list-files"].toArray();
+	for (const auto itArray: listFilesArray) {
+		ejson::Object fileElement = itArray.toObject();
+		FileProperty property;
+		
+		property.m_fileName = fileElement["file-name"].toString().get();
+		property.m_name = fileElement["name"].toString().get();
+		property.m_mineType = fileElement["mine-type"].toString().get();
+		property.m_creationData = echrono::Time(fileElement["add-date"].toNumber().getU64()*1000);
+		
+		if (property.m_fileName == "") {
+			APPL_ERROR("Can not access on the file : ... No name ");
+		} else {
+			m_listFile.push_back(property);
+		}
+	}
+	g_needToStore = false;
+}
+
 ETK_EXPORT_API bool SERVICE_IO_init(int _argc, const char *_argv[], std::string _basePath) {
 	g_basePath = _basePath;
 	std::unique_lock<std::mutex> lock(g_mutex);
 	APPL_WARNING("Load USER: " << g_basePath);
-	bool ret = g_database.load(g_basePath + g_baseDBName);
-	if (ret == false) {
-		APPL_WARNING("    ==> LOAD error");
-	}
+	load_db();
+	
+	/*
+	
+	
 	// Load all files (image and video ...)
 	etk::FSNode node(g_basePath);
 	std::vector<etk::FSNode*> tmpList = node.folderGetSubList(false, false, true, false);
@@ -339,7 +396,7 @@ ETK_EXPORT_API bool SERVICE_IO_init(int _argc, const char *_argv[], std::string 
 			if (id <= 1024) {
 				APPL_WARNING("    ==> REJECTED file " << it->getNameFile() << " with ID = " << id);
 			} else {
-				m_listFile.insert(std::make_pair(id, it->getNameFile()));
+				//m_listFile.insert(std::make_pair(id, it->getNameFile()));
 				m_lastMaxId = std::max(m_lastMaxId,id);
 				APPL_WARNING("    ==> load file " << it->getNameFile() << " with ID = " << id);
 			}
@@ -347,20 +404,28 @@ ETK_EXPORT_API bool SERVICE_IO_init(int _argc, const char *_argv[], std::string 
 			APPL_WARNING("    ==> REJECT file " << it->getNameFile());
 		}
 	}
+	*/
 	APPL_WARNING("new USER: [STOP]");
 	return true;
 }
 
 ETK_EXPORT_API bool SERVICE_IO_uninit() {
 	std::unique_lock<std::mutex> lock(g_mutex);
-	APPL_DEBUG("Store User Info:");
-	bool ret = g_database.storeSafe(g_basePath + g_baseDBName);
-	if (ret == false) {
-		APPL_WARNING("    ==> Store error");
-		return false;
-	}
+	store_db();
 	APPL_WARNING("delete USER [STOP]");
 	return true;
+}
+
+ETK_EXPORT_API void SERVICE_IO_peridic_call() {
+	if (g_needToStore == false) {
+		return;
+	}
+	// try lock mutex:
+	if (g_mutex.try_lock() == false) {
+		return;
+	}
+	store_db();
+	g_mutex.unlock();
 }
 
 
