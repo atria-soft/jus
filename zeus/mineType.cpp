@@ -151,7 +151,8 @@ static std::vector<std::pair<std::string, std::string>> mineList = {
   { "js",      "code/javascript"},
 };
 
-std::string zeus::getMineType(const std::string& _extention) {
+std::string zeus::getMineType(std::string _extention) {
+	_extention = etk::tolower(_extention);
 	for (auto &it : mineList) {
 		if (it.first == _extention) {
 			return it.second;
@@ -161,7 +162,8 @@ std::string zeus::getMineType(const std::string& _extention) {
 	return "";
 }
 
-std::string zeus::getExtention(const std::string& _mineType) {
+std::string zeus::getExtention(std::string _mineType) {
+	_mineType = etk::tolower(_mineType);
 	for (auto &it : mineList) {
 		if (it.second == _mineType) {
 			return it.first;

@@ -88,6 +88,10 @@ namespace zeus {
 			 */
 			uint32_t getSource() const;
 			/**
+			 * @brief The remote object is removed ==> no need to wait more ...
+			 */
+			void remoteObjectDestroyed();
+			/**
 			 * @brief check if the answer have an error
 			 * @return return true if an error is registered
 			 */

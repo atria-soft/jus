@@ -24,9 +24,13 @@
 #return:current size of the file.
 uint64 getSize()
 
+#brief:Get the name of the file (can be the name of the local file or a theoric generated filename to be easy to user to store it, not really usefull).
+#return:help name of the file.
+string getName()
+
 #brief:Get the name of the file.
 #return:Full name of the file (sha512).
-string getName()
+string getSha512()
 
 #brief:Get the file "mine-type".
 #return:string of the mine-type.

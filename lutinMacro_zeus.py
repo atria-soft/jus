@@ -506,7 +506,7 @@ class ServiceDefinition:
 		out += "				" + namespace + "register" + self.name[-1] + "(*obj);\n"
 		out += "				obj->addRemote(getDestination());\n"
 		out += "				m_iface->addWebObj(obj);\n"
-		out += "				ZEUS_INFO(\"Create object ID : \" << idObj);\n"
+		out += "				ZEUS_DEBUG(\"Create object ID : \" << idObj);\n"
 		out += "				fullId = (uint32_t(id)<<16)+idObj;\n"
 		out += "			}\n"
 		# return Object ID and interface adress
@@ -616,9 +616,9 @@ class ServiceDefinition:
 		
 		space += "	"
 		
-		out += space + 'ZEUS_INFO("===========================================================");\n';
-		out += space + 'ZEUS_INFO("== Instanciate service: ' + self.name[-1] + '");\n';
-		out += space + 'ZEUS_INFO("===========================================================");\n';
+		out += space + 'ZEUS_VERBOSE("===========================================================");\n';
+		out += space + 'ZEUS_VERBOSE("== Instanciate service: ' + self.name[-1] + '");\n';
+		out += space + 'ZEUS_VERBOSE("===========================================================");\n';
 		#out += space + '_serviceInterface.propertyNameService.set("' + self.name[-1].lower() + '");\n'
 		if self.brief != "":
 			out += space + '_interface.setDescription("' + self.brief + '");\n';
@@ -663,9 +663,9 @@ class ServiceDefinition:
 				out += space + 'func->setReturn("' + elem.return_brief + '");\n'
 			space = space[:-1]
 			out += space + '}\n'
-		out += space + 'ZEUS_INFO("===========================================================");\n';
-		out += space + 'ZEUS_INFO("== Instanciate service: ' + self.name[-1] + ' [DONE]");\n';
-		out += space + 'ZEUS_INFO("===========================================================");\n';
+		out += space + 'ZEUS_VERBOSE("===========================================================");\n';
+		out += space + 'ZEUS_VERBOSE("== Instanciate service: ' + self.name[-1] + ' [DONE]");\n';
+		out += space + 'ZEUS_VERBOSE("===========================================================");\n';
 		
 		out += "}\n"
 		out += "\n"

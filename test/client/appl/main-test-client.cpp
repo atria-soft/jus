@@ -21,6 +21,49 @@
 #include <zeus/ObjectRemote.hpp>
 #include <echrono/Steady.hpp>
 
+void installPath(zeus::service::ProxyPicture& _srv, std::string _path, uint32_t _albumID) {
+	etk::FSNode node(_path);
+	APPL_INFO("Parse : '" << _path << "'");
+	std::vector<std::string> listSubPath = node.folderGetSub(true, false, "*");
+	for (auto &itPath : listSubPath) {
+		APPL_INFO("Create Album : '" << itPath << "'");
+		std::string albumName = etk::split(itPath, '/').back();
+		uint32_t albumId = _srv.albumCreate(albumName).wait().get();
+		_srv.albumDescriptionSet(albumId, itPath).wait();
+		if (_albumID != 0) {
+			_srv.albumParentSet(albumId, _albumID).wait();
+		}
+		installPath(_srv, itPath, albumId);
+	}
+	
+	std::vector<std::string> listSubFile = node.folderGetSub(false, true, "*");
+	for (auto &itFile : listSubFile) {
+		APPL_INFO("Add media : '" << itFile << "' in " << _albumID);
+		std::string extention = etk::tolower(std::string(itFile.begin()+itFile.size() -3, itFile.end()));
+		if (    extention == "jpg"
+		     || extention == "png"
+		     || extention == "gif"
+		     || extention == "bmp"
+		     || extention == "avi"
+		     || extention == "ogg"
+		     || extention == "mp3"
+		     || extention == "mkv"
+		     || extention == "mka"
+		     || extention == "tga"
+		     || extention == "mp2") {
+			uint32_t mediaId = _srv.mediaAdd(zeus::File::create(itFile)).wait().get();
+			if (mediaId == 0) {
+				APPL_ERROR("Get media ID = 0 With no error");
+			}
+			if (_albumID != 0) {
+				_srv.albumMediaAdd(_albumID, mediaId).wait();
+			}
+		} else {
+			APPL_ERROR("Sot send file : " << itFile << "  Not manage extention...");
+		}
+	}
+}
+
 
 int main(int _argc, const char *_argv[]) {
 	etk::init(_argc, _argv);
@@ -145,49 +188,68 @@ int main(int _argc, const char *_argv[]) {
 	if (true) {
 		zeus::service::ProxyPicture remoteServicePicture = client1.getService("picture");
 		if (remoteServicePicture.exist() == true) {
-			#if 1
-			zeus::Future<std::vector<std::string>> retCall = remoteServicePicture.getAlbums().wait();
-			APPL_INFO("    album list: ");
-			for (auto &it : retCall.get()) {
-				zeus::Future<uint32_t> retCount = remoteServicePicture.getAlbumCount(it).wait();
-				if (retCount.get() != 0) {
-					APPL_INFO("        - " << it << " / " << retCount.get() << " images");
-					zeus::Future<std::vector<std::string>> retListImage = remoteServicePicture.getAlbumListPicture(it).wait();
-					for (auto &it3 : retListImage.get()) {
-						APPL_INFO("                - " << it3);
-					}
-				} else {
-					APPL_INFO("        - " << it);
-				}
-				zeus::Future<std::vector<std::string>> retCall2 = remoteServicePicture.getSubAlbums(it).wait();
-				for (auto &it2 : retCall2.get()) {
-					zeus::Future<uint32_t> retCount2 = remoteServicePicture.getAlbumCount(it2).wait();
-					if (retCount2.get() != 0) {
-						APPL_INFO("            - " << it2 << " / " << retCount2.get() << " images");
-						zeus::Future<std::vector<std::string>> retListImage = remoteServicePicture.getAlbumListPicture(it2).wait();
-						for (auto &it3 : retListImage.get()) {
+			// Send a full path:
+			installPath(remoteServicePicture, "testPhoto", 0);
+		} else {
+			APPL_ERROR("Can not get service Picture ...");
+		}
+	}
+	if (true) {
+		zeus::service::ProxyPicture remoteServicePicture = client1.getService("picture");
+		if (remoteServicePicture.exist() == true) {
+			zeus::Future<std::vector<uint32_t>> retCall = remoteServicePicture.albumGetList().wait();
+			if (retCall.hasError() == true) {
+				APPL_INFO("    Get an error when getting list of albums ...");
+			} else {
+				APPL_INFO("    album list: ");
+				for (auto &it : retCall.get()) {
+					std::string name = remoteServicePicture.albumNameGet(it).wait().get();
+					std::string desc = remoteServicePicture.albumDescriptionGet(it).wait().get();
+					uint32_t retCount = remoteServicePicture.albumMediaCount(it).wait().get();
+					uint32_t parentId = remoteServicePicture.albumParentGet(it).wait().get();
+					
+					if (retCount != 0) {
+						APPL_INFO("        - [" << it << "] '" << name << "' DESC=" << desc);
+						if (parentId != 0) {
+							APPL_INFO("                 PARENT : " << parentId);
+						}
+						APPL_INFO("                 " << retCount << " Medias");
+						std::vector<uint32_t> retListImage = remoteServicePicture.albumMediaIdGet(it, 0, retCount).wait().get();
+						for (auto &it3 : retListImage) {
 							APPL_INFO("                - " << it3);
-							// TODO : This is really bad : Do it better ...
-							zeus::Future<ememory::SharedPtr<zeus::ObjectRemoteBase>> retListImage = remoteServicePicture.getAlbumListPicture(it3).wait();
-							zeus::ProxyFile tmpFile = zeus::ObjectRemote(retListImage.get());
-							APPL_INFO("                    mine-type: " << tmpFile.getMineType().wait().get());
-							APPL_INFO("                    size: " << tmpFile.getSize().wait().get());
-							APPL_INFO("                    receive in =" << int64_t(retListImage.getTransmitionTime().count()/1000)/1000.0 << " ms");
-							std::string tmpFileName = std::string("./out/") + it + "_" + it2 + "_" + it3 + "." + zeus::getExtention(tmpFile.getMineType().wait().get());
-							APPL_INFO("                    store in: " << tmpFileName);
-							/*
-							etk::FSNode node(tmpFileName);
-							node.fileOpenWrite();
-							node.fileWrite(&tmpFile.getData()[0], 1, tmpFile.getData().size());
-							node.fileClose();
-							*/
 						}
 					} else {
-						APPL_INFO("            - " << it2);
+						APPL_INFO("        - " << it);
 					}
+					#if 0
+					std::vector<std::string> retCall2 = remoteServicePicture.getSubAlbums(it).wait().get();
+					for (auto &it2 : retCall2) {
+						uint32_t retCount2 = remoteServicePicture.getAlbumCount(it2).wait().get();
+						if (retCount2 != 0) {
+							APPL_INFO("            - " << it2 << " / " << retCount2.get() << " images");
+							std::vector<std::string> retListImage = remoteServicePicture.getAlbumListPicture(it2).wait().get();
+							for (auto &it3 : retListImage) {
+								APPL_INFO("                - " << it3);
+								zeus::ProxyFile tmpFile = zeus::ObjectRemote(remoteServicePicture.getAlbumListPicture(it3).wait().get());
+								APPL_INFO("                    mine-type: " << tmpFile.getMineType().wait().get());
+								APPL_INFO("                    size: " << tmpFile.getSize().wait().get());
+								APPL_INFO("                    receive in =" << int64_t(retListImage.getTransmitionTime().count()/1000)/1000.0 << " ms");
+								std::string tmpFileName = std::string("./out/") + it + "_" + it2 + "_" + it3 + "." + zeus::getExtention(tmpFile.getMineType().wait().get());
+								APPL_INFO("                    store in: " << tmpFileName);
+								/*
+								etk::FSNode node(tmpFileName);
+								node.fileOpenWrite();
+								node.fileWrite(&tmpFile.getData()[0], 1, tmpFile.getData().size());
+								node.fileClose();
+								*/
+							}
+						} else {
+							APPL_INFO("            - " << it2);
+						}
+					}
+					#endif
 				}
 			}
-			#endif
 			#if 1
 				echrono::Steady start = echrono::Steady::now();
 				//ememory::SharedPtr<zeus::File> tmp = zeus::File::create("./tmpResult.bmp");
@@ -195,10 +257,14 @@ int main(int _argc, const char *_argv[]) {
 				//ememory::SharedPtr<zeus::File> tmp = zeus::File::create("./test_log.txt");
 				int32_t size = tmp->getSize();
 				auto retSendImage = remoteServicePicture.mediaAdd(tmp).wait();
-				echrono::Steady stop = echrono::Steady::now();
-				APPL_WARNING("          IO*=" << (stop-start) << "                    " << retSendImage.get());
-				double megaParSec = double(size)/(double((stop-start).count())/1000000000.0);
-				APPL_WARNING("          speed=" << int64_t(megaParSec/1024.0)/1024.0 << " Mo/s");
+				if (retSendImage.hasError() == true) {
+					APPL_ERROR(" get an error while sending the File : '" << retSendImage.getErrorType() << "' help=" << retSendImage.getErrorHelp() );
+				} else {
+					echrono::Steady stop = echrono::Steady::now();
+					APPL_WARNING("          IO*=" << (stop-start) << "                    " << retSendImage.get());
+					double megaParSec = double(size)/(double((stop-start).count())/1000000000.0);
+					APPL_WARNING("          speed=" << int64_t(megaParSec/1024.0)/1024.0 << " Mo/s");
+				}
 			#endif
 			std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 		}

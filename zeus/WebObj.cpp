@@ -11,11 +11,11 @@ zeus::WebObj::WebObj(const ememory::SharedPtr<zeus::WebServer>& _iface, uint16_t
   m_interfaceWeb(_iface),
   m_id(_id),
   m_objectId(_objectId) {
-	ZEUS_INFO("[" << m_id << "/" << m_objectId << "] Create");
+	ZEUS_VERBOSE("[" << m_id << "/" << m_objectId << "] Create");
 }
 
 zeus::WebObj::~WebObj() {
-	ZEUS_INFO("[" << m_id << "/" << m_objectId << "] Delete");
+	ZEUS_VERBOSE("[" << m_id << "/" << m_objectId << "] Delete");
 }
 
 uint16_t zeus::WebObj::getInterfaceId() {

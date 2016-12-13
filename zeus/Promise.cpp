@@ -7,6 +7,7 @@
 #include <zeus/FutureBase.hpp>
 #include <zeus/message/Answer.hpp>
 #include <zeus/debug.hpp>
+#include <zeus/WebServer.hpp>
 
 
 zeus::Promise::Promise(uint32_t _transactionId, uint32_t _source) {
@@ -27,6 +28,18 @@ zeus::Promise::Promise(uint32_t _transactionId, ememory::SharedPtr<zeus::Message
 	if (isFinished() == true) {
 		m_receiveTime = echrono::Steady::now();
 	}
+}
+
+void zeus::Promise::remoteObjectDestroyed() {
+	auto answer = zeus::message::Answer::create(nullptr);
+	if (answer == nullptr) {
+		return;
+	}
+	answer->setTransactionId(m_transactionId);
+	answer->setSource(m_source);
+	answer->setDestination(0);
+	answer->addError("REMOTE-OBJECT-REMOVE", "The remote interface ot the Object has been destroyed");
+	setMessage(answer);
 }
 
 void zeus::Promise::andAll(zeus::Promise::Observer _callback) {

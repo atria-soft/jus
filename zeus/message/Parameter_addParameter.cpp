@@ -314,7 +314,7 @@ namespace zeus {
 				SendData(const zeus::Raw& _data, uint16_t _parameterId) :
 				  m_data(_data),
 				  m_parameterId(_parameterId),
-				  m_size(_data.size()-1),
+				  m_size(_data.size()),
 				  m_offset(0) {
 					
 				}
@@ -340,7 +340,7 @@ namespace zeus {
 					answer->addData(m_parameterId, (void *)(&m_data.data()[m_offset]), tmpSize);
 					m_size -= tmpSize;
 					m_offset += tmpSize;
-					_interface->writeBinary(answer);;
+					_interface->writeBinary(answer);
 					if (m_size <= 0) {
 						return true;
 					}

@@ -146,7 +146,7 @@ namespace zeus {
 					return nullptr;
 				}
 				tmp->setType(zeus::AbstractFunction::type::global);
-				ZEUS_INFO("Add function '" << _name << "' in global mode");
+				ZEUS_VERBOSE("Add function '" << _name << "' in global mode");
 				m_listFunction.push_back(tmp);
 				return tmp;
 			}
@@ -177,7 +177,7 @@ namespace zeus {
 					return nullptr;
 				}
 				tmp->setType(zeus::AbstractFunction::type::local);
-				ZEUS_INFO("Add function '" << _name << "' in local mode");
+				ZEUS_VERBOSE("Add function '" << _name << "' in local mode");
 				m_listFunction.push_back(tmp);
 				return tmp;
 			}

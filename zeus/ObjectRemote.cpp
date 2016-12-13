@@ -15,23 +15,23 @@ zeus::ObjectRemoteBase::ObjectRemoteBase(const ememory::SharedPtr<zeus::WebServe
   m_remoteAddress(_address),
   m_isLinked(false) {
 	m_isLinked = true;
-	ZEUS_INFO("[" << m_id << "/" << m_objectId << "] create => to remote [" << (m_remoteAddress>>16) << "/" << (m_remoteAddress&0xFFFF) << "]");
+	ZEUS_VERBOSE("[" << m_id << "/" << m_objectId << "] create => to remote [" << (m_remoteAddress>>16) << "/" << (m_remoteAddress&0xFFFF) << "]");
 }
 
 void zeus::ObjectRemoteBase::display() {
-	ZEUS_INFO("    - [" << m_id << "/" << m_objectId << "] => [" << (m_remoteAddress>>16) << "/" << (m_remoteAddress&0xFFFF) << "]");
+	ZEUS_VERBOSE("    - [" << m_id << "/" << m_objectId << "] => [" << (m_remoteAddress>>16) << "/" << (m_remoteAddress&0xFFFF) << "]");
 	for (auto &it : m_listRemoteConnected) {
 		ZEUS_INFO("        * [" << (it>>16) << "/" << (it&0xFFFF) << "]");
 	}
 }
 
 zeus::ObjectRemoteBase::~ObjectRemoteBase() {
-	ZEUS_INFO("[" << m_id << "/" << m_objectId << "] DESTROY => to remote [" << (m_remoteAddress>>16) << "/" << (m_remoteAddress&0xFFFF) << "]");
+	ZEUS_VERBOSE("[" << m_id << "/" << m_objectId << "] DESTROY => to remote [" << (m_remoteAddress>>16) << "/" << (m_remoteAddress&0xFFFF) << "]");
 	if (m_isLinked == true) {
 		zeus::Future<bool> ret = m_interfaceWeb->call(getFullId(), m_remoteAddress&0xFFFF0000, "unlink", m_remoteAddress);
 		ret.wait();
 		if (ret.hasError() == true) {
-			ZEUS_WARNING("Can not unlink with the service id: '" << m_remoteAddress << "' ==> link error");
+			ZEUS_WARNING("Can not unlink with the object id: " << (m_remoteAddress>>16) << "/" << (m_remoteAddress&0xFFFF) << " ==> link error");
 			return;
 		}
 		m_isLinked = false;

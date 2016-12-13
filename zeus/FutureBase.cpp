@@ -36,6 +36,13 @@ zeus::FutureBase::FutureBase(uint32_t _transactionId, ememory::SharedPtr<zeus::M
 	m_promise = ememory::makeShared<zeus::Promise>(_transactionId, _returnData, _source);
 }
 
+void zeus::FutureBase::remoteObjectDestroyed() {
+	if (m_promise == nullptr) {
+		return;
+	}
+	m_promise->remoteObjectDestroyed();
+}
+
 void zeus::FutureBase::andAll(zeus::Promise::Observer _callback) {
 	if (m_promise == nullptr) {
 		return;

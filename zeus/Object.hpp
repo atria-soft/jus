@@ -86,7 +86,7 @@ namespace zeus {
 					return nullptr;
 				}
 				tmp->setType(zeus::AbstractFunction::type::service);
-				ZEUS_INFO("Add function '" << _name << "' in local mode");
+				ZEUS_VERBOSE("Add function '" << _name << "' in local mode");
 				m_listFunction.push_back(tmp);
 				return tmp;
 			}
@@ -138,7 +138,7 @@ namespace zeus {
 					return nullptr;
 				}
 				tmp->setType(zeus::AbstractFunction::type::object);
-				ZEUS_INFO("Add function '" << _name << "' in object mode");
+				ZEUS_VERBOSE("Add function '" << _name << "' in object mode");
 				m_listFunction.push_back(tmp);
 				return tmp;
 			}

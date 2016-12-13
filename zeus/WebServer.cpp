@@ -143,6 +143,22 @@ void zeus::WebServer::interfaceRemoved(std::vector<uint16_t> _list) {
 			++it;
 		}
 	}
+	for (int32_t iii=0; iii < _list.size(); ++iii) {
+		std::unique_lock<std::mutex> lock(m_pendingCallMutex);
+		auto it = m_pendingCall.begin();
+		while (it != m_pendingCall.end()) {
+			if (it->second.isValid() == false) {
+				it = m_pendingCall.erase(it);
+				continue;
+			}
+			if (it->second.getSource()>>16 != _list[iii]) {
+				++it;
+				continue;
+			}
+			it->second.remoteObjectDestroyed();
+			it = m_pendingCall.erase(it);
+		}
+	}
 }
 
 
@@ -387,7 +403,7 @@ void zeus::WebServer::newMessage(ememory::SharedPtr<zeus::Message> _buffer) {
 				m_processingPool.async(
 				    [=](){
 				    	ememory::SharedPtr<zeus::WebObj> tmpObj = it;
-				    	ZEUS_INFO("PROCESS :  " << _buffer);
+				    	ZEUS_LOG_INPUT_OUTPUT("PROCESS :  " << _buffer);
 				    	tmpObj->receive(_buffer);
 				    },
 				    dest
@@ -406,7 +422,7 @@ void zeus::WebServer::newMessage(ememory::SharedPtr<zeus::Message> _buffer) {
 				m_processingPool.async(
 				    [=](){
 				    	ememory::SharedPtr<zeus::WebObj> tmpObj = tmp;
-				    	ZEUS_INFO("PROCESS :  " << _buffer);
+				    	ZEUS_LOG_INPUT_OUTPUT("PROCESS :  " << _buffer);
 				    	tmpObj->receive(_buffer);
 				    },
 				    dest

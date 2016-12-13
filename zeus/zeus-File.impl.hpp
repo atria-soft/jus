@@ -15,12 +15,14 @@ namespace zeus {
 			etk::FSNode m_node;
 			size_t m_size;
 			std::string m_mineType;
+			std::string m_sha512;
 		public:
 			FileImpl(std::string _fileNameReal, std::string _fileNameShow, std::string _mineType);
 			FileImpl(std::string _fileNameReal);
 			~FileImpl();
 			uint64_t getSize() override;
 			std::string getName() override;
+			std::string getSha512() override;
 			std::string getMineType() override;
 			zeus::Raw getPart(uint64_t _start, uint64_t _stop) override;
 		

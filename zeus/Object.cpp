@@ -27,16 +27,12 @@ void zeus::Object::receive(ememory::SharedPtr<zeus::Message> _value) {
 	if (_value == nullptr) {
 		return;
 	}
-	ZEUS_WARNING("BUFFER" << _value);
 	uint32_t tmpID = _value->getTransactionId();
 	uint32_t source = _value->getSource();
-	ZEUS_WARNING("direct call");
 	zeus::FutureBase futData(tmpID, _value, source);
 	if (futData.isFinished() == true) {
-		ZEUS_INFO("Call Binary ..");
 		callBinary(futData.getRaw());
 	} else {
-		ZEUS_INFO("ADD ...");
 		m_callMultiData.push_back(futData);
 	}
 }

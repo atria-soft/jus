@@ -68,6 +68,10 @@ namespace zeus {
 			void andAbort(zeus::Promise::Observer _callback); // an abort is  requested in the actiron ...
 			*/
 			/**
+			 * @brief The remote object is removed ==> no need to wait more ...
+			 */
+			void remoteObjectDestroyed();
+			/**
 			 * @brief Add data on the call/answer
 			 * @param[in] _returnValue Returned buffer
 			 * @return return true if an error occured
