@@ -50,7 +50,8 @@ void installPath(zeus::service::ProxyPicture& _srv, std::string _path, uint32_t 
 		     || extention == "mkv"
 		     || extention == "mka"
 		     || extention == "tga"
-		     || extention == "mp2") {
+		     || extention == "mp2"
+		     || extention == "mov") {
 			uint32_t mediaId = _srv.mediaAdd(zeus::File::create(itFile)).wait().get();
 			if (mediaId == 0) {
 				APPL_ERROR("Get media ID = 0 With no error");
@@ -221,33 +222,6 @@ int main(int _argc, const char *_argv[]) {
 					} else {
 						APPL_INFO("        - " << it);
 					}
-					#if 0
-					std::vector<std::string> retCall2 = remoteServicePicture.getSubAlbums(it).wait().get();
-					for (auto &it2 : retCall2) {
-						uint32_t retCount2 = remoteServicePicture.getAlbumCount(it2).wait().get();
-						if (retCount2 != 0) {
-							APPL_INFO("            - " << it2 << " / " << retCount2.get() << " images");
-							std::vector<std::string> retListImage = remoteServicePicture.getAlbumListPicture(it2).wait().get();
-							for (auto &it3 : retListImage) {
-								APPL_INFO("                - " << it3);
-								zeus::ProxyFile tmpFile = zeus::ObjectRemote(remoteServicePicture.getAlbumListPicture(it3).wait().get());
-								APPL_INFO("                    mine-type: " << tmpFile.getMineType().wait().get());
-								APPL_INFO("                    size: " << tmpFile.getSize().wait().get());
-								APPL_INFO("                    receive in =" << int64_t(retListImage.getTransmitionTime().count()/1000)/1000.0 << " ms");
-								std::string tmpFileName = std::string("./out/") + it + "_" + it2 + "_" + it3 + "." + zeus::getExtention(tmpFile.getMineType().wait().get());
-								APPL_INFO("                    store in: " << tmpFileName);
-								/*
-								etk::FSNode node(tmpFileName);
-								node.fileOpenWrite();
-								node.fileWrite(&tmpFile.getData()[0], 1, tmpFile.getData().size());
-								node.fileClose();
-								*/
-							}
-						} else {
-							APPL_INFO("            - " << it2);
-						}
-					}
-					#endif
 				}
 			}
 			#if 1
@@ -266,7 +240,6 @@ int main(int _argc, const char *_argv[]) {
 					APPL_WARNING("          speed=" << int64_t(megaParSec/1024.0)/1024.0 << " Mo/s");
 				}
 			#endif
-			std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 		}
 	}
 	int32_t iii=0;

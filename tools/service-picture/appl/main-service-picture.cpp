@@ -34,6 +34,7 @@ class FileProperty {
 		std::string m_name;
 		std::string m_mineType;
 		echrono::Time m_creationData;
+		std::map<std::string, std::string> m_metadata;
 };
 static std::vector<FileProperty> m_listFile;
 
@@ -186,13 +187,42 @@ namespace appl {
 			
 			std::vector<std::string> mediaMetadataGetKeys(uint32_t _mediaId) override {
 				std::vector<std::string> out;
-				return out;
+				for (auto &it : m_listFile) {
+					if (it.m_id == _mediaId) {
+						for (auto &itM : it.m_metadata) {
+							out.push_back(itM.first);
+						}
+						return out;
+					}
+				}
+				throw std::invalid_argument("Wrong Album ID ...");
 			}
 			std::string mediaMetadataGetKey(uint32_t _mediaId, std::string _key) override {
-				return "";
+				std::vector<std::string> out;
+				for (auto &it : m_listFile) {
+					if (it.m_id == _mediaId) {
+						auto itM = it.m_metadata.find(_key);
+						if (itM != it.m_metadata.end()) {
+							return itM->second;
+						}
+						return "";
+					}
+				}
+				throw std::invalid_argument("Wrong Album ID ...");
 			}
 			void mediaMetadataSetKey(uint32_t _mediaId, std::string _key, std::string _value) override {
-				
+				for (auto &it : m_listFile) {
+					if (it.m_id == _mediaId) {
+						auto itM = it.m_metadata.find(_key);
+						if (itM != it.m_metadata.end()) {
+							itM->second = _value;
+						} else {
+							it.m_metadata.insert(std::make_pair(_key, _value));
+						}
+						return;
+					}
+				}
+				throw std::invalid_argument("Wrong Album ID ...");
 			}
 			uint32_t albumCreate(std::string _albumName) override {
 				std::unique_lock<std::mutex> lock(g_mutex);
@@ -378,6 +408,13 @@ static void store_db() {
 		fileElement.add("name", ejson::String(it.m_name));
 		fileElement.add("mine-type", ejson::String(it.m_mineType));
 		fileElement.add("add-date", ejson::Number(it.m_creationData.count()));
+		if (it.m_metadata.size() != 0) {
+			ejson::Object listMetadata;
+			fileElement.add("meta", listMetadata);
+			for (auto &itM : it.m_metadata) {
+				listMetadata.add(itM.first, ejson::String(itM.second));
+			}
+		}
 	}
 	ejson::Array listAlbumArray;
 	database.add("list-album", listAlbumArray);
@@ -417,6 +454,14 @@ static void load_db() {
 		if (m_lastMaxId < property.m_id) {
 			m_lastMaxId = property.m_id+1;
 		}
+		ejson::Object tmpObj = fileElement["meta"].toObject();
+		if (tmpObj.exist() == true) {
+			for (auto itValue = tmpObj.begin();
+			     itValue != tmpObj.end();
+			     ++itValue) {
+				property.m_metadata.insert(std::make_pair(itValue.getKey(), (*itValue).toString().get()));
+			}
+		}
 		if (property.m_fileName == "") {
 			APPL_ERROR("Can not access on the file : ... No name ");
 		} else {
@@ -446,46 +491,6 @@ ETK_EXPORT_API bool SERVICE_IO_init(int _argc, const char *_argv[], std::string 
 	std::unique_lock<std::mutex> lock(g_mutex);
 	APPL_WARNING("Load USER: " << g_basePath);
 	load_db();
-	
-	/*
-	
-	
-	// Load all files (image and video ...)
-	etk::FSNode node(g_basePath);
-	std::vector<etk::FSNode*> tmpList = node.folderGetSubList(false, false, true, false);
-	APPL_WARNING("Find " << tmpList.size() << " files");
-	for (auto &it : tmpList) {
-		if (it == nullptr) {
-			continue;
-		}
-		if (    etk::end_with(it->getNameFile(), ".svg", false) == true
-		     || etk::end_with(it->getNameFile(), ".bmp", false) == true
-		     || etk::end_with(it->getNameFile(), ".png", false) == true
-		     || etk::end_with(it->getNameFile(), ".jpg", false) == true
-		     || etk::end_with(it->getNameFile(), ".tga", false) == true
-		     || etk::end_with(it->getNameFile(), ".mp4", false) == true
-		     || etk::end_with(it->getNameFile(), ".avi", false) == true
-		     || etk::end_with(it->getNameFile(), ".mov", false) == true
-		     || etk::end_with(it->getNameFile(), ".mkv", false) == true) {
-			// TODO : Do it better (proto ..)
-			std::string idString = it->getNameFile();
-			idString.resize(idString.size()-4);
-			uint64_t id = 0;
-			std::stringstream ss;
-			ss << std::hex << idString;
-			ss >> id;
-			if (id <= 1024) {
-				APPL_WARNING("    ==> REJECTED file " << it->getNameFile() << " with ID = " << id);
-			} else {
-				//m_listFile.insert(std::make_pair(id, it->getNameFile()));
-				m_lastMaxId = std::max(m_lastMaxId,id);
-				APPL_WARNING("    ==> load file " << it->getNameFile() << " with ID = " << id);
-			}
-		} else {
-			APPL_WARNING("    ==> REJECT file " << it->getNameFile());
-		}
-	}
-	*/
 	APPL_WARNING("new USER: [STOP]");
 	return true;
 }
