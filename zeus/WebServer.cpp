@@ -543,7 +543,7 @@ bool zeus::WebServer::transferRemoteObjectOwnership(uint16_t _objectAddress, uin
 	return false;
 }
 
-bool zeus::WebServer::remoteObjectOwnership(uint16_t _objectAddress, uint32_t _sourceAddress) {
+bool zeus::WebServer::removeObjectOwnership(uint16_t _objectAddress, uint32_t _sourceAddress) {
 	if (    m_listObject.size() == 0
 	     && m_listRemoteObject.size() == 0) {
 		return false;
@@ -552,6 +552,7 @@ bool zeus::WebServer::remoteObjectOwnership(uint16_t _objectAddress, uint32_t _s
 		if (it == nullptr) {
 			continue;
 		}
+		//ZEUS_INFO("1 Remove ownership of " << it->getObjectId() << " == " << _objectAddress);
 		if (it->getObjectId() == _objectAddress) {
 			return it->removeOwnership(_sourceAddress);
 		}
@@ -561,6 +562,7 @@ bool zeus::WebServer::remoteObjectOwnership(uint16_t _objectAddress, uint32_t _s
 		if (tmp == nullptr) {
 			continue;
 		}
+		//ZEUS_INFO("2 Remove ownership of " << tmp->getObjectId() << " == " << _objectAddress);
 		if (tmp->getObjectId() == _objectAddress) {
 			ZEUS_ERROR("return a remote Object is not permited ... ==> link directly to the original elements");
 			return false;

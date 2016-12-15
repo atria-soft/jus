@@ -92,16 +92,17 @@ void zeus::Client::onClientData(ememory::SharedPtr<zeus::Message> _value) {
 				return;
 			} else if (callFunction == "unlink") {
 				uint32_t objectAddress = callObj->getParameter<uint32_t>(0);
+				ZEUS_VERBOSE("unlink requested of " << (objectAddress>>16) << "/" << (objectAddress&0xFFFF) << "  local interface adress : " << m_interfaceWeb->getAddress());
 				if ((objectAddress>> 16) != m_interfaceWeb->getAddress()) {
 					m_interfaceWeb->answerError(transactionId, _value->getDestination(), _value->getSource(), "REMOVE-OWNERSHIP-WRONG-INTERFACE");
 					return;
 				}
-				bool ret = m_interfaceWeb->remoteObjectOwnership(objectAddress&0xFFFF, _value->getSource());
+				bool ret = m_interfaceWeb->removeObjectOwnership(objectAddress&0xFFFF, _value->getSource());
 				if (ret == true) {
 					m_interfaceWeb->answerVoid(transactionId, _value->getDestination(), _value->getSource());
 					return;
 				}
-				m_interfaceWeb->answerError(transactionId, _value->getDestination(), _value->getSource(), "REMOVE-OWNERSHIP-ERROR");
+				m_interfaceWeb->answerError(transactionId, _value->getDestination(), _value->getSource(), "REMOVE-OWNERSHIP-ERROR", "the object does not exist ...");
 				return;
 			} else if (callFunction == "movelink") {
 				uint32_t objectAddress = callObj->getParameter<uint32_t>(0);
@@ -110,7 +111,7 @@ void zeus::Client::onClientData(ememory::SharedPtr<zeus::Message> _value) {
 					m_interfaceWeb->answerError(transactionId, _value->getDestination(), _value->getSource(), "TRANSFER-OWNERSHIP-WRONG-INTERFACE");
 					return;
 				}
-				bool ret = m_interfaceWeb->transferRemoteObjectOwnership(objectAddress&0xFFFF, _value->getSource(), destinataireAddress);
+				bool ret = m_interfaceWeb->transferRemoteObjectOwnership(objectAddress, _value->getSource(), destinataireAddress);
 				if (ret == true) {
 					m_interfaceWeb->answerVoid(transactionId, _value->getDestination(), _value->getSource());
 					return;

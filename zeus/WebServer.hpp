@@ -359,7 +359,7 @@ namespace zeus {
 			// for debug only:
 			void listObjects();
 			bool transferRemoteObjectOwnership(uint16_t _objectAddress, uint32_t _sourceAddress, uint32_t _destinataireAddress);
-			bool remoteObjectOwnership(uint16_t _objectAddress, uint32_t _sourceAddress);
+			bool removeObjectOwnership(uint16_t _objectAddress, uint32_t _sourceAddress);
 	};
 }
 

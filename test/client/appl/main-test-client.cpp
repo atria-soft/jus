@@ -57,6 +57,7 @@ void installPath(zeus::service::ProxyPicture& _srv, std::string _path, uint32_t 
 				APPL_ERROR("Get media ID = 0 With no error");
 			}
 			if (_albumID != 0) {
+				APPL_INFO("Add media '" << mediaId << "'in ALbum: " << _albumID);
 				_srv.albumMediaAdd(_albumID, mediaId).wait();
 			}
 		} else {

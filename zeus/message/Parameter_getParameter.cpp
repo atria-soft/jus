@@ -1469,7 +1469,7 @@ namespace zeus {
 					uint16_t id    = iface->getAddress();
 					uint16_t idObj = iface->getNewObjectId();
 					// Sent to the interface the change of links from the curent interface to the real object remote ... (the client interface can control that the user calle r is athorised to do it ...
-					iface->call((uint32_t(id)<<16), objectAdress&0xFFFF0000, "movelink", objectAdress, (uint32_t(id)<<16)+idObj);
+					iface->call(getDestination(), objectAdress&0xFFFF0000, "movelink", objectAdress, (uint32_t(id)<<16)+idObj);
 					out = ememory::makeShared<zeus::ObjectRemoteBase>(iface, id, idObj, objectAdress, type.getName());
 					iface->addWebObjRemote(out);
 				} else {

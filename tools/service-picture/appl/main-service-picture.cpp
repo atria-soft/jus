@@ -447,6 +447,7 @@ static void load_db() {
 		ejson::Object fileElement = itArray.toObject();
 		FileProperty property;
 		property.m_id = fileElement["id"].toNumber().getU64();
+		APPL_INFO("get ID : " << property.m_id);
 		property.m_fileName = fileElement["file-name"].toString().get();
 		property.m_name = fileElement["name"].toString().get();
 		property.m_mineType = fileElement["mine-type"].toString().get();
@@ -476,8 +477,8 @@ static void load_db() {
 		album.m_parentId = albumElement["parent"].toNumber().getU64();
 		album.m_name = albumElement["name"].toString().get();
 		album.m_description = albumElement["desc"].toString().get();
-		ejson::Array listMadiaArray = database["list-album"].toArray();
-		for (const auto itArrayMedia: listAlbumArray) {
+		ejson::Array listMadiaArray = albumElement["media"].toArray();
+		for (const auto itArrayMedia: listMadiaArray) {
 			uint64_t tmp = itArrayMedia.toNumber().getU64();
 			album.m_listMedia.push_back(tmp);
 		}

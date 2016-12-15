@@ -38,6 +38,7 @@ void zeus::Promise::remoteObjectDestroyed() {
 	answer->setTransactionId(m_transactionId);
 	answer->setSource(m_source);
 	answer->setDestination(0);
+	answer->setPartFinish(true);
 	answer->addError("REMOTE-OBJECT-REMOVE", "The remote interface ot the Object has been destroyed");
 	setMessage(answer);
 }
@@ -180,7 +181,9 @@ void zeus::Promise::waitFor(echrono::Duration _delta) const {
 	        && isFinished() == false) {
 		// TODO : Do it better ... like messaging/mutex_locked ...
 		std::this_thread::sleep_for(echrono::milliseconds(10));
-		start = echrono::Steady::now();
+	}
+	if (isFinished() == false) {
+		ZEUS_WARNING("Wait timeout ...");
 	}
 }
 
@@ -189,6 +192,9 @@ void zeus::Promise::waitUntil(echrono::Steady _endTime) const {
 	        && isFinished() == false) {
 		// TODO : Do it better ... like messaging/mutex_locked ...
 		std::this_thread::sleep_for(echrono::milliseconds(10));
+	}
+	if (isFinished() == false) {
+		ZEUS_WARNING("Wait timeout ...");
 	}
 }
 

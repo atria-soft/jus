@@ -50,8 +50,10 @@ bool zeus::WebObj::removeOwnership(uint32_t _id) {
 	for (auto it = m_listRemoteConnected.begin();
 	     it != m_listRemoteConnected.end();
 	     ) {
+		ZEUS_VERBOSE("    check ID : " << (*it>>16) << "/" << (*it&0xFFFF) << " == " << (_id>>16) << "/" << (_id&0xFFFF));
 		if (*it == _id) {
 			it = m_listRemoteConnected.erase(it);
+			ZEUS_VERBOSE("        REMOVE ...");
 			return true;
 		}
 		++it;
@@ -71,7 +73,9 @@ void zeus::WebObj::rmRemoteInterface(uint16_t _id) {
 }
 
 bool zeus::WebObj::transferOwnership(uint32_t _sourceAddress, uint32_t _destinataireAddress) {
+	ZEUS_VERBOSE("    transfer onership : " << (_sourceAddress>>16) << "/" << (_sourceAddress&0xFFFF) << " ==> " << (_destinataireAddress>>16) << "/" << (_destinataireAddress&0xFFFF));
 	for (auto &it : m_listRemoteConnected) {
+		//ZEUS_INFO("      " << (it>>16) << "/" << (it&0xFFFF));
 		if (it == _sourceAddress) {
 			it = _destinataireAddress;
 			return true;

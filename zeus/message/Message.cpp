@@ -194,7 +194,7 @@ ememory::SharedPtr<zeus::Message> zeus::Message::create(ememory::SharedPtr<zeus:
 ememory::SharedPtr<zeus::Message> zeus::Message::create(ememory::SharedPtr<zeus::WebServer> _iface, const std::vector<uint8_t>& _buffer) {
 	zeus::message::headerBin header;
 	if (_buffer.size() < sizeof(zeus::message::headerBin)) {
-		ZEUS_ERROR("wrong size of the buffer");
+		ZEUS_ERROR("wrong size of the buffer: " << _buffer.size() << " must be " << sizeof(zeus::message::headerBin));
 		return nullptr;
 	}
 	memcpy(reinterpret_cast<char*>(&header), &_buffer[0], sizeof(zeus::message::headerBin));
