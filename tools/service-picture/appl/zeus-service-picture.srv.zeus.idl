@@ -10,28 +10,12 @@ import zeus-File
 #return: Number of media
 uint32 mediaIdCount()
 
-#brief:Get list of name of the media in a specific range (<1024)
+#brief:Get range list of media ids in a specific range (<1024)
 #param:start:First Id of the media stream requested (range [0..+inf[)
 #param:stop:Last Id of the media stream requested (excluded) (range [0..+inf[)
 #return:List of the media Ids
-vector:uint32 mediaIdGetName(uint32,uint32)
+vector:uint32 mediaIdGetRange(uint32,uint32)
 
-/*
-// ----------------- Get media with their ID in a range of time -----------------------
-#brief:Get the number of media availlable in a range of time
-#param:timeStart:First time that the element is requested
-#param:timeStop:Last time the count is requested
-#return: Number of media in this range of time
-uint32 mediaTimeCount(time, time)
-
-#brief:Get list of name of the media in a specific range (<1024)
-#param:timeStart:First time that the element is requested
-#param:timeStop:Last time the count is requested
-#param:start:First Id of the media stream requested (range [0..+inf[)
-#param:stop:Last Id of the media stream requested (excluded) (range [0..+inf[)
-#return:List of the media names
-vector:string mediaTimeGetName(time, time, uint32,uint32)
-*/
 // ----------------- media Access -----------------------
 #brief:Get a media
 #param:mediaId:Id of the media

@@ -1,20 +1,85 @@
-#elem-brief: video interface management
+#elem-brief: picture interface management
 #elem-version: 1.0
-#elem-type:VIDEO
-#elem-author:Heero Yui<yui.heero@gmail.com>
+#elem-type:PICTURE
+#elem-author:Heero Yui<yui.heero@gmail.com
 
-vector:string getAlbums()
-vector:string getSubAlbums(string)
-uint32 getAlbumCount(string)
-vector:string getAlbumListPicture(string)
-//zeus::FileServer getAlbumPicture(string)
-//string addFile(zeus::File)
-bool removeFile(string)
+import zeus-File
+
+// ----------------- Get media with their ID -----------------------
+#brief:Get the number of media availlable (a media is a picture or a video)
+#return: Number of media
+uint32 mediaIdCount()
+
+#brief:Get list of name of the media in a specific range (<1024)
+#param:start:First Id of the media stream requested (range [0..+inf[)
+#param:stop:Last Id of the media stream requested (excluded) (range [0..+inf[)
+#return:List of the media Ids
+vector:uint32 mediaIdGetName(uint32,uint32)
+
+// ----------------- media Access -----------------------
+#brief:Get a media
+#param:mediaId:Id of the media
+#return:A file reference on the media (transmission is async)
+obj:zeus-File mediaGet(uint32)
 /*
-string createAlbum(string)
-bool removeAlbum(string)
-bool setAlbumDescription(string, string)
-string getAlbumDescription(string)
-bool addInAlbum(string, string)
-bool removeFromAlbum(string, string)
+#brief:Get a media in STREAM mode (usefull for video)
+#param:mediaId:Id of the media
+#return:A stream reference on the media (transmission is async)
+obj::zeus-Stream mediaStream(uint32)
 */
+#brief:Add a new media in the service
+#param:data:A file reference on the media (transmission is async)
+#return:Local personal ID of the media
+uint32 mediaAdd(obj:zeus-File)
+
+#brief:Remove a media in the service (no trash)
+#param:mediaId:Id of the media
+void mediaRemove(uint32)
+
+// ----------------- meta-data Access -----------------------
+/*
+#brief:Get all meta-data of a media
+#param:mediaName:Name of the media
+#return:a json description of the metadata
+json mediaMetadataGet(string)
+*/
+
+#brief:Get all meta-data keys of a media
+#param:mediaId:Id of the media
+#return:List of all availlable keys
+vector:string mediaMetadataGetKeys(uint32)
+
+#brief:Get a meta-data value of a key
+#param:mediaId:Id of the media
+#param:key:Key of the meta-data
+#return:data in the key
+string mediaMetadataGetKey(uint32, string)
+
+#brief:Set a meta-data value of a key
+#param:mediaId:Id of the media
+#param:key:Key of the meta-data
+#param:value:data in the key
+void mediaMetadataSetKey(uint32, string, string)
+
+/*
+#brief:Set all meta-data of a media
+#param:name:Name of the media
+#param:description: a json description of the metadata
+void mediaMetadataSet(string, json)
+*/
+
+/*
+ The SQL-like is now: ['AND','='] only...
+ 'serie-name' = 'stargate'
+ AND 'saison' = '2'
+*/
+#brief:Get a meta-data research elements with a SQL-like request
+#param:sqlLikeRequest:A string containing the request on the data
+#return:All The requested Data filter by the value
+vector:uint32 getMediaWhere(string)
+
+#brief:Get a list of possibilities of a meta-data
+#param:keyName:the key metadata whe we want to have list of possibilities
+#param:sqlLikeRequest:A string containing the request on the data
+#return:All The possible values of a key
+vector:string getMetadataValuesWhere(string, string)

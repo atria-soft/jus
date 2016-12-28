@@ -17,9 +17,11 @@
 #include <etk/stdTools.hpp>
 #include <zeus/service/ProxyUser.hpp>
 #include <zeus/service/ProxyPicture.hpp>
+#include <zeus/service/ProxyVideo.hpp>
 #include <zeus/ProxyFile.hpp>
 #include <zeus/ObjectRemote.hpp>
 #include <echrono/Steady.hpp>
+#include <zeus/FutureGroup.hpp>
 
 void installPath(zeus::service::ProxyPicture& _srv, std::string _path, uint32_t _albumID) {
 	etk::FSNode node(_path);
@@ -67,6 +69,149 @@ void installPath(zeus::service::ProxyPicture& _srv, std::string _path, uint32_t 
 }
 
 
+void installVideoPath(zeus::service::ProxyVideo& _srv, std::string _path, std::map<std::string,std::string> _basicKey = std::map<std::string,std::string>()) {
+	etk::FSNode node(_path);
+	APPL_INFO("Parse : '" << _path << "'");
+	std::vector<std::string> listSubPath = node.folderGetSub(true, false, "*");
+	for (auto &itPath : listSubPath) {
+		std::map<std::string,std::string> basicKeyTmp = _basicKey;
+		APPL_INFO("Add Sub path: '" << itPath << "'");
+		std::string lastPathName = etk::split(itPath, '/').back();
+		if (basicKeyTmp.size() == 0) {
+			APPL_INFO("find '" << lastPathName << "' " << basicKeyTmp.size());
+			if (lastPathName == "films") {
+				basicKeyTmp.insert(std::pair<std::string,std::string>("type", "film"));
+				basicKeyTmp.insert(std::pair<std::string,std::string>("production-methode", "picture"));
+			} else if (lastPathName == "films-annimation") {
+				basicKeyTmp.insert(std::pair<std::string,std::string>("type", "film"));
+				basicKeyTmp.insert(std::pair<std::string,std::string>("production-methode", "draw"));
+			} else if (lastPathName == "tv-show") {
+				basicKeyTmp.insert(std::pair<std::string,std::string>("type", "tv-show"));
+				basicKeyTmp.insert(std::pair<std::string,std::string>("production-methode", "picture"));
+			} else if (lastPathName == "anim") {
+				basicKeyTmp.insert(std::pair<std::string,std::string>("type", "tv-show"));
+				basicKeyTmp.insert(std::pair<std::string,std::string>("production-methode", "draw"));
+			} else if (lastPathName == "courses") { // short films
+				basicKeyTmp.insert(std::pair<std::string,std::string>("type", "courses"));
+				basicKeyTmp.insert(std::pair<std::string,std::string>("production-methode", "picture")); // TODO : Check "draw"
+			} else if (lastPathName == "theater") {
+				basicKeyTmp.insert(std::pair<std::string,std::string>("type", "theater"));
+				basicKeyTmp.insert(std::pair<std::string,std::string>("production-methode", "picture"));
+			} else if (lastPathName == "one-man-show") {
+				basicKeyTmp.insert(std::pair<std::string,std::string>("type", "one-man show"));
+				basicKeyTmp.insert(std::pair<std::string,std::string>("production-methode", "picture"));
+			}
+		} else {
+			APPL_INFO("find '" << lastPathName << "' " << basicKeyTmp.size());
+			if (lastPathName == "saison_01") {
+				basicKeyTmp.insert(std::pair<std::string,std::string>("saison", "1"));
+			} else if (lastPathName == "saison_02") {
+				basicKeyTmp.insert(std::pair<std::string,std::string>("saison", "2"));
+			} else if (lastPathName == "saison_03") {
+				basicKeyTmp.insert(std::pair<std::string,std::string>("saison", "3"));
+			} else if (lastPathName == "saison_04") {
+				basicKeyTmp.insert(std::pair<std::string,std::string>("saison", "4"));
+			} else if (lastPathName == "saison_05") {
+				basicKeyTmp.insert(std::pair<std::string,std::string>("saison", "5"));
+			} else if (lastPathName == "saison_06") {
+				basicKeyTmp.insert(std::pair<std::string,std::string>("saison", "6"));
+			} else if (lastPathName == "saison_07") {
+				basicKeyTmp.insert(std::pair<std::string,std::string>("saison", "7"));
+			} else if (lastPathName == "saison_08") {
+				basicKeyTmp.insert(std::pair<std::string,std::string>("saison", "8"));
+			} else if (lastPathName == "saison_09") {
+				basicKeyTmp.insert(std::pair<std::string,std::string>("saison", "9"));
+			} else if (lastPathName == "saison_10") {
+				basicKeyTmp.insert(std::pair<std::string,std::string>("saison", "10"));
+			} else if (lastPathName == "saison_11") {
+				basicKeyTmp.insert(std::pair<std::string,std::string>("saison", "11"));
+			} else if (lastPathName == "saison_12") {
+				basicKeyTmp.insert(std::pair<std::string,std::string>("saison", "12"));
+			} else if (lastPathName == "saison_13") {
+				basicKeyTmp.insert(std::pair<std::string,std::string>("saison", "13"));
+			} else if (lastPathName == "saison_14") {
+				basicKeyTmp.insert(std::pair<std::string,std::string>("saison", "14"));
+			} else if (lastPathName == "saison_15") {
+				basicKeyTmp.insert(std::pair<std::string,std::string>("saison", "15"));
+			} else if (lastPathName == "saison_16") {
+				basicKeyTmp.insert(std::pair<std::string,std::string>("saison", "16"));
+			} else if (lastPathName == "saison_17") {
+				basicKeyTmp.insert(std::pair<std::string,std::string>("saison", "17"));
+			} else if (lastPathName == "saison_18") {
+				basicKeyTmp.insert(std::pair<std::string,std::string>("saison", "18"));
+			} else if (lastPathName == "saison_19") {
+				basicKeyTmp.insert(std::pair<std::string,std::string>("saison", "19"));
+			} else if (lastPathName == "saison_20") {
+				basicKeyTmp.insert(std::pair<std::string,std::string>("saison", "20"));
+			} else {
+				basicKeyTmp.insert(std::pair<std::string,std::string>("series-name", lastPathName));
+			}
+		}
+		installVideoPath(_srv, itPath, basicKeyTmp);
+	}
+	// Add files :
+	std::vector<std::string> listSubFile = node.folderGetSub(false, true, "*");
+	for (auto &itFile : listSubFile) {
+		std::map<std::string,std::string> basicKeyTmp = _basicKey;
+		APPL_INFO("Add media : '" << itFile << "'");
+		std::string extention = etk::tolower(std::string(itFile.begin()+itFile.size() -3, itFile.end()));
+		if (    extention == "avi"
+		     || extention == "mkv"
+		     || extention == "mov"
+		     || extention == "mp4") {
+			
+			uint32_t mediaId = _srv.mediaAdd(zeus::File::create(itFile)).wait().get();
+			if (mediaId == 0) {
+				APPL_ERROR("Get media ID = 0 With no error");
+				continue;
+			}
+			
+			// Parse file name:
+			std::vector<std::string> listElement = etk::split(itFile, '-');
+			if (listElement.size() == 1) {
+				// nothing to do , it might be a film ...
+			} else {
+				if (    listElement.size() > 3
+				     && listElement[1][0] == 's'
+				     && listElement[2][0] == 'e') {
+					// internal formalisme ...
+					int32_t saison = -1;
+					int32_t episode = -1;
+					std::string seriesName = listElement[0];
+					if (std::string(&listElement[1][1]) == "XX") {
+						// saison unknow ... ==> nothing to do ...
+					} else {
+						saison = etk::string_to_int32_t(&listElement[1][1]);
+					}
+					if (std::string(&listElement[2][1]) == "XX") {
+						// episode unknow ... ==> nothing to do ...
+					} else {
+						episode = etk::string_to_int32_t(&listElement[2][1]);
+						
+						basicKeyTmp.insert(std::pair<std::string,std::string>("episode", etk::to_string(episode)));
+					}
+					APPL_INFO("Find a internal mode series: :");
+					APPL_INFO("    origin       : '" << listElement << "'");
+					APPL_INFO("    recontituated: '" << seriesName << "'-s" << saison << "-e" << episode << "-" << &listElement[3][1]);
+					// TODO: try to find the date of the media: "(XXXX)"
+					
+					// TODO: try to find main actor in the media: "[XXX][YYY]"
+					
+				}
+			}
+			
+			// send all meta data:
+			zeus::FutureGroup group;
+			for (auto &itKey : _basicKey) {
+				group.add(_srv.mediaMetadataSetKey(mediaId, itKey.first, itKey.second));
+			}
+			group.wait();
+			
+		} else {
+			APPL_ERROR("Sot send file : " << itFile << "  Not manage extention...");
+		}
+	}
+}
 int main(int _argc, const char *_argv[]) {
 	etk::init(_argc, _argv);
 	elog::init(_argc, _argv);
@@ -187,7 +332,7 @@ int main(int _argc, const char *_argv[]) {
 	APPL_INFO("    ----------------------------------");
 	APPL_INFO("    -- Get service picture");
 	APPL_INFO("    ----------------------------------");
-	if (true) {
+	if (false) {
 		zeus::service::ProxyPicture remoteServicePicture = client1.getService("picture");
 		if (remoteServicePicture.exist() == true) {
 			// Send a full path:
@@ -196,7 +341,7 @@ int main(int _argc, const char *_argv[]) {
 			APPL_ERROR("Can not get service Picture ...");
 		}
 	}
-	if (true) {
+	if (false) {
 		zeus::service::ProxyPicture remoteServicePicture = client1.getService("picture");
 		if (remoteServicePicture.exist() == true) {
 			zeus::Future<std::vector<uint32_t>> retCall = remoteServicePicture.albumGetList().wait();
@@ -243,6 +388,26 @@ int main(int _argc, const char *_argv[]) {
 			#endif
 		}
 	}
+	APPL_INFO("    ----------------------------------");
+	APPL_INFO("    -- Get service video");
+	APPL_INFO("    ----------------------------------");
+	if (true) {
+		zeus::service::ProxyVideo remoteServiceVideo = client1.getService("video");
+		// Update path:
+		if (remoteServiceVideo.exist() == true) {
+			// Send a full path:
+			installVideoPath(remoteServiceVideo, "testVideo");
+		} else {
+			APPL_ERROR("Can not get service Picture ...");
+		}
+		// List all data:
+		if (remoteServiceVideo.exist() == true) {
+			
+			
+		}
+	}
+	
+	
 	int32_t iii=0;
 	while (iii < 3) {
 		std::this_thread::sleep_for(std::chrono::milliseconds(500));

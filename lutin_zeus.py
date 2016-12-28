@@ -42,11 +42,13 @@ def configure(target, my_module):
 	    'zeus/FutureBase.cpp',
 	    'zeus/Future.cpp',
 	    'zeus/Promise.cpp',
+	    'zeus/FutureGroup.cpp',
 	    ])
 	my_module.add_header_file([
 	    'zeus/Promise.hpp',
 	    'zeus/FutureBase.hpp',
 	    'zeus/Future.hpp',
+	    'zeus/FutureGroup.hpp',
 	    ])
 	
 	# messaging interface

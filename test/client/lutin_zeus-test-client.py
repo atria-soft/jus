@@ -29,7 +29,8 @@ def configure(target, my_module):
 	my_module.add_depend([
 	    'zeus',
 	    'zeus-service-user',
-	    'zeus-service-picture'
+	    'zeus-service-picture',
+	    'zeus-service-video'
 	    ])
 	my_module.add_src_file([
 	    'appl/debug.cpp',

@@ -9,6 +9,7 @@
 #include <zeus/File.hpp>
 #include <etk/etk.hpp>
 #include <zeus/zeus.hpp>
+#include <echrono/Time.hpp>
 
 #include <mutex>
 #include <ejson/ejson.hpp>
@@ -20,311 +21,306 @@
 #include <zeus/service/Video.hpp>
 #include <zeus/service/registerVideo.hpp>
 #include <zeus/ProxyClientProperty.hpp>
+#include <zeus/File.hpp>
+#include <zeus/ProxyFile.hpp>
 
 static std::mutex g_mutex;
 static std::string g_basePath;
 static std::string g_baseDBName = std::string(SERVICE_NAME) + "-database.json";
-static ejson::Document g_database;
-static std::map<uint64_t,std::string> m_listFile;
-static uint64_t m_lastMaxId = 0;
+class FileProperty {
+	public:
+		uint64_t m_id; //!< use local reference ID to have faster access on the file ...
+		std::string m_fileName; // Sha 512
+		std::string m_name;
+		std::string m_mineType;
+		echrono::Time m_creationData;
+		std::map<std::string, std::string> m_metadata;
+};
+static std::vector<FileProperty> m_listFile;
 
-static uint64_t createFileID() {
+static uint64_t m_lastMaxId = 0;
+static bool g_needToStore = false;
+
+static uint64_t createUniqueID() {
 	m_lastMaxId++;
 	return m_lastMaxId;
 }
 
 namespace appl {
-	class VideoService : public zeus::service::Video {
+	class VideoService : public zeus::service::Video  {
 		private:
+			//ememory::SharedPtr<zeus::ClientProperty>& m_client;
 			zeus::ProxyClientProperty m_client;
 			std::string m_userName;
 		public:
 			/*
-			VideoService(ememory::SharedPtr<zeus::ClientProperty> _client, const std::string& _userName) :
+			VideoService(ememory::SharedPtr<zeus::ClientProperty>& _client, const std::string& _userName) :
 			  m_client(_client),
 			  m_userName(_userName) {
 				APPL_WARNING("New VideoService ... for user: ");
 			}
 			*/
 			VideoService(uint16_t _clientId) {
-				APPL_WARNING("New VideoService ... for user: ");
+				APPL_VERBOSE("New VideoService ... for user: " << _clientId);
 			}
 			~VideoService() {
-				APPL_WARNING("delete VideoService ...");
+				APPL_VERBOSE("delete VideoService ...");
 			}
 		public:
-			std::vector<std::string> getAlbums() {
-				std::unique_lock<std::mutex> lock(g_mutex);
-				std::vector<std::string> out;
-				ejson::Array globalGroups = g_database["group-global"].toArray();
-				if (globalGroups.exist() == false) {
-					APPL_DEBUG("'group-global' ==> does not exist ==> No album");
-					return out;
-				}
-				ejson::Object groups = g_database["groups"].toObject();
-				if (groups.exist() == false) {
-					APPL_DEBUG("'group' ==> does not exist ==> No album");
-					return out;
-				}
-				APPL_DEBUG("for element in 'group-global'");
-				for (auto it: globalGroups) {
-					std::string tmpString = it.toString().get();
-					if (tmpString == "") {
-						continue;
-					}
-					APPL_DEBUG("    find emlement:" << tmpString);
-					out.push_back(tmpString);
-				}
-				return out;
-				/*
-				ejson::Object groups = g_database["groups"].toObject();
-				if (groups.exist() == false) {
-					return std::vector<std::string>();
-				}
-				groups
-				return getSubAlbums("");
-				*/
-			}
-			// Get the list of sub album
-			std::vector<std::string> getSubAlbums(std::string _parrentAlbum) {
-				std::unique_lock<std::mutex> lock(g_mutex);
-				std::vector<std::string> out;
-				ejson::Object groups = g_database["groups"].toObject();
-				if (groups.exist() == false) {
-					return out;
-				}
-				// find parrentAlbum ==> to get sub group
-				/*
-				for (size_t iii=0; iii<groups.size(); ++iii) {
-					//ejson::Object group = groups[iii].toObject()["sub"];
-					if (groups.getKey(iii) != _parrentAlbum) {
-						continue;
-					}
-				}
-				*/
-				ejson::Object group = groups[_parrentAlbum].toObject();
-				if (group.exist() == false) {
-					return out;
-				}
-				ejson::Array groupSubs = group["sub"].toArray();
-				for (auto it: groupSubs) {
-					std::string tmpString = it.toString().get();
-					if (tmpString == "") {
-						continue;
-					}
-					out.push_back(tmpString);
-				}
-				// TODO: Check right
-				return out;
-			}
-			uint32_t getAlbumCount(std::string _album) {
-				std::unique_lock<std::mutex> lock(g_mutex);
-				ejson::Object groups = g_database["groups"].toObject();
-				if (groups.exist() == false) {
-					// TODO : Throw an error ...
-					return 0;
-				}
-				ejson::Object group = groups[_album].toObject();
-				if (group.exist() == false) {
-					// TODO : Throw an error ...
-					return 0;
-				}
-				ejson::Array groupSubs = group["files"].toArray();
-				// TODO: Check right
-				return groupSubs.size();
-			}
-			// Return the list of the album files
-			std::vector<std::string> getAlbumListPicture(std::string _album) {
-				std::unique_lock<std::mutex> lock(g_mutex);
-				std::vector<std::string> out;
-				ejson::Object groups = g_database["groups"].toObject();
-				if (groups.exist() == false) {
-					// TODO : Throw an error ...
-					return out;
-				}
-				ejson::Object group = groups[_album].toObject();
-				if (group.exist() == false) {
-					// TODO : Throw an error ...
-					return out;
-				}
-				ejson::Array groupSubs = group["files"].toArray();
-				
-				for (auto it: groupSubs) {
-					uint64_t id = it.toNumber().getU64();
-					/*
-					auto itImage = m_listFile.find(id);
-					if (itImage == m_listFile.end()) {
-						
-					}*/
-					if (id == 0) {
-						continue;
-					}
-					out.push_back(etk::to_string(id));
-				}
-				return out;
-			}
-			/*
-			// Return a File Data (might be a picture .tiff/.png/.jpg)
-			zeus::FileServer getAlbumPicture(std::string _pictureName) {
+			uint32_t mediaIdCount() override {
 				std::unique_lock<std::mutex> lock(g_mutex);
 				// TODO : Check right ...
-				uint64_t id = etk::string_to_uint64_t(_pictureName);
-				APPL_WARNING("try to get file : " << _pictureName << " with id=" << id);
-				{
-					auto it = m_listFile.find(id);
-					if (it != m_listFile.end()) {
-						return zeus::FileServer(g_basePath + it->second);
-					}
+				return m_listFile.size();
+			}
+			
+			std::vector<uint32_t> mediaIdGetName(uint32_t _start, uint32_t _stop) override {
+				std::unique_lock<std::mutex> lock(g_mutex);
+				// TODO : Check right ...
+				std::vector<uint32_t> out;
+				for (size_t iii=_start; iii<m_listFile.size() && iii<_stop; ++iii) {
+					out.push_back(m_listFile[iii].m_id);
 				}
+				return out;
+			}
+			// Return a File Data (might be a video .tiff/.png/.jpg)
+			ememory::SharedPtr<zeus::File> mediaGet(uint32_t _mediaId) override {
+				std::unique_lock<std::mutex> lock(g_mutex);
+				// TODO : Check right ...
+				//Check if the file exist:
+				bool find = false;
+				FileProperty property;
 				for (auto &it : m_listFile) {
-					APPL_WARNING("compare: " << it.first << " with " << id << " " << it.second);
-					if (it.first == id) {
-						return zeus::FileServer(g_basePath + it.second);
+					if (it.m_id == _mediaId) {
+						find = true;
+						property = it;
+						break;
 					}
 				}
-				APPL_ERROR("    ==> Not find ...");
-				return zeus::FileServer();
+				if (find == false) {
+					throw std::invalid_argument("Wrong file name ...");
+				}
+				return zeus::File::create(g_basePath + property.m_fileName + "." + zeus::getExtention(property.m_mineType), "", property.m_mineType);
 			}
-			std::string addFile(zeus::File _dataFile) {
+			uint32_t mediaAdd(zeus::ProxyFile _dataFile) override {
 				std::unique_lock<std::mutex> lock(g_mutex);
 				// TODO : Check right ...
-				APPL_ERROR("    ==> Receive FILE " << _dataFile.getMineType() << " size=" << _dataFile.getData().size());
-				uint64_t id = createFileID();
-				std::stringstream val;
-				val << std::hex << std::setw(16) << std::setfill('0') << id;
-				std::string filename = val.str();
-				filename += ".";
-				filename += zeus::getExtention(_dataFile.getMineType());
-				_dataFile.storeIn(g_basePath + filename);
-				m_listFile.insert(std::make_pair(id, filename));
-				return etk::to_string(id);//zeus::FileServer();
+				uint64_t id = createUniqueID();
+				
+				auto futType = _dataFile.getMineType();
+				auto futName = _dataFile.getName();
+				std::string tmpFileName = g_basePath + "tmpImport_" + etk::to_string(id);
+				std::string sha512String = zeus::storeInFile(_dataFile, tmpFileName);
+				futType.wait();
+				futName.wait();
+				// TODO : Get internal data of the file and remove all the meta-data ==> proper files ...
+				for (auto &it : m_listFile) {
+					if (it.m_fileName == sha512String) {
+						APPL_INFO("File already registered at " << it.m_creationData);
+						// TODO : Check if data is identical ...
+						// remove temporary file
+						etk::FSNodeRemove(tmpFileName);
+						return it.m_id;
+					}
+				}
+				// move the file at the good position:
+				APPL_DEBUG("move temporay file in : " << g_basePath << sha512String);
+				if (etk::FSNodeGetSize(tmpFileName) == 0) {
+					APPL_ERROR("try to store an empty file");
+					throw std::runtime_error("file size == 0");
+				}
+				etk::FSNodeMove(tmpFileName, g_basePath + sha512String + "." + zeus::getExtention(futType.get()));
+				FileProperty property;
+				property.m_id = id;
+				property.m_fileName = sha512String;
+				property.m_name = futName.get();
+				property.m_mineType = futType.get();
+				property.m_creationData = echrono::Time::now();
+				m_listFile.push_back(property);
+				g_needToStore = true;
+				APPL_DEBUG(" filename : " << sha512String);
+				return id;
+			}
+			void mediaRemove(uint32_t _mediaId) override {
+				std::unique_lock<std::mutex> lock(g_mutex);
+				// TODO : Check right ...
+				//Check if the file exist:
+				bool find = false;
+				FileProperty property;
+				for (auto &it : m_listFile) {
+					if (it.m_id == _mediaId) {
+						find = true;
+						property = it;
+						break;
+					}
+				}
+				if (find == false) {
+					throw std::invalid_argument("Wrong file name ...");
+				}
+				// Real Remove definitly the file
+				// TODO : Set it in a trash ... For a while ...
+				if (etk::FSNodeRemove(g_basePath + property.m_fileName + "." + zeus::getExtention(property.m_mineType)) == false) {
+					throw std::runtime_error("Can not remove file ...");
+				}
 			}
 			
+			std::vector<std::string> mediaMetadataGetKeys(uint32_t _mediaId) override {
+				std::unique_lock<std::mutex> lock(g_mutex);
+				std::vector<std::string> out;
+				for (auto &it : m_listFile) {
+					if (it.m_id == _mediaId) {
+						for (auto &itM : it.m_metadata) {
+							out.push_back(itM.first);
+						}
+						return out;
+					}
+				}
+				throw std::invalid_argument("Wrong KEY ID ...");
+			}
+			std::string mediaMetadataGetKey(uint32_t _mediaId, std::string _key) override {
+				std::unique_lock<std::mutex> lock(g_mutex);
+				std::vector<std::string> out;
+				for (auto &it : m_listFile) {
+					if (it.m_id == _mediaId) {
+						auto itM = it.m_metadata.find(_key);
+						if (itM != it.m_metadata.end()) {
+							return itM->second;
+						}
+						return "";
+					}
+				}
+				throw std::invalid_argument("Wrong KEY ID ...");
+			}
+			void mediaMetadataSetKey(uint32_t _mediaId, std::string _key, std::string _value) override {
+				APPL_INFO("[" << _mediaId << "] set key: '" << _key << "' value: '" << _value << "'");
+				std::unique_lock<std::mutex> lock(g_mutex);
+				for (auto &it : m_listFile) {
+					if (it.m_id == _mediaId) {
+						auto itM = it.m_metadata.find(_key);
+						if (itM != it.m_metadata.end()) {
+							itM->second = _value;
+						} else {
+							it.m_metadata.insert(std::make_pair(_key, _value));
+						}
+						return;
+					}
+				}
+				throw std::invalid_argument("Wrong KEY ID ...");
+			}
+			std::vector<uint32_t> getMediaWhere(std::string _sqlLikeRequest) override {
+				std::unique_lock<std::mutex> lock(g_mutex);
+				std::vector<uint32_t> out;
+				if (_sqlLikeRequest == "") {
+					throw std::invalid_argument("empty request");
+				}
+				std::vector<std::string> listAnd = etk::split(_sqlLikeRequest, "AND");
+				APPL_INFO("Find list AND : ");
+				for (auto &it : listAnd) {
+					APPL_INFO("    - '" << it << "'");
+				}
+				
+				return out;
+			}
 			
-			
-			
-			*/
-			/*
-			// Return a global UTC time
-			zeus::Time getAlbumPictureTime(std::string _pictureName) {
-				return m_user->getAlbumPictureTime(_pictureName);
-			}
-			// Return a Geolocalization information (latitude, longitude)
-			zeus::Geo getAlbumPictureGeoLocalization(std::string _pictureName) {
-				return m_user->getAlbumPictureGeoLocalization(_pictureName);
-			}
-			*/
-			bool removeFile(std::string _file) {
+			std::vector<std::string> getMetadataValuesWhere(std::string _keyName, std::string _sqlLikeRequest) override {
 				std::unique_lock<std::mutex> lock(g_mutex);
-				// TODO : Check right ...
-				return false;
+				std::vector<std::string> out;
+				
+				return out;
 			}
 			
-			std::string createAlbum(std::string _name) {
-				std::unique_lock<std::mutex> lock(g_mutex);
-				// TODO : Check right ...
-				return "";
-			}
-			bool removeAlbum(std::string _name) {
-				std::unique_lock<std::mutex> lock(g_mutex);
-				// TODO : Check right ...
-				return false;
-			}
-			bool setAlbumDescription(std::string _name, std::string _desc) {
-				std::unique_lock<std::mutex> lock(g_mutex);
-				// TODO : Check right ...
-				return false;
-			}
-			std::string getAlbumDescription(std::string _name) {
-				std::unique_lock<std::mutex> lock(g_mutex);
-				// TODO : Check right ...
-				return "";
-			}
-			bool addInAlbum(std::string _nameAlbum, std::string _nameElement) {
-				std::unique_lock<std::mutex> lock(g_mutex);
-				// TODO : Check right ...
-				return false;
-			}
-			bool removeFromAlbum(std::string _nameAlbum, std::string _nameElement) {
-				std::unique_lock<std::mutex> lock(g_mutex);
-				// TODO : Check right ...
-				return false;
-			}
-			/*
-			// Return a global UTC time
-			zeus::Time getAlbumPictureTime(std::string _pictureName) {
-				std::unique_lock<std::mutex> lock(g_mutex);
-				// TODO : Check right ...
-				return zeus::Time();
-			}
-			// Return a Geolocalization information (latitude, longitude)
-			zeus::Geo getAlbumPictureGeoLocalization(std::string _pictureName) {
-				std::unique_lock<std::mutex> lock(g_mutex);
-				// TODO : Check right ...
-				return zeus::Geo();
-			}
-			*/
 	};
+}
+
+static void store_db() {
+	APPL_ERROR("Store database [START]");
+	ejson::Document database;
+	ejson::Array listFilesArray;
+	database.add("list-files", listFilesArray);
+	for (auto &it : m_listFile) {
+		ejson::Object fileElement;
+		listFilesArray.add(fileElement);
+		fileElement.add("id", ejson::Number(it.m_id));
+		fileElement.add("file-name", ejson::String(it.m_fileName));
+		fileElement.add("name", ejson::String(it.m_name));
+		fileElement.add("mine-type", ejson::String(it.m_mineType));
+		fileElement.add("add-date", ejson::Number(it.m_creationData.count()));
+		if (it.m_metadata.size() != 0) {
+			ejson::Object listMetadata;
+			fileElement.add("meta", listMetadata);
+			for (auto &itM : it.m_metadata) {
+				listMetadata.add(itM.first, ejson::String(itM.second));
+			}
+		}
+	}
+	bool retGenerate = database.storeSafe(g_basePath + g_baseDBName);
+	APPL_ERROR("Store database [STOP] : " << (g_basePath + g_baseDBName) << " ret = " << retGenerate);
+	g_needToStore = false;
+}
+
+static void load_db() {
+	ejson::Document database;
+	bool ret = database.load(g_basePath + g_baseDBName);
+	if (ret == false) {
+		APPL_WARNING("    ==> LOAD error");
+	}
+	ejson::Array listFilesArray = database["list-files"].toArray();
+	for (const auto itArray: listFilesArray) {
+		ejson::Object fileElement = itArray.toObject();
+		FileProperty property;
+		property.m_id = fileElement["id"].toNumber().getU64();
+		APPL_INFO("get ID : " << property.m_id);
+		property.m_fileName = fileElement["file-name"].toString().get();
+		property.m_name = fileElement["name"].toString().get();
+		property.m_mineType = fileElement["mine-type"].toString().get();
+		property.m_creationData = echrono::Time(fileElement["add-date"].toNumber().getU64()*1000);
+		if (m_lastMaxId < property.m_id) {
+			m_lastMaxId = property.m_id+1;
+		}
+		ejson::Object tmpObj = fileElement["meta"].toObject();
+		if (tmpObj.exist() == true) {
+			for (auto itValue = tmpObj.begin();
+			     itValue != tmpObj.end();
+			     ++itValue) {
+				property.m_metadata.insert(std::make_pair(itValue.getKey(), (*itValue).toString().get()));
+			}
+		}
+		if (property.m_fileName == "") {
+			APPL_ERROR("Can not access on the file : ... No name ");
+		} else {
+			m_listFile.push_back(property);
+		}
+	}
+	g_needToStore = false;
 }
 
 ETK_EXPORT_API bool SERVICE_IO_init(int _argc, const char *_argv[], std::string _basePath) {
 	g_basePath = _basePath;
 	std::unique_lock<std::mutex> lock(g_mutex);
 	APPL_WARNING("Load USER: " << g_basePath);
-	bool ret = g_database.load(g_basePath + g_baseDBName);
-	if (ret == false) {
-		APPL_WARNING("    ==> LOAD error");
-	}
-	// Load all files (image and video ...)
-	etk::FSNode node(g_basePath);
-	std::vector<etk::FSNode*> tmpList = node.folderGetSubList(false, false, true, false);
-	APPL_WARNING("Find " << tmpList.size() << " files");
-	for (auto &it : tmpList) {
-		if (it == nullptr) {
-			continue;
-		}
-		if (    etk::end_with(it->getNameFile(), ".svg", false) == true
-		     || etk::end_with(it->getNameFile(), ".bmp", false) == true
-		     || etk::end_with(it->getNameFile(), ".png", false) == true
-		     || etk::end_with(it->getNameFile(), ".jpg", false) == true
-		     || etk::end_with(it->getNameFile(), ".tga", false) == true
-		     || etk::end_with(it->getNameFile(), ".mp4", false) == true
-		     || etk::end_with(it->getNameFile(), ".avi", false) == true
-		     || etk::end_with(it->getNameFile(), ".mov", false) == true
-		     || etk::end_with(it->getNameFile(), ".mkv", false) == true) {
-			// TODO : Do it better (proto ..)
-			std::string idString = it->getNameFile();
-			idString.resize(idString.size()-4);
-			uint64_t id = 0;
-			std::stringstream ss;
-			ss << std::hex << idString;
-			ss >> id;
-			if (id <= 1024) {
-				APPL_WARNING("    ==> REJECTED file " << it->getNameFile() << " with ID = " << id);
-			} else {
-				m_listFile.insert(std::make_pair(id, it->getNameFile()));
-				m_lastMaxId = std::max(m_lastMaxId,id);
-				APPL_WARNING("    ==> load file " << it->getNameFile() << " with ID = " << id);
-			}
-		} else {
-			APPL_WARNING("    ==> REJECT file " << it->getNameFile());
-		}
-	}
+	load_db();
 	APPL_WARNING("new USER: [STOP]");
 	return true;
 }
 
 ETK_EXPORT_API bool SERVICE_IO_uninit() {
 	std::unique_lock<std::mutex> lock(g_mutex);
-	APPL_DEBUG("Store User Info:");
-	bool ret = g_database.storeSafe(g_basePath + g_baseDBName);
-	if (ret == false) {
-		APPL_WARNING("    ==> Store error");
-		return false;
-	}
+	store_db();
 	APPL_WARNING("delete USER [STOP]");
 	return true;
 }
+
+ETK_EXPORT_API void SERVICE_IO_peridic_call() {
+	if (g_needToStore == false) {
+		return;
+	}
+	// try lock mutex:
+	if (g_mutex.try_lock() == false) {
+		return;
+	}
+	store_db();
+	g_mutex.unlock();
+}
+
 
 ZEUS_SERVICE_VIDEO_DECLARE(appl::VideoService);
 

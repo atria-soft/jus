@@ -83,7 +83,7 @@ namespace appl {
 				return m_listFile.size();
 			}
 			
-			std::vector<uint32_t> mediaIdGetName(uint32_t _start, uint32_t _stop) override {
+			std::vector<uint32_t> mediaIdGetRange(uint32_t _start, uint32_t _stop) override {
 				std::unique_lock<std::mutex> lock(g_mutex);
 				// TODO : Check right ...
 				std::vector<uint32_t> out;
