@@ -33,7 +33,7 @@ namespace appl {
 			virtual ~MessageElement() = default;
 	};
 	// class that contain all the element needed for a buffer image transfert:
-	class MessageElementVideo : public appl::BufferElement {
+	class MessageElementVideo : public appl::MessageElement {
 		public:
 			egami::Image m_image; //!< Image to manage internal data
 			ivec2 m_imagerealSize; //!< Real size of the image, in OpenGL we need power of 2 border size.
@@ -44,7 +44,7 @@ namespace appl {
 				
 			}
 	};
-	class MessageElementAudio : public appl::BufferElement {
+	class MessageElementAudio : public appl::MessageElement {
 		public:
 			std::vector<uint8_t> m_buffer; //!< raw audio data
 			audio::format m_format; //!< Audio format buffer

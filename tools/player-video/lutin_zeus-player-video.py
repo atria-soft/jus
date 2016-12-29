@@ -34,17 +34,22 @@ def configure(target, my_module):
 	    'appl/Windows.cpp',
 	    'appl/MediaDecoder.cpp',
 	    'appl/widget/VideoPlayer.cpp',
+	    'appl/widget/ListViewer.cpp',
 	    ])
 	my_module.add_depend([
 	    'ffmpeg-libs',
 	    'ewol',
-	    'audio-river'
+	    'audio-river',
+	    'zeus',
+	    'zeus-service-video',
+	    'ejson',
 	    ])
 	my_module.add_flag('c++', [
 	    "-DPROJECT_NAME=\"\\\""+my_module.get_name()+"\\\"\"",
 	    "-DAPPL_VERSION=\"\\\"" + tools.version_to_string(get_version()) + "\\\"\"",
 	    "-Wno-deprecated-declarations"
 	    ])
+	my_module.copy_path('data/*')
 	my_module.add_path(".")
 	return True
 

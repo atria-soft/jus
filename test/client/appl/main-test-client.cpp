@@ -68,6 +68,29 @@ void installPath(zeus::service::ProxyPicture& _srv, std::string _path, uint32_t 
 	}
 }
 
+static std::string extractAndRemove(const std::string& _inputValue, const char _startMark, const char _stopMark, std::vector<std::string>& _values) {
+	_values.clear();
+	std::string out;
+	bool inside=false;
+	std::string insideData;
+	for (auto &it : _inputValue) {
+		if (    inside == false
+		     && it == _startMark) {
+			inside = true;
+		} else if (    inside == true
+		            && it == _stopMark) {
+			inside = false;
+			_values.push_back(insideData);
+			insideData.clear();
+		} else if (inside == true) {
+			insideData += it;
+		} else {
+			out += it;
+		}
+	}
+	return out;
+}
+
 
 void installVideoPath(zeus::service::ProxyVideo& _srv, std::string _path, std::map<std::string,std::string> _basicKey = std::map<std::string,std::string>()) {
 	etk::FSNode node(_path);
@@ -160,17 +183,75 @@ void installVideoPath(zeus::service::ProxyVideo& _srv, std::string _path, std::m
 		     || extention == "mov"
 		     || extention == "mp4") {
 			
-			uint32_t mediaId = _srv.mediaAdd(zeus::File::create(itFile)).wait().get();
+			uint32_t mediaId = _srv.mediaAdd(zeus::File::create(itFile)).waitFor(echrono::seconds(20000)).get();
 			if (mediaId == 0) {
 				APPL_ERROR("Get media ID = 0 With no error");
 				continue;
 			}
 			
 			// Parse file name:
-			std::vector<std::string> listElement = etk::split(itFile, '-');
+			std::string fileName = etk::split(itFile, '/').back();
+			APPL_INFO("Find fileName : '" << fileName << "'");
+			// Remove Date (XXXX)
+			std::vector<std::string> dates;
+			fileName = extractAndRemove(fileName, '(', ')', dates);
+			if (dates.size() > 1) {
+				APPL_INFO("                '" << fileName << "'");
+				APPL_ERROR("Parse Date error : () : " << dates);
+			} else if (dates.size() == 1) {
+				APPL_INFO("                '" << fileName << "'");
+				basicKeyTmp.insert(std::pair<std::string,std::string>("date", dates[0]));
+			}
+			// Remove the actors [XXX YYY][EEE TTT]...
+			std::vector<std::string> acthors;
+			fileName = extractAndRemove(fileName, '[', ']', acthors);
+			if (acthors.size() > 0) {
+				APPL_INFO("                '" << fileName << "'");
+				std::string actorList;
+				for (auto &itActor : acthors) {
+					if (actorList != "") {
+						actorList += ";";
+					}
+					actorList += itActor;
+				}
+				basicKeyTmp.insert(std::pair<std::string,std::string>("acthors", actorList));
+			}
+			
+			// remove extention
+			fileName = std::string(fileName.begin(), fileName.begin() + fileName.size() - 4);
+			
+			std::vector<std::string> listElementBase = etk::split(fileName, '-');
+			
+			std::vector<std::string> listElement;
+			std::string tmpStartString;
+			for (size_t iii=0; iii<listElementBase.size(); ++iii) {
+				if (    listElementBase[iii][0] != 's'
+				     && listElementBase[iii][0] != 'e') {
+					if (tmpStartString != "") {
+						tmpStartString += '-';
+					}
+					tmpStartString += listElementBase[iii];
+				} else {
+					listElement.push_back(tmpStartString);
+					tmpStartString = "";
+					for (/* nothing to do */; iii<listElementBase.size(); ++iii) {
+						listElement.push_back(listElementBase[iii]);
+					}
+				}
+				
+			}
+			if (tmpStartString != "") {
+				listElement.push_back(tmpStartString);
+			}
 			if (listElement.size() == 1) {
 				// nothing to do , it might be a film ...
+				basicKeyTmp.insert(std::pair<std::string,std::string>("title", etk::to_string(listElement[0])));
 			} else {
+				/*
+				for (auto &itt : listElement) {
+					APPL_INFO("    " << itt);
+				}
+				*/
 				if (    listElement.size() > 3
 				     && listElement[1][0] == 's'
 				     && listElement[2][0] == 'e') {
@@ -178,6 +259,9 @@ void installVideoPath(zeus::service::ProxyVideo& _srv, std::string _path, std::m
 					int32_t saison = -1;
 					int32_t episode = -1;
 					std::string seriesName = listElement[0];
+					
+					basicKeyTmp.insert(std::pair<std::string,std::string>("series-name", etk::to_string(seriesName)));
+					basicKeyTmp.insert(std::pair<std::string,std::string>("title", etk::to_string(listElement[3])));
 					if (std::string(&listElement[1][1]) == "XX") {
 						// saison unknow ... ==> nothing to do ...
 					} else {
@@ -191,18 +275,34 @@ void installVideoPath(zeus::service::ProxyVideo& _srv, std::string _path, std::m
 						basicKeyTmp.insert(std::pair<std::string,std::string>("episode", etk::to_string(episode)));
 					}
 					APPL_INFO("Find a internal mode series: :");
-					APPL_INFO("    origin       : '" << listElement << "'");
-					APPL_INFO("    recontituated: '" << seriesName << "'-s" << saison << "-e" << episode << "-" << &listElement[3][1]);
-					// TODO: try to find the date of the media: "(XXXX)"
-					
-					// TODO: try to find main actor in the media: "[XXX][YYY]"
-					
+					APPL_INFO("    origin       : '" << fileName << "'");
+					std::string saisonPrint = "XX";
+					std::string episodePrint = "XX";
+					if (saison < 0) {
+						// nothing to do
+					} else if(saison < 10) {
+						saisonPrint = "0" + etk::to_string(saison);
+						basicKeyTmp.insert(std::pair<std::string,std::string>("saison", etk::to_string(saison)));
+					} else {
+						saisonPrint = etk::to_string(saison);
+						basicKeyTmp.insert(std::pair<std::string,std::string>("saison", etk::to_string(saison)));
+					}
+					if (episode < 0) {
+						// nothing to do
+					} else if(episode < 10) {
+						episodePrint = "0" + etk::to_string(episode);
+						basicKeyTmp.insert(std::pair<std::string,std::string>("episode", etk::to_string(episode)));
+					} else {
+						episodePrint = etk::to_string(episode);
+						basicKeyTmp.insert(std::pair<std::string,std::string>("episode", etk::to_string(episode)));
+					}
+					APPL_INFO("    recontituated: '" << seriesName << "-s" << saisonPrint << "-e" << episodePrint << "-" << listElement[3] << "'");
 				}
 			}
 			
 			// send all meta data:
 			zeus::FutureGroup group;
-			for (auto &itKey : _basicKey) {
+			for (auto &itKey : basicKeyTmp) {
 				group.add(_srv.mediaMetadataSetKey(mediaId, itKey.first, itKey.second));
 			}
 			group.wait();
@@ -237,7 +337,7 @@ int main(int _argc, const char *_argv[]) {
 	APPL_INFO("==================================");
 	
 	if (false) {
-		bool ret = client1.connect("test1~atria-soft.com", "clientTest1~atria-soft.com", "QSDQSDGQSF54HSXWVCSQDJ654URTDJ654NBXCDFDGAEZ51968");
+		bool ret = client1.connect("test1", "clientTest1~atria-soft.com", "QSDQSDGQSF54HSXWVCSQDJ654URTDJ654NBXCDFDGAEZ51968");
 		if (ret == false) {
 			APPL_ERROR("    ==> NOT Connected to 'test1~atria-soft.com' with 'clientTest1~atria-soft.com'");
 			return -1;
@@ -245,7 +345,7 @@ int main(int _argc, const char *_argv[]) {
 			APPL_INFO("    ==> Connected with 'clientTest1~atria-soft.com'");
 		}
 	} else if (true) {
-		bool ret = client1.connect("test1~atria-soft.com", "coucou");
+		bool ret = client1.connect("test1", "coucou");
 		if (ret == false) {
 			APPL_ERROR("    ==> NOT Authentify with 'test1~atria-soft.com'");
 			return -1;
@@ -253,7 +353,7 @@ int main(int _argc, const char *_argv[]) {
 			APPL_INFO("    ==> Authentify with 'test1~atria-soft.com'");
 		}
 	} else {
-		bool ret = client1.connect("test1~atria-soft.com");
+		bool ret = client1.connect("test1");
 		if (ret == false) {
 			APPL_ERROR("    ==> NOT Connected with 'anonymous'");
 			return -1;
@@ -389,10 +489,22 @@ int main(int _argc, const char *_argv[]) {
 		}
 	}
 	APPL_INFO("    ----------------------------------");
-	APPL_INFO("    -- Get service video");
+	APPL_INFO("    -- Get service video (send DATA)  ");
 	APPL_INFO("    ----------------------------------");
 	if (true) {
 		zeus::service::ProxyVideo remoteServiceVideo = client1.getService("video");
+		// remove all media (for test)
+		if (remoteServiceVideo.exist() == true) {
+			uint32_t count = remoteServiceVideo.mediaIdCount().wait().get();
+			std::vector<uint32_t> list = remoteServiceVideo.mediaIdGet(0,count).wait().get();
+			zeus::FutureGroup groupWait;
+			for (auto& it : list) {
+				APPL_INFO("remove ELEMENT : " << it);
+				groupWait.add(remoteServiceVideo.mediaRemove(it));
+			}
+			groupWait.waitFor(echrono::seconds(2000));
+		}
+		
 		// Update path:
 		if (remoteServiceVideo.exist() == true) {
 			// Send a full path:

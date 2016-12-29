@@ -73,7 +73,7 @@ namespace appl {
 				return m_listFile.size();
 			}
 			
-			std::vector<uint32_t> mediaIdGetName(uint32_t _start, uint32_t _stop) override {
+			std::vector<uint32_t> mediaIdGet(uint32_t _start, uint32_t _stop) override {
 				std::unique_lock<std::mutex> lock(g_mutex);
 				// TODO : Check right ...
 				std::vector<uint32_t> out;
@@ -146,11 +146,15 @@ namespace appl {
 				//Check if the file exist:
 				bool find = false;
 				FileProperty property;
-				for (auto &it : m_listFile) {
-					if (it.m_id == _mediaId) {
+				for (auto it = m_listFile.begin();
+				     it != m_listFile.end();
+				     /* No increment */) {
+					if (it->m_id == _mediaId) {
+						it = m_listFile.erase(it);
 						find = true;
-						property = it;
-						break;
+						property = *it;
+					} else {
+						++it;
 					}
 				}
 				if (find == false) {

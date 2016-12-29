@@ -156,11 +156,15 @@ namespace appl {
 				//Check if the file exist:
 				bool find = false;
 				FileProperty property;
-				for (auto &it : m_listFile) {
-					if (it.m_id == _mediaId) {
+				for (auto it = m_listFile.begin();
+				     it != m_listFile.end();
+				     /* No increment */) {
+					if (it->m_id == _mediaId) {
+						it = m_listFile.erase(it);
 						find = true;
-						property = it;
-						break;
+						property = *it;
+					} else {
+						++it;
 					}
 				}
 				if (find == false) {

@@ -9,8 +9,42 @@
 #include <appl/Windows.hpp>
 #include <ewol/widget/Label.hpp>
 #include <ewol/widget/Button.hpp>
+#include <ewol/widget/Entry.hpp>
 #include <ewol/widget/Slider.hpp>
 #include <appl/widget/VideoPlayer.hpp>
+#include <ewol/tools/message.hpp>
+
+#include <zeus/zeus.hpp>
+#include <zeus/Client.hpp>
+#include <zeus/service/ProxyVideo.hpp>
+#include <zeus/ProxyFile.hpp>
+#include <zeus/ObjectRemote.hpp>
+#include <echrono/Steady.hpp>
+#include <zeus/FutureGroup.hpp>
+#include <etk/stdTools.hpp>
+#include <ejson/ejson.hpp>
+
+static std::string g_baseDBName = "USERDATA:config.json";
+
+void appl::Windows::store_db() {
+	APPL_DEBUG("Store database [START]");
+	ejson::Document database;
+	database.add("login", ejson::String(m_login));
+	database.add("pass", ejson::String(m_password));
+	bool retGenerate = database.storeSafe(g_baseDBName);
+	APPL_ERROR("Store database [STOP] : " << (g_baseDBName) << " ret = " << retGenerate);
+}
+
+void appl::Windows::load_db() {
+	ejson::Document database;
+	bool ret = database.load(g_baseDBName);
+	if (ret == false) {
+		APPL_WARNING("    ==> LOAD error");
+	}
+	m_login = database["login"].toString().get();
+	m_password = database["pass"].toString().get();
+}
+
 
 appl::Windows::Windows():
   m_id(0) {
@@ -20,29 +54,73 @@ appl::Windows::Windows():
 
 void appl::Windows::init() {
 	ewol::widget::Windows::init();
+	load_db();
 	std::string composition = std::string("");
-	composition += "<sizer mode='vert'>\n";
-	composition += "	<sizer mode='hori'>\n";
-	composition += "		<button name='bt-previous'>\n";
-	composition += "			<label>\n";
-	composition += "				previous\n";
-	composition += "			</label>\n";
+	composition += "<wslider name='view-selection' fill='true,true' expand='true,true'>\n";
+	composition += "	<PopUp name='ws-name-connect' >\n";
+	composition += "		<sizer mode='vert' fill='true,true' expand='false,false' lock='true,true' addmode='invert' min-size='45,10%'>\n";
+	composition += "			<label>login</label>\n";
+	composition += "			<entry name='connect-login' fill='true,false' expand='true,false'/>\n";
+	composition += "			<label>password</label>\n";
+	composition += "			<entry name='connect-password' fill='true,false' expand='true,false'/>\n";
+	composition += "			<button name='connect-bt' toggle='false' fill='false,false' expand='true,false' gravity='right'>\n";
+	composition += "				<label>Connect</label>\n";
+	composition += "			</button>\n";
+	composition += "		</sizer>\n";
+	composition += "	</PopUp>\n";
+	composition += "	<sizer mode='vert' name='ws-name-list' fill='true,true' expand='true,true' addmode='invert'>\n";
+	composition += "		<button name='bt-film-picture' expand='true,false' fill='true,true'>\n";
+	composition += "			<label>Films</label>\n";
 	composition += "		</button>\n";
-	composition += "		<button name='bt-play' toggle='true'>\n";
-	composition += "			<label>play</label>\n";
-	composition += "			<label>pause</label>\n";
+	composition += "		<button name='bt-film-draw' expand='true,false' fill='true,true'>\n";
+	composition += "			<label>Annimated films</label>\n";
 	composition += "		</button>\n";
-	composition += "		<button name='bt-next'>\n";
-	composition += "			<label>\n";
-	composition += "				Next\n";
-	composition += "			</label>\n";
+	composition += "		<button name='bt-tv-picture' expand='true,false' fill='true,true'>\n";
+	composition += "			<label>TV Show</label>\n";
 	composition += "		</button>\n";
-	composition += "		<label name='lb-fps'/>\n";
-	composition += "		<label name='lb-time'/>\n";
+	composition += "		<button name='bt-tv-draw' expand='true,false' fill='true,true'>\n";
+	composition += "			<label>Annimated TV Show</label>\n";
+	composition += "		</button>\n";
+	composition += "		<button name='bt-theater' expand='true,false' fill='true,true'>\n";
+	composition += "			<label>Teather</label>\n";
+	composition += "		</button>\n";
+	composition += "		<button name='bt-one-man-show' expand='true,false' fill='true,true'>\n";
+	composition += "			<label>One-man show</label>\n";
+	composition += "		</button>\n";
+	composition += "		<button name='bt-courses' expand='true,false' fill='true,true'>\n";
+	composition += "			<label>Courses</label>\n";
+	composition += "		</button>\n";
+	composition += "		<spacer fill='true,true' expand='true,true'/>\n";
 	composition += "	</sizer>\n";
-	composition += "	<slider name='progress-bar' expand='true,false' fill='true' step='0.01' min='0'/>\n";
-	composition += "	<VideoDisplay name='displayer' expand='true' fill='true'/>\n";
-	composition += "</sizer>\n";
+	composition += "	<ListViewer name='ws-name-list-viewer' fill='true,true' expand='true,true'/>\n";
+	composition += "	<sizer mode='vert' name='ws-name-player' fill='true,true' expand='true,true'>\n";
+	composition += "		<sizer mode='hori' fill='true,true' expand='true,true'>\n";
+	composition += "			<button name='bt-previous'>\n";
+	composition += "				<label>\n";
+	composition += "					previous\n";
+	composition += "				</label>\n";
+	composition += "			</button>\n";
+	composition += "			<button name='bt-play' toggle='true'>\n";
+	composition += "				<label>play</label>\n";
+	composition += "				<label>pause</label>\n";
+	composition += "			</button>\n";
+	composition += "			<button name='bt-next'>\n";
+	composition += "				<label>\n";
+	composition += "					Next\n";
+	composition += "				</label>\n";
+	composition += "			</button>\n";
+	composition += "			<label name='lb-fps'/>\n";
+	composition += "			<label name='lb-time'/>\n";
+	composition += "			<button name='bt-back'>\n";
+	composition += "				<label>\n";
+	composition += "					back\n";
+	composition += "				</label>\n";
+	composition += "			</button>\n";
+	composition += "		</sizer>\n";
+	composition += "		<slider name='progress-bar' expand='true,false' fill='true' step='0.01' min='0'/>\n";
+	composition += "		<VideoDisplay name='displayer' expand='true' fill='true'/>\n";
+	composition += "	</sizer>\n";
+	composition += "</wslider>\n";
 	
 	m_composer = ewol::widget::Composer::create();
 	if (m_composer == nullptr) {
@@ -54,9 +132,28 @@ void appl::Windows::init() {
 	subBind(ewol::widget::Button, "bt-previous", signalPressed, sharedFromThis(), &appl::Windows::onCallbackPrevious);
 	subBind(ewol::widget::Button, "bt-play", signalValue, sharedFromThis(), &appl::Windows::onCallbackPlay);
 	subBind(ewol::widget::Button, "bt-next", signalPressed, sharedFromThis(), &appl::Windows::onCallbackNext);
+	subBind(ewol::widget::Button, "bt-back", signalPressed, sharedFromThis(), &appl::Windows::onCallbackBack);
 	subBind(appl::widget::VideoDisplay, "displayer", signalFps, sharedFromThis(), &appl::Windows::onCallbackFPS);
 	subBind(appl::widget::VideoDisplay, "displayer", signalPosition, sharedFromThis(), &appl::Windows::onCallbackPosition);
 	subBind(ewol::widget::Slider, "progress-bar", signalChange, sharedFromThis(), &appl::Windows::onCallbackSeekRequest);
+	
+	
+	subBind(ewol::widget::Entry, "connect-login", signalModify, sharedFromThis(), &appl::Windows::onCallbackConnectLogin);
+	subBind(ewol::widget::Entry, "connect-password", signalModify, sharedFromThis(), &appl::Windows::onCallbackConnectPassword);
+	subBind(ewol::widget::Button, "connect-bt", signalPressed, sharedFromThis(), &appl::Windows::onCallbackConnectConnect);
+	
+	
+	subBind(ewol::widget::Button, "bt-film-picture", signalPressed, sharedFromThis(), &appl::Windows::onCallbackSelectFilms);
+	subBind(ewol::widget::Button, "bt-film-draw", signalPressed, sharedFromThis(), &appl::Windows::onCallbackSelectAnnimation);
+	subBind(ewol::widget::Button, "bt-tv-picture", signalPressed, sharedFromThis(), &appl::Windows::onCallbackSelectTVShow);
+	subBind(ewol::widget::Button, "bt-tv-draw", signalPressed, sharedFromThis(), &appl::Windows::onCallbackSelectTvAnnimation);
+	subBind(ewol::widget::Button, "bt-theater", signalPressed, sharedFromThis(), &appl::Windows::onCallbackSelectTeather);
+	subBind(ewol::widget::Button, "bt-one-man-show", signalPressed, sharedFromThis(), &appl::Windows::onCallbackSelectOneManShow);
+	subBind(ewol::widget::Button, "bt-courses", signalPressed, sharedFromThis(), &appl::Windows::onCallbackSelectSourses);
+	
+	
+	propertySetOnWidgetNamed("connect-login", "value", m_login);
+	propertySetOnWidgetNamed("connect-password", "value", m_password);
 }
 
 
@@ -78,6 +175,10 @@ void appl::Windows::onCallbackPrevious() {
 		propertySetOnWidgetNamed("progress-bar", "value", "0");
 		propertySetOnWidgetNamed("progress-bar", "max", etk::to_string(time.toSeconds()));
 	}
+}
+
+void appl::Windows::onCallbackBack() {
+	
 }
 
 void appl::Windows::onCallbackPlay(const bool& _isPressed) {
@@ -146,4 +247,72 @@ void appl::Windows::onCallbackSeekRequest(const float& _value) {
 	}
 }
 
+
+void appl::Windows::onCallbackConnectLogin(const std::string& _value) {
+	m_login = _value;
+	store_db();
+}
+
+void appl::Windows::onCallbackConnectPassword(const std::string& _value) {
+	m_password = _value;
+	store_db();
+}
+
+void appl::Windows::onCallbackConnectConnect() {
+	APPL_INFO("Connect with : '" << m_login << "' ... '" << m_password << "'");
+	// check connection is correct:
+	zeus::Client client1;
+	// separate loggin and IP adress ...
+	std::string login;
+	std::vector<std::string> listElem = etk::split(m_login, '~');
+	login = listElem[0];
+	if (listElem.size() == 1) {
+		// connnect on local host ... nothing to do
+	} else {
+		std::vector<std::string> listElem2 = etk::split(listElem[0], ':');
+		client1.propertyIp.set(listElem2[0]);
+		if (listElem2.size() >= 1) {
+			client1.propertyPort.set(etk::string_to_uint32_t(listElem2[1]));
+		}
+	}
+	bool ret = client1.connect(login, m_password);
+	if (ret == false) {
+		APPL_ERROR("    ==> NOT Authentify to '" << login << "'");
+		ewol::tools::message::displayError("Can not connect the server with <br/>'" + login + "'");
+	} else {
+		APPL_INFO("    ==> Authentify with '" << login << "'");
+		ewol::propertySetOnObjectNamed("view-selection", "select", "ws-name-list");
+	}
+	
+	
+}
+
+void appl::Windows::onCallbackSelectFilms() {
+	ewol::propertySetOnObjectNamed("view-selection", "select", "ws-name-list-viewer");
+	ewol::propertySetOnObjectNamed("ws-name-list-viewer", "filter", "film");
+}
+void appl::Windows::onCallbackSelectAnnimation() {
+	ewol::propertySetOnObjectNamed("view-selection", "select", "ws-name-list-viewer");
+	ewol::propertySetOnObjectNamed("ws-name-list-viewer", "filter", "annimation");
+}
+void appl::Windows::onCallbackSelectTVShow() {
+	ewol::propertySetOnObjectNamed("view-selection", "select", "ws-name-list-viewer");
+	ewol::propertySetOnObjectNamed("ws-name-list-viewer", "filter", "tv-show");
+}
+void appl::Windows::onCallbackSelectTvAnnimation() {
+	ewol::propertySetOnObjectNamed("view-selection", "select", "ws-name-list-viewer");
+	ewol::propertySetOnObjectNamed("ws-name-list-viewer", "filter", "tv-annimation");
+}
+void appl::Windows::onCallbackSelectTeather() {
+	ewol::propertySetOnObjectNamed("view-selection", "select", "ws-name-list-viewer");
+	ewol::propertySetOnObjectNamed("ws-name-list-viewer", "filter", "teather");
+}
+void appl::Windows::onCallbackSelectOneManShow() {
+	ewol::propertySetOnObjectNamed("view-selection", "select", "ws-name-list-viewer");
+	ewol::propertySetOnObjectNamed("ws-name-list-viewer", "filter", "one-man");
+}
+void appl::Windows::onCallbackSelectSourses() {
+	ewol::propertySetOnObjectNamed("view-selection", "select", "ws-name-list-viewer");
+	ewol::propertySetOnObjectNamed("ws-name-list-viewer", "filter", "courses");
+}
 

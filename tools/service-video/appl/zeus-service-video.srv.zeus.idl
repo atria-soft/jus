@@ -14,7 +14,7 @@ uint32 mediaIdCount()
 #param:start:First Id of the media stream requested (range [0..+inf[)
 #param:stop:Last Id of the media stream requested (excluded) (range [0..+inf[)
 #return:List of the media Ids
-vector:uint32 mediaIdGetName(uint32,uint32)
+vector:uint32 mediaIdGet(uint32,uint32)
 
 // ----------------- media Access -----------------------
 #brief:Get a media

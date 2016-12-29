@@ -33,7 +33,7 @@ void appl::widget::VideoDisplay::init() {
 	// set call all time (sample ...).
 	getObjectManager().periodicCall.connect(sharedFromThis(), &appl::widget::VideoDisplay::periodicEvent);
 	// Create the VBO:
-	m_VBO = gale::resource::VirtualMessageObject::create(NB_VBO);
+	m_VBO = gale::resource::VirtualBufferObject::create(NB_VBO);
 	if (m_VBO == nullptr) {
 		APPL_ERROR("can not instanciate VBO ...");
 		return;
@@ -181,41 +181,41 @@ void appl::widget::VideoDisplay::printPart(const vec2& _size,
 	//EWOL_ERROR("Debug image " << m_filename << "  ==> " << m_position << " " << _size << " " << _sourcePosStart << " " << _sourcePosStop);
 	vec3 point = m_position;
 	vec2 tex(_sourcePosStart.x(),_sourcePosStop.y());
-	m_VBO->pushOnMessage(m_vboIdCoord, point);
-	m_VBO->pushOnMessage(m_vboIdCoordTex, tex);
-	m_VBO->pushOnMessage(m_vboIdColor, m_color);
+	m_VBO->pushOnBuffer(m_vboIdCoord, point);
+	m_VBO->pushOnBuffer(m_vboIdCoordTex, tex);
+	m_VBO->pushOnBuffer(m_vboIdColor, m_color);
 	
 	tex.setValue(_sourcePosStop.x(),_sourcePosStop.y());
 	point.setX(m_position.x() + _size.x());
 	point.setY(m_position.y());
-	m_VBO->pushOnMessage(m_vboIdCoord, point);
-	m_VBO->pushOnMessage(m_vboIdCoordTex, tex);
-	m_VBO->pushOnMessage(m_vboIdColor, m_color);
+	m_VBO->pushOnBuffer(m_vboIdCoord, point);
+	m_VBO->pushOnBuffer(m_vboIdCoordTex, tex);
+	m_VBO->pushOnBuffer(m_vboIdColor, m_color);
 	
 	tex.setValue(_sourcePosStop.x(),_sourcePosStart.y());
 	point.setX(m_position.x() + _size.x());
 	point.setY(m_position.y() + _size.y());
-	m_VBO->pushOnMessage(m_vboIdCoord, point);
-	m_VBO->pushOnMessage(m_vboIdCoordTex, tex);
-	m_VBO->pushOnMessage(m_vboIdColor, m_color);
+	m_VBO->pushOnBuffer(m_vboIdCoord, point);
+	m_VBO->pushOnBuffer(m_vboIdCoordTex, tex);
+	m_VBO->pushOnBuffer(m_vboIdColor, m_color);
 	
-	m_VBO->pushOnMessage(m_vboIdCoord, point);
-	m_VBO->pushOnMessage(m_vboIdCoordTex, tex);
-	m_VBO->pushOnMessage(m_vboIdColor, m_color);
+	m_VBO->pushOnBuffer(m_vboIdCoord, point);
+	m_VBO->pushOnBuffer(m_vboIdCoordTex, tex);
+	m_VBO->pushOnBuffer(m_vboIdColor, m_color);
 	
 	tex.setValue(_sourcePosStart.x(),_sourcePosStart.y());
 	point.setX(m_position.x());
 	point.setY(m_position.y() + _size.y());
-	m_VBO->pushOnMessage(m_vboIdCoord, point);
-	m_VBO->pushOnMessage(m_vboIdCoordTex, tex);
-	m_VBO->pushOnMessage(m_vboIdColor, m_color);
+	m_VBO->pushOnBuffer(m_vboIdCoord, point);
+	m_VBO->pushOnBuffer(m_vboIdCoordTex, tex);
+	m_VBO->pushOnBuffer(m_vboIdColor, m_color);
 	
 	tex.setValue(_sourcePosStart.x(),_sourcePosStop.y());
 	point.setX(m_position.x());
 	point.setY(m_position.y());
-	m_VBO->pushOnMessage(m_vboIdCoord, point);
-	m_VBO->pushOnMessage(m_vboIdCoordTex, tex);
-	m_VBO->pushOnMessage(m_vboIdColor, m_color);
+	m_VBO->pushOnBuffer(m_vboIdCoord, point);
+	m_VBO->pushOnBuffer(m_vboIdCoordTex, tex);
+	m_VBO->pushOnBuffer(m_vboIdColor, m_color);
 	m_VBO->flush();
 }
 
@@ -242,7 +242,7 @@ void appl::widget::VideoDisplay::periodicEvent(const ewol::event::Time& _event) 
 		m_currentTime = m_decoder->m_seekApply;
 		m_decoder->m_seekApply = echrono::Duration(-1);
 		if (m_audioInterface != nullptr) {
-			m_audioInterface->clearInternalMessage();
+			m_audioInterface->clearInternalBuffer();
 		}
 	}
 	// SET AUDIO:

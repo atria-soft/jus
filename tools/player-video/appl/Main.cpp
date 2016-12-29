@@ -15,6 +15,8 @@
 #include <ewol/widget/Manager.hpp>
 #include <ewol/context/Context.hpp>
 #include <appl/widget/VideoPlayer.hpp>
+#include <appl/widget/ListViewer.hpp>
+#include <zeus/zeus.hpp>
 
 namespace appl {
 	class MainApplication : public ewol::context::Application {
@@ -64,9 +66,10 @@ namespace appl {
 				// eneble the search of the font in the system font path
 				_context.getFontDefault().setUseExternal(true);
 				// select font preference of der with a basic application size
-				_context.getFontDefault().set("FreeSerif;DejaVuSansMono", 19);
+				_context.getFontDefault().set("DejaVuSerif;FreeSerif;DejaVuSansMono", 19);
 				// set application widget:
 				appl::widget::VideoDisplay::createManagerWidget(_context.getWidgetManager());
+				appl::widget::ListViewer::createManagerWidget(_context.getWidgetManager());
 				// Create the windows
 				ememory::SharedPtr<appl::Windows> basicWindows = appl::Windows::create();
 				// configure the ewol context to use the new windows
@@ -89,6 +92,7 @@ namespace appl {
  */
 int main(int _argc, const char *_argv[]) {
 	audio::river::init();
+	zeus::init(_argc, _argv);
 	return ewol::run(new appl::MainApplication(), _argc, _argv);
 }
 
