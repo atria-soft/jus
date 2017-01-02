@@ -40,7 +40,6 @@ class PlugginAccess {
 		SERVICE_IO_uninit_t m_SERVICE_IO_uninit;
 		SERVICE_IO_peridic_call_t m_SERVICE_IO_peridic_call;
 		SERVICE_IO_instanciate_t m_SERVICE_IO_instanciate;
-		zeus::Client m_client;
 	public:
 		PlugginAccess(const std::string& _name) :
 		  m_name(_name),
@@ -132,6 +131,8 @@ int main(int _argc, const char *_argv[]) {
 	std::string basePath;
 	std::vector<std::string> services;
 	zeus::Client m_client;
+	// The default service port is 1985
+	m_client.propertyPort.set(1985);
 	#endif
 	for (int32_t iii=0; iii<_argc ; ++iii) {
 		std::string data = _argv[iii];

@@ -317,12 +317,23 @@ int main(int _argc, const char *_argv[]) {
 	elog::init(_argc, _argv);
 	zeus::init(_argc, _argv);
 	zeus::Client client1;
+	std::string fromUser = "test1";
+	std::string toUser = "test1";
+	std::string pass = "coucou";
 	for (int32_t iii=0; iii<_argc ; ++iii) {
 		std::string data = _argv[iii];
 		if (etk::start_with(data, "--ip=") == true) {
 			client1.propertyIp.set(std::string(&data[5]));
 		} else if (etk::start_with(data, "--port=") == true) {
 			client1.propertyPort.set(etk::string_to_uint16_t(std::string(&data[7])));
+		} else if (etk::start_with(data, "--from=") == true) {
+			fromUser = &data[7];
+		} else if (etk::start_with(data, "--to=") == true) {
+			toUser = &data[7];
+		} else if (etk::start_with(data, "--pass=") == true) {
+			pass = &data[7];
+		} else if (etk::start_with(data, "--tocken=") == true) {
+			pass = &data[9];
 		} else if (    data == "-h"
 		            || data == "--help") {
 			APPL_PRINT(etk::getApplicationName() << " - help : ");
@@ -336,29 +347,29 @@ int main(int _argc, const char *_argv[]) {
 	APPL_INFO("== ZEUS test client start        ==");
 	APPL_INFO("==================================");
 	
-	if (false) {
-		bool ret = client1.connect("test1", "clientTest1~atria-soft.com", "QSDQSDGQSF54HSXWVCSQDJ654URTDJ654NBXCDFDGAEZ51968");
+	if (fromUser == toUser) {
+		bool ret = client1.connect(fromUser, pass);
 		if (ret == false) {
-			APPL_ERROR("    ==> NOT Connected to 'test1~atria-soft.com' with 'clientTest1~atria-soft.com'");
+			APPL_ERROR("    ==> NOT Authentify with '" << toUser << "'");
 			return -1;
 		} else {
-			APPL_INFO("    ==> Connected with 'clientTest1~atria-soft.com'");
+			APPL_INFO("    ==> Authentify with '" << toUser << "'");
 		}
-	} else if (true) {
-		bool ret = client1.connect("test1", "coucou");
+	} else if (fromUser != "") {
+		bool ret = client1.connect(fromUser, toUser, pass);
 		if (ret == false) {
-			APPL_ERROR("    ==> NOT Authentify with 'test1~atria-soft.com'");
+			APPL_ERROR("    ==> NOT Connected to '" << toUser << "' with '" << fromUser << "'");
 			return -1;
 		} else {
-			APPL_INFO("    ==> Authentify with 'test1~atria-soft.com'");
+			APPL_INFO("    ==> Connected with '" << toUser << "'");
 		}
 	} else {
-		bool ret = client1.connect("test1");
+		bool ret = client1.connect(toUser);
 		if (ret == false) {
-			APPL_ERROR("    ==> NOT Connected with 'anonymous'");
+			APPL_ERROR("    ==> NOT Connected with 'anonymous' to '" << toUser << "'");
 			return -1;
 		} else {
-			APPL_INFO("    ==> Connected with 'anonymous'");
+			APPL_INFO("    ==> Connected with 'anonymous' to '" << toUser << "'");
 		}
 	}
 	// Connect to ourself:

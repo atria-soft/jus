@@ -32,7 +32,6 @@ class PlugginAccess {
 		SERVICE_IO_uninit_t m_SERVICE_IO_uninit;
 		SERVICE_IO_peridic_call_t m_SERVICE_IO_peridic_call;
 		SERVICE_IO_instanciate_t m_SERVICE_IO_instanciate;
-		zeus::Client m_client;
 	public:
 		PlugginAccess(const std::string& _name) :
 		  m_name(_name),
