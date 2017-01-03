@@ -34,6 +34,7 @@ namespace appl {
 			void stop();
 			// Get a specific user gateway:
 			ememory::SharedPtr<appl::GateWayInterface> get(const std::string& _userName);
+			bool userIsConnected(const std::string& _userName);
 			
 			std::vector<std::string> getAllUserName();
 			void newClientGateWay(enet::Tcp _connection);

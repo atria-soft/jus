@@ -8,6 +8,57 @@
 #include <appl/debug.hpp>
 #include <enet/TcpServer.hpp>
 
+static std::string g_pathDBName = "USERDATA:router-database.json";
+
+class UserAvaillable {
+	public:
+		std::string m_name;
+		std::string m_basePath;
+		bool m_accessMediaCenter;
+};
+std::vector<UserAvaillable> g_listUserAvaillable;
+bool g_needToStore = false;
+
+static void store_db() {
+	if (g_needToStore == false) {
+		return;
+	}
+	APPL_ERROR("Store database [START]");
+	ejson::Document database;
+	ejson::Array listUserArray;
+	database.add("users", listUserArray);
+	for (auto &it : g_listUserAvaillable) {
+		ejson::Object propObject;
+		listUserArray.add(propObject);
+		propObject.add("name", ejson::String(it.m_name));
+		propObject.add("path", ejson::String(it.m_basePath));
+		propObject.add("access-media-center", ejson::Boolean(it.m_accessMediaCenter));
+	}
+	bool retGenerate = database.storeSafe(g_pathDBName);
+	APPL_ERROR("Store database [STOP] : " << g_pathDBName << " ret = " << retGenerate);
+	g_needToStore = false;
+}
+
+static void load_db() {
+	ejson::Document database;
+	bool ret = database.load(g_pathDBName);
+	if (ret == false) {
+		APPL_WARNING("    ==> LOAD error");
+	}
+	g_listUserAvaillable.clear();
+	ejson::Array listUserArray = database["users"].toArray();
+	for (const auto itArray: listUserArray) {
+		ejson::Object userElement = itArray.toObject();
+		UserAvaillable userProperty;
+		userProperty.m_name = userElement["name"].toString().get();
+		userProperty.m_basePath = userElement["path"].toString().get();
+		userProperty.m_accessMediaCenter = userElement["access-media-center"].toBoolean().get();
+		APPL_INFO("find USER: '" << userProperty.m_name << "'");
+		g_listUserAvaillable.push_back(userProperty);
+	}
+	g_needToStore = false;
+}
+
 
 namespace appl {
 	class TcpServerInput {
@@ -89,6 +140,7 @@ appl::Router::Router() :
   propertyGateWayMax(this, "gw-max", 8000, "Maximum of Gateway at the same time", &appl::Router::onPropertyChangeGateWayMax) {
 	m_interfaceClientServer = ememory::makeShared<appl::TcpServerInput>(this, false);
 	m_interfaceGateWayServer = ememory::makeShared<appl::TcpServerInput>(this, true);
+	load_db();
 }
 
 appl::Router::~Router() {
@@ -105,6 +157,22 @@ void appl::Router::stop() {
 	
 }
 
+bool appl::Router::userIsConnected(const std::string& _userName) {
+	for (auto &it : m_GateWayList) {
+		if (it == nullptr) {
+			continue;
+		}
+		if (it->getName() != _userName) {
+			continue;
+		}
+		return true;
+	}
+	return false;
+}
+
+#include <iomanip>
+#include <iostream>
+
 ememory::SharedPtr<appl::GateWayInterface> appl::Router::get(const std::string& _userName) {
 	// TODO : Start USer only when needed, not get it all time started...
 	for (auto &it : m_GateWayList) {
@@ -115,6 +183,25 @@ ememory::SharedPtr<appl::GateWayInterface> appl::Router::get(const std::string& 
 			continue;
 		}
 		return it;
+	}
+	// we not find the user ==> check if it is availlable ...
+	for (auto &it : g_listUserAvaillable) {
+		if (it.m_name == _userName) {
+			// start interface:
+			std::string cmd = "~/dev/perso/out/Linux_x86_64/debug/staging/clang/zeus-package-base/zeus-package-base.app/bin/zeus-gateway";
+			cmd += " --user=" + it.m_name + " ";
+			cmd += " --srv=user";
+			cmd += " --srv=picture";
+			cmd += " --srv=video";
+			cmd += " --base-path=" + it.m_basePath;
+			cmd += " --elog-file=\"/tmp/zeus.gateway." + it.m_name + ".log\"";
+			cmd += "&";
+			APPL_ERROR("Start " << cmd);
+			system(cmd.c_str());
+			std::this_thread::sleep_for(std::chrono::milliseconds(600));
+			APPL_ERROR("Is connected ...");
+			break;
+		}
 	}
 	return nullptr;
 }
@@ -136,7 +223,7 @@ std::vector<std::string> appl::Router::getAllUserName() {
 
 
 void appl::Router::cleanIO() {
-	
+	store_db();
 	auto it = m_GateWayList.begin();
 	while (it != m_GateWayList.end()) {
 		if (*it != nullptr) {

@@ -51,8 +51,8 @@ bool appl::GateWayInterface::requestURI(const std::string& _uri) {
 	}
 	// TODO : Remove subParameters xxx?YYY
 	// check if the USER is already connected:
-	ememory::SharedPtr<appl::GateWayInterface> tmp = m_routerInterface->get(tmpURI);
-	if (tmp != nullptr) {
+	bool tmp = m_routerInterface->userIsConnected(tmpURI);
+	if (tmp == true) {
 		ZEUS_ERROR("User is already connected ==> this is a big error ...");
 		return false;
 	}

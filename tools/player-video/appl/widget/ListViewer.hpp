@@ -6,7 +6,7 @@
 
 #pragma once
 
-#include <ewol/widget/Widget.hpp>
+#include <ewol/widget/WidgetScrolled.hpp>
 #include <ewol/compositing/Image.hpp>
 #include <ewol/compositing/Text.hpp>
 #include <ewol/compositing/Drawing.hpp>
