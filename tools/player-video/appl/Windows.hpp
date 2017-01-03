@@ -7,6 +7,7 @@
 
 #include <ewol/widget/Windows.hpp>
 #include <ewol/widget/Composer.hpp>
+#include <appl/widget/ListViewer.hpp>
 
 namespace appl {
 	class Windows;
@@ -17,6 +18,8 @@ namespace appl {
 			Windows();
 			void init();
 			ewol::widget::ComposerShared m_composer;
+			ememory::SharedPtr<ClientProperty> m_clientProp;
+			appl::widget::ListViewerShared m_listViewer;
 			std::vector<std::string> m_list;
 			int32_t m_id;
 		public:

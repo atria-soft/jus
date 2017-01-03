@@ -17,6 +17,11 @@ uint32 mediaIdCount()
 vector:uint32 mediaIdGet(uint32,uint32)
 
 // ----------------- media Access -----------------------
+#brief:Get the media mine-type
+#param:mediaId:Id of the media
+#return:A string describing the type of the media
+string mediaMineTypeGet(uint32)
+
 #brief:Get a media
 #param:mediaId:Id of the media
 #return:A file reference on the media (transmission is async)

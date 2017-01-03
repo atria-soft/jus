@@ -46,6 +46,53 @@ static uint64_t createUniqueID() {
 	return m_lastMaxId;
 }
 
+
+static std::string removeSpaceOutQuote(const std::string& _in) {
+	std::string out;
+	bool insideQuote = false;
+	for (auto &it : _in) {
+		if (it == '\'') {
+			if (insideQuote == false) {
+				insideQuote = true;
+			} else {
+				insideQuote = false;
+			}
+			out += it;
+		} else if (    it == ' '
+		            && insideQuote == false) {
+			// nothing to add ...
+		} else {
+			out += it;
+		}
+	}
+	return out;
+}
+
+static std::vector<std::string> splitAction(const std::string& _in) {
+	std::vector<std::string> out;
+	bool insideQuote = false;
+	std::string value;
+	for (auto &it : _in) {
+		if (it == '\'') {
+			if (insideQuote == false) {
+				insideQuote = true;
+			} else {
+				insideQuote = false;
+			}
+			if (value != "") {
+				out.push_back(value);
+				value.clear();
+			}
+		} else {
+			value += it;
+		}
+	}
+	if (value != "") {
+		out.push_back(value);
+	}
+	return out;
+}
+
 namespace appl {
 	class VideoService : public zeus::service::Video  {
 		private:
@@ -82,6 +129,25 @@ namespace appl {
 				}
 				return out;
 			}
+			
+			std::string mediaMineTypeGet(uint32_t _mediaId) override {
+				std::unique_lock<std::mutex> lock(g_mutex);
+				// TODO : Check right ...
+				//Check if the file exist:
+				bool find = false;
+				FileProperty property;
+				for (auto &it : m_listFile) {
+					if (it.m_id == _mediaId) {
+						find = true;
+						property = it;
+						break;
+					}
+				}
+				if (find == false) {
+					throw std::invalid_argument("Wrong file ID ...");
+				}
+				return property.m_mineType;
+			}
 			// Return a File Data (might be a video .tiff/.png/.jpg)
 			ememory::SharedPtr<zeus::File> mediaGet(uint32_t _mediaId) override {
 				std::unique_lock<std::mutex> lock(g_mutex);
@@ -97,7 +163,7 @@ namespace appl {
 					}
 				}
 				if (find == false) {
-					throw std::invalid_argument("Wrong file name ...");
+					throw std::invalid_argument("Wrong file ID ...");
 				}
 				return zeus::File::create(g_basePath + property.m_fileName + "." + zeus::getExtention(property.m_mineType), "", property.m_mineType);
 			}
@@ -211,17 +277,78 @@ namespace appl {
 				throw std::invalid_argument("Wrong KEY ID ...");
 			}
 			std::vector<uint32_t> getMediaWhere(std::string _sqlLikeRequest) override {
-				std::unique_lock<std::mutex> lock(g_mutex);
 				std::vector<uint32_t> out;
 				if (_sqlLikeRequest == "") {
 					throw std::invalid_argument("empty request");
 				}
 				std::vector<std::string> listAnd = etk::split(_sqlLikeRequest, "AND");
+				std::vector<std::vector<std::string>> listAndParsed;
 				APPL_INFO("Find list AND : ");
 				for (auto &it : listAnd) {
-					APPL_INFO("    - '" << it << "'");
+					it = removeSpaceOutQuote(it);
+					std::vector<std::string> elements = splitAction(it);
+					if (elements.size() != 3) {
+						APPL_ERROR("element : '" + it + "' have wrong spliting " << elements);
+						throw std::invalid_argument("element : \"" + it + "\" have wrong spliting");
+					}
+					if (    elements[1] != "=="
+					     && elements[1] != "!="
+					     && elements[1] != ">="
+					     && elements[1] != "<="
+					     && elements[1] != ">"
+					     && elements[1] != "<") {
+						throw std::invalid_argument("action invalid : '" + elements[1] + "' only availlable : [==,!=,<=,>=,<,>]");
+					}
+					APPL_INFO("    - '" << elements[0] << "' action='" << elements[1] << "' with='" << elements[2] << "'");
+					listAndParsed.push_back(elements);
 				}
-				
+				std::unique_lock<std::mutex> lock(g_mutex);
+				for (auto &it : m_listFile) {
+					bool isCorrectElement = true;
+					for (auto &itCheck : listAndParsed) {
+						// find matadataValue:
+						auto itM = it.m_metadata.find(itCheck[0]);
+						if (itM == it.m_metadata.end()) {
+							// not find key ==> no check to do ...
+							isCorrectElement = false;
+							break;
+						}
+						if (itCheck[1] == "==") {
+							if (itM->second != itCheck[2]) {
+								isCorrectElement = false;
+								break;
+							}
+						} else if (itCheck[1] == "!=") {
+							if (itM->second == itCheck[2]) {
+								isCorrectElement = false;
+								break;
+							}
+						} else if (itCheck[1] == "<=") {
+							if (itM->second < itCheck[2]) {
+								isCorrectElement = false;
+								break;
+							}
+						} else if (itCheck[1] == ">=") {
+							if (itM->second > itCheck[2]) {
+								isCorrectElement = false;
+								break;
+							}
+						} else if (itCheck[1] == "<") {
+							if (itM->second <= itCheck[2]) {
+								isCorrectElement = false;
+								break;
+							}
+						} else if (itCheck[1] == ">") {
+							if (itM->second >= itCheck[2]) {
+								isCorrectElement = false;
+								break;
+							}
+						}
+					}
+					if (isCorrectElement == true) {
+						out.push_back(it.m_id);
+					}
+				}
 				return out;
 			}
 			
