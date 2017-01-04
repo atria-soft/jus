@@ -7,6 +7,7 @@
 #include <appl/Router.hpp>
 #include <appl/debug.hpp>
 #include <enet/TcpServer.hpp>
+#include <etk/os/FSNode.hpp>
 
 static std::string g_pathDBName = "USERDATA:router-database.json";
 
@@ -15,6 +16,7 @@ class UserAvaillable {
 		std::string m_name;
 		std::string m_basePath;
 		bool m_accessMediaCenter;
+		FILE* m_subProcess;
 };
 std::vector<UserAvaillable> g_listUserAvaillable;
 bool g_needToStore = false;
@@ -172,6 +174,9 @@ bool appl::Router::userIsConnected(const std::string& _userName) {
 
 #include <iomanip>
 #include <iostream>
+#include <cstdio>
+#include <unistd.h>
+
 
 ememory::SharedPtr<appl::GateWayInterface> appl::Router::get(const std::string& _userName) {
 	// TODO : Start USer only when needed, not get it all time started...
@@ -187,19 +192,73 @@ ememory::SharedPtr<appl::GateWayInterface> appl::Router::get(const std::string& 
 	// we not find the user ==> check if it is availlable ...
 	for (auto &it : g_listUserAvaillable) {
 		if (it.m_name == _userName) {
-			// start interface:
-			std::string cmd = "~/dev/perso/out/Linux_x86_64/debug/staging/clang/zeus-package-base/zeus-package-base.app/bin/zeus-gateway";
-			cmd += " --user=" + it.m_name + " ";
-			cmd += " --srv=user";
-			cmd += " --srv=picture";
-			cmd += " --srv=video";
-			cmd += " --base-path=" + it.m_basePath;
-			cmd += " --elog-file=\"/tmp/zeus.gateway." + it.m_name + ".log\"";
-			cmd += "&";
-			APPL_ERROR("Start " << cmd);
-			system(cmd.c_str());
+			#if 0
+				// start interface:
+				std::string cmd = "~/dev/perso/out/Linux_x86_64/debug/staging/clang/zeus-package-base/zeus-package-base.app/bin/zeus-gateway";
+				cmd += " --user=" + it.m_name + " ";
+				cmd += " --srv=user";
+				cmd += " --srv=picture";
+				cmd += " --srv=video";
+				cmd += " --base-path=" + it.m_basePath;
+				cmd += " --elog-file=\"/tmp/zeus.gateway." + it.m_name + ".log\"";
+				cmd += "&";
+				APPL_ERROR("Start " << cmd);
+				it.m_subProcess = popen(cmd.c_str(), "r");
+				if (it.m_subProcess == nullptr) {
+					perror("popen");
+					return nullptr;
+				}
+				// just trash IO ...
+				//pclose(it.m_subProcess);
+			#else
+				if (fork()) {
+					// We're in the parent here.
+					// nothing to do ...
+					APPL_ERROR("Parent Execution ...");
+				} else {
+					// We're in the child here.
+					APPL_ERROR("Child Execution ...");
+					std::string binary = "/home/heero/dev/perso/out/Linux_x86_64/debug/staging/clang/zeus-package-base/zeus-package-base.app/bin/zeus-gateway";
+					std::string userConf = "--user=" + it.m_name;
+					std::string basePath = "--base-path=" + it.m_basePath;
+					#if 0
+						std::string logFile = "--elog-file=\"/tmp/zeus.gateway." + it.m_name + ".log\"";
+					#else
+						std::string logFile = it.m_basePath + "/log/gateway.log";
+						if (    logFile.size() != 0
+						     && logFile[0] == '~') {
+							logFile = etk::FSNodeGetHomePath() + &logFile[1];
+						}
+						logFile = "--elog-file=" + logFile;
+						//std::string logFile = "--elog-file=/home/heero/.local/share/zeus-DATA/SDFGHTHBSDFGSQDHZSRDFGSDFGSDFGSDFG/log/gateway.log";
+						//std::string logFile = " ";
+						APPL_INFO("New Child log in = " << logFile);
+					#endif
+					int ret = execlp( binary.c_str(),
+					                  binary.c_str(), // must repeate the binary name to have the name as first argument ...
+					                  userConf.c_str(),
+					                  "--srv=user",
+					                  "--srv=picture",
+					                  "--srv=video",
+					                  basePath.c_str(),
+					                  logFile.c_str(),
+					                  NULL);
+					APPL_ERROR("Child Execution ret = " << ret);
+					exit (-1);
+					APPL_ERROR("Must never appear ... child of fork killed ...");
+				}
+			#endif
 			std::this_thread::sleep_for(std::chrono::milliseconds(600));
-			APPL_ERROR("Is connected ...");
+			APPL_ERROR("must be connected ???");
+			for (auto &it : m_GateWayList) {
+				if (it == nullptr) {
+					continue;
+				}
+				if (it->getName() != _userName) {
+					continue;
+				}
+				return it;
+			}
 			break;
 		}
 	}

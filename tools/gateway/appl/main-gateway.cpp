@@ -91,6 +91,8 @@ class PlugginAccess {
 			if (_basePath.size() == 0) {
 				_basePath = "USERDATA:" + m_name + "/";
 				APPL_PRINT("Use base path: " << _basePath);
+			} else {
+				_basePath += m_name + "/";
 			}
 			return (*m_SERVICE_IO_init)(_argc, _argv, _basePath);
 		}
@@ -159,6 +161,10 @@ int main(int _argc, const char *_argv[]) {
 		#ifdef GATEWAY_ENABLE_LAUNCHER
 		} else if (etk::start_with(data, "--base-path=") == true) {
 			basePath = std::string(&data[12]);
+			if (    basePath.size() != 0
+			     && basePath[basePath.size()-1] != '/') {
+				basePath += '/';
+			}
 		} else if (etk::start_with(data, "--srv=") == true) {
 			services.push_back(std::string(&data[6]));
 		#endif
