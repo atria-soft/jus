@@ -324,7 +324,7 @@ bool zeus::Client::isAlive() {
 }
 
 void zeus::Client::pingIsAlive() {
-	if (std::chrono::steady_clock::now() - m_interfaceWeb->getLastTimeSend() >= std::chrono::seconds(30)) {
+	if (echrono::Steady::now() - m_interfaceWeb->getLastTimeSend() >= echrono::seconds(30)) {
 		m_interfaceWeb->ping();
 	}
 }

@@ -136,6 +136,7 @@ int main(int _argc, const char *_argv[]) {
 	// The default service port is 1985
 	m_client.propertyPort.set(1985);
 	#endif
+	uint32_t routerDisconnectionDelay = 30;
 	for (int32_t iii=0; iii<_argc ; ++iii) {
 		std::string data = _argv[iii];
 		if (etk::start_with(data, "--user=") == true) {
@@ -146,6 +147,8 @@ int main(int _argc, const char *_argv[]) {
 			basicGateway.propertyRouterIp.set(std::string(&data[12]));
 		} else if (etk::start_with(data, "--router-port=") == true) {
 			basicGateway.propertyRouterPort.set(etk::string_to_uint16_t(std::string(&data[14])));
+		} else if (etk::start_with(data, "--router-delay=") == true) {
+			routerDisconnectionDelay = etk::string_to_uint32_t(std::string(&data[15]));
 		} else if (etk::start_with(data, "--service-ip=") == true) {
 			basicGateway.propertyServiceIp.set(std::string(&data[13]));
 			#ifdef GATEWAY_ENABLE_LAUNCHER
@@ -174,11 +177,12 @@ int main(int _argc, const char *_argv[]) {
 			APPL_PRINT("    " << _argv[0] << " [options]");
 			APPL_PRINT("        --user=XXX           Name of the user that we are connected.");
 			APPL_PRINT("        --no-router          Router connection disable ==> this enable the direct donnection of external client like on the router");
-			APPL_PRINT("        --router-ip=XXX      Router connection IP (default: 1.7.0.0.1)");
-			APPL_PRINT("        --router-port=XXX    Router connection PORT (default: 1984)");
-			APPL_PRINT("        --service-ip=XXX     Service connection IP (default: 1.7.0.0.1)");
-			APPL_PRINT("        --service-port=XXX   Service connection PORT (default: 1985)");
-			APPL_PRINT("        --service-max=XXX    Service Maximum IO (default: 15)");
+			APPL_PRINT("        --router-ip=XXX      Router connection IP (default: " << basicGateway.propertyRouterIp.get() << ")");
+			APPL_PRINT("        --router-port=XXX    Router connection PORT (default: " << basicGateway.propertyRouterPort.get() << ")");
+			APPL_PRINT("        --service-ip=XXX     Service connection IP (default: " << basicGateway.propertyServiceIp.get() << ")");
+			APPL_PRINT("        --service-port=XXX   Service connection PORT (default: " << basicGateway.propertyServicePort.get() << ")");
+			APPL_PRINT("        --service-max=XXX    Service Maximum IO (default: " << basicGateway.propertyServiceMax.get() << ")");
+			APPL_PRINT("        --router-delay=XXX   Delay before disconnect from the router (default: " << routerDisconnectionDelay << ")");
 			#ifdef GATEWAY_ENABLE_LAUNCHER
 			APPL_PRINT("        specific for internal launcher:");
 			APPL_PRINT("        --base-path=XXX      base path to search data (default: 'USERDATA:')");
@@ -193,13 +197,19 @@ int main(int _argc, const char *_argv[]) {
 	basicGateway.start();
 	#ifdef GATEWAY_ENABLE_LAUNCHER
 	if (services.size() == 0) {
+		bool routerAlive = true;
 	#endif
-		while (true) {
+		while (routerAlive == true) {
 			std::this_thread::sleep_for(std::chrono::milliseconds(100));
 			basicGateway.cleanIO();
+			routerAlive = basicGateway.checkIsAlive(echrono::seconds(routerDisconnectionDelay));
+			if (routerAlive == false) {
+				APPL_WARNING("Router is Dead or Timeout");
+			}
 		}
 	#ifdef GATEWAY_ENABLE_LAUNCHER
 	} else {
+		bool routerAlive = true;
 		std::vector<ememory::SharedPtr<PlugginAccess>> listElements;
 		for (auto &it: services) {
 			ememory::SharedPtr<PlugginAccess> tmp = ememory::makeShared<PlugginAccess>(it);
@@ -215,7 +225,8 @@ int main(int _argc, const char *_argv[]) {
 			it->publish(m_client);
 		}
 		uint32_t iii = 0;
-		while(m_client.isAlive() == true) {
+		while (    m_client.isAlive() == true
+		        && routerAlive == true) {
 			m_client.pingIsAlive();
 			m_client.displayConnectedObject();
 			m_client.cleanDeadObject();
@@ -223,8 +234,14 @@ int main(int _argc, const char *_argv[]) {
 				it->peridic_call();
 			}
 			basicGateway.cleanIO();
-			std::this_thread::sleep_for(std::chrono::seconds(1));
-			APPL_INFO("service in waiting ... " << iii << "/inf");
+			routerAlive = basicGateway.checkIsAlive(echrono::seconds(routerDisconnectionDelay));
+			if (routerAlive == false) {
+				APPL_WARNING("Router is Dead or Timeout");
+			} else {
+				elog::flush();
+				std::this_thread::sleep_for(std::chrono::seconds(1));
+				APPL_INFO("service in waiting ... " << iii << "/inf");
+			}
 			iii++;
 		}
 		for (auto &it: listElements) {
@@ -241,5 +258,6 @@ int main(int _argc, const char *_argv[]) {
 	APPL_INFO("==================================");
 	APPL_INFO("== ZEUS gateway stop             ==");
 	APPL_INFO("==================================");
+	elog::flush();
 	return 0;
 }

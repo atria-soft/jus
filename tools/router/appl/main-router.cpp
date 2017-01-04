@@ -59,5 +59,6 @@ int main(int _argc, const char *_argv[]) {
 	APPL_INFO("==================================");
 	APPL_INFO("== ZEUS router stop             ==");
 	APPL_INFO("==================================");
+	elog::flush();
 	return 0;
 }

@@ -62,6 +62,7 @@ namespace appl {
 				void onRegenerateDisplay() override;
 			public:
 				void setFile(const std::string& _fileName);
+				void setZeusMedia(ememory::SharedPtr<ClientProperty> _property, uint32_t _mediaId) { };
 			protected:
 				bool m_isPalying;
 			public:

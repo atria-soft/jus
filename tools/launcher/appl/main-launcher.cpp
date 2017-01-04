@@ -191,6 +191,7 @@ int main(int _argc, const char *_argv[]) {
 	for (auto &it: listElements) {
 		it->uninit();
 	}
+	elog::flush();
 	return 0;
 }
 

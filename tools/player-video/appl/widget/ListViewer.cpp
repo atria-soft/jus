@@ -25,9 +25,12 @@
 #include <etk/stdTools.hpp>
 #include <ejson/ejson.hpp>
 
-appl::widget::ListViewer::ListViewer() {
+appl::widget::ListViewer::ListViewer() :
+  signalSelect(this, "select", "Select a media to view") {
 	addObjectType("appl::widget::ListViewer");
-	
+	propertyCanFocus.setDirectCheck(true);
+	// Limit event at 1:
+	setMouseLimit(1);
 }
 
 void appl::widget::ListViewer::init() {
@@ -319,6 +322,8 @@ void appl::ElementDisplayed::generateDisplay(vec2 _startPos, vec2 _size) {
 	m_draw.setColor(m_bgColor);
 	m_draw.rectangleWidth(_size);
 	
+	m_pos = _startPos;
+	m_size = _size;
 	// --------------------------------------------
 	// -- Display text...
 	// --------------------------------------------
@@ -364,3 +369,48 @@ void appl::ElementDisplayed::generateDisplay(vec2 _startPos, vec2 _size) {
 	m_image.print(vec2(_size.y(), _size.y())-vec2(20,20));
 }
 
+
+bool appl::widget::ListViewer::onEventInput(const ewol::event::Input& _event) {
+	APPL_VERBOSE("Event on BT : " << _event);
+	vec2 relativePos = relativePosition(_event.getPos());
+	int32_t findId = -1;
+	for (size_t iii=0; iii<m_listDisplay.size(); ++iii) {
+		if (m_listDisplay[iii] == nullptr) {
+			continue;
+		}
+		if(    relativePos.x() < m_listDisplay[iii]->m_pos.x()
+		    || relativePos.y() < m_listDisplay[iii]->m_pos.y()
+		    || relativePos.x() > m_listDisplay[iii]->m_pos.x() + m_listDisplay[iii]->m_size.x()
+		    || relativePos.y() > m_listDisplay[iii]->m_pos.y() + m_listDisplay[iii]->m_size.y() ) {
+			continue;
+		}
+		findId = iii;
+		break;
+	}
+	if (findId == -1) {
+		return false;
+	}
+	if (_event.getId() == 1) {
+		if(_event.getStatus() == gale::key::status::pressSingle) {
+			APPL_WARNING("Select element : " << findId << "  " << m_listDisplay[findId]->m_idCurentElement);
+			ememory::SharedPtr<appl::ElementProperty> prop = m_listDisplay[findId]->m_property;
+			if (prop != nullptr) {
+				std::string fullTitle;
+				if (prop->m_serie != "") {
+					fullTitle += prop->m_serie + "-";
+				}
+				if (prop->m_saison != "") {
+					fullTitle += "s" + prop->m_saison + "-";
+				}
+				if (prop->m_episode != "") {
+					fullTitle += "e" + prop->m_episode + "-";
+				}
+				fullTitle += prop->m_title;
+				APPL_WARNING("info element : " << prop->m_id << " title: " << fullTitle);
+				signalSelect.emit(prop->m_id);
+			}
+			return true;
+		}
+	}
+	return false;
+}

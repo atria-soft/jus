@@ -404,3 +404,19 @@ void appl::RouterInterface::clean() {
 		++it;
 	}
 }
+
+echrono::Steady appl::RouterInterface::getLastTransmission() {
+	auto receive = m_interfaceWeb.getLastTimeReceive();
+	auto send = m_interfaceWeb.getLastTimeSend();
+	if (receive >= send) {
+		if (receive == 0) {
+			return echrono::Steady::now();
+		}
+		return receive;
+	}
+	if (send == 0) {
+		return echrono::Steady::now();
+	}
+	return send;
+}
+

@@ -254,7 +254,7 @@ namespace zeus {
 			 * @param[in] 
 			 * @return 
 			 */
-			const std::chrono::steady_clock::time_point& getLastTimeReceive() {
+			const echrono::Steady& getLastTimeReceive() {
 				return m_connection.getLastTimeReceive();
 			}
 			/**
@@ -262,7 +262,7 @@ namespace zeus {
 			 * @param[in] 
 			 * @return 
 			 */
-			const std::chrono::steady_clock::time_point& getLastTimeSend() {
+			const echrono::Steady& getLastTimeSend() {
 				return m_connection.getLastTimeSend();
 			}
 		private:

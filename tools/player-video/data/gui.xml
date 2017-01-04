@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<wslider name="view-selection" fill="true,true" expand="true,true">
+	<PopUp name="ws-name-connect" >
+		<sizer mode="vert" fill="true,true" expand="false,false" lock="true,true" addmode="invert" min-size="45,10%">
+			<label>login</label>
+			<entry name="connect-login" fill="true,false" expand="true,false"/>
+			<label>password</label>
+			<entry name="connect-password" fill="true,false" expand="true,false"/>
+			<button name="connect-bt" toggle="false" fill="false,false" expand="true,false" gravity="right">
+				<label>Connect</label>
+			</button>
+		</sizer>
+	</PopUp>
+	<sizer mode="vert" name="ws-name-list" fill="true,true" expand="true,true" addmode="invert">
+		<button name="bt-film-picture" expand="true,false" fill="true,true">
+			<label>Films</label>
+		</button>
+		<button name="bt-film-draw" expand="true,false" fill="true,true">
+			<label>Annimated films</label>
+		</button>
+		<button name="bt-tv-picture" expand="true,false" fill="true,true">
+			<label>TV Show</label>
+		</button>
+		<button name="bt-tv-draw" expand="true,false" fill="true,true">
+			<label>Annimated TV Show</label>
+		</button>
+		<button name="bt-theater" expand="true,false" fill="true,true">
+			<label>Teather</label>
+		</button>
+		<button name="bt-one-man-show" expand="true,false" fill="true,true">
+			<label>One-man show</label>
+		</button>
+		<button name="bt-courses" expand="true,false" fill="true,true">
+			<label>Courses</label>
+		</button>
+		<spacer fill="true,true" expand="true,true"/>
+	</sizer>
+	<ListViewer name="ws-name-list-viewer" fill="true,true" expand="true,true"/>
+	<sizer mode="vert" name="ws-name-player" fill="true,true" expand="true,true">
+		<sizer mode="hori" fill="true,true" expand="true,true">
+			<button name="bt-previous">
+				<label>
+					previous
+				</label>
+			</button>
+			<button name="bt-play" toggle="true">
+				<label>play</label>
+				<label>pause</label>
+			</button>
+			<button name="bt-next">
+				<label>
+					Next
+				</label>
+			</button>
+			<label name="lb-fps"/>
+			<label name="lb-time"/>
+			<button name="bt-back">
+				<label>
+					back
+				</label>
+			</button>
+		</sizer>
+		<slider name="progress-bar" expand="true,false" fill="true" step="0.01" min="0"/>
+		<VideoDisplay name="displayer" expand="true" fill="true"/>
+	</sizer>
+</wslider>

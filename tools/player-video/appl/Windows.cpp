@@ -55,82 +55,16 @@ appl::Windows::Windows():
 void appl::Windows::init() {
 	ewol::widget::Windows::init();
 	load_db();
-	std::string composition = std::string("");
-	composition += "<wslider name='view-selection' fill='true,true' expand='true,true'>\n";
-	composition += "	<PopUp name='ws-name-connect' >\n";
-	composition += "		<sizer mode='vert' fill='true,true' expand='false,false' lock='true,true' addmode='invert' min-size='45,10%'>\n";
-	composition += "			<label>login</label>\n";
-	composition += "			<entry name='connect-login' fill='true,false' expand='true,false'/>\n";
-	composition += "			<label>password</label>\n";
-	composition += "			<entry name='connect-password' fill='true,false' expand='true,false'/>\n";
-	composition += "			<button name='connect-bt' toggle='false' fill='false,false' expand='true,false' gravity='right'>\n";
-	composition += "				<label>Connect</label>\n";
-	composition += "			</button>\n";
-	composition += "		</sizer>\n";
-	composition += "	</PopUp>\n";
-	composition += "	<sizer mode='vert' name='ws-name-list' fill='true,true' expand='true,true' addmode='invert'>\n";
-	composition += "		<button name='bt-film-picture' expand='true,false' fill='true,true'>\n";
-	composition += "			<label>Films</label>\n";
-	composition += "		</button>\n";
-	composition += "		<button name='bt-film-draw' expand='true,false' fill='true,true'>\n";
-	composition += "			<label>Annimated films</label>\n";
-	composition += "		</button>\n";
-	composition += "		<button name='bt-tv-picture' expand='true,false' fill='true,true'>\n";
-	composition += "			<label>TV Show</label>\n";
-	composition += "		</button>\n";
-	composition += "		<button name='bt-tv-draw' expand='true,false' fill='true,true'>\n";
-	composition += "			<label>Annimated TV Show</label>\n";
-	composition += "		</button>\n";
-	composition += "		<button name='bt-theater' expand='true,false' fill='true,true'>\n";
-	composition += "			<label>Teather</label>\n";
-	composition += "		</button>\n";
-	composition += "		<button name='bt-one-man-show' expand='true,false' fill='true,true'>\n";
-	composition += "			<label>One-man show</label>\n";
-	composition += "		</button>\n";
-	composition += "		<button name='bt-courses' expand='true,false' fill='true,true'>\n";
-	composition += "			<label>Courses</label>\n";
-	composition += "		</button>\n";
-	composition += "		<spacer fill='true,true' expand='true,true'/>\n";
-	composition += "	</sizer>\n";
-	composition += "	<ListViewer name='ws-name-list-viewer' fill='true,true' expand='true,true'/>\n";
-	composition += "	<sizer mode='vert' name='ws-name-player' fill='true,true' expand='true,true'>\n";
-	composition += "		<sizer mode='hori' fill='true,true' expand='true,true'>\n";
-	composition += "			<button name='bt-previous'>\n";
-	composition += "				<label>\n";
-	composition += "					previous\n";
-	composition += "				</label>\n";
-	composition += "			</button>\n";
-	composition += "			<button name='bt-play' toggle='true'>\n";
-	composition += "				<label>play</label>\n";
-	composition += "				<label>pause</label>\n";
-	composition += "			</button>\n";
-	composition += "			<button name='bt-next'>\n";
-	composition += "				<label>\n";
-	composition += "					Next\n";
-	composition += "				</label>\n";
-	composition += "			</button>\n";
-	composition += "			<label name='lb-fps'/>\n";
-	composition += "			<label name='lb-time'/>\n";
-	composition += "			<button name='bt-back'>\n";
-	composition += "				<label>\n";
-	composition += "					back\n";
-	composition += "				</label>\n";
-	composition += "			</button>\n";
-	composition += "		</sizer>\n";
-	composition += "		<slider name='progress-bar' expand='true,false' fill='true' step='0.01' min='0'/>\n";
-	composition += "		<VideoDisplay name='displayer' expand='true' fill='true'/>\n";
-	composition += "	</sizer>\n";
-	composition += "</wslider>\n";
-	
 	m_composer = ewol::widget::Composer::create();
 	if (m_composer == nullptr) {
 		APPL_CRITICAL(" An error occured ... in the windows creatrion ...");
 		return;
 	}
-	m_composer->loadFromString(composition);
+	m_composer->loadFromFile("DATA:gui.xml");
 	setSubWidget(m_composer);
 	
 	m_listViewer = ememory::dynamicPointerCast<appl::widget::ListViewer>(m_composer->getSubObjectNamed("ws-name-list-viewer"));
+	m_listViewer->signalSelect.connect(sharedFromThis(), &appl::Windows::onCallbackSelectMedia);
 	
 	subBind(ewol::widget::Button, "bt-previous", signalPressed, sharedFromThis(), &appl::Windows::onCallbackPrevious);
 	subBind(ewol::widget::Button, "bt-play", signalValue, sharedFromThis(), &appl::Windows::onCallbackPlay);
@@ -335,5 +269,21 @@ void appl::Windows::onCallbackSelectOneManShow() {
 void appl::Windows::onCallbackSelectSourses() {
 	ewol::propertySetOnObjectNamed("view-selection", "select", "ws-name-list-viewer");
 	m_listViewer->searchElements("courses");
+}
+
+void appl::Windows::onCallbackSelectMedia(const uint32_t& _value) {
+	ewol::propertySetOnObjectNamed("view-selection", "select", "ws-name-player");
+	ememory::SharedPtr<appl::widget::VideoDisplay> tmpDisp = ememory::dynamicPointerCast<appl::widget::VideoDisplay>(getSubObjectNamed("displayer"));
+	if (tmpDisp != nullptr) {
+		// stop previous (if needed)
+		tmpDisp->stop();
+		// Set new file:
+		tmpDisp->setZeusMedia(m_clientProp, _value);
+		tmpDisp->play();
+		echrono::Duration time = tmpDisp->getDuration();
+		APPL_DEBUG("duration = " << time << "  " << etk::to_string(time.toSeconds()));
+		propertySetOnWidgetNamed("progress-bar", "value", "0");
+		propertySetOnWidgetNamed("progress-bar", "max", etk::to_string(time.toSeconds()));
+	}
 }
 

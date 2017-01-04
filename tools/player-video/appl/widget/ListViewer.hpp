@@ -42,6 +42,8 @@ namespace appl {
 			ememory::SharedPtr<appl::ElementProperty> m_property;
 			int32_t m_idCurentElement;
 			etk::Color<float> m_bgColor;
+			vec2 m_pos;
+			vec2 m_size;
 		protected:
 			ewol::compositing::Image m_image;
 			ewol::compositing::Text m_text;
@@ -63,6 +65,8 @@ namespace appl {
 		class ListViewer : public ewol::widget::WidgetScrolled {
 			protected:
 				ewol::compositing::Text m_text;
+			public:
+				esignal::Signal<uint32_t> signalSelect; //!< when select a media to view
 				
 			protected:
 				ememory::SharedPtr<ClientProperty> m_clientProp; //!< Generic entrypoint on the Client
@@ -85,6 +89,7 @@ namespace appl {
 					m_clientProp = _prop;
 				}
 				void searchElements(std::string _filter);
+				bool onEventInput(const ewol::event::Input& _event) override;
 		};
 	}
 }

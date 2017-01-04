@@ -54,6 +54,8 @@ namespace appl {
 			uint16_t getId();
 			bool serviceExist(const std::string& _service);
 			uint16_t serviceClientIdGet(const std::string& _service);
+			// Check if it take a long time without activity to kill itself ...
+			bool checkIsAlive(const echrono::Duration& _timeout);
 	};
 }
 

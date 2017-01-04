@@ -304,3 +304,25 @@ void appl::GateWay::onPropertyChangeServicePort() {
 void appl::GateWay::onPropertyChangeServiceMax() {
 	
 }
+
+// Check if it take a long time without activity to kill itself ...
+bool appl::GateWay::checkIsAlive(const echrono::Duration& _timeout) {
+	// if no roueter, no delay to check
+	if (*propertyRouterNo == true) {
+		return true;
+	}
+	// If no router ==> dead
+	if (m_routerClient == nullptr) {
+		return false;
+	}
+	// check only for smallest time-out : 1 second.
+	if (_timeout > echrono::seconds(1)) {
+		echrono::Steady now = echrono::Steady::now();
+		echrono::Steady lastTransmission = m_routerClient->getLastTransmission();
+		if ((now - lastTransmission) >= _timeout) {
+			APPL_INFO("Detect timeout ... last transmission=" << lastTransmission);
+			return false;
+		}
+	}
+	return true;
+}

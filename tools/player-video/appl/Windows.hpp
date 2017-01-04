@@ -49,6 +49,7 @@ namespace appl {
 			void onCallbackSelectTeather();
 			void onCallbackSelectOneManShow();
 			void onCallbackSelectSourses();
+			void onCallbackSelectMedia(const uint32_t& _value);
 	};
 }
 

@@ -40,6 +40,7 @@ namespace appl {
 			bool isAlive();
 			void send(const ememory::SharedPtr<zeus::Message>& _data);
 			void clean();
+			echrono::Steady getLastTransmission();
 	};
 }
 
