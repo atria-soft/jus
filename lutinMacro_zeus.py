@@ -362,7 +362,7 @@ class ServiceDefinition:
 		# TODO: add global header:
 		out += "/** @file\n"
 		out += " * @note Generated file !!! Do not modify !!!\n"
-		out += " * @license APACHE-2\n"
+		out += " * @license MPL-2\n"
 		out += " * @copyright none\n"
 		out += " */\n"
 		out += "#pragma once\n"
@@ -453,7 +453,7 @@ class ServiceDefinition:
 		
 		out += "/** @file\n"
 		out += " * @note Generated file !!! Do not modify !!!\n"
-		out += " * @license APACHE-2\n"
+		out += " * @license MPL-2\n"
 		out += " * @copyright none\n"
 		out += " */\n"
 		out += "\n"
@@ -539,7 +539,7 @@ class ServiceDefinition:
 		out = ""
 		out += "/** @file\n"
 		out += " * @note Generated file !!! Do not modify !!!\n"
-		out += " * @license APACHE-2\n"
+		out += " * @license MPL-2\n"
 		out += " * @copyright none\n"
 		out += " */\n"
 		out += "#pragma once\n"
@@ -595,7 +595,7 @@ class ServiceDefinition:
 		out = ""
 		out += "/** @file\n"
 		out += " * @note Generated file !!! Do not modify !!!\n"
-		out += " * @license APACHE-2\n"
+		out += " * @license MPL-2\n"
 		out += " * @copyright none\n"
 		out += " */\n"
 		out += "\n"
@@ -680,7 +680,7 @@ class ServiceDefinition:
 		
 		out += "/** @file\n"
 		out += " * @note Generated file !!! Do not modify !!!\n"
-		out += " * @license APACHE-2\n"
+		out += " * @license MPL-2\n"
 		out += " * @copyright none\n"
 		out += " */\n"
 		out += "#pragma once\n"
@@ -778,7 +778,7 @@ class ServiceDefinition:
 		
 		out += "/** @file\n"
 		out += " * @note Generated file !!! Do not modify !!!\n"
-		out += " * @license APACHE-2\n"
+		out += " * @license MPL-2\n"
 		out += " * @copyright none\n"
 		out += " */\n"
 		out += "\n"

@@ -15,7 +15,7 @@ def get_desc():
 	return "ZEUS service user"
 
 def get_license():
-	return "APACHE-2"
+	return "MPL-2"
 
 def get_compagny_type():
 	return "com"
