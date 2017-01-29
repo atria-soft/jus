@@ -340,6 +340,9 @@ int main(int _argc, const char *_argv[]) {
 			APPL_PRINT("    " << _argv[0] << " [options]");
 			APPL_PRINT("        --ip=XXX      Server connection IP (default: 1.7.0.0.1)");
 			APPL_PRINT("        --port=XXX    Server connection PORT (default: 1983)");
+			APPL_PRINT("        --from=XXX    user that request connection");
+			APPL_PRINT("        --to=XXX      destination user that we want to connect");
+			APPL_PRINT("        --pass=XXX    pass or tocker to connect to the user");
 			return -1;
 		}
 	}
