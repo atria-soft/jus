@@ -226,8 +226,9 @@ void appl::Windows::onCallbackConnectConnect() {
 	m_clientProp->fromUser = login;
 	m_clientProp->toUser = login;
 	m_clientProp->pass = m_password;
-	bool ret = client1.connect(login, m_password);
-	if (ret == false) {
+	m_clientProp->connect();
+	
+	if (m_clientProp->connection.isAlive() == false) {
 		APPL_ERROR("    ==> NOT Authentify to '" << login << "'");
 		ewol::tools::message::displayError("Can not connect the server with <br/>'" + login + "'");
 	} else {

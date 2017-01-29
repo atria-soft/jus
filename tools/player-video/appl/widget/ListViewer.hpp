@@ -13,6 +13,8 @@
 #include <ewol/widget/Manager.hpp>
 #include <esignal/Signal.hpp>
 
+#include <zeus/Client.hpp>
+
 namespace appl {
 	class ClientProperty {
 		public:
@@ -21,6 +23,9 @@ namespace appl {
 			std::string pass;
 			std::string address;
 			uint16_t port;
+			zeus::Client connection;
+			void connect();
+			void disconnect();
 	};
 	class ElementProperty {
 		public:

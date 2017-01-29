@@ -9,6 +9,9 @@
 
 
 
+#include <zeus/service/ProxyVideo.hpp>
+#include <zeus/ProxyFile.hpp>
+
 #include <appl/debug.hpp>
 #include <appl/widget/VideoPlayer.hpp>
 #include <ewol/object/Manager.hpp>
@@ -308,6 +311,38 @@ int appl::MediaDecoder::open_codec_context(int *_streamId, AVFormatContext *_for
 
 double appl::MediaDecoder::getFps(AVCodecContext *_avctx) {
 	return 1.0 / av_q2d(_avctx->time_base) / FFMAX(_avctx->ticks_per_frame, 1);
+}
+
+void appl::MediaDecoder::init(ememory::SharedPtr<ClientProperty> _property, uint32_t _mediaId) {
+	// TODO : Correct this later ... We first download the media and after we play it
+	// TODO : We need to down load only a small part ...
+	// get the requested node:
+	if (_property == nullptr) {
+		APPL_ERROR("Request play of not handle property ==> nullptr");
+		return;
+	}
+	if (_property->connection.isAlive() == false) {
+		APPL_ERROR("Request play of not connected handle ==> 'not alive'");
+		return;
+	}
+	zeus::service::ProxyVideo remoteServiceVideo = _property->connection.getService("video");
+	// remove all media (for test)
+	if (remoteServiceVideo.exist() == false) {
+		APPL_ERROR("Vide servie is ==> 'not alive'");
+		return;
+	}
+	// TODO : Do it better ...
+	zeus::ProxyFile dataFile = remoteServiceVideo.mediaGet(_mediaId).wait().get();
+	
+	std::string mimeType = dataFile.getMineType().wait().get();
+	// create temporary file:
+	etk::FSNode tmpFile("CACHE:videoPlayer." + zeus::getExtention(mimeType));
+	APPL_WARNING("Store in tmpFile : " << tmpFile << " ==> " << tmpFile.getName());
+	std::string sha512String = zeus::storeInFile(dataFile, tmpFile.getName());
+	APPL_WARNING("Store in tmpFile : " << tmpFile << " ==> " << tmpFile.getFileSystemName() << " DONE");
+	
+	init(tmpFile.getFileSystemName());
+	// TODO : init(tmpFile);
 }
 
 void appl::MediaDecoder::init(const std::string& _filename) {

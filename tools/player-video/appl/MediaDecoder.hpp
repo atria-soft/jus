@@ -9,6 +9,7 @@
 #include <gale/Thread.hpp>
 #include <audio/channel.hpp>
 #include <audio/format.hpp>
+#include <appl/widget/ListViewer.hpp>
 
 extern "C" {
 	#include <libavutil/imgutils.h>
@@ -104,6 +105,7 @@ namespace appl {
 			int open_codec_context(int *_streamId, AVFormatContext *_formatContext, enum AVMediaType _type);
 			double getFps(AVCodecContext *_avctx);
 			void init(const std::string& _filename);
+			void init(ememory::SharedPtr<appl::ClientProperty> _property, uint32_t _mediaId);
 			bool onThreadCall() override;
 			void uninit();
 			

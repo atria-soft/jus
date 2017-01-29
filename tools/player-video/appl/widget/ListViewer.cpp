@@ -24,6 +24,38 @@
 #include <zeus/FutureGroup.hpp>
 #include <etk/stdTools.hpp>
 #include <ejson/ejson.hpp>
+void appl::ClientProperty::connect() {
+	
+	// Generate IP and Port in the client interface
+	connection.propertyIp.set(address);
+	connection.propertyPort.set(port);
+	// Connection depending on the mode requested
+	if (fromUser == toUser) {
+		bool ret = connection.connect(fromUser, pass);
+		if (ret == false) {
+			APPL_ERROR("    ==> NOT Authentify with '" << toUser << "'");
+			return;
+		} else {
+			APPL_INFO("    ==> Authentify with '" << toUser << "'");
+		}
+	} else if (fromUser != "") {
+		bool ret = connection.connect(fromUser, toUser, pass);
+		if (ret == false) {
+			APPL_ERROR("    ==> NOT Connected to '" << toUser << "' with '" << fromUser << "'");
+			return;
+		} else {
+			APPL_INFO("    ==> Connected with '" << toUser << "'");
+		}
+	} else {
+		bool ret = connection.connect(toUser);
+		if (ret == false) {
+			APPL_ERROR("    ==> NOT Connected with 'anonymous' to '" << toUser << "'");
+			return;
+		} else {
+			APPL_INFO("    ==> Connected with 'anonymous' to '" << toUser << "'");
+		}
+	}
+}
 
 appl::widget::ListViewer::ListViewer() :
   signalSelect(this, "select", "Select a media to view") {
@@ -68,39 +100,13 @@ void appl::widget::ListViewer::searchElements(std::string _filter) {
 		_filter = "";
 	}
 	
-	// check connection is correct:
-	zeus::Client client1;
-	// Generate IP and Port in the client interface
-	client1.propertyIp.set(m_clientProp->address);
-	client1.propertyPort.set(m_clientProp->port);
-	// Connection depending on the mode requested
-	if (m_clientProp->fromUser == m_clientProp->toUser) {
-		bool ret = client1.connect(m_clientProp->fromUser, m_clientProp->pass);
-		if (ret == false) {
-			APPL_ERROR("    ==> NOT Authentify with '" << m_clientProp->toUser << "'");
-			return;
-		} else {
-			APPL_INFO("    ==> Authentify with '" << m_clientProp->toUser << "'");
-		}
-	} else if (m_clientProp->fromUser != "") {
-		bool ret = client1.connect(m_clientProp->fromUser, m_clientProp->toUser, m_clientProp->pass);
-		if (ret == false) {
-			APPL_ERROR("    ==> NOT Connected to '" << m_clientProp->toUser << "' with '" << m_clientProp->fromUser << "'");
-			return;
-		} else {
-			APPL_INFO("    ==> Connected with '" << m_clientProp->toUser << "'");
-		}
-	} else {
-		bool ret = client1.connect(m_clientProp->toUser);
-		if (ret == false) {
-			APPL_ERROR("    ==> NOT Connected with 'anonymous' to '" << m_clientProp->toUser << "'");
-			return;
-		} else {
-			APPL_INFO("    ==> Connected with 'anonymous' to '" << m_clientProp->toUser << "'");
-		}
+	if (m_clientProp->connection.isAlive() == false) {
+		APPL_ERROR("Conection is not alive anymore ...");
+		return;
 	}
+	
 	// get all the data:
-	zeus::service::ProxyVideo remoteServiceVideo = client1.getService("video");
+	zeus::service::ProxyVideo remoteServiceVideo = m_clientProp->connection.getService("video");
 	// remove all media (for test)
 	if (remoteServiceVideo.exist() == false) {
 		APPL_ERROR("    ==> Service does not exist : 'video'");

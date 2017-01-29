@@ -88,6 +88,21 @@ void appl::widget::VideoDisplay::setFile(const std::string& _filename) {
 	markToRedraw();
 }
 
+void appl::widget::VideoDisplay::setZeusMedia(ememory::SharedPtr<ClientProperty> _property, uint32_t _mediaId) {
+	// Stop playing in all case...
+	stop();
+	// Clear the old interface
+	m_decoder.reset();
+	// Create a new interface
+	m_decoder = ememory::makeShared<appl::MediaDecoder>();
+	if (m_decoder == nullptr) {
+		APPL_ERROR("Can not create sharedPtr on decoder ...");
+		return;
+	}
+	m_decoder->init(_property, _mediaId);
+	markToRedraw();
+}
+
 bool appl::widget::VideoDisplay::isPlaying() {
 	return m_isPalying;
 }
