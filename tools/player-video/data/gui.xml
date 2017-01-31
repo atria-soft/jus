@@ -58,7 +58,7 @@
 		</sizer>
 		<ListViewer name="ws-name-list-viewer" fill="true,true" expand="true,true"/>
 		<sizer mode="vert" name="ws-name-player" fill="true,true" expand="true,true">
-			<sizer mode="hori" fill="true,true" expand="true,true">
+			<sizer mode="hori" fill="true,true" expand="true,false">
 				<button name="bt-previous">
 					<label>
 						previous

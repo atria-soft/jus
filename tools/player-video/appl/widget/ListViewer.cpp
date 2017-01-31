@@ -124,6 +124,60 @@ void appl::widget::ListViewer::searchElements(std::string _filter) {
 		}
 		elem->m_id = it;
 		elem->m_metadataUpdated = false;
+		// TODO : Type the "andThen" to simplify user experience
+		// TODO : Add the reference on the typed future in the function andTrn ... ==> then we can add later the cancel
+		appl::widget::ListViewerShared tmpWidget = ememory::staticPointerCast<appl::widget::ListViewer>(sharedFromThis());
+		remoteServiceVideo.mediaMetadataGetKey(it, "title")
+		    .andThen([&](zeus::FutureBase _fut){
+		             	zeus::Future<std::string> futTmp(_fut);
+		             	elem->m_title = futTmp.get();;
+		             	tmpWidget->markToRedraw();
+		             	return true;
+		             });
+		remoteServiceVideo.mediaMetadataGetKey(it, "series-name")
+		    .andThen([&](zeus::FutureBase _fut){
+		             	zeus::Future<std::string> futTmp(_fut);
+		             	elem->m_serie = futTmp.get();;
+		             	tmpWidget->markToRedraw();
+		             	return true;
+		             });
+		remoteServiceVideo.mediaMetadataGetKey(it, "saison")
+		    .andThen([&](zeus::FutureBase _fut){
+		             	zeus::Future<std::string> futTmp(_fut);
+		             	elem->m_saison = futTmp.get();;
+		             	tmpWidget->markToRedraw();
+		             	return true;
+		             });
+		remoteServiceVideo.mediaMetadataGetKey(it, "episode")
+		    .andThen([&](zeus::FutureBase _fut){
+		             	zeus::Future<std::string> futTmp(_fut);
+		             	elem->m_episode = futTmp.get();;
+		             	tmpWidget->markToRedraw();
+		             	return true;
+		             });
+		remoteServiceVideo.mediaMetadataGetKey(it, "description")
+		    .andThen([&](zeus::FutureBase _fut){
+		             	zeus::Future<std::string> futTmp(_fut);
+		             	elem->m_description = futTmp.get();;
+		             	tmpWidget->markToRedraw();
+		             	return true;
+		             });
+		elem->m_thumb = egami::load("DATA:Home.svg", ivec2(128,128));
+		remoteServiceVideo.mediaMineTypeGet(it)
+		    .andThen([&](zeus::FutureBase _fut){
+		             	zeus::Future<std::string> futTmp(_fut);
+		             	elem->m_mineType = futTmp.get();
+		             	if (etk::start_with(elem->m_mineType, "video") == true) {
+		             		// TODO : Optimise this ...
+		             		elem->m_thumb = egami::load("DATA:Video.svg", ivec2(128,128));
+		             	} else if (etk::start_with(elem->m_mineType, "audio") == true) {
+		             		// TODO : Optimise this ...
+		             		elem->m_thumb = egami::load("DATA:MusicNote.svg", ivec2(128,128));
+		             	}
+		             	tmpWidget->markToRedraw();
+		             	return true;
+		             });
+		/*
 		elem->m_title = remoteServiceVideo.mediaMetadataGetKey(it, "title").wait().get();
 		elem->m_serie = remoteServiceVideo.mediaMetadataGetKey(it, "series-name").wait().get();
 		elem->m_saison = remoteServiceVideo.mediaMetadataGetKey(it, "saison").wait().get();
@@ -138,21 +192,11 @@ void appl::widget::ListViewer::searchElements(std::string _filter) {
 			elem->m_thumb = egami::load("DATA:MusicNote.svg", ivec2(128,128));
 		}
 		elem->m_metadataUpdated = true;
+		*/
+		elem->m_metadataUpdated = true;
 		//elem->m_thumb = remoteServiceVideo.mediaThumbGet(it, 128).wait().get();
 		m_listElement.push_back(elem);
 	}
-	class ElementProperty {
-		public:
-			uint32_t id; //!< Remote Id of the Media
-			bool m_metadataUpdated; //!< Check value to know when metadata is getted (like thumb ...)
-			egami::Image thumb; //!< simple image describing the element
-			std::string title; //!< Title of the Element
-			std::string description; //!< Description of the element
-			std::string type; //!< video/audio/image/...
-			// TODO: float globalNote; //!< note over [0,0..1,0]
-			// TODO: int32_t countPersonalView; //!< number of view this media
-			// TODO: int64_t globalPersonalView; //!< number of time this media has been viewed
-	};
 }
 
 void appl::widget::ListViewer::onDraw() {
