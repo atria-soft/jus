@@ -29,6 +29,7 @@ namespace appl {
 	};
 	class ElementProperty {
 		public:
+			std::mutex m_mutex;
 			uint32_t m_id; //!< Remote Id of the Media
 			bool m_metadataUpdated; //!< Check value to know when metadata is getted (like thumb ...)
 			egami::Image m_thumb; //!< simple image describing the element

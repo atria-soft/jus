@@ -128,51 +128,74 @@ void appl::widget::ListViewer::searchElements(std::string _filter) {
 		// TODO : Add the reference on the typed future in the function andTrn ... ==> then we can add later the cancel
 		appl::widget::ListViewerShared tmpWidget = ememory::staticPointerCast<appl::widget::ListViewer>(sharedFromThis());
 		remoteServiceVideo.mediaMetadataGetKey(it, "title")
-		    .andThen([&](zeus::FutureBase _fut){
+		    .andThen([=](zeus::FutureBase _fut) mutable {
 		             	zeus::Future<std::string> futTmp(_fut);
-		             	elem->m_title = futTmp.get();;
+		             	APPL_INFO("    [" << elem->m_id << "] get title: " << futTmp.get());
+		             	{
+		             		std::unique_lock<std::mutex> lock(elem->m_mutex);
+		             		elem->m_title = futTmp.get();
+		             	}
 		             	tmpWidget->markToRedraw();
 		             	return true;
 		             });
 		remoteServiceVideo.mediaMetadataGetKey(it, "series-name")
-		    .andThen([&](zeus::FutureBase _fut){
+		    .andThen([=](zeus::FutureBase _fut) mutable {
 		             	zeus::Future<std::string> futTmp(_fut);
-		             	elem->m_serie = futTmp.get();;
+		             	APPL_ERROR("    [" << elem->m_id << "] get serie: " << futTmp.get());
+		             	{
+		             		std::unique_lock<std::mutex> lock(elem->m_mutex);
+		             		elem->m_serie = futTmp.get();
+		             	}
 		             	tmpWidget->markToRedraw();
 		             	return true;
 		             });
 		remoteServiceVideo.mediaMetadataGetKey(it, "saison")
-		    .andThen([&](zeus::FutureBase _fut){
+		    .andThen([=](zeus::FutureBase _fut) mutable {
 		             	zeus::Future<std::string> futTmp(_fut);
-		             	elem->m_saison = futTmp.get();;
+		             	APPL_INFO("    [" << elem->m_id << "] get saison: " << futTmp.get());
+		             	{
+		             		std::unique_lock<std::mutex> lock(elem->m_mutex);
+		             		elem->m_saison = futTmp.get();
+		             	}
 		             	tmpWidget->markToRedraw();
 		             	return true;
 		             });
 		remoteServiceVideo.mediaMetadataGetKey(it, "episode")
-		    .andThen([&](zeus::FutureBase _fut){
+		    .andThen([=](zeus::FutureBase _fut) mutable {
 		             	zeus::Future<std::string> futTmp(_fut);
-		             	elem->m_episode = futTmp.get();;
+		             	APPL_INFO("    [" << elem->m_id << "] get episode: " << futTmp.get());
+		             	{
+		             		std::unique_lock<std::mutex> lock(elem->m_mutex);
+		             		elem->m_episode = futTmp.get();
+		             	}
 		             	tmpWidget->markToRedraw();
 		             	return true;
 		             });
 		remoteServiceVideo.mediaMetadataGetKey(it, "description")
-		    .andThen([&](zeus::FutureBase _fut){
+		    .andThen([=](zeus::FutureBase _fut) mutable {
 		             	zeus::Future<std::string> futTmp(_fut);
-		             	elem->m_description = futTmp.get();;
+		             	APPL_INFO("    [" << elem->m_id << "] get description: " << futTmp.get());
+		             	{
+		             		std::unique_lock<std::mutex> lock(elem->m_mutex);
+		             		elem->m_description = futTmp.get();
+		             	}
 		             	tmpWidget->markToRedraw();
 		             	return true;
 		             });
-		elem->m_thumb = egami::load("DATA:Home.svg", ivec2(128,128));
 		remoteServiceVideo.mediaMineTypeGet(it)
-		    .andThen([&](zeus::FutureBase _fut){
+		    .andThen([=](zeus::FutureBase _fut) mutable {
 		             	zeus::Future<std::string> futTmp(_fut);
-		             	elem->m_mineType = futTmp.get();
-		             	if (etk::start_with(elem->m_mineType, "video") == true) {
-		             		// TODO : Optimise this ...
-		             		elem->m_thumb = egami::load("DATA:Video.svg", ivec2(128,128));
-		             	} else if (etk::start_with(elem->m_mineType, "audio") == true) {
-		             		// TODO : Optimise this ...
-		             		elem->m_thumb = egami::load("DATA:MusicNote.svg", ivec2(128,128));
+		             	APPL_INFO("    [" << elem->m_id << "] get mine-type: " << futTmp.get());
+		             	{
+		             		std::unique_lock<std::mutex> lock(elem->m_mutex);
+		             		elem->m_mineType = futTmp.get();
+		             		if (etk::start_with(elem->m_mineType, "video") == true) {
+		             			// TODO : Optimise this ...
+		             			elem->m_thumb = egami::load("DATA:Video.svg", ivec2(128,128));
+		             		} else if (etk::start_with(elem->m_mineType, "audio") == true) {
+		             			// TODO : Optimise this ...
+		             			elem->m_thumb = egami::load("DATA:MusicNote.svg", ivec2(128,128));
+		             		}
 		             	}
 		             	tmpWidget->markToRedraw();
 		             	return true;
@@ -197,6 +220,7 @@ void appl::widget::ListViewer::searchElements(std::string _filter) {
 		//elem->m_thumb = remoteServiceVideo.mediaThumbGet(it, 128).wait().get();
 		m_listElement.push_back(elem);
 	}
+	APPL_INFO("Request All is done");
 }
 
 void appl::widget::ListViewer::onDraw() {
@@ -374,6 +398,9 @@ void appl::ElementDisplayed::generateDisplay(vec2 _startPos, vec2 _size) {
 	
 	m_pos = _startPos;
 	m_size = _size;
+	
+	std::unique_lock<std::mutex> lock(m_property->m_mutex);
+	
 	// --------------------------------------------
 	// -- Display text...
 	// --------------------------------------------
@@ -414,6 +441,7 @@ void appl::ElementDisplayed::generateDisplay(vec2 _startPos, vec2 _size) {
 		m_image.setSource("DATA:MusicNote.svg", 128);
 	} else {
 		APPL_INFO("Set image: Unknow type '" << m_property->m_mineType << "'");
+		m_image.setSource("DATA:Home.svg", 128);
 	}
 	m_image.setPos(_startPos+vec2(10,10));
 	m_image.print(vec2(_size.y(), _size.y())-vec2(20,20));
