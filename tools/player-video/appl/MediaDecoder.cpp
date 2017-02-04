@@ -348,6 +348,7 @@ void appl::MediaDecoder::init(ememory::SharedPtr<ClientProperty> _property, uint
 void appl::MediaDecoder::init(const std::string& _filename) {
 	m_updateVideoTimeStampAfterSeek = false;
 	m_sourceFilename = _filename;
+	ethread::setName("ffmpegThread");
 	// open input file, and allocate format context
 	if (avformat_open_input(&m_formatContext, m_sourceFilename.c_str(), nullptr, nullptr) < 0) {
 		APPL_ERROR("Could not open source file " << m_sourceFilename);

@@ -24,38 +24,6 @@
 #include <zeus/FutureGroup.hpp>
 #include <etk/stdTools.hpp>
 #include <ejson/ejson.hpp>
-void appl::ClientProperty::connect() {
-	
-	// Generate IP and Port in the client interface
-	connection.propertyIp.set(address);
-	connection.propertyPort.set(port);
-	// Connection depending on the mode requested
-	if (fromUser == toUser) {
-		bool ret = connection.connect(fromUser, pass);
-		if (ret == false) {
-			APPL_ERROR("    ==> NOT Authentify with '" << toUser << "'");
-			return;
-		} else {
-			APPL_INFO("    ==> Authentify with '" << toUser << "'");
-		}
-	} else if (fromUser != "") {
-		bool ret = connection.connect(fromUser, toUser, pass);
-		if (ret == false) {
-			APPL_ERROR("    ==> NOT Connected to '" << toUser << "' with '" << fromUser << "'");
-			return;
-		} else {
-			APPL_INFO("    ==> Connected with '" << toUser << "'");
-		}
-	} else {
-		bool ret = connection.connect(toUser);
-		if (ret == false) {
-			APPL_ERROR("    ==> NOT Connected with 'anonymous' to '" << toUser << "'");
-			return;
-		} else {
-			APPL_INFO("    ==> Connected with 'anonymous' to '" << toUser << "'");
-		}
-	}
-}
 
 appl::widget::ListViewer::ListViewer() :
   signalSelect(this, "select", "Select a media to view") {
@@ -129,6 +97,7 @@ void appl::widget::ListViewer::searchElements(std::string _filter) {
 		appl::widget::ListViewerShared tmpWidget = ememory::staticPointerCast<appl::widget::ListViewer>(sharedFromThis());
 		remoteServiceVideo.mediaMetadataGetKey(it, "title")
 		    .andThen([=](zeus::FutureBase _fut) mutable {
+		             	std::this_thread::sleep_for(std::chrono::milliseconds(200));
 		             	zeus::Future<std::string> futTmp(_fut);
 		             	APPL_INFO("    [" << elem->m_id << "] get title: " << futTmp.get());
 		             	{
@@ -140,6 +109,7 @@ void appl::widget::ListViewer::searchElements(std::string _filter) {
 		             });
 		remoteServiceVideo.mediaMetadataGetKey(it, "series-name")
 		    .andThen([=](zeus::FutureBase _fut) mutable {
+		             	std::this_thread::sleep_for(std::chrono::milliseconds(200));
 		             	zeus::Future<std::string> futTmp(_fut);
 		             	APPL_ERROR("    [" << elem->m_id << "] get serie: " << futTmp.get());
 		             	{
@@ -151,6 +121,7 @@ void appl::widget::ListViewer::searchElements(std::string _filter) {
 		             });
 		remoteServiceVideo.mediaMetadataGetKey(it, "saison")
 		    .andThen([=](zeus::FutureBase _fut) mutable {
+		             	std::this_thread::sleep_for(std::chrono::milliseconds(200));
 		             	zeus::Future<std::string> futTmp(_fut);
 		             	APPL_INFO("    [" << elem->m_id << "] get saison: " << futTmp.get());
 		             	{
@@ -162,6 +133,7 @@ void appl::widget::ListViewer::searchElements(std::string _filter) {
 		             });
 		remoteServiceVideo.mediaMetadataGetKey(it, "episode")
 		    .andThen([=](zeus::FutureBase _fut) mutable {
+		             	std::this_thread::sleep_for(std::chrono::milliseconds(200));
 		             	zeus::Future<std::string> futTmp(_fut);
 		             	APPL_INFO("    [" << elem->m_id << "] get episode: " << futTmp.get());
 		             	{
@@ -173,6 +145,7 @@ void appl::widget::ListViewer::searchElements(std::string _filter) {
 		             });
 		remoteServiceVideo.mediaMetadataGetKey(it, "description")
 		    .andThen([=](zeus::FutureBase _fut) mutable {
+		             	std::this_thread::sleep_for(std::chrono::milliseconds(200));
 		             	zeus::Future<std::string> futTmp(_fut);
 		             	APPL_INFO("    [" << elem->m_id << "] get description: " << futTmp.get());
 		             	{
@@ -184,6 +157,7 @@ void appl::widget::ListViewer::searchElements(std::string _filter) {
 		             });
 		remoteServiceVideo.mediaMineTypeGet(it)
 		    .andThen([=](zeus::FutureBase _fut) mutable {
+		             	std::this_thread::sleep_for(std::chrono::milliseconds(200));
 		             	zeus::Future<std::string> futTmp(_fut);
 		             	APPL_INFO("    [" << elem->m_id << "] get mine-type: " << futTmp.get());
 		             	{
@@ -231,10 +205,11 @@ void appl::widget::ListViewer::onDraw() {
 		}
 		it->draw();
 	}
-	WidgetScrolled::onDraw();
+	ewol::widget::WidgetScrolled::onDraw();
 }
 
 void appl::widget::ListViewer::onRegenerateDisplay() {
+	ewol::widget::WidgetScrolled::onRegenerateDisplay();
 	//!< Check if we really need to redraw the display, if not needed, we redraw the previous data ...
 	if (needRedraw() == false) {
 		return;
@@ -361,7 +336,7 @@ void appl::widget::ListViewer::onRegenerateDisplay() {
 	m_maxSize.setX(m_size.x());
 	m_maxSize.setY((float)m_listElement.size()*elementSize.y());
 	// call the herited class...
-	WidgetScrolled::onRegenerateDisplay();
+	ewol::widget::WidgetScrolled::onRegenerateDisplay();
 }
 
 /*

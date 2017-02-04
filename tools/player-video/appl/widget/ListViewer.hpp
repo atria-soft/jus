@@ -14,19 +14,9 @@
 #include <esignal/Signal.hpp>
 
 #include <zeus/Client.hpp>
+#include <appl/ClientProperty.hpp>
 
 namespace appl {
-	class ClientProperty {
-		public:
-			std::string fromUser;
-			std::string toUser;
-			std::string pass;
-			std::string address;
-			uint16_t port;
-			zeus::Client connection;
-			void connect();
-			void disconnect();
-	};
 	class ElementProperty {
 		public:
 			std::mutex m_mutex;

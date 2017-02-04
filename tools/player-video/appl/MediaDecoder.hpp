@@ -9,7 +9,7 @@
 #include <gale/Thread.hpp>
 #include <audio/channel.hpp>
 #include <audio/format.hpp>
-#include <appl/widget/ListViewer.hpp>
+#include <appl/ClientProperty.hpp>
 
 extern "C" {
 	#include <libavutil/imgutils.h>

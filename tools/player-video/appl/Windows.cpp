@@ -74,7 +74,7 @@ void appl::Windows::init() {
 	subBind(appl::widget::VideoDisplay, "displayer", signalPosition, sharedFromThis(), &appl::Windows::onCallbackPosition);
 	subBind(ewol::widget::Slider, "progress-bar", signalChange, sharedFromThis(), &appl::Windows::onCallbackSeekRequest);
 	
-	
+	/*
 	subBind(ewol::widget::Entry, "connect-login", signalModify, sharedFromThis(), &appl::Windows::onCallbackConnectLogin);
 	subBind(ewol::widget::Entry, "connect-password", signalModify, sharedFromThis(), &appl::Windows::onCallbackConnectPassword);
 	subBind(ewol::widget::Button, "connect-bt", signalPressed, sharedFromThis(), &appl::Windows::onCallbackConnectConnect);
@@ -87,10 +87,19 @@ void appl::Windows::init() {
 	subBind(ewol::widget::Button, "bt-theater", signalPressed, sharedFromThis(), &appl::Windows::onCallbackSelectTeather);
 	subBind(ewol::widget::Button, "bt-one-man-show", signalPressed, sharedFromThis(), &appl::Windows::onCallbackSelectOneManShow);
 	subBind(ewol::widget::Button, "bt-courses", signalPressed, sharedFromThis(), &appl::Windows::onCallbackSelectSourses);
-	
+	*/
 	
 	propertySetOnWidgetNamed("connect-login", "value", m_login);
 	propertySetOnWidgetNamed("connect-password", "value", m_password);
+	
+	// Direct display list:
+	ewol::propertySetOnObjectNamed("view-selection", "select", "ws-name-list-viewer");
+	// check if we are connected:
+	if (m_login == "") {
+		// must create pop-up connection
+		
+	}
+	
 }
 
 
