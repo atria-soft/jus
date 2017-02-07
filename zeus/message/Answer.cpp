@@ -40,6 +40,7 @@ void zeus::message::Answer::addError(const std::string& _value, const std::strin
 }
 
 bool zeus::message::Answer::writeOn(enet::WebSocket& _interface) {
+	std::unique_lock<std::mutex> lock = _interface.getScopeLock();
 	zeus::Message::writeOn(_interface);
 	_interface.writeData((uint8_t*)m_errorType.c_str(), m_errorType.size() + 1);
 	if (m_errorType.size() != 0) {

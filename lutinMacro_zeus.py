@@ -731,6 +731,10 @@ class ServiceDefinition:
 		out += space + "		m_obj = _srv;\n"
 		out += space + "		return *this;\n"
 		out += space + "	}\n"
+		out += space + "	const Proxy" + self.name[-1] + "& operator= (const Proxy" + self.name[-1] + "& _obj) {\n"
+		out += space + "		m_obj = _obj.m_obj;\n"
+		out += space + "		return *this;\n"
+		out += space + "	}\n"
 		out += space + "	~Proxy" + self.name[-1] + "() = default;\n"
 		out += space + "	Proxy" + self.name[-1] + "()"
 		if len(self.attributes) != 0:
