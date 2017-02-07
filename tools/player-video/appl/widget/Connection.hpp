@@ -23,26 +23,20 @@ namespace appl {
 		 *  
 		 *  Fist global static declaration and inclusion:
 		 *  [code style=c++]
-		 *  #include <ewol/widget/meta/Connection.h>
+		 *  #include <appl/widget/Connection.hpp>
 		 *  [/code]
 		 *  
 		 *  The first step is to create the file chooser pop-up : (never in the constructor!!!)
 		 *  [code style=c++]
-		 *  ewol::widget::ConnectionShared tmpWidget = ewol::Widget::Connection::create();
+		 *  appl::widget::ConnectionShared tmpWidget = appl::widget::Connection::create();
 		 *  if (tmpWidget == nullptr) {
 		 *  	APPL_ERROR("Can not open File chooser !!! ");
 		 *  	return -1;
 		 *  }
 		 *  // register on the Validate event:
-		 *  tmpWidget->signalValidate.connect(sharedFromThis(), &****::onCallbackOpenFile);
+		 *  tmpWidget->signalValidate.connect(sharedFromThis(), &****::onCallbackConnectionValidate);
 		 *  // no need of this event watching ...
-		 *  tmpWidget->signalCancel.connect(sharedFromThis(), &****::onCallbackClosePopUp);
-		 *  // set the title:
-		 *   tmpWidget->propertyLabelTitle.set("Open files ...");
-		 *  // Set the validate Label:
-		 *  tmpWidget->propertyLabelValidate.set("Open");
-		 *  // simply set a folder (by default this is the home folder)
-		 *  //tmpWidget->propertyPath.set("/home/me");
+		 *  tmpWidget->signalCancel.connect(sharedFromThis(), &****::onCallbackConnectionCancel);
 		 *  // add the widget as windows pop-up ...
 		 *  ewol::widget::WindowsShared tmpWindows = getWindows();
 		 *  if (tmpWindows == nullptr) {
@@ -55,11 +49,11 @@ namespace appl {
 		 *  Now we just need to wait the the open event message.
 		 *  
 		 *  [code style=c++]
-		 *  void ****::onCallbackOpenFile(const std::string& _value) {
-		 *  	APPL_INFO("Request open file : '" << _value << "'");
+		 *  void ****::onCallbackConnectionValidate(const ememory::SharedPtr<appl::ClientProperty>& _prop) {
+		 *  	APPL_INFO("New connection : '" << _value << "'");
 		 *  }
-		 *  void ****::onCallbackClosePopUp() {
-		 *  	APPL_INFO("The File chooser has been closed");
+		 *  void ****::onCallbackConnectionCancel() {
+		 *  	APPL_INFO("cancel connection");
 		 *  }
 		 *  [/code]
 		 *  This is the best example of a Meta-widget.
@@ -70,11 +64,14 @@ namespace appl {
 				esignal::Signal<ememory::SharedPtr<appl::ClientProperty>> signalValidate; //!< select file(s)
 			protected:
 				ememory::SharedPtr<appl::ClientProperty> m_baseProperty;
+				std::string m_login;
+				std::string m_password;
 				Connection();
-				void init(ememory::SharedPtr<appl::ClientProperty> _baseProperty=nullptr) override;
+				void init() override;
 			public:
 				DECLARE_WIDGET_FACTORY(Connection, "Connection");
 				virtual ~Connection();
+				void setProperty(ememory::SharedPtr<appl::ClientProperty> _baseProperty=nullptr);
 			private:
 				std::string getCompleateFileName();
 				void updateCurrentFolder();
@@ -82,21 +79,10 @@ namespace appl {
 				void onGetFocus() override;
 			private:
 				// callback functions:
-				void onCallbackEntryFolderChangeValue(const std::string& _value);
-				void onCallbackEntryFileChangeValue(const std::string& _value);
-				void onCallbackButtonCancelPressed();
-				void onCallbackHidenFileChangeChangeValue(const bool& _value);
-				void onCallbackListFolderSelectChange(const std::string& _value);
-				void onCallbackListFileSelectChange(const std::string& _value);
-				void onCallbackListFileValidate(const std::string& _value);
-				void onCallbackListValidate();
-				void onCallbackHomePressed();
-			protected:
-				virtual void onChangePropertyPath();
-				virtual void onChangePropertyFile();
-				virtual void onChangePropertyLabelTitle();
-				virtual void onChangePropertyLabelValidate();
-				virtual void onChangePropertyLabelCancel();
+				void onCallbackButtonValidate();
+				void onCallbackButtonCancel();
+				void onCallbackEntryLoginChangeValue(const std::string& _value);
+				void onCallbackEntryPasswordChangeValue(const std::string& _value);
 		};
 	};
 };

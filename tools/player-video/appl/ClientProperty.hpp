@@ -14,6 +14,7 @@
 #include <esignal/Signal.hpp>
 
 #include <zeus/Client.hpp>
+#include <ejson/ejson.hpp>
 
 namespace appl {
 	class ClientProperty {
@@ -24,8 +25,15 @@ namespace appl {
 			std::string address;
 			uint16_t port;
 			zeus::Client connection;
+			ClientProperty();
 			void connect();
 			void disconnect();
+			ejson::Object toJson();
+			void fromJson(ejson::Object _obj);
+			void setLogin(std::string _login);
+			std::string getLogin();
+			void setPassword(std::string _password);
+			std::string getPassword();
 	};
 }
 

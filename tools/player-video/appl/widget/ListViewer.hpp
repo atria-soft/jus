@@ -84,7 +84,7 @@ namespace appl {
 				void setClientProperty(ememory::SharedPtr<ClientProperty> _prop) {
 					m_clientProp = _prop;
 				}
-				void searchElements(std::string _filter);
+				void searchElements(std::string _filter="");
 				bool onEventInput(const ewol::event::Input& _event) override;
 		};
 	}

@@ -248,7 +248,7 @@ void appl::widget::VideoDisplay::onRegenerateDisplay() {
 
 void appl::widget::VideoDisplay::periodicEvent(const ewol::event::Time& _event) {
 	if (m_isPalying == true) {
-		APPL_INFO("tick: " << _event);
+		APPL_VERBOSE("tick: " << _event);
 		m_currentTime += _event.getDeltaCallDuration();
 	}
 	if (m_decoder == nullptr) {

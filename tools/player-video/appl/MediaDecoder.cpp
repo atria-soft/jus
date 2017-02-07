@@ -17,6 +17,34 @@
 #include <ewol/object/Manager.hpp>
 #include <etk/tool.hpp>
 #include <egami/egami.hpp>
+#include <utility>
+
+#define BUFFER_SIZE_GET_SLOT (1024*512)
+
+
+
+static int g_readFunc(void* _opaque, uint8_t* _buf, int _bufSize) {
+	if (_opaque == nullptr) {
+		return 0;
+	}
+	return static_cast<appl::MediaDecoder*>(_opaque)->readFunc(_buf, _bufSize);
+}
+
+static int g_writeFunc(void* _opaque, uint8_t* _buf, int _bufSize) {
+	if (_opaque == nullptr) {
+		return 0;
+	}
+	return static_cast<appl::MediaDecoder*>(_opaque)->writeFunc(_buf, _bufSize);
+}
+
+static int64_t g_seekFunc(void* _opaque, int64_t _offset, int _whence) {
+	if (_opaque == nullptr) {
+		return 0;
+	}
+	return static_cast<appl::MediaDecoder*>(_opaque)->seekFunc(_offset, _whence);
+}
+
+
 
 static void init_ffmpeg() {
 	static bool isInit = false;
@@ -132,6 +160,7 @@ void appl::MessageElementAudio::configure(audio::format _format, uint32_t _sampl
 
 appl::MediaDecoder::MediaDecoder() {
 	init_ffmpeg();
+	m_IOContext = nullptr;
 	m_formatContext = nullptr;
 	m_videoDecoderContext = nullptr;
 	m_audioDecoderContext = nullptr;
@@ -315,7 +344,7 @@ double appl::MediaDecoder::getFps(AVCodecContext *_avctx) {
 
 void appl::MediaDecoder::init(ememory::SharedPtr<ClientProperty> _property, uint32_t _mediaId) {
 	// TODO : Correct this later ... We first download the media and after we play it
-	// TODO : We need to down load only a small part ...
+	// TODO : We need to download only a small part ...
 	// get the requested node:
 	if (_property == nullptr) {
 		APPL_ERROR("Request play of not handle property ==> nullptr");
@@ -328,21 +357,151 @@ void appl::MediaDecoder::init(ememory::SharedPtr<ClientProperty> _property, uint
 	zeus::service::ProxyVideo remoteServiceVideo = _property->connection.getService("video");
 	// remove all media (for test)
 	if (remoteServiceVideo.exist() == false) {
-		APPL_ERROR("Vide servie is ==> 'not alive'");
+		APPL_ERROR("Video service is ==> 'not alive'");
 		return;
 	}
-	// TODO : Do it better ...
-	zeus::ProxyFile dataFile = remoteServiceVideo.mediaGet(_mediaId).wait().get();
+	m_remoteFileHandle = remoteServiceVideo.mediaGet(_mediaId).wait().get();
 	
-	std::string mimeType = dataFile.getMineType().wait().get();
+	std::string mimeType = m_remoteFileHandle.getMineType().wait().get();
+	uint64_t    fileSize = m_remoteFileHandle.getSize().wait().get();
+	// pre-allcocate data file size:
+	m_remoteBuffer.resize(fileSize, 0);
+	// start with loading of 1 Mo
+	auto futData = m_remoteFileHandle.getPart(0, BUFFER_SIZE_GET_SLOT);
+	futData.wait();
+	if (futData.hasError() == true) {
+		APPL_ERROR("Error when loading data (First 1 MB)");
+	}
+	zeus::Raw buffer = futData.get();
+	memcpy(&m_remoteBuffer[0], buffer.data(), buffer.size());
+	m_remoteBufferFillSection.push_back(std::pair<uint32_t,uint32_t>(0,buffer.size()));
+	m_remoteBufferReadPosition = 0;
+	m_remoteProperty = _property;
+	m_remoteMediaId = _mediaId;
+	
 	// create temporary file:
+	/*
 	etk::FSNode tmpFile("CACHE:videoPlayer." + zeus::getExtention(mimeType));
 	APPL_WARNING("Store in tmpFile : " << tmpFile << " ==> " << tmpFile.getName());
 	std::string sha512String = zeus::storeInFile(dataFile, tmpFile.getName());
 	APPL_WARNING("Store in tmpFile : " << tmpFile << " ==> " << tmpFile.getFileSystemName() << " DONE");
-	
 	init(tmpFile.getFileSystemName());
+	*/
+	init("");
 	// TODO : init(tmpFile);
+}
+
+int appl::MediaDecoder::readFunc(uint8_t* _buf, int _bufSize) {
+	APPL_ERROR("call read ... " << m_remoteBufferReadPosition << "  size=" << _bufSize);
+	// check if enought data:
+	bool find = false;
+	for (auto &it : m_remoteBufferFillSection) {
+		if (    m_remoteBufferReadPosition >= it.first
+		     && m_remoteBufferReadPosition < it.second) {
+			find = true;
+			// part already download...
+			if (it.second - m_remoteBufferReadPosition < _bufSize) {
+				// missing data ==> reduce copy size
+				_bufSize = it.second - m_remoteBufferReadPosition;
+			}
+			break;
+		}
+	}
+	if (find == false) {
+		// No data in the buffer
+		return 0;
+	}
+	memcpy(_buf, &m_remoteBuffer[m_remoteBufferReadPosition], _bufSize);
+	m_remoteBufferReadPosition += _bufSize;
+	return _bufSize;
+}
+
+int appl::MediaDecoder::writeFunc(uint8_t* _buf, int _bufSize) {
+	APPL_ERROR("call write ...");
+	return _bufSize;
+}
+
+int64_t appl::MediaDecoder::seekFunc(int64_t _offset, int _whence) {
+	int64_t lastPosition = m_remoteBufferReadPosition;
+	switch (_whence) {
+		case AVSEEK_SIZE:
+			APPL_ERROR("call seek 'SIZE' ... " << m_remoteBuffer.size());
+			return m_remoteBuffer.size();
+		case AVSEEK_FORCE:
+			APPL_ERROR("call seek 'FORCE' ... pos=" << _offset << " size=" << m_remoteBuffer.size());
+			m_remoteBufferReadPosition = _offset;
+			break;
+		case SEEK_SET:
+			APPL_ERROR("call seek 'SET' ... pos=" << _offset << " size=" << m_remoteBuffer.size());
+			m_remoteBufferReadPosition = _offset;
+			break;
+		case SEEK_CUR:
+			APPL_ERROR("call seek 'CUR' ... _offset=" << _offset << " size=" << m_remoteBuffer.size());
+			m_remoteBufferReadPosition += _offset;
+			break;
+		case SEEK_END:
+			APPL_ERROR("call seek 'END' ... _end=" << _offset << " size=" << m_remoteBuffer.size());
+			m_remoteBufferReadPosition = m_remoteBuffer.size()-_offset;
+			break;
+		default:
+			APPL_ERROR("Unknow the _whence=" << _whence);
+			return AVERROR(EINVAL);
+	}
+	if (m_remoteBufferReadPosition < 0 ) {
+		APPL_WARNING("Request seek before start of the File");
+		m_remoteBufferReadPosition = 0;
+	}
+	if (m_remoteBufferReadPosition > m_remoteBuffer.size()) {
+		APPL_WARNING("Request seek after end of the File");
+		m_remoteBufferReadPosition = m_remoteBuffer.size()-1;
+	}
+	if (lastPosition != m_remoteBufferReadPosition) {
+		checkIfWeNeedMoreDataFromNetwork();
+	}
+	return m_remoteBufferReadPosition;
+}
+
+void appl::MediaDecoder::checkIfWeNeedMoreDataFromNetwork() {
+	// check if enought data:
+	bool find = false;
+	auto it = m_remoteBufferFillSection.begin();
+	if (it == m_remoteBufferFillSection.end()) {
+		// no data in the buffer...
+		//Get some
+		// start with loading of 1 Mo
+		auto futData = m_remoteFileHandle.getPart(0, BUFFER_SIZE_GET_SLOT);
+		futData.andThen([=](zeus::Future<zeus::Raw> _fut) mutable {
+		                	return true;
+		                });
+		/*
+		futData.wait();
+		if (futData.hasError() == true) {
+			APPL_ERROR("Error when loading data (First 1 MB)");
+		}
+		zeus::Raw buffer = futData.get();
+		memcpy(&m_remoteBuffer[0], buffer.data(), buffer.size());
+		m_remoteBufferFillSection.push_back(std::pair<uint32_t,uint32_t>(0,buffer.size()));
+		return;
+		*/
+	}
+	/*
+	for (auto &it : m_remoteBufferFillSection) {
+		if (    m_remoteBufferReadPosition >= it.first
+		     && m_remoteBufferReadPosition < it.second) {
+			find = true;
+			// part already download...
+			if (it.second - m_remoteBufferReadPosition < _bufSize) {
+				// missing data ==> reduce copy size
+				_bufSize = it.second - m_remoteBufferReadPosition;
+			}
+			break;
+		}
+	}
+	if (find == false) {
+		// No data in the buffer
+		return;
+	}
+	*/
 }
 
 void appl::MediaDecoder::init(const std::string& _filename) {
@@ -350,15 +509,35 @@ void appl::MediaDecoder::init(const std::string& _filename) {
 	m_sourceFilename = _filename;
 	ethread::setName("ffmpegThread");
 	// open input file, and allocate format context
-	if (avformat_open_input(&m_formatContext, m_sourceFilename.c_str(), nullptr, nullptr) < 0) {
-		APPL_ERROR("Could not open source file " << m_sourceFilename);
-		exit(1);
-	}
+	#ifdef APPL_USE_GENERIC_FFMPEG
+		if (avformat_open_input(&m_formatContext, m_sourceFilename.c_str(), nullptr, nullptr) < 0) {
+			APPL_ERROR("Could not open source file " << m_sourceFilename);
+			return;
+		}
+	#else
+		
+		if (!(m_formatContext = avformat_alloc_context())) {
+			APPL_ERROR("Could not create Format context");
+			return;
+		}
+		m_bufferFFMPEG.resize(1024*1024); // 1Mo buffer is good enought
+		m_IOContext = avio_alloc_context(&m_bufferFFMPEG[0], m_bufferFFMPEG.size(), 0 /* can not write */, this, g_readFunc, g_writeFunc, g_seekFunc);
+		if (m_IOContext == nullptr) {
+			APPL_ERROR("Could not create IO stream");
+			return;
+		}
+		// set IO read and write interface
+		m_formatContext->pb = m_IOContext;
+		if (avformat_open_input(&m_formatContext, nullptr, nullptr, nullptr) < 0) {
+			APPL_ERROR("Could not open source file " << m_sourceFilename);
+			return;
+		}
+	#endif
 	// retrieve stream information
 	if (avformat_find_stream_info(m_formatContext, nullptr) < 0) {
 		APPL_ERROR("Could not find stream information");
 		// TODO : check this, this will create a memeory leak
-		return;;
+		return;
 	}
 	m_duration = echrono::Duration(double(m_formatContext->duration)/double(AV_TIME_BASE));
 	APPL_INFO("Stream duration : " << m_duration);

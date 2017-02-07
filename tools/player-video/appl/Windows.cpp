@@ -11,6 +11,7 @@
 #include <ewol/widget/Button.hpp>
 #include <ewol/widget/Entry.hpp>
 #include <ewol/widget/Slider.hpp>
+#include <ewol/widget/Menu.hpp>
 #include <appl/widget/VideoPlayer.hpp>
 #include <ewol/tools/message.hpp>
 
@@ -23,14 +24,20 @@
 #include <zeus/FutureGroup.hpp>
 #include <etk/stdTools.hpp>
 #include <ejson/ejson.hpp>
+#include <appl/widget/Connection.hpp>
+#include <ewol/context/Context.hpp>
+
 
 static std::string g_baseDBName = "USERDATA:config.json";
 
 void appl::Windows::store_db() {
 	APPL_DEBUG("Store database [START]");
 	ejson::Document database;
-	database.add("login", ejson::String(m_login));
-	database.add("pass", ejson::String(m_password));
+	if (m_clientProp != nullptr) {
+		database.add("access", m_clientProp->toJson());
+	}
+	//database.add("login", ejson::String(m_login));
+	//database.add("pass", ejson::String(m_password));
 	bool retGenerate = database.storeSafe(g_baseDBName);
 	APPL_ERROR("Store database [STOP] : " << (g_baseDBName) << " ret = " << retGenerate);
 }
@@ -41,8 +48,19 @@ void appl::Windows::load_db() {
 	if (ret == false) {
 		APPL_WARNING("    ==> LOAD error");
 	}
-	m_login = database["login"].toString().get();
-	m_password = database["pass"].toString().get();
+	if (m_clientProp == nullptr) {
+		m_clientProp = ememory::makeShared<appl::ClientProperty>();
+		if (m_clientProp == nullptr) {
+			APPL_ERROR(" can not allocate the pointer of data ==> must auto kill");
+			autoDestroy();
+			return;
+		}
+	}
+	if (m_clientProp != nullptr) {
+		m_clientProp->fromJson(database["access"].toObject());
+	}
+	//m_login = database["login"].toString().get();
+	//m_password = database["pass"].toString().get();
 }
 
 
@@ -94,15 +112,76 @@ void appl::Windows::init() {
 	
 	// Direct display list:
 	ewol::propertySetOnObjectNamed("view-selection", "select", "ws-name-list-viewer");
-	// check if we are connected:
-	if (m_login == "") {
-		// must create pop-up connection
-		
+	subBind(ewol::widget::Menu, "menu-bar", signalSelect, sharedFromThis(), &appl::Windows::onCallbackMenuEvent);
+	shortCutAdd("alt+F4",       "menu:exit");
+	shortCutAdd("F12",          "menu:reload-shader");
+	shortCutAdd("F11",          "menu:connect");
+	signalShortcut.connect(sharedFromThis(), &appl::Windows::onCallbackShortCut);
+	// TODO: try to connect the last connection availlable ...
+	if (m_clientProp == nullptr) {
+		onCallbackMenuEvent("menu:connect");
+	} else {
+		m_clientProp->connect();
+		if (m_clientProp->connection.isAlive() == false) {
+			onCallbackMenuEvent("menu:connect");
+		} else {
+			if (m_listViewer != nullptr) {
+				m_listViewer->setClientProperty(m_clientProp);
+				m_listViewer->searchElements();
+			}
+		}
 	}
-	
 }
 
 
+void appl::Windows::onCallbackShortCut(const std::string& _value) {
+	APPL_WARNING("Event from ShortCut : " << _value);
+	onCallbackMenuEvent(_value);
+}
+
+void appl::Windows::onCallbackMenuEvent(const std::string& _value) {
+	APPL_WARNING("Event from Menu : " << _value);
+	if (_value == "menu:connect") {
+		appl::widget::ConnectionShared tmpWidget = appl::widget::Connection::create();
+		if (tmpWidget == nullptr) {
+			APPL_ERROR("Can not open File chooser !!! ");
+			return;
+		}
+		tmpWidget->setProperty(m_clientProp);
+		// register on the Validate event:
+		tmpWidget->signalValidate.connect(sharedFromThis(), &appl::Windows::onCallbackConnectionValidate);
+		// no need of this event watching ...
+		tmpWidget->signalCancel.connect(sharedFromThis(), &appl::Windows::onCallbackConnectionCancel);
+		// add the widget as windows pop-up ...
+		popUpWidgetPush(tmpWidget);
+	} else if (_value == "menu:exit") {
+		gale::getContext().stop();
+	} else if (_value == "menu:reload-shader") {
+		ewol::getContext().getResourcesManager().reLoadResources();
+		ewol::getContext().forceRedrawAll();
+	} else {
+		APPL_ERROR("Event from Menu UNKNOW : '" << _value << "'");
+	}
+}
+
+void appl::Windows::onCallbackConnectionValidate(const ememory::SharedPtr<ClientProperty>& _prop) {
+	m_clientProp = _prop;
+	if (m_clientProp == nullptr) {
+		// TODO: set back in public mode ...
+		return;
+	}
+	store_db();
+	// Update viewer to show all ...
+	if (m_listViewer != nullptr) {
+		m_listViewer->setClientProperty(m_clientProp);
+		m_listViewer->searchElements();
+	}
+}
+
+void appl::Windows::onCallbackConnectionCancel() {
+	// TODO: set back in public mode ...
+	
+}
 
 void appl::Windows::onCallbackPrevious() {
 	m_id--;

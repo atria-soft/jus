@@ -281,26 +281,28 @@ namespace appl {
 				if (_sqlLikeRequest == "") {
 					throw std::invalid_argument("empty request");
 				}
-				std::vector<std::string> listAnd = etk::split(_sqlLikeRequest, "AND");
 				std::vector<std::vector<std::string>> listAndParsed;
-				APPL_INFO("Find list AND : ");
-				for (auto &it : listAnd) {
-					it = removeSpaceOutQuote(it);
-					std::vector<std::string> elements = splitAction(it);
-					if (elements.size() != 3) {
-						APPL_ERROR("element : '" + it + "' have wrong spliting " << elements);
-						throw std::invalid_argument("element : \"" + it + "\" have wrong spliting");
+				if (_sqlLikeRequest != "*") {
+					std::vector<std::string> listAnd = etk::split(_sqlLikeRequest, "AND");
+					APPL_INFO("Find list AND : ");
+					for (auto &it : listAnd) {
+						it = removeSpaceOutQuote(it);
+						std::vector<std::string> elements = splitAction(it);
+						if (elements.size() != 3) {
+							APPL_ERROR("element : '" + it + "' have wrong spliting " << elements);
+							throw std::invalid_argument("element : \"" + it + "\" have wrong spliting");
+						}
+						if (    elements[1] != "=="
+						     && elements[1] != "!="
+						     && elements[1] != ">="
+						     && elements[1] != "<="
+						     && elements[1] != ">"
+						     && elements[1] != "<") {
+							throw std::invalid_argument("action invalid : '" + elements[1] + "' only availlable : [==,!=,<=,>=,<,>]");
+						}
+						APPL_INFO("    - '" << elements[0] << "' action='" << elements[1] << "' with='" << elements[2] << "'");
+						listAndParsed.push_back(elements);
 					}
-					if (    elements[1] != "=="
-					     && elements[1] != "!="
-					     && elements[1] != ">="
-					     && elements[1] != "<="
-					     && elements[1] != ">"
-					     && elements[1] != "<") {
-						throw std::invalid_argument("action invalid : '" + elements[1] + "' only availlable : [==,!=,<=,>=,<,>]");
-					}
-					APPL_INFO("    - '" << elements[0] << "' action='" << elements[1] << "' with='" << elements[2] << "'");
-					listAndParsed.push_back(elements);
 				}
 				std::unique_lock<std::mutex> lock(g_mutex);
 				for (auto &it : m_listFile) {

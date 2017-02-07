@@ -68,6 +68,14 @@
 		</button>
 	</sizer>
 	<sizer mode="hori" fill="true,false" expand="true,false" lock="true,true">
+		<menu name="menu-bar">
+			<elem title="" image="DATA:List.svg" event="">
+				<elem title="_T{Connect}" image=""              event="menu:connect"/>
+				<elem title="_T{Home}"    image="DATA:Home.svg" event="menu:home"/>
+				<separator/>
+				<elem title="_T{Exit}"    image=""              event="menu:exit"/>
+			</elem>
+		</menu>
 		<button name="menu-bt">
 			<image src="DATA:List.svg" size='8,8mm'/>
 		</button>

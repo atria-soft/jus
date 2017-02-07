@@ -34,6 +34,12 @@ namespace appl {
 			void addFile(const std::string& _file);
 			void onCallbackSeekRequest(const float& _value);
 			
+			
+			void onCallbackConnectionValidate(const ememory::SharedPtr<ClientProperty>& _prop);
+			void onCallbackConnectionCancel();
+			
+			void onCallbackShortCut(const std::string& _value);
+			void onCallbackMenuEvent(const std::string& _value);
 		protected:
 			std::string m_login;
 			std::string m_password;

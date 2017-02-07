@@ -10,12 +10,14 @@
 #include <audio/channel.hpp>
 #include <audio/format.hpp>
 #include <appl/ClientProperty.hpp>
+#include <zeus/ProxyFile.hpp>
 
 extern "C" {
 	#include <libavutil/imgutils.h>
 	#include <libavutil/samplefmt.h>
 	#include <libavutil/timestamp.h>
 	#include <libavformat/avformat.h>
+	#include <libavformat/avio.h>
 	#include <libswscale/swscale.h>
 }
 
@@ -78,6 +80,8 @@ namespace appl {
 			int32_t videoGetEmptySlot();
 			int32_t audioGetEmptySlot();
 		private:
+			AVIOContext* m_IOContext;
+			std::vector<uint8_t> m_bufferFFMPEG;
 			AVFormatContext* m_formatContext;
 			AVCodecContext* m_videoDecoderContext;
 			AVCodecContext* m_audioDecoderContext;
@@ -131,6 +135,26 @@ namespace appl {
 			void flushMessage();
 			
 			void stop() override;
+		/* ***********************************************
+		   ** Section temporary buffer
+		   ***********************************************/
+		protected:
+			ememory::SharedPtr<appl::ClientProperty>  m_remoteProperty; //!< Remote interface that must get data
+			uint32_t                                  m_remoteMediaId; //!< remote media ID that need to get data
+			zeus::ProxyFile                           m_remoteFileHandle; //!< Reference on the remote file
+			std::vector<uint8_t>                      m_remoteBuffer; //!< preallocated with all needed data
+			int32_t                                  m_remoteBufferReadPosition; //!< Current position that is read
+			std::vector<std::pair<uint32_t,uint32_t>> m_remoteBufferFillSection; //!< List of <start-stop> position that contain data
+		public:
+			// @brief INTERNAL read callback
+			int readFunc(uint8_t* _buf, int _bufSize);
+			// @brief INTERNAL write callback
+			int writeFunc(uint8_t* _buf, int _bufSize);
+			// @brief INTERNAL seek callback
+			int64_t seekFunc(int64_t _offset, int _whence);
+		protected:
+			void checkIfWeNeedMoreDataFromNetwork();
+		
 	};
 }
 

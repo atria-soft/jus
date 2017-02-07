@@ -65,7 +65,7 @@ void appl::widget::ListViewer::searchElements(std::string _filter) {
 	} else if (_filter == "courses") {
 		_filter = "'type' == 'courses'";
 	} else {
-		_filter = "";
+		_filter = "*";
 	}
 	
 	if (m_clientProp->connection.isAlive() == false) {
@@ -80,8 +80,11 @@ void appl::widget::ListViewer::searchElements(std::string _filter) {
 		APPL_ERROR("    ==> Service does not exist : 'video'");
 		return;
 	}
-	zeus::Future<std::vector<uint32_t>> listElem = remoteServiceVideo.getMediaWhere(_filter);
-	listElem.wait();
+	zeus::Future<std::vector<uint32_t>> listElem = remoteServiceVideo.getMediaWhere(_filter).wait();
+	if (listElem.hasError() == true) {
+		APPL_ERROR("    ==> Can not get element from video service <with fileter ! '" << _filter << "' : " << listElem.getErrorType() << " : " << listElem.getErrorHelp());
+		return;
+	}
 	std::vector<uint32_t> returnValues = listElem.get();
 	APPL_INFO("Get some Values: " << returnValues << "");
 	for (auto &it : returnValues) {
@@ -96,13 +99,12 @@ void appl::widget::ListViewer::searchElements(std::string _filter) {
 		// TODO : Add the reference on the typed future in the function andTrn ... ==> then we can add later the cancel
 		appl::widget::ListViewerShared tmpWidget = ememory::staticPointerCast<appl::widget::ListViewer>(sharedFromThis());
 		remoteServiceVideo.mediaMetadataGetKey(it, "title")
-		    .andThen([=](zeus::FutureBase _fut) mutable {
+		    .andThen([=](zeus::Future<std::string> _fut) mutable {
 		             	std::this_thread::sleep_for(std::chrono::milliseconds(200));
-		             	zeus::Future<std::string> futTmp(_fut);
-		             	APPL_INFO("    [" << elem->m_id << "] get title: " << futTmp.get());
+		             	APPL_INFO("    [" << elem->m_id << "] get title: " << _fut.get());
 		             	{
 		             		std::unique_lock<std::mutex> lock(elem->m_mutex);
-		             		elem->m_title = futTmp.get();
+		             		elem->m_title = _fut.get();
 		             	}
 		             	tmpWidget->markToRedraw();
 		             	return true;
