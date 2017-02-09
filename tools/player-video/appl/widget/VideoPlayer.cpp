@@ -74,6 +74,7 @@ void appl::widget::VideoDisplay::loadProgram() {
 	}
 }
 void appl::widget::VideoDisplay::setFile(const std::string& _filename) {
+	/*
 	// Stop playing in all case...
 	stop();
 	// Clear the old interface
@@ -85,6 +86,7 @@ void appl::widget::VideoDisplay::setFile(const std::string& _filename) {
 		return;
 	}
 	m_decoder->init(_filename);
+	*/
 	markToRedraw();
 }
 
@@ -262,6 +264,7 @@ void appl::widget::VideoDisplay::periodicEvent(const ewol::event::Time& _event) 
 		}
 	}
 	// SET AUDIO:
+	bool getSomething = false;
 	int32_t idSlot = m_decoder->audioGetOlderSlot();
 	if (    idSlot != -1
 	     && m_currentTime > m_decoder->m_audioPool[idSlot].m_time) {
@@ -272,6 +275,7 @@ void appl::widget::VideoDisplay::periodicEvent(const ewol::event::Time& _event) 
 			m_audioInterface->write(&m_decoder->m_audioPool[idSlot].m_buffer[0], nbSample);
 		}
 		m_decoder->m_audioPool[idSlot].m_isUsed = false;
+		getSomething = true;
 	}
 	// SET VIDEO:
 	idSlot = m_decoder->videoGetOlderSlot();
@@ -286,6 +290,7 @@ void appl::widget::VideoDisplay::periodicEvent(const ewol::event::Time& _event) 
 		m_decoder->m_videoPool[idSlot].m_isUsed = false;
 		m_resource->flush();
 		m_nbFramePushed++;
+		getSomething = true;
 	}
 	// Display FPS ...
 	m_LastResetCounter += _event.getDeltaCallDuration();
@@ -294,7 +299,12 @@ void appl::widget::VideoDisplay::periodicEvent(const ewol::event::Time& _event) 
 		signalFps.emit(m_nbFramePushed);
 		m_nbFramePushed = 0;
 	}
-	signalPosition.emit(m_currentTime);
+	if (    getSomething == false
+	     && m_isPalying == true) {
+		//m_currentTime -= _event.getDeltaCallDuration();
+	} else {
+		signalPosition.emit(m_currentTime);
+	}
 	// TODO : Chek if this is needed, the display configuration not change too much ...
 	markToRedraw();
 }

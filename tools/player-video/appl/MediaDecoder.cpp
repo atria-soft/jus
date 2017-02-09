@@ -213,7 +213,7 @@ int appl::MediaDecoder::decode_packet(int *_gotFrame, int _cached) {
 				m_seekApply = m_currentVideoTime; // => ready to display
 			}
 			echrono::Duration packetTime(double(m_frame->pkt_pts) * double(m_videoDecoderContext->time_base.num) / double(m_videoDecoderContext->time_base.den));
-			APPL_INFO("video_frame " << (_cached?"(cached)":"")
+			APPL_VERBOSE("video_frame " << (_cached?"(cached)":"")
 			             << " n=" << m_videoFrameCount
 			             << " coded_n=" << m_frame->coded_picture_number
 			             << " pts=" << av_ts2timestr(m_frame->pkt_pts, &m_videoDecoderContext->time_base) << "  " << packetTime);
@@ -253,7 +253,7 @@ int appl::MediaDecoder::decode_packet(int *_gotFrame, int _cached) {
 				// seek specific usecase ==> drop frame to have fast display
 				m_currentAudioTime = packetTime;
 			} else {
-				APPL_INFO("audio_frame " << (_cached?"(cached)":"")
+				APPL_VERBOSE("audio_frame " << (_cached?"(cached)":"")
 				             << " n=" << m_audioFrameCount
 				             << " nb_samples=" << m_frame->nb_samples
 				             << " pts=" << packetTime);
@@ -354,67 +354,68 @@ void appl::MediaDecoder::init(ememory::SharedPtr<ClientProperty> _property, uint
 		APPL_ERROR("Request play of not connected handle ==> 'not alive'");
 		return;
 	}
+	
+	APPL_ERROR("AAAAAAAAAAAA");
 	zeus::service::ProxyVideo remoteServiceVideo = _property->connection.getService("video");
 	// remove all media (for test)
 	if (remoteServiceVideo.exist() == false) {
 		APPL_ERROR("Video service is ==> 'not alive'");
 		return;
 	}
-	m_remoteFileHandle = remoteServiceVideo.mediaGet(_mediaId).wait().get();
-	
-	std::string mimeType = m_remoteFileHandle.getMineType().wait().get();
-	uint64_t    fileSize = m_remoteFileHandle.getSize().wait().get();
-	// pre-allcocate data file size:
-	m_remoteBuffer.resize(fileSize, 0);
-	// start with loading of 1 Mo
-	auto futData = m_remoteFileHandle.getPart(0, BUFFER_SIZE_GET_SLOT);
-	futData.wait();
-	if (futData.hasError() == true) {
-		APPL_ERROR("Error when loading data (First 1 MB)");
-	}
-	zeus::Raw buffer = futData.get();
-	memcpy(&m_remoteBuffer[0], buffer.data(), buffer.size());
-	m_remoteBufferFillSection.push_back(std::pair<uint32_t,uint32_t>(0,buffer.size()));
-	m_remoteBufferReadPosition = 0;
-	m_remoteProperty = _property;
-	m_remoteMediaId = _mediaId;
-	
-	// create temporary file:
-	/*
-	etk::FSNode tmpFile("CACHE:videoPlayer." + zeus::getExtention(mimeType));
-	APPL_WARNING("Store in tmpFile : " << tmpFile << " ==> " << tmpFile.getName());
-	std::string sha512String = zeus::storeInFile(dataFile, tmpFile.getName());
-	APPL_WARNING("Store in tmpFile : " << tmpFile << " ==> " << tmpFile.getFileSystemName() << " DONE");
-	init(tmpFile.getFileSystemName());
-	*/
-	init("");
-	// TODO : init(tmpFile);
+	APPL_ERROR("AAAA 222");
+	m_remote = ememory::makeShared<appl::StreamBuffering>();
+	m_remote->m_bufferReadPosition = 0;
+	m_remote->m_property = _property;
+	m_remote->m_mediaId = _mediaId;
+	APPL_ERROR("AAAA 333");
+	remoteServiceVideo.mediaGet(_mediaId).andThen(
+	    [=](zeus::Future<zeus::ProxyFile> _fut) mutable {
+	    	APPL_ERROR("Receive ProxyFile");
+	    	m_remote->m_fileHandle = _fut.get();
+	    	m_remote->m_fileHandle.getSize().andThen(
+	    	    [=](zeus::Future<uint64_t> _fut) mutable {
+	    	    	APPL_ERROR("Receive FileSize to index property");
+	    	    	m_remote->m_buffer.resize(_fut.get(), 0);
+	    	    	m_remote->checkIfWeNeedMoreDataFromNetwork();
+	    	    	return true;
+	    	    });
+	    	return true;
+	    });
+	init();
 }
 
 int appl::MediaDecoder::readFunc(uint8_t* _buf, int _bufSize) {
-	APPL_ERROR("call read ... " << m_remoteBufferReadPosition << "  size=" << _bufSize);
+	APPL_ERROR("call read ... " << m_remote->m_bufferReadPosition << "  size=" << _bufSize);
 	// check if enought data:
-	bool find = false;
-	for (auto &it : m_remoteBufferFillSection) {
-		if (    m_remoteBufferReadPosition >= it.first
-		     && m_remoteBufferReadPosition < it.second) {
-			find = true;
-			// part already download...
-			if (it.second - m_remoteBufferReadPosition < _bufSize) {
-				// missing data ==> reduce copy size
-				_bufSize = it.second - m_remoteBufferReadPosition;
-			}
-			break;
-		}
+	int64_t readableSize = m_remote->sizeReadable();
+	if (_bufSize > readableSize) {
+		_bufSize = readableSize;
 	}
-	if (find == false) {
+	if (_bufSize == 0) {
 		// No data in the buffer
 		return 0;
 	}
-	memcpy(_buf, &m_remoteBuffer[m_remoteBufferReadPosition], _bufSize);
-	m_remoteBufferReadPosition += _bufSize;
+	{
+		std::unique_lock<std::mutex> lock(m_remote->m_mutex);
+		memcpy(_buf, &m_remote->m_buffer[m_remote->m_bufferReadPosition], _bufSize);
+		m_remote->m_bufferReadPosition += _bufSize;
+	}
+	m_remote->checkIfWeNeedMoreDataFromNetwork();
 	return _bufSize;
 }
+
+int32_t appl::StreamBuffering::sizeReadable() {
+	std::unique_lock<std::mutex> lock(m_mutex);
+	for (auto &it : m_bufferFillSection) {
+		if (    m_bufferReadPosition >= it.first
+		     && m_bufferReadPosition < it.second) {
+			return it.second - m_bufferReadPosition;
+		}
+	}
+	// No data in the buffer
+	return 0;
+}
+
 
 int appl::MediaDecoder::writeFunc(uint8_t* _buf, int _bufSize) {
 	APPL_ERROR("call write ...");
@@ -422,91 +423,210 @@ int appl::MediaDecoder::writeFunc(uint8_t* _buf, int _bufSize) {
 }
 
 int64_t appl::MediaDecoder::seekFunc(int64_t _offset, int _whence) {
-	int64_t lastPosition = m_remoteBufferReadPosition;
+	int64_t lastPosition = m_remote->m_bufferReadPosition;
 	switch (_whence) {
 		case AVSEEK_SIZE:
-			APPL_ERROR("call seek 'SIZE' ... " << m_remoteBuffer.size());
-			return m_remoteBuffer.size();
+			APPL_ERROR("call seek 'SIZE' ... " << m_remote->m_buffer.size());
+			return m_remote->m_buffer.size();
 		case AVSEEK_FORCE:
-			APPL_ERROR("call seek 'FORCE' ... pos=" << _offset << " size=" << m_remoteBuffer.size());
-			m_remoteBufferReadPosition = _offset;
+			APPL_ERROR("call seek 'FORCE' ... pos=" << _offset << " size=" << m_remote->m_buffer.size());
+			m_remote->m_bufferReadPosition = _offset;
 			break;
 		case SEEK_SET:
-			APPL_ERROR("call seek 'SET' ... pos=" << _offset << " size=" << m_remoteBuffer.size());
-			m_remoteBufferReadPosition = _offset;
+			APPL_ERROR("call seek 'SET' ... pos=" << _offset << " size=" << m_remote->m_buffer.size());
+			m_remote->m_bufferReadPosition = _offset;
 			break;
 		case SEEK_CUR:
-			APPL_ERROR("call seek 'CUR' ... _offset=" << _offset << " size=" << m_remoteBuffer.size());
-			m_remoteBufferReadPosition += _offset;
+			APPL_ERROR("call seek 'CUR' ... _offset=" << _offset << " size=" << m_remote->m_buffer.size());
+			m_remote->m_bufferReadPosition += _offset;
 			break;
 		case SEEK_END:
-			APPL_ERROR("call seek 'END' ... _end=" << _offset << " size=" << m_remoteBuffer.size());
-			m_remoteBufferReadPosition = m_remoteBuffer.size()-_offset;
+			APPL_ERROR("call seek 'END' ... _end=" << _offset << " size=" << m_remote->m_buffer.size());
+			m_remote->m_bufferReadPosition = m_remote->m_buffer.size()-_offset;
 			break;
 		default:
 			APPL_ERROR("Unknow the _whence=" << _whence);
 			return AVERROR(EINVAL);
 	}
-	if (m_remoteBufferReadPosition < 0 ) {
+	if (m_remote->m_bufferReadPosition < 0 ) {
 		APPL_WARNING("Request seek before start of the File");
-		m_remoteBufferReadPosition = 0;
+		m_remote->m_bufferReadPosition = 0;
 	}
-	if (m_remoteBufferReadPosition > m_remoteBuffer.size()) {
+	if (m_remote->m_bufferReadPosition > m_remote->m_buffer.size()) {
 		APPL_WARNING("Request seek after end of the File");
-		m_remoteBufferReadPosition = m_remoteBuffer.size()-1;
+		m_remote->m_bufferReadPosition = m_remote->m_buffer.size()-1;
 	}
-	if (lastPosition != m_remoteBufferReadPosition) {
-		checkIfWeNeedMoreDataFromNetwork();
+	if (lastPosition != m_remote->m_bufferReadPosition) {
+		{
+			// Force the get of new data ==> this is bad TODO : Update this when possible
+			std::unique_lock<std::mutex> lock(m_remote->m_mutex);
+			m_remote->m_callInProgress = false;
+		}
+		m_remote->checkIfWeNeedMoreDataFromNetwork();
 	}
-	return m_remoteBufferReadPosition;
+	return m_remote->m_bufferReadPosition;
 }
 
-void appl::MediaDecoder::checkIfWeNeedMoreDataFromNetwork() {
+bool appl::StreamBuffering::addDataCallback(zeus::Future<zeus::Raw> _fut, int64_t _positionRequest) {
+	{
+		std::unique_lock<std::mutex> lock(m_mutex);
+		bool find = false;
+		m_callInProgress = false;
+		if (_fut.hasError() == true) {
+			APPL_ERROR("Error when loading data (1 MB)");
+			return true;
+		}
+		// TODO : Check buffer size ...
+		zeus::Raw buffer = _fut.get();
+		APPL_INFO("    ==> receive DATA : " << _positionRequest << " size=" << buffer.size());
+		// copy data
+		memcpy(&m_buffer[_positionRequest], buffer.data(), buffer.size());
+		// Update the buffer data and positionning
+		// find if the position correspond at a last positioning:
+		
+		auto it = m_bufferFillSection.begin();
+		while (it != m_bufferFillSection.end()) {
+			if (    _positionRequest >= it->first
+			     && _positionRequest < it->second) {
+				if (_positionRequest + buffer.size() > it->second){
+					it->second = _positionRequest + buffer.size();
+				}
+				find = true;
+				break;
+			} else if (it->second == _positionRequest) {
+				it->second += buffer.size();
+				find = true;
+				break;
+			}
+			auto it2 = it;
+			++it2;
+			if (    it2 != m_bufferFillSection.end()
+			     && _positionRequest + buffer.size() >= it2->first) {
+				it2->first = _positionRequest;
+				find = true;
+				break;
+			} else {
+				find = true;
+				break;
+			}
+			++it;
+		}
+		if (find == false) {
+			m_bufferFillSection.insert(it, std::pair<uint32_t,uint32_t>(_positionRequest, _positionRequest + buffer.size()));
+		}
+	}
+	checkIfWeNeedMoreDataFromNetwork();
+	return true;
+}
+
+
+appl::StreamBuffering::StreamBuffering() {
+	m_callInProgress = false;
+	m_mediaId = 0;
+	m_bufferReadPosition = 0;
+}
+
+void appl::StreamBuffering::checkIfWeNeedMoreDataFromNetwork() {
+	std::unique_lock<std::mutex> lock(m_mutex);
 	// check if enought data:
 	bool find = false;
-	auto it = m_remoteBufferFillSection.begin();
-	if (it == m_remoteBufferFillSection.end()) {
+	if (m_callInProgress == true) {
+		return;
+	}
+	int32_t preDownloadBufferSlot = BUFFER_SIZE_GET_SLOT*3;
+	// When file is < 200Mo ==> just download all...
+	if (m_buffer.size() < 300*1024*1024) {
+		preDownloadBufferSlot = m_buffer.size()+10;
+	}
+	APPL_INFO("Request DATA ...");
+	auto it = m_bufferFillSection.begin();
+	if (it == m_bufferFillSection.end()) {
 		// no data in the buffer...
 		//Get some
 		// start with loading of 1 Mo
-		auto futData = m_remoteFileHandle.getPart(0, BUFFER_SIZE_GET_SLOT);
+		APPL_INFO("Request DATA : " << 0 << " size=" << BUFFER_SIZE_GET_SLOT);
+		auto futData = m_fileHandle.getPart(0, BUFFER_SIZE_GET_SLOT);
+		auto localShared = ememory::dynamicPointerCast<appl::StreamBuffering>(sharedFromThis());
 		futData.andThen([=](zeus::Future<zeus::Raw> _fut) mutable {
-		                	return true;
+		                	return localShared->addDataCallback(_fut, 0);
 		                });
-		/*
-		futData.wait();
-		if (futData.hasError() == true) {
-			APPL_ERROR("Error when loading data (First 1 MB)");
-		}
-		zeus::Raw buffer = futData.get();
-		memcpy(&m_remoteBuffer[0], buffer.data(), buffer.size());
-		m_remoteBufferFillSection.push_back(std::pair<uint32_t,uint32_t>(0,buffer.size()));
+		m_callInProgress = true;
 		return;
-		*/
 	}
-	/*
-	for (auto &it : m_remoteBufferFillSection) {
-		if (    m_remoteBufferReadPosition >= it.first
-		     && m_remoteBufferReadPosition < it.second) {
+	while (it != m_bufferFillSection.end()) {
+		APPL_INFO("Check : " << it->first << " -> " << it->second << "        read-pos=" << m_bufferReadPosition);
+		if (    m_bufferReadPosition >= it->first
+		     && m_bufferReadPosition < it->second) {
+			APPL_INFO("Request DATA    AAAA ");
 			find = true;
-			// part already download...
-			if (it.second - m_remoteBufferReadPosition < _bufSize) {
-				// missing data ==> reduce copy size
-				_bufSize = it.second - m_remoteBufferReadPosition;
+			// part already download... ==> check if we need more data after end position
+			if (it->second == m_buffer.size()) {
+				// need no more data ...
+				return;
 			}
-			break;
+			if (it->second - m_bufferReadPosition < preDownloadBufferSlot) {
+				int32_t sizeRequest = BUFFER_SIZE_GET_SLOT;
+				if (it->second + sizeRequest >= m_buffer.size()) {
+					sizeRequest = m_buffer.size() - it->second;
+				}
+				auto it2 = it;
+				++it2;
+				if (    it2 != m_bufferFillSection.end()
+				     && it->second + sizeRequest >= it2->first) {
+					sizeRequest = it2->first - it->second;
+				}
+				APPL_INFO("Request DATA : " << it->second << " size=" << sizeRequest);
+				auto futData = m_fileHandle.getPart(it->second, it->second + sizeRequest);
+				auto localShared = ememory::dynamicPointerCast<appl::StreamBuffering>(sharedFromThis());
+				futData.andThen([=](zeus::Future<zeus::Raw> _fut) mutable {
+				                	return localShared->addDataCallback(_fut, it->second);
+				                });
+				m_callInProgress = true;
+			}
+			// nothing more to do ...
+			return;
+		} else if (m_bufferReadPosition < it->first) {
+			APPL_INFO("Request DATA    KKKKK ");
+			int32_t sizeRequest = BUFFER_SIZE_GET_SLOT;
+			if (m_bufferReadPosition + sizeRequest >= it->first) {
+				sizeRequest = it->first - m_bufferReadPosition;
+			}
+			APPL_INFO("Request DATA : " << m_bufferReadPosition << " size=" << sizeRequest);
+			auto futData = m_fileHandle.getPart(m_bufferReadPosition, m_bufferReadPosition+sizeRequest);
+			auto localShared = ememory::dynamicPointerCast<appl::StreamBuffering>(sharedFromThis());
+			futData.andThen([=](zeus::Future<zeus::Raw> _fut) mutable {
+			                	return localShared->addDataCallback(_fut, m_bufferReadPosition);
+			                });
+			m_callInProgress = true;
+			// nothing more to do ...
+			return;
 		}
+		++it;
 	}
+	APPL_INFO("Request DATA    RRRRR ");
+	APPL_INFO("Request DATA : " << m_bufferReadPosition << " size=" << BUFFER_SIZE_GET_SLOT);
+	auto futData = m_fileHandle.getPart(m_bufferReadPosition, m_bufferReadPosition + BUFFER_SIZE_GET_SLOT);
+	auto localShared = ememory::dynamicPointerCast<appl::StreamBuffering>(sharedFromThis());
+	futData.andThen([=](zeus::Future<zeus::Raw> _fut) mutable {
+	                	return localShared->addDataCallback(_fut, 0);
+	                });
+	m_callInProgress = true;
 	if (find == false) {
 		// No data in the buffer
 		return;
 	}
-	*/
 }
 
-void appl::MediaDecoder::init(const std::string& _filename) {
+void appl::MediaDecoder::init() {
+	//APPL_ERROR("AAAAAAAAAAAA " << m_isInit << "    " << m_remote->sizeReadable());
+	if (    m_isInit == true
+	     || m_remote == nullptr
+	     || m_remote->sizeReadable() < 1024*1024) {// Need to wait at lease 1MB
+		
+		return;
+	}
 	m_updateVideoTimeStampAfterSeek = false;
-	m_sourceFilename = _filename;
+	//m_sourceFilename = _filename;
 	ethread::setName("ffmpegThread");
 	// open input file, and allocate format context
 	#ifdef APPL_USE_GENERIC_FFMPEG
@@ -539,6 +659,7 @@ void appl::MediaDecoder::init(const std::string& _filename) {
 		// TODO : check this, this will create a memeory leak
 		return;
 	}
+	APPL_ERROR("BBBBBB");
 	m_duration = echrono::Duration(double(m_formatContext->duration)/double(AV_TIME_BASE));
 	APPL_INFO("Stream duration : " << m_duration);
 	// Open Video decoder:
@@ -621,6 +742,7 @@ void appl::MediaDecoder::init(const std::string& _filename) {
 		APPL_ERROR("Could not allocate frame ret=" << ret);
 		return; // TODO : An error occured ... !!!!!
 	}
+	APPL_ERROR("ZZZZZZZ");
 	// initialize packet, set data to nullptr, let the demuxer fill it
 	av_init_packet(&m_packet);
 	m_packet.data = nullptr;
@@ -632,11 +754,23 @@ bool appl::MediaDecoder::onThreadCall() {
 	if (m_stopRequested == true) {
 		return true;
 	}
+	init();
+	if (m_isInit == false) {
+		// take some time to sleep the decoding ...
+		std::this_thread::sleep_for(std::chrono::milliseconds(60/100));
+		return false;
+	}
 	if (m_seek >= echrono::Duration(0)) {
 		// seek requested (create a copy to permit to update it in background):
 		echrono::Duration tmpSeek = m_seek;
 		m_seek = echrono::Duration(-1);
 		applySeek(tmpSeek);
+	}
+	// Need to wait at lease 1MB
+	if (m_remote->sizeReadable() < 1024*1024) {
+		// take some time to sleep the decoding ...
+		std::this_thread::sleep_for(std::chrono::milliseconds(60/100));
+		return false;
 	}
 	// check if we have space to decode data
 	if (    (    m_videoPool.size() != 0

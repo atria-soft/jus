@@ -100,7 +100,6 @@ void appl::widget::ListViewer::searchElements(std::string _filter) {
 		appl::widget::ListViewerShared tmpWidget = ememory::staticPointerCast<appl::widget::ListViewer>(sharedFromThis());
 		remoteServiceVideo.mediaMetadataGetKey(it, "title")
 		    .andThen([=](zeus::Future<std::string> _fut) mutable {
-		             	std::this_thread::sleep_for(std::chrono::milliseconds(200));
 		             	APPL_INFO("    [" << elem->m_id << "] get title: " << _fut.get());
 		             	{
 		             		std::unique_lock<std::mutex> lock(elem->m_mutex);
@@ -110,61 +109,51 @@ void appl::widget::ListViewer::searchElements(std::string _filter) {
 		             	return true;
 		             });
 		remoteServiceVideo.mediaMetadataGetKey(it, "series-name")
-		    .andThen([=](zeus::FutureBase _fut) mutable {
-		             	std::this_thread::sleep_for(std::chrono::milliseconds(200));
-		             	zeus::Future<std::string> futTmp(_fut);
-		             	APPL_ERROR("    [" << elem->m_id << "] get serie: " << futTmp.get());
+		    .andThen([=](zeus::Future<std::string> _fut) mutable {
+		             	APPL_ERROR("    [" << elem->m_id << "] get serie: " << _fut.get());
 		             	{
 		             		std::unique_lock<std::mutex> lock(elem->m_mutex);
-		             		elem->m_serie = futTmp.get();
+		             		elem->m_serie = _fut.get();
 		             	}
 		             	tmpWidget->markToRedraw();
 		             	return true;
 		             });
 		remoteServiceVideo.mediaMetadataGetKey(it, "saison")
-		    .andThen([=](zeus::FutureBase _fut) mutable {
-		             	std::this_thread::sleep_for(std::chrono::milliseconds(200));
-		             	zeus::Future<std::string> futTmp(_fut);
-		             	APPL_INFO("    [" << elem->m_id << "] get saison: " << futTmp.get());
+		    .andThen([=](zeus::Future<std::string> _fut) mutable {
+		             	APPL_INFO("    [" << elem->m_id << "] get saison: " << _fut.get());
 		             	{
 		             		std::unique_lock<std::mutex> lock(elem->m_mutex);
-		             		elem->m_saison = futTmp.get();
+		             		elem->m_saison = _fut.get();
 		             	}
 		             	tmpWidget->markToRedraw();
 		             	return true;
 		             });
 		remoteServiceVideo.mediaMetadataGetKey(it, "episode")
-		    .andThen([=](zeus::FutureBase _fut) mutable {
-		             	std::this_thread::sleep_for(std::chrono::milliseconds(200));
-		             	zeus::Future<std::string> futTmp(_fut);
-		             	APPL_INFO("    [" << elem->m_id << "] get episode: " << futTmp.get());
+		    .andThen([=](zeus::Future<std::string> _fut) mutable {
+		             	APPL_INFO("    [" << elem->m_id << "] get episode: " << _fut.get());
 		             	{
 		             		std::unique_lock<std::mutex> lock(elem->m_mutex);
-		             		elem->m_episode = futTmp.get();
+		             		elem->m_episode = _fut.get();
 		             	}
 		             	tmpWidget->markToRedraw();
 		             	return true;
 		             });
 		remoteServiceVideo.mediaMetadataGetKey(it, "description")
-		    .andThen([=](zeus::FutureBase _fut) mutable {
-		             	std::this_thread::sleep_for(std::chrono::milliseconds(200));
-		             	zeus::Future<std::string> futTmp(_fut);
-		             	APPL_INFO("    [" << elem->m_id << "] get description: " << futTmp.get());
+		    .andThen([=](zeus::Future<std::string> _fut) mutable {
+		             	APPL_INFO("    [" << elem->m_id << "] get description: " << _fut.get());
 		             	{
 		             		std::unique_lock<std::mutex> lock(elem->m_mutex);
-		             		elem->m_description = futTmp.get();
+		             		elem->m_description = _fut.get();
 		             	}
 		             	tmpWidget->markToRedraw();
 		             	return true;
 		             });
 		remoteServiceVideo.mediaMineTypeGet(it)
-		    .andThen([=](zeus::FutureBase _fut) mutable {
-		             	std::this_thread::sleep_for(std::chrono::milliseconds(200));
-		             	zeus::Future<std::string> futTmp(_fut);
-		             	APPL_INFO("    [" << elem->m_id << "] get mine-type: " << futTmp.get());
+		    .andThen([=](zeus::Future<std::string> _fut) mutable {
+		             	APPL_INFO("    [" << elem->m_id << "] get mine-type: " << _fut.get());
 		             	{
 		             		std::unique_lock<std::mutex> lock(elem->m_mutex);
-		             		elem->m_mineType = futTmp.get();
+		             		elem->m_mineType = _fut.get();
 		             		if (etk::start_with(elem->m_mineType, "video") == true) {
 		             			// TODO : Optimise this ...
 		             			elem->m_thumb = egami::load("DATA:Video.svg", ivec2(128,128));

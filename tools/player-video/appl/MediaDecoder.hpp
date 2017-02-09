@@ -55,7 +55,28 @@ namespace appl {
 			std::vector<audio::channel> m_map; //!< Channel map of the buffer
 			void configure(audio::format _format, uint32_t _sampleRate, int32_t _nbChannel, int32_t _nbSample);
 	};
-	
+	class StreamBuffering : public ememory::EnableSharedFromThis<StreamBuffering> {
+		public:
+			StreamBuffering();
+			std::mutex                                m_mutex; //!< local Lock Data protection
+			ememory::SharedPtr<appl::ClientProperty>  m_property; //!< Remote interface that must get data
+			uint32_t                                  m_mediaId; //!< remote media ID that need to get data
+			zeus::ProxyFile                           m_fileHandle; //!< Reference on the remote file
+			std::vector<uint8_t>                      m_buffer; //!< preallocated with all needed data
+			int32_t                                   m_bufferReadPosition; //!< Current position that is read
+			std::vector<std::pair<uint32_t,uint32_t>> m_bufferFillSection; //!< List of <start-stop> position that contain data
+			bool m_callInProgress;
+		public:
+			bool addDataCallback(zeus::Future<zeus::Raw> _fut, int64_t _positionRequest);
+			void checkIfWeNeedMoreDataFromNetwork();
+			uint64_t getSize() {
+				return m_buffer.size();
+			}
+			std::vector<std::pair<uint32_t,uint32_t>> getDownloadPart() {
+				return m_bufferFillSection;
+			}
+			int32_t sizeReadable();
+	};
 	class MediaDecoder : public gale::Thread {
 		bool m_stopRequested;
 		public:
@@ -108,7 +129,9 @@ namespace appl {
 			int decode_packet(int *_gotFrame, int _cached);
 			int open_codec_context(int *_streamId, AVFormatContext *_formatContext, enum AVMediaType _type);
 			double getFps(AVCodecContext *_avctx);
-			void init(const std::string& _filename);
+		protected:
+			void init();
+		public:
 			void init(ememory::SharedPtr<appl::ClientProperty> _property, uint32_t _mediaId);
 			bool onThreadCall() override;
 			void uninit();
@@ -138,13 +161,7 @@ namespace appl {
 		/* ***********************************************
 		   ** Section temporary buffer
 		   ***********************************************/
-		protected:
-			ememory::SharedPtr<appl::ClientProperty>  m_remoteProperty; //!< Remote interface that must get data
-			uint32_t                                  m_remoteMediaId; //!< remote media ID that need to get data
-			zeus::ProxyFile                           m_remoteFileHandle; //!< Reference on the remote file
-			std::vector<uint8_t>                      m_remoteBuffer; //!< preallocated with all needed data
-			int32_t                                  m_remoteBufferReadPosition; //!< Current position that is read
-			std::vector<std::pair<uint32_t,uint32_t>> m_remoteBufferFillSection; //!< List of <start-stop> position that contain data
+			ememory::SharedPtr<appl::StreamBuffering> m_remote;
 		public:
 			// @brief INTERNAL read callback
 			int readFunc(uint8_t* _buf, int _bufSize);
@@ -152,8 +169,6 @@ namespace appl {
 			int writeFunc(uint8_t* _buf, int _bufSize);
 			// @brief INTERNAL seek callback
 			int64_t seekFunc(int64_t _offset, int _whence);
-		protected:
-			void checkIfWeNeedMoreDataFromNetwork();
 		
 	};
 }
