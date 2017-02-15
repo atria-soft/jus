@@ -74,7 +74,17 @@ void appl::ClientInterface::stop() {
 
 bool appl::ClientInterface::isAlive() {
 	//APPL_INFO("is alive : " << m_interfaceClient.isActive());
-	return m_interfaceClient.isActive();
+	bool ret = m_interfaceClient.isActive();
+	if (ret == true) {
+		if (m_userGateWay == nullptr) {
+			return false;
+		}
+		m_userGateWay->clientAlivePing();
+		if (m_userGateWay->isAlive() == false) {
+			return false;
+		}
+	}
+	return ret;
 }
 
 void appl::ClientInterface::answerProtocolError(uint32_t _transactionId, const std::string& _errorHelp) {

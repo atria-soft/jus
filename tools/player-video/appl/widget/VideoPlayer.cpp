@@ -53,7 +53,6 @@ void appl::widget::VideoDisplay::init() {
 	}
 	// Create the River manager for tha application or part of the application.
 	m_audioManager = audio::river::Manager::create("river_sample_read");
-	//! [audio_river_sample_create_write_interface]
 }
 
 appl::widget::VideoDisplay::~VideoDisplay() {
@@ -93,10 +92,16 @@ void appl::widget::VideoDisplay::setFile(const std::string& _filename) {
 void appl::widget::VideoDisplay::setZeusMedia(ememory::SharedPtr<ClientProperty> _property, uint32_t _mediaId) {
 	// Stop playing in all case...
 	stop();
+	if (m_decoder != nullptr) {
+		m_decoder->uninit();
+	}
 	// Clear the old interface
 	m_decoder.reset();
+	
 	// Create a new interface
-	m_decoder = ememory::makeShared<appl::MediaDecoder>();
+	if (m_decoder == nullptr) {
+		m_decoder = ememory::makeShared<appl::MediaDecoder>();
+	}
 	if (m_decoder == nullptr) {
 		APPL_ERROR("Can not create sharedPtr on decoder ...");
 		return;
@@ -126,7 +131,7 @@ void appl::widget::VideoDisplay::play() {
 		                                                m_decoder->audioGetFormat(),
 		                                                "speaker");
 		if(m_audioInterface == nullptr) {
-			APPL_ERROR("Can not creata Audio interface");
+			APPL_ERROR("Can not create Audio interface");
 		}
 		m_audioInterface->setReadwrite();
 		m_audioInterface->start();
@@ -145,9 +150,8 @@ void appl::widget::VideoDisplay::stop() {
 	if (    m_decoder != nullptr
 	     && m_decoder->getState() != gale::Thread::state::stop) {
 		APPL_ERROR("Stop Decoder");
-		// stop it ... and request seet at 0 position ...
-		m_decoder->seek(echrono::Duration(0));
 		m_decoder->stop();
+		m_currentTime = 0;
 	}
 	if (m_audioInterface != nullptr) {
 		APPL_ERROR("Stop audio interface");

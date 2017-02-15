@@ -29,7 +29,7 @@ appl::widget::ListViewer::ListViewer() :
   signalSelect(this, "select", "Select a media to view") {
 	addObjectType("appl::widget::ListViewer");
 	propertyCanFocus.setDirectCheck(true);
-	// Limit event at 1:
+	setLimitScrolling(0.2);
 	setMouseLimit(1);
 }
 
@@ -46,6 +46,7 @@ appl::widget::ListViewer::~ListViewer() {
 
 void appl::widget::ListViewer::searchElements(std::string _filter) {
 	m_listElement.clear();
+	m_listDisplay.clear();
 	if (m_clientProp == nullptr) {
 		APPL_ERROR("No client Availlable ...");
 		return;
@@ -68,6 +69,7 @@ void appl::widget::ListViewer::searchElements(std::string _filter) {
 		_filter = "*";
 	}
 	
+	m_clientProp->connect();
 	if (m_clientProp->connection.isAlive() == false) {
 		APPL_ERROR("Conection is not alive anymore ...");
 		return;
@@ -148,6 +150,26 @@ void appl::widget::ListViewer::searchElements(std::string _filter) {
 		             	tmpWidget->markToRedraw();
 		             	return true;
 		             });
+		remoteServiceVideo.mediaMetadataGetKey(it, "production-methode")
+		    .andThen([=](zeus::Future<std::string> _fut) mutable {
+		             	APPL_INFO("    [" << elem->m_id << "] get production-methode: " << _fut.get());
+		             	{
+		             		std::unique_lock<std::mutex> lock(elem->m_mutex);
+		             		elem->m_productMethode = _fut.get();
+		             	}
+		             	tmpWidget->markToRedraw();
+		             	return true;
+		             });
+		remoteServiceVideo.mediaMetadataGetKey(it, "type")
+		    .andThen([=](zeus::Future<std::string> _fut) mutable {
+		             	APPL_INFO("    [" << elem->m_id << "] get type: " << _fut.get());
+		             	{
+		             		std::unique_lock<std::mutex> lock(elem->m_mutex);
+		             		elem->m_type = _fut.get();
+		             	}
+		             	tmpWidget->markToRedraw();
+		             	return true;
+		             });
 		remoteServiceVideo.mediaMineTypeGet(it)
 		    .andThen([=](zeus::Future<std::string> _fut) mutable {
 		             	APPL_INFO("    [" << elem->m_id << "] get mine-type: " << _fut.get());
@@ -165,22 +187,6 @@ void appl::widget::ListViewer::searchElements(std::string _filter) {
 		             	tmpWidget->markToRedraw();
 		             	return true;
 		             });
-		/*
-		elem->m_title = remoteServiceVideo.mediaMetadataGetKey(it, "title").wait().get();
-		elem->m_serie = remoteServiceVideo.mediaMetadataGetKey(it, "series-name").wait().get();
-		elem->m_saison = remoteServiceVideo.mediaMetadataGetKey(it, "saison").wait().get();
-		elem->m_episode = remoteServiceVideo.mediaMetadataGetKey(it, "episode").wait().get();
-		elem->m_description = remoteServiceVideo.mediaMetadataGetKey(it, "description").wait().get();
-		elem->m_mineType = remoteServiceVideo.mediaMineTypeGet(it).wait().get();
-		if (etk::start_with(elem->m_mineType, "video") == true) {
-			// TODO : Optimise this ...
-			elem->m_thumb = egami::load("DATA:Video.svg", ivec2(128,128));
-		} else if (etk::start_with(elem->m_mineType, "audio") == true) {
-			// TODO : Optimise this ...
-			elem->m_thumb = egami::load("DATA:MusicNote.svg", ivec2(128,128));
-		}
-		elem->m_metadataUpdated = true;
-		*/
 		elem->m_metadataUpdated = true;
 		//elem->m_thumb = remoteServiceVideo.mediaThumbGet(it, 128).wait().get();
 		m_listElement.push_back(elem);
@@ -286,7 +292,7 @@ void appl::widget::ListViewer::onRegenerateDisplay() {
 			if (iii < m_listElement.size()) {
 				elem->m_property = m_listElement[iii];
 			}
-			switch(iii) {
+			switch(iii%6) {
 				case 0:
 					elem->m_bgColor = etk::color::red;
 					break;
@@ -315,13 +321,18 @@ void appl::widget::ListViewer::onRegenerateDisplay() {
 	}
 	// Now we request display of the elements:
 	vec2 elementSize = vec2(m_size.x(), int32_t(realPixelSize.y()));
-	vec2 startPos = vec2(0, m_size.y()) - vec2(0, elementSize.y());
+	vec2 startPos = vec2(-m_originScrooled.x(), m_size.y()) - vec2(0, elementSize.y()-m_originScrooled.y());
 	for (auto &it : m_listDisplay) {
 		if (it == nullptr) {
 			startPos -= vec2(0, elementSize.y());
 			continue;
 		}
-		it->generateDisplay(startPos, elementSize);
+		if (    startPos.y() - elementSize.y() <= m_size.y()
+		     && startPos.y() + elementSize.y() >= 0) {
+			it->generateDisplay(startPos, elementSize);
+		} else {
+			it->clear();
+		}
 		startPos -= vec2(0, elementSize.y());
 	}
 	m_maxSize.setX(m_size.x());
@@ -392,6 +403,13 @@ void appl::ElementDisplayed::generateDisplay(vec2 _startPos, vec2 _size) {
 		textToDisplay += "<i>Episode: <b>" + m_property->m_episode + "</b></i> ";
 		newLine = true;
 	}
+	if (m_property->m_type != "") {
+		textToDisplay += "    <i>type: <b>" + m_property->m_type + "</b></i> ";
+		if (m_property->m_productMethode != "") {
+			textToDisplay += " / " + m_property->m_productMethode + " ";
+		}
+		newLine = true;
+	}
 	if (newLine == true) {
 		textToDisplay += "<br/>";
 	}
@@ -415,7 +433,10 @@ void appl::ElementDisplayed::generateDisplay(vec2 _startPos, vec2 _size) {
 
 
 bool appl::widget::ListViewer::onEventInput(const ewol::event::Input& _event) {
-	APPL_VERBOSE("Event on BT : " << _event);
+	if (ewol::widget::WidgetScrolled::onEventInput(_event) == true) {
+		return true;
+	}
+	APPL_VERBOSE("Event on BT : " << _event << " size=" << m_size << " maxSize=" << m_maxSize);
 	vec2 relativePos = relativePosition(_event.getPos());
 	int32_t findId = -1;
 	for (size_t iii=0; iii<m_listDisplay.size(); ++iii) {
@@ -436,7 +457,7 @@ bool appl::widget::ListViewer::onEventInput(const ewol::event::Input& _event) {
 	}
 	if (_event.getId() == 1) {
 		if(_event.getStatus() == gale::key::status::pressSingle) {
-			APPL_WARNING("Select element : " << findId << "  " << m_listDisplay[findId]->m_idCurentElement);
+			APPL_DEBUG("Select element : " << findId << "  " << m_listDisplay[findId]->m_idCurentElement);
 			ememory::SharedPtr<appl::ElementProperty> prop = m_listDisplay[findId]->m_property;
 			if (prop != nullptr) {
 				std::string fullTitle;
@@ -450,7 +471,7 @@ bool appl::widget::ListViewer::onEventInput(const ewol::event::Input& _event) {
 					fullTitle += "e" + prop->m_episode + "-";
 				}
 				fullTitle += prop->m_title;
-				APPL_WARNING("info element : " << prop->m_id << " title: " << fullTitle);
+				APPL_DEBUG("info element : " << prop->m_id << " title: " << fullTitle);
 				signalSelect.emit(prop->m_id);
 			}
 			return true;

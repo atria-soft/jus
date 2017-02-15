@@ -137,3 +137,14 @@ void appl::GateWayInterface::answerProtocolError(uint32_t _transactionId, const 
 	m_interfaceClient.answerError(_transactionId, 0, 0, protocolError, _errorHelp);
 	m_interfaceClient.disconnect(true);
 }
+
+void appl::GateWayInterface::clientAlivePing() {
+	echrono::Steady now = echrono::Steady::now();
+	if ((now - m_interfaceClient.getLastTimeSend()) >= echrono::seconds(5)) {
+		m_interfaceClient.ping();
+		return;
+	}
+	if ((now - m_interfaceClient.getLastTimeReceive()) >= echrono::seconds(5)) {
+		m_interfaceClient.ping();
+	}
+}

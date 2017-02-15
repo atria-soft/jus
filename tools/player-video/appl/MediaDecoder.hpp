@@ -66,6 +66,7 @@ namespace appl {
 			int32_t                                   m_bufferReadPosition; //!< Current position that is read
 			std::vector<std::pair<uint32_t,uint32_t>> m_bufferFillSection; //!< List of <start-stop> position that contain data
 			bool m_callInProgress;
+			bool m_stopRequested;
 		public:
 			bool addDataCallback(zeus::Future<zeus::Raw> _fut, int64_t _positionRequest);
 			void checkIfWeNeedMoreDataFromNetwork();
@@ -76,6 +77,8 @@ namespace appl {
 				return m_bufferFillSection;
 			}
 			int32_t sizeReadable();
+			void stopStream();
+			void startStream();
 	};
 	class MediaDecoder : public gale::Thread {
 		bool m_stopRequested;
@@ -102,7 +105,6 @@ namespace appl {
 			int32_t audioGetEmptySlot();
 		private:
 			AVIOContext* m_IOContext;
-			std::vector<uint8_t> m_bufferFFMPEG;
 			AVFormatContext* m_formatContext;
 			AVCodecContext* m_videoDecoderContext;
 			AVCodecContext* m_audioDecoderContext;

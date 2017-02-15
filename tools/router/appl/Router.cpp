@@ -248,17 +248,20 @@ ememory::SharedPtr<appl::GateWayInterface> appl::Router::get(const std::string& 
 					APPL_ERROR("Must never appear ... child of fork killed ...");
 				}
 			#endif
-			std::this_thread::sleep_for(std::chrono::milliseconds(600));
-			APPL_ERROR("must be connected ???");
-			for (auto &it : m_GateWayList) {
-				if (it == nullptr) {
-					continue;
+			int32_t nbCheckDelayMax = 24;
+			while (nbCheckDelayMax-- > 0) {
+				std::this_thread::sleep_for(std::chrono::milliseconds(25));
+				for (auto &it : m_GateWayList) {
+					if (it == nullptr) {
+						continue;
+					}
+					if (it->getName() != _userName) {
+						continue;
+					}
+					return it;
 				}
-				if (it->getName() != _userName) {
-					continue;
-				}
-				return it;
 			}
+			APPL_ERROR("must be connected ==> and it is not ...");
 			break;
 		}
 	}
@@ -296,7 +299,6 @@ void appl::Router::cleanIO() {
 		}
 		++it;
 	}
-	
 	auto it2 = m_clientList.begin();
 	while (it2 != m_clientList.end()) {
 		if (*it2 != nullptr) {

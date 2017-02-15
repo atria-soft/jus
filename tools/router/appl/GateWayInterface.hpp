@@ -25,6 +25,7 @@ namespace appl {
 			void start();
 			void stop();
 			void onServiceData(ememory::SharedPtr<zeus::Message> _value);
+			void clientAlivePing();
 		public:
 			uint16_t addClient(ememory::SharedPtr<appl::ClientInterface> _value);
 			void rmClient(ememory::SharedPtr<appl::ClientInterface> _value);

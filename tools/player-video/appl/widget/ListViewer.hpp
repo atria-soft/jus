@@ -29,6 +29,8 @@ namespace appl {
 			std::string m_episode; //!< Id of the Episode or empty
 			std::string m_saison; //!< id of the saison or empty
 			std::string m_mineType; //!< mine type: video/audio/image/...
+			std::string m_type; //!< type of the element
+			std::string m_productMethode; //!< Methode of production
 			// TODO: float m_globalNote; //!< note over [0,0..1,0]
 			// TODO: int32_t m_countPersonalView; //!< number of view this media
 			// TODO: int64_t m_globalPersonalView; //!< number of time this media has been viewed
@@ -51,6 +53,11 @@ namespace appl {
 				m_text.draw();
 			}
 			void generateDisplay(vec2 _startPos, vec2 _size);
+			void clear() {
+				m_image.clear();
+				m_text.clear();
+				m_draw.clear();
+			}
 	};
 	
 	namespace widget {

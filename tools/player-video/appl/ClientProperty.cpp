@@ -49,6 +49,12 @@ void appl::ClientProperty::fromJson(ejson::Object _obj) {
 }
 
 void appl::ClientProperty::connect() {
+	if (connection.isAlive() == true) {
+		connection.pingIsAlive();
+		if (connection.isAlive() == true) {
+			return;
+		}
+	}
 	// Generate IP and Port in the client interface
 	if (address == "") {
 		connection.propertyIp.set("127.0.0.1");

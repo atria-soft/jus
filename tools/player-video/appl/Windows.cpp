@@ -36,8 +36,6 @@ void appl::Windows::store_db() {
 	if (m_clientProp != nullptr) {
 		database.add("access", m_clientProp->toJson());
 	}
-	//database.add("login", ejson::String(m_login));
-	//database.add("pass", ejson::String(m_password));
 	bool retGenerate = database.storeSafe(g_baseDBName);
 	APPL_ERROR("Store database [STOP] : " << (g_baseDBName) << " ret = " << retGenerate);
 }
@@ -59,8 +57,6 @@ void appl::Windows::load_db() {
 	if (m_clientProp != nullptr) {
 		m_clientProp->fromJson(database["access"].toObject());
 	}
-	//m_login = database["login"].toString().get();
-	//m_password = database["pass"].toString().get();
 }
 
 
@@ -92,11 +88,6 @@ void appl::Windows::init() {
 	subBind(appl::widget::VideoDisplay, "displayer", signalPosition, sharedFromThis(), &appl::Windows::onCallbackPosition);
 	subBind(ewol::widget::Slider, "progress-bar", signalChange, sharedFromThis(), &appl::Windows::onCallbackSeekRequest);
 	
-	/*
-	subBind(ewol::widget::Entry, "connect-login", signalModify, sharedFromThis(), &appl::Windows::onCallbackConnectLogin);
-	subBind(ewol::widget::Entry, "connect-password", signalModify, sharedFromThis(), &appl::Windows::onCallbackConnectPassword);
-	subBind(ewol::widget::Button, "connect-bt", signalPressed, sharedFromThis(), &appl::Windows::onCallbackConnectConnect);
-	
 	
 	subBind(ewol::widget::Button, "bt-film-picture", signalPressed, sharedFromThis(), &appl::Windows::onCallbackSelectFilms);
 	subBind(ewol::widget::Button, "bt-film-draw", signalPressed, sharedFromThis(), &appl::Windows::onCallbackSelectAnnimation);
@@ -105,10 +96,9 @@ void appl::Windows::init() {
 	subBind(ewol::widget::Button, "bt-theater", signalPressed, sharedFromThis(), &appl::Windows::onCallbackSelectTeather);
 	subBind(ewol::widget::Button, "bt-one-man-show", signalPressed, sharedFromThis(), &appl::Windows::onCallbackSelectOneManShow);
 	subBind(ewol::widget::Button, "bt-courses", signalPressed, sharedFromThis(), &appl::Windows::onCallbackSelectSourses);
-	*/
 	
-	propertySetOnWidgetNamed("connect-login", "value", m_login);
-	propertySetOnWidgetNamed("connect-password", "value", m_password);
+	subBind(ewol::widget::Button, "access-fast-home", signalPressed, sharedFromThis(), &appl::Windows::onCallbackSelectHome);
+	subBind(ewol::widget::Button, "access-fast-group", signalPressed, sharedFromThis(), &appl::Windows::onCallbackSelectGroup);
 	
 	// Direct display list:
 	ewol::propertySetOnObjectNamed("view-selection", "select", "ws-name-list-viewer");
@@ -156,6 +146,45 @@ void appl::Windows::onCallbackMenuEvent(const std::string& _value) {
 		popUpWidgetPush(tmpWidget);
 	} else if (_value == "menu:exit") {
 		gale::getContext().stop();
+	} else if (_value == "menu:home") {
+		ewol::propertySetOnObjectNamed("view-selection", "select", "ws-name-list-viewer");
+		m_listViewer->searchElements("");
+	} else if (_value == "menu:group") {
+		ewol::propertySetOnObjectNamed("view-selection", "select", "ws-name-list-group");
+	} else if (_value == "menu:tv") {
+		ewol::propertySetOnObjectNamed("view-selection", "select", "ws-name-list-tv");
+	
+	} else if (_value == "menu:films") {
+		ewol::propertySetOnObjectNamed("view-selection", "select", "ws-name-list-viewer");
+		m_listViewer->searchElements("film");
+	} else if (_value == "menu:animation-films") {
+		ewol::propertySetOnObjectNamed("view-selection", "select", "ws-name-list-viewer");
+		m_listViewer->searchElements("annimation");
+	} else if (_value == "menu:tv-show") {
+		ewol::propertySetOnObjectNamed("view-selection", "select", "ws-name-list-viewer");
+		m_listViewer->searchElements("tv-show");
+	} else if (_value == "menu:animation-tv-show") {
+		ewol::propertySetOnObjectNamed("view-selection", "select", "ws-name-list-viewer");
+		m_listViewer->searchElements("tv-annimation");
+	} else if (_value == "menu:teather") {
+		ewol::propertySetOnObjectNamed("view-selection", "select", "ws-name-list-viewer");
+		m_listViewer->searchElements("teather");
+	} else if (_value == "menu:one-man-show") {
+		ewol::propertySetOnObjectNamed("view-selection", "select", "ws-name-list-viewer");
+		m_listViewer->searchElements("one-man");
+	} else if (_value == "menu:courses") {
+		ewol::propertySetOnObjectNamed("view-selection", "select", "ws-name-list-viewer");
+		m_listViewer->searchElements("courses");
+		
+		
+	} else if (_value == "menu:TV-child") {
+		ewol::propertySetOnObjectNamed("view-selection", "select", "ws-name-list-viewer");
+		m_listViewer->searchElements("");
+		// TODO: ...
+	} else if (_value == "menu:TV-adult") {
+		ewol::propertySetOnObjectNamed("view-selection", "select", "ws-name-list-viewer");
+		m_listViewer->searchElements("");
+		// TODO: ...
 	} else if (_value == "menu:reload-shader") {
 		ewol::getContext().getResourcesManager().reLoadResources();
 		ewol::getContext().forceRedrawAll();
@@ -269,65 +298,6 @@ void appl::Windows::onCallbackSeekRequest(const float& _value) {
 	ememory::SharedPtr<appl::widget::VideoDisplay> tmpDisp = ememory::dynamicPointerCast<appl::widget::VideoDisplay>(getSubObjectNamed("displayer"));
 	if (tmpDisp != nullptr) {
 		tmpDisp->seek(echrono::Duration(_value));
-	}
-}
-
-
-void appl::Windows::onCallbackConnectLogin(const std::string& _value) {
-	m_login = _value;
-	store_db();
-}
-
-void appl::Windows::onCallbackConnectPassword(const std::string& _value) {
-	m_password = _value;
-	store_db();
-}
-
-void appl::Windows::onCallbackConnectConnect() {
-	APPL_INFO("Connect with : '" << m_login << "' ... '" << m_password << "'");
-	
-	m_clientProp = ememory::makeShared<ClientProperty>();
-	if (m_clientProp == nullptr) {
-		APPL_ERROR("Can not create property");
-		return;
-	}
-	m_clientProp->address = "127.0.0.1";
-	m_clientProp->port = 1983;
-	
-	// check connection is correct:
-	zeus::Client client1;
-	// separate loggin and IP adress ...
-	std::string login;
-	std::vector<std::string> listElem = etk::split(m_login, '~');
-	login = listElem[0];
-	if (listElem.size() == 1) {
-		// connnect on local host ... nothing to do
-	} else {
-		std::vector<std::string> listElem2 = etk::split(listElem[0], ':');
-		client1.propertyIp.set(listElem2[0]);
-		m_clientProp->address = listElem2[0];
-		if (listElem2.size() >= 1) {
-			client1.propertyPort.set(etk::string_to_uint32_t(listElem2[1]));
-			m_clientProp->port = etk::string_to_uint32_t(listElem2[1]);
-		}
-	}
-	m_clientProp->fromUser = login;
-	m_clientProp->toUser = login;
-	m_clientProp->pass = m_password;
-	m_clientProp->connect();
-	
-	if (m_clientProp->connection.isAlive() == false) {
-		APPL_ERROR("    ==> NOT Authentify to '" << login << "'");
-		ewol::tools::message::displayError("Can not connect the server with <br/>'" + login + "'");
-	} else {
-		APPL_INFO("    ==> Authentify with '" << login << "'");
-		ewol::propertySetOnObjectNamed("view-selection", "select", "ws-name-list");
-		// set the client property interface:
-		if (m_listViewer == nullptr) {
-			APPL_ERROR("Nullptr in the viewer ...");
-		} else {
-			m_listViewer->setClientProperty(m_clientProp);
-		}
 	}
 }
 

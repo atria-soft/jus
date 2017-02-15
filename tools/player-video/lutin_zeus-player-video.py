@@ -37,6 +37,7 @@ def configure(target, my_module):
 	    'appl/widget/ListViewer.cpp',
 	    'appl/ClientProperty.cpp',
 	    'appl/widget/Connection.cpp',
+	    'appl/widget/Player.cpp',
 	    ])
 	my_module.add_depend([
 	    'ffmpeg-libs',

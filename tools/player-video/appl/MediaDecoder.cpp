@@ -22,7 +22,6 @@
 #define BUFFER_SIZE_GET_SLOT (1024*512)
 
 
-
 static int g_readFunc(void* _opaque, uint8_t* _buf, int _bufSize) {
 	if (_opaque == nullptr) {
 		return 0;
@@ -354,38 +353,33 @@ void appl::MediaDecoder::init(ememory::SharedPtr<ClientProperty> _property, uint
 		APPL_ERROR("Request play of not connected handle ==> 'not alive'");
 		return;
 	}
-	
-	APPL_ERROR("AAAAAAAAAAAA");
 	zeus::service::ProxyVideo remoteServiceVideo = _property->connection.getService("video");
 	// remove all media (for test)
 	if (remoteServiceVideo.exist() == false) {
 		APPL_ERROR("Video service is ==> 'not alive'");
 		return;
 	}
-	APPL_ERROR("AAAA 222");
 	m_remote = ememory::makeShared<appl::StreamBuffering>();
 	m_remote->m_bufferReadPosition = 0;
 	m_remote->m_property = _property;
 	m_remote->m_mediaId = _mediaId;
-	APPL_ERROR("AAAA 333");
 	remoteServiceVideo.mediaGet(_mediaId).andThen(
 	    [=](zeus::Future<zeus::ProxyFile> _fut) mutable {
-	    	APPL_ERROR("Receive ProxyFile");
+	    	APPL_INFO("Receive ProxyFile");
 	    	m_remote->m_fileHandle = _fut.get();
 	    	m_remote->m_fileHandle.getSize().andThen(
 	    	    [=](zeus::Future<uint64_t> _fut) mutable {
-	    	    	APPL_ERROR("Receive FileSize to index property");
+	    	    	APPL_INFO("Receive FileSize to index property");
 	    	    	m_remote->m_buffer.resize(_fut.get(), 0);
 	    	    	m_remote->checkIfWeNeedMoreDataFromNetwork();
 	    	    	return true;
 	    	    });
 	    	return true;
 	    });
-	init();
 }
 
 int appl::MediaDecoder::readFunc(uint8_t* _buf, int _bufSize) {
-	APPL_ERROR("call read ... " << m_remote->m_bufferReadPosition << "  size=" << _bufSize);
+	APPL_INFO("call read ... " << m_remote->m_bufferReadPosition << "  size=" << _bufSize);
 	// check if enought data:
 	int64_t readableSize = m_remote->sizeReadable();
 	if (_bufSize > readableSize) {
@@ -400,6 +394,7 @@ int appl::MediaDecoder::readFunc(uint8_t* _buf, int _bufSize) {
 		memcpy(_buf, &m_remote->m_buffer[m_remote->m_bufferReadPosition], _bufSize);
 		m_remote->m_bufferReadPosition += _bufSize;
 	}
+	m_remote->startStream();
 	m_remote->checkIfWeNeedMoreDataFromNetwork();
 	return _bufSize;
 }
@@ -522,9 +517,17 @@ bool appl::StreamBuffering::addDataCallback(zeus::Future<zeus::Raw> _fut, int64_
 
 appl::StreamBuffering::StreamBuffering() {
 	m_callInProgress = false;
+	m_stopRequested = false;
 	m_mediaId = 0;
 	m_bufferReadPosition = 0;
 }
+void appl::StreamBuffering::stopStream() {
+	m_stopRequested = true;
+}
+void appl::StreamBuffering::startStream() {
+	m_stopRequested = false;
+}
+
 
 void appl::StreamBuffering::checkIfWeNeedMoreDataFromNetwork() {
 	std::unique_lock<std::mutex> lock(m_mutex);
@@ -533,18 +536,21 @@ void appl::StreamBuffering::checkIfWeNeedMoreDataFromNetwork() {
 	if (m_callInProgress == true) {
 		return;
 	}
+	if (m_stopRequested == true) {
+		return;
+	}
 	int32_t preDownloadBufferSlot = BUFFER_SIZE_GET_SLOT*3;
 	// When file is < 200Mo ==> just download all...
 	if (m_buffer.size() < 300*1024*1024) {
 		preDownloadBufferSlot = m_buffer.size()+10;
 	}
-	APPL_INFO("Request DATA ...");
+	APPL_VERBOSE("Request DATA ...");
 	auto it = m_bufferFillSection.begin();
 	if (it == m_bufferFillSection.end()) {
 		// no data in the buffer...
 		//Get some
 		// start with loading of 1 Mo
-		APPL_INFO("Request DATA : " << 0 << " size=" << BUFFER_SIZE_GET_SLOT);
+		APPL_VERBOSE("Request DATA : " << 0 << " size=" << BUFFER_SIZE_GET_SLOT);
 		auto futData = m_fileHandle.getPart(0, BUFFER_SIZE_GET_SLOT);
 		auto localShared = ememory::dynamicPointerCast<appl::StreamBuffering>(sharedFromThis());
 		futData.andThen([=](zeus::Future<zeus::Raw> _fut) mutable {
@@ -554,10 +560,9 @@ void appl::StreamBuffering::checkIfWeNeedMoreDataFromNetwork() {
 		return;
 	}
 	while (it != m_bufferFillSection.end()) {
-		APPL_INFO("Check : " << it->first << " -> " << it->second << "        read-pos=" << m_bufferReadPosition);
+		APPL_VERBOSE("Check : " << it->first << " -> " << it->second << "        read-pos=" << m_bufferReadPosition);
 		if (    m_bufferReadPosition >= it->first
 		     && m_bufferReadPosition < it->second) {
-			APPL_INFO("Request DATA    AAAA ");
 			find = true;
 			// part already download... ==> check if we need more data after end position
 			if (it->second == m_buffer.size()) {
@@ -575,7 +580,7 @@ void appl::StreamBuffering::checkIfWeNeedMoreDataFromNetwork() {
 				     && it->second + sizeRequest >= it2->first) {
 					sizeRequest = it2->first - it->second;
 				}
-				APPL_INFO("Request DATA : " << it->second << " size=" << sizeRequest);
+				APPL_VERBOSE("Request DATA : " << it->second << " size=" << sizeRequest);
 				auto futData = m_fileHandle.getPart(it->second, it->second + sizeRequest);
 				auto localShared = ememory::dynamicPointerCast<appl::StreamBuffering>(sharedFromThis());
 				futData.andThen([=](zeus::Future<zeus::Raw> _fut) mutable {
@@ -586,12 +591,11 @@ void appl::StreamBuffering::checkIfWeNeedMoreDataFromNetwork() {
 			// nothing more to do ...
 			return;
 		} else if (m_bufferReadPosition < it->first) {
-			APPL_INFO("Request DATA    KKKKK ");
 			int32_t sizeRequest = BUFFER_SIZE_GET_SLOT;
 			if (m_bufferReadPosition + sizeRequest >= it->first) {
 				sizeRequest = it->first - m_bufferReadPosition;
 			}
-			APPL_INFO("Request DATA : " << m_bufferReadPosition << " size=" << sizeRequest);
+			APPL_VERBOSE("Request DATA : " << m_bufferReadPosition << " size=" << sizeRequest);
 			auto futData = m_fileHandle.getPart(m_bufferReadPosition, m_bufferReadPosition+sizeRequest);
 			auto localShared = ememory::dynamicPointerCast<appl::StreamBuffering>(sharedFromThis());
 			futData.andThen([=](zeus::Future<zeus::Raw> _fut) mutable {
@@ -603,8 +607,7 @@ void appl::StreamBuffering::checkIfWeNeedMoreDataFromNetwork() {
 		}
 		++it;
 	}
-	APPL_INFO("Request DATA    RRRRR ");
-	APPL_INFO("Request DATA : " << m_bufferReadPosition << " size=" << BUFFER_SIZE_GET_SLOT);
+	APPL_VERBOSE("Request DATA : " << m_bufferReadPosition << " size=" << BUFFER_SIZE_GET_SLOT);
 	auto futData = m_fileHandle.getPart(m_bufferReadPosition, m_bufferReadPosition + BUFFER_SIZE_GET_SLOT);
 	auto localShared = ememory::dynamicPointerCast<appl::StreamBuffering>(sharedFromThis());
 	futData.andThen([=](zeus::Future<zeus::Raw> _fut) mutable {
@@ -618,13 +621,13 @@ void appl::StreamBuffering::checkIfWeNeedMoreDataFromNetwork() {
 }
 
 void appl::MediaDecoder::init() {
-	//APPL_ERROR("AAAAAAAAAAAA " << m_isInit << "    " << m_remote->sizeReadable());
 	if (    m_isInit == true
 	     || m_remote == nullptr
 	     || m_remote->sizeReadable() < 1024*1024) {// Need to wait at lease 1MB
 		
 		return;
 	}
+	m_remote->startStream();
 	m_updateVideoTimeStampAfterSeek = false;
 	//m_sourceFilename = _filename;
 	ethread::setName("ffmpegThread");
@@ -635,13 +638,12 @@ void appl::MediaDecoder::init() {
 			return;
 		}
 	#else
-		
 		if (!(m_formatContext = avformat_alloc_context())) {
 			APPL_ERROR("Could not create Format context");
 			return;
 		}
-		m_bufferFFMPEG.resize(1024*1024); // 1Mo buffer is good enought
-		m_IOContext = avio_alloc_context(&m_bufferFFMPEG[0], m_bufferFFMPEG.size(), 0 /* can not write */, this, g_readFunc, g_writeFunc, g_seekFunc);
+		uint8_t* ploooooo = (uint8_t*)av_malloc(1024*1024);
+		m_IOContext = avio_alloc_context(ploooooo, 1024*1024, 0 /* can not write */, this, g_readFunc, g_writeFunc, g_seekFunc);
 		if (m_IOContext == nullptr) {
 			APPL_ERROR("Could not create IO stream");
 			return;
@@ -805,15 +807,37 @@ void appl::MediaDecoder::uninit() {
 		return;
 	}
 	APPL_PRINT("Demuxing & Decoding succeeded...");
+	flushMessage();
 	avcodec_close(m_videoDecoderContext);
 	avcodec_close(m_audioDecoderContext);
+	m_formatContext->pb = nullptr;
 	avformat_close_input(&m_formatContext);
 	av_frame_free(&m_frame);
+	av_free(m_IOContext);
+	m_IOContext = nullptr;
+	m_audioPool.clear();
+	m_videoPool.clear();
+	m_updateVideoTimeStampAfterSeek = false;
+	m_videoStream = nullptr;
+	m_audioStream = nullptr;
+	m_sourceFilename = "";
+	m_videoStream_idx = 0;
+	m_audioStream_idx = 0;
+	m_videoFrameCount = 0;
+	m_audioFrameCount = 0;
+	// output format convertion:
+	m_convertContext = nullptr;
+	m_remote.reset();
 	m_isInit = false;
+	APPL_PRINT("Demuxing & Decoding succeeded... (DONE)");
 }
 
 void appl::MediaDecoder::stop() {
 	m_stopRequested = true;
+	if (m_remote != nullptr) {
+		m_remote->stopStream();
+	}
+	gale::Thread::stop();
 }
 
 void appl::MediaDecoder::flushMessage() {

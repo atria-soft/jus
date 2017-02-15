@@ -41,11 +41,6 @@ namespace appl {
 			void onCallbackShortCut(const std::string& _value);
 			void onCallbackMenuEvent(const std::string& _value);
 		protected:
-			std::string m_login;
-			std::string m_password;
-			void onCallbackConnectLogin(const std::string& _value);
-			void onCallbackConnectPassword(const std::string& _value);
-			void onCallbackConnectConnect();
 			void load_db();
 			void store_db();
 			void onCallbackSelectFilms();
@@ -56,6 +51,12 @@ namespace appl {
 			void onCallbackSelectOneManShow();
 			void onCallbackSelectSourses();
 			void onCallbackSelectMedia(const uint32_t& _value);
+			void onCallbackSelectGroup() {
+				onCallbackMenuEvent("menu:group");
+			}
+			void onCallbackSelectHome() {
+				onCallbackMenuEvent("menu:home");
+			}
 	};
 }
 

@@ -16,6 +16,7 @@
 #include <ewol/context/Context.hpp>
 #include <appl/widget/VideoPlayer.hpp>
 #include <appl/widget/ListViewer.hpp>
+#include <appl/widget/Player.hpp>
 #include <zeus/zeus.hpp>
 
 namespace appl {
@@ -70,6 +71,7 @@ namespace appl {
 				// set application widget:
 				appl::widget::VideoDisplay::createManagerWidget(_context.getWidgetManager());
 				appl::widget::ListViewer::createManagerWidget(_context.getWidgetManager());
+				appl::widget::Player::createManagerWidget(_context.getWidgetManager());
 				// Create the windows
 				ememory::SharedPtr<appl::Windows> basicWindows = appl::Windows::create();
 				// configure the ewol context to use the new windows

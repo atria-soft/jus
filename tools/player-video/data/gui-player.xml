@@ -1,0 +1,21 @@
+<layer fill="true" expand="true">
+	<sizer mode="vert" fill="true" expand="true">
+		<sizer mode="hori" fill="true" expand="true,false">
+			<button name="[{ID}]appl-player-bt-previous">
+				<label>_T{Previous}</label>
+			</button>
+			<button name="[{ID}]appl-player-bt-play" toggle="true">
+				<label>_T{Play}</label>
+				<label>_T{Pause}</label>
+			</button>
+			<button name="[{ID}]appl-player-bt-next">
+				<label>_T{Next}</label>
+			</button>
+			<spacer expand="true,false" fill="true"/>
+			<label name="[{ID}]appl-player-lb-time"/>
+		</sizer>
+		<slider name="progress-bar" expand="true,false" fill="true" step="0.01" min="0"/>
+		<spacer expand="true" fill="true"/>
+	</sizer>
+	<VideoDisplay name="[{ID}]appl-player-display" expand="true" fill="true"/>
+</layer>
