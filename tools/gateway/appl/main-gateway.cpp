@@ -136,6 +136,7 @@ int main(int _argc, const char *_argv[]) {
 	// The default service port is 1985
 	m_client.propertyPort.set(1985);
 	#endif
+	// default delay to disconnect is 30 seconds:
 	uint32_t routerDisconnectionDelay = 30;
 	for (int32_t iii=0; iii<_argc ; ++iii) {
 		std::string data = _argv[iii];
@@ -148,7 +149,14 @@ int main(int _argc, const char *_argv[]) {
 		} else if (etk::start_with(data, "--router-port=") == true) {
 			basicGateway.propertyRouterPort.set(etk::string_to_uint16_t(std::string(&data[14])));
 		} else if (etk::start_with(data, "--router-delay=") == true) {
-			routerDisconnectionDelay = etk::string_to_uint32_t(std::string(&data[15]));
+			int32_t value = etk::string_to_int32_t(std::string(&data[15]));
+			if (value == -1) {
+				routerDisconnectionDelay = 999999999;
+			} else if (value == 0) {
+				// do nothing
+			} else {
+				routerDisconnectionDelay = value;
+			}
 		} else if (etk::start_with(data, "--service-ip=") == true) {
 			basicGateway.propertyServiceIp.set(std::string(&data[13]));
 			#ifdef GATEWAY_ENABLE_LAUNCHER
@@ -182,7 +190,7 @@ int main(int _argc, const char *_argv[]) {
 			APPL_PRINT("        --service-ip=XXX     Service connection IP (default: " << basicGateway.propertyServiceIp.get() << ")");
 			APPL_PRINT("        --service-port=XXX   Service connection PORT (default: " << basicGateway.propertyServicePort.get() << ")");
 			APPL_PRINT("        --service-max=XXX    Service Maximum IO (default: " << basicGateway.propertyServiceMax.get() << ")");
-			APPL_PRINT("        --router-delay=XXX   Delay before disconnect from the router (default: " << routerDisconnectionDelay << ")");
+			APPL_PRINT("        --router-delay=XXX   Delay before disconnect from the router (default: " << routerDisconnectionDelay << "; 0=automatic set by the gateway; -1=never disconnect; other the time)");
 			#ifdef GATEWAY_ENABLE_LAUNCHER
 			APPL_PRINT("        specific for internal launcher:");
 			APPL_PRINT("        --base-path=XXX      base path to search data (default: 'USERDATA:')");

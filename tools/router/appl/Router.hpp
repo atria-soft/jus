@@ -27,6 +27,7 @@ namespace appl {
 			eproperty::Value<std::string> propertyGateWayIp;
 			eproperty::Value<uint16_t> propertyGateWayPort;
 			eproperty::Value<uint16_t> propertyGateWayMax;
+			eproperty::Value<int32_t> propertyDelayToStop;
 		public:
 			Router();
 			virtual ~Router();

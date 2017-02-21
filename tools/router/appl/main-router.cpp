@@ -34,16 +34,19 @@ int main(int _argc, const char *_argv[]) {
 			basicRouter.propertyGateWayPort.set(etk::string_to_uint16_t(std::string(&data[10])));
 		} else if (etk::start_with(data, "--gw-max=") == true) {
 			basicRouter.propertyGateWayMax.set(etk::string_to_uint16_t(std::string(&data[9])));
+		} else if (etk::start_with(data, "--delay-stop-user=") == true) {
+			basicRouter.propertyDelayToStop.set(etk::string_to_int32_t(std::string(&data[18])));
 		} else if (    data == "-h"
 		            || data == "--help") {
 			APPL_PRINT(etk::getApplicationName() << " - help : ");
 			APPL_PRINT("    " << _argv[0] << " [options]");
-			APPL_PRINT("        --client-ip=XXX      Client connection IP (default: 1.7.0.0.1)");
-			APPL_PRINT("        --client-port=XXX    Client connection PORT (default: 1983)");
-			APPL_PRINT("        --client-max=XXX     Client Maximum parallele connection (default: 80)");
-			APPL_PRINT("        --gw-ip=XXX          Gateway connection IP (default: 1.7.0.0.1)");
-			APPL_PRINT("        --gw-port=XXX        Gateway connection PORT (default: 1984)");
-			APPL_PRINT("        --gw-max=XXX         Gateway Maximum IO (default: 15)");
+			APPL_PRINT("        --client-ip=XXX         Client connection IP (default: 1.7.0.0.1)");
+			APPL_PRINT("        --client-port=XXX       Client connection PORT (default: 1983)");
+			APPL_PRINT("        --client-max=XXX        Client Maximum parallele connection (default: 80)");
+			APPL_PRINT("        --gw-ip=XXX             Gateway connection IP (default: 1.7.0.0.1)");
+			APPL_PRINT("        --gw-port=XXX           Gateway connection PORT (default: 1984)");
+			APPL_PRINT("        --gw-max=XXX            Gateway Maximum IO (default: 15)");
+			APPL_PRINT("        --delay-stop-user=XXX   Delay before the client stop the connection in second (default: 0=automatic set by the gateway; -1=never disconnect; other the time )");
 			return -1;
 		}
 	}

@@ -16,7 +16,6 @@
 #include <ewol/widget/Image.hpp>
 #include <ewol/widget/Composer.hpp>
 #include <ewol/widget/Manager.hpp>
-//#include <vector>
 #include <vector>
 #include <etk/tool.hpp>
 #include <appl/debug.hpp>
@@ -30,9 +29,8 @@ appl::widget::Player::Player() {
 
 void appl::widget::Player::init() {
 	ewol::widget::Composer::init();
-	if (loadFromFile("DATA:gui-player.xml", getId()) == false) {
-		APPL_ERROR("Can not load Player GUI from file ...");
-		return;
+	if (*propertySubFile == "") {
+		propertySubFile.set("DATA:gui-player.xml");
 	}
 	subBind(ewol::widget::Button, "[" + etk::to_string(getId()) + "]appl-player-bt-previous", signalPressed, sharedFromThis(), &appl::widget::Player::onCallbackButtonPrevious);
 	subBind(ewol::widget::Button, "[" + etk::to_string(getId()) + "]appl-player-bt-play", signalValue, sharedFromThis(), &appl::widget::Player::onCallbackButtonPlay);

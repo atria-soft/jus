@@ -139,7 +139,8 @@ appl::Router::Router() :
   propertyClientMax(this, "client-max", 8000, "Maximum of client at the same time", &appl::Router::onPropertyChangeClientMax),
   propertyGateWayIp(this, "gw-ip", "127.0.0.1", "Ip to listen Gateway", &appl::Router::onPropertyChangeGateWayIp),
   propertyGateWayPort(this, "gw-port", 1984, "Port to listen Gateway", &appl::Router::onPropertyChangeGateWayPort),
-  propertyGateWayMax(this, "gw-max", 8000, "Maximum of Gateway at the same time", &appl::Router::onPropertyChangeGateWayMax) {
+  propertyGateWayMax(this, "gw-max", 8000, "Maximum of Gateway at the same time", &appl::Router::onPropertyChangeGateWayMax),
+  propertyDelayToStop(this, "delay-to-stop", 0, "Delay before the client stop the connection in second (default: 0=automatic set by the gateway; -1=never disconnect; other the time )") {
 	m_interfaceClientServer = ememory::makeShared<appl::TcpServerInput>(this, false);
 	m_interfaceGateWayServer = ememory::makeShared<appl::TcpServerInput>(this, true);
 	load_db();
@@ -218,6 +219,7 @@ ememory::SharedPtr<appl::GateWayInterface> appl::Router::get(const std::string& 
 				} else {
 					// We're in the child here.
 					APPL_ERROR("Child Execution ...");
+					// TODO : Correct this ==> this is really bad
 					std::string binary = "/home/heero/dev/perso/out/Linux_x86_64/debug/staging/clang/zeus-package-base/zeus-package-base.app/bin/zeus-gateway";
 					std::string userConf = "--user=" + it.m_name;
 					std::string basePath = "--base-path=" + it.m_basePath;
@@ -234,12 +236,14 @@ ememory::SharedPtr<appl::GateWayInterface> appl::Router::get(const std::string& 
 						//std::string logFile = " ";
 						APPL_INFO("New Child log in = " << logFile);
 					#endif
+					std::string delay = "--router-delay=" + etk::to_string(*propertyDelayToStop);
 					int ret = execlp( binary.c_str(),
 					                  binary.c_str(), // must repeate the binary name to have the name as first argument ...
 					                  userConf.c_str(),
 					                  "--srv=user",
 					                  "--srv=picture",
 					                  "--srv=video",
+					                  delay.c_str(),
 					                  basePath.c_str(),
 					                  logFile.c_str(),
 					                  NULL);

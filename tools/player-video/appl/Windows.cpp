@@ -77,6 +77,8 @@ void appl::Windows::init() {
 	m_composer->loadFromFile("DATA:gui.xml");
 	setSubWidget(m_composer);
 	
+	drawWidgetTree();
+	
 	m_listViewer = ememory::dynamicPointerCast<appl::widget::ListViewer>(m_composer->getSubObjectNamed("ws-name-list-viewer"));
 	m_listViewer->signalSelect.connect(sharedFromThis(), &appl::Windows::onCallbackSelectMedia);
 	
@@ -99,7 +101,6 @@ void appl::Windows::init() {
 	
 	subBind(ewol::widget::Button, "access-fast-home", signalPressed, sharedFromThis(), &appl::Windows::onCallbackSelectHome);
 	subBind(ewol::widget::Button, "access-fast-group", signalPressed, sharedFromThis(), &appl::Windows::onCallbackSelectGroup);
-	
 	// Direct display list:
 	ewol::propertySetOnObjectNamed("view-selection", "select", "ws-name-list-viewer");
 	subBind(ewol::widget::Menu, "menu-bar", signalSelect, sharedFromThis(), &appl::Windows::onCallbackMenuEvent);
