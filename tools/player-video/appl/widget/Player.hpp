@@ -9,6 +9,7 @@
 #include <ewol/debug.hpp>
 #include <ewol/widget/Composer.hpp>
 #include <esignal/Signal.hpp>
+#include <appl/widget/VideoPlayer.hpp>
 #include <appl/ClientProperty.hpp>
 
 namespace appl {
@@ -20,6 +21,9 @@ namespace appl {
 			public: // properties
 				
 			public: // signals
+				esignal::Signal<> signalFinished; //!< the play is finished
+				esignal::Signal<> signalNext; //!< Next file is requested
+				esignal::Signal<> signalPrevious; //!< Previous file is requested
 				
 			protected:
 				Player();
@@ -27,6 +31,11 @@ namespace appl {
 			public:
 				DECLARE_WIDGET_FACTORY(Player, "Player");
 				virtual ~Player();
+			protected:
+				ememory::SharedPtr<appl::widget::VideoDisplay> m_display; //!< Display widget
+			public:
+				void playStream(ememory::SharedPtr<appl::ClientProperty> _property, uint32_t _mediaId);
+				void suspend();
 			public:
 				void onGetFocus() override;
 			private:

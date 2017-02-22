@@ -26,6 +26,7 @@
 #include <ejson/ejson.hpp>
 #include <appl/widget/Connection.hpp>
 #include <ewol/context/Context.hpp>
+#include <appl/widget/Player.hpp>
 
 
 static std::string g_baseDBName = "USERDATA:config.json";
@@ -82,10 +83,6 @@ void appl::Windows::init() {
 	m_listViewer = ememory::dynamicPointerCast<appl::widget::ListViewer>(m_composer->getSubObjectNamed("ws-name-list-viewer"));
 	m_listViewer->signalSelect.connect(sharedFromThis(), &appl::Windows::onCallbackSelectMedia);
 	
-	subBind(ewol::widget::Button, "bt-previous", signalPressed, sharedFromThis(), &appl::Windows::onCallbackPrevious);
-	subBind(ewol::widget::Button, "bt-play", signalValue, sharedFromThis(), &appl::Windows::onCallbackPlay);
-	subBind(ewol::widget::Button, "bt-next", signalPressed, sharedFromThis(), &appl::Windows::onCallbackNext);
-	subBind(ewol::widget::Button, "bt-back", signalPressed, sharedFromThis(), &appl::Windows::onCallbackBack);
 	subBind(appl::widget::VideoDisplay, "displayer", signalFps, sharedFromThis(), &appl::Windows::onCallbackFPS);
 	subBind(appl::widget::VideoDisplay, "displayer", signalPosition, sharedFromThis(), &appl::Windows::onCallbackPosition);
 	subBind(ewol::widget::Slider, "progress-bar", signalChange, sharedFromThis(), &appl::Windows::onCallbackSeekRequest);
@@ -236,17 +233,8 @@ void appl::Windows::onCallbackBack() {
 	
 }
 
-void appl::Windows::onCallbackPlay(const bool& _isPressed) {
-	ememory::SharedPtr<appl::widget::VideoDisplay> tmpDisp = ememory::dynamicPointerCast<appl::widget::VideoDisplay>(getSubObjectNamed("displayer"));
-	if (tmpDisp == nullptr) {
-		return;
-	}
-	if (_isPressed == true) {
-		tmpDisp->play();
-	} else {
-		tmpDisp->pause();
-	}
-}
+
+
 
 void appl::Windows::onCallbackNext() {
 	m_id++;
@@ -333,17 +321,9 @@ void appl::Windows::onCallbackSelectSourses() {
 
 void appl::Windows::onCallbackSelectMedia(const uint32_t& _value) {
 	ewol::propertySetOnObjectNamed("view-selection", "select", "ws-name-player");
-	ememory::SharedPtr<appl::widget::VideoDisplay> tmpDisp = ememory::dynamicPointerCast<appl::widget::VideoDisplay>(getSubObjectNamed("displayer"));
-	if (tmpDisp != nullptr) {
-		// stop previous (if needed)
-		tmpDisp->stop();
-		// Set new file:
-		tmpDisp->setZeusMedia(m_clientProp, _value);
-		tmpDisp->play();
-		echrono::Duration time = tmpDisp->getDuration();
-		APPL_DEBUG("duration = " << time << "  " << etk::to_string(time.toSeconds()));
-		propertySetOnWidgetNamed("progress-bar", "value", "0");
-		propertySetOnWidgetNamed("progress-bar", "max", etk::to_string(time.toSeconds()));
+	ememory::SharedPtr<appl::widget::Player> tmpPlayer = ememory::dynamicPointerCast<appl::widget::Player>(getSubObjectNamed("ws-name-player"));
+	if (tmpPlayer != nullptr) {
+		tmpPlayer->playStream(m_clientProp, _value);
 	}
 }
 

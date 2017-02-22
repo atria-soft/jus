@@ -619,6 +619,7 @@ void appl::StreamBuffering::checkIfWeNeedMoreDataFromNetwork() {
 		return;
 	}
 }
+#define APPL_BUFFER_SIZE_FOR_FFMPEG (256*1024)
 
 void appl::MediaDecoder::init() {
 	if (    m_isInit == true
@@ -642,8 +643,8 @@ void appl::MediaDecoder::init() {
 			APPL_ERROR("Could not create Format context");
 			return;
 		}
-		uint8_t* ploooooo = (uint8_t*)av_malloc(1024*1024);
-		m_IOContext = avio_alloc_context(ploooooo, 1024*1024, 0 /* can not write */, this, g_readFunc, g_writeFunc, g_seekFunc);
+		uint8_t* ploooooo = (uint8_t*)av_malloc(APPL_BUFFER_SIZE_FOR_FFMPEG);
+		m_IOContext = avio_alloc_context(ploooooo, APPL_BUFFER_SIZE_FOR_FFMPEG, 0 /* can not write */, this, g_readFunc, g_writeFunc, g_seekFunc);
 		if (m_IOContext == nullptr) {
 			APPL_ERROR("Could not create IO stream");
 			return;
@@ -769,7 +770,7 @@ bool appl::MediaDecoder::onThreadCall() {
 		applySeek(tmpSeek);
 	}
 	// Need to wait at lease 1MB
-	if (m_remote->sizeReadable() < 1024*1024) {
+	if (m_remote->sizeReadable() < APPL_BUFFER_SIZE_FOR_FFMPEG) {
 		// take some time to sleep the decoding ...
 		std::this_thread::sleep_for(std::chrono::milliseconds(60/100));
 		return false;
