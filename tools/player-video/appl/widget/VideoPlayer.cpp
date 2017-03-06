@@ -106,6 +106,7 @@ void appl::widget::VideoDisplay::setZeusMedia(ememory::SharedPtr<ClientProperty>
 		APPL_ERROR("Can not create sharedPtr on decoder ...");
 		return;
 	}
+	m_haveDuration = false;
 	m_decoder->init(_property, _mediaId);
 	markToRedraw();
 }
@@ -262,6 +263,7 @@ void appl::widget::VideoDisplay::periodicEvent(const ewol::event::Time& _event) 
 	}
 	if (m_decoder->m_seekApply >= echrono::Duration(0)) {
 		m_currentTime = m_decoder->m_seekApply;
+		APPL_ERROR("Apply new position : " << m_currentTime);
 		m_decoder->m_seekApply = echrono::Duration(-1);
 		if (m_audioInterface != nullptr) {
 			m_audioInterface->clearInternalBuffer();
@@ -308,6 +310,10 @@ void appl::widget::VideoDisplay::periodicEvent(const ewol::event::Time& _event) 
 		//m_currentTime -= _event.getDeltaCallDuration();
 	} else {
 		signalPosition.emit(m_currentTime);
+		if (m_haveDuration == false) {
+			signalDuration.emit(m_decoder->getDuration());
+			m_haveDuration = true;
+		}
 	}
 	// TODO : Chek if this is needed, the display configuration not change too much ...
 	markToRedraw();

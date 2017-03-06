@@ -83,10 +83,6 @@ void appl::Windows::init() {
 	m_listViewer = ememory::dynamicPointerCast<appl::widget::ListViewer>(m_composer->getSubObjectNamed("ws-name-list-viewer"));
 	m_listViewer->signalSelect.connect(sharedFromThis(), &appl::Windows::onCallbackSelectMedia);
 	
-	subBind(appl::widget::VideoDisplay, "displayer", signalFps, sharedFromThis(), &appl::Windows::onCallbackFPS);
-	subBind(appl::widget::VideoDisplay, "displayer", signalPosition, sharedFromThis(), &appl::Windows::onCallbackPosition);
-	subBind(ewol::widget::Slider, "progress-bar", signalChange, sharedFromThis(), &appl::Windows::onCallbackSeekRequest);
-	
 	
 	subBind(ewol::widget::Button, "bt-film-picture", signalPressed, sharedFromThis(), &appl::Windows::onCallbackSelectFilms);
 	subBind(ewol::widget::Button, "bt-film-draw", signalPressed, sharedFromThis(), &appl::Windows::onCallbackSelectAnnimation);
@@ -256,10 +252,6 @@ void appl::Windows::onCallbackNext() {
 }
 
 
-void appl::Windows::onCallbackFPS(const int32_t& _fps) {
-	APPL_DEBUG("FPS = " << _fps);
-	propertySetOnWidgetNamed("lb-fps", "value", "FPS=<font color='orangered'>" + etk::to_string(_fps) + "</font>");
-}
 
 void appl::Windows::addFile(const std::string& _file) {
 	APPL_DEBUG("Add file : " << _file);
@@ -274,19 +266,6 @@ void appl::Windows::addFile(const std::string& _file) {
 			propertySetOnWidgetNamed("progress-bar", "value", "0");
 			propertySetOnWidgetNamed("progress-bar", "max", etk::to_string(time.toSeconds()));
 		}
-	}
-}
-
-void appl::Windows::onCallbackPosition(const echrono::Duration& _time) {
-	APPL_DEBUG("time = " << _time);
-	propertySetOnWidgetNamed("lb-time", "value", "<font color='green'>" + etk::to_string(_time) + "</font>");
-	propertySetOnWidgetNamed("progress-bar", "value", etk::to_string(_time.toSeconds()));
-}
-
-void appl::Windows::onCallbackSeekRequest(const float& _value) {
-	ememory::SharedPtr<appl::widget::VideoDisplay> tmpDisp = ememory::dynamicPointerCast<appl::widget::VideoDisplay>(getSubObjectNamed("displayer"));
-	if (tmpDisp != nullptr) {
-		tmpDisp->seek(echrono::Duration(_value));
 	}
 }
 

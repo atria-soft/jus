@@ -13,6 +13,7 @@
 #include <ewol/widget/ListFileSystem.hpp>
 #include <ewol/widget/Entry.hpp>
 #include <ewol/widget/Spacer.hpp>
+#include <ewol/widget/Slider.hpp>
 #include <ewol/widget/Image.hpp>
 #include <ewol/widget/Composer.hpp>
 #include <ewol/widget/Manager.hpp>
@@ -39,6 +40,12 @@ void appl::widget::Player::init() {
 	subBind(ewol::widget::Button, "[" + etk::to_string(getId()) + "]appl-player-bt-play", signalValue, sharedFromThis(), &appl::widget::Player::onCallbackButtonPlay);
 	subBind(ewol::widget::Button, "[" + etk::to_string(getId()) + "]appl-player-bt-next", signalPressed, sharedFromThis(), &appl::widget::Player::onCallbackButtonNext);
 	
+	subBind(appl::widget::VideoDisplay, "[" + etk::to_string(getId()) + "]appl-player-display", signalPosition, sharedFromThis(), &appl::widget::Player::onCallbackPosition);
+	subBind(appl::widget::VideoDisplay, "[" + etk::to_string(getId()) + "]appl-player-display", signalDuration, sharedFromThis(), &appl::widget::Player::onCallbackDuration);
+	
+	subBind(appl::widget::VideoDisplay, "[" + etk::to_string(getId()) + "]appl-player-display", signalFps, sharedFromThis(), &appl::widget::Player::onCallbackFPS);
+	subBind(ewol::widget::Slider, "[" + etk::to_string(getId()) + "]appl-player-progress-bar", signalChange, sharedFromThis(), &appl::widget::Player::onCallbackSeekRequest);
+	
 	m_display = ememory::dynamicPointerCast<appl::widget::VideoDisplay>(getSubObjectNamed("[" + etk::to_string(getId()) + "]appl-player-display"));
 	propertyCanFocus.set(true);
 	markToRedraw();
@@ -64,12 +71,34 @@ void appl::widget::Player::playStream(ememory::SharedPtr<appl::ClientProperty> _
 	// Set new file:
 	m_display->setZeusMedia(_property, _mediaId);
 	m_display->play();
-	//echrono::Duration time = tmpDisp->getDuration();
-	//APPL_DEBUG("duration = " << time << "  " << etk::to_string(time.toSeconds()));
-	//propertySetOnWidgetNamed("progress-bar", "value", "0");
-	//propertySetOnWidgetNamed("progress-bar", "max", etk::to_string(time.toSeconds()));
 	propertySetOnWidgetNamed("[" + etk::to_string(getId()) + "]appl-player-bt-play", "value", "true");
 }
+
+
+void appl::widget::Player::onCallbackDuration(const echrono::Duration& _time) {
+	//APPL_ERROR("duration = " << _time);
+	propertySetOnWidgetNamed("[" + etk::to_string(getId()) + "]appl-player-progress-bar", "value", "0");
+	propertySetOnWidgetNamed("[" + etk::to_string(getId()) + "]appl-player-progress-bar", "max", etk::to_string(_time.toSeconds()));
+}
+
+void appl::widget::Player::onCallbackPosition(const echrono::Duration& _time) {
+	APPL_ERROR("time = " << _time);
+	propertySetOnWidgetNamed("[" + etk::to_string(getId()) + "]appl-player-label-time", "value", "<font color='green'>" + etk::to_string(_time) + "</font>");
+	propertySetOnWidgetNamed("[" + etk::to_string(getId()) + "]appl-player-progress-bar", "value", etk::to_string(_time.toSeconds()));
+}
+
+void appl::widget::Player::onCallbackSeekRequest(const float& _value) {
+	//APPL_ERROR("seek at = " << echrono::Duration(_value));
+	if (m_display != nullptr) {
+		m_display->seek(echrono::Duration(_value));
+	}
+}
+
+void appl::widget::Player::onCallbackFPS(const int32_t& _fps) {
+	APPL_DEBUG("FPS = " << _fps);
+	propertySetOnWidgetNamed("[" + etk::to_string(getId()) + "]appl-player-label-fps", "value", "FPS=<font color='orangered'>" + etk::to_string(_fps) + "</font>");
+}
+
 
 void appl::widget::Player::suspend() {
 	propertySetOnWidgetNamed("[" + etk::to_string(getId()) + "]appl-player-bt-play", "value", "false");

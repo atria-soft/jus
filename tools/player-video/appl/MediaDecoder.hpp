@@ -98,6 +98,9 @@ namespace appl {
 			std::vector<MessageElementVideo> m_videoPool;
 			echrono::Duration m_currentVideoTime;
 			bool m_updateVideoTimeStampAfterSeek;
+			bool getSeekDone() {
+				return m_updateVideoTimeStampAfterSeek;
+			}
 			int32_t audioGetOlderSlot();
 			int32_t videoGetOlderSlot();
 		private:

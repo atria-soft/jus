@@ -25,6 +25,8 @@ namespace appl {
 			public:
 				esignal::Signal<int32_t> signalFps;
 				esignal::Signal<echrono::Duration> signalPosition; //!< signal the current duration of the video duration
+				esignal::Signal<echrono::Duration> signalDuration; //!< signal the current duration of the video duration
+				bool m_haveDuration;
 			private:
 				mat4 m_matrixApply;
 				ememory::SharedPtr<appl::MediaDecoder> m_decoder;

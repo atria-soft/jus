@@ -29,8 +29,6 @@ namespace appl {
 			void onCallbackPrevious();
 			void onCallbackPlay(const bool& _isPressed);
 			void onCallbackNext();
-			void onCallbackFPS(const int32_t& _fps);
-			void onCallbackPosition(const echrono::Duration& _time);
 			void addFile(const std::string& _file);
 			void onCallbackSeekRequest(const float& _value);
 			

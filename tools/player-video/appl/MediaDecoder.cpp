@@ -766,8 +766,9 @@ bool appl::MediaDecoder::onThreadCall() {
 	if (m_seek >= echrono::Duration(0)) {
 		// seek requested (create a copy to permit to update it in background):
 		echrono::Duration tmpSeek = m_seek;
-		m_seek = echrono::Duration(-1);
+		m_seek = echrono::Duration(-2);
 		applySeek(tmpSeek);
+		m_seek = echrono::Duration(-1);
 	}
 	// Need to wait at lease 1MB
 	if (m_remote->sizeReadable() < APPL_BUFFER_SIZE_FOR_FFMPEG) {
