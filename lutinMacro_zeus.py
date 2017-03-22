@@ -58,7 +58,7 @@ def zeus_object_to_dictionary(name):
 	out = {}
 	if type(name) == str:
 		name = name.split("-")
-	debug.warning("transform: " + str(name))
+	debug.debug("transform: " + str(name))
 	# set first capital of the class name
 	if len(name) != 0:
 		name[-1] = capital_first(name[-1])
@@ -91,14 +91,14 @@ def zeus_object_to_dictionary(name):
 	out["file_name_class_register_src"] = base_path + "register" + name[-1] + ".cpp";
 	out["file_name_class_register_header"] = base_path + "register" + name[-1] + ".hpp"
 	
-	debug.warning("        class name                   : " + out["name_class"])
-	debug.warning("        class Proxy name             : " + out["name_class_proxy"])
-	debug.warning("        path class name src          : " + out["file_name_class_src"])
-	debug.warning("        path class name header       : " + out["file_name_class_header"])
-	debug.warning("        path class Proxy name src    : " + out["file_name_class_proxy_src"])
-	debug.warning("        path class Proxy name header : " + out["file_name_class_proxy_header"])
-	debug.warning("        path class Proxy name src    : " + out["file_name_class_register_src"])
-	debug.warning("        path class Proxy name header : " + out["file_name_class_register_header"])
+	debug.debug("        class name                   : " + out["name_class"])
+	debug.debug("        class Proxy name             : " + out["name_class_proxy"])
+	debug.debug("        path class name src          : " + out["file_name_class_src"])
+	debug.debug("        path class name header       : " + out["file_name_class_header"])
+	debug.debug("        path class Proxy name src    : " + out["file_name_class_proxy_src"])
+	debug.debug("        path class Proxy name header : " + out["file_name_class_proxy_header"])
+	debug.debug("        path class Proxy name src    : " + out["file_name_class_register_src"])
+	debug.debug("        path class Proxy name header : " + out["file_name_class_register_header"])
 	return out
 
 def convert_type_in_cpp(data, proxy=False, argument=False):
@@ -112,12 +112,12 @@ def convert_type_in_cpp(data, proxy=False, argument=False):
 			if argument == False:
 				return prop["name_class_proxy"]
 			else:
-				return "ememory::SharedPtr<" + prop["name_class_proxy"] + ">"
+				return "ememory::SharedPtr<" + prop["name_class"] + ">"
 		else:
 			if argument == True:
 				return prop["name_class_proxy"]
 			else:
-				return "ememory::SharedPtr<" + prop["name_class_proxy"] + ">"
+				return "ememory::SharedPtr<" + prop["name_class"] + ">"
 	debug.error(" can not find type in IDL : '" + data + "'")
 
 
@@ -618,7 +618,7 @@ class ServiceDefinition:
 		out += "\n"
 		space = ""
 		
-		out += space + "void " + self.prop["name_class_register_short"] + "(zeus::ObjectType<" + self.prop["name_class"] + ">& _interface) {\n"
+		out += space + "void " + self.prop["name_class_register"] + "(zeus::ObjectType<" + self.prop["name_class"] + ">& _interface) {\n"
 		
 		space += "	"
 		
@@ -797,15 +797,19 @@ def tool_generate_idl(target, module, data_option):
 	   and name_file[-9:] != ".zeus.idl":
 		debug.error("IDL must have an extention ended with '.zeus.idl' and not with '" + name_file[-9:] + "'")
 	elem_name = ""
+	type_of_object = "unknow"
 	if     len(name_file) >= 13 \
 	   and name_file[-13:] == ".srv.zeus.idl":
 		elem_name = name_file[:-13]
+		type_of_object = "srv"
 	elif     len(name_file) >= 16 \
 	     and name_file[-16:] == ".struct.zeus.idl":
 		elem_name = name_file[:-16]
+		type_of_object = "struct"
 	elif     len(name_file) >= 13 \
 	     and name_file[-13:] == ".obj.zeus.idl":
 		elem_name = name_file[:-13]
+		type_of_object = "obj"
 	else:
 		debug.error("IDL must have an extention ended with '(struct|obj|srv).zeus.idl' and not with '" + name_file + "'")
 	
@@ -1000,6 +1004,9 @@ def tool_generate_idl(target, module, data_option):
 	module.add_generated_src_file(register_code[1], register_code[0])
 	module.add_generated_header_file(proxy_header[1], proxy_header[0], install_element=True)
 	module.add_generated_src_file(proxy_code[1], proxy_code[0])
+	# if service, we need to intall a simple empty file to register the service as availlable ...
+	if type_of_object == "srv":
+		module.add_generated_data_file("", "zeus/" + elem_name + ".srv", install_element=True)
 	
 	debug.debug("Parsing .zeus.idl [DONE]")
 

@@ -219,8 +219,7 @@ ememory::SharedPtr<appl::GateWayInterface> appl::Router::get(const std::string& 
 				} else {
 					// We're in the child here.
 					APPL_ERROR("Child Execution ...");
-					// TODO : Correct this ==> this is really bad
-					std::string binary = "/home/heero/dev/perso/out/Linux_x86_64/debug/staging/clang/zeus-package-base/zeus-package-base.app/bin/zeus-gateway";
+					std::string binary = etk::FSNodeGetApplicationPath() + "/zeus-gateway";
 					std::string userConf = "--user=" + it.m_name;
 					std::string basePath = "--base-path=" + it.m_basePath;
 					#if 0
