@@ -276,11 +276,17 @@ int32_t zeus::WebServer::writeBinary(ememory::SharedPtr<zeus::Message> _obj) {
 
 bool zeus::WebServer::onReceiveUri(const std::string& _uri, const std::vector<std::string>& _protocols) {
 	ZEUS_INFO("Receive Header uri: " << _uri);
+	bool findProtocol = false;
 	for (auto &it : _protocols) {
 		if (it == "zeus/1.0") {
 			m_connection.setProtocol(it);
+			findProtocol = true;
 			break;
 		}
+	}
+	if (findProtocol == false) {
+		ZEUS_ERROR("Disable connection request URI='" << _uri << "' with wrong protocol:" << _protocols);
+		return false;
 	}
 	// TODO : Add better return on specific user ...
 	if (m_observerRequestUri != nullptr) {

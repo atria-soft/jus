@@ -35,20 +35,22 @@ typedef zeus::Object* (*SERVICE_IO_instanciate_t)(uint32_t, ememory::SharedPtr<z
 class PlugginAccess {
 	private:
 		std::string m_name;
+		std::string m_fullName;
 		void* m_handle;
 		SERVICE_IO_init_t m_SERVICE_IO_init;
 		SERVICE_IO_uninit_t m_SERVICE_IO_uninit;
 		SERVICE_IO_peridic_call_t m_SERVICE_IO_peridic_call;
 		SERVICE_IO_instanciate_t m_SERVICE_IO_instanciate;
 	public:
-		PlugginAccess(const std::string& _name) :
+		PlugginAccess(const std::string& _name, const std::string& _fullName) :
 		  m_name(_name),
+		  m_fullName(_fullName),
 		  m_handle(nullptr),
 		  m_SERVICE_IO_init(nullptr),
 		  m_SERVICE_IO_uninit(nullptr),
 		  m_SERVICE_IO_instanciate(nullptr) {
-			std::string srv = etk::FSNodeGetApplicationPath() + "/../lib/libzeus-service-" + m_name + "-impl.so";
-			APPL_PRINT("Try to open service with name: '" << m_name << "' at position: '" << srv << "'");
+			std::string srv = etk::FSNodeGetApplicationPath() + "/../lib/lib" + m_fullName + "-impl.so";
+			APPL_PRINT("Try to open service with name: '" << m_name << "' at position: '" << srv << "' with full name=" << m_fullName);
 			m_handle = dlopen(srv.c_str(), RTLD_LAZY);
 			if (!m_handle) {
 				APPL_ERROR("Can not load Lbrary:" << dlerror());
@@ -199,6 +201,35 @@ int main(int _argc, const char *_argv[]) {
 			return -1;
 		}
 	}
+	#ifdef GATEWAY_ENABLE_LAUNCHER
+	std::vector<std::pair<std::string,std::string>> listAvaillableServices;
+	if (services.size() != 0) {
+		// find all services:
+		etk::FSNode dataPath(etk::FSNodeGetApplicationPath() + "/../share");
+		std::vector<std::string> listSubPath = dataPath.folderGetSub(true, false, ".*");
+		APPL_DEBUG(" Base data path: " << dataPath.getName());
+		APPL_DEBUG(" SubPath: " << listSubPath);
+		for (auto &it: listSubPath) {
+			if (etk::FSNodeExist(it + "/zeus/") == true) {
+				etk::FSNode dataPath(it + "/zeus/");
+				std::vector<std::string> listServices = dataPath.folderGetSub(false, true, ".*\\.srv");
+				for (auto &it2: listServices) {
+					std::string nameFileSrv = etk::FSNode(it2).getNameFile();
+					std::vector<std::string> spl = etk::split(std::string(nameFileSrv.begin(), nameFileSrv.end()-4), "-service-");
+					if (spl.size() != 2) {
+						APPL_ERROR("reject service, wrong format ... '" << it2 << "' missing XXX-service-SERVICE-NAME.srv");
+						continue;
+					}
+					APPL_INFO("find service : " << it2);
+					listAvaillableServices.push_back(std::make_pair(spl[1], std::string(nameFileSrv.begin(), nameFileSrv.end()-4)));
+				}
+			} else {
+				// not check the second path ==> no service availlable
+			}
+		}
+	}
+	#endif
+	
 	APPL_INFO("==================================");
 	APPL_INFO("== ZEUS gateway start            ==");
 	APPL_INFO("==================================");
@@ -219,9 +250,28 @@ int main(int _argc, const char *_argv[]) {
 	} else {
 		bool routerAlive = true;
 		std::vector<ememory::SharedPtr<PlugginAccess>> listElements;
-		for (auto &it: services) {
-			ememory::SharedPtr<PlugginAccess> tmp = ememory::makeShared<PlugginAccess>(it);
-			listElements.push_back(tmp);
+		if (    services.size() == 1
+		     && services[0] == "all") {
+			for (auto &it: listAvaillableServices) {
+				ememory::SharedPtr<PlugginAccess> tmp = ememory::makeShared<PlugginAccess>(it.first, it.second);
+				listElements.push_back(tmp);
+			}
+		} else {
+			for (auto &it: services) {
+				// find the real service name:
+				bool find = false;
+				for (auto &it2: listAvaillableServices) {
+					if (it2.first == it) {
+						ememory::SharedPtr<PlugginAccess> tmp = ememory::makeShared<PlugginAccess>(it2.first, it2.second);
+						listElements.push_back(tmp);
+						find = true;
+						break;
+					}
+				}
+				if (find == false) {
+					APPL_ERROR("Can not find the service: " << it);
+				}
+			}
 		}
 		for (auto &it: listElements) {
 			it->init(_argc, _argv, basePath);

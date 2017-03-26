@@ -187,6 +187,33 @@ zeus::ObjectRemote zeus::Client::getService(const std::string& _name) {
 	return zeus::ObjectRemote(ret.get());
 }
 
+
+zeus::Future<int32_t> zeus::Client::getServiceCount() {
+	return call(ZEUS_NO_ID_OBJECT, ZEUS_ID_GATEWAY, "getServiceCount");
+}
+
+zeus::Future<std::vector<std::string>> zeus::Client::getServiceList() {
+	return call(ZEUS_NO_ID_OBJECT, ZEUS_ID_GATEWAY, "getServiceList");
+}
+
+// TODO : This is an active waiting ==> this is bad ... ==> use future, it will be better
+bool zeus::Client::waitForService(const std::string& _serviceName) {
+	int32_t delayMax = 10;
+	while (delayMax > 0) {
+		auto listValues = getServiceList();
+		listValues.wait();
+		for (auto &it: listValues.get()) {
+			if (it == _serviceName) {
+				return true;
+			}
+		}
+		std::this_thread::sleep_for(std::chrono::milliseconds(100));
+		delayMax--;
+	}
+	return false;
+}
+
+
 void zeus::Client::onPropertyChangeIp() {
 	disconnect();
 }

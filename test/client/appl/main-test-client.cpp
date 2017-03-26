@@ -381,10 +381,10 @@ int main(int _argc, const char *_argv[]) {
 	APPL_INFO("    ----------------------------------");
 	APPL_INFO("    -- Get service count");
 	APPL_INFO("    ----------------------------------");
-	zeus::Future<int32_t> retNbService = client1.call(ZEUS_NO_ID_OBJECT, ZEUS_ID_GATEWAY, "getServiceCount");
+	zeus::Future<int32_t> retNbService = client1.getServiceCount();
+	zeus::Future<std::vector<std::string>> retServiceList = client1.getServiceList();
 	retNbService.wait();
 	APPL_INFO("Nb services = " << retNbService.get());
-	zeus::Future<std::vector<std::string>> retServiceList = client1.call(ZEUS_NO_ID_OBJECT, ZEUS_ID_GATEWAY, "getServiceList");
 	retServiceList.wait();
 	APPL_INFO("List services:");
 	for (auto &it: retServiceList.get()) {
@@ -398,7 +398,9 @@ int main(int _argc, const char *_argv[]) {
 	}
 	*/
 	
-	if (false) {
+	if (    client1.waitForService("user") == true
+	     && false) {
+		
 		APPL_INFO("    ----------------------------------");
 		APPL_INFO("    -- Get service system-user");
 		APPL_INFO("    ----------------------------------");
@@ -446,7 +448,8 @@ int main(int _argc, const char *_argv[]) {
 	APPL_INFO("    ----------------------------------");
 	APPL_INFO("    -- Get service picture");
 	APPL_INFO("    ----------------------------------");
-	if (false) {
+	if (    client1.waitForService("picture") == true
+	     && false) {
 		zeus::service::ProxyPicture remoteServicePicture = client1.getService("picture");
 		if (remoteServicePicture.exist() == true) {
 			// Send a full path:
@@ -455,7 +458,8 @@ int main(int _argc, const char *_argv[]) {
 			APPL_ERROR("Can not get service Picture ...");
 		}
 	}
-	if (false) {
+	if (    client1.waitForService("picture") == true
+	     && false) {
 		zeus::service::ProxyPicture remoteServicePicture = client1.getService("picture");
 		if (remoteServicePicture.exist() == true) {
 			zeus::Future<std::vector<uint32_t>> retCall = remoteServicePicture.albumGetList().wait();
@@ -505,7 +509,8 @@ int main(int _argc, const char *_argv[]) {
 	APPL_INFO("    ----------------------------------");
 	APPL_INFO("    -- Get service video (send DATA)  ");
 	APPL_INFO("    ----------------------------------");
-	if (true) {
+	if (    client1.waitForService("video") == true
+	     && true) {
 		zeus::service::ProxyVideo remoteServiceVideo = client1.getService("video");
 		// remove all media (for test)
 		if (remoteServiceVideo.exist() == true) {

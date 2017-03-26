@@ -239,9 +239,7 @@ ememory::SharedPtr<appl::GateWayInterface> appl::Router::get(const std::string& 
 					int ret = execlp( binary.c_str(),
 					                  binary.c_str(), // must repeate the binary name to have the name as first argument ...
 					                  userConf.c_str(),
-					                  "--srv=user",
-					                  "--srv=picture",
-					                  "--srv=video",
+					                  "--srv=all",
 					                  delay.c_str(),
 					                  basePath.c_str(),
 					                  logFile.c_str(),

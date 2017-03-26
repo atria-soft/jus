@@ -156,6 +156,11 @@ namespace zeus {
 			 * @brief Display all connected object remote and local ...
 			 */
 			void cleanDeadObject();
+		public:
+			zeus::Future<int32_t> getServiceCount();
+			zeus::Future<std::vector<std::string>> getServiceList();
+			// TODO : This is an active waiting ==> this is bad ... ==> use future, it will be better
+			bool waitForService(const std::string& _serviceName);
 	};
 }
 
