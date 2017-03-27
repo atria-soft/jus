@@ -75,6 +75,11 @@ void appl::widget::ListViewer::searchElements(std::string _filter) {
 		return;
 	}
 	
+	bool retSrv = m_clientProp->connection.waitForService("video");
+	if (retSrv == false) {
+		APPL_ERROR(" ==> SERVICE not availlable or not started");
+		return;
+	}
 	// get all the data:
 	zeus::service::ProxyVideo remoteServiceVideo = m_clientProp->connection.getService("video");
 	// remove all media (for test)

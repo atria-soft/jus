@@ -353,6 +353,11 @@ void appl::MediaDecoder::init(ememory::SharedPtr<ClientProperty> _property, uint
 		APPL_ERROR("Request play of not connected handle ==> 'not alive'");
 		return;
 	}
+	bool retSrv = _property->connection.waitForService("video");
+	if (retSrv == false) {
+		APPL_ERROR(" ==> SERVICE not availlable or not started");
+		return;
+	}
 	zeus::service::ProxyVideo remoteServiceVideo = _property->connection.getService("video");
 	// remove all media (for test)
 	if (remoteServiceVideo.exist() == false) {
@@ -463,6 +468,9 @@ int64_t appl::MediaDecoder::seekFunc(int64_t _offset, int _whence) {
 }
 
 bool appl::StreamBuffering::addDataCallback(zeus::Future<zeus::Raw> _fut, int64_t _positionRequest) {
+	#ifdef DEBUG
+		std::this_thread::sleep_for(std::chrono::milliseconds(100));
+	#endif
 	{
 		std::unique_lock<std::mutex> lock(m_mutex);
 		bool find = false;

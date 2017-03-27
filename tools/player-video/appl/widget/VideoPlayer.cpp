@@ -258,12 +258,13 @@ void appl::widget::VideoDisplay::periodicEvent(const ewol::event::Time& _event) 
 		APPL_VERBOSE("tick: " << _event);
 		m_currentTime += _event.getDeltaCallDuration();
 	}
+	
 	if (m_decoder == nullptr) {
 		return;
 	}
 	if (m_decoder->m_seekApply >= echrono::Duration(0)) {
 		m_currentTime = m_decoder->m_seekApply;
-		APPL_ERROR("Apply new position : " << m_currentTime);
+		//APPL_ERROR("Apply new position : " << m_currentTime);
 		m_decoder->m_seekApply = echrono::Duration(-1);
 		if (m_audioInterface != nullptr) {
 			m_audioInterface->clearInternalBuffer();

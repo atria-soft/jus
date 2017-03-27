@@ -9,6 +9,7 @@
 #include <gale/Thread.hpp>
 #include <audio/channel.hpp>
 #include <audio/format.hpp>
+#include <appl/debug.hpp>
 #include <appl/ClientProperty.hpp>
 #include <zeus/ProxyFile.hpp>
 
@@ -174,6 +175,22 @@ namespace appl {
 			int writeFunc(uint8_t* _buf, int _bufSize);
 			// @brief INTERNAL seek callback
 			int64_t seekFunc(int64_t _offset, int _whence);
+			
+			std::vector<std::pair<float,float>> getDownloadPart() {
+				std::vector<std::pair<float,float>> out;
+				if (m_remote == nullptr) {
+					return out;
+				}
+				std::vector<std::pair<uint32_t,uint32_t>> vals = m_remote->getDownloadPart();
+				echrono::Duration totalTime = getDuration();
+				float size = totalTime.toSeconds()/float(m_remote->getSize());
+				APPL_ERROR(" duration in sec : " << totalTime << " => " << totalTime.toSeconds());
+				for (auto &it : vals) {
+					out.push_back(std::pair<float,float>(float(it.first)*size, float(it.second)*size));
+				}
+				return out;
+			}
+			
 		
 	};
 }

@@ -10,6 +10,7 @@
 #include <ewol/widget/Composer.hpp>
 #include <esignal/Signal.hpp>
 #include <appl/widget/VideoPlayer.hpp>
+#include <appl/widget/ProgressBar.hpp>
 #include <appl/ClientProperty.hpp>
 
 namespace appl {
@@ -33,6 +34,7 @@ namespace appl {
 				virtual ~Player();
 			protected:
 				ememory::SharedPtr<appl::widget::VideoDisplay> m_display; //!< Display widget
+				ememory::SharedPtr<appl::widget::ProgressBar> m_progress; //!< Display widget
 			public:
 				void playStream(ememory::SharedPtr<appl::ClientProperty> _property, uint32_t _mediaId);
 				void suspend();

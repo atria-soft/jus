@@ -89,6 +89,12 @@ namespace appl {
 					return echrono::Duration(0);
 				}
 				void seek(const echrono::Duration& _time);
+				std::vector<std::pair<float,float>> getDownloadPart() {
+					if (m_decoder == nullptr) {
+						return std::vector<std::pair<float,float>>();
+					}
+					return m_decoder->getDownloadPart();
+				}
 		};
 	}
 }

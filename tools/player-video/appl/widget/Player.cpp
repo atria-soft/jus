@@ -47,6 +47,7 @@ void appl::widget::Player::init() {
 	subBind(ewol::widget::Slider, "[" + etk::to_string(getId()) + "]appl-player-progress-bar", signalChange, sharedFromThis(), &appl::widget::Player::onCallbackSeekRequest);
 	
 	m_display = ememory::dynamicPointerCast<appl::widget::VideoDisplay>(getSubObjectNamed("[" + etk::to_string(getId()) + "]appl-player-display"));
+	m_progress = ememory::dynamicPointerCast<appl::widget::ProgressBar>(getSubObjectNamed("[" + etk::to_string(getId()) + "]appl-player-progress-bar"));
 	propertyCanFocus.set(true);
 	markToRedraw();
 }
@@ -77,14 +78,24 @@ void appl::widget::Player::playStream(ememory::SharedPtr<appl::ClientProperty> _
 
 void appl::widget::Player::onCallbackDuration(const echrono::Duration& _time) {
 	//APPL_ERROR("duration = " << _time);
-	propertySetOnWidgetNamed("[" + etk::to_string(getId()) + "]appl-player-progress-bar", "value", "0");
-	propertySetOnWidgetNamed("[" + etk::to_string(getId()) + "]appl-player-progress-bar", "max", etk::to_string(_time.toSeconds()));
+	if (m_progress != nullptr) {
+		m_progress->propertyValue.set(0);
+		m_progress->propertyMaximum.set(_time.toSeconds());
+	}
 }
 
 void appl::widget::Player::onCallbackPosition(const echrono::Duration& _time) {
 	APPL_ERROR("time = " << _time);
 	propertySetOnWidgetNamed("[" + etk::to_string(getId()) + "]appl-player-label-time", "value", "<font color='green'>" + etk::to_string(_time) + "</font>");
-	propertySetOnWidgetNamed("[" + etk::to_string(getId()) + "]appl-player-progress-bar", "value", etk::to_string(_time.toSeconds()));
+	if (m_progress != nullptr) {
+		m_progress->propertyValue.set(_time.toSeconds());
+	}
+	if (m_display != nullptr) {
+		std::vector<std::pair<float,float>> tmp = m_display->getDownloadPart();
+		if (m_progress != nullptr) {
+			m_progress->setRangeAvaillable(tmp);
+		}
+	}
 }
 
 void appl::widget::Player::onCallbackSeekRequest(const float& _value) {
