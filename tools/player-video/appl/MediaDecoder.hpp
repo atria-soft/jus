@@ -72,9 +72,11 @@ namespace appl {
 			bool addDataCallback(zeus::Future<zeus::Raw> _fut, int64_t _positionRequest);
 			void checkIfWeNeedMoreDataFromNetwork();
 			uint64_t getSize() {
+				std::unique_lock<std::mutex> lock(m_mutex);
 				return m_buffer.size();
 			}
 			std::vector<std::pair<uint32_t,uint32_t>> getDownloadPart() {
+				std::unique_lock<std::mutex> lock(m_mutex);
 				return m_bufferFillSection;
 			}
 			int32_t sizeReadable();
@@ -164,9 +166,9 @@ namespace appl {
 			void flushMessage();
 			
 			void stop() override;
-		/* ***********************************************
-		   ** Section temporary buffer
-		   ***********************************************/
+			/* ***********************************************
+			   ** Section temporary buffer
+			   ***********************************************/
 			ememory::SharedPtr<appl::StreamBuffering> m_remote;
 		public:
 			// @brief INTERNAL read callback
@@ -184,7 +186,7 @@ namespace appl {
 				std::vector<std::pair<uint32_t,uint32_t>> vals = m_remote->getDownloadPart();
 				echrono::Duration totalTime = getDuration();
 				float size = totalTime.toSeconds()/float(m_remote->getSize());
-				APPL_ERROR(" duration in sec : " << totalTime << " => " << totalTime.toSeconds());
+				//APPL_ERROR(" duration in sec : " << totalTime << " => " << totalTime.toSeconds());
 				for (auto &it : vals) {
 					out.push_back(std::pair<float,float>(float(it.first)*size, float(it.second)*size));
 				}

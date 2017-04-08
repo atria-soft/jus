@@ -38,21 +38,21 @@
 		<player name="ws-name-player" fill="true" expand="true"/>
 	</wslider>
 	<sizer mode="hori" fill="true" expand="true,false" lock="true">
-		<button name="access-fast-home">
-			<image src="DATA:Home.svg" size='8,8mm' />
+		<button name="access-fast-home" shape="">
+			<image src="DATA:Home.svg" size="8,8mm" />
 		</button>
-		<button name="access-fast-group">
-			<image src="DATA:Group.svg" size='8,8mm' />
+		<button name="access-fast-group" shape="">
+			<image src="DATA:Group.svg" size="8,8mm" />
 		</button>
 		<!--
 		<button name="access-fast-tv">
-			<image src="DATA:Tv.svg" size='8,8mm' />
+			<image src="DATA:Tv.svg" size="8,8mm" />
 		</button>
 		<button name="access-fast-page-previous">
-			<image src="DATA:Previous.svg" size='8,8mm' />
+			<image src="DATA:Previous.svg" size="8,8mm" />
 		</button>
 		<button name="access-fast-page-next">
-			<image src="DATA:Next.svg" size='8,8mm' />
+			<image src="DATA:Next.svg" size="8,8mm" />
 		</button>
 		-->
 	</sizer>
@@ -79,7 +79,7 @@
 			</elem>
 		</menu>
 		<entry name="search-entry" fill="true,false" expand="true,false"/>
-		<button name="search-bt">
+		<button name="search-bt" shape="">
 			<image src="DATA:Search.svg" size='8,8mm' />
 		</button>
 	</sizer>

@@ -64,11 +64,11 @@ namespace appl {
 					}
 				}
 				// TODO : Remove this: Move if in the windows properties
-				_context.setSize(vec2(800, 600));
+				_context.setSize(vec2(400, 300));
 				// eneble the search of the font in the system font path
 				_context.getFontDefault().setUseExternal(true);
 				// select font preference of der with a basic application size
-				_context.getFontDefault().set("DejaVuSerif;FreeSerif;DejaVuSansMono", 19);
+				_context.getFontDefault().set("DejaVuSerif;FreeSerif;DejaVuSansMono", 12);
 				// set application widget:
 				appl::widget::VideoDisplay::createManagerWidget(_context.getWidgetManager());
 				appl::widget::ListViewer::createManagerWidget(_context.getWidgetManager());

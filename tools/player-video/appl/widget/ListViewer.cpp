@@ -219,12 +219,12 @@ void appl::widget::ListViewer::onRegenerateDisplay() {
 	std::u32string errorString = U"No element Availlable";
 	
 	m_text.clear();
+	// to know the size of one line : 
+	vec3 minSize = m_text.calculateSize(char32_t('A'));
 	if (m_listElement.size() == 0) {
 		int32_t paddingSize = 2;
 		
 		vec2 tmpMax = propertyMaxSize->getPixel();
-		// to know the size of one line : 
-		vec3 minSize = m_text.calculateSize(char32_t('A'));
 		
 		/*
 		if (tmpMax.x() <= 999999) {
@@ -276,7 +276,7 @@ void appl::widget::ListViewer::onRegenerateDisplay() {
 	// Here the real Display get a square in pixel of 2cm x 2cm:
 	vec2 realPixelSize = gale::Dimension(vec2(3,3), gale::distance::centimeter).getPixel();
 	// TODO : Understand Why this not work ...
-	realPixelSize = vec2(150,150);
+	realPixelSize = vec2(minSize.y()*4,minSize.y()*4+6); // add arbitrary 6 pixel ...
 	// This will generate the number of element that can be displayed:
 	int32_t verticalNumber = m_size.y() / realPixelSize.y() + 2; // +1 for the not entire view of element and +1 for the moving element view ...
 	//verticalNumber = 10;
@@ -290,14 +290,19 @@ void appl::widget::ListViewer::onRegenerateDisplay() {
 			m_listDisplay.push_back(elem);
 		}
 	}
+	int32_t offset = m_originScrooled.y() / realPixelSize.y();
+	APPL_VERBOSE("origin scrolled : " << m_originScrooled << " nb Pixel/element = " << realPixelSize.y() << " offset=" << offset);
 	for (size_t iii=0; iii<m_listDisplay.size(); ++iii) {
 		auto elem = m_listDisplay[iii];
 		if (elem != nullptr) {
-			elem->m_idCurentElement = iii;
-			if (iii < m_listElement.size()) {
-				elem->m_property = m_listElement[iii];
+			elem->m_idCurentElement = offset + iii;
+			if (offset + iii < m_listElement.size()) {
+				elem->m_property = m_listElement[offset + iii];
+			} else {
+				elem->m_property.reset();
 			}
-			switch(iii%6) {
+			//switch(iii%6) {
+			switch((offset + iii)%6) {
 				case 0:
 					elem->m_bgColor = etk::color::red;
 					break;
@@ -324,9 +329,12 @@ void appl::widget::ListViewer::onRegenerateDisplay() {
 			APPL_ERROR("create nullptr");
 		}
 	}
+	
+	//display only ofsetted element
+	float realOffset = float(int32_t(m_originScrooled.y() / realPixelSize.y())) * realPixelSize.y();
 	// Now we request display of the elements:
 	vec2 elementSize = vec2(m_size.x(), int32_t(realPixelSize.y()));
-	vec2 startPos = vec2(-m_originScrooled.x(), m_size.y()) - vec2(0, elementSize.y()-m_originScrooled.y());
+	vec2 startPos = vec2(-m_originScrooled.x(), m_size.y()) - vec2(0, elementSize.y()-(m_originScrooled.y()-realOffset));
 	for (auto &it : m_listDisplay) {
 		if (it == nullptr) {
 			startPos -= vec2(0, elementSize.y());
@@ -389,11 +397,13 @@ void appl::ElementDisplayed::generateDisplay(vec2 _startPos, vec2 _size) {
 	m_text.reset();
 	m_text.setDefaultColorFg(etk::color::black);
 	vec3 minSize = m_text.calculateSize(char32_t('A'));
-	vec2 originText = _startPos + vec2(_size.y()+10, _size.y()-minSize.y() - 10);
+	float borderOffset = 4;
+	vec2 originText = _startPos + vec2(_size.y()+borderOffset, _size.y()-minSize.y() - borderOffset);
 	m_text.setPos(originText);
 	//APPL_INFO("Regenerate display : " << tmpTextOrigin << "  " << m_origin << "  " << m_size);
 	//APPL_VERBOSE("[" << getId() << "] {" << errorString << "} display at pos : " << tmpTextOrigin);
-	m_text.setTextAlignement(originText.x(), originText.x()+_size.x()-_size.y(), ewol::compositing::alignLeft);
+	m_text.setTextAlignement(originText.x(), originText.x()+_size.x()-_size.y(), ewol::compositing::alignDisable);
+	// TODO: m_text.setClipping(originText, vec2(originText.x()+_size.x()-_size.y(), _size.y()));
 	//m_text.setClipping(drawClippingPos, drawClippingSize);
 	std::string textToDisplay = "<b>" + m_property->m_title + "</b><br/>";
 	bool newLine = false;

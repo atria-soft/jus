@@ -63,7 +63,7 @@ void appl::widget::ProgressBar::onRegenerateDisplay() {
 	// draw all availlable section ...
 	m_draw.setColor(m_textColorLoaded);
 	for (auto &it: m_listAvaillable) {
-		APPL_INFO("plop        " << it.first << " " << it.second);
+		//APPL_INFO("plop        " << it.first << " " << it.second);
 		m_draw.setPos(vec3(dotRadius+(it.first/propertyMaximum)*(m_size.x()-2*dotRadius), m_size.y()*0.1, 0));
 		m_draw.rectangleWidth(vec3((it.second/propertyMaximum)*(m_size.x()-2*dotRadius), m_size.y()*0.8, 0) );
 	}

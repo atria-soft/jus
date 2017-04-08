@@ -210,6 +210,7 @@ int appl::MediaDecoder::decode_packet(int *_gotFrame, int _cached) {
 				m_currentVideoTime = m_currentAudioTime;
 				m_updateVideoTimeStampAfterSeek = false;
 				m_seekApply = m_currentVideoTime; // => ready to display
+				APPL_DEBUG("Update seek time: " << m_seekApply);
 			}
 			echrono::Duration packetTime(double(m_frame->pkt_pts) * double(m_videoDecoderContext->time_base.num) / double(m_videoDecoderContext->time_base.den));
 			APPL_VERBOSE("video_frame " << (_cached?"(cached)":"")
@@ -250,7 +251,8 @@ int appl::MediaDecoder::decode_packet(int *_gotFrame, int _cached) {
 			echrono::Duration packetTime(double(m_frame->pkt_pts) * double(m_audioDecoderContext->time_base.num) / double(m_audioDecoderContext->time_base.den));
 			if (m_updateVideoTimeStampAfterSeek == true) {
 				// seek specific usecase ==> drop frame to have fast display
-				m_currentAudioTime = packetTime;
+				//TODO : UNDERSTAND why : m_currentAudioTime = packetTime;
+				APPL_DEBUG("Update audio time with packet time: " << packetTime);
 			} else {
 				APPL_VERBOSE("audio_frame " << (_cached?"(cached)":"")
 				             << " n=" << m_audioFrameCount
@@ -386,6 +388,17 @@ void appl::MediaDecoder::init(ememory::SharedPtr<ClientProperty> _property, uint
 int appl::MediaDecoder::readFunc(uint8_t* _buf, int _bufSize) {
 	APPL_INFO("call read ... " << m_remote->m_bufferReadPosition << "  size=" << _bufSize);
 	// check if enought data:
+	m_remote->startStream();
+	if (m_remote->m_bufferReadPosition >= m_remote->m_buffer.size()) {
+		return 0;
+	}
+	while(m_remote->sizeReadable() == 0) {
+		APPL_WARNING("          -------- waiting data --------- ");// << m_remote->sizeReadable());
+		std::this_thread::sleep_for(std::chrono::milliseconds(50));
+		if (m_stopRequested == true) {
+			return 0;
+		}
+	}
 	int64_t readableSize = m_remote->sizeReadable();
 	if (_bufSize > readableSize) {
 		_bufSize = readableSize;
@@ -394,12 +407,12 @@ int appl::MediaDecoder::readFunc(uint8_t* _buf, int _bufSize) {
 		// No data in the buffer
 		return 0;
 	}
+	// Real Load of the data:
 	{
 		std::unique_lock<std::mutex> lock(m_remote->m_mutex);
 		memcpy(_buf, &m_remote->m_buffer[m_remote->m_bufferReadPosition], _bufSize);
 		m_remote->m_bufferReadPosition += _bufSize;
 	}
-	m_remote->startStream();
 	m_remote->checkIfWeNeedMoreDataFromNetwork();
 	return _bufSize;
 }
@@ -457,11 +470,6 @@ int64_t appl::MediaDecoder::seekFunc(int64_t _offset, int _whence) {
 		m_remote->m_bufferReadPosition = m_remote->m_buffer.size()-1;
 	}
 	if (lastPosition != m_remote->m_bufferReadPosition) {
-		{
-			// Force the get of new data ==> this is bad TODO : Update this when possible
-			std::unique_lock<std::mutex> lock(m_remote->m_mutex);
-			m_remote->m_callInProgress = false;
-		}
 		m_remote->checkIfWeNeedMoreDataFromNetwork();
 	}
 	return m_remote->m_bufferReadPosition;
@@ -469,7 +477,7 @@ int64_t appl::MediaDecoder::seekFunc(int64_t _offset, int _whence) {
 
 bool appl::StreamBuffering::addDataCallback(zeus::Future<zeus::Raw> _fut, int64_t _positionRequest) {
 	#ifdef DEBUG
-		std::this_thread::sleep_for(std::chrono::milliseconds(100));
+		std::this_thread::sleep_for(std::chrono::milliseconds(10));
 	#endif
 	{
 		std::unique_lock<std::mutex> lock(m_mutex);
@@ -481,7 +489,7 @@ bool appl::StreamBuffering::addDataCallback(zeus::Future<zeus::Raw> _fut, int64_
 		}
 		// TODO : Check buffer size ...
 		zeus::Raw buffer = _fut.get();
-		APPL_INFO("    ==> receive DATA : " << _positionRequest << " size=" << buffer.size());
+		APPL_DEBUG("    ==> receive DATA : " << _positionRequest << " size=" << buffer.size());
 		// copy data
 		memcpy(&m_buffer[_positionRequest], buffer.data(), buffer.size());
 		// Update the buffer data and positionning
@@ -508,13 +516,14 @@ bool appl::StreamBuffering::addDataCallback(zeus::Future<zeus::Raw> _fut, int64_
 				it2->first = _positionRequest;
 				find = true;
 				break;
-			} else {
+			}/* else {
 				find = true;
 				break;
-			}
+			}*/
 			++it;
 		}
 		if (find == false) {
+			APPL_ERROR("insert new element in the list of values");
 			m_bufferFillSection.insert(it, std::pair<uint32_t,uint32_t>(_positionRequest, _positionRequest + buffer.size()));
 		}
 	}
@@ -524,19 +533,22 @@ bool appl::StreamBuffering::addDataCallback(zeus::Future<zeus::Raw> _fut, int64_
 
 
 appl::StreamBuffering::StreamBuffering() {
+	std::unique_lock<std::mutex> lock(m_mutex);
 	m_callInProgress = false;
 	m_stopRequested = false;
 	m_mediaId = 0;
 	m_bufferReadPosition = 0;
 }
 void appl::StreamBuffering::stopStream() {
+	std::unique_lock<std::mutex> lock(m_mutex);
 	m_stopRequested = true;
 }
 void appl::StreamBuffering::startStream() {
+	std::unique_lock<std::mutex> lock(m_mutex);
 	m_stopRequested = false;
 }
 
-
+// TODO: Add requested section ...
 void appl::StreamBuffering::checkIfWeNeedMoreDataFromNetwork() {
 	std::unique_lock<std::mutex> lock(m_mutex);
 	// check if enought data:
@@ -549,26 +561,15 @@ void appl::StreamBuffering::checkIfWeNeedMoreDataFromNetwork() {
 	}
 	int32_t preDownloadBufferSlot = BUFFER_SIZE_GET_SLOT*3;
 	// When file is < 200Mo ==> just download all...
+	#if 1
 	if (m_buffer.size() < 300*1024*1024) {
 		preDownloadBufferSlot = m_buffer.size()+10;
 	}
-	APPL_VERBOSE("Request DATA ...");
+	#endif
+	APPL_DEBUG("Request DATA ... section number = " << m_bufferFillSection.size());
 	auto it = m_bufferFillSection.begin();
-	if (it == m_bufferFillSection.end()) {
-		// no data in the buffer...
-		//Get some
-		// start with loading of 1 Mo
-		APPL_VERBOSE("Request DATA : " << 0 << " size=" << BUFFER_SIZE_GET_SLOT);
-		auto futData = m_fileHandle.getPart(0, BUFFER_SIZE_GET_SLOT);
-		auto localShared = ememory::dynamicPointerCast<appl::StreamBuffering>(sharedFromThis());
-		futData.andThen([=](zeus::Future<zeus::Raw> _fut) mutable {
-		                	return localShared->addDataCallback(_fut, 0);
-		                });
-		m_callInProgress = true;
-		return;
-	}
 	while (it != m_bufferFillSection.end()) {
-		APPL_VERBOSE("Check : " << it->first << " -> " << it->second << "        read-pos=" << m_bufferReadPosition);
+		APPL_DEBUG("Check : " << it->first << " -> " << it->second << "        read-pos=" << m_bufferReadPosition);
 		if (    m_bufferReadPosition >= it->first
 		     && m_bufferReadPosition < it->second) {
 			find = true;
@@ -580,15 +581,22 @@ void appl::StreamBuffering::checkIfWeNeedMoreDataFromNetwork() {
 			if (it->second - m_bufferReadPosition < preDownloadBufferSlot) {
 				int32_t sizeRequest = BUFFER_SIZE_GET_SLOT;
 				if (it->second + sizeRequest >= m_buffer.size()) {
+					APPL_DEBUG("max area: " << it->second << "+" << sizeRequest << "=" << it->second + sizeRequest << " ->" << m_buffer.size());
 					sizeRequest = m_buffer.size() - it->second;
+					APPL_DEBUG("    -> sizeRequested=" << sizeRequest);
 				}
 				auto it2 = it;
 				++it2;
 				if (    it2 != m_bufferFillSection.end()
 				     && it->second + sizeRequest >= it2->first) {
+					APPL_DEBUG("empty area: " << it->second << " ->" << it2->first);
 					sizeRequest = it2->first - it->second;
+					APPL_DEBUG("    -> sizeRequested=" << sizeRequest);
 				}
-				APPL_VERBOSE("Request DATA : " << it->second << " size=" << sizeRequest);
+				if (sizeRequest == 0) {
+					return;
+				}
+				APPL_DEBUG("Request DATA: " << it->second << " size=" << sizeRequest);
 				auto futData = m_fileHandle.getPart(it->second, it->second + sizeRequest);
 				auto localShared = ememory::dynamicPointerCast<appl::StreamBuffering>(sharedFromThis());
 				futData.andThen([=](zeus::Future<zeus::Raw> _fut) mutable {
@@ -603,7 +611,10 @@ void appl::StreamBuffering::checkIfWeNeedMoreDataFromNetwork() {
 			if (m_bufferReadPosition + sizeRequest >= it->first) {
 				sizeRequest = it->first - m_bufferReadPosition;
 			}
-			APPL_VERBOSE("Request DATA : " << m_bufferReadPosition << " size=" << sizeRequest);
+			if (sizeRequest == 0) {
+				return;
+			}
+			APPL_DEBUG("Request DATA : " << m_bufferReadPosition << " size=" << sizeRequest);
 			auto futData = m_fileHandle.getPart(m_bufferReadPosition, m_bufferReadPosition+sizeRequest);
 			auto localShared = ememory::dynamicPointerCast<appl::StreamBuffering>(sharedFromThis());
 			futData.andThen([=](zeus::Future<zeus::Raw> _fut) mutable {
@@ -615,11 +626,21 @@ void appl::StreamBuffering::checkIfWeNeedMoreDataFromNetwork() {
 		}
 		++it;
 	}
-	APPL_VERBOSE("Request DATA : " << m_bufferReadPosition << " size=" << BUFFER_SIZE_GET_SLOT);
-	auto futData = m_fileHandle.getPart(m_bufferReadPosition, m_bufferReadPosition + BUFFER_SIZE_GET_SLOT);
+	int32_t sizeRequest = BUFFER_SIZE_GET_SLOT;
+	if (m_bufferReadPosition + sizeRequest >= m_buffer.size()) {
+		APPL_DEBUG("max area: " << m_bufferReadPosition << "+" << sizeRequest << "=" << m_bufferReadPosition + sizeRequest << " ->" << m_buffer.size());
+		sizeRequest = m_buffer.size() - m_bufferReadPosition;
+		APPL_DEBUG("    -> sizeRequested=" << sizeRequest);
+	}
+	if (sizeRequest == 0) {
+		// nothing to request ...
+		return;
+	}
+	APPL_DEBUG("Request DATA : " << m_bufferReadPosition << " size=" << sizeRequest);
+	auto futData = m_fileHandle.getPart(m_bufferReadPosition, m_bufferReadPosition + sizeRequest);
 	auto localShared = ememory::dynamicPointerCast<appl::StreamBuffering>(sharedFromThis());
 	futData.andThen([=](zeus::Future<zeus::Raw> _fut) mutable {
-	                	return localShared->addDataCallback(_fut, 0);
+	                	return localShared->addDataCallback(_fut, m_bufferReadPosition);
 	                });
 	m_callInProgress = true;
 	if (find == false) {

@@ -258,13 +258,12 @@ void appl::widget::VideoDisplay::periodicEvent(const ewol::event::Time& _event) 
 		APPL_VERBOSE("tick: " << _event);
 		m_currentTime += _event.getDeltaCallDuration();
 	}
-	
 	if (m_decoder == nullptr) {
 		return;
 	}
 	if (m_decoder->m_seekApply >= echrono::Duration(0)) {
 		m_currentTime = m_decoder->m_seekApply;
-		//APPL_ERROR("Apply new position : " << m_currentTime);
+		APPL_ERROR("Apply new position : " << m_currentTime);
 		m_decoder->m_seekApply = echrono::Duration(-1);
 		if (m_audioInterface != nullptr) {
 			m_audioInterface->clearInternalBuffer();
@@ -318,6 +317,13 @@ void appl::widget::VideoDisplay::periodicEvent(const ewol::event::Time& _event) 
 	}
 	// TODO : Chek if this is needed, the display configuration not change too much ...
 	markToRedraw();
+	if (m_haveDuration == true) {
+		if (m_currentTime >= m_decoder->getDuration() + echrono::milliseconds(200)) {
+			APPL_WARNING("Finish playing");
+			signalFinish.emit();
+			stop();
+		}
+	}
 }
 
 void appl::widget::VideoDisplay::seek(const echrono::Duration& _time) {

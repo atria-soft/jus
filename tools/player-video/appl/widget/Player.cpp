@@ -44,7 +44,7 @@ void appl::widget::Player::init() {
 	subBind(appl::widget::VideoDisplay, "[" + etk::to_string(getId()) + "]appl-player-display", signalDuration, sharedFromThis(), &appl::widget::Player::onCallbackDuration);
 	
 	subBind(appl::widget::VideoDisplay, "[" + etk::to_string(getId()) + "]appl-player-display", signalFps, sharedFromThis(), &appl::widget::Player::onCallbackFPS);
-	subBind(ewol::widget::Slider, "[" + etk::to_string(getId()) + "]appl-player-progress-bar", signalChange, sharedFromThis(), &appl::widget::Player::onCallbackSeekRequest);
+	subBind(appl::widget::ProgressBar, "[" + etk::to_string(getId()) + "]appl-player-progress-bar", signalChange, sharedFromThis(), &appl::widget::Player::onCallbackSeekRequest);
 	
 	m_display = ememory::dynamicPointerCast<appl::widget::VideoDisplay>(getSubObjectNamed("[" + etk::to_string(getId()) + "]appl-player-display"));
 	m_progress = ememory::dynamicPointerCast<appl::widget::ProgressBar>(getSubObjectNamed("[" + etk::to_string(getId()) + "]appl-player-progress-bar"));
@@ -76,17 +76,48 @@ void appl::widget::Player::playStream(ememory::SharedPtr<appl::ClientProperty> _
 }
 
 
+static std::string timeToStaticString(const echrono::Duration& _time) {
+	float sec = _time.toSeconds();
+	int32_t millisecond = int32_t(sec*1000.0f)%999;
+	int32_t seconds = int32_t(sec)%60;
+	int32_t minutes = int32_t(sec/60)%60;
+	int32_t hours = sec/3600;
+	std::string out;
+	if (hours!=0) {
+		out += etk::to_string(hours) + ":";
+	}
+	if (minutes<10) {
+		out += " " + etk::to_string(minutes) + "'";
+	} else {
+		out += etk::to_string(minutes) + "'";
+	}
+	if (seconds<10) {
+		out += " " + etk::to_string(seconds) + "\"";
+	} else {
+		out += etk::to_string(seconds) + "\"";
+	}
+	if (millisecond<10) {
+		out += " 00" + etk::to_string(millisecond);
+	} else if (millisecond<100) {
+		out += " 0" + etk::to_string(millisecond);
+	} else {
+		out += etk::to_string(millisecond);
+	}
+	return out;
+}
+
 void appl::widget::Player::onCallbackDuration(const echrono::Duration& _time) {
 	//APPL_ERROR("duration = " << _time);
 	if (m_progress != nullptr) {
 		m_progress->propertyValue.set(0);
 		m_progress->propertyMaximum.set(_time.toSeconds());
 	}
+	propertySetOnWidgetNamed("[" + etk::to_string(getId()) + "]appl-player-label-duration", "value", "<font color='black'>" + timeToStaticString(_time) + "</font>");
 }
 
 void appl::widget::Player::onCallbackPosition(const echrono::Duration& _time) {
-	APPL_ERROR("time = " << _time);
-	propertySetOnWidgetNamed("[" + etk::to_string(getId()) + "]appl-player-label-time", "value", "<font color='green'>" + etk::to_string(_time) + "</font>");
+	//APPL_ERROR("time = " << _time);
+	propertySetOnWidgetNamed("[" + etk::to_string(getId()) + "]appl-player-label-time", "value", "<font color='black'>" + timeToStaticString(_time) + "</font>");
 	if (m_progress != nullptr) {
 		m_progress->propertyValue.set(_time.toSeconds());
 	}
@@ -99,7 +130,9 @@ void appl::widget::Player::onCallbackPosition(const echrono::Duration& _time) {
 }
 
 void appl::widget::Player::onCallbackSeekRequest(const float& _value) {
-	//APPL_ERROR("seek at = " << echrono::Duration(_value));
+	APPL_ERROR("===========================================================================");
+	APPL_ERROR("seek at = " << echrono::Duration(_value) << "  from value=" << _value);
+	APPL_ERROR("===========================================================================");
 	if (m_display != nullptr) {
 		m_display->seek(echrono::Duration(_value));
 	}

@@ -3,23 +3,32 @@
 		<sizer mode="hori" fill="true" expand="true,false">
 			<spacer expand="true,false" fill="true"/>
 			<spacer expand="true,false" fill="true"/>
-			<button name="[{ID}]appl-player-bt-previous">
-				<label>_T{Previous}</label>
+			<spacer expand="true,false" fill="true"/>
+			<button name="[{ID}]appl-player-bt-previous" shape="">
+				<!--<label>_T{Previous}</label>-->
+				<image src="DATA:Previous.svg" size="8,8mm"/>
 			</button>
 			<spacer expand="true,false" fill="true"/>
-			<button name="[{ID}]appl-player-bt-play" toggle="true">
-				<label>_T{Play}</label>
+			<button name="[{ID}]appl-player-bt-play" toggle="true" shape="">
+				<!--<label>_T{Play}</label>-->
+				<image src="DATA:Play.svg" size="8,8mm"/>
 				<label>_T{Pause}</label>
 			</button>
 			<spacer expand="true,false" fill="true"/>
-			<button name="[{ID}]appl-player-bt-next">
-				<label>_T{Next}</label>
+			<button name="[{ID}]appl-player-bt-next" shape="">
+				<!--<label>_T{Next}</label>-->
+				<image src="DATA:Next.svg" size="8,8mm" />
 			</button>
 			<spacer expand="true,false" fill="true"/>
-			<label name="[{ID}]appl-player-label-time"/>
+			<spacer expand="true,false" fill="true"/>
 			<spacer expand="true,false" fill="true"/>
 		</sizer>
 		<appl_ProgressBar name="[{ID}]appl-player-progress-bar" expand="true,false" fill="true" step="0.01" min="0"/>
+		<sizer mode="hori" fill="true" expand="true,false">
+			<label name="[{ID}]appl-player-label-time"/>
+			<spacer expand="true,false" fill="true"/>
+			<label name="[{ID}]appl-player-label-duration"/>
+		</sizer>
 		<spacer expand="true" fill="true"/>
 		<label name="[{ID}]appl-player-label-fps"/>
 	</sizer>

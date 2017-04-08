@@ -26,6 +26,7 @@ namespace appl {
 				esignal::Signal<int32_t> signalFps;
 				esignal::Signal<echrono::Duration> signalPosition; //!< signal the current duration of the video duration
 				esignal::Signal<echrono::Duration> signalDuration; //!< signal the current duration of the video duration
+				esignal::Signal<> signalFinish; //!< signal the playing is now finished
 				bool m_haveDuration;
 			private:
 				mat4 m_matrixApply;

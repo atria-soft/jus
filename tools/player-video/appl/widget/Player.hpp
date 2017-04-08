@@ -25,7 +25,6 @@ namespace appl {
 				esignal::Signal<> signalFinished; //!< the play is finished
 				esignal::Signal<> signalNext; //!< Next file is requested
 				esignal::Signal<> signalPrevious; //!< Previous file is requested
-				
 			protected:
 				Player();
 				void init() override;
