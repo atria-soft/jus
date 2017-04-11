@@ -1,0 +1,12 @@
+[Unit]
+Description=zeus main router interface
+Wants=network-online.target
+After=network.target network-online.service
+
+[Service]
+#EnvironmentFile=/etc/conf.d/ushare
+ExecStart=/home/heero/.local/application/moebius-package-base.app/bin/zeus-router
+Type=forking
+
+[Install]
+WantedBy=multi-user.target
