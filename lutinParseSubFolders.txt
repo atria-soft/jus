@@ -1,4 +1,5 @@
 tools/gateway
+tools/cli-video
 tools/router
 tools/service-user
 tools/service-picture
