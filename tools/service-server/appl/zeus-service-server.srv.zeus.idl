@@ -1,0 +1,11 @@
+#elem-brief: server interface management
+#elem-version: 0.1
+#elem-type:SERVER
+#elem-author:Heero Yui<yui.heero@gmail.com>
+
+#brief:Shutdown the server
+void shutdown()
+
+#brief:Reboot the server
+void reboot()
+

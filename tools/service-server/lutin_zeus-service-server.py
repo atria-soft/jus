@@ -1,15 +1,19 @@
 #!/usr/bin/python
 import lutin.debug as debug
 import lutin.tools as tools
+import lutin.macro as macro
 
 
 def get_type():
-	return "PACKAGE"
+	return "LIBRARY"
+
+def get_sub_type():
+	return "TOOLS"
 
 def get_desc():
-	return "ZEUS package group to set it usable"
+	return "ZEUS service server"
 
-def get_licence():
+def get_license():
 	return "MPL-2"
 
 def get_compagny_type():
@@ -22,15 +26,13 @@ def get_maintainer():
 	return ["Mr DUPIN Edouard <yui.heero@gmail.com>"]
 
 def configure(target, my_module):
+	my_module.add_path(".")
 	my_module.add_depend([
-	    'zeus-router',
-	    'zeus-gateway',
-	    'zeus-service-user-impl',
-	    'zeus-service-picture-impl',
-	    'zeus-service-video-impl',
-	    'zeus-service-server-impl',
-	    'zeus-launcher',
+	    'zeus'
 	    ])
+	zeus_macro = macro.load_macro('zeus')
+	zeus_macro.parse_object_idl(my_module, 'appl/zeus-service-server.srv.zeus.idl')
+	my_module.add_flag('c++', "-DSERVICE_NAME=\"\\\"server\\\"\"")
 	return True
 
 

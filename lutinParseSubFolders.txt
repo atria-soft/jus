@@ -3,6 +3,7 @@ tools/router
 tools/service-user
 tools/service-picture
 tools/service-video
+tools/service-server
 tools/player-video
 tools/package-base
 tools/launcher

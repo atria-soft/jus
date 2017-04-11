@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<sizer mode="vert" fill="true" expand="true" addmode="invert">
+	<button name="appl-shutdown" expand="true,false" fill="true">
+		<label>_T{Shutdown}</label>
+	</button>
+	<button name="appl-reboot" expand="true,false" fill="true">
+		<label>_T{Reboot}</label>
+	</button>
+	<spacer fill="true" expand="true"/>
+</sizer>

@@ -1,0 +1,14 @@
+<PopUp >
+	<sizer mode="vert" fill="true" expand="false" lock="true" addmode="invert" min-size="45,10%">
+		<label>_T{Login}</label>
+		<entry name="[{ID}]connect-login" fill="true,false" expand="true,false"/>
+		<label>_T{Password}</label>
+		<entry name="[{ID}]connect-password" fill="true,false" expand="true,false"/>
+		<button name="[{ID}]connect-bt" toggle="false" fill="false" expand="true,false" gravity="right">
+			<label>_T{Connect}</label>
+		</button>
+		<button name="[{ID}]cancel-bt" toggle="false" fill="false" expand="true,false" gravity="right">
+			<label>_T{Cancel}</label>
+		</button>
+	</sizer>
+</PopUp>
