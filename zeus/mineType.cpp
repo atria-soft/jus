@@ -32,7 +32,7 @@ static std::vector<std::pair<std::string, std::string>> mineList = {
   { "m4v",   "video/mp4"},
   { "m4p",   "video/mp4"},
   { "mp4ps", "video/x-nerodigital-ps"},
-  { "ts",    "video/mpeg2"},
+  { "ts",    "video/mpeg2-ts"},
   { "ogm",   "video/mpeg"},
   { "mkv",   "video/x-matroska"},
   { "rmvb",  "video/mpeg"},

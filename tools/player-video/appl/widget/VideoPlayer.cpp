@@ -52,7 +52,7 @@ void appl::widget::VideoDisplay::init() {
 		m_resource->get().configure(ivec2(128,128), egami::colorType::RGB8);
 	}
 	// Create the River manager for tha application or part of the application.
-	m_audioManager = audio::river::Manager::create("river_sample_read");
+	m_audioManager = audio::river::Manager::create("zeus-video-player");
 }
 
 appl::widget::VideoDisplay::~VideoDisplay() {
@@ -279,6 +279,7 @@ void appl::widget::VideoDisplay::periodicEvent(const ewol::event::Time& _event) 
 			                   / audio::getFormatBytes(m_decoder->m_audioPool[idSlot].m_format)
 			                   / m_decoder->m_audioPool[idSlot].m_map.size();
 			m_audioInterface->write(&m_decoder->m_audioPool[idSlot].m_buffer[0], nbSample);
+			APPL_WARNING("write samples ... ");
 		}
 		m_decoder->m_audioPool[idSlot].m_isUsed = false;
 		getSomething = true;
@@ -317,7 +318,8 @@ void appl::widget::VideoDisplay::periodicEvent(const ewol::event::Time& _event) 
 	}
 	// TODO : Chek if this is needed, the display configuration not change too much ...
 	markToRedraw();
-	if (m_haveDuration == true) {
+	if (    m_haveDuration == true
+	     && m_decoder->getDuration() > echrono::milliseconds(10)) {
 		if (m_currentTime >= m_decoder->getDuration() + echrono::milliseconds(200)) {
 			APPL_WARNING("Finish playing");
 			signalFinish.emit();

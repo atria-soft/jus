@@ -25,7 +25,11 @@ zeus::FileImpl::FileImpl(std::string _fileNameReal) :
   m_node(_fileNameReal) {
 	m_size = m_node.fileSize();
 	m_node.fileOpenRead();
-	std::string extention = std::string(_fileNameReal.begin()+_fileNameReal.size() -3, _fileNameReal.end());
+	std::string extention;
+	if (    _fileNameReal.rfind('.') != std::string::npos
+	     && _fileNameReal.rfind('.') != 0) {
+		extention = std::string(_fileNameReal.begin()+_fileNameReal.rfind('.'), _fileNameReal.end());
+	}
 	m_mineType = zeus::getMineType(extention);
 	m_sha512 = algue::stringConvert(algue::sha512::encodeFromFile(_fileNameReal));
 }

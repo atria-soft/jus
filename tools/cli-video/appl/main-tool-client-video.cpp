@@ -46,11 +46,16 @@ static std::string extractAndRemove(const std::string& _inputValue, const char _
 
 bool pushVideoFile(zeus::service::ProxyVideo& _srv, std::string _path, std::map<std::string,std::string> _basicKey = std::map<std::string,std::string>()) {
 	APPL_INFO("Add media : '" << _path << "'");
-	std::string extention = etk::tolower(std::string(_path.begin()+_path.size() -3, _path.end()));
+	std::string extention;
+	if (    _path.rfind('.') != std::string::npos
+	     && _path.rfind('.') != 0) {
+		extention = etk::tolower(std::string(_path.begin()+_path.rfind('.'), _path.end()));
+	}
 	if (    extention != "avi"
 	     && extention != "mkv"
 	     && extention != "mov"
-	     && extention != "mp4") {
+	     && extention != "mp4"
+	     && extention != "ts") {
 		APPL_ERROR("Sot send file : " << _path << " Not manage extention...");
 		return false;
 	}
@@ -90,7 +95,7 @@ bool pushVideoFile(zeus::service::ProxyVideo& _srv, std::string _path, std::map<
 	}
 	
 	// remove extention
-	fileName = std::string(fileName.begin(), fileName.begin() + fileName.size() - 4);
+	fileName = std::string(fileName.begin(), fileName.begin() + fileName.size() - (extention.size()+1));
 	
 	std::vector<std::string> listElementBase = etk::split(fileName, '-');
 	
@@ -133,7 +138,11 @@ bool pushVideoFile(zeus::service::ProxyVideo& _srv, std::string _path, std::map<
 			std::string seriesName = listElement[0];
 			
 			_basicKey.insert(std::pair<std::string,std::string>("series-name", etk::to_string(seriesName)));
-			_basicKey.insert(std::pair<std::string,std::string>("title", etk::to_string(listElement[3])));
+			std::string fullEpisodeName = listElement[3];
+			for (int32_t yyy=4; yyy<listElement.size(); ++yyy) {
+				fullEpisodeName += "-" + listElement[yyy];
+			}
+			_basicKey.insert(std::pair<std::string,std::string>("title", etk::to_string(fullEpisodeName)));
 			if (std::string(&listElement[1][1]) == "XX") {
 				// saison unknow ... ==> nothing to do ...
 			} else {
@@ -168,7 +177,7 @@ bool pushVideoFile(zeus::service::ProxyVideo& _srv, std::string _path, std::map<
 				episodePrint = etk::to_string(episode);
 				_basicKey.insert(std::pair<std::string,std::string>("episode", etk::to_string(episode)));
 			}
-			APPL_INFO("    recontituated: '" << seriesName << "-s" << saisonPrint << "-e" << episodePrint << "-" << listElement[3] << "'");
+			APPL_INFO("    recontituated: '" << seriesName << "-s" << saisonPrint << "-e" << episodePrint << "-" << fullEpisodeName << "'");
 		}
 	}
 	// send all meta data:
@@ -276,13 +285,32 @@ int main(int _argc, const char *_argv[]) {
 	zeus::init(_argc, _argv);
 	zeus::Client client1;
 	std::string login = "test1";
+	std::string address = "";
+	uint32_t port = 0;
 	std::string pass = "coucou";
 	std::string requestAction = "";
 	std::vector<std::string> args;
 	for (int32_t iii=1; iii<_argc ; ++iii) {
 		std::string data = _argv[iii];
 		if (etk::start_with(data, "--login=") == true) {
-			login = &data[8];
+			// separate loggin and IP adress ...
+			std::vector<std::string> listElem = etk::split(&data[8], '~');
+			if (listElem.size() == 0) {
+				APPL_ERROR("Not enouth element in the login ... need use a XXX~SERVER.org:zzz");
+				return -1;
+			}
+			login = listElem[0];
+			if (listElem.size() == 1) {
+				// connnect on local host ... nothing to do
+			} else {
+				std::vector<std::string> listElem2 = etk::split(listElem[1], ':');
+				if (listElem2.size() >= 1) {
+					address = listElem2[0];
+				}
+				if (listElem2.size() >= 2) {
+					port = etk::string_to_uint32_t(listElem2[1]);
+				}
+			}
 		} else if (etk::start_with(data, "--pass=") == true) {
 			pass = &data[7];
 		} else if (    data == "-h"
@@ -308,7 +336,13 @@ int main(int _argc, const char *_argv[]) {
 	APPL_INFO("==================================");
 	APPL_INFO("== ZEUS test client start        ==");
 	APPL_INFO("==================================");
-	
+	// Generate IP and Port in the client interface
+	if (address != "") {
+		client1.propertyIp.set(address);
+	}
+	if (port != 0) {
+		client1.propertyPort.set(port);
+	}
 	bool ret = client1.connect(login, pass);
 	if (ret == false) {
 		APPL_ERROR("    ==> NOT Authentify with '" << login << "'");
@@ -405,7 +439,7 @@ int main(int _argc, const char *_argv[]) {
 		APPL_PRINT("============================================");
 	} else if (requestAction == "pushPath") {
 		APPL_PRINT("============================================");
-		APPL_PRINT("== push file: ");
+		APPL_PRINT("== push path: ");
 		APPL_PRINT("============================================");
 		// Send a full path:
 		// installVideoPath(remoteServiceVideo, "testVideo");
