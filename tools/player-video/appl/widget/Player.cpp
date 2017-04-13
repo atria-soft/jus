@@ -45,6 +45,7 @@ void appl::widget::Player::init() {
 	
 	subBind(appl::widget::VideoDisplay, "[" + etk::to_string(getId()) + "]appl-player-display", signalFps, sharedFromThis(), &appl::widget::Player::onCallbackFPS);
 	subBind(appl::widget::ProgressBar, "[" + etk::to_string(getId()) + "]appl-player-progress-bar", signalChange, sharedFromThis(), &appl::widget::Player::onCallbackSeekRequest);
+	subBind(appl::widget::VolumeBar, "[" + etk::to_string(getId()) + "]appl-player-volume", signalChange, sharedFromThis(), &appl::widget::Player::onCallbackVolumeRequest);
 	
 	m_display = ememory::dynamicPointerCast<appl::widget::VideoDisplay>(getSubObjectNamed("[" + etk::to_string(getId()) + "]appl-player-display"));
 	m_progress = ememory::dynamicPointerCast<appl::widget::ProgressBar>(getSubObjectNamed("[" + etk::to_string(getId()) + "]appl-player-progress-bar"));
@@ -130,12 +131,24 @@ void appl::widget::Player::onCallbackPosition(const echrono::Duration& _time) {
 }
 
 void appl::widget::Player::onCallbackSeekRequest(const float& _value) {
-	APPL_ERROR("===========================================================================");
-	APPL_ERROR("seek at = " << echrono::Duration(_value) << "  from value=" << _value);
-	APPL_ERROR("===========================================================================");
+	APPL_DEBUG("===========================================================================");
+	APPL_DEBUG("seek at = " << echrono::Duration(_value) << "  from value=" << _value);
+	APPL_DEBUG("===========================================================================");
 	if (m_display != nullptr) {
 		m_display->seek(echrono::Duration(_value));
 	}
+}
+
+void appl::widget::Player::onCallbackVolumeRequest(const float& _value) {
+	APPL_DEBUG("===========================================================================");
+	APPL_DEBUG("volume change value=" << _value << " dB");
+	APPL_DEBUG("===========================================================================");
+	if (m_display != nullptr) {
+		m_display->changeVolume(_value);
+	}
+	std::string display = etk::to_string(int32_t(_value)) + "." + etk::to_string(std::abs(int32_t(_value*10.0f)-int32_t(_value)*10));
+	
+	propertySetOnWidgetNamed("[" + etk::to_string(getId()) + "]appl-player-label-volume", "value", display + " dB");
 }
 
 void appl::widget::Player::onCallbackFPS(const int32_t& _fps) {

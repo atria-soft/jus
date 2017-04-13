@@ -39,6 +39,7 @@ def configure(target, my_module):
 	    'appl/widget/Connection.cpp',
 	    'appl/widget/Player.cpp',
 	    'appl/widget/ProgressBar.cpp',
+	    'appl/widget/VolumeBar.cpp',
 	    ])
 	my_module.add_depend([
 	    'ffmpeg-libs',

@@ -29,8 +29,17 @@
 			<spacer expand="true,false" fill="true"/>
 			<label name="[{ID}]appl-player-label-duration"/>
 		</sizer>
-		<spacer expand="true" fill="true"/>
-		<label name="[{ID}]appl-player-label-fps"/>
+		<sizer mode="hori" fill="true" expand="true,false">
+			<sizer mode="vert" fill="true" expand="true">
+				<spacer expand="true" fill="true"/>
+				<label name="[{ID}]appl-player-label-fps"/>
+			</sizer>
+			<sizer mode="vert" fill="true" expand="false,true">
+				<appl_VolumeBar name="[{ID}]appl-player-volume" expand="false,true" fill="true" step="0.1" value="0" min="-60" max="6" mode="vert"/>
+				<label name="[{ID}]appl-player-label-volume">0dB</label>
+			</sizer>
+		</sizer>
+		
 	</sizer>
 	<VideoDisplay name="[{ID}]appl-player-display" expand="true" fill="true"/>
 </layer>

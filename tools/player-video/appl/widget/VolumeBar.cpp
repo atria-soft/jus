@@ -1,0 +1,121 @@
+/** @file
+ * @author Edouard DUPIN
+ * @copyright 2011, Edouard DUPIN, all right reserved
+ * @license MPL v2.0 (see license file)
+ */
+
+#include <appl/widget/VolumeBar.hpp>
+
+#include <ewol/widget/Manager.hpp>
+
+const int32_t dotRadius = 6;
+
+appl::widget::VolumeBar::VolumeBar() :
+  signalChange(this, "change", ""),
+  propertyValue(this, "value",
+                      0.0f,
+                      "Value of the VolumeBar",
+                      &appl::widget::VolumeBar::onChangePropertyValue),
+  propertyMinimum(this, "min",
+                        -10.0f,
+                        "Minimum value",
+                        &appl::widget::VolumeBar::onChangePropertyMinimum),
+  propertyMaximum(this, "max",
+                        5.0f,
+                        "Maximum value",
+                        &appl::widget::VolumeBar::onChangePropertyMaximum) {
+	addObjectType("appl::widget::VolumeBar");
+	
+	m_textColorFg = etk::color::orange;
+	m_textColorLoaded = etk::color::red;
+	m_textColorDone = etk::color::green;
+	
+	m_textColorBg = etk::color::black;
+	m_textColorBg.setA(0x3F);
+	
+	propertyCanFocus.setDirectCheck(true);
+	// Limit event at 1:
+	setMouseLimit(1);
+}
+
+appl::widget::VolumeBar::~VolumeBar() {
+	
+}
+
+void appl::widget::VolumeBar::calculateMinMaxSize() {
+	vec2 minTmp = propertyMinSize->getPixel();
+	m_minSize.setValue(std::max(minTmp.x(), 40.0f),
+	                   std::max(minTmp.y(), dotRadius*2.0f) );
+	markToRedraw();
+}
+
+void appl::widget::VolumeBar::onDraw() {
+	m_draw.draw();
+}
+
+void appl::widget::VolumeBar::onRegenerateDisplay() {
+	if (needRedraw() == false) {
+		return;
+	}
+	// clean the object list ...
+	m_draw.clear();
+	m_draw.setColor(m_textColorFg);
+	// draw a line:
+	m_draw.setPos(vec3(dotRadius, 0, 0));
+	m_draw.rectangleWidth(vec3(m_size.x(), m_size.y()-dotRadius*2.0, 0));
+	// chaneg color whe soud became louder ...
+	if (*propertyValue > 0.5f) {
+		m_draw.setColor(m_textColorLoaded);
+	} else {
+		m_draw.setColor(m_textColorDone);
+	}
+	m_draw.setPos(vec3(m_size.x()*0.1, dotRadius, 0));
+	
+	float offset = (*propertyValue-*propertyMinimum)/(*propertyMaximum-*propertyMinimum);
+	m_draw.rectangleWidth(vec3(m_size.x()*0.8, offset*(m_size.y()-2*dotRadius), 0) );
+	
+}
+
+bool appl::widget::VolumeBar::onEventInput(const ewol::event::Input& _event) {
+	vec2 relativePos = relativePosition(_event.getPos());
+	//EWOL_DEBUG("Event on VolumeBar ..." << _event);
+	if (1 == _event.getId()) {
+		if(    gale::key::status::pressSingle == _event.getStatus()
+		    || gale::key::status::move   == _event.getStatus()) {
+			// get the new position :
+			EWOL_VERBOSE("Event on VolumeBar " << relativePos);
+			float oldValue = *propertyValue;
+			updateValue((float)(relativePos.y() - dotRadius) / (m_size.y()-2*dotRadius) * (*propertyMaximum-*propertyMinimum)+*propertyMinimum);
+			if (oldValue != *propertyValue) {
+				EWOL_VERBOSE(" new value : " << *propertyValue << " in [" << *propertyMinimum << ".." << *propertyMaximum << "]");
+				signalChange.emit(*propertyValue);
+			}
+			return true;
+		}
+	}
+	return false;
+}
+
+void appl::widget::VolumeBar::updateValue(float _newValue) {
+	_newValue = std::max(std::min(_newValue, *propertyMaximum), *propertyMinimum);
+	propertyValue.setDirect(_newValue);
+	markToRedraw();
+}
+
+
+void appl::widget::VolumeBar::onChangePropertyValue() {
+	updateValue(*propertyValue);
+	return;
+}
+
+void appl::widget::VolumeBar::onChangePropertyMaximum() {
+	updateValue(*propertyValue);
+	return;
+}
+
+void appl::widget::VolumeBar::onChangePropertyMinimum() {
+	updateValue(*propertyValue);
+	return;
+}
+
+

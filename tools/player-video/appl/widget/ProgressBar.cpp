@@ -65,7 +65,7 @@ void appl::widget::ProgressBar::onRegenerateDisplay() {
 	for (auto &it: m_listAvaillable) {
 		//APPL_INFO("plop        " << it.first << " " << it.second);
 		m_draw.setPos(vec3(dotRadius+(it.first/propertyMaximum)*(m_size.x()-2*dotRadius), m_size.y()*0.1, 0));
-		m_draw.rectangleWidth(vec3((it.second/propertyMaximum)*(m_size.x()-2*dotRadius), m_size.y()*0.8, 0) );
+		m_draw.rectangleWidth(vec3(std::min((m_size.x()-2*dotRadius), (it.second/propertyMaximum)*(m_size.x()-2*dotRadius)), m_size.y()*0.8, 0) );
 	}
 	
 	m_draw.setColor(m_textColorDone);
@@ -91,7 +91,7 @@ bool appl::widget::ProgressBar::onEventInput(const ewol::event::Input& _event) {
 		if(    gale::key::status::pressSingle == _event.getStatus()
 		    || gale::key::status::move   == _event.getStatus()) {
 			// get the new position :
-			EWOL_VERBOSE("Event on ProgressBar (" << relativePos.x() << "," << relativePos.y() << ")");
+			EWOL_VERBOSE("Event on ProgressBar " << relativePos);
 			float oldValue = *propertyValue;
 			updateValue((float)(relativePos.x() - dotRadius) / (m_size.x()-2*dotRadius) * (*propertyMaximum));
 			if (oldValue != *propertyValue) {

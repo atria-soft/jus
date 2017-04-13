@@ -711,6 +711,9 @@ void appl::MediaDecoder::init() {
 	}
 	// Open Audio Decoder:
 	if (open_codec_context(&m_audioStream_idx, m_formatContext, AVMEDIA_TYPE_AUDIO) >= 0) {
+		APPL_ERROR("***********************************************************");
+		APPL_ERROR("**               Presence of Audio ...                   **");
+		APPL_ERROR("***********************************************************");
 		m_audioPresent = true;
 		m_audioStream = m_formatContext->streams[m_audioStream_idx];
 		m_audioDecoderContext = m_audioStream->codec;

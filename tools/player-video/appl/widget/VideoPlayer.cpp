@@ -126,6 +126,10 @@ void appl::widget::VideoDisplay::play() {
 		APPL_DEBUG("Already started");
 		return;
 	}
+	/*
+	APPL_ERROR("==========================================================");
+	APPL_ERROR("==               Presence of Audio: " << m_decoder->haveAudio() << "              ==");
+	APPL_ERROR("==========================================================");
 	if (m_decoder->haveAudio() == true) {
 		m_audioInterface = m_audioManager->createOutput(m_decoder->audioGetSampleRate(),
 		                                                m_decoder->audioGetChannelMap(),
@@ -137,9 +141,16 @@ void appl::widget::VideoDisplay::play() {
 		m_audioInterface->setReadwrite();
 		m_audioInterface->start();
 	}
+	*/
 	// Start decoder, this is maybe not the good point, but if we configure a decoder, it is to use it ...
 	m_decoder->start();
 	//TODO: Set an option to river to auto-generate dot: m_audioManager->generateDotAll("out/local_player_flow.dot");
+}
+
+void appl::widget::VideoDisplay::changeVolume(const float& _value) {
+	if (m_audioManager != nullptr) {
+		m_audioManager->setVolume("MASTER", _value);
+	}
 }
 
 void appl::widget::VideoDisplay::pause() {
@@ -274,12 +285,28 @@ void appl::widget::VideoDisplay::periodicEvent(const ewol::event::Time& _event) 
 	int32_t idSlot = m_decoder->audioGetOlderSlot();
 	if (    idSlot != -1
 	     && m_currentTime > m_decoder->m_audioPool[idSlot].m_time) {
+		if (m_audioInterface == nullptr) {
+			// start audio interface the first time we need it
+			APPL_ERROR("==========================================================");
+			APPL_ERROR("==               Presence of Audio: " << m_decoder->haveAudio() << "              ==");
+			APPL_ERROR("==========================================================");
+			if (m_decoder->haveAudio() == true) {
+				m_audioInterface = m_audioManager->createOutput(m_decoder->audioGetSampleRate(),
+				                                                m_decoder->audioGetChannelMap(),
+				                                                m_decoder->audioGetFormat(),
+				                                                "speaker");
+				if(m_audioInterface == nullptr) {
+					APPL_ERROR("Can not create Audio interface");
+				}
+				m_audioInterface->setReadwrite();
+				m_audioInterface->start();
+			}
+		}
 		if (m_audioInterface != nullptr) {
 			int32_t nbSample =   m_decoder->m_audioPool[idSlot].m_buffer.size()
 			                   / audio::getFormatBytes(m_decoder->m_audioPool[idSlot].m_format)
 			                   / m_decoder->m_audioPool[idSlot].m_map.size();
 			m_audioInterface->write(&m_decoder->m_audioPool[idSlot].m_buffer[0], nbSample);
-			APPL_WARNING("write samples ... ");
 		}
 		m_decoder->m_audioPool[idSlot].m_isUsed = false;
 		getSomething = true;

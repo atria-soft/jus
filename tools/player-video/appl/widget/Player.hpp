@@ -11,6 +11,7 @@
 #include <esignal/Signal.hpp>
 #include <appl/widget/VideoPlayer.hpp>
 #include <appl/widget/ProgressBar.hpp>
+#include <appl/widget/VolumeBar.hpp>
 #include <appl/ClientProperty.hpp>
 
 namespace appl {
@@ -47,6 +48,7 @@ namespace appl {
 				void onCallbackPosition(const echrono::Duration& _value);
 				void onCallbackDuration(const echrono::Duration& _value);
 				void onCallbackSeekRequest(const float& _value);
+				void onCallbackVolumeRequest(const float& _value);
 				void onCallbackFPS(const int32_t& _fps);
 		};
 	};

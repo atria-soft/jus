@@ -96,6 +96,7 @@ namespace appl {
 					}
 					return m_decoder->getDownloadPart();
 				}
+				void changeVolume(const float& _value);
 		};
 	}
 }
