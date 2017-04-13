@@ -4,9 +4,10 @@ Wants=network-online.target
 After=network.target network-online.service
 
 [Service]
+User=Heero
 #EnvironmentFile=/etc/conf.d/ushare
-ExecStart=/home/heero/.local/application/moebius-package-base.app/bin/zeus-router
-Type=forking
+ExecStart=/home/heero/.local/application/moebius-package-base.app/bin/zeus-router --elog-file= --elog-level=4
+Type=simple
 
 [Install]
 WantedBy=multi-user.target
