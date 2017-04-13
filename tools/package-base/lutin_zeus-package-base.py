@@ -29,7 +29,10 @@ def configure(target, my_module):
 	    'zeus-service-picture-impl',
 	    'zeus-service-video-impl',
 	    'zeus-service-server-impl',
+	    'zeus-service-server-impl',
 	    'zeus-launcher',
+	    'zeus-cli-video',
+	    'zeus-player-video',
 	    ])
 	return True
 

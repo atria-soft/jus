@@ -322,6 +322,11 @@ int main(int _argc, const char *_argv[]) {
 			APPL_PRINT("        ACTION        action to execute: clear, push, pushPath, list");
 			APPL_PRINT("        [arguments]   argument depending on the action");
 			return -1;
+		} else if (    etk::start_with(data, "--elog") == true
+		       || etk::start_with(data, "--etk") == true
+		       || etk::start_with(data, "--zeus") == true
+		       || etk::start_with(data, "--enet") == true) {
+			// disable option ...
 		} else {
 			if (requestAction == "") {
 				requestAction = data;
@@ -373,7 +378,7 @@ int main(int _argc, const char *_argv[]) {
 		APPL_PRINT("== Clear data base: ");
 		APPL_PRINT("============================================");
 		// TODO : Do it :
-		APPL_INFO("NEED to add check in cmd line to execute it ...");
+		/APPL_INFO("NEED to add check in cmd line to execute it ...");
 		return -1;
 		uint32_t count = remoteServiceVideo.mediaIdCount().wait().get();
 		APPL_DEBUG("have " << count << " medias");
