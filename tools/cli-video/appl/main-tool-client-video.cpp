@@ -378,7 +378,7 @@ int main(int _argc, const char *_argv[]) {
 		APPL_PRINT("== Clear data base: ");
 		APPL_PRINT("============================================");
 		// TODO : Do it :
-		/APPL_INFO("NEED to add check in cmd line to execute it ...");
+		APPL_INFO("NEED to add check in cmd line to execute it ...");
 		return -1;
 		uint32_t count = remoteServiceVideo.mediaIdCount().wait().get();
 		APPL_DEBUG("have " << count << " medias");
