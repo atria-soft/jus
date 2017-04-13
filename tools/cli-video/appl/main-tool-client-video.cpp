@@ -49,7 +49,7 @@ bool pushVideoFile(zeus::service::ProxyVideo& _srv, std::string _path, std::map<
 	std::string extention;
 	if (    _path.rfind('.') != std::string::npos
 	     && _path.rfind('.') != 0) {
-		extention = etk::tolower(std::string(_path.begin()+_path.rfind('.'), _path.end()));
+		extention = etk::tolower(std::string(_path.begin()+_path.rfind('.')+1, _path.end()));
 	}
 	if (    extention != "avi"
 	     && extention != "mkv"
