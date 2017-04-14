@@ -158,7 +158,7 @@ std::string zeus::getMineType(std::string _extention) {
 			return it.second;
 		}
 	}
-	ZEUS_ERROR(" try to convert extention in mine type: '" << _extention << "'");
+	ZEUS_ERROR(" estention to mine type error : '" << _extention << "' ==> unknow");
 	return "";
 }
 
@@ -169,6 +169,6 @@ std::string zeus::getExtention(std::string _mineType) {
 			return it.first;
 		}
 	}
-	ZEUS_ERROR(" try to convert mine-type in extention: '" << _mineType << "'");
+	ZEUS_ERROR(" mine type to estention error : '" << _mineType << "' ==> unknow");
 	return "";
 }

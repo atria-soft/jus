@@ -8,7 +8,7 @@
 
 #include <ewol/widget/Manager.hpp>
 
-const int32_t dotRadius = 6;
+const float dotRadius = 6.0f;
 
 appl::widget::VolumeBar::VolumeBar() :
   signalChange(this, "change", ""),
@@ -61,18 +61,18 @@ void appl::widget::VolumeBar::onRegenerateDisplay() {
 	m_draw.clear();
 	m_draw.setColor(m_textColorFg);
 	// draw a line:
-	m_draw.setPos(vec3(dotRadius, 0, 0));
-	m_draw.rectangleWidth(vec3(m_size.x(), m_size.y()-dotRadius*2.0, 0));
+	m_draw.setPos(vec3(dotRadius, 0.0f, 0.0f));
+	m_draw.rectangleWidth(vec3(m_size.x(), m_size.y()-dotRadius*2.0f, 0.0f));
 	// chaneg color whe soud became louder ...
 	if (*propertyValue > 0.5f) {
 		m_draw.setColor(m_textColorLoaded);
 	} else {
 		m_draw.setColor(m_textColorDone);
 	}
-	m_draw.setPos(vec3(m_size.x()*0.1, dotRadius, 0));
+	m_draw.setPos(vec3(m_size.x()*0.1f, dotRadius, 0.0f));
 	
 	float offset = (*propertyValue-*propertyMinimum)/(*propertyMaximum-*propertyMinimum);
-	m_draw.rectangleWidth(vec3(m_size.x()*0.8, offset*(m_size.y()-2*dotRadius), 0) );
+	m_draw.rectangleWidth(vec3(m_size.x()*0.8f, offset*(m_size.y()-2.0f*dotRadius), 0.0f) );
 	
 }
 

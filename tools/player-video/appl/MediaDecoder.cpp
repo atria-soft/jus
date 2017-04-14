@@ -157,7 +157,8 @@ void appl::MessageElementAudio::configure(audio::format _format, uint32_t _sampl
 	}
 }
 
-appl::MediaDecoder::MediaDecoder() {
+appl::MediaDecoder::MediaDecoder() :
+  m_seekApply(-1) {
 	init_ffmpeg();
 	m_IOContext = nullptr;
 	m_formatContext = nullptr;
@@ -236,6 +237,10 @@ int appl::MediaDecoder::decode_packet(int *_gotFrame, int _cached) {
 				m_videoPool[slotId].m_duration = echrono::Duration(0, 1000000000.0/float(getFps(m_videoDecoderContext)));
 				m_currentVideoTime += m_videoPool[slotId].m_duration;
 				m_videoPool[slotId].m_isUsed = true;
+				if (m_fistFrameSended == false) {
+					m_seekApply = m_currentVideoTime;
+					m_fistFrameSended = true;
+				}
 			}
 		}
 	} else if (m_packet.stream_index == m_audioStream_idx) {
@@ -291,13 +296,17 @@ int appl::MediaDecoder::decode_packet(int *_gotFrame, int _cached) {
 							// inject data in the buffer:
 							memcpy(&m_audioPool[slotId].m_buffer[0], m_frame->extended_data[0], m_audioPool[slotId].m_buffer.size());
 						}
-						// We use the Time of the packet ==> better synchronisation when seeking
-						m_currentAudioTime = packetTime;
+						// TODO : We use the Time of the packet ==> better synchronisation when seeking
+						//m_currentAudioTime = packetTime;
 						m_audioPool[slotId].m_id = m_audioFrameCount;
 						m_audioPool[slotId].m_time = m_currentAudioTime;
 						m_audioPool[slotId].m_duration = echrono::Duration(0,(1000000000.0*m_frame->nb_samples)/float(m_frame->sample_rate));
 						m_currentAudioTime += m_audioPool[slotId].m_duration;
 						m_audioPool[slotId].m_isUsed = true;
+						if (m_fistFrameSended == false) {
+							m_seekApply = m_currentVideoTime;
+							m_fistFrameSended = true;
+						}
 					}
 				}
 			}

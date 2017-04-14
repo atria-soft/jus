@@ -11,11 +11,12 @@
 namespace zeus {
 	class FileImpl : public zeus::File {
 		private:
-			std::string m_filename;
-			etk::FSNode m_node;
-			size_t m_size;
-			std::string m_mineType;
-			std::string m_sha512;
+			std::string m_filename; //!< Name of the file
+			etk::FSNode m_node; //!< File node access
+			size_t m_size; //!< Size of the file
+			size_t m_gettedData; //!< Number of byte loaded by the remote client
+			std::string m_mineType; //!< Mine Type of the file
+			std::string m_sha512; //!< Global file sha-512
 		public:
 			FileImpl(std::string _fileNameReal, std::string _fileNameShow, std::string _mineType);
 			FileImpl(std::string _fileNameReal);

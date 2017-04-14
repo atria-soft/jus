@@ -86,6 +86,7 @@ namespace appl {
 	class MediaDecoder : public gale::Thread {
 		bool m_stopRequested;
 		public:
+			bool m_fistFrameSended;
 			echrono::Duration m_seekApply;
 		private:
 			echrono::Duration m_seek;

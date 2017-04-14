@@ -22,13 +22,14 @@ ememory::SharedPtr<zeus::File> zeus::File::create(std::string _fileNameReal, std
 
 zeus::FileImpl::FileImpl(std::string _fileNameReal) :
   m_filename(_fileNameReal),
-  m_node(_fileNameReal) {
+  m_node(_fileNameReal),
+  m_gettedData(0) {
 	m_size = m_node.fileSize();
 	m_node.fileOpenRead();
 	std::string extention;
 	if (    _fileNameReal.rfind('.') != std::string::npos
 	     && _fileNameReal.rfind('.') != 0) {
-		extention = std::string(_fileNameReal.begin()+_fileNameReal.rfind('.'), _fileNameReal.end());
+		extention = std::string(_fileNameReal.begin()+_fileNameReal.rfind('.')+1, _fileNameReal.end());
 	}
 	m_mineType = zeus::getMineType(extention);
 	m_sha512 = algue::stringConvert(algue::sha512::encodeFromFile(_fileNameReal));
@@ -37,6 +38,7 @@ zeus::FileImpl::FileImpl(std::string _fileNameReal) :
 zeus::FileImpl::FileImpl(std::string _fileNameReal, std::string _fileNameShow, std::string _mineType) :
   m_filename(_fileNameShow),
   m_node(_fileNameReal),
+  m_gettedData(0),
   m_mineType(_mineType) {
 	m_size = m_node.fileSize();
 	m_node.fileOpenRead();
@@ -72,6 +74,8 @@ zeus::Raw zeus::FileImpl::getPart(uint64_t _start, uint64_t _stop) {
 	if (_start >= m_size) {
 		throw std::invalid_argument("REQUEST start position out of file size" + etk::to_string(_start) + " > " + etk::to_string(m_size));
 	}
+	m_gettedData += (_stop - _start);
+	ZEUS_PRINT("Reading file : " << m_gettedData << "/" << m_size << " ==> " << float(m_gettedData)/float(m_size)*100.0f << "%");
 	zeus::Raw tmp(_stop - _start);
 	if (m_node.fileSeek(_start, etk::seekNode_start) == false) {
 		ZEUS_ERROR("REQUEST seek error ...");

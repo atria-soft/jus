@@ -125,6 +125,15 @@ def configure(target, my_module):
 	    'zeus/zeus-File.impl.hpp',
 	    ])
 	
+	my_module.add_depend('ejson')
+	zeus_macro.parse_object_idl(my_module, 'zeus/zeus-Media.obj.zeus.idl')
+	my_module.add_src_file([
+	    'zeus/zeus-Media.impl.cpp',
+	    ])
+	my_module.add_header_file([
+	    'zeus/zeus-Media.impl.hpp',
+	    ])
+	
 	if target.config["compilator"] == "clang":
 		my_module.add_flag('c++', "-Wno-unsequenced", export=True)
 	# build in C++ mode

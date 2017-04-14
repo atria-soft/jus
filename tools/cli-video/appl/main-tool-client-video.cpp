@@ -17,6 +17,7 @@
 #include <etk/stdTools.hpp>
 #include <zeus/service/ProxyVideo.hpp>
 #include <zeus/ProxyFile.hpp>
+#include <zeus/ProxyMedia.hpp>
 #include <zeus/ObjectRemote.hpp>
 #include <echrono/Steady.hpp>
 #include <zeus/FutureGroup.hpp>
@@ -45,7 +46,7 @@ static std::string extractAndRemove(const std::string& _inputValue, const char _
 }
 
 bool pushVideoFile(zeus::service::ProxyVideo& _srv, std::string _path, std::map<std::string,std::string> _basicKey = std::map<std::string,std::string>()) {
-	APPL_INFO("Add media : '" << _path << "'");
+	APPL_PRINT("Add media : '" << _path << "'");
 	std::string extention;
 	if (    _path.rfind('.') != std::string::npos
 	     && _path.rfind('.') != 0) {
@@ -60,11 +61,19 @@ bool pushVideoFile(zeus::service::ProxyVideo& _srv, std::string _path, std::map<
 		return false;
 	}
 	
-	uint32_t mediaId = _srv.mediaAdd(zeus::File::create(_path)).waitFor(echrono::seconds(20000)).get();
+	uint32_t mediaId = _srv.add(zeus::File::create(_path)).waitFor(echrono::seconds(20000)).get();
 	if (mediaId == 0) {
 		APPL_ERROR("Get media ID = 0 With no error");
 		return false;
 	}
+	// Get the media
+	zeus::ProxyMedia media = _srv.get(mediaId).waitFor(echrono::seconds(2000)).get();
+	if (media.exist() == false) {
+		APPL_ERROR("get media error");
+		return false;
+	}
+	
+	// TODO: if the media have meta data ==> this mean that the media already added before ...
 	
 	// Parse file name:
 	std::string fileName = etk::split(_path, '/').back();
@@ -177,13 +186,13 @@ bool pushVideoFile(zeus::service::ProxyVideo& _srv, std::string _path, std::map<
 				episodePrint = etk::to_string(episode);
 				_basicKey.insert(std::pair<std::string,std::string>("episode", etk::to_string(episode)));
 			}
-			APPL_INFO("    recontituated: '" << seriesName << "-s" << saisonPrint << "-e" << episodePrint << "-" << fullEpisodeName << "'");
+			APPL_PRINT("     ==> '" << seriesName << "-s" << saisonPrint << "-e" << episodePrint << "-" << fullEpisodeName << "'");
 		}
 	}
 	// send all meta data:
 	zeus::FutureGroup group;
 	for (auto &itKey : _basicKey) {
-		group.add(_srv.mediaMetadataSetKey(mediaId, itKey.first, itKey.second));
+		group.add(media.setMetadata(itKey.first, itKey.second));
 	}
 	group.wait();
 	return true;
@@ -380,16 +389,16 @@ int main(int _argc, const char *_argv[]) {
 		// TODO : Do it :
 		APPL_ERROR("NEED to add check in cmd line to execute it ...");
 		return -1;
-		uint32_t count = remoteServiceVideo.mediaIdCount().wait().get();
+		uint32_t count = remoteServiceVideo.count().wait().get();
 		APPL_DEBUG("have " << count << " medias");
 		for (uint32_t iii=0; iii<count ; iii += 1024) {
 			uint32_t tmpMax = std::min(iii + 1024, count);
 			APPL_DEBUG("read section " << iii << " -> " << tmpMax);
-			std::vector<uint32_t> list = remoteServiceVideo.mediaIdGet(iii,tmpMax).wait().get();
+			std::vector<uint32_t> list = remoteServiceVideo.getIds(iii,tmpMax).wait().get();
 			zeus::FutureGroup groupWait;
 			for (auto& it : list) {
 				APPL_PRINT("remove ELEMENT : " << it);
-				groupWait.add(remoteServiceVideo.mediaRemove(it));
+				groupWait.add(remoteServiceVideo.remove(it));
 			}
 			groupWait.waitFor(echrono::seconds(2000));
 		}
@@ -400,17 +409,23 @@ int main(int _argc, const char *_argv[]) {
 		APPL_PRINT("============================================");
 		APPL_PRINT("== list files: ");
 		APPL_PRINT("============================================");
-		uint32_t count = remoteServiceVideo.mediaIdCount().wait().get();
+		uint32_t count = remoteServiceVideo.count().wait().get();
 		APPL_DEBUG("have " << count << " medias");
 		for (uint32_t iii=0; iii<count ; iii += 1024) {
 			uint32_t tmpMax = std::min(iii + 1024, count);
 			APPL_DEBUG("read section " << iii << " -> " << tmpMax);
-			std::vector<uint32_t> list = remoteServiceVideo.mediaIdGet(iii, tmpMax).wait().get();
+			std::vector<uint32_t> list = remoteServiceVideo.getIds(iii, tmpMax).wait().get();
 			for (auto& it : list) {
-				std::string name    = remoteServiceVideo.mediaMetadataGetKey(it, "title").wait().get();
-				std::string serie   = remoteServiceVideo.mediaMetadataGetKey(it, "series-name").wait().get();
-				std::string episode = remoteServiceVideo.mediaMetadataGetKey(it, "episode").wait().get();
-				std::string saison  = remoteServiceVideo.mediaMetadataGetKey(it, "saison").wait().get();
+				// Get the media
+				zeus::ProxyMedia media = remoteServiceVideo.get(it).waitFor(echrono::seconds(2000)).get();
+				if (media.exist() == false) {
+					APPL_ERROR("get media error");
+					return false;
+				}
+				std::string name    = media.getMetadata("title").wait().get();
+				std::string serie   = media.getMetadata("series-name").wait().get();
+				std::string episode = media.getMetadata("episode").wait().get();
+				std::string saison  = media.getMetadata("saison").wait().get();
 				std::string outputDesc = "";
 				if (serie != "") {
 					outputDesc += serie + "-";

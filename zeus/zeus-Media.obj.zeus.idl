@@ -1,0 +1,59 @@
+#elem-brief: File Object interface
+#elem-version: 1.0
+#elem-type:FILE
+#elem-author:Heero Yui<yui.heero@gmail.com>
+
+import zeus-File
+
+// --------------------------
+// --       Factory        --
+// --------------------------
+
+#brief:Factory to create a local object.
+#param:fileName:Name of the local file to instanciate.
+[factory] create(string)
+
+#brief:Get the book unique Id of the server+user
+#return:The UID requested
+uint64 getUniqueId()
+
+// ----------------- media Access -----------------------
+#brief:Get the media mine-type
+#return:A string describing the type of the media
+string getMineType()
+
+#brief:Get a media
+#return:A file reference on the media (transmission is async)
+obj:zeus-File GetFile()
+/*
+#brief:Get a media in STREAM mode (usefull for video)
+#return:A stream reference on the media (transmission is async)
+obj::zeus-Stream getStream()
+*/
+
+// ----------------- meta-data Access -----------------------
+#brief:Get all meta-data keys of a media
+#return:List of all availlable keys
+vector:string getMetadataKeys()
+
+#brief:Get a meta-data value of a key
+#param:key:Key of the meta-data
+#return:data in the key
+string getMetadata(string)
+
+#brief:Set a meta-data value of a key
+#param:key:Key of the meta-data
+#param:value:data in the key
+void setMetadata(string, string)
+
+/*
+#brief:Get all meta-data of a media
+#return:a json description of the metadata
+json getMetadataJson()
+*/
+
+/*
+#brief:Set all meta-data of a media
+#param:description: a json description of the metadata
+void setMetadataJson(json)
+*/

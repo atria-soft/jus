@@ -272,9 +272,11 @@ void appl::widget::VideoDisplay::periodicEvent(const ewol::event::Time& _event) 
 	if (m_decoder == nullptr) {
 		return;
 	}
-	if (m_decoder->m_seekApply >= echrono::Duration(0)) {
+	if (m_decoder->m_seekApply > echrono::Duration(-1)) {
 		m_currentTime = m_decoder->m_seekApply;
-		APPL_ERROR("Apply new position : " << m_currentTime);
+		APPL_ERROR("==========================================================");
+		APPL_ERROR("Apply seek position : " << m_currentTime);
+		APPL_ERROR("==========================================================");
 		m_decoder->m_seekApply = echrono::Duration(-1);
 		if (m_audioInterface != nullptr) {
 			m_audioInterface->clearInternalBuffer();
@@ -285,6 +287,7 @@ void appl::widget::VideoDisplay::periodicEvent(const ewol::event::Time& _event) 
 	int32_t idSlot = m_decoder->audioGetOlderSlot();
 	if (    idSlot != -1
 	     && m_currentTime > m_decoder->m_audioPool[idSlot].m_time) {
+		APPL_WARNING("Get Slot AUDIO " << m_currentTime << " > " << m_decoder->m_audioPool[idSlot].m_time);
 		if (m_audioInterface == nullptr) {
 			// start audio interface the first time we need it
 			APPL_ERROR("==========================================================");
@@ -316,6 +319,7 @@ void appl::widget::VideoDisplay::periodicEvent(const ewol::event::Time& _event) 
 	// check the slot is valid and check display time of the element:
 	if (    idSlot != -1
 	     && m_currentTime > m_decoder->m_videoPool[idSlot].m_time) {
+		APPL_WARNING("Get Slot VIDEO " << m_currentTime << " > " << m_decoder->m_audioPool[idSlot].m_time);
 		m_resource->get().swap(m_decoder->m_videoPool[idSlot].m_image);
 		m_imageSize = m_resource->get().getSize();
 		ivec2 tmpSize = m_decoder->m_videoPool[idSlot].m_imagerealSize;

@@ -23,20 +23,13 @@
 #include <zeus/ProxyClientProperty.hpp>
 #include <zeus/File.hpp>
 #include <zeus/ProxyFile.hpp>
+#include <zeus/zeus-Media.impl.hpp>
 
 static std::mutex g_mutex;
 static std::string g_basePath;
 static std::string g_baseDBName = std::string(SERVICE_NAME) + "-database.json";
-class FileProperty {
-	public:
-		uint64_t m_id; //!< use local reference ID to have faster access on the file ...
-		std::string m_fileName; // Sha 512
-		std::string m_name;
-		std::string m_mineType;
-		echrono::Time m_creationData;
-		std::map<std::string, std::string> m_metadata;
-};
-static std::vector<FileProperty> m_listFile;
+
+static std::vector<ememory::SharedPtr<zeus::MediaImpl>> m_listFile;
 
 static uint64_t m_lastMaxId = 0;
 static bool g_needToStore = false;
@@ -114,80 +107,66 @@ namespace appl {
 				APPL_VERBOSE("delete VideoService ...");
 			}
 		public:
-			uint32_t mediaIdCount() override {
+			uint32_t count() override {
 				std::unique_lock<std::mutex> lock(g_mutex);
 				// TODO : Check right ...
 				return m_listFile.size();
 			}
 			
-			std::vector<uint32_t> mediaIdGet(uint32_t _start, uint32_t _stop) override {
+			std::vector<uint32_t> getIds(uint32_t _start, uint32_t _stop) override {
 				std::unique_lock<std::mutex> lock(g_mutex);
 				// TODO : Check right ...
 				std::vector<uint32_t> out;
 				for (size_t iii=_start; iii<m_listFile.size() && iii<_stop; ++iii) {
-					out.push_back(m_listFile[iii].m_id);
+					if (m_listFile[iii] == nullptr) {
+						continue;
+					}
+					out.push_back(m_listFile[iii]->getUniqueId());
 				}
 				return out;
 			}
 			
-			std::string mediaMineTypeGet(uint32_t _mediaId) override {
-				std::unique_lock<std::mutex> lock(g_mutex);
-				// TODO : Check right ...
-				//Check if the file exist:
-				bool find = false;
-				FileProperty property;
-				for (auto &it : m_listFile) {
-					if (it.m_id == _mediaId) {
-						find = true;
-						property = it;
-						break;
-					}
-				}
-				if (find == false) {
-					throw std::invalid_argument("Wrong file ID ...");
-				}
-				return property.m_mineType;
-			}
 			// Return a File Data (might be a video .tiff/.png/.jpg)
-			ememory::SharedPtr<zeus::File> mediaGet(uint32_t _mediaId) override {
+			ememory::SharedPtr<zeus::Media> get(uint32_t _mediaId) override {
 				std::unique_lock<std::mutex> lock(g_mutex);
 				// TODO : Check right ...
-				//Check if the file exist:
-				bool find = false;
-				FileProperty property;
+				ememory::SharedPtr<zeus::MediaImpl> property;
 				for (auto &it : m_listFile) {
-					if (it.m_id == _mediaId) {
-						find = true;
-						property = it;
-						break;
+					if (it == nullptr) {
+						continue;
+					}
+					if (it->getUniqueId() == _mediaId) {
+						return it;
 					}
 				}
-				if (find == false) {
-					throw std::invalid_argument("Wrong file ID ...");
-				}
-				return zeus::File::create(g_basePath + property.m_fileName + "." + zeus::getExtention(property.m_mineType), "", property.m_mineType);
+				throw std::invalid_argument("Wrong file ID ...");
+				//
 			}
-			uint32_t mediaAdd(zeus::ProxyFile _dataFile) override {
+			uint32_t add(zeus::ProxyFile _dataFile) override {
 				std::unique_lock<std::mutex> lock(g_mutex);
 				// TODO : Check right ...
 				uint64_t id = createUniqueID();
-				
+				auto futRemoteSha512 = _dataFile.getSha512();
 				auto futType = _dataFile.getMineType();
 				auto futName = _dataFile.getName();
+				// wait the sha1 to check his existance:
+				futRemoteSha512.wait();
+				std::string sha512StringRemote = futRemoteSha512.get();
+				for (auto &it : m_listFile) {
+					if (it == nullptr) {
+						continue;
+					}
+					if (it->getFileName() == sha512StringRemote) {
+						APPL_INFO("File already registered at ");// << it.m_creationData);
+						// simply send the Id of the file
+						// TODO : Check right of this file ...
+						return it->getUniqueId();
+					}
+				}
 				std::string tmpFileName = g_basePath + "tmpImport_" + etk::to_string(id);
 				std::string sha512String = zeus::storeInFile(_dataFile, tmpFileName);
 				futType.wait();
 				futName.wait();
-				// TODO : Get internal data of the file and remove all the meta-data ==> proper files ...
-				for (auto &it : m_listFile) {
-					if (it.m_fileName == sha512String) {
-						APPL_INFO("File already registered at " << it.m_creationData);
-						// TODO : Check if data is identical ...
-						// remove temporary file
-						etk::FSNodeRemove(tmpFileName);
-						return it.m_id;
-					}
-				}
 				// move the file at the good position:
 				APPL_DEBUG("move temporay file in : " << g_basePath << sha512String);
 				if (etk::FSNodeGetSize(tmpFileName) == 0) {
@@ -195,30 +174,30 @@ namespace appl {
 					throw std::runtime_error("file size == 0");
 				}
 				etk::FSNodeMove(tmpFileName, g_basePath + sha512String + "." + zeus::getExtention(futType.get()));
-				FileProperty property;
-				property.m_id = id;
-				property.m_fileName = sha512String;
-				property.m_name = futName.get();
-				property.m_mineType = futType.get();
-				property.m_creationData = echrono::Time::now();
+				ememory::SharedPtr<zeus::MediaImpl> property = ememory::makeShared<zeus::MediaImpl>(id, sha512String + "." + zeus::getExtention(futType.get()));
+				//property->setName(futName.get());
 				m_listFile.push_back(property);
 				g_needToStore = true;
 				APPL_DEBUG(" filename : " << sha512String);
 				return id;
 			}
-			void mediaRemove(uint32_t _mediaId) override {
+			void remove(uint32_t _mediaId) override {
 				std::unique_lock<std::mutex> lock(g_mutex);
 				// TODO : Check right ...
 				//Check if the file exist:
 				bool find = false;
-				FileProperty property;
+				ememory::SharedPtr<zeus::MediaImpl> property;
 				for (auto it = m_listFile.begin();
 				     it != m_listFile.end();
 				     /* No increment */) {
-					if (it->m_id == _mediaId) {
+					if (*it == nullptr) {
+						it = m_listFile.erase(it);
+						continue;
+					}
+					if ((*it)->getUniqueId() == _mediaId) {
+						property = *it;
 						it = m_listFile.erase(it);
 						find = true;
-						property = *it;
 					} else {
 						++it;
 					}
@@ -228,56 +207,14 @@ namespace appl {
 				}
 				// Real Remove definitly the file
 				// TODO : Set it in a trash ... For a while ...
-				if (etk::FSNodeRemove(g_basePath + property.m_fileName + "." + zeus::getExtention(property.m_mineType)) == false) {
+				if (property->erase() == false) {
 					throw std::runtime_error("Can not remove file ...");
 				}
 			}
 			
-			std::vector<std::string> mediaMetadataGetKeys(uint32_t _mediaId) override {
-				std::unique_lock<std::mutex> lock(g_mutex);
-				std::vector<std::string> out;
-				for (auto &it : m_listFile) {
-					if (it.m_id == _mediaId) {
-						for (auto &itM : it.m_metadata) {
-							out.push_back(itM.first);
-						}
-						return out;
-					}
-				}
-				throw std::invalid_argument("Wrong KEY ID ...");
-			}
-			std::string mediaMetadataGetKey(uint32_t _mediaId, std::string _key) override {
-				std::unique_lock<std::mutex> lock(g_mutex);
-				std::vector<std::string> out;
-				for (auto &it : m_listFile) {
-					if (it.m_id == _mediaId) {
-						auto itM = it.m_metadata.find(_key);
-						if (itM != it.m_metadata.end()) {
-							return itM->second;
-						}
-						return "";
-					}
-				}
-				throw std::invalid_argument("Wrong KEY ID ...");
-			}
-			void mediaMetadataSetKey(uint32_t _mediaId, std::string _key, std::string _value) override {
-				APPL_INFO("[" << _mediaId << "] set key: '" << _key << "' value: '" << _value << "'");
-				std::unique_lock<std::mutex> lock(g_mutex);
-				for (auto &it : m_listFile) {
-					if (it.m_id == _mediaId) {
-						auto itM = it.m_metadata.find(_key);
-						if (itM != it.m_metadata.end()) {
-							itM->second = _value;
-						} else {
-							it.m_metadata.insert(std::make_pair(_key, _value));
-						}
-						return;
-					}
-				}
-				throw std::invalid_argument("Wrong KEY ID ...");
-			}
-			std::vector<uint32_t> getMediaWhere(std::string _sqlLikeRequest) override {
+			std::vector<uint32_t> getSQL(std::string _sqlLikeRequest) override {
 				std::vector<uint32_t> out;
+				/*
 				if (_sqlLikeRequest == "") {
 					throw std::invalid_argument("empty request");
 				}
@@ -351,6 +288,7 @@ namespace appl {
 						out.push_back(it.m_id);
 					}
 				}
+				*/
 				return out;
 			}
 			
@@ -370,19 +308,8 @@ static void store_db() {
 	ejson::Array listFilesArray;
 	database.add("list-files", listFilesArray);
 	for (auto &it : m_listFile) {
-		ejson::Object fileElement;
-		listFilesArray.add(fileElement);
-		fileElement.add("id", ejson::Number(it.m_id));
-		fileElement.add("file-name", ejson::String(it.m_fileName));
-		fileElement.add("name", ejson::String(it.m_name));
-		fileElement.add("mine-type", ejson::String(it.m_mineType));
-		fileElement.add("add-date", ejson::Number(it.m_creationData.count()));
-		if (it.m_metadata.size() != 0) {
-			ejson::Object listMetadata;
-			fileElement.add("meta", listMetadata);
-			for (auto &itM : it.m_metadata) {
-				listMetadata.add(itM.first, ejson::String(itM.second));
-			}
+		if (it != nullptr) {
+			listFilesArray.add(it->getJson());
 		}
 	}
 	bool retGenerate = database.storeSafe(g_basePath + g_baseDBName);
@@ -398,26 +325,15 @@ static void load_db() {
 	}
 	ejson::Array listFilesArray = database["list-files"].toArray();
 	for (const auto itArray: listFilesArray) {
-		ejson::Object fileElement = itArray.toObject();
-		FileProperty property;
-		property.m_id = fileElement["id"].toNumber().getU64();
-		APPL_INFO("get ID : " << property.m_id);
-		property.m_fileName = fileElement["file-name"].toString().get();
-		property.m_name = fileElement["name"].toString().get();
-		property.m_mineType = fileElement["mine-type"].toString().get();
-		property.m_creationData = echrono::Time(fileElement["add-date"].toNumber().getU64()*1000);
-		if (m_lastMaxId < property.m_id) {
-			m_lastMaxId = property.m_id+1;
+		auto property = ememory::makeShared<zeus::MediaImpl>(g_basePath, itArray.toObject());
+		if (property == nullptr) {
+			APPL_ERROR("can not allocate element ...");
+			continue;
 		}
-		ejson::Object tmpObj = fileElement["meta"].toObject();
-		if (tmpObj.exist() == true) {
-			for (auto itValue = tmpObj.begin();
-			     itValue != tmpObj.end();
-			     ++itValue) {
-				property.m_metadata.insert(std::make_pair(itValue.getKey(), (*itValue).toString().get()));
-			}
+		if (m_lastMaxId < property->getUniqueId()) {
+			m_lastMaxId = property->getUniqueId()+1;
 		}
-		if (property.m_fileName == "") {
+		if (property->getFileName() == "") {
 			APPL_ERROR("Can not access on the file : ... No name ");
 		} else {
 			m_listFile.push_back(property);

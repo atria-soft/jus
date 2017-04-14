@@ -4,74 +4,34 @@
 #elem-author:Heero Yui<yui.heero@gmail.com
 
 import zeus-File
+import zeus-Media
 
 // ----------------- Get media with their ID -----------------------
 #brief:Get the number of media availlable (a media is a picture or a video)
 #return: Number of media
-uint32 mediaIdCount()
+uint32 count()
 
 #brief:Get list of name of the media in a specific range (<1024)
 #param:start:First Id of the media stream requested (range [0..+inf[)
 #param:stop:Last Id of the media stream requested (excluded) (range [0..+inf[)
 #return:List of the media Ids
-vector:uint32 mediaIdGet(uint32,uint32)
+vector:uint32 getIds(uint32,uint32)
 
 // ----------------- media Access -----------------------
-#brief:Get the media mine-type
-#param:mediaId:Id of the media
-#return:A string describing the type of the media
-string mediaMineTypeGet(uint32)
-
 #brief:Get a media
 #param:mediaId:Id of the media
 #return:A file reference on the media (transmission is async)
-obj:zeus-File mediaGet(uint32)
-/*
-#brief:Get a media in STREAM mode (usefull for video)
-#param:mediaId:Id of the media
-#return:A stream reference on the media (transmission is async)
-obj::zeus-Stream mediaStream(uint32)
-*/
+obj:zeus-Media get(uint32)
+
 #brief:Add a new media in the service
 #param:data:A file reference on the media (transmission is async)
 #return:Local personal ID of the media
-uint32 mediaAdd(obj:zeus-File)
+uint32 add(obj:zeus-File)
 
 #brief:Remove a media in the service (no trash)
 #param:mediaId:Id of the media
-void mediaRemove(uint32)
+void remove(uint32)
 
-// ----------------- meta-data Access -----------------------
-/*
-#brief:Get all meta-data of a media
-#param:mediaName:Name of the media
-#return:a json description of the metadata
-json mediaMetadataGet(string)
-*/
-
-#brief:Get all meta-data keys of a media
-#param:mediaId:Id of the media
-#return:List of all availlable keys
-vector:string mediaMetadataGetKeys(uint32)
-
-#brief:Get a meta-data value of a key
-#param:mediaId:Id of the media
-#param:key:Key of the meta-data
-#return:data in the key
-string mediaMetadataGetKey(uint32, string)
-
-#brief:Set a meta-data value of a key
-#param:mediaId:Id of the media
-#param:key:Key of the meta-data
-#param:value:data in the key
-void mediaMetadataSetKey(uint32, string, string)
-
-/*
-#brief:Set all meta-data of a media
-#param:name:Name of the media
-#param:description: a json description of the metadata
-void mediaMetadataSet(string, json)
-*/
 
 /*
  The SQL-like is now: ['AND','='] only...
@@ -81,7 +41,7 @@ void mediaMetadataSet(string, json)
 #brief:Get a meta-data research elements with a SQL-like request
 #param:sqlLikeRequest:A string containing the request on the data
 #return:All The requested Data filter by the value
-vector:uint32 getMediaWhere(string)
+vector:uint32 getSQL(string)
 
 #brief:Get a list of possibilities of a meta-data
 #param:keyName:the key metadata whe we want to have list of possibilities
