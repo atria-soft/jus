@@ -35,7 +35,7 @@ namespace zeus {
 			~MediaImpl();
 			uint64_t getUniqueId() override;
 			std::string getMineType() override;
-			ememory::SharedPtr<zeus::File> GetFile() override;
+			ememory::SharedPtr<zeus::File> getFile() override;
 			std::vector<std::string> getMetadataKeys() override;
 			std::string getMetadata(std::string _key) override;
 			void setMetadata(std::string _key, std::string _value) override;

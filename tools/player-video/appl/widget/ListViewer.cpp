@@ -23,6 +23,7 @@
 #include <echrono/Steady.hpp>
 #include <zeus/FutureGroup.hpp>
 #include <etk/stdTools.hpp>
+#include <zeus/ProxyMedia.hpp>
 #include <ejson/ejson.hpp>
 
 appl::widget::ListViewer::ListViewer() :
@@ -87,7 +88,7 @@ void appl::widget::ListViewer::searchElements(std::string _filter) {
 		APPL_ERROR("    ==> Service does not exist : 'video'");
 		return;
 	}
-	zeus::Future<std::vector<uint32_t>> listElem = remoteServiceVideo.getMediaWhere(_filter).wait();
+	zeus::Future<std::vector<uint32_t>> listElem = remoteServiceVideo.getSQL(_filter).wait();
 	if (listElem.hasError() == true) {
 		APPL_ERROR("    ==> Can not get element from video service <with fileter ! '" << _filter << "' : " << listElem.getErrorType() << " : " << listElem.getErrorHelp());
 		return;
@@ -104,8 +105,16 @@ void appl::widget::ListViewer::searchElements(std::string _filter) {
 		elem->m_metadataUpdated = false;
 		// TODO : Type the "andThen" to simplify user experience
 		// TODO : Add the reference on the typed future in the function andTrn ... ==> then we can add later the cancel
+		
+		// Get the media
+		zeus::ProxyMedia media = remoteServiceVideo.get(it).waitFor(echrono::seconds(2000)).get();
+		if (media.exist() == false) {
+			APPL_ERROR("get media error");
+			continue;
+		}
+		
 		appl::widget::ListViewerShared tmpWidget = ememory::staticPointerCast<appl::widget::ListViewer>(sharedFromThis());
-		remoteServiceVideo.mediaMetadataGetKey(it, "title")
+		media.getMetadata("title")
 		    .andThen([=](zeus::Future<std::string> _fut) mutable {
 		             	APPL_INFO("    [" << elem->m_id << "] get title: " << _fut.get());
 		             	{
@@ -115,7 +124,7 @@ void appl::widget::ListViewer::searchElements(std::string _filter) {
 		             	tmpWidget->markToRedraw();
 		             	return true;
 		             });
-		remoteServiceVideo.mediaMetadataGetKey(it, "series-name")
+		media.getMetadata("series-name")
 		    .andThen([=](zeus::Future<std::string> _fut) mutable {
 		             	APPL_ERROR("    [" << elem->m_id << "] get serie: " << _fut.get());
 		             	{
@@ -125,7 +134,7 @@ void appl::widget::ListViewer::searchElements(std::string _filter) {
 		             	tmpWidget->markToRedraw();
 		             	return true;
 		             });
-		remoteServiceVideo.mediaMetadataGetKey(it, "saison")
+		media.getMetadata("saison")
 		    .andThen([=](zeus::Future<std::string> _fut) mutable {
 		             	APPL_INFO("    [" << elem->m_id << "] get saison: " << _fut.get());
 		             	{
@@ -135,7 +144,7 @@ void appl::widget::ListViewer::searchElements(std::string _filter) {
 		             	tmpWidget->markToRedraw();
 		             	return true;
 		             });
-		remoteServiceVideo.mediaMetadataGetKey(it, "episode")
+		media.getMetadata("episode")
 		    .andThen([=](zeus::Future<std::string> _fut) mutable {
 		             	APPL_INFO("    [" << elem->m_id << "] get episode: " << _fut.get());
 		             	{
@@ -145,7 +154,7 @@ void appl::widget::ListViewer::searchElements(std::string _filter) {
 		             	tmpWidget->markToRedraw();
 		             	return true;
 		             });
-		remoteServiceVideo.mediaMetadataGetKey(it, "description")
+		media.getMetadata("description")
 		    .andThen([=](zeus::Future<std::string> _fut) mutable {
 		             	APPL_INFO("    [" << elem->m_id << "] get description: " << _fut.get());
 		             	{
@@ -155,7 +164,7 @@ void appl::widget::ListViewer::searchElements(std::string _filter) {
 		             	tmpWidget->markToRedraw();
 		             	return true;
 		             });
-		remoteServiceVideo.mediaMetadataGetKey(it, "production-methode")
+		media.getMetadata("production-methode")
 		    .andThen([=](zeus::Future<std::string> _fut) mutable {
 		             	APPL_INFO("    [" << elem->m_id << "] get production-methode: " << _fut.get());
 		             	{
@@ -165,7 +174,7 @@ void appl::widget::ListViewer::searchElements(std::string _filter) {
 		             	tmpWidget->markToRedraw();
 		             	return true;
 		             });
-		remoteServiceVideo.mediaMetadataGetKey(it, "type")
+		media.getMetadata("type")
 		    .andThen([=](zeus::Future<std::string> _fut) mutable {
 		             	APPL_INFO("    [" << elem->m_id << "] get type: " << _fut.get());
 		             	{
@@ -175,7 +184,7 @@ void appl::widget::ListViewer::searchElements(std::string _filter) {
 		             	tmpWidget->markToRedraw();
 		             	return true;
 		             });
-		remoteServiceVideo.mediaMineTypeGet(it)
+		media.getMineType()
 		    .andThen([=](zeus::Future<std::string> _fut) mutable {
 		             	APPL_INFO("    [" << elem->m_id << "] get mine-type: " << _fut.get());
 		             	{

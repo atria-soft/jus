@@ -76,7 +76,7 @@ std::string zeus::MediaImpl::getMineType() {
 	return m_mineType;
 }
 
-ememory::SharedPtr<zeus::File> zeus::MediaImpl::GetFile() {
+ememory::SharedPtr<zeus::File> zeus::MediaImpl::getFile() {
 	return zeus::File::create(m_basePath + m_fileName + "." + zeus::getExtention(m_mineType), "", m_mineType);
 }
 

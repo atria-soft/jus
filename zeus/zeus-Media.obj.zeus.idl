@@ -24,7 +24,7 @@ string getMineType()
 
 #brief:Get a media
 #return:A file reference on the media (transmission is async)
-obj:zeus-File GetFile()
+obj:zeus-File getFile()
 /*
 #brief:Get a media in STREAM mode (usefull for video)
 #return:A stream reference on the media (transmission is async)

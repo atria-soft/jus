@@ -379,7 +379,13 @@ void appl::MediaDecoder::init(ememory::SharedPtr<ClientProperty> _property, uint
 	m_remote->m_bufferReadPosition = 0;
 	m_remote->m_property = _property;
 	m_remote->m_mediaId = _mediaId;
-	remoteServiceVideo.mediaGet(_mediaId).andThen(
+	// Get the media
+	zeus::ProxyMedia media = remoteServiceVideo.get(_mediaId).waitFor(echrono::seconds(2000)).get();
+	if (media.exist() == false) {
+		APPL_ERROR("get media error");
+		return;
+	}
+	media.getFile().andThen(
 	    [=](zeus::Future<zeus::ProxyFile> _fut) mutable {
 	    	APPL_INFO("Receive ProxyFile");
 	    	m_remote->m_fileHandle = _fut.get();
