@@ -212,12 +212,8 @@ namespace appl {
 				}
 			}
 			
-			std::vector<uint32_t> getSQL(std::string _sqlLikeRequest) override {
-				std::vector<uint32_t> out;
-				if (_sqlLikeRequest == "") {
-					throw std::invalid_argument("empty request");
-				}
-				std::vector<std::vector<std::string>> listAndParsed;
+			std::vector<std::vector<std::string>> interpreteSQLRequest(const std::string& _sqlLikeRequest) {
+				std::vector<std::vector<std::string>> out;
 				if (_sqlLikeRequest != "*") {
 					std::vector<std::string> listAnd = etk::split(_sqlLikeRequest, "AND");
 					APPL_INFO("Find list AND : ");
@@ -237,56 +233,75 @@ namespace appl {
 							throw std::invalid_argument("action invalid : '" + elements[1] + "' only availlable : [==,!=,<=,>=,<,>]");
 						}
 						APPL_INFO("    - '" << elements[0] << "' action='" << elements[1] << "' with='" << elements[2] << "'");
-						listAndParsed.push_back(elements);
+						out.push_back(elements);
 					}
 				}
+				return out;
+			}
+			
+			bool isValid(const std::vector<std::vector<std::string>>& _listElement,
+			             const std::map<std::string, std::string>& _metadata) {
+				for (auto &itCheck : _listElement) {
+					// find matadataValue:
+					auto itM = _metadata.find(itCheck[0]);
+					if (itM == _metadata.end()) {
+						// not find key ==> no check to do ...
+						return false;
+					}
+					if (itCheck[1] == "==") {
+						if (itM->second != itCheck[2]) {
+							return false;
+						}
+					} else if (itCheck[1] == "!=") {
+						if (itM->second == itCheck[2]) {
+							return false;
+						}
+					} else if (itCheck[1] == "<=") {
+						if (itM->second < itCheck[2]) {
+							return false;
+						}
+					} else if (itCheck[1] == ">=") {
+						if (itM->second > itCheck[2]) {
+							return false;
+						}
+					} else if (itCheck[1] == "<") {
+						if (itM->second <= itCheck[2]) {
+							return false;
+						}
+					} else if (itCheck[1] == ">") {
+						if (itM->second >= itCheck[2]) {
+							return false;
+						}
+					}
+				}
+				return true;
+			}
+			
+			std::string mapToString(const std::map<std::string, std::string>& _metadata) {
+				std::string out = "{";
+				for (auto &it : _metadata) {
+					out += it.first + ":" + it.second + ",";
+				}
+				out += "}";
+				return out;
+			}
+			
+			std::vector<uint32_t> getSQL(std::string _sqlLikeRequest) override {
+				std::vector<uint32_t> out;
+				if (_sqlLikeRequest == "") {
+					throw std::invalid_argument("empty request");
+				}
+				APPL_INFO("check : " << _sqlLikeRequest);
+				std::vector<std::vector<std::string>> listAndParsed = interpreteSQLRequest(_sqlLikeRequest);
 				std::unique_lock<std::mutex> lock(g_mutex);
 				for (auto &it : m_listFile) {
 					if (it == nullptr) {
 						continue;
 					}
-					bool isCorrectElement = true;
-					for (auto &itCheck : listAndParsed) {
-						// find matadataValue:
-						auto itM = it->getMetadataDirect().find(itCheck[0]);
-						if (itM == it->getMetadataDirect().end()) {
-							// not find key ==> no check to do ...
-							isCorrectElement = false;
-							break;
-						}
-						if (itCheck[1] == "==") {
-							if (itM->second != itCheck[2]) {
-								isCorrectElement = false;
-								break;
-							}
-						} else if (itCheck[1] == "!=") {
-							if (itM->second == itCheck[2]) {
-								isCorrectElement = false;
-								break;
-							}
-						} else if (itCheck[1] == "<=") {
-							if (itM->second < itCheck[2]) {
-								isCorrectElement = false;
-								break;
-							}
-						} else if (itCheck[1] == ">=") {
-							if (itM->second > itCheck[2]) {
-								isCorrectElement = false;
-								break;
-							}
-						} else if (itCheck[1] == "<") {
-							if (itM->second <= itCheck[2]) {
-								isCorrectElement = false;
-								break;
-							}
-						} else if (itCheck[1] == ">") {
-							if (itM->second >= itCheck[2]) {
-								isCorrectElement = false;
-								break;
-							}
-						}
-					}
+					APPL_INFO("    [" << it->getUniqueId() << "   list=" << mapToString(it->getMetadataDirect()));
+					bool isCorrectElement = isValid(listAndParsed, it->getMetadataDirect());
 					if (isCorrectElement == true) {
+						APPL_INFO("        select");
 						out.push_back(it->getUniqueId());
 					}
 				}
@@ -294,9 +309,36 @@ namespace appl {
 			}
 			
 			std::vector<std::string> getMetadataValuesWhere(std::string _keyName, std::string _sqlLikeRequest) override {
-				std::unique_lock<std::mutex> lock(g_mutex);
 				std::vector<std::string> out;
-				//  'type' == 'film' AND 'production-methode' == 'picture'
+				if (_sqlLikeRequest == "") {
+					throw std::invalid_argument("empty request");
+				}
+				std::vector<std::vector<std::string>> listAndParsed = interpreteSQLRequest(_sqlLikeRequest);
+				std::unique_lock<std::mutex> lock(g_mutex);
+				for (auto &it : m_listFile) {
+					if (it == nullptr) {
+						continue;
+					}
+					bool isCorrectElement = isValid(listAndParsed, it->getMetadataDirect());
+					if (isCorrectElement == false) {
+						continue;
+					}
+					auto it2 = it->getMetadataDirect().find(_keyName);
+					if (it2 == it->getMetadataDirect().end()) {
+						continue;
+					}
+					std::string value = it2->second;
+					isCorrectElement = false;
+					for (auto &it2: out) {
+						if (it2 == value) {
+							isCorrectElement = true;
+							break;
+						}
+					}
+					if (isCorrectElement == false) {
+						out.push_back(value);
+					}
+				}
 				return out;
 			}
 			

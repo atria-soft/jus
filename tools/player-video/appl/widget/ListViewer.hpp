@@ -20,7 +20,7 @@ namespace appl {
 	class ElementProperty {
 		public:
 			std::mutex m_mutex;
-			uint32_t m_id; //!< Remote Id of the Media
+			uint64_t m_id; //!< Remote Id of the Media
 			bool m_metadataUpdated; //!< Check value to know when metadata is getted (like thumb ...)
 			egami::Image m_thumb; //!< simple image describing the element
 			std::string m_title; //!< Title of the Element
@@ -35,9 +35,16 @@ namespace appl {
 			// TODO: int32_t m_countPersonalView; //!< number of view this media
 			// TODO: int64_t m_globalPersonalView; //!< number of time this media has been viewed
 	};
+	class ElementPropertyGroup {
+		public:
+			std::mutex m_mutex;
+			uint64_t m_id; //!< Remote Id of the Media
+			std::string m_title; //!< Title of the Group
+	};
 	class ElementDisplayed {
 		public:
 			ememory::SharedPtr<appl::ElementProperty> m_property;
+			ememory::SharedPtr<appl::ElementPropertyGroup> m_propertyGroup;
 			int32_t m_idCurentElement;
 			etk::Color<float> m_bgColor;
 			vec2 m_pos;
@@ -75,6 +82,9 @@ namespace appl {
 				ememory::SharedPtr<ClientProperty> m_clientProp; //!< Generic entrypoint on the Client
 			protected:
 				std::vector<ememory::SharedPtr<ElementProperty>> m_listElement; //!< list of all element getted in the remote access
+				std::vector<ememory::SharedPtr<ElementPropertyGroup>> m_listElementGroup; //!< list of all element getted in the remote access
+				std::string m_currentFilter;
+				std::string m_currentGroup;
 				std::vector<ememory::SharedPtr<ElementDisplayed>> m_listDisplay; //!< list of element in the current local display
 			protected:
 				//! @brief constructor
@@ -92,6 +102,7 @@ namespace appl {
 					m_clientProp = _prop;
 				}
 				void searchElements(std::string _filter="");
+				void searchElementsInternal(const std::string& _filter, const std::string& _group="");
 				bool onEventInput(const ewol::event::Input& _event) override;
 		};
 	}

@@ -46,30 +46,37 @@ appl::widget::ListViewer::~ListViewer() {
 }
 
 void appl::widget::ListViewer::searchElements(std::string _filter) {
+	if (_filter == "film") {
+		searchElementsInternal("'type' == 'film' AND 'production-methode' == 'picture'");
+	} else if (_filter == "annimation") {
+		searchElementsInternal("'type' == 'film' AND 'production-methode' == 'draw'");
+	} else if (_filter == "tv-show") {
+		searchElementsInternal("'type' == 'tv-show' AND 'production-methode' == 'picture'", "series-name");
+	} else if (_filter == "tv-annimation") {
+		searchElementsInternal("'type' == 'tv-show' AND 'production-methode' == 'draw'", "series-name");
+	} else if (_filter == "theater") {
+		searchElementsInternal("'type' == 'theater'");
+	} else if (_filter == "one-man") {
+		searchElementsInternal("'type' == 'one-man'");
+	} else if (_filter == "courses") {
+		searchElementsInternal("'type' == 'courses'");
+	} else {
+		searchElementsInternal("*");
+	}
+}
+
+void appl::widget::ListViewer::searchElementsInternal(const std::string& _filter, const std::string& _group) {
 	m_listElement.clear();
+	m_listElementGroup.clear();
 	m_listDisplay.clear();
+	resetScrollOrigin();
 	if (m_clientProp == nullptr) {
 		APPL_ERROR("No client Availlable ...");
 		return;
 	}
-	if (_filter == "film") {
-		_filter = "'type' == 'film' AND 'production-methode' == 'picture'";
-	} else if (_filter == "annimation") {
-		_filter = "'type' == 'film' AND 'production-methode' == 'draw'";
-	} else if (_filter == "tv-show") {
-		_filter = "'type' == 'tv-show' AND 'production-methode' == 'picture'";
-	} else if (_filter == "tv-annimation") {
-		_filter = "'type' == 'tv-show' AND 'production-methode' == 'draw'";
-	} else if (_filter == "theater") {
-		_filter = "'type' == 'theater'";
-	} else if (_filter == "one-man") {
-		_filter = "'type' == 'one-man'";
-	} else if (_filter == "courses") {
-		_filter = "'type' == 'courses'";
-	} else {
-		_filter = "*";
-	}
-	
+	m_currentFilter = _filter;
+	m_currentGroup = _group;
+	markToRedraw();
 	m_clientProp->connect();
 	if (m_clientProp->connection.isAlive() == false) {
 		APPL_ERROR("Conection is not alive anymore ...");
@@ -88,122 +95,146 @@ void appl::widget::ListViewer::searchElements(std::string _filter) {
 		APPL_ERROR("    ==> Service does not exist : 'video'");
 		return;
 	}
-	zeus::Future<std::vector<uint32_t>> listElem = remoteServiceVideo.getSQL(_filter).wait();
-	if (listElem.hasError() == true) {
-		APPL_ERROR("    ==> Can not get element from video service <with fileter ! '" << _filter << "' : " << listElem.getErrorType() << " : " << listElem.getErrorHelp());
-		return;
-	}
-	std::vector<uint32_t> returnValues = listElem.get();
-	APPL_INFO("Get some Values: " << returnValues << "");
-	for (auto &it : returnValues) {
-		auto elem = ememory::makeShared<ElementProperty>();
-		if (elem == nullptr) {
-			APPL_ERROR("Can not allocate element... " << it);
-			continue;
+	if (m_currentGroup != "") {
+		zeus::Future<std::vector<std::string>> listElem = remoteServiceVideo.getMetadataValuesWhere(m_currentGroup, m_currentFilter).wait();
+		if (listElem.hasError() == true) {
+			APPL_ERROR("    ==> Can not get elements from video service <with fileter ! '" << m_currentFilter << "' : " << listElem.getErrorType() << " : " << listElem.getErrorHelp());
+			return;
 		}
-		elem->m_id = it;
-		elem->m_metadataUpdated = false;
-		// TODO : Type the "andThen" to simplify user experience
-		// TODO : Add the reference on the typed future in the function andTrn ... ==> then we can add later the cancel
-		
-		// Get the media
-		zeus::ProxyMedia media = remoteServiceVideo.get(it).waitFor(echrono::seconds(2000)).get();
-		if (media.exist() == false) {
-			APPL_ERROR("get media error");
-			continue;
+		std::vector<std::string> returnValues = listElem.get();
+		APPL_INFO("Get some Values: " << returnValues << "");
+		if (returnValues.size() == 1) {
+			// TODO : maybe something to do for series
 		}
-		
-		appl::widget::ListViewerShared tmpWidget = ememory::staticPointerCast<appl::widget::ListViewer>(sharedFromThis());
-		media.getMetadata("title")
-		    .andThen([=](zeus::Future<std::string> _fut) mutable {
-		             	APPL_INFO("    [" << elem->m_id << "] get title: " << _fut.get());
-		             	{
-		             		std::unique_lock<std::mutex> lock(elem->m_mutex);
-		             		elem->m_title = _fut.get();
-		             	}
-		             	tmpWidget->markToRedraw();
-		             	return true;
-		             });
-		media.getMetadata("series-name")
-		    .andThen([=](zeus::Future<std::string> _fut) mutable {
-		             	APPL_ERROR("    [" << elem->m_id << "] get serie: " << _fut.get());
-		             	{
-		             		std::unique_lock<std::mutex> lock(elem->m_mutex);
-		             		elem->m_serie = _fut.get();
-		             	}
-		             	tmpWidget->markToRedraw();
-		             	return true;
-		             });
-		media.getMetadata("saison")
-		    .andThen([=](zeus::Future<std::string> _fut) mutable {
-		             	APPL_INFO("    [" << elem->m_id << "] get saison: " << _fut.get());
-		             	{
-		             		std::unique_lock<std::mutex> lock(elem->m_mutex);
-		             		elem->m_saison = _fut.get();
-		             	}
-		             	tmpWidget->markToRedraw();
-		             	return true;
-		             });
-		media.getMetadata("episode")
-		    .andThen([=](zeus::Future<std::string> _fut) mutable {
-		             	APPL_INFO("    [" << elem->m_id << "] get episode: " << _fut.get());
-		             	{
-		             		std::unique_lock<std::mutex> lock(elem->m_mutex);
-		             		elem->m_episode = _fut.get();
-		             	}
-		             	tmpWidget->markToRedraw();
-		             	return true;
-		             });
-		media.getMetadata("description")
-		    .andThen([=](zeus::Future<std::string> _fut) mutable {
-		             	APPL_INFO("    [" << elem->m_id << "] get description: " << _fut.get());
-		             	{
-		             		std::unique_lock<std::mutex> lock(elem->m_mutex);
-		             		elem->m_description = _fut.get();
-		             	}
-		             	tmpWidget->markToRedraw();
-		             	return true;
-		             });
-		media.getMetadata("production-methode")
-		    .andThen([=](zeus::Future<std::string> _fut) mutable {
-		             	APPL_INFO("    [" << elem->m_id << "] get production-methode: " << _fut.get());
-		             	{
-		             		std::unique_lock<std::mutex> lock(elem->m_mutex);
-		             		elem->m_productMethode = _fut.get();
-		             	}
-		             	tmpWidget->markToRedraw();
-		             	return true;
-		             });
-		media.getMetadata("type")
-		    .andThen([=](zeus::Future<std::string> _fut) mutable {
-		             	APPL_INFO("    [" << elem->m_id << "] get type: " << _fut.get());
-		             	{
-		             		std::unique_lock<std::mutex> lock(elem->m_mutex);
-		             		elem->m_type = _fut.get();
-		             	}
-		             	tmpWidget->markToRedraw();
-		             	return true;
-		             });
-		media.getMineType()
-		    .andThen([=](zeus::Future<std::string> _fut) mutable {
-		             	APPL_INFO("    [" << elem->m_id << "] get mine-type: " << _fut.get());
-		             	{
-		             		std::unique_lock<std::mutex> lock(elem->m_mutex);
-		             		elem->m_mineType = _fut.get();
-		             		if (etk::start_with(elem->m_mineType, "video") == true) {
-		             			// TODO : Optimise this ...
-		             			elem->m_thumb = egami::load("DATA:Video.svg", ivec2(128,128));
-		             		} else if (etk::start_with(elem->m_mineType, "audio") == true) {
-		             			// TODO : Optimise this ...
-		             			elem->m_thumb = egami::load("DATA:MusicNote.svg", ivec2(128,128));
-		             		}
-		             	}
-		             	tmpWidget->markToRedraw();
-		             	return true;
-		             });
-		elem->m_metadataUpdated = true;
-		//elem->m_thumb = remoteServiceVideo.mediaThumbGet(it, 128).wait().get();
-		m_listElement.push_back(elem);
+		for (auto &it : returnValues) {
+			auto elem = ememory::makeShared<ElementPropertyGroup>();
+			if (elem == nullptr) {
+				APPL_ERROR("Can not allocate element... " << it);
+				continue;
+			}
+			elem->m_id = 0;
+			elem->m_title = it;
+			//elem->m_thumb = remoteServiceVideo.mediaThumbGet(it, 128).wait().get();
+			m_listElementGroup.push_back(elem);
+		}
+	} else {
+		zeus::Future<std::vector<uint32_t>> listElem = remoteServiceVideo.getSQL(m_currentFilter).wait();
+		if (listElem.hasError() == true) {
+			APPL_ERROR("    ==> Can not get element from video service <with fileter ! '" << m_currentFilter << "' : " << listElem.getErrorType() << " : " << listElem.getErrorHelp());
+			return;
+		}
+		std::vector<uint32_t> returnValues = listElem.get();
+		APPL_INFO("Get some Values: " << returnValues << "");
+		for (auto &it : returnValues) {
+			auto elem = ememory::makeShared<ElementProperty>();
+			if (elem == nullptr) {
+				APPL_ERROR("Can not allocate element... " << it);
+				continue;
+			}
+			elem->m_id = it;
+			elem->m_metadataUpdated = false;
+			// TODO : Type the "andThen" to simplify user experience
+			// TODO : Add the reference on the typed future in the function andTrn ... ==> then we can add later the cancel
+			
+			// Get the media
+			zeus::ProxyMedia media = remoteServiceVideo.get(it).waitFor(echrono::seconds(2000)).get();
+			if (media.exist() == false) {
+				APPL_ERROR("get media error");
+				continue;
+			}
+			
+			appl::widget::ListViewerShared tmpWidget = ememory::staticPointerCast<appl::widget::ListViewer>(sharedFromThis());
+			media.getMetadata("title")
+			    .andThen([=](zeus::Future<std::string> _fut) mutable {
+			             	APPL_INFO("    [" << elem->m_id << "] get title: " << _fut.get());
+			             	{
+			             		std::unique_lock<std::mutex> lock(elem->m_mutex);
+			             		elem->m_title = _fut.get();
+			             	}
+			             	tmpWidget->markToRedraw();
+			             	return true;
+			             });
+			media.getMetadata("series-name")
+			    .andThen([=](zeus::Future<std::string> _fut) mutable {
+			             	APPL_ERROR("    [" << elem->m_id << "] get serie: " << _fut.get());
+			             	{
+			             		std::unique_lock<std::mutex> lock(elem->m_mutex);
+			             		elem->m_serie = _fut.get();
+			             	}
+			             	tmpWidget->markToRedraw();
+			             	return true;
+			             });
+			media.getMetadata("saison")
+			    .andThen([=](zeus::Future<std::string> _fut) mutable {
+			             	APPL_INFO("    [" << elem->m_id << "] get saison: " << _fut.get());
+			             	{
+			             		std::unique_lock<std::mutex> lock(elem->m_mutex);
+			             		elem->m_saison = _fut.get();
+			             	}
+			             	tmpWidget->markToRedraw();
+			             	return true;
+			             });
+			media.getMetadata("episode")
+			    .andThen([=](zeus::Future<std::string> _fut) mutable {
+			             	APPL_INFO("    [" << elem->m_id << "] get episode: " << _fut.get());
+			             	{
+			             		std::unique_lock<std::mutex> lock(elem->m_mutex);
+			             		elem->m_episode = _fut.get();
+			             	}
+			             	tmpWidget->markToRedraw();
+			             	return true;
+			             });
+			media.getMetadata("description")
+			    .andThen([=](zeus::Future<std::string> _fut) mutable {
+			             	APPL_INFO("    [" << elem->m_id << "] get description: " << _fut.get());
+			             	{
+			             		std::unique_lock<std::mutex> lock(elem->m_mutex);
+			             		elem->m_description = _fut.get();
+			             	}
+			             	tmpWidget->markToRedraw();
+			             	return true;
+			             });
+			media.getMetadata("production-methode")
+			    .andThen([=](zeus::Future<std::string> _fut) mutable {
+			             	APPL_INFO("    [" << elem->m_id << "] get production-methode: " << _fut.get());
+			             	{
+			             		std::unique_lock<std::mutex> lock(elem->m_mutex);
+			             		elem->m_productMethode = _fut.get();
+			             	}
+			             	tmpWidget->markToRedraw();
+			             	return true;
+			             });
+			media.getMetadata("type")
+			    .andThen([=](zeus::Future<std::string> _fut) mutable {
+			             	APPL_INFO("    [" << elem->m_id << "] get type: " << _fut.get());
+			             	{
+			             		std::unique_lock<std::mutex> lock(elem->m_mutex);
+			             		elem->m_type = _fut.get();
+			             	}
+			             	tmpWidget->markToRedraw();
+			             	return true;
+			             });
+			media.getMineType()
+			    .andThen([=](zeus::Future<std::string> _fut) mutable {
+			             	APPL_INFO("    [" << elem->m_id << "] get mine-type: " << _fut.get());
+			             	{
+			             		std::unique_lock<std::mutex> lock(elem->m_mutex);
+			             		elem->m_mineType = _fut.get();
+			             		if (etk::start_with(elem->m_mineType, "video") == true) {
+			             			// TODO : Optimise this ...
+			             			elem->m_thumb = egami::load("DATA:Video.svg", ivec2(128,128));
+			             		} else if (etk::start_with(elem->m_mineType, "audio") == true) {
+			             			// TODO : Optimise this ...
+			             			elem->m_thumb = egami::load("DATA:MusicNote.svg", ivec2(128,128));
+			             		}
+			             	}
+			             	tmpWidget->markToRedraw();
+			             	return true;
+			             });
+			elem->m_metadataUpdated = true;
+			//elem->m_thumb = remoteServiceVideo.mediaThumbGet(it, 128).wait().get();
+			m_listElement.push_back(elem);
+		}
 	}
 	APPL_INFO("Request All is done");
 }
@@ -230,7 +261,8 @@ void appl::widget::ListViewer::onRegenerateDisplay() {
 	m_text.clear();
 	// to know the size of one line : 
 	vec3 minSize = m_text.calculateSize(char32_t('A'));
-	if (m_listElement.size() == 0) {
+	if (    m_listElement.size() == 0
+	     && m_listElementGroup.size() == 0) {
 		int32_t paddingSize = 2;
 		
 		vec2 tmpMax = propertyMaxSize->getPixel();
@@ -244,7 +276,7 @@ void appl::widget::ListViewer::onRegenerateDisplay() {
 		
 		ivec2 localSize = m_minSize;
 		
-		// no change for the text orogin : 
+		// no change for the text orogin:
 		vec3 tmpTextOrigin((m_size.x() - m_minSize.x()) / 2.0,
 		                   (m_size.y() - m_minSize.y()) / 2.0,
 		                   0);
@@ -310,6 +342,11 @@ void appl::widget::ListViewer::onRegenerateDisplay() {
 			} else {
 				elem->m_property.reset();
 			}
+			if (offset + iii < m_listElementGroup.size()) {
+				elem->m_propertyGroup = m_listElementGroup[offset + iii];
+			} else {
+				elem->m_propertyGroup.reset();
+			}
 			//switch(iii%6) {
 			switch((offset + iii)%6) {
 				case 0:
@@ -358,7 +395,7 @@ void appl::widget::ListViewer::onRegenerateDisplay() {
 		startPos -= vec2(0, elementSize.y());
 	}
 	m_maxSize.setX(m_size.x());
-	m_maxSize.setY((float)m_listElement.size()*elementSize.y());
+	m_maxSize.setY(float(std::max(m_listElement.size(),m_listElementGroup.size()))*elementSize.y());
 	// call the herited class...
 	ewol::widget::WidgetScrolled::onRegenerateDisplay();
 }
@@ -377,7 +414,8 @@ void appl::ElementDisplayed::generateDisplay(vec2 _startPos, vec2 _size) {
 	m_image.clear();
 	m_text.clear();
 	m_draw.clear();
-	if (m_property == nullptr) {
+	if (    m_property == nullptr
+	     && m_propertyGroup == nullptr) {
 		return;
 	}
 	//APPL_INFO("Regenrate size :  " << _startPos << " " << _size);
@@ -398,8 +436,6 @@ void appl::ElementDisplayed::generateDisplay(vec2 _startPos, vec2 _size) {
 	m_pos = _startPos;
 	m_size = _size;
 	
-	std::unique_lock<std::mutex> lock(m_property->m_mutex);
-	
 	// --------------------------------------------
 	// -- Display text...
 	// --------------------------------------------
@@ -413,42 +449,56 @@ void appl::ElementDisplayed::generateDisplay(vec2 _startPos, vec2 _size) {
 	//APPL_VERBOSE("[" << getId() << "] {" << errorString << "} display at pos : " << tmpTextOrigin);
 	m_text.setTextAlignement(originText.x(), originText.x()+_size.x()-_size.y(), ewol::compositing::alignDisable);
 	// TODO: m_text.setClipping(originText, vec2(originText.x()+_size.x()-_size.y(), _size.y()));
-	//m_text.setClipping(drawClippingPos, drawClippingSize);
-	std::string textToDisplay = "<b>" + m_property->m_title + "</b><br/>";
-	bool newLine = false;
-	if (m_property->m_serie != "") {
-		textToDisplay += "<i>Serie: <b>" + m_property->m_serie + "</b></i><br/>";
-	}
-	if (m_property->m_saison != "") {
-		textToDisplay += "<i>Saison: <b>" + m_property->m_saison + "</b></i> ";
-		newLine = true;
-	}
-	if (m_property->m_episode != "") {
-		textToDisplay += "<i>Episode: <b>" + m_property->m_episode + "</b></i> ";
-		newLine = true;
-	}
-	if (m_property->m_type != "") {
-		textToDisplay += "    <i>type: <b>" + m_property->m_type + "</b></i> ";
-		if (m_property->m_productMethode != "") {
-			textToDisplay += " / " + m_property->m_productMethode + " ";
+	std::string textToDisplay;
+	if (m_property != nullptr) {
+		std::unique_lock<std::mutex> lock(m_property->m_mutex);
+		//m_text.setClipping(drawClippingPos, drawClippingSize);
+		textToDisplay = "<b>" + m_property->m_title + "</b><br/>";
+		bool newLine = false;
+		if (m_property->m_serie != "") {
+			textToDisplay += "<i>Serie: <b>" + m_property->m_serie + "</b></i><br/>";
 		}
-		newLine = true;
+		if (m_property->m_saison != "") {
+			textToDisplay += "<i>Saison: <b>" + m_property->m_saison + "</b></i> ";
+			newLine = true;
+		}
+		if (m_property->m_episode != "") {
+			textToDisplay += "<i>Episode: <b>" + m_property->m_episode + "</b></i> ";
+			newLine = true;
+		}
+		if (m_property->m_type != "") {
+			textToDisplay += "    <i>type: <b>" + m_property->m_type + "</b></i> ";
+			if (m_property->m_productMethode != "") {
+				textToDisplay += " / " + m_property->m_productMethode + " ";
+			}
+			newLine = true;
+		}
+		if (newLine == true) {
+			textToDisplay += "<br/>";
+		}
+		textToDisplay += "<i>" + m_property->m_description + "</i>";
+	} else {
+		std::unique_lock<std::mutex> lock(m_propertyGroup->m_mutex);
+		//m_text.setClipping(drawClippingPos, drawClippingSize);
+		textToDisplay = "<b>" + m_propertyGroup->m_title + "</b><br/>";
 	}
-	if (newLine == true) {
-		textToDisplay += "<br/>";
-	}
-	textToDisplay += "<i>" + m_property->m_description + "</i>";
 	m_text.printDecorated(textToDisplay);
 	
 	// --------------------------------------------
 	// -- Display Image...
 	// --------------------------------------------
-	if (etk::start_with(m_property->m_mineType, "video") == true) {
-		m_image.setSource("DATA:Video.svg", 128);
-	} else if (etk::start_with(m_property->m_mineType, "audio") == true) {
-		m_image.setSource("DATA:MusicNote.svg", 128);
+	if (m_property != nullptr) {
+		std::unique_lock<std::mutex> lock(m_property->m_mutex);
+		if (etk::start_with(m_property->m_mineType, "video") == true) {
+			m_image.setSource("DATA:Video.svg", 128);
+		} else if (etk::start_with(m_property->m_mineType, "audio") == true) {
+			m_image.setSource("DATA:MusicNote.svg", 128);
+		} else {
+			APPL_INFO("Set image: Unknow type '" << m_property->m_mineType << "'");
+			m_image.setSource("DATA:Home.svg", 128);
+		}
 	} else {
-		APPL_INFO("Set image: Unknow type '" << m_property->m_mineType << "'");
+		std::unique_lock<std::mutex> lock(m_propertyGroup->m_mutex);
 		m_image.setSource("DATA:Home.svg", 128);
 	}
 	m_image.setPos(_startPos+vec2(10,10));
@@ -482,8 +532,11 @@ bool appl::widget::ListViewer::onEventInput(const ewol::event::Input& _event) {
 	if (_event.getId() == 1) {
 		if(_event.getStatus() == gale::key::status::pressSingle) {
 			APPL_DEBUG("Select element : " << findId << "  " << m_listDisplay[findId]->m_idCurentElement);
-			ememory::SharedPtr<appl::ElementProperty> prop = m_listDisplay[findId]->m_property;
-			if (prop != nullptr) {
+			if (m_listDisplay[findId]->m_property != nullptr) {
+				ememory::SharedPtr<appl::ElementProperty> prop = m_listDisplay[findId]->m_property;
+				if (prop == nullptr) {
+					return true;
+				}
 				std::string fullTitle;
 				if (prop->m_serie != "") {
 					fullTitle += prop->m_serie + "-";
@@ -497,6 +550,18 @@ bool appl::widget::ListViewer::onEventInput(const ewol::event::Input& _event) {
 				fullTitle += prop->m_title;
 				APPL_DEBUG("info element : " << prop->m_id << " title: " << fullTitle);
 				signalSelect.emit(prop->m_id);
+			} else if (m_listDisplay[findId]->m_propertyGroup != nullptr) {
+				ememory::SharedPtr<appl::ElementPropertyGroup> prop = m_listDisplay[findId]->m_propertyGroup;
+				if (prop == nullptr) {
+					return true;
+				}
+				std::string newGroup = "";
+				if (m_currentGroup == "series-name") {
+					newGroup = "saison";
+				} else if (m_currentGroup == "artist") {
+					newGroup = "album";
+				}
+				searchElementsInternal(m_currentFilter + " AND '" + m_currentGroup + "' == '" + prop->m_title + "'", newGroup);
 			}
 			return true;
 		}

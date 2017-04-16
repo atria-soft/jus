@@ -26,6 +26,7 @@ namespace appl {
 			public:
 				//eproperty::Value<std::string> propertyShape; //!< name of the shape used
 				eproperty::Value<float> propertyValue; //!< current value of the VolumeBar
+				eproperty::Value<float> propertyStep; //!< Up and down step value
 				eproperty::Value<float> propertyMinimum; //!< minimum value of the VolumeBar
 				eproperty::Value<float> propertyMaximum; //!< maximum value of the VolumeBar
 			protected:

@@ -8,14 +8,15 @@
 
 #include <ewol/widget/Manager.hpp>
 
-const float dotRadius = 6.0f;
-
 appl::widget::VolumeBar::VolumeBar() :
   signalChange(this, "change", ""),
   propertyValue(this, "value",
                       0.0f,
                       "Value of the VolumeBar",
                       &appl::widget::VolumeBar::onChangePropertyValue),
+  propertyStep(this, "step",
+                      1.0f,
+                      "step value when change"),
   propertyMinimum(this, "min",
                         -10.0f,
                         "Minimum value",
@@ -45,7 +46,7 @@ appl::widget::VolumeBar::~VolumeBar() {
 void appl::widget::VolumeBar::calculateMinMaxSize() {
 	vec2 minTmp = propertyMinSize->getPixel();
 	m_minSize.setValue(std::max(minTmp.x(), 40.0f),
-	                   std::max(minTmp.y(), dotRadius*2.0f) );
+	                   std::max(minTmp.y(), std::max(minTmp.x(), 40.0f)) );
 	markToRedraw();
 }
 
@@ -60,32 +61,62 @@ void appl::widget::VolumeBar::onRegenerateDisplay() {
 	// clean the object list ...
 	m_draw.clear();
 	m_draw.setColor(m_textColorFg);
+	
 	// draw a line:
-	m_draw.setPos(vec3(dotRadius, 0.0f, 0.0f));
-	m_draw.rectangleWidth(vec3(m_size.x(), m_size.y()-dotRadius*2.0f, 0.0f));
+	#if 0
+		m_draw.setPos(vec2(0.0f, 0.0f));
+		m_draw.rectangleWidth(vec2(m_size.x(), m_size.y()));
+	#else
+		m_draw.setThickness(4.0f);
+		m_draw.setPos(vec2(0.0f, 0.0f));
+		m_draw.lineRel(vec2(m_size.x(), 0.0f));
+		m_draw.lineRel(vec2(0.0f, m_size.y()));
+		m_draw.lineRel(vec2(-m_size.x(), 0.0f));
+		m_draw.lineRel(vec2(0.0f, -m_size.y()));
+	#endif
 	// chaneg color whe soud became louder ...
 	if (*propertyValue > 0.5f) {
 		m_draw.setColor(m_textColorLoaded);
 	} else {
 		m_draw.setColor(m_textColorDone);
 	}
-	m_draw.setPos(vec3(m_size.x()*0.1f, dotRadius, 0.0f));
+	m_draw.setPos(vec3(m_size.x()*0.1f, m_size.x()*0.1f, 0.0f));
 	
 	float offset = (*propertyValue-*propertyMinimum)/(*propertyMaximum-*propertyMinimum);
-	m_draw.rectangleWidth(vec3(m_size.x()*0.8f, offset*(m_size.y()-2.0f*dotRadius), 0.0f) );
+	m_draw.rectangleWidth(vec3(m_size.x()*0.8f, offset*(m_size.y()-m_size.x()*0.2f), 0.0f) );
 	
 }
 
 bool appl::widget::VolumeBar::onEventInput(const ewol::event::Input& _event) {
 	vec2 relativePos = relativePosition(_event.getPos());
 	//EWOL_DEBUG("Event on VolumeBar ..." << _event);
-	if (1 == _event.getId()) {
-		if(    gale::key::status::pressSingle == _event.getStatus()
-		    || gale::key::status::move   == _event.getStatus()) {
+	if (_event.getId() == 1) {
+		if(    _event.getStatus() == gale::key::status::pressSingle
+		    || _event.getStatus() == gale::key::status::move) {
 			// get the new position :
 			EWOL_VERBOSE("Event on VolumeBar " << relativePos);
 			float oldValue = *propertyValue;
-			updateValue((float)(relativePos.y() - dotRadius) / (m_size.y()-2*dotRadius) * (*propertyMaximum-*propertyMinimum)+*propertyMinimum);
+			updateValue((float)(relativePos.y() - m_size.x()*0.1f) / (m_size.y()-m_size.x()*0.2f) * (*propertyMaximum-*propertyMinimum)+*propertyMinimum);
+			if (oldValue != *propertyValue) {
+				EWOL_VERBOSE(" new value : " << *propertyValue << " in [" << *propertyMinimum << ".." << *propertyMaximum << "]");
+				signalChange.emit(*propertyValue);
+			}
+			return true;
+		}
+	} else if (_event.getId() == 4) {
+		if(_event.getStatus() == gale::key::status::pressSingle) {
+			float oldValue = *propertyValue;
+			updateValue(*propertyValue + *propertyStep);
+			if (oldValue != *propertyValue) {
+				EWOL_VERBOSE(" new value : " << *propertyValue << " in [" << *propertyMinimum << ".." << *propertyMaximum << "]");
+				signalChange.emit(*propertyValue);
+			}
+			return true;
+		}
+	} else if (_event.getId() == 5) {
+		if(_event.getStatus() == gale::key::status::pressSingle) {
+			float oldValue = *propertyValue;
+			updateValue(*propertyValue - *propertyStep);
 			if (oldValue != *propertyValue) {
 				EWOL_VERBOSE(" new value : " << *propertyValue << " in [" << *propertyMinimum << ".." << *propertyMaximum << "]");
 				signalChange.emit(*propertyValue);

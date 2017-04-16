@@ -32,7 +32,7 @@
 		<sizer mode="hori" fill="true" expand="true,false">
 			<sizer mode="vert" fill="true" expand="false,true">
 				<image src="DATA:Light.svg" size="8,8mm" />
-				<appl_VolumeBar name="[{ID}]appl-player-light" expand="false,true" fill="true" step="1" value="100" min="0" max="100" mode="vert"/>
+				<appl_VolumeBar name="[{ID}]appl-player-light" expand="false,true" fill="true" step="5" value="100" min="0" max="100" mode="vert"/>
 				<label name="[{ID}]appl-player-label-light">100%</label>
 			</sizer>
 			<sizer mode="vert" fill="true" expand="true">
@@ -41,7 +41,7 @@
 			</sizer>
 			<sizer mode="vert" fill="true" expand="false,true">
 				<image src="DATA:Volume.svg" size="8,8mm" />
-				<appl_VolumeBar name="[{ID}]appl-player-volume" expand="false,true" fill="true" step="0.1" value="0" min="-60" max="6" mode="vert"/>
+				<appl_VolumeBar name="[{ID}]appl-player-volume" expand="false,true" fill="true" step="0.3" value="0" min="-40" max="6" mode="vert"/>
 				<label name="[{ID}]appl-player-label-volume">0dB</label>
 			</sizer>
 		</sizer>
