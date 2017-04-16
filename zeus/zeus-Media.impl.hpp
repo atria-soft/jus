@@ -48,6 +48,9 @@ namespace zeus {
 				return m_fileName;
 			}
 			bool erase();
+			const std::map<std::string, std::string>& getMetadataDirect() {
+				return m_metadata;
+			}
 		
 	};
 }

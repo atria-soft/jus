@@ -134,6 +134,7 @@ void appl::Router::newClient(enet::Tcp _connection) {
 
 appl::Router::Router() :
   m_clientUID(2),
+  propertyStdOut(this, "stdout", false, "Set the Log of the output"),
   propertyClientIp(this, "client-ip", "127.0.0.1", "Ip to listen client", &appl::Router::onPropertyChangeClientIp),
   propertyClientPort(this, "client-port", 1983, "Port to listen client", &appl::Router::onPropertyChangeClientPort),
   propertyClientMax(this, "client-max", 8000, "Maximum of client at the same time", &appl::Router::onPropertyChangeClientMax),
@@ -222,10 +223,9 @@ ememory::SharedPtr<appl::GateWayInterface> appl::Router::get(const std::string& 
 					std::string binary = etk::FSNodeGetApplicationPath() + "/zeus-gateway";
 					std::string userConf = "--user=" + it.m_name;
 					std::string basePath = "--base-path=" + it.m_basePath;
-					#if 0
-						std::string logFile = "--elog-file=\"/tmp/zeus.gateway." + it.m_name + ".log\"";
-					#else
-						std::string logFile = it.m_basePath + "/log/gateway.log";
+					std::string logFile;
+					if (*propertyStdOut == false) {
+						logFile = it.m_basePath + "/log/gateway.log";
 						if (    logFile.size() != 0
 						     && logFile[0] == '~') {
 							logFile = etk::FSNodeGetHomePath() + &logFile[1];
@@ -234,7 +234,7 @@ ememory::SharedPtr<appl::GateWayInterface> appl::Router::get(const std::string& 
 						//std::string logFile = "--elog-file=/home/heero/.local/share/zeus-DATA/SDFGHTHBSDFGSQDHZSRDFGSDFGSDFGSDFG/log/gateway.log";
 						//std::string logFile = " ";
 						APPL_INFO("New Child log in = " << logFile);
-					#endif
+					}
 					std::string delay = "--router-delay=" + etk::to_string(*propertyDelayToStop);
 					int ret = execlp( binary.c_str(),
 					                  binary.c_str(), // must repeate the binary name to have the name as first argument ...

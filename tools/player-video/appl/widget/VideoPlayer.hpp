@@ -77,7 +77,7 @@ namespace appl {
 			public:
 				void periodicEvent(const ewol::event::Time& _event);
 			private:
-				void printPart(const vec2& _size, const vec2& _sourcePosStart, const vec2& _sourcePosStop);
+				void printPart(const vec2& _displayStart,const vec2& _size, const vec2& _sourcePosStart, const vec2& _sourcePosStop);
 				void loadProgram();
 			private: // Audio Property:
 				ememory::SharedPtr<audio::river::Manager> m_audioManager; //!< River manager interface

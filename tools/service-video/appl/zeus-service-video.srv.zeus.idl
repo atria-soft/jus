@@ -34,9 +34,9 @@ void remove(uint32)
 
 
 /*
- The SQL-like is now: ['AND','='] only...
- 'serie-name' = 'stargate'
- AND 'saison' = '2'
+ The SQL-like is now: ['AND', ==,!=,<=,>=,<,>] only...
+ 'serie-name' == 'stargate'
+ AND 'saison' <= '2'
 */
 #brief:Get a meta-data research elements with a SQL-like request
 #param:sqlLikeRequest:A string containing the request on the data

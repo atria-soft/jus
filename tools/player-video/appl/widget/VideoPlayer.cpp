@@ -208,26 +208,27 @@ void appl::widget::VideoDisplay::onDraw() {
 	m_GLprogram->unUse();
 }
 
-void appl::widget::VideoDisplay::printPart(const vec2& _size,
+void appl::widget::VideoDisplay::printPart(const vec2& _displayStart,
+                                           const vec2& _size,
                                            const vec2& _sourcePosStart,
                                            const vec2& _sourcePosStop) {
 	//EWOL_ERROR("Debug image " << m_filename << "  ==> " << m_position << " " << _size << " " << _sourcePosStart << " " << _sourcePosStop);
-	vec3 point = m_position;
+	vec3 point(_displayStart.x(),_displayStart.y(), 0.0f);
 	vec2 tex(_sourcePosStart.x(),_sourcePosStop.y());
 	m_VBO->pushOnBuffer(m_vboIdCoord, point);
 	m_VBO->pushOnBuffer(m_vboIdCoordTex, tex);
 	m_VBO->pushOnBuffer(m_vboIdColor, m_color);
 	
 	tex.setValue(_sourcePosStop.x(),_sourcePosStop.y());
-	point.setX(m_position.x() + _size.x());
-	point.setY(m_position.y());
+	point.setX(_displayStart.x() + _size.x());
+	point.setY(_displayStart.y());
 	m_VBO->pushOnBuffer(m_vboIdCoord, point);
 	m_VBO->pushOnBuffer(m_vboIdCoordTex, tex);
 	m_VBO->pushOnBuffer(m_vboIdColor, m_color);
 	
 	tex.setValue(_sourcePosStop.x(),_sourcePosStart.y());
-	point.setX(m_position.x() + _size.x());
-	point.setY(m_position.y() + _size.y());
+	point.setX(_displayStart.x() + _size.x());
+	point.setY(_displayStart.y() + _size.y());
 	m_VBO->pushOnBuffer(m_vboIdCoord, point);
 	m_VBO->pushOnBuffer(m_vboIdCoordTex, tex);
 	m_VBO->pushOnBuffer(m_vboIdColor, m_color);
@@ -237,15 +238,15 @@ void appl::widget::VideoDisplay::printPart(const vec2& _size,
 	m_VBO->pushOnBuffer(m_vboIdColor, m_color);
 	
 	tex.setValue(_sourcePosStart.x(),_sourcePosStart.y());
-	point.setX(m_position.x());
-	point.setY(m_position.y() + _size.y());
+	point.setX(_displayStart.x());
+	point.setY(_displayStart.y() + _size.y());
 	m_VBO->pushOnBuffer(m_vboIdCoord, point);
 	m_VBO->pushOnBuffer(m_vboIdCoordTex, tex);
 	m_VBO->pushOnBuffer(m_vboIdColor, m_color);
 	
 	tex.setValue(_sourcePosStart.x(),_sourcePosStop.y());
-	point.setX(m_position.x());
-	point.setY(m_position.y());
+	point.setX(_displayStart.x());
+	point.setY(_displayStart.y());
 	m_VBO->pushOnBuffer(m_vboIdCoord, point);
 	m_VBO->pushOnBuffer(m_vboIdCoordTex, tex);
 	m_VBO->pushOnBuffer(m_vboIdColor, m_color);
@@ -261,7 +262,32 @@ void appl::widget::VideoDisplay::onRegenerateDisplay() {
 	m_VBO->clear();
 	// set the somposition properties :
 	m_position = vec3(0,0,0);
-	printPart(m_size, vec2(0,0), vec2(float(m_videoSize.x())/float(m_imageSize.x()), float(m_videoSize.y())/float(m_imageSize.y())));
+	
+	if (m_decoder != nullptr) {
+		ivec2 tmp = m_decoder->getSize();
+		vec2 realSize(tmp.x(), tmp.y());
+		vec2 displaySize = m_size;
+		float aspectRatioReal = realSize.x() / realSize.y();
+		float displayRatioReal = displaySize.x() / displaySize.y();
+		vec2 startPos(0,0);
+		if (aspectRatioReal == displayRatioReal) {
+			// nothing to do ...
+		} else if (aspectRatioReal < displayRatioReal) {
+			// the display is more width than the video
+			displaySize.setX(displaySize.y()*realSize.x()/realSize.y());
+			startPos.setX((m_size.x()-displaySize.x())*0.5f);
+		} else {
+			// The display is more height than the video
+			displaySize.setY(displaySize.x()*realSize.y()/realSize.x());
+			startPos.setY((m_size.y()-displaySize.y())*0.5f);
+		}
+		printPart(startPos,
+		          displaySize,
+		          vec2(0,0),
+		          vec2(float(m_videoSize.x())/float(m_imageSize.x()), float(m_videoSize.y())/float(m_imageSize.y())));
+	} else {
+		// nothing to display ...
+	}
 }
 
 void appl::widget::VideoDisplay::periodicEvent(const ewol::event::Time& _event) {

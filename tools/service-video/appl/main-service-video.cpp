@@ -214,7 +214,6 @@ namespace appl {
 			
 			std::vector<uint32_t> getSQL(std::string _sqlLikeRequest) override {
 				std::vector<uint32_t> out;
-				/*
 				if (_sqlLikeRequest == "") {
 					throw std::invalid_argument("empty request");
 				}
@@ -243,11 +242,14 @@ namespace appl {
 				}
 				std::unique_lock<std::mutex> lock(g_mutex);
 				for (auto &it : m_listFile) {
+					if (it == nullptr) {
+						continue;
+					}
 					bool isCorrectElement = true;
 					for (auto &itCheck : listAndParsed) {
 						// find matadataValue:
-						auto itM = it.m_metadata.find(itCheck[0]);
-						if (itM == it.m_metadata.end()) {
+						auto itM = it->getMetadataDirect().find(itCheck[0]);
+						if (itM == it->getMetadataDirect().end()) {
 							// not find key ==> no check to do ...
 							isCorrectElement = false;
 							break;
@@ -285,17 +287,16 @@ namespace appl {
 						}
 					}
 					if (isCorrectElement == true) {
-						out.push_back(it.m_id);
+						out.push_back(it->getUniqueId());
 					}
 				}
-				*/
 				return out;
 			}
 			
 			std::vector<std::string> getMetadataValuesWhere(std::string _keyName, std::string _sqlLikeRequest) override {
 				std::unique_lock<std::mutex> lock(g_mutex);
 				std::vector<std::string> out;
-				
+				//  'type' == 'film' AND 'production-methode' == 'picture'
 				return out;
 			}
 			

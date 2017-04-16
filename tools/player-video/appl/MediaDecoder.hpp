@@ -116,6 +116,11 @@ namespace appl {
 			AVCodecContext* m_videoDecoderContext;
 			AVCodecContext* m_audioDecoderContext;
 			ivec2 m_size;
+		public:
+			ivec2 getSize() {
+				return m_size;
+			}
+		private:
 			enum AVPixelFormat m_pixelFormat;
 			AVStream *m_videoStream;
 			AVStream *m_audioStream;

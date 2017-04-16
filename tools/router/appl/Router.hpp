@@ -21,6 +21,7 @@ namespace appl {
 			ememory::SharedPtr<appl::TcpServerInput> m_interfaceGateWayServer;
 			ejson::Document m_listUser;
 		public:
+			eproperty::Value<bool> propertyStdOut; //!< not set the log in the stdout or in the local file
 			eproperty::Value<std::string> propertyClientIp;
 			eproperty::Value<uint16_t> propertyClientPort;
 			eproperty::Value<uint16_t> propertyClientMax;
