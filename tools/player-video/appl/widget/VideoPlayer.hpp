@@ -97,6 +97,10 @@ namespace appl {
 					return m_decoder->getDownloadPart();
 				}
 				void changeVolume(const float& _value);
+			private:
+				float m_light;
+			public:
+				void changeLight(const float& _value);
 		};
 	}
 }

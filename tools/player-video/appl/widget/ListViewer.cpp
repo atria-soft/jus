@@ -494,7 +494,7 @@ void appl::ElementDisplayed::generateDisplay(vec2 _startPos, vec2 _size) {
 		} else if (etk::start_with(m_property->m_mineType, "audio") == true) {
 			m_image.setSource("DATA:MusicNote.svg", 128);
 		} else {
-			APPL_INFO("Set image: Unknow type '" << m_property->m_mineType << "'");
+			APPL_DEBUG("Set image: Unknow type '" << m_property->m_mineType << "'");
 			m_image.setSource("DATA:Home.svg", 128);
 		}
 	} else {
@@ -549,6 +549,7 @@ bool appl::widget::ListViewer::onEventInput(const ewol::event::Input& _event) {
 				}
 				fullTitle += prop->m_title;
 				APPL_DEBUG("info element : " << prop->m_id << " title: " << fullTitle);
+				m_currentPayed = prop->m_id;
 				signalSelect.emit(prop->m_id);
 			} else if (m_listDisplay[findId]->m_propertyGroup != nullptr) {
 				ememory::SharedPtr<appl::ElementPropertyGroup> prop = m_listDisplay[findId]->m_propertyGroup;
@@ -564,6 +565,52 @@ bool appl::widget::ListViewer::onEventInput(const ewol::event::Input& _event) {
 				searchElementsInternal(m_currentFilter + " AND '" + m_currentGroup + "' == '" + prop->m_title + "'", newGroup);
 			}
 			return true;
+		}
+	}
+	return false;
+}
+
+bool appl::widget::ListViewer::previous() {
+	for (int64_t iii=0; iii<int64_t(m_listElement.size()); ++iii) {
+		if (m_listElement[iii] == nullptr) {
+			continue;
+		}
+		if (m_listElement[iii]->m_id == m_currentPayed) {
+			// Start search ...
+			--iii;
+			while(iii>=0) {
+				if (m_listElement[iii] == nullptr) {
+					--iii;
+					continue;
+				}
+				m_currentPayed = m_listElement[iii]->m_id;
+				signalSelect.emit(m_currentPayed);
+				return true;
+			}
+			return false;
+		}
+	}
+	return false;
+}
+
+bool appl::widget::ListViewer::next() {
+	for (size_t iii=0; iii<m_listElement.size(); ++iii) {
+		if (m_listElement[iii] == nullptr) {
+			continue;
+		}
+		if (m_listElement[iii]->m_id == m_currentPayed) {
+			// Start search ...
+			++iii;
+			while(iii<m_listElement.size()) {
+				if (m_listElement[iii] == nullptr) {
+					++iii;
+					continue;
+				}
+				m_currentPayed = m_listElement[iii]->m_id;
+				signalSelect.emit(m_currentPayed);
+				return true;
+			}
+			return false;
 		}
 	}
 	return false;

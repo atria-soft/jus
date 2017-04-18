@@ -40,6 +40,7 @@ def configure(target, my_module):
 	    'appl/widget/Player.cpp',
 	    'appl/widget/ProgressBar.cpp',
 	    'appl/widget/VolumeBar.cpp',
+	    'appl/widget/UpBar.cpp',
 	    ])
 	my_module.add_depend([
 	    'ffmpeg-libs',
@@ -50,8 +51,8 @@ def configure(target, my_module):
 	    'ejson',
 	    ])
 	my_module.add_flag('c++', [
-	    "-DPROJECT_NAME=\"\\\""+my_module.get_name()+"\\\"\"",
-	    "-DAPPL_VERSION=\"\\\"" + tools.version_to_string(get_version()) + "\\\"\"",
+	    "-DPROJECT_NAME=\"\\\""+ my_module.get_name()+"\\\"\"",
+	    "-DAPPL_VERSION=\"\\\"" + tools.version_to_string(my_module.get_version()) + "\\\"\"",
 	    "-Wno-deprecated-declarations"
 	    ])
 	my_module.copy_path('data/*')

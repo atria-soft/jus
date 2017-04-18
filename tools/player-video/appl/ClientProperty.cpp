@@ -97,6 +97,8 @@ void appl::ClientProperty::connect() {
 void appl::ClientProperty::setLogin(std::string _login) {
 	fromUser = "";
 	toUser = "";
+	address = "";
+	port = 0;
 	// separate loggin and IP adress ...
 	std::string login;
 	std::vector<std::string> listElem = etk::split(_login, '~');

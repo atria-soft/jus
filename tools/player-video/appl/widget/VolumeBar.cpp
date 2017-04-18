@@ -7,9 +7,11 @@
 #include <appl/widget/VolumeBar.hpp>
 
 #include <ewol/widget/Manager.hpp>
+#include <ewol/object/Manager.hpp>
 
 appl::widget::VolumeBar::VolumeBar() :
   signalChange(this, "change", ""),
+  signalHide(this, "hide", ""),
   propertyValue(this, "value",
                       0.0f,
                       "Value of the VolumeBar",
@@ -24,7 +26,12 @@ appl::widget::VolumeBar::VolumeBar() :
   propertyMaximum(this, "max",
                         5.0f,
                         "Maximum value",
-                        &appl::widget::VolumeBar::onChangePropertyMaximum) {
+                        &appl::widget::VolumeBar::onChangePropertyMaximum),
+  propertyDanger(this, "danger",
+                        4.0f,
+                        "Danger value"),
+  m_isHidden(false),
+  m_lastEventTime(echrono::Time::now()) {
 	addObjectType("appl::widget::VolumeBar");
 	
 	m_textColorFg = etk::color::orange;
@@ -35,8 +42,23 @@ appl::widget::VolumeBar::VolumeBar() :
 	m_textColorBg.setA(0x3F);
 	
 	propertyCanFocus.setDirectCheck(true);
+	
+	m_PCH = getObjectManager().periodicCall.connect(this, &appl::widget::VolumeBar::periodicCall);
+	
 	// Limit event at 1:
 	setMouseLimit(1);
+}
+
+
+void appl::widget::VolumeBar::periodicCall(const ewol::event::Time& _event) {
+	if (echrono::Time::now() - m_lastEventTime > echrono::seconds(3)) {
+		m_isHidden = true;
+		signalHide.emit(0.0f);
+	}
+	if (m_isHidden == true) {
+		m_PCH.disconnect();
+	}
+	markToRedraw();
 }
 
 appl::widget::VolumeBar::~VolumeBar() {
@@ -51,6 +73,9 @@ void appl::widget::VolumeBar::calculateMinMaxSize() {
 }
 
 void appl::widget::VolumeBar::onDraw() {
+	if (m_isHidden == true) {
+		return;
+	}
 	m_draw.draw();
 }
 
@@ -75,7 +100,7 @@ void appl::widget::VolumeBar::onRegenerateDisplay() {
 		m_draw.lineRel(vec2(0.0f, -m_size.y()));
 	#endif
 	// chaneg color whe soud became louder ...
-	if (*propertyValue > 0.5f) {
+	if (*propertyValue > *propertyDanger) {
 		m_draw.setColor(m_textColorLoaded);
 	} else {
 		m_draw.setColor(m_textColorDone);
@@ -88,6 +113,12 @@ void appl::widget::VolumeBar::onRegenerateDisplay() {
 }
 
 bool appl::widget::VolumeBar::onEventInput(const ewol::event::Input& _event) {
+	m_lastEventTime = echrono::Time::now();
+	if (m_isHidden == true) {
+		m_isHidden = false;
+		signalHide.emit(1.0f);
+		m_PCH = getObjectManager().periodicCall.connect(this, &appl::widget::VolumeBar::periodicCall);
+	}
 	vec2 relativePos = relativePosition(_event.getPos());
 	//EWOL_DEBUG("Event on VolumeBar ..." << _event);
 	if (_event.getId() == 1) {

@@ -37,6 +37,7 @@ namespace appl {
 				ememory::SharedPtr<appl::widget::ProgressBar> m_progress; //!< Display widget
 			public:
 				void playStream(ememory::SharedPtr<appl::ClientProperty> _property, uint32_t _mediaId);
+				void stop();
 				void suspend();
 			public:
 				void onGetFocus() override;
@@ -49,7 +50,9 @@ namespace appl {
 				void onCallbackDuration(const echrono::Duration& _value);
 				void onCallbackSeekRequest(const float& _value);
 				void onCallbackVolumeRequest(const float& _value);
+				void onCallbackLightRequest(const float& _value);
 				void onCallbackFPS(const int32_t& _fps);
+				void onCallbackFinished();
 		};
 	};
 };

@@ -10,6 +10,8 @@
 #include <appl/debug.hpp>
 #include <ewol/widget/Widget.hpp>
 #include <ewol/compositing/Drawing.hpp>
+#include <echrono/Time.hpp>
+#include <echrono/Duration.hpp>
 #include <esignal/Signal.hpp>
 
 namespace appl {
@@ -23,12 +25,23 @@ namespace appl {
 		class VolumeBar : public ewol::Widget {
 			public: // signals
 				esignal::Signal<float> signalChange;
+				esignal::Signal<float> signalHide; //!< Hide value [0..1] ==> 0 is hidden
 			public:
 				//eproperty::Value<std::string> propertyShape; //!< name of the shape used
 				eproperty::Value<float> propertyValue; //!< current value of the VolumeBar
 				eproperty::Value<float> propertyStep; //!< Up and down step value
 				eproperty::Value<float> propertyMinimum; //!< minimum value of the VolumeBar
 				eproperty::Value<float> propertyMaximum; //!< maximum value of the VolumeBar
+				eproperty::Value<float> propertyDanger; //!< change color value
+			private:
+				bool m_isHidden;
+				echrono::Time m_lastEventTime;
+				esignal::Connection m_PCH; //!< Periodic Call Handle to remove it when needed
+				/**
+				 * @brief Periodic call to update grapgic display
+				 * @param[in] _event Time generic event
+				 */
+				void periodicCall(const ewol::event::Time& _event);
 			protected:
 				VolumeBar();
 			public:

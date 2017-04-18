@@ -81,7 +81,9 @@ void appl::Windows::init() {
 	drawWidgetTree();
 	
 	m_listViewer = ememory::dynamicPointerCast<appl::widget::ListViewer>(m_composer->getSubObjectNamed("ws-name-list-viewer"));
-	m_listViewer->signalSelect.connect(sharedFromThis(), &appl::Windows::onCallbackSelectMedia);
+	if (m_listViewer != nullptr) {
+		m_listViewer->signalSelect.connect(sharedFromThis(), &appl::Windows::onCallbackSelectMedia);
+	}
 	
 	
 	subBind(ewol::widget::Button, "bt-film-picture", signalPressed, sharedFromThis(), &appl::Windows::onCallbackSelectFilms);
@@ -115,6 +117,12 @@ void appl::Windows::init() {
 			}
 		}
 	}
+	m_player = ememory::dynamicPointerCast<appl::widget::Player>(m_composer->getSubObjectNamed("ws-name-player"));
+	if (m_player != nullptr) {
+		m_player->signalPrevious.connect(sharedFromThis(), &appl::Windows::onCallbackPlayerPrevious);
+		m_player->signalNext.connect(sharedFromThis(), &appl::Windows::onCallbackPlayerNext);
+		m_player->signalFinished.connect(sharedFromThis(), &appl::Windows::onCallbackPlayerFinished);
+	}
 }
 
 
@@ -125,6 +133,9 @@ void appl::Windows::onCallbackShortCut(const std::string& _value) {
 
 void appl::Windows::onCallbackMenuEvent(const std::string& _value) {
 	APPL_WARNING("Event from Menu : " << _value);
+	if (m_player != nullptr) {
+		m_player->stop();
+	}
 	if (_value == "menu:connect") {
 		appl::widget::ConnectionShared tmpWidget = appl::widget::Connection::create();
 		if (tmpWidget == nullptr) {
@@ -169,8 +180,6 @@ void appl::Windows::onCallbackMenuEvent(const std::string& _value) {
 	} else if (_value == "menu:courses") {
 		ewol::propertySetOnObjectNamed("view-selection", "select", "ws-name-list-viewer");
 		m_listViewer->searchElements("courses");
-		
-		
 	} else if (_value == "menu:TV-child") {
 		ewol::propertySetOnObjectNamed("view-selection", "select", "ws-name-list-viewer");
 		m_listViewer->searchElements("");
@@ -300,9 +309,37 @@ void appl::Windows::onCallbackSelectSourses() {
 
 void appl::Windows::onCallbackSelectMedia(const uint32_t& _value) {
 	ewol::propertySetOnObjectNamed("view-selection", "select", "ws-name-player");
-	ememory::SharedPtr<appl::widget::Player> tmpPlayer = ememory::dynamicPointerCast<appl::widget::Player>(getSubObjectNamed("ws-name-player"));
-	if (tmpPlayer != nullptr) {
-		tmpPlayer->playStream(m_clientProp, _value);
+	if (m_player != nullptr) {
+		m_player->playStream(m_clientProp, _value);
 	}
+}
+
+void appl::Windows::onCallbackPlayerPrevious() {
+	if (m_player != nullptr) {
+		m_player->stop();
+	}
+	if (m_listViewer != nullptr) {
+		if (m_listViewer->previous() == false) {
+			ewol::propertySetOnObjectNamed("view-selection", "select", "ws-name-list-viewer");
+		}
+	}
+}
+
+void appl::Windows::onCallbackPlayerNext() {
+	if (m_player != nullptr) {
+		m_player->stop();
+	}
+	if (m_listViewer != nullptr) {
+		if (m_listViewer->next() == false) {
+			ewol::propertySetOnObjectNamed("view-selection", "select", "ws-name-list-viewer");
+		}
+	}
+}
+
+void appl::Windows::onCallbackPlayerFinished() {
+	if (m_player != nullptr) {
+		m_player->stop();
+	}
+	ewol::propertySetOnObjectNamed("view-selection", "select", "ws-name-list-viewer");
 }
 

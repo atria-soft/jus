@@ -20,7 +20,8 @@ const int32_t appl::widget::VideoDisplay::m_vboIdCoordTex(1);
 const int32_t appl::widget::VideoDisplay::m_vboIdColor(2);
 #define NB_VBO (3)
 
-appl::widget::VideoDisplay::VideoDisplay() {
+appl::widget::VideoDisplay::VideoDisplay() :
+  m_light(1.0f) {
 	addObjectType("appl::widget::VideoDisplay");
 	m_color = etk::color::white;
 	m_nbFramePushed = 0;
@@ -126,22 +127,6 @@ void appl::widget::VideoDisplay::play() {
 		APPL_DEBUG("Already started");
 		return;
 	}
-	/*
-	APPL_ERROR("==========================================================");
-	APPL_ERROR("==               Presence of Audio: " << m_decoder->haveAudio() << "              ==");
-	APPL_ERROR("==========================================================");
-	if (m_decoder->haveAudio() == true) {
-		m_audioInterface = m_audioManager->createOutput(m_decoder->audioGetSampleRate(),
-		                                                m_decoder->audioGetChannelMap(),
-		                                                m_decoder->audioGetFormat(),
-		                                                "speaker");
-		if(m_audioInterface == nullptr) {
-			APPL_ERROR("Can not create Audio interface");
-		}
-		m_audioInterface->setReadwrite();
-		m_audioInterface->start();
-	}
-	*/
 	// Start decoder, this is maybe not the good point, but if we configure a decoder, it is to use it ...
 	m_decoder->start();
 	//TODO: Set an option to river to auto-generate dot: m_audioManager->generateDotAll("out/local_player_flow.dot");
@@ -151,6 +136,13 @@ void appl::widget::VideoDisplay::changeVolume(const float& _value) {
 	if (m_audioManager != nullptr) {
 		m_audioManager->setVolume("MASTER", _value);
 	}
+}
+void appl::widget::VideoDisplay::changeLight(const float& _value) {
+	m_light = _value;
+	m_color.setR(m_light);
+	m_color.setG(m_light);
+	m_color.setB(m_light);
+	m_color.setA(1.0);
 }
 
 void appl::widget::VideoDisplay::pause() {
@@ -313,7 +305,7 @@ void appl::widget::VideoDisplay::periodicEvent(const ewol::event::Time& _event) 
 	int32_t idSlot = m_decoder->audioGetOlderSlot();
 	if (    idSlot != -1
 	     && m_currentTime > m_decoder->m_audioPool[idSlot].m_time) {
-		APPL_WARNING("Get Slot AUDIO " << m_currentTime << " > " << m_decoder->m_audioPool[idSlot].m_time);
+		APPL_VERBOSE("Get Slot AUDIO " << m_currentTime << " > " << m_decoder->m_audioPool[idSlot].m_time);
 		if (m_audioInterface == nullptr) {
 			// start audio interface the first time we need it
 			APPL_ERROR("==========================================================");
@@ -345,7 +337,7 @@ void appl::widget::VideoDisplay::periodicEvent(const ewol::event::Time& _event) 
 	// check the slot is valid and check display time of the element:
 	if (    idSlot != -1
 	     && m_currentTime > m_decoder->m_videoPool[idSlot].m_time) {
-		APPL_WARNING("Get Slot VIDEO " << m_currentTime << " > " << m_decoder->m_audioPool[idSlot].m_time);
+		APPL_VERBOSE("Get Slot VIDEO " << m_currentTime << " > " << m_decoder->m_audioPool[idSlot].m_time);
 		m_resource->get().swap(m_decoder->m_videoPool[idSlot].m_image);
 		m_imageSize = m_resource->get().getSize();
 		ivec2 tmpSize = m_decoder->m_videoPool[idSlot].m_imagerealSize;
@@ -375,9 +367,10 @@ void appl::widget::VideoDisplay::periodicEvent(const ewol::event::Time& _event) 
 	}
 	// TODO : Chek if this is needed, the display configuration not change too much ...
 	markToRedraw();
+	// TODO: understand why this take 4 seconds to detect end ... maybe check end with the end read of the file ...
 	if (    m_haveDuration == true
 	     && m_decoder->getDuration() > echrono::milliseconds(10)) {
-		if (m_currentTime >= m_decoder->getDuration() + echrono::milliseconds(200)) {
+		if (m_currentTime >= m_decoder->getDuration() /*- echrono::milliseconds(1000)*/) {
 			APPL_WARNING("Finish playing");
 			signalFinish.emit();
 			stop();

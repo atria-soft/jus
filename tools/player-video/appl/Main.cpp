@@ -19,6 +19,7 @@
 #include <appl/widget/Player.hpp>
 #include <appl/widget/ProgressBar.hpp>
 #include <appl/widget/VolumeBar.hpp>
+#include <appl/widget/UpBar.hpp>
 #include <zeus/zeus.hpp>
 
 namespace appl {
@@ -76,6 +77,7 @@ namespace appl {
 				appl::widget::Player::createManagerWidget(_context.getWidgetManager());
 				appl::widget::ProgressBar::createManagerWidget(_context.getWidgetManager());
 				appl::widget::VolumeBar::createManagerWidget(_context.getWidgetManager());
+				appl::widget::UpBar::createManagerWidget(_context.getWidgetManager());
 				// Create the windows
 				ememory::SharedPtr<appl::Windows> basicWindows = appl::Windows::create();
 				// configure the ewol context to use the new windows

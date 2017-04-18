@@ -12,7 +12,8 @@
 			<button name="[{ID}]appl-player-bt-play" toggle="true" shape="">
 				<!--<label>_T{Play}</label>-->
 				<image src="DATA:Play.svg" size="8,8mm"/>
-				<label>_T{Pause}</label>
+				<!--<label>_T{Pause}</label>-->
+				<image src="DATA:Suspend.svg" size="8,8mm"/>
 			</button>
 			<spacer expand="true,false" fill="true"/>
 			<button name="[{ID}]appl-player-bt-next" shape="">
@@ -30,20 +31,12 @@
 			<label name="[{ID}]appl-player-label-duration"/>
 		</sizer>
 		<sizer mode="hori" fill="true" expand="true,false">
-			<sizer mode="vert" fill="true" expand="false,true">
-				<image src="DATA:Light.svg" size="8,8mm" />
-				<appl_VolumeBar name="[{ID}]appl-player-light" expand="false,true" fill="true" step="5" value="100" min="0" max="100" mode="vert"/>
-				<label name="[{ID}]appl-player-label-light">100%</label>
-			</sizer>
+			<appl_UpBar name="[{ID}]appl-player-light" bar-type="light" fill="true" expand="false,true" min-size="17,0%"/>
 			<sizer mode="vert" fill="true" expand="true">
 				<spacer expand="true" fill="true"/>
 				<label name="[{ID}]appl-player-label-fps"/>
 			</sizer>
-			<sizer mode="vert" fill="true" expand="false,true">
-				<image src="DATA:Volume.svg" size="8,8mm" />
-				<appl_VolumeBar name="[{ID}]appl-player-volume" expand="false,true" fill="true" step="0.3" value="0" min="-40" max="6" mode="vert"/>
-				<label name="[{ID}]appl-player-label-volume">0dB</label>
-			</sizer>
+			<appl_UpBar name="[{ID}]appl-player-volume" bar-type="volume" fill="true" expand="false,true" min-size="17,0%"/>
 		</sizer>
 		
 	</sizer>

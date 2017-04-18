@@ -6,6 +6,7 @@
 
 
 #include <appl/widget/Player.hpp>
+#include <appl/widget/UpBar.hpp>
 #include <ewol/widget/Sizer.hpp>
 #include <ewol/widget/List.hpp>
 #include <ewol/widget/Button.hpp>
@@ -42,10 +43,12 @@ void appl::widget::Player::init() {
 	
 	subBind(appl::widget::VideoDisplay, "[" + etk::to_string(getId()) + "]appl-player-display", signalPosition, sharedFromThis(), &appl::widget::Player::onCallbackPosition);
 	subBind(appl::widget::VideoDisplay, "[" + etk::to_string(getId()) + "]appl-player-display", signalDuration, sharedFromThis(), &appl::widget::Player::onCallbackDuration);
+	subBind(appl::widget::VideoDisplay, "[" + etk::to_string(getId()) + "]appl-player-display", signalFinish, sharedFromThis(), &appl::widget::Player::onCallbackFinished);
 	
 	subBind(appl::widget::VideoDisplay, "[" + etk::to_string(getId()) + "]appl-player-display", signalFps, sharedFromThis(), &appl::widget::Player::onCallbackFPS);
 	subBind(appl::widget::ProgressBar, "[" + etk::to_string(getId()) + "]appl-player-progress-bar", signalChange, sharedFromThis(), &appl::widget::Player::onCallbackSeekRequest);
-	subBind(appl::widget::VolumeBar, "[" + etk::to_string(getId()) + "]appl-player-volume", signalChange, sharedFromThis(), &appl::widget::Player::onCallbackVolumeRequest);
+	subBind(appl::widget::UpBar, "[" + etk::to_string(getId()) + "]appl-player-volume", signalChange, sharedFromThis(), &appl::widget::Player::onCallbackVolumeRequest);
+	subBind(appl::widget::UpBar, "[" + etk::to_string(getId()) + "]appl-player-light", signalChange, sharedFromThis(), &appl::widget::Player::onCallbackLightRequest);
 	
 	m_display = ememory::dynamicPointerCast<appl::widget::VideoDisplay>(getSubObjectNamed("[" + etk::to_string(getId()) + "]appl-player-display"));
 	m_progress = ememory::dynamicPointerCast<appl::widget::ProgressBar>(getSubObjectNamed("[" + etk::to_string(getId()) + "]appl-player-progress-bar"));
@@ -107,6 +110,19 @@ static std::string timeToStaticString(const echrono::Duration& _time) {
 	return out;
 }
 
+void appl::widget::Player::onCallbackFinished() {
+	if (m_progress != nullptr) {
+		std::vector<std::pair<float,float>> tmp;
+		m_progress->setRangeAvaillable(tmp);
+		m_progress->propertyValue.set(0);
+		m_progress->propertyMaximum.set(0);
+	}
+	propertySetOnWidgetNamed("[" + etk::to_string(getId()) + "]appl-player-label-time", "value", "<font color='black'>--:--</font>");
+	propertySetOnWidgetNamed("[" + etk::to_string(getId()) + "]appl-player-label-duration", "value", "<font color='black'>--:--</font>");
+	signalFinished.emit();
+}
+
+
 void appl::widget::Player::onCallbackDuration(const echrono::Duration& _time) {
 	//APPL_ERROR("duration = " << _time);
 	if (m_progress != nullptr) {
@@ -146,16 +162,33 @@ void appl::widget::Player::onCallbackVolumeRequest(const float& _value) {
 	if (m_display != nullptr) {
 		m_display->changeVolume(_value);
 	}
-	std::string display = etk::to_string(int32_t(_value)) + "." + etk::to_string(std::abs(int32_t(_value*10.0f)-int32_t(_value)*10));
-	
-	propertySetOnWidgetNamed("[" + etk::to_string(getId()) + "]appl-player-label-volume", "value", display + " dB");
 }
+
+void appl::widget::Player::onCallbackLightRequest(const float& _value) {
+	APPL_DEBUG("===========================================================================");
+	APPL_DEBUG("volume change value=" << _value << " %");
+	APPL_DEBUG("===========================================================================");
+	if (m_display != nullptr) {
+		m_display->changeLight(_value);
+	}
+}
+
+
+
 
 void appl::widget::Player::onCallbackFPS(const int32_t& _fps) {
 	APPL_DEBUG("FPS = " << _fps);
 	propertySetOnWidgetNamed("[" + etk::to_string(getId()) + "]appl-player-label-fps", "value", "FPS=<font color='orangered'>" + etk::to_string(_fps) + "</font>");
 }
 
+
+void appl::widget::Player::stop() {
+	propertySetOnWidgetNamed("[" + etk::to_string(getId()) + "]appl-player-bt-play", "value", "false");
+	if (m_display == nullptr) {
+		return;
+	}
+	m_display->stop();
+}
 
 void appl::widget::Player::suspend() {
 	propertySetOnWidgetNamed("[" + etk::to_string(getId()) + "]appl-player-bt-play", "value", "false");

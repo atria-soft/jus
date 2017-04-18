@@ -8,6 +8,8 @@
 #include <ewol/widget/Windows.hpp>
 #include <ewol/widget/Composer.hpp>
 #include <appl/widget/ListViewer.hpp>
+#include <appl/widget/Player.hpp>
+
 
 namespace appl {
 	class Windows;
@@ -20,6 +22,7 @@ namespace appl {
 			ewol::widget::ComposerShared m_composer;
 			ememory::SharedPtr<ClientProperty> m_clientProp;
 			appl::widget::ListViewerShared m_listViewer;
+			appl::widget::PlayerShared m_player;
 			std::vector<std::string> m_list;
 			int32_t m_id;
 		public:
@@ -55,6 +58,8 @@ namespace appl {
 			void onCallbackSelectHome() {
 				onCallbackMenuEvent("menu:home");
 			}
+			void onCallbackPlayerPrevious();
+			void onCallbackPlayerNext();
+			void onCallbackPlayerFinished();
 	};
 }
-

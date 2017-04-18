@@ -86,6 +86,7 @@ namespace appl {
 				std::string m_currentFilter;
 				std::string m_currentGroup;
 				std::vector<ememory::SharedPtr<ElementDisplayed>> m_listDisplay; //!< list of element in the current local display
+				uint64_t m_currentPayed;
 			protected:
 				//! @brief constructor
 				ListViewer();
@@ -104,6 +105,19 @@ namespace appl {
 				void searchElements(std::string _filter="");
 				void searchElementsInternal(const std::string& _filter, const std::string& _group="");
 				bool onEventInput(const ewol::event::Input& _event) override;
+			public:
+				/**
+				 * @brief Generate the event with the previous file property
+				 * @return true We find an element
+				 * @return false We find nothing
+				 */
+				bool previous();
+				/**
+				 * @brief Generate the event with the next file property
+				 * @return true We find an element
+				 * @return false We find nothing
+				 */
+				bool next();
 		};
 	}
 }

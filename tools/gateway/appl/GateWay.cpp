@@ -55,6 +55,11 @@ namespace appl {
 				while (m_threadRunning == true) {
 					// READ section data:
 					enet::Tcp data = std::move(m_interface.waitNext());
+					if (data.getConnectionStatus() != enet::Tcp::status::link) {
+						APPL_CRITICAL("New TCP connection (DEAD ....) ==> gateway is dead ...");
+						// TODO: Check interaface: if (m_interface.
+						std::this_thread::sleep_for(std::chrono::milliseconds(300));
+					}
 					APPL_VERBOSE("New connection");
 					m_gateway->newDirectInterface(std::move(data));
 				}
