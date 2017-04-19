@@ -15,11 +15,13 @@ namespace zeus {
 		private:
 			uint64_t m_id; //!< use local reference ID to have faster access on the file ...
 			std::string m_basePath; //!< basic global path
-			std::string m_fileName; // Sha 512
-			std::string m_name;
-			std::string m_mineType;
-			echrono::Time m_creationData;
+			std::string m_fileName; //!< Name of the file
 			std::map<std::string, std::string> m_metadata; //!< all extra property
+			std::function<void(zeus::MediaImpl*, const std::string& )> m_callback;
+		public:
+			void setCallbackMetadataChange(std::function<void(zeus::MediaImpl*, const std::string& )> _callback) {
+				m_callback = _callback;
+			}
 		public:
 			/**
 			 * @brief Generic json constructor
@@ -28,7 +30,7 @@ namespace zeus {
 			/**
 			 * @brief Generic file constructor
 			 */
-			MediaImpl(uint64_t _id, const std::string& _fileNameReal);
+			MediaImpl(uint64_t _id, const std::string& _fileNameReal, const std::string& _basePath="");
 			/**
 			 * @brief Generic destructor
 			 */
@@ -39,6 +41,8 @@ namespace zeus {
 			std::vector<std::string> getMetadataKeys() override;
 			std::string getMetadata(std::string _key) override;
 			void setMetadata(std::string _key, std::string _value) override;
+			std::string getSha512() override;
+			std::string getDecoratedName() override;
 			/**
 			 * @brief Export json property
 			 * @return A json Object with data 
@@ -48,9 +52,15 @@ namespace zeus {
 				return m_fileName;
 			}
 			bool erase();
+			bool move(const std::string& _newOffsetFile);
 			const std::map<std::string, std::string>& getMetadataDirect() {
 				return m_metadata;
 			}
+			void forceUpdateDecoratedName();
+		public:
+			// local tools:
+			static std::string getMetadataFrom(const std::map<std::string, std::string>& _metadata, std::string _key);
+			static std::string getDecoratedNameFrom(const std::map<std::string, std::string>& _metadata);
 		
 	};
 }

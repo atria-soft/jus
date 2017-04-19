@@ -192,6 +192,7 @@ bool pushVideoFile(zeus::service::ProxyVideo& _srv, std::string _path, std::map<
 	// send all meta data:
 	zeus::FutureGroup group;
 	for (auto &itKey : _basicKey) {
+		APPL_WARNING("Set metaData: " << itKey.first << " : " << itKey.second);
 		group.add(media.setMetadata(itKey.first, itKey.second));
 	}
 	group.wait();
@@ -207,31 +208,29 @@ void installVideoPath(zeus::service::ProxyVideo& _srv, std::string _path, std::m
 		APPL_INFO("Add Sub path: '" << itPath << "'");
 		std::string lastPathName = etk::split(itPath, '/').back();
 		if (basicKeyTmp.size() == 0) {
-			APPL_INFO("find '" << lastPathName << "' " << basicKeyTmp.size());
-			if (lastPathName == "films") {
+			APPL_INFO("find A '" << lastPathName << "' " << basicKeyTmp.size());
+			if (lastPathName == "film") {
 				basicKeyTmp.insert(std::pair<std::string,std::string>("type", "film"));
 				basicKeyTmp.insert(std::pair<std::string,std::string>("production-methode", "picture"));
-			} else if (lastPathName == "films-annimation") {
+			} else if (lastPathName == "film-annimation") {
 				basicKeyTmp.insert(std::pair<std::string,std::string>("type", "film"));
 				basicKeyTmp.insert(std::pair<std::string,std::string>("production-methode", "draw"));
+			} else if (lastPathName == "film-short") { // short films
+				basicKeyTmp.insert(std::pair<std::string,std::string>("type", "film"));
+				basicKeyTmp.insert(std::pair<std::string,std::string>("production-methode", "short"));
 			} else if (lastPathName == "tv-show") {
 				basicKeyTmp.insert(std::pair<std::string,std::string>("type", "tv-show"));
 				basicKeyTmp.insert(std::pair<std::string,std::string>("production-methode", "picture"));
-			} else if (lastPathName == "anim") {
+			} else if (lastPathName == "tv-show-annimation") {
 				basicKeyTmp.insert(std::pair<std::string,std::string>("type", "tv-show"));
 				basicKeyTmp.insert(std::pair<std::string,std::string>("production-methode", "draw"));
-			} else if (lastPathName == "courses") { // short films
-				basicKeyTmp.insert(std::pair<std::string,std::string>("type", "courses"));
-				basicKeyTmp.insert(std::pair<std::string,std::string>("production-methode", "picture")); // TODO : Check "draw"
 			} else if (lastPathName == "theater") {
 				basicKeyTmp.insert(std::pair<std::string,std::string>("type", "theater"));
-				basicKeyTmp.insert(std::pair<std::string,std::string>("production-methode", "picture"));
-			} else if (lastPathName == "one-man-show") {
-				basicKeyTmp.insert(std::pair<std::string,std::string>("type", "one-man show"));
-				basicKeyTmp.insert(std::pair<std::string,std::string>("production-methode", "picture"));
+			} else if (lastPathName == "one-man") {
+				basicKeyTmp.insert(std::pair<std::string,std::string>("type", "one-man"));
 			}
 		} else {
-			APPL_INFO("find '" << lastPathName << "' " << basicKeyTmp.size());
+			APPL_INFO("find B '" << lastPathName << "' " << basicKeyTmp.size());
 			if (lastPathName == "saison_01") {
 				basicKeyTmp.insert(std::pair<std::string,std::string>("saison", "1"));
 			} else if (lastPathName == "saison_02") {
@@ -272,6 +271,24 @@ void installVideoPath(zeus::service::ProxyVideo& _srv, std::string _path, std::m
 				basicKeyTmp.insert(std::pair<std::string,std::string>("saison", "19"));
 			} else if (lastPathName == "saison_20") {
 				basicKeyTmp.insert(std::pair<std::string,std::string>("saison", "20"));
+			} else if (lastPathName == "saison_21") {
+				basicKeyTmp.insert(std::pair<std::string,std::string>("saison", "21"));
+			} else if (lastPathName == "saison_22") {
+				basicKeyTmp.insert(std::pair<std::string,std::string>("saison", "22"));
+			} else if (lastPathName == "saison_23") {
+				basicKeyTmp.insert(std::pair<std::string,std::string>("saison", "23"));
+			} else if (lastPathName == "saison_24") {
+				basicKeyTmp.insert(std::pair<std::string,std::string>("saison", "24"));
+			} else if (lastPathName == "saison_25") {
+				basicKeyTmp.insert(std::pair<std::string,std::string>("saison", "25"));
+			} else if (lastPathName == "saison_26") {
+				basicKeyTmp.insert(std::pair<std::string,std::string>("saison", "26"));
+			} else if (lastPathName == "saison_27") {
+				basicKeyTmp.insert(std::pair<std::string,std::string>("saison", "27"));
+			} else if (lastPathName == "saison_28") {
+				basicKeyTmp.insert(std::pair<std::string,std::string>("saison", "28"));
+			} else if (lastPathName == "saison_29") {
+				basicKeyTmp.insert(std::pair<std::string,std::string>("saison", "29"));
 			} else {
 				basicKeyTmp.insert(std::pair<std::string,std::string>("series-name", lastPathName));
 			}
@@ -462,7 +479,9 @@ int main(int _argc, const char *_argv[]) {
 		APPL_PRINT("== push path: ");
 		APPL_PRINT("============================================");
 		// Send a full path:
-		// installVideoPath(remoteServiceVideo, "testVideo");
+		for (auto &it: args) {
+			installVideoPath(remoteServiceVideo, it);
+		}
 		APPL_PRINT("============================================");
 		APPL_PRINT("==              DONE                      ==");
 		APPL_PRINT("============================================");

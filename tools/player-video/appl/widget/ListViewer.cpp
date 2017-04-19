@@ -59,7 +59,7 @@ void appl::widget::ListViewer::searchElements(std::string _filter) {
 	} else if (_filter == "one-man") {
 		searchElementsInternal("'type' == 'one-man'");
 	} else if (_filter == "courses") {
-		searchElementsInternal("'type' == 'courses'");
+		searchElementsInternal("'type' == 'film' AND 'production-methode' == 'short'");
 	} else {
 		searchElementsInternal("*");
 	}

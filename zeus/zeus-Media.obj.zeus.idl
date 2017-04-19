@@ -57,3 +57,11 @@ json getMetadataJson()
 #param:description: a json description of the metadata
 void setMetadataJson(json)
 */
+
+#brief:Get sha 512 of the file
+#return:get the sha512 of the stored file
+string getSha512()
+
+#brief:Get decorated name of the file
+#return:decorated name: Name of the file decorated like StarWars-e04-A new Hope(1978).mkv
+string getDecoratedName()

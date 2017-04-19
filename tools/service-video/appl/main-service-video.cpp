@@ -86,6 +86,21 @@ static std::vector<std::string> splitAction(const std::string& _in) {
 	return out;
 }
 
+static void metadataChange(zeus::MediaImpl* _element, const std::string& _key) {
+	g_needToStore = true;
+	// meta_data have chage ==> we need to upfdate the path of the file where the data is stored ...
+	if (_element == nullptr) {
+		return;
+	}
+	_element->forceUpdateDecoratedName();
+	std::string current = _element->getFileName();
+	std::string next = _element->getDecoratedName() + "_" + _element->getSha512();
+	if (next == current) {
+		return;
+	}
+	_element->move(next);
+}
+
 namespace appl {
 	class VideoService : public zeus::service::Video  {
 		private:
@@ -156,7 +171,7 @@ namespace appl {
 					if (it == nullptr) {
 						continue;
 					}
-					if (it->getFileName() == sha512StringRemote) {
+					if (it->getSha512() == sha512StringRemote) {
 						APPL_INFO("File already registered at ");// << it.m_creationData);
 						// simply send the Id of the file
 						// TODO : Check right of this file ...
@@ -173,10 +188,20 @@ namespace appl {
 					APPL_ERROR("try to store an empty file");
 					throw std::runtime_error("file size == 0");
 				}
-				etk::FSNodeMove(tmpFileName, g_basePath + sha512String + "." + zeus::getExtention(futType.get()));
-				ememory::SharedPtr<zeus::MediaImpl> property = ememory::makeShared<zeus::MediaImpl>(id, sha512String + "." + zeus::getExtention(futType.get()));
-				//property->setName(futName.get());
-				m_listFile.push_back(property);
+				if (zeus::getExtention(futType.get()) == "") {
+					etk::FSNodeMove(tmpFileName, g_basePath + sha512String + "." + zeus::getExtention(futType.get()));
+					ememory::SharedPtr<zeus::MediaImpl> property = ememory::makeShared<zeus::MediaImpl>(id, sha512String + "." + zeus::getExtention(futType.get()), g_basePath);
+					property->setMetadata("sha512", sha512String);
+					property->setMetadata("mime-type", futType.get());
+					property->setCallbackMetadataChange(&metadataChange);
+					m_listFile.push_back(property);
+				} else {
+					etk::FSNodeMove(tmpFileName, g_basePath + sha512String);
+					ememory::SharedPtr<zeus::MediaImpl> property = ememory::makeShared<zeus::MediaImpl>(id, sha512String, g_basePath);
+					property->setMetadata("sha512", sha512String);
+					property->setCallbackMetadataChange(&metadataChange);
+					m_listFile.push_back(property);
+				}
 				g_needToStore = true;
 				APPL_DEBUG(" filename : " << sha512String);
 				return id;
@@ -379,6 +404,7 @@ static void load_db() {
 		if (property->getFileName() == "") {
 			APPL_ERROR("Can not access on the file : ... No name ");
 		} else {
+			property->setCallbackMetadataChange(&metadataChange);
 			m_listFile.push_back(property);
 		}
 	}

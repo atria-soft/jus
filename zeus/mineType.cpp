@@ -158,8 +158,10 @@ std::string zeus::getMineType(std::string _extention) {
 			return it.second;
 		}
 	}
-	ZEUS_ERROR(" estention to mine type error : '" << _extention << "' ==> unknow");
-	return "";
+	if (_extention == "") {
+		return "";
+	}
+	return "unknow/" + _extention;
 }
 
 std::string zeus::getExtention(std::string _mineType) {
@@ -169,6 +171,9 @@ std::string zeus::getExtention(std::string _mineType) {
 			return it.first;
 		}
 	}
-	ZEUS_ERROR(" mine type to estention error : '" << _mineType << "' ==> unknow");
+	// special internal case to support all type of extention ...
+	if (etk::start_with(_mineType, "unknow/") == true) {
+		return &_mineType[7];
+	}
 	return "";
 }

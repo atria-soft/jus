@@ -48,3 +48,16 @@ vector:uint32 getSQL(string)
 #param:sqlLikeRequest:A string containing the request on the data
 #return:All The possible values of a key
 vector:string getMetadataValuesWhere(string, string)
+/*
+#brief:Get a media cover
+#param:mediaId:Id of the media
+#param:maxSize:max size of the image requested (can return a smaller image)
+#return:A simple file that might contain a jpg or png file
+obj:zeus-File getCover(uint32, uint32)
+
+#brief:Get a media cover
+#param:sqlLikeRequest:sql request mode to filter the cover
+#param:maxSize:max size of the image requested (can return a smaller image)
+#return:A simple file that might contain a jpg or png file
+obj:zeus-File getGroupCover(string, uint32)
+*/
