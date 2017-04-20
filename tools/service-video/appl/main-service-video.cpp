@@ -188,7 +188,7 @@ namespace appl {
 					APPL_ERROR("try to store an empty file");
 					throw std::runtime_error("file size == 0");
 				}
-				if (zeus::getExtention(futType.get()) == "") {
+				if (zeus::getExtention(futType.get()) != "") {
 					etk::FSNodeMove(tmpFileName, g_basePath + sha512String + "." + zeus::getExtention(futType.get()));
 					ememory::SharedPtr<zeus::MediaImpl> property = ememory::makeShared<zeus::MediaImpl>(id, sha512String + "." + zeus::getExtention(futType.get()), g_basePath);
 					property->setMetadata("sha512", sha512String);

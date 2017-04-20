@@ -46,7 +46,9 @@ appl::widget::ListViewer::~ListViewer() {
 }
 
 void appl::widget::ListViewer::searchElements(std::string _filter) {
-	if (_filter == "film") {
+	if (_filter == "group") {
+		searchElementsInternal("*", "type");
+	} else if (_filter == "film") {
 		searchElementsInternal("'type' == 'film' AND 'production-methode' == 'picture'");
 	} else if (_filter == "annimation") {
 		searchElementsInternal("'type' == 'film' AND 'production-methode' == 'draw'");
@@ -557,12 +559,26 @@ bool appl::widget::ListViewer::onEventInput(const ewol::event::Input& _event) {
 					return true;
 				}
 				std::string newGroup = "";
-				if (m_currentGroup == "series-name") {
+				if (m_currentGroup == "type") {
+					if (prop->m_title == "film") {
+						newGroup = "production-methode";
+					} else if (prop->m_title == "tv-show") {
+						newGroup = "production-methode";
+					}
+				} else if (m_currentGroup == "production-methode") {
+					if (etk::start_with(m_currentFilter, "'type' == 'tv-show'") == true) {
+						newGroup = "series-name";
+					}
+				} else if (m_currentGroup == "series-name") {
 					newGroup = "saison";
 				} else if (m_currentGroup == "artist") {
 					newGroup = "album";
 				}
-				searchElementsInternal(m_currentFilter + " AND '" + m_currentGroup + "' == '" + prop->m_title + "'", newGroup);
+				if (m_currentFilter == "*") {
+					searchElementsInternal("'" + m_currentGroup + "' == '" + prop->m_title + "'", newGroup);
+				} else {
+					searchElementsInternal(m_currentFilter + " AND '" + m_currentGroup + "' == '" + prop->m_title + "'", newGroup);
+				}
 			}
 			return true;
 		}

@@ -85,15 +85,6 @@ void appl::Windows::init() {
 		m_listViewer->signalSelect.connect(sharedFromThis(), &appl::Windows::onCallbackSelectMedia);
 	}
 	
-	
-	subBind(ewol::widget::Button, "bt-film-picture", signalPressed, sharedFromThis(), &appl::Windows::onCallbackSelectFilms);
-	subBind(ewol::widget::Button, "bt-film-draw", signalPressed, sharedFromThis(), &appl::Windows::onCallbackSelectAnnimation);
-	subBind(ewol::widget::Button, "bt-tv-picture", signalPressed, sharedFromThis(), &appl::Windows::onCallbackSelectTVShow);
-	subBind(ewol::widget::Button, "bt-tv-draw", signalPressed, sharedFromThis(), &appl::Windows::onCallbackSelectTvAnnimation);
-	subBind(ewol::widget::Button, "bt-theater", signalPressed, sharedFromThis(), &appl::Windows::onCallbackSelectTeather);
-	subBind(ewol::widget::Button, "bt-one-man-show", signalPressed, sharedFromThis(), &appl::Windows::onCallbackSelectOneManShow);
-	subBind(ewol::widget::Button, "bt-courses", signalPressed, sharedFromThis(), &appl::Windows::onCallbackSelectSourses);
-	
 	subBind(ewol::widget::Button, "access-fast-home", signalPressed, sharedFromThis(), &appl::Windows::onCallbackSelectHome);
 	subBind(ewol::widget::Button, "access-fast-group", signalPressed, sharedFromThis(), &appl::Windows::onCallbackSelectGroup);
 	// Direct display list:
@@ -155,7 +146,8 @@ void appl::Windows::onCallbackMenuEvent(const std::string& _value) {
 		ewol::propertySetOnObjectNamed("view-selection", "select", "ws-name-list-viewer");
 		m_listViewer->searchElements("");
 	} else if (_value == "menu:group") {
-		ewol::propertySetOnObjectNamed("view-selection", "select", "ws-name-list-group");
+		ewol::propertySetOnObjectNamed("view-selection", "select", "ws-name-list-viewer");
+		m_listViewer->searchElements("group");
 	} else if (_value == "menu:tv") {
 		ewol::propertySetOnObjectNamed("view-selection", "select", "ws-name-list-tv");
 	
@@ -276,35 +268,6 @@ void appl::Windows::addFile(const std::string& _file) {
 			propertySetOnWidgetNamed("progress-bar", "max", etk::to_string(time.toSeconds()));
 		}
 	}
-}
-
-void appl::Windows::onCallbackSelectFilms() {
-	ewol::propertySetOnObjectNamed("view-selection", "select", "ws-name-list-viewer");
-	m_listViewer->searchElements("film");
-}
-void appl::Windows::onCallbackSelectAnnimation() {
-	ewol::propertySetOnObjectNamed("view-selection", "select", "ws-name-list-viewer");
-	m_listViewer->searchElements("annimation");
-}
-void appl::Windows::onCallbackSelectTVShow() {
-	ewol::propertySetOnObjectNamed("view-selection", "select", "ws-name-list-viewer");
-	m_listViewer->searchElements("tv-show");
-}
-void appl::Windows::onCallbackSelectTvAnnimation() {
-	ewol::propertySetOnObjectNamed("view-selection", "select", "ws-name-list-viewer");
-	m_listViewer->searchElements("tv-annimation");
-}
-void appl::Windows::onCallbackSelectTeather() {
-	ewol::propertySetOnObjectNamed("view-selection", "select", "ws-name-list-viewer");
-	m_listViewer->searchElements("theater");
-}
-void appl::Windows::onCallbackSelectOneManShow() {
-	ewol::propertySetOnObjectNamed("view-selection", "select", "ws-name-list-viewer");
-	m_listViewer->searchElements("one-man");
-}
-void appl::Windows::onCallbackSelectSourses() {
-	ewol::propertySetOnObjectNamed("view-selection", "select", "ws-name-list-viewer");
-	m_listViewer->searchElements("courses");
 }
 
 void appl::Windows::onCallbackSelectMedia(const uint32_t& _value) {

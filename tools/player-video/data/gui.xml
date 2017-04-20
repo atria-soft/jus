@@ -1,30 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <sizer mode="vert" fill="true" expand="true">
 	<wslider name="view-selection" fill="true" expand="true" speed="0.250">
-		<sizer mode="vert" name="ws-name-list-group" fill="true" expand="true" addmode="invert">
-			<button name="bt-film-picture" expand="true,false" fill="true">
-				<label>_T{Films}</label>
-			</button>
-			<button name="bt-film-draw" expand="true,false" fill="true">
-				<label>_T{Annimated films}</label>
-			</button>
-			<button name="bt-tv-picture" expand="true,false" fill="true">
-				<label>_T{TV Show}</label>
-			</button>
-			<button name="bt-tv-draw" expand="true,false" fill="true">
-				<label>_T{Annimated TV Show}</label>
-			</button>
-			<button name="bt-theater" expand="true,false" fill="true">
-				<label>_T{Teather}</label>
-			</button>
-			<button name="bt-one-man-show" expand="true,false" fill="true">
-				<label>_T{One-man show}</label>
-			</button>
-			<button name="bt-courses" expand="true,false" fill="true">
-				<label>_T{Courses}</label>
-			</button>
-			<spacer fill="true" expand="true"/>
-		</sizer>
 		<sizer mode="vert" name="ws-name-list-tv" fill="true" expand="true" addmode="invert">
 			<button name="bt-tv-child" expand="true,false" fill="true">
 				<label>_T{Child TV}</label>
@@ -43,6 +19,9 @@
 		</button>
 		<button name="access-fast-group" shape="">
 			<image src="DATA:Group.svg" size="8,8mm" />
+		</button>
+		<button name="access-fast-back" shape="">
+			<image src="DATA:Back.svg" size="8,8mm" />
 		</button>
 		<!--
 		<button name="access-fast-tv">
