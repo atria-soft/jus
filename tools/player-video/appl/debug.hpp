@@ -4,6 +4,7 @@
  * @license GPL v3 (see license file)
  */
 #pragma once
+#define __STDC_FORMAT_MACROS
 
 #include <elog/log.hpp>
 

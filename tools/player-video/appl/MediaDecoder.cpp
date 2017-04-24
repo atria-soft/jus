@@ -194,7 +194,7 @@ int appl::MediaDecoder::decode_packet(int *_gotFrame, int _cached) {
 		// decode video frame
 		ret = avcodec_decode_video2(m_videoDecoderContext, m_frame, _gotFrame, &m_packet);
 		if (ret < 0) {
-			APPL_ERROR("Error decoding video frame (" << av_err2str(ret) << ")");
+			//APPL_ERROR("Error decoding video frame (" << av_err2str(ret) << ")");
 			return ret;
 		}
 		if (*_gotFrame) {
@@ -214,10 +214,12 @@ int appl::MediaDecoder::decode_packet(int *_gotFrame, int _cached) {
 				APPL_DEBUG("Update seek time: " << m_seekApply);
 			}
 			echrono::Duration packetTime(double(m_frame->pkt_pts) * double(m_videoDecoderContext->time_base.num) / double(m_videoDecoderContext->time_base.den));
+			/*
 			APPL_VERBOSE("video_frame " << (_cached?"(cached)":"")
 			             << " n=" << m_videoFrameCount
 			             << " coded_n=" << m_frame->coded_picture_number
 			             << " pts=" << av_ts2timestr(m_frame->pkt_pts, &m_videoDecoderContext->time_base) << "  " << packetTime);
+			*/
 			m_videoFrameCount++;
 			int32_t slotId = videoGetEmptySlot();
 			if (slotId == -1) {
@@ -247,7 +249,7 @@ int appl::MediaDecoder::decode_packet(int *_gotFrame, int _cached) {
 		// decode audio frame
 		ret = avcodec_decode_audio4(m_audioDecoderContext, m_frame, _gotFrame, &m_packet);
 		if (ret < 0) {
-			APPL_ERROR("Error decoding audio frame (" << av_err2str(ret) << ")");
+			//APPL_ERROR("Error decoding audio frame (" << av_err2str(ret) << ")");
 			return ret;
 		}
 		// Some audio decoders decode only part of the packet, and have to be called again with the remainder of the packet data.
