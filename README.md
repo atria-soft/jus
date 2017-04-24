@@ -16,6 +16,24 @@ Start The router interface:
 lutin -cclang -mdebug zeus-package-base?build?run%zeus-router
 ```
 
+You need for the current version create your user configuration file...
+
+Add the file ```~/.local/share/zeus-router/router-database.json``` and edit it:
+
+```
+{
+	"users":[
+		{
+			"name":"User Name A",
+			"path":"/PATH/TO/The/User/PERSONAL/FOLDER_1/"
+		},{
+			"name":"USER_NAME B",
+			"path":"/PATH/TO/The/User/PERSONAL/FOLDER_2/"
+		}
+	]
+}
+```
+
 You have now multiple choice:
 
 * Single process start:

@@ -437,7 +437,7 @@ int main(int _argc, const char *_argv[]) {
 				zeus::ProxyMedia media = remoteServiceVideo.get(it).waitFor(echrono::seconds(2000)).get();
 				if (media.exist() == false) {
 					APPL_ERROR("get media error");
-					return false;
+					return -1;
 				}
 				std::string name    = media.getMetadata("title").wait().get();
 				std::string serie   = media.getMetadata("series-name").wait().get();
