@@ -57,6 +57,11 @@ def configure(target, my_module):
 	    ])
 	my_module.copy_path('data/*')
 	my_module.add_path(".")
+	
+	myModule.pkg_add("RIGHT", "SET_ORIENTATION")
+	myModule.pkg_add("RIGHT", "VIBRATE")
+	myModule.pkg_add("RIGHT", "INTERNET")
+	
 	return True
 
 

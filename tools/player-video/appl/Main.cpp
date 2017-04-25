@@ -70,7 +70,12 @@ namespace appl {
 				// eneble the search of the font in the system font path
 				_context.getFontDefault().setUseExternal(true);
 				// select font preference of der with a basic application size
-				_context.getFontDefault().set("DejaVuSerif;FreeSerif;DejaVuSansMono", 12);
+				
+				#ifdef __TARGET_OS__Android
+					_context.getFontDefault().set("FreeSerif;DroidSans", 20);
+				#else
+					_context.getFontDefault().set("FreeSerif;DejaVuSerif;FreeSerif;DejaVuSansMono;DroidSans",12);
+				#endif
 				// set application widget:
 				appl::widget::VideoDisplay::createManagerWidget(_context.getWidgetManager());
 				appl::widget::ListViewer::createManagerWidget(_context.getWidgetManager());

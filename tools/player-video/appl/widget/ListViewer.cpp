@@ -80,18 +80,18 @@ void appl::widget::ListViewer::searchElementsInternal(const std::string& _filter
 	m_currentGroup = _group;
 	markToRedraw();
 	m_clientProp->connect();
-	if (m_clientProp->connection.isAlive() == false) {
+	if (m_clientProp->getConnection().isAlive() == false) {
 		APPL_ERROR("Conection is not alive anymore ...");
 		return;
 	}
 	
-	bool retSrv = m_clientProp->connection.waitForService("video");
+	bool retSrv = m_clientProp->getConnection().waitForService("video");
 	if (retSrv == false) {
 		APPL_ERROR(" ==> SERVICE not availlable or not started");
 		return;
 	}
 	// get all the data:
-	zeus::service::ProxyVideo remoteServiceVideo = m_clientProp->connection.getService("video");
+	zeus::service::ProxyVideo remoteServiceVideo = m_clientProp->getConnection().getService("video");
 	// remove all media (for test)
 	if (remoteServiceVideo.exist() == false) {
 		APPL_ERROR("    ==> Service does not exist : 'video'");

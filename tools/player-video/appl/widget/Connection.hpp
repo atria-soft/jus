@@ -61,7 +61,8 @@ namespace appl {
 		class Connection : public ewol::widget::Composer {
 			public: // signals
 				esignal::Signal<> signalCancel; //!< abort the display of the pop-up or press cancel button
-				esignal::Signal<ememory::SharedPtr<appl::ClientProperty>> signalValidate; //!< select file(s)
+				esignal::Signal<ememory::SharedPtr<appl::ClientProperty>> signalValidate; //!< select a connection valid
+				esignal::Signal<ememory::SharedPtr<appl::ClientProperty>> signalConnectionError; //!< Error on connection
 			protected:
 				ememory::SharedPtr<appl::ClientProperty> m_baseProperty;
 				std::string m_login;

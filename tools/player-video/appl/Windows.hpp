@@ -37,6 +37,7 @@ namespace appl {
 			
 			
 			void onCallbackConnectionValidate(const ememory::SharedPtr<ClientProperty>& _prop);
+			void onCallbackConnectionError(const ememory::SharedPtr<ClientProperty>& _prop);
 			void onCallbackConnectionCancel();
 			
 			void onCallbackShortCut(const std::string& _value);

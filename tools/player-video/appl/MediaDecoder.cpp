@@ -362,16 +362,16 @@ void appl::MediaDecoder::init(ememory::SharedPtr<ClientProperty> _property, uint
 		APPL_ERROR("Request play of not handle property ==> nullptr");
 		return;
 	}
-	if (_property->connection.isAlive() == false) {
+	if (_property->getConnection().isAlive() == false) {
 		APPL_ERROR("Request play of not connected handle ==> 'not alive'");
 		return;
 	}
-	bool retSrv = _property->connection.waitForService("video");
+	bool retSrv = _property->getConnection().waitForService("video");
 	if (retSrv == false) {
 		APPL_ERROR(" ==> SERVICE not availlable or not started");
 		return;
 	}
-	zeus::service::ProxyVideo remoteServiceVideo = _property->connection.getService("video");
+	zeus::service::ProxyVideo remoteServiceVideo = _property->getConnection().getService("video");
 	// remove all media (for test)
 	if (remoteServiceVideo.exist() == false) {
 		APPL_ERROR("Video service is ==> 'not alive'");

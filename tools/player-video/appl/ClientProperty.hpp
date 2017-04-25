@@ -18,14 +18,19 @@
 
 namespace appl {
 	class ClientProperty {
+		protected:
+			std::string m_fromUser;
+			std::string m_toUser;
+			std::string m_pass;
+			std::string m_address;
+			uint16_t m_port;
+			zeus::Client m_connection;
 		public:
-			std::string fromUser;
-			std::string toUser;
-			std::string pass;
-			std::string address;
-			uint16_t port;
-			zeus::Client connection;
 			ClientProperty();
+			
+			zeus::Client& getConnection() {
+				return m_connection;
+			};
 			void connect();
 			void disconnect();
 			ejson::Object toJson();

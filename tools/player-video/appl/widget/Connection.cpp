@@ -81,9 +81,10 @@ void appl::widget::Connection::onCallbackButtonValidate() {
 	m_baseProperty->setLogin(m_login);
 	m_baseProperty->setPassword(m_password);
 	m_baseProperty->connect();
-	if (m_baseProperty->connection.isAlive() == false) {
+	if (m_baseProperty->getConnection().isAlive() == false) {
 		APPL_ERROR("    ==> NOT Authentify to '" << m_baseProperty->getLogin() << "'");
 		ewol::tools::message::displayError("Can not connect the server with <br/>'" + m_baseProperty->getLogin() + "'");
+		signalConnectionError.emit(m_baseProperty);
 	} else {
 		APPL_INFO("    ==> Authentify with '" << m_baseProperty->getLogin() << "'");
 		signalValidate.emit(m_baseProperty);

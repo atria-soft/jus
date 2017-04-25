@@ -99,7 +99,7 @@ void appl::Windows::init() {
 		onCallbackMenuEvent("menu:connect");
 	} else {
 		m_clientProp->connect();
-		if (m_clientProp->connection.isAlive() == false) {
+		if (m_clientProp->getConnection().isAlive() == false) {
 			onCallbackMenuEvent("menu:connect");
 		} else {
 			if (m_listViewer != nullptr) {
@@ -136,6 +136,7 @@ void appl::Windows::onCallbackMenuEvent(const std::string& _value) {
 		tmpWidget->setProperty(m_clientProp);
 		// register on the Validate event:
 		tmpWidget->signalValidate.connect(sharedFromThis(), &appl::Windows::onCallbackConnectionValidate);
+		tmpWidget->signalConnectionError.connect(sharedFromThis(), &appl::Windows::onCallbackConnectionError);
 		// no need of this event watching ...
 		tmpWidget->signalCancel.connect(sharedFromThis(), &appl::Windows::onCallbackConnectionCancel);
 		// add the widget as windows pop-up ...
@@ -200,6 +201,14 @@ void appl::Windows::onCallbackConnectionValidate(const ememory::SharedPtr<Client
 		m_listViewer->setClientProperty(m_clientProp);
 		m_listViewer->searchElements();
 	}
+}
+void appl::Windows::onCallbackConnectionError(const ememory::SharedPtr<ClientProperty>& _prop) {
+	m_clientProp = _prop;
+	if (m_clientProp == nullptr) {
+		// TODO: set back in public mode ...
+		return;
+	}
+	store_db();
 }
 
 void appl::Windows::onCallbackConnectionCancel() {
