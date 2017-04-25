@@ -22,6 +22,7 @@ namespace appl {
 			eproperty::Value<bool> propertyRouterNo;
 			eproperty::Value<std::string> propertyRouterIp;
 			eproperty::Value<uint16_t> propertyRouterPort;
+			eproperty::Value<bool> propertyServiceExtern;
 			eproperty::Value<std::string> propertyServiceIp;
 			eproperty::Value<uint16_t> propertyServicePort;
 			eproperty::Value<uint16_t> propertyServiceMax;

@@ -159,6 +159,12 @@ int main(int _argc, const char *_argv[]) {
 			} else {
 				routerDisconnectionDelay = value;
 			}
+		} else if (etk::start_with(data, "--service-extern=") == true) {
+			bool value = false;
+			if (data == "--service-extern=true") {
+				value = true;
+			}
+			basicGateway.propertyServiceExtern.set(value);
 		} else if (etk::start_with(data, "--service-ip=") == true) {
 			basicGateway.propertyServiceIp.set(std::string(&data[13]));
 			#ifdef GATEWAY_ENABLE_LAUNCHER
@@ -185,18 +191,19 @@ int main(int _argc, const char *_argv[]) {
 		            || data == "--help") {
 			APPL_PRINT(etk::getApplicationName() << " - help : ");
 			APPL_PRINT("    " << _argv[0] << " [options]");
-			APPL_PRINT("        --user=XXX           Name of the user that we are connected.");
-			APPL_PRINT("        --no-router          Router connection disable ==> this enable the direct donnection of external client like on the router");
-			APPL_PRINT("        --router-ip=XXX      Router connection IP (default: " << basicGateway.propertyRouterIp.get() << ")");
-			APPL_PRINT("        --router-port=XXX    Router connection PORT (default: " << basicGateway.propertyRouterPort.get() << ")");
-			APPL_PRINT("        --service-ip=XXX     Service connection IP (default: " << basicGateway.propertyServiceIp.get() << ")");
-			APPL_PRINT("        --service-port=XXX   Service connection PORT (default: " << basicGateway.propertyServicePort.get() << ")");
-			APPL_PRINT("        --service-max=XXX    Service Maximum IO (default: " << basicGateway.propertyServiceMax.get() << ")");
-			APPL_PRINT("        --router-delay=XXX   Delay before disconnect from the router (default: " << routerDisconnectionDelay << "; 0=automatic set by the gateway; -1=never disconnect; other the time)");
+			APPL_PRINT("        --user=XXX                   Name of the user that we are connected.");
+			APPL_PRINT("        --no-router                  Router connection disable ==> this enable the direct donnection of external client like on the router");
+			APPL_PRINT("        --router-ip=XXX              Router connection IP (default: " << basicGateway.propertyRouterIp.get() << ")");
+			APPL_PRINT("        --router-port=XXX            Router connection PORT (default: " << basicGateway.propertyRouterPort.get() << ")");
+			APPL_PRINT("        --service-extern=frue/false  Disable the external service connection ==> remove open port ...(default: " << basicGateway.propertyServiceExtern.get() << ")");
+			APPL_PRINT("        --service-ip=XXX             Service connection IP (default: " << basicGateway.propertyServiceIp.get() << ")");
+			APPL_PRINT("        --service-port=XXX           Service connection PORT (default: " << basicGateway.propertyServicePort.get() << ")");
+			APPL_PRINT("        --service-max=XXX            Service Maximum IO (default: " << basicGateway.propertyServiceMax.get() << ")");
+			APPL_PRINT("        --router-delay=XXX           Delay before disconnect from the router (default: " << routerDisconnectionDelay << "; 0=automatic set by the gateway; -1=never disconnect; other the time)");
 			#ifdef GATEWAY_ENABLE_LAUNCHER
 			APPL_PRINT("        specific for internal launcher:");
-			APPL_PRINT("        --base-path=XXX      base path to search data (default: 'USERDATA:')");
-			APPL_PRINT("        --srv=XXX            service path (N)");
+			APPL_PRINT("        --base-path=XXX              base path to search data (default: 'USERDATA:')");
+			APPL_PRINT("        --srv=XXX                    service path (N)");
 			#endif
 			return -1;
 		}

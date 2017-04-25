@@ -241,6 +241,7 @@ ememory::SharedPtr<appl::GateWayInterface> appl::Router::get(const std::string& 
 					                  binary.c_str(), // must repeate the binary name to have the name as first argument ...
 					                  userConf.c_str(),
 					                  "--srv=all",
+					                  "--service-extern=false",
 					                  delay.c_str(),
 					                  basePath.c_str(),
 					                  logFile.c_str(),
