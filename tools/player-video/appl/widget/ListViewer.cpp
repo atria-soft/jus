@@ -135,6 +135,7 @@ void appl::widget::ListViewer::searchElementsInternal(const std::string& _filter
 			}
 			elem->m_id = it;
 			elem->m_metadataUpdated = false;
+			/*
 			// TODO : Type the "andThen" to simplify user experience
 			// TODO : Add the reference on the typed future in the function andTrn ... ==> then we can add later the cancel
 			
@@ -233,6 +234,7 @@ void appl::widget::ListViewer::searchElementsInternal(const std::string& _filter
 			             	tmpWidget->markToRedraw();
 			             	return true;
 			             });
+			*/
 			elem->m_metadataUpdated = true;
 			//elem->m_thumb = remoteServiceVideo.mediaThumbGet(it, 128).wait().get();
 			m_listElement.push_back(elem);
@@ -454,31 +456,35 @@ void appl::ElementDisplayed::generateDisplay(vec2 _startPos, vec2 _size) {
 	std::string textToDisplay;
 	if (m_property != nullptr) {
 		std::unique_lock<std::mutex> lock(m_property->m_mutex);
-		//m_text.setClipping(drawClippingPos, drawClippingSize);
-		textToDisplay = "<b>" + m_property->m_title + "</b><br/>";
-		bool newLine = false;
-		if (m_property->m_serie != "") {
-			textToDisplay += "<i>Serie: <b>" + m_property->m_serie + "</b></i><br/>";
-		}
-		if (m_property->m_saison != "") {
-			textToDisplay += "<i>Saison: <b>" + m_property->m_saison + "</b></i> ";
-			newLine = true;
-		}
-		if (m_property->m_episode != "") {
-			textToDisplay += "<i>Episode: <b>" + m_property->m_episode + "</b></i> ";
-			newLine = true;
-		}
-		if (m_property->m_type != "") {
-			textToDisplay += "    <i>type: <b>" + m_property->m_type + "</b></i> ";
-			if (m_property->m_productMethode != "") {
-				textToDisplay += " / " + m_property->m_productMethode + " ";
+		if (m_property->m_metadataUpdated == false) {
+			textToDisplay += "<br/><i>Loading in progress</i>";
+		} else {
+			//m_text.setClipping(drawClippingPos, drawClippingSize);
+			textToDisplay = "<b>" + m_property->m_title + "</b><br/>";
+			bool newLine = false;
+			if (m_property->m_serie != "") {
+				textToDisplay += "<i>Serie: <b>" + m_property->m_serie + "</b></i><br/>";
 			}
-			newLine = true;
+			if (m_property->m_saison != "") {
+				textToDisplay += "<i>Saison: <b>" + m_property->m_saison + "</b></i> ";
+				newLine = true;
+			}
+			if (m_property->m_episode != "") {
+				textToDisplay += "<i>Episode: <b>" + m_property->m_episode + "</b></i> ";
+				newLine = true;
+			}
+			if (m_property->m_type != "") {
+				textToDisplay += "    <i>type: <b>" + m_property->m_type + "</b></i> ";
+				if (m_property->m_productMethode != "") {
+					textToDisplay += " / " + m_property->m_productMethode + " ";
+				}
+				newLine = true;
+			}
+			if (newLine == true) {
+				textToDisplay += "<br/>";
+			}
+			textToDisplay += "<i>" + m_property->m_description + "</i>";
 		}
-		if (newLine == true) {
-			textToDisplay += "<br/>";
-		}
-		textToDisplay += "<i>" + m_property->m_description + "</i>";
 	} else {
 		std::unique_lock<std::mutex> lock(m_propertyGroup->m_mutex);
 		//m_text.setClipping(drawClippingPos, drawClippingSize);
