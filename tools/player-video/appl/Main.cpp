@@ -21,6 +21,7 @@
 #include <appl/widget/VolumeBar.hpp>
 #include <appl/widget/UpBar.hpp>
 #include <zeus/zeus.hpp>
+#include <etk/etk.hpp>
 
 namespace appl {
 	class MainApplication : public ewol::context::Application {
@@ -104,6 +105,7 @@ namespace appl {
  * @return std IO
  */
 int main(int _argc, const char *_argv[]) {
+	etk::init(_argc, _argv);
 	audio::river::init();
 	zeus::init(_argc, _argv);
 	return ewol::run(new appl::MainApplication(), _argc, _argv);
