@@ -12,6 +12,7 @@ namespace zeus {
 	/**
 	 * @brief Class that permit to add all waiting feture inside this group and wait only one time
 	 */
+	// TODO : Add the posiboilities to have a andFinished()
 	class FutureGroup {
 		private:
 			std::vector<zeus::FutureBase> m_listFuture;

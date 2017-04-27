@@ -223,10 +223,10 @@ void zeus::Client::onPropertyChangePort(){
 }
 
 
-bool zeus::Client::connectTo(const std::string& _address) {
+bool zeus::Client::connectTo(const std::string& _address, echrono::Duration _timeOut) {
 	ZEUS_DEBUG("connect [START]");
 	disconnect();
-	enet::Tcp connection = std::move(enet::connectTcpClient(*propertyIp, *propertyPort));
+	enet::Tcp connection = std::move(enet::connectTcpClient(*propertyIp, *propertyPort, 1));
 	m_interfaceWeb = ememory::makeShared<zeus::WebServer>();
 	if (m_interfaceWeb == nullptr) {
 		ZEUS_ERROR("Allocate connection error");
@@ -265,12 +265,12 @@ bool zeus::Client::connectTo(const std::string& _address) {
 	return true;
 }
 
-bool zeus::Client::connect() {
-	bool ret = connectTo("directIO");
+bool zeus::Client::connect(echrono::Duration _timeOut) {
+	bool ret = connectTo("directIO", _timeOut);
 	if (ret==false) {
 		return false;
 	}
-	zeus::Future<bool> retIdentify = call(0, ZEUS_ID_GATEWAY, "service").wait();
+	zeus::Future<bool> retIdentify = call(0, ZEUS_ID_GATEWAY, "service").waitFor(_timeOut);
 	if (retIdentify.hasError() == true) {
 		disconnect();
 		return false;
@@ -281,13 +281,13 @@ bool zeus::Client::connect() {
 	return retIdentify.get();
 }
 
-bool zeus::Client::connect(const std::string& _address) {
+bool zeus::Client::connect(const std::string& _address, echrono::Duration _timeOut) {
 	m_clientName = _address;
-	bool ret = connectTo(_address);
+	bool ret = connectTo(_address, _timeOut);
 	if (ret==false) {
 		return false;
 	}
-	zeus::Future<bool> retIdentify = call(0, ZEUS_ID_GATEWAY, "anonymous").wait();
+	zeus::Future<bool> retIdentify = call(0, ZEUS_ID_GATEWAY, "anonymous").waitFor(_timeOut);
 	if (retIdentify.hasError() == true) {
 		disconnect();
 		return false;
@@ -298,13 +298,13 @@ bool zeus::Client::connect(const std::string& _address) {
 	return retIdentify.get();
 }
 
-bool zeus::Client::connect(const std::string& _address, const std::string& _userPassword) {
+bool zeus::Client::connect(const std::string& _address, const std::string& _userPassword, echrono::Duration _timeOut) {
 	m_clientName = _address;
-	bool ret = connectTo(_address);
+	bool ret = connectTo(_address, _timeOut);
 	if (ret==false) {
 		return false;
 	}
-	zeus::Future<bool> retIdentify = call(0, ZEUS_ID_GATEWAY, "auth", _userPassword).wait();
+	zeus::Future<bool> retIdentify = call(0, ZEUS_ID_GATEWAY, "auth", _userPassword).waitFor(_timeOut);
 	if (retIdentify.hasError() == true) {
 		disconnect();
 		return false;
@@ -315,13 +315,13 @@ bool zeus::Client::connect(const std::string& _address, const std::string& _user
 	return retIdentify.get();
 }
 
-bool zeus::Client::connect(const std::string& _address, const std::string& _clientName, const std::string& _clientTocken) {
+bool zeus::Client::connect(const std::string& _address, const std::string& _clientName, const std::string& _clientTocken, echrono::Duration _timeOut) {
 	m_clientName = _clientName;
-	bool ret = connectTo(_address);
+	bool ret = connectTo(_address, _timeOut);
 	if (ret==false) {
 		return false;
 	}
-	zeus::Future<bool> retIdentify = call(0, ZEUS_ID_GATEWAY, "identify", _clientName, _clientTocken).wait();
+	zeus::Future<bool> retIdentify = call(0, ZEUS_ID_GATEWAY, "identify", _clientName, _clientTocken).waitFor(_timeOut);
 	if (retIdentify.hasError() == true) {
 		disconnect();
 		return false;

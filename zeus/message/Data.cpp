@@ -37,11 +37,15 @@ void zeus::message::Data::setPartId(uint32_t _value) {
 }
 
 bool zeus::message::Data::writeOn(enet::WebSocket& _interface) {
-	zeus::Message::writeOn(_interface);
+	std::unique_lock<std::mutex> lock = _interface.getScopeLock();
+	if (zeus::Message::writeOn(_interface) == false) {
+		return false;
+	}
 	_interface.writeData((uint8_t*)&m_partId, sizeof(uint32_t));
 	_interface.writeData((uint8_t*)&m_parameterId, sizeof(uint16_t));
 	_interface.writeData((uint8_t*)&m_data[0], m_data.size());
-	return true;
+	int32_t count = _interface.send();
+	return count > 0;
 }
 
 void zeus::message::Data::composeWith(const uint8_t* _buffer, uint32_t _lenght) {

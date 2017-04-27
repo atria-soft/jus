@@ -66,6 +66,7 @@ void appl::ClientProperty::connect() {
 	} else {
 		m_connection.propertyPort.set(m_port);
 	}
+	APPL_INFO("Connection on : " << m_connection.propertyIp.get() << ":" << m_connection.propertyPort.get() << " '" << m_fromUser << "' ==> '" << m_toUser << "'");
 	// Connection depending on the mode requested
 	if (m_fromUser == m_toUser) {
 		bool ret = m_connection.connect(m_fromUser, m_pass);
@@ -92,6 +93,7 @@ void appl::ClientProperty::connect() {
 			APPL_INFO("    ==> Connected with 'anonymous' to '" << m_toUser << "'");
 		}
 	}
+	APPL_INFO("Done");
 }
 
 void appl::ClientProperty::setLogin(std::string _login) {

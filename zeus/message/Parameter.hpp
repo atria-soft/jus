@@ -64,6 +64,7 @@ namespace zeus {
 				 */
 				std::string simpleStringParam(uint32_t _id) const;
 				void composeWith(const uint8_t* _buffer, uint32_t _lenght) override;
+				// !! This function does not lock the socket interface
 				bool writeOn(enet::WebSocket& _interface) override;
 			protected:
 				/**

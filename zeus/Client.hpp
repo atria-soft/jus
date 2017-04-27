@@ -49,32 +49,37 @@ namespace zeus {
 			/**
 			 * @brief Connetc to a remote extern server
 			 * @param[in] _address Address of the user: "ABCD.efgh~atria-soft.com:1993"
+			 * @param[in] _timeOut duration that we are waiting the server answer
 			 */
-			bool connectTo(const std::string& _address);
+			bool connectTo(const std::string& _address, echrono::Duration _timeOut = echrono::seconds(1));
 		public:
 			/**
 			 * @brief Direct connection on a GateWay No Identification needed, the Port on the Gateway garenty the connection)
 			 * @note This is exclusively reserve for server service provicers
+			 * @param[in] _timeOut duration that we are waiting the server answer
 			 */
-			bool connect();
+			bool connect(echrono::Duration _timeOut = echrono::seconds(1));
 			/**
 			 * @brief Create a client on a specific user in an ANONIMOUS way
 			 * @param[in] _address Address of the user: "ABCD.efgh~atria-soft.com:1993"
+			 * @param[in] _timeOut duration that we are waiting the server answer
 			 */
-			bool connect(const std::string& _address);
+			bool connect(const std::string& _address, echrono::Duration _timeOut = echrono::seconds(1));
 			/**
 			 * @brief Create a client on a specific user in a user mode (connect to your personnal account)
 			 * @param[in] _address Address of the user: "ABCD.efgh~atria-soft.com:1993"
 			 * @param[in] _userPassword Password of the user
+			 * @param[in] _timeOut duration that we are waiting the server answer
 			 */
-			bool connect(const std::string& _address, const std::string& _userPassword);
+			bool connect(const std::string& _address, const std::string& _userPassword, echrono::Duration _timeOut = echrono::seconds(1));
 			/**
 			 * @brief Create a client on a specific user in a client mode with the tocken associated
 			 * @param[in] _address Address of the user: "ABCD.efgh~atria-soft.com:1993"
 			 * @param[in] 
 			 * @param[in] 
+			 * @param[in] _timeOut duration that we are waiting the server answer
 			 */
-			bool connect(const std::string& _address, const std::string& _clientName, const std::string& _clientTocken);
+			bool connect(const std::string& _address, const std::string& _clientName, const std::string& _clientTocken, echrono::Duration _timeOut = echrono::seconds(1));
 			/**
 			 * @brief Disconnect of the current interface
 			 */

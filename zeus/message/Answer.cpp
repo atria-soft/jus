@@ -46,7 +46,11 @@ bool zeus::message::Answer::writeOn(enet::WebSocket& _interface) {
 	if (m_errorType.size() != 0) {
 		_interface.writeData((uint8_t*)m_errorHelp.c_str(), m_errorHelp.size() + 1);
 	}
-	return message::Parameter::writeOn(_interface);
+	if (message::Parameter::writeOn(_interface) == false) {
+		return false;
+	}
+	int32_t count = _interface.send();
+	return count > 0;
 }
 
 void zeus::message::Answer::composeWith(const uint8_t* _buffer, uint32_t _lenght) {

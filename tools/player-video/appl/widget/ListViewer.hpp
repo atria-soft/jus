@@ -12,16 +12,37 @@
 #include <ewol/compositing/Drawing.hpp>
 #include <ewol/widget/Manager.hpp>
 #include <esignal/Signal.hpp>
+#include <zeus/service/ProxyVideo.hpp>
 
 #include <zeus/Client.hpp>
 #include <appl/ClientProperty.hpp>
 
 namespace appl {
-	class ElementProperty {
+	enum class statusLoadingData {
+		noData,
+		inProgress,
+		done
+	};
+	class ElementProperty : public ememory::EnableSharedFromThis<appl::ElementProperty> {
+		private:
+			zeus::service::ProxyVideo m_remoteServiceVideo;
+			ewol::WidgetShared m_widget;
 		public:
+			ElementProperty(zeus::service::ProxyVideo& _remoteServiceVideo, ewol::WidgetShared _widget):
+			  m_remoteServiceVideo(_remoteServiceVideo),
+			  m_widget(_widget),
+			  m_metadataUpdated(appl::statusLoadingData::noData),
+			  m_nbElementLoaded(0) {
+				
+			}
+		protected:
+			enum appl::statusLoadingData m_metadataUpdated; //!< Check value to know when metadata is getted (like thumb ...)
+			uint32_t m_nbElementLoaded; //!< this cont the number of lement loaded to set tle media full loaded
+		public:
+			bool LoadDataEnded();
 			std::mutex m_mutex;
 			uint64_t m_id; //!< Remote Id of the Media
-			bool m_metadataUpdated; //!< Check value to know when metadata is getted (like thumb ...)
+			
 			egami::Image m_thumb; //!< simple image describing the element
 			std::string m_title; //!< Title of the Element
 			std::string m_description; //!< Description of the element
@@ -34,6 +55,7 @@ namespace appl {
 			// TODO: float m_globalNote; //!< note over [0,0..1,0]
 			// TODO: int32_t m_countPersonalView; //!< number of view this media
 			// TODO: int64_t m_globalPersonalView; //!< number of time this media has been viewed
+			void loadData();
 	};
 	class ElementPropertyGroup {
 		public:
@@ -71,7 +93,6 @@ namespace appl {
 		class ListViewer;
 		using ListViewerShared = ememory::SharedPtr<appl::widget::ListViewer>;
 		using ListViewerWeak = ememory::WeakPtr<appl::widget::ListViewer>;
-		
 		class ListViewer : public ewol::widget::WidgetScrolled {
 			protected:
 				ewol::compositing::Text m_text;

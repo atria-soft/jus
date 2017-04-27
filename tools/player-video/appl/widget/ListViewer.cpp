@@ -67,6 +67,274 @@ void appl::widget::ListViewer::searchElements(std::string _filter) {
 	}
 }
 
+void appl::ElementProperty::loadData() {
+	// Check progression status:
+	{
+		std::unique_lock<std::mutex> lock(m_mutex);
+		if (m_metadataUpdated != appl::statusLoadingData::noData) {
+			return;
+		}
+		m_metadataUpdated = appl::statusLoadingData::inProgress;
+	}
+	auto tmpProperty = sharedFromThis();
+	// Get the media
+	zeus::Future<zeus::ProxyMedia> futMedia = m_remoteServiceVideo.get(m_id);
+	futMedia.andElse([=](zeus::Future<zeus::ProxyMedia> _fut) mutable {
+	                 	APPL_INFO("    [" << tmpProperty->m_id << "] get media error: " << tmpProperty->m_id);
+	                 	{
+	                 		std::unique_lock<std::mutex> lock(tmpProperty->m_mutex);
+	                 		tmpProperty->m_title = "[ERROR] can not get media informations <br/>" + _fut.getErrorType() + ": " + _fut.getErrorHelp();
+	                 		tmpProperty->m_metadataUpdated = appl::statusLoadingData::done;
+	                 	}
+	                 	m_widget->markToRedraw();
+	                 	return true;
+	                 });
+	futMedia.andThen([=](zeus::Future<zeus::ProxyMedia> _fut) mutable {
+	                 	APPL_INFO("    [" << tmpProperty->m_id << "] get media: " << tmpProperty->m_id);
+	                 	zeus::ProxyMedia media = _fut.get();
+	                 	if (media.exist() == false) {
+	                 		APPL_ERROR("get media error");
+	                 		{
+	                 			std::unique_lock<std::mutex> lock(tmpProperty->m_mutex);
+	                 			tmpProperty->m_title = "[ERROR] can not get media informations (2)<br/>" + _fut.getErrorType() + ": " + _fut.getErrorHelp();
+	                 			tmpProperty->m_metadataUpdated = appl::statusLoadingData::done;
+	                 		}
+	                 		m_widget->markToRedraw();
+	                 		return true;
+	                 	}
+	                 	
+	                 	media.getMetadata("title")
+	                 	    .andElse([=](zeus::Future<std::string> _fut) mutable {
+	                 	             	{
+	                 	             		std::unique_lock<std::mutex> lock(tmpProperty->m_mutex);
+	                 	             		tmpProperty->m_nbElementLoaded++;
+	                 	             		if (tmpProperty->m_nbElementLoaded >= 8) {
+	                 	             			tmpProperty->m_metadataUpdated = appl::statusLoadingData::done;
+	                 	             		}
+	                 	             	}
+	                 	             	return true;
+	                 	             })
+	                 	    .andThen([=](zeus::Future<std::string> _fut) mutable {
+	                 	             	APPL_INFO("    [" << tmpProperty->m_id << "] get title: " << _fut.get());
+	                 	             	{
+	                 	             		std::unique_lock<std::mutex> lock(tmpProperty->m_mutex);
+	                 	             		tmpProperty->m_title = _fut.get();
+	                 	             	}
+	                 	             	m_widget->markToRedraw();
+	                 	             	{
+	                 	             		std::unique_lock<std::mutex> lock(tmpProperty->m_mutex);
+	                 	             		tmpProperty->m_nbElementLoaded++;
+	                 	             		if (tmpProperty->m_nbElementLoaded >= 8) {
+	                 	             			tmpProperty->m_metadataUpdated = appl::statusLoadingData::done;
+	                 	             		}
+	                 	             	}
+	                 	             	return true;
+	                 	             });
+	                 	media.getMetadata("series-name")
+	                 	    .andElse([=](zeus::Future<std::string> _fut) mutable {
+	                 	             	{
+	                 	             		std::unique_lock<std::mutex> lock(tmpProperty->m_mutex);
+	                 	             		tmpProperty->m_nbElementLoaded++;
+	                 	             		if (tmpProperty->m_nbElementLoaded >= 8) {
+	                 	             			tmpProperty->m_metadataUpdated = appl::statusLoadingData::done;
+	                 	             		}
+	                 	             	}
+	                 	             	return true;
+	                 	             })
+	                 	    .andThen([=](zeus::Future<std::string> _fut) mutable {
+	                 	             	APPL_ERROR("    [" << tmpProperty->m_id << "] get serie: " << _fut.get());
+	                 	             	{
+	                 	             		std::unique_lock<std::mutex> lock(tmpProperty->m_mutex);
+	                 	             		tmpProperty->m_serie = _fut.get();
+	                 	             	}
+	                 	             	m_widget->markToRedraw();
+	                 	             	{
+	                 	             		std::unique_lock<std::mutex> lock(tmpProperty->m_mutex);
+	                 	             		tmpProperty->m_nbElementLoaded++;
+	                 	             		if (tmpProperty->m_nbElementLoaded >= 8) {
+	                 	             			tmpProperty->m_metadataUpdated = appl::statusLoadingData::done;
+	                 	             		}
+	                 	             	}
+	                 	             	return true;
+	                 	             });
+	                 	media.getMetadata("saison")
+	                 	    .andElse([=](zeus::Future<std::string> _fut) mutable {
+	                 	             	{
+	                 	             		std::unique_lock<std::mutex> lock(tmpProperty->m_mutex);
+	                 	             		tmpProperty->m_nbElementLoaded++;
+	                 	             		if (tmpProperty->m_nbElementLoaded >= 8) {
+	                 	             			tmpProperty->m_metadataUpdated = appl::statusLoadingData::done;
+	                 	             		}
+	                 	             	}
+	                 	             	return true;
+	                 	             })
+	                 	    .andThen([=](zeus::Future<std::string> _fut) mutable {
+	                 	             	APPL_INFO("    [" << tmpProperty->m_id << "] get saison: " << _fut.get());
+	                 	             	{
+	                 	             		std::unique_lock<std::mutex> lock(tmpProperty->m_mutex);
+	                 	             		tmpProperty->m_saison = _fut.get();
+	                 	             	}
+	                 	             	m_widget->markToRedraw();
+	                 	             	{
+	                 	             		std::unique_lock<std::mutex> lock(tmpProperty->m_mutex);
+	                 	             		tmpProperty->m_nbElementLoaded++;
+	                 	             		if (tmpProperty->m_nbElementLoaded >= 8) {
+	                 	             			tmpProperty->m_metadataUpdated = appl::statusLoadingData::done;
+	                 	             		}
+	                 	             	}
+	                 	             	return true;
+	                 	             });
+	                 	media.getMetadata("episode")
+	                 	    .andElse([=](zeus::Future<std::string> _fut) mutable {
+	                 	             	{
+	                 	             		std::unique_lock<std::mutex> lock(tmpProperty->m_mutex);
+	                 	             		tmpProperty->m_nbElementLoaded++;
+	                 	             		if (tmpProperty->m_nbElementLoaded >= 8) {
+	                 	             			tmpProperty->m_metadataUpdated = appl::statusLoadingData::done;
+	                 	             		}
+	                 	             	}
+	                 	             	return true;
+	                 	             })
+	                 	    .andThen([=](zeus::Future<std::string> _fut) mutable {
+	                 	             	APPL_INFO("    [" << tmpProperty->m_id << "] get episode: " << _fut.get());
+	                 	             	{
+	                 	             		std::unique_lock<std::mutex> lock(tmpProperty->m_mutex);
+	                 	             		tmpProperty->m_episode = _fut.get();
+	                 	             	}
+	                 	             	m_widget->markToRedraw();
+	                 	             	{
+	                 	             		std::unique_lock<std::mutex> lock(tmpProperty->m_mutex);
+	                 	             		tmpProperty->m_nbElementLoaded++;
+	                 	             		if (tmpProperty->m_nbElementLoaded >= 8) {
+	                 	             			tmpProperty->m_metadataUpdated = appl::statusLoadingData::done;
+	                 	             		}
+	                 	             	}
+	                 	             	return true;
+	                 	             });
+	                 	media.getMetadata("description")
+	                 	    .andElse([=](zeus::Future<std::string> _fut) mutable {
+	                 	             	{
+	                 	             		std::unique_lock<std::mutex> lock(tmpProperty->m_mutex);
+	                 	             		tmpProperty->m_nbElementLoaded++;
+	                 	             		if (tmpProperty->m_nbElementLoaded >= 8) {
+	                 	             			tmpProperty->m_metadataUpdated = appl::statusLoadingData::done;
+	                 	             		}
+	                 	             	}
+	                 	             	return true;
+	                 	             })
+	                 	    .andThen([=](zeus::Future<std::string> _fut) mutable {
+	                 	             	APPL_INFO("    [" << tmpProperty->m_id << "] get description: " << _fut.get());
+	                 	             	{
+	                 	             		std::unique_lock<std::mutex> lock(tmpProperty->m_mutex);
+	                 	             		tmpProperty->m_description = _fut.get();
+	                 	             	}
+	                 	             	m_widget->markToRedraw();
+	                 	             	{
+	                 	             		std::unique_lock<std::mutex> lock(tmpProperty->m_mutex);
+	                 	             		tmpProperty->m_nbElementLoaded++;
+	                 	             		if (tmpProperty->m_nbElementLoaded >= 8) {
+	                 	             			tmpProperty->m_metadataUpdated = appl::statusLoadingData::done;
+	                 	             		}
+	                 	             	}
+	                 	             	return true;
+	                 	             });
+	                 	media.getMetadata("production-methode")
+	                 	    .andElse([=](zeus::Future<std::string> _fut) mutable {
+	                 	             	{
+	                 	             		std::unique_lock<std::mutex> lock(tmpProperty->m_mutex);
+	                 	             		tmpProperty->m_nbElementLoaded++;
+	                 	             		if (tmpProperty->m_nbElementLoaded >= 8) {
+	                 	             			tmpProperty->m_metadataUpdated = appl::statusLoadingData::done;
+	                 	             		}
+	                 	             	}
+	                 	             	return true;
+	                 	             })
+	                 	    .andThen([=](zeus::Future<std::string> _fut) mutable {
+	                 	             	APPL_INFO("    [" << tmpProperty->m_id << "] get production-methode: " << _fut.get());
+	                 	             	{
+	                 	             		std::unique_lock<std::mutex> lock(tmpProperty->m_mutex);
+	                 	             		tmpProperty->m_productMethode = _fut.get();
+	                 	             	}
+	                 	             	m_widget->markToRedraw();
+	                 	             	{
+	                 	             		std::unique_lock<std::mutex> lock(tmpProperty->m_mutex);
+	                 	             		tmpProperty->m_nbElementLoaded++;
+	                 	             		if (tmpProperty->m_nbElementLoaded >= 8) {
+	                 	             			tmpProperty->m_metadataUpdated = appl::statusLoadingData::done;
+	                 	             		}
+	                 	             	}
+	                 	             	return true;
+	                 	             });
+	                 	media.getMetadata("type")
+	                 	    .andElse([=](zeus::Future<std::string> _fut) mutable {
+	                 	             	{
+	                 	             		std::unique_lock<std::mutex> lock(tmpProperty->m_mutex);
+	                 	             		tmpProperty->m_nbElementLoaded++;
+	                 	             		if (tmpProperty->m_nbElementLoaded >= 8) {
+	                 	             			tmpProperty->m_metadataUpdated = appl::statusLoadingData::done;
+	                 	             		}
+	                 	             	}
+	                 	             	return true;
+	                 	             })
+	                 	    .andThen([=](zeus::Future<std::string> _fut) mutable {
+	                 	             	APPL_INFO("    [" << tmpProperty->m_id << "] get type: " << _fut.get());
+	                 	             	{
+	                 	             		std::unique_lock<std::mutex> lock(tmpProperty->m_mutex);
+	                 	             		tmpProperty->m_type = _fut.get();
+	                 	             	}
+	                 	             	m_widget->markToRedraw();
+	                 	             	{
+	                 	             		std::unique_lock<std::mutex> lock(tmpProperty->m_mutex);
+	                 	             		tmpProperty->m_nbElementLoaded++;
+	                 	             		if (tmpProperty->m_nbElementLoaded >= 8) {
+	                 	             			tmpProperty->m_metadataUpdated = appl::statusLoadingData::done;
+	                 	             		}
+	                 	             	}
+	                 	             	return true;
+	                 	             });
+	                 	media.getMineType()
+	                 	    .andElse([=](zeus::Future<std::string> _fut) mutable {
+	                 	             	{
+	                 	             		std::unique_lock<std::mutex> lock(tmpProperty->m_mutex);
+	                 	             		tmpProperty->m_nbElementLoaded++;
+	                 	             		if (tmpProperty->m_nbElementLoaded >= 8) {
+	                 	             			tmpProperty->m_metadataUpdated = appl::statusLoadingData::done;
+	                 	             		}
+	                 	             	}
+	                 	             	return true;
+	                 	             })
+	                 	    .andThen([=](zeus::Future<std::string> _fut) mutable {
+	                 	             	APPL_INFO("    [" << tmpProperty->m_id << "] get mine-type: " << _fut.get());
+	                 	             	{
+	                 	             		std::unique_lock<std::mutex> lock(tmpProperty->m_mutex);
+	                 	             		tmpProperty->m_mineType = _fut.get();
+	                 	             		if (etk::start_with(tmpProperty->m_mineType, "video") == true) {
+	                 	             			// TODO : Optimise this ...
+	                 	             			tmpProperty->m_thumb = egami::load("DATA:Video.svg", ivec2(128,128));
+	                 	             		} else if (etk::start_with(tmpProperty->m_mineType, "audio") == true) {
+	                 	             			// TODO : Optimise this ...
+	                 	             			tmpProperty->m_thumb = egami::load("DATA:MusicNote.svg", ivec2(128,128));
+	                 	             		}
+	                 	             	}
+	                 	             	m_widget->markToRedraw();
+	                 	             	{
+	                 	             		std::unique_lock<std::mutex> lock(tmpProperty->m_mutex);
+	                 	             		tmpProperty->m_nbElementLoaded++;
+	                 	             		if (tmpProperty->m_nbElementLoaded >= 8) {
+	                 	             			tmpProperty->m_metadataUpdated = appl::statusLoadingData::done;
+	                 	             		}
+	                 	             	}
+	                 	             	return true;
+	                 	             });
+	                 	return true;
+	                 });
+}
+
+bool appl::ElementProperty::LoadDataEnded() {
+	std::unique_lock<std::mutex> lock(m_mutex);
+	return m_metadataUpdated == appl::statusLoadingData::done;
+}
+
 void appl::widget::ListViewer::searchElementsInternal(const std::string& _filter, const std::string& _group) {
 	m_listElement.clear();
 	m_listElementGroup.clear();
@@ -128,114 +396,16 @@ void appl::widget::ListViewer::searchElementsInternal(const std::string& _filter
 		std::vector<uint32_t> returnValues = listElem.get();
 		APPL_INFO("Get some Values: " << returnValues << "");
 		for (auto &it : returnValues) {
-			auto elem = ememory::makeShared<ElementProperty>();
+			auto elem = ememory::makeShared<ElementProperty>(remoteServiceVideo, ememory::staticPointerCast<ewol::Widget>(sharedFromThis()));
 			if (elem == nullptr) {
 				APPL_ERROR("Can not allocate element... " << it);
 				continue;
 			}
 			elem->m_id = it;
-			elem->m_metadataUpdated = false;
 			/*
 			// TODO : Type the "andThen" to simplify user experience
 			// TODO : Add the reference on the typed future in the function andTrn ... ==> then we can add later the cancel
-			
-			// Get the media
-			zeus::ProxyMedia media = remoteServiceVideo.get(it).waitFor(echrono::seconds(2000)).get();
-			if (media.exist() == false) {
-				APPL_ERROR("get media error");
-				continue;
-			}
-			
-			appl::widget::ListViewerShared tmpWidget = ememory::staticPointerCast<appl::widget::ListViewer>(sharedFromThis());
-			media.getMetadata("title")
-			    .andThen([=](zeus::Future<std::string> _fut) mutable {
-			             	APPL_INFO("    [" << elem->m_id << "] get title: " << _fut.get());
-			             	{
-			             		std::unique_lock<std::mutex> lock(elem->m_mutex);
-			             		elem->m_title = _fut.get();
-			             	}
-			             	tmpWidget->markToRedraw();
-			             	return true;
-			             });
-			media.getMetadata("series-name")
-			    .andThen([=](zeus::Future<std::string> _fut) mutable {
-			             	APPL_ERROR("    [" << elem->m_id << "] get serie: " << _fut.get());
-			             	{
-			             		std::unique_lock<std::mutex> lock(elem->m_mutex);
-			             		elem->m_serie = _fut.get();
-			             	}
-			             	tmpWidget->markToRedraw();
-			             	return true;
-			             });
-			media.getMetadata("saison")
-			    .andThen([=](zeus::Future<std::string> _fut) mutable {
-			             	APPL_INFO("    [" << elem->m_id << "] get saison: " << _fut.get());
-			             	{
-			             		std::unique_lock<std::mutex> lock(elem->m_mutex);
-			             		elem->m_saison = _fut.get();
-			             	}
-			             	tmpWidget->markToRedraw();
-			             	return true;
-			             });
-			media.getMetadata("episode")
-			    .andThen([=](zeus::Future<std::string> _fut) mutable {
-			             	APPL_INFO("    [" << elem->m_id << "] get episode: " << _fut.get());
-			             	{
-			             		std::unique_lock<std::mutex> lock(elem->m_mutex);
-			             		elem->m_episode = _fut.get();
-			             	}
-			             	tmpWidget->markToRedraw();
-			             	return true;
-			             });
-			media.getMetadata("description")
-			    .andThen([=](zeus::Future<std::string> _fut) mutable {
-			             	APPL_INFO("    [" << elem->m_id << "] get description: " << _fut.get());
-			             	{
-			             		std::unique_lock<std::mutex> lock(elem->m_mutex);
-			             		elem->m_description = _fut.get();
-			             	}
-			             	tmpWidget->markToRedraw();
-			             	return true;
-			             });
-			media.getMetadata("production-methode")
-			    .andThen([=](zeus::Future<std::string> _fut) mutable {
-			             	APPL_INFO("    [" << elem->m_id << "] get production-methode: " << _fut.get());
-			             	{
-			             		std::unique_lock<std::mutex> lock(elem->m_mutex);
-			             		elem->m_productMethode = _fut.get();
-			             	}
-			             	tmpWidget->markToRedraw();
-			             	return true;
-			             });
-			media.getMetadata("type")
-			    .andThen([=](zeus::Future<std::string> _fut) mutable {
-			             	APPL_INFO("    [" << elem->m_id << "] get type: " << _fut.get());
-			             	{
-			             		std::unique_lock<std::mutex> lock(elem->m_mutex);
-			             		elem->m_type = _fut.get();
-			             	}
-			             	tmpWidget->markToRedraw();
-			             	return true;
-			             });
-			media.getMineType()
-			    .andThen([=](zeus::Future<std::string> _fut) mutable {
-			             	APPL_INFO("    [" << elem->m_id << "] get mine-type: " << _fut.get());
-			             	{
-			             		std::unique_lock<std::mutex> lock(elem->m_mutex);
-			             		elem->m_mineType = _fut.get();
-			             		if (etk::start_with(elem->m_mineType, "video") == true) {
-			             			// TODO : Optimise this ...
-			             			elem->m_thumb = egami::load("DATA:Video.svg", ivec2(128,128));
-			             		} else if (etk::start_with(elem->m_mineType, "audio") == true) {
-			             			// TODO : Optimise this ...
-			             			elem->m_thumb = egami::load("DATA:MusicNote.svg", ivec2(128,128));
-			             		}
-			             	}
-			             	tmpWidget->markToRedraw();
-			             	return true;
-			             });
 			*/
-			elem->m_metadataUpdated = true;
 			//elem->m_thumb = remoteServiceVideo.mediaThumbGet(it, 128).wait().get();
 			m_listElement.push_back(elem);
 		}
@@ -343,6 +513,9 @@ void appl::widget::ListViewer::onRegenerateDisplay() {
 			elem->m_idCurentElement = offset + iii;
 			if (offset + iii < m_listElement.size()) {
 				elem->m_property = m_listElement[offset + iii];
+				if (elem->m_property != nullptr) {
+					elem->m_property->loadData();
+				}
 			} else {
 				elem->m_property.reset();
 			}
@@ -456,7 +629,7 @@ void appl::ElementDisplayed::generateDisplay(vec2 _startPos, vec2 _size) {
 	std::string textToDisplay;
 	if (m_property != nullptr) {
 		std::unique_lock<std::mutex> lock(m_property->m_mutex);
-		if (m_property->m_metadataUpdated == false) {
+		if (m_property->LoadDataEnded() == false) {
 			textToDisplay += "<br/><i>Loading in progress</i>";
 		} else {
 			//m_text.setClipping(drawClippingPos, drawClippingSize);

@@ -268,6 +268,7 @@ namespace zeus {
 			 * @param[in] _interface socket to write data
 			 * @return true of no error appear
 			 */
+			// This fucntion does not lock the interface
 			virtual bool writeOn(enet::WebSocket& _interface);
 			virtual void generateDisplay(std::ostream& _os) const ;
 	};

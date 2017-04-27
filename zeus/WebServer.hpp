@@ -98,6 +98,8 @@ namespace zeus {
 	 * @brief 
 	 */
 	class WebServer : public ememory::EnableSharedFromThis<zeus::WebServer> {
+		protected:
+			std::mutex m_mutex;
 		public:
 			std::vector<ememory::SharedPtr<zeus::WebObj>> m_actifObject; //!< List of all active object created and that remove is in progress ...
 		private:
@@ -105,7 +107,7 @@ namespace zeus {
 			ethread::Pool m_processingPool;
 			std::vector<ememory::SharedPtr<zeus::Message>> m_listPartialMessage;
 			uint16_t m_localAddress;
-			uint16_t m_licalIdObjectIncrement; //!< attribute a unique ID for an object
+			uint16_t m_localIdObjectIncrement; //!< attribute an unique ID for an object
 		public:
 			uint16_t getAddress() const {
 				return m_localAddress;
@@ -114,7 +116,7 @@ namespace zeus {
 				m_localAddress = _address;
 			}
 			uint16_t getNewObjectId() {
-				return m_licalIdObjectIncrement++;
+				return m_localIdObjectIncrement++;
 			}
 		private:
 			std::vector<ememory::SharedPtr<zeus::WebObj>> m_listObject;

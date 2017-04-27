@@ -38,7 +38,11 @@ bool zeus::message::Call::writeOn(enet::WebSocket& _interface) {
 	std::unique_lock<std::mutex> lock = _interface.getScopeLock();
 	zeus::Message::writeOn(_interface);
 	_interface.writeData((uint8_t*)m_callName.c_str(), m_callName.size() + 1);
-	return message::Parameter::writeOn(_interface);
+	if (message::Parameter::writeOn(_interface) == false) {
+		return false;
+	}
+	int32_t count = _interface.send();
+	return count > 0;
 }
 
 void zeus::message::Call::composeWith(const uint8_t* _buffer, uint32_t _lenght) {
