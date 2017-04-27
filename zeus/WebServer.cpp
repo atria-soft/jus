@@ -103,12 +103,12 @@ void zeus::WebServer::setInterfaceName(const std::string& _name) {
 }
 
 void zeus::WebServer::addWebObj(ememory::SharedPtr<zeus::WebObj> _obj) {
-	std::unique_lock<std::mutex> lock(m_mutex);
+	//std::unique_lock<std::mutex> lock(m_mutex);
 	m_listObject.push_back(_obj);
 }
 
 void zeus::WebServer::addWebObjRemote(ememory::SharedPtr<zeus::ObjectRemoteBase> _obj) {
-	std::unique_lock<std::mutex> lock(m_mutex);
+	//std::unique_lock<std::mutex> lock(m_mutex);
 	m_listRemoteObject.push_back(_obj);
 }
 
@@ -344,13 +344,13 @@ void zeus::WebServer::newMessage(ememory::SharedPtr<zeus::Message> _buffer) {
 	}
 	if (    _buffer->getPartFinish() == false
 	     && _buffer->getType() != zeus::message::type::data) {
-		std::unique_lock<std::mutex> lock(m_mutex);
+		//std::unique_lock<std::mutex> lock(m_mutex);
 		m_listPartialMessage.push_back(_buffer);
 		return;
 	}
 	if (_buffer->getType() == zeus::message::type::data) {
 		// Add data in a previous buffer...
-		std::unique_lock<std::mutex> lock(m_mutex);
+		//std::unique_lock<std::mutex> lock(m_mutex);
 		auto it = m_listPartialMessage.begin();
 		while (it != m_listPartialMessage.end()) {
 			if (*it == nullptr) {
@@ -420,7 +420,7 @@ void zeus::WebServer::newMessage(ememory::SharedPtr<zeus::Message> _buffer) {
 				return;
 			}
 		}
-		std::unique_lock<std::mutex> lock(m_mutex);
+		//std::unique_lock<std::mutex> lock(m_mutex);
 		// call local map object on remote object
 		for (auto &it : m_listRemoteObject) {
 			ememory::SharedPtr<zeus::ObjectRemoteBase> tmp = it.lock();
@@ -478,7 +478,7 @@ void zeus::WebServer::newMessage(ememory::SharedPtr<zeus::Message> _buffer) {
 }
 
 void zeus::WebServer::listObjects() {
-	std::unique_lock<std::mutex> lock(m_mutex);
+	//std::unique_lock<std::mutex> lock(m_mutex);
 	if (    m_listObject.size() == 0
 	     && m_listRemoteObject.size() == 0) {
 		return;
@@ -500,7 +500,7 @@ void zeus::WebServer::listObjects() {
 }
 
 void zeus::WebServer::cleanDeadObject() {
-	std::unique_lock<std::mutex> lock(m_mutex);
+	//std::unique_lock<std::mutex> lock(m_mutex);
 	if (    m_listObject.size() == 0
 	     && m_listRemoteObject.size() == 0) {
 		return;
@@ -530,7 +530,7 @@ void zeus::WebServer::cleanDeadObject() {
 }
 
 bool zeus::WebServer::transferRemoteObjectOwnership(uint16_t _objectAddress, uint32_t _sourceAddress, uint32_t _destinataireAddress) {
-	std::unique_lock<std::mutex> lock(m_mutex);
+	//std::unique_lock<std::mutex> lock(m_mutex);
 	if (    m_listObject.size() == 0
 	     && m_listRemoteObject.size() == 0) {
 		return false;
@@ -557,7 +557,7 @@ bool zeus::WebServer::transferRemoteObjectOwnership(uint16_t _objectAddress, uin
 }
 
 bool zeus::WebServer::removeObjectOwnership(uint16_t _objectAddress, uint32_t _sourceAddress) {
-	std::unique_lock<std::mutex> lock(m_mutex);
+	//std::unique_lock<std::mutex> lock(m_mutex);
 	if (    m_listObject.size() == 0
 	     && m_listRemoteObject.size() == 0) {
 		return false;
