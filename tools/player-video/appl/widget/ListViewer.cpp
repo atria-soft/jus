@@ -326,6 +326,7 @@ void appl::ElementProperty::loadData() {
 	                 	             	}
 	                 	             	return true;
 	                 	             });
+	                 	//elem->m_thumb = remoteServiceVideo.mediaThumbGet(it, 128).wait().get();
 	                 	return true;
 	                 });
 }
@@ -335,7 +336,18 @@ bool appl::ElementProperty::LoadDataEnded() {
 	return m_metadataUpdated == appl::statusLoadingData::done;
 }
 
-void appl::widget::ListViewer::searchElementsInternal(const std::string& _filter, const std::string& _group) {
+
+void appl::widget::ListViewer::backHistory() {
+	if (m_history.size() == 0) {
+		// nothing to do ...
+		return;
+	}
+	auto value = m_history.back();
+	m_history.pop_back();
+	searchElementsInternal(value.first, value.second, false);
+}
+
+void appl::widget::ListViewer::searchElementsInternal(const std::string& _filter, const std::string& _group, bool _storeHistory) {
 	m_listElement.clear();
 	m_listElementGroup.clear();
 	m_listDisplay.clear();
@@ -343,6 +355,10 @@ void appl::widget::ListViewer::searchElementsInternal(const std::string& _filter
 	if (m_clientProp == nullptr) {
 		APPL_ERROR("No client Availlable ...");
 		return;
+	}
+	if (    m_currentFilter != ""
+	     && _storeHistory == true) {
+		m_history.push_back(std::make_pair(m_currentFilter, m_currentGroup));
 	}
 	m_currentFilter = _filter;
 	m_currentGroup = _group;
@@ -374,7 +390,8 @@ void appl::widget::ListViewer::searchElementsInternal(const std::string& _filter
 		std::vector<std::string> returnValues = listElem.get();
 		APPL_INFO("Get some Values: " << returnValues << "");
 		if (returnValues.size() == 1) {
-			// TODO : maybe something to do for series
+			// TODO: if we have a single element and this is requested as a group ==> just jump in it
+			
 		}
 		for (auto &it : returnValues) {
 			auto elem = ememory::makeShared<ElementPropertyGroup>();
@@ -383,7 +400,12 @@ void appl::widget::ListViewer::searchElementsInternal(const std::string& _filter
 				continue;
 			}
 			elem->m_id = 0;
-			elem->m_title = it;
+			elem->m_filter = it;
+			if (m_currentGroup == "saison") {
+				elem->m_title = TRANSLATE("_T{saison} ") + it;
+			} else {
+				elem->m_title = it;
+			}
 			//elem->m_thumb = remoteServiceVideo.mediaThumbGet(it, 128).wait().get();
 			m_listElementGroup.push_back(elem);
 		}
@@ -402,11 +424,7 @@ void appl::widget::ListViewer::searchElementsInternal(const std::string& _filter
 				continue;
 			}
 			elem->m_id = it;
-			/*
-			// TODO : Type the "andThen" to simplify user experience
-			// TODO : Add the reference on the typed future in the function andTrn ... ==> then we can add later the cancel
-			*/
-			//elem->m_thumb = remoteServiceVideo.mediaThumbGet(it, 128).wait().get();
+			// ==> loading is done when display is requested ...
 			m_listElement.push_back(elem);
 		}
 	}
@@ -628,10 +646,10 @@ void appl::ElementDisplayed::generateDisplay(vec2 _startPos, vec2 _size) {
 	// TODO: m_text.setClipping(originText, vec2(originText.x()+_size.x()-_size.y(), _size.y()));
 	std::string textToDisplay;
 	if (m_property != nullptr) {
-		std::unique_lock<std::mutex> lock(m_property->m_mutex);
 		if (m_property->LoadDataEnded() == false) {
 			textToDisplay += "<br/><i>Loading in progress</i>";
 		} else {
+			std::unique_lock<std::mutex> lock(m_property->m_mutex);
 			//m_text.setClipping(drawClippingPos, drawClippingSize);
 			textToDisplay = "<b>" + m_property->m_title + "</b><br/>";
 			bool newLine = false;
@@ -661,7 +679,7 @@ void appl::ElementDisplayed::generateDisplay(vec2 _startPos, vec2 _size) {
 	} else {
 		std::unique_lock<std::mutex> lock(m_propertyGroup->m_mutex);
 		//m_text.setClipping(drawClippingPos, drawClippingSize);
-		textToDisplay = "<b>" + m_propertyGroup->m_title + "</b><br/>";
+		textToDisplay = "<br/><b>" + m_propertyGroup->m_title + "</b><br/>";
 	}
 	m_text.printDecorated(textToDisplay);
 	
@@ -739,9 +757,9 @@ bool appl::widget::ListViewer::onEventInput(const ewol::event::Input& _event) {
 				}
 				std::string newGroup = "";
 				if (m_currentGroup == "type") {
-					if (prop->m_title == "film") {
+					if (prop->m_filter == "film") {
 						newGroup = "production-methode";
-					} else if (prop->m_title == "tv-show") {
+					} else if (prop->m_filter == "tv-show") {
 						newGroup = "production-methode";
 					}
 				} else if (m_currentGroup == "production-methode") {
@@ -754,9 +772,9 @@ bool appl::widget::ListViewer::onEventInput(const ewol::event::Input& _event) {
 					newGroup = "album";
 				}
 				if (m_currentFilter == "*") {
-					searchElementsInternal("'" + m_currentGroup + "' == '" + prop->m_title + "'", newGroup);
+					searchElementsInternal("'" + m_currentGroup + "' == '" + prop->m_filter + "'", newGroup);
 				} else {
-					searchElementsInternal(m_currentFilter + " AND '" + m_currentGroup + "' == '" + prop->m_title + "'", newGroup);
+					searchElementsInternal(m_currentFilter + " AND '" + m_currentGroup + "' == '" + prop->m_filter + "'", newGroup);
 				}
 			}
 			return true;

@@ -62,6 +62,7 @@ namespace appl {
 			std::mutex m_mutex;
 			uint64_t m_id; //!< Remote Id of the Media
 			std::string m_title; //!< Title of the Group
+			std::string m_filter; //!< element to add in the filter
 	};
 	class ElementDisplayed {
 		public:
@@ -124,8 +125,12 @@ namespace appl {
 					m_clientProp = _prop;
 				}
 				void searchElements(std::string _filter="");
-				void searchElementsInternal(const std::string& _filter, const std::string& _group="");
+				void searchElementsInternal(const std::string& _filter, const std::string& _group="", bool _storeHistory=true);
 				bool onEventInput(const ewol::event::Input& _event) override;
+			protected:
+				std::vector<std::pair<std::string,std::string>> m_history;
+			public:
+				void backHistory();
 			public:
 				/**
 				 * @brief Generate the event with the previous file property

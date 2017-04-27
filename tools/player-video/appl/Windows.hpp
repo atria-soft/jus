@@ -53,6 +53,9 @@ namespace appl {
 			void onCallbackSelectOneManShow();
 			void onCallbackSelectSourses();
 			void onCallbackSelectMedia(const uint32_t& _value);
+			void onCallbackSelectBack() {
+				onCallbackMenuEvent("menu:back");
+			}
 			void onCallbackSelectGroup() {
 				onCallbackMenuEvent("menu:group");
 			}
@@ -62,5 +65,7 @@ namespace appl {
 			void onCallbackPlayerPrevious();
 			void onCallbackPlayerNext();
 			void onCallbackPlayerFinished();
+		protected:
+			bool m_fullScreen;
 	};
 }

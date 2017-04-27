@@ -62,7 +62,8 @@ void appl::Windows::load_db() {
 
 
 appl::Windows::Windows():
-  m_id(0) {
+  m_id(0),
+  m_fullScreen(false) {
 	addObjectType("appl::Windows");
 	propertyTitle.setDirectCheck(std::string("sample ") + PROJECT_NAME);
 }
@@ -85,6 +86,7 @@ void appl::Windows::init() {
 		m_listViewer->signalSelect.connect(sharedFromThis(), &appl::Windows::onCallbackSelectMedia);
 	}
 	
+	subBind(ewol::widget::Button, "access-fast-back", signalPressed, sharedFromThis(), &appl::Windows::onCallbackSelectBack);
 	subBind(ewol::widget::Button, "access-fast-home", signalPressed, sharedFromThis(), &appl::Windows::onCallbackSelectHome);
 	subBind(ewol::widget::Button, "access-fast-group", signalPressed, sharedFromThis(), &appl::Windows::onCallbackSelectGroup);
 	// Direct display list:
@@ -92,7 +94,8 @@ void appl::Windows::init() {
 	subBind(ewol::widget::Menu, "menu-bar", signalSelect, sharedFromThis(), &appl::Windows::onCallbackMenuEvent);
 	shortCutAdd("alt+F4",       "menu:exit");
 	shortCutAdd("F12",          "menu:reload-shader");
-	shortCutAdd("F11",          "menu:connect");
+	shortCutAdd("F9",           "menu:connect");
+	shortCutAdd("F11",          "menu:full-screen");
 	signalShortcut.connect(sharedFromThis(), &appl::Windows::onCallbackShortCut);
 	// TODO: try to connect the last connection availlable ...
 	if (m_clientProp == nullptr) {
@@ -141,8 +144,18 @@ void appl::Windows::onCallbackMenuEvent(const std::string& _value) {
 		tmpWidget->signalCancel.connect(sharedFromThis(), &appl::Windows::onCallbackConnectionCancel);
 		// add the widget as windows pop-up ...
 		popUpWidgetPush(tmpWidget);
+	} else if (_value == "menu:full-screen") {
+		if (m_fullScreen == false) {
+			m_fullScreen = true;
+		} else {
+			m_fullScreen = false;
+		}
+		gale::getContext().setFullScreen(m_fullScreen);
 	} else if (_value == "menu:exit") {
 		gale::getContext().stop();
+	} else if (_value == "menu:back") {
+		ewol::propertySetOnObjectNamed("view-selection", "select", "ws-name-list-viewer");
+		m_listViewer->backHistory();
 	} else if (_value == "menu:home") {
 		ewol::propertySetOnObjectNamed("view-selection", "select", "ws-name-list-viewer");
 		m_listViewer->searchElements("");
