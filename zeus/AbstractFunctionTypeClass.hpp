@@ -154,11 +154,6 @@ namespace zeus {
 				try {
 					// execute cmd:
 					zeus::executeClassCall(_interfaceClient, _obj, tmpClass, m_function);
-				} catch (const std::logic_error& eee) {
-					_interfaceClient->addAsync([=](WebServer* _interface) {
-						    _interface->answerError(_obj->getTransactionId(), _obj->getDestination(), _obj->getSource(), "LOGIC-ERROR", eee.what());
-						    return true;
-						});
 				} catch (const std::invalid_argument& eee) {
 					_interfaceClient->addAsync([=](WebServer* _interface) {
 						    _interface->answerError(_obj->getTransactionId(), _obj->getDestination(), _obj->getSource(), "INVALID-ARGUMENT", eee.what());
@@ -179,11 +174,6 @@ namespace zeus {
 						    _interface->answerError(_obj->getTransactionId(), _obj->getDestination(), _obj->getSource(), "OUT-OF-RANGE", eee.what());
 						    return true;
 						});
-				} catch (const std::runtime_error& eee) {
-					_interfaceClient->addAsync([=](WebServer* _interface) {
-						    _interface->answerError(_obj->getTransactionId(), _obj->getDestination(), _obj->getSource(), "RUNTIME-ERROR", eee.what());
-						    return true;
-						});
 				} catch (const std::range_error& eee) {
 					_interfaceClient->addAsync([=](WebServer* _interface) {
 						    _interface->answerError(_obj->getTransactionId(), _obj->getDestination(), _obj->getSource(), "RANGE-ERROR", eee.what());
@@ -197,6 +187,16 @@ namespace zeus {
 				} catch (const std::underflow_error& eee) {
 					_interfaceClient->addAsync([=](WebServer* _interface) {
 						    _interface->answerError(_obj->getTransactionId(), _obj->getDestination(), _obj->getSource(), "UNDERFLOW-ERROR", eee.what());
+						    return true;
+						});
+				} catch (const std::logic_error& eee) {
+					_interfaceClient->addAsync([=](WebServer* _interface) {
+						    _interface->answerError(_obj->getTransactionId(), _obj->getDestination(), _obj->getSource(), "LOGIC-ERROR", eee.what());
+						    return true;
+						});
+				} catch (const std::runtime_error& eee) {
+					_interfaceClient->addAsync([=](WebServer* _interface) {
+						    _interface->answerError(_obj->getTransactionId(), _obj->getDestination(), _obj->getSource(), "RUNTIME-ERROR", eee.what());
 						    return true;
 						});
 				} catch ( ... ) {
