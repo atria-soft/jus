@@ -60,7 +60,7 @@ bool pushVideoFile(zeus::service::ProxyVideo& _srv, std::string _path, std::map<
 		APPL_ERROR("Sot send file : " << _path << " Not manage extention...");
 		return false;
 	}
-	
+	// TODO: Do it better ==> add the calback to know the push progression ...
 	uint32_t mediaId = _srv.add(zeus::File::create(_path)).waitFor(echrono::seconds(20000)).get();
 	if (mediaId == 0) {
 		APPL_ERROR("Get media ID = 0 With no error");

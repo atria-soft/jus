@@ -19,11 +19,15 @@ ememory::SharedPtr<zeus::File> zeus::File::create(std::string _fileNameReal) {
 ememory::SharedPtr<zeus::File> zeus::File::create(std::string _fileNameReal, std::string _fileNameShow, std::string _mineType) {
 	return ememory::makeShared<zeus::FileImpl>(_fileNameReal, _fileNameShow, _mineType);
 }
+ememory::SharedPtr<zeus::File> zeus::File::create(std::string _fileNameReal, std::string _fileNameShow, std::string _mineType, std::string _sha512) {
+	return ememory::makeShared<zeus::FileImpl>(_fileNameReal, _fileNameShow, _mineType, _sha512);
+}
 
-zeus::FileImpl::FileImpl(std::string _fileNameReal) :
+zeus::FileImpl::FileImpl(std::string _fileNameReal, std::string _sha512) :
   m_filename(_fileNameReal),
   m_node(_fileNameReal),
-  m_gettedData(0) {
+  m_gettedData(0),
+  m_sha512(_sha512) {
 	m_size = m_node.fileSize();
 	m_node.fileOpenRead();
 	std::string extention;
@@ -32,17 +36,28 @@ zeus::FileImpl::FileImpl(std::string _fileNameReal) :
 		extention = std::string(_fileNameReal.begin()+_fileNameReal.rfind('.')+1, _fileNameReal.end());
 	}
 	m_mineType = zeus::getMineType(extention);
-	m_sha512 = algue::stringConvert(algue::sha512::encodeFromFile(_fileNameReal));
+	if (    _sha512.size() > 0
+	     && _sha512.size() != 128) {
+		ZEUS_ERROR("Set a wrong sha512 file type");
+		_sha512.clear();
+	}
 }
 
-zeus::FileImpl::FileImpl(std::string _fileNameReal, std::string _fileNameShow, std::string _mineType) :
+// sha 512 example: 6134b4a4b5b116cf1b1b757c5aa48bd8b3482b86c6d3fee389a0a3232f74e7331e5f8af6ad516d2ca92eda0a475f44e1291618562ce6f9e54634ba052650dcd7
+//                  000000000100000000020000000003000000000400000000050000000006000000000700000000080000000009000000000A000000000B000000000C00000000
+zeus::FileImpl::FileImpl(std::string _fileNameReal, std::string _fileNameShow, std::string _mineType, std::string _sha512) :
   m_filename(_fileNameShow),
   m_node(_fileNameReal),
   m_gettedData(0),
-  m_mineType(_mineType) {
+  m_mineType(_mineType),
+  m_sha512(_sha512) {
 	m_size = m_node.fileSize();
 	m_node.fileOpenRead();
-	m_sha512 = algue::stringConvert(algue::sha512::encodeFromFile(_fileNameReal));
+	if (    _sha512.size() > 0
+	     && _sha512.size() != 128) {
+		ZEUS_ERROR("Set a wrong sha512 file type");
+		_sha512.clear();
+	}
 }
 
 zeus::FileImpl::~FileImpl() {
@@ -58,6 +73,11 @@ std::string zeus::FileImpl::getName() {
 }
 
 std::string zeus::FileImpl::getSha512() {
+	if (m_sha512 == "") {
+		ZEUS_INFO("calculation of sha 512 (start)");
+		m_sha512 = algue::stringConvert(algue::sha512::encodeFromFile(m_node.getFileSystemName()));
+		ZEUS_INFO("calculation of sha 512 (stop)");
+	}
 	return m_sha512;
 }
 

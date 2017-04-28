@@ -18,8 +18,8 @@ namespace zeus {
 			std::string m_mineType; //!< Mine Type of the file
 			std::string m_sha512; //!< Global file sha-512
 		public:
-			FileImpl(std::string _fileNameReal, std::string _fileNameShow, std::string _mineType);
-			FileImpl(std::string _fileNameReal);
+			FileImpl(std::string _fileNameReal, std::string _fileNameShow, std::string _mineType, std::string _sha512="");
+			FileImpl(std::string _fileNameReal, std::string _sha512="");
 			~FileImpl();
 			uint64_t getSize() override;
 			std::string getName() override;
