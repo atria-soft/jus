@@ -158,24 +158,29 @@ namespace appl {
 				//
 			}
 			uint32_t add(zeus::ProxyFile _dataFile) override {
-				std::unique_lock<std::mutex> lock(g_mutex);
-				// TODO : Check right ...
-				uint64_t id = createUniqueID();
+				{
+					std::unique_lock<std::mutex> lock(g_mutex);
+					// TODO : Check right ...
+					uint64_t id = createUniqueID();
+				}
 				auto futRemoteSha512 = _dataFile.getSha512();
 				auto futType = _dataFile.getMineType();
 				auto futName = _dataFile.getName();
 				// wait the sha1 to check his existance:
 				futRemoteSha512.wait();
 				std::string sha512StringRemote = futRemoteSha512.get();
-				for (auto &it : m_listFile) {
-					if (it == nullptr) {
-						continue;
-					}
-					if (it->getSha512() == sha512StringRemote) {
-						APPL_INFO("File already registered at ");// << it.m_creationData);
-						// simply send the Id of the file
-						// TODO : Check right of this file ...
-						return it->getUniqueId();
+				{
+					std::unique_lock<std::mutex> lock(g_mutex);
+					for (auto &it : m_listFile) {
+						if (it == nullptr) {
+							continue;
+						}
+						if (it->getSha512() == sha512StringRemote) {
+							APPL_INFO("File already registered at ");// << it.m_creationData);
+							// simply send the Id of the file
+							// TODO : Check right of this file ...
+							return it->getUniqueId();
+						}
 					}
 				}
 				std::string tmpFileName = g_basePath + "tmpImport_" + etk::to_string(id);
@@ -189,20 +194,23 @@ namespace appl {
 					throw std::runtime_error("file size == 0");
 				}
 				if (zeus::getExtention(futType.get()) != "") {
+					std::unique_lock<std::mutex> lock(g_mutex);
 					etk::FSNodeMove(tmpFileName, g_basePath + sha512String + "." + zeus::getExtention(futType.get()));
 					ememory::SharedPtr<zeus::MediaImpl> property = ememory::makeShared<zeus::MediaImpl>(id, sha512String + "." + zeus::getExtention(futType.get()), g_basePath);
 					property->setMetadata("sha512", sha512String);
 					property->setMetadata("mime-type", futType.get());
 					property->setCallbackMetadataChange(&metadataChange);
 					m_listFile.push_back(property);
+					g_needToStore = true;
 				} else {
+					std::unique_lock<std::mutex> lock(g_mutex);
 					etk::FSNodeMove(tmpFileName, g_basePath + sha512String);
 					ememory::SharedPtr<zeus::MediaImpl> property = ememory::makeShared<zeus::MediaImpl>(id, sha512String, g_basePath);
 					property->setMetadata("sha512", sha512String);
 					property->setCallbackMetadataChange(&metadataChange);
 					m_listFile.push_back(property);
+					g_needToStore = true;
 				}
-				g_needToStore = true;
 				APPL_DEBUG(" filename : " << sha512String);
 				return id;
 			}
