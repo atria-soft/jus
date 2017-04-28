@@ -158,10 +158,11 @@ namespace appl {
 				//
 			}
 			uint32_t add(zeus::ProxyFile _dataFile) override {
+				uint64_t id = 0;
 				{
 					std::unique_lock<std::mutex> lock(g_mutex);
 					// TODO : Check right ...
-					uint64_t id = createUniqueID();
+					id = createUniqueID();
 				}
 				auto futRemoteSha512 = _dataFile.getSha512();
 				auto futType = _dataFile.getMineType();
