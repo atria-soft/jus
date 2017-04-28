@@ -366,11 +366,13 @@ void appl::MediaDecoder::init(ememory::SharedPtr<ClientProperty> _property, uint
 		APPL_ERROR("Request play of not connected handle ==> 'not alive'");
 		return;
 	}
+	APPL_WARNING("wait service .... video");
 	bool retSrv = _property->getConnection().waitForService("video");
 	if (retSrv == false) {
 		APPL_ERROR(" ==> SERVICE not availlable or not started");
 		return;
 	}
+	APPL_WARNING("Get service .... video");
 	zeus::service::ProxyVideo remoteServiceVideo = _property->getConnection().getService("video");
 	// remove all media (for test)
 	if (remoteServiceVideo.exist() == false) {
@@ -381,21 +383,28 @@ void appl::MediaDecoder::init(ememory::SharedPtr<ClientProperty> _property, uint
 	m_remote->m_bufferReadPosition = 0;
 	m_remote->m_property = _property;
 	m_remote->m_mediaId = _mediaId;
+	APPL_WARNING("Get Media ...");
 	// Get the media
 	zeus::ProxyMedia media = remoteServiceVideo.get(_mediaId).waitFor(echrono::seconds(2000)).get();
 	if (media.exist() == false) {
 		APPL_ERROR("get media error");
 		return;
 	}
+	APPL_WARNING("Get File");
 	media.getFile().andThen(
 	    [=](zeus::Future<zeus::ProxyFile> _fut) mutable {
-	    	APPL_INFO("Receive ProxyFile");
+	    	APPL_WARNING("Receive ProxyFile");
 	    	m_remote->m_fileHandle = _fut.get();
+	    	APPL_WARNING("We have handle");
 	    	m_remote->m_fileHandle.getSize().andThen(
 	    	    [=](zeus::Future<uint64_t> _fut) mutable {
-	    	    	APPL_INFO("Receive FileSize to index property");
-	    	    	m_remote->m_buffer.resize(_fut.get(), 0);
+	    	    	APPL_WARNING("Receive FileSize to index property");
+	    	    	uint64_t sizeOfBuffer = _fut.get();
+	    	    	APPL_WARNING("pppllloooppp " << sizeOfBuffer);
+	    	    	m_remote->m_buffer.resize(sizeOfBuffer, 0);
+	    	    	APPL_WARNING("pppllloooppp");
 	    	    	m_remote->checkIfWeNeedMoreDataFromNetwork();
+	    	    	APPL_WARNING("pppppplllllloooooopppppp");
 	    	    	return true;
 	    	    });
 	    	return true;

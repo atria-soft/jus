@@ -30,7 +30,7 @@ appl::widget::ListViewer::ListViewer() :
   signalSelect(this, "select", "Select a media to view") {
 	addObjectType("appl::widget::ListViewer");
 	propertyCanFocus.setDirectCheck(true);
-	setLimitScrolling(0.2);
+	setLimitScrolling(vec2(1.0f,0.2f));
 	setMouseLimit(1);
 }
 

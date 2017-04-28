@@ -130,6 +130,7 @@ namespace zeus {
 			const uint8_t* pointer = getParameterPointer(_id);
 			uint32_t dataSize = getParameterSize(_id);
 			// TODO : Check size ...
+			//ZEUS_WARNING("get type " << type << "   with size=" << dataSize);
 			if (createType<uint8_t>() == type) {
 				const uint8_t* tmp = reinterpret_cast<const uint8_t*>(pointer);
 				return *tmp;
@@ -170,6 +171,7 @@ namespace zeus {
 			zeus::message::ParamType type = getParameterType(_id);
 			const uint8_t* pointer = getParameterPointer(_id);
 			uint32_t dataSize = getParameterSize(_id);
+			//ZEUS_WARNING("get type " << type << "   with size=" << dataSize);
 			// TODO : Check size ...
 			if (createType<uint8_t>() == type) {
 				const uint8_t* tmp = reinterpret_cast<const uint8_t*>(pointer);
@@ -301,6 +303,7 @@ namespace zeus {
 			const uint8_t* pointer = getParameterPointer(_id);
 			uint32_t dataSize = getParameterSize(_id);
 			// TODO : Check size ...
+			//ZEUS_WARNING("get type " << type << "   with size=" << dataSize);
 			if (createType<uint8_t>() == type) {
 				const uint8_t* tmp = reinterpret_cast<const uint8_t*>(pointer);
 				return *tmp;
@@ -342,6 +345,7 @@ namespace zeus {
 			const uint8_t* pointer = getParameterPointer(_id);
 			uint32_t dataSize = getParameterSize(_id);
 			// TODO : Check size ...
+			//ZEUS_WARNING("get type " << type << "   with size=" << dataSize << " pointer=" << uint64_t(pointer));
 			if (createType<uint8_t>() == type) {
 				const uint8_t* tmp = reinterpret_cast<const uint8_t*>(pointer);
 				return *tmp;
