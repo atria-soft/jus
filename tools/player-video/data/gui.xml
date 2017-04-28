@@ -13,32 +13,6 @@
 		<ListViewer name="ws-name-list-viewer" fill="true" expand="true"/>
 		<player name="ws-name-player" fill="true" expand="true"/>
 	</wslider>
-	<sizer mode="hori" fill="true" expand="true,false" lock="true">
-		<spacer expand="true,false"/>
-		<button name="access-fast-back" shape="">
-			<image src="DATA:Back.svg" size="8,8mm" />
-		</button>
-		<spacer expand="true,false"/>
-		<button name="access-fast-home" shape="">
-			<image src="DATA:Home.svg" size="8,8mm" />
-		</button>
-		<spacer expand="true,false"/>
-		<button name="access-fast-group" shape="">
-			<image src="DATA:Group.svg" size="8,8mm" />
-		</button>
-		<spacer expand="true,false"/>
-		<!--
-		<button name="access-fast-tv">
-			<image src="DATA:Tv.svg" size="8,8mm" />
-		</button>
-		<button name="access-fast-page-previous">
-			<image src="DATA:Previous.svg" size="8,8mm" />
-		</button>
-		<button name="access-fast-page-next">
-			<image src="DATA:Next.svg" size="8,8mm" />
-		</button>
-		-->
-	</sizer>
 	<sizer mode="hori" fill="true,false" expand="true,false" lock="true">
 		<menu name="menu-bar">
 			<elem title="" image="DATA:List.svg" event="">
@@ -57,15 +31,45 @@
 					<elem title="_T{Child TV}"            image=""   event="menu:TV-child"/>
 					<elem title="_T{Adult TV}"            image=""   event="menu:TV-adult"/>
 				</elem>
+				<!--
 				<separator/>
-				<elem title="_T{Full screen}"    image="DATA:FullScreen.svg"    event="menu:full-screen"/>
+				<elem title="_T{Child Adult Switch}"   image="DATA:ChildAdult.svg"    event="menu:child-adult-switch"/>
+				-->
 				<separator/>
-				<elem title="_T{Exit}"    image="DATA:Exit.svg"    event="menu:exit"/>
+				<elem title="_T{Full screen}"          image="DATA:FullScreen.svg"    event="menu:full-screen"/>
+				<separator/>
+				<elem title="_T{Exit}"                 image="DATA:Exit.svg"          event="menu:exit"/>
 			</elem>
 		</menu>
-		<entry name="search-entry" fill="true,false" expand="true,false"/>
+		<spacer expand="true,false"/>
+		<button name="access-fast-back" shape="">
+			<image src="DATA:Back.svg" size="8,8mm" />
+		</button>
+		<spacer expand="true,false"/>
+		<button name="access-fast-home" shape="">
+			<image src="DATA:Home.svg" size="8,8mm" />
+		</button>
+		<spacer expand="true,false"/>
+		<button name="access-fast-group" shape="">
+			<image src="DATA:Group.svg" size="8,8mm" />
+		</button>
+		<spacer expand="true,false"/>
+		<!--
+		<button name="access-fast-tv">
+			<image src="DATA:Tv.svg" size="8,8mm" />
+		</button>
+		<spacer expand="true,false"/>
+		<button name="access-fast-page-previous">
+			<image src="DATA:Previous.svg" size="8,8mm" />
+		</button>
+		<spacer expand="true,false"/>
+		<button name="access-fast-page-next">
+			<image src="DATA:Next.svg" size="8,8mm" />
+		</button>
+		<spacer expand="true,false"/>
 		<button name="search-bt" shape="">
 			<image src="DATA:Search.svg" size='8,8mm' />
 		</button>
+		-->
 	</sizer>
 </sizer>
