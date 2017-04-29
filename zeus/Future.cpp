@@ -33,7 +33,7 @@ namespace zeus {
 			ZEUS_WARNING("No Return value ...");
 			return 0;
 		}
-		return static_cast<zeus::message::Answer*>(m_promise->getRaw().get())->getAnswer<bool>();
+		return static_cast<zeus::message::Answer*>(m_promise->getRaw().get())->getAnswer<int64_t>();
 	}
 	template<>
 	int32_t zeus::Future<int32_t>::get() {
@@ -81,7 +81,7 @@ namespace zeus {
 			ZEUS_WARNING("No Return value ...");
 			return 0;
 		}
-		return static_cast<zeus::message::Answer*>(m_promise->getRaw().get())->getAnswer<int64_t>();
+		return static_cast<zeus::message::Answer*>(m_promise->getRaw().get())->getAnswer<uint64_t>();
 	}
 	template<>
 	uint32_t zeus::Future<uint32_t>::get() {
