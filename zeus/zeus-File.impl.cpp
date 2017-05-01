@@ -16,6 +16,10 @@ ememory::SharedPtr<zeus::File> zeus::File::create(std::string _fileNameReal) {
 	return ememory::makeShared<zeus::FileImpl>(_fileNameReal);
 }
 
+ememory::SharedPtr<zeus::File> zeus::File::create(std::string _fileNameReal, std::string _sha512) {
+	return ememory::makeShared<zeus::FileImpl>(_fileNameReal, _sha512);
+}
+
 ememory::SharedPtr<zeus::File> zeus::File::create(std::string _fileNameReal, std::string _fileNameShow, std::string _mineType) {
 	return ememory::makeShared<zeus::FileImpl>(_fileNameReal, _fileNameShow, _mineType);
 }
@@ -29,7 +33,6 @@ zeus::FileImpl::FileImpl(std::string _fileNameReal, std::string _sha512) :
   m_gettedData(0),
   m_sha512(_sha512) {
 	m_size = m_node.fileSize();
-	m_node.fileOpenRead();
 	std::string extention;
 	if (    _fileNameReal.rfind('.') != std::string::npos
 	     && _fileNameReal.rfind('.') != 0) {
@@ -52,7 +55,6 @@ zeus::FileImpl::FileImpl(std::string _fileNameReal, std::string _fileNameShow, s
   m_mineType(_mineType),
   m_sha512(_sha512) {
 	m_size = m_node.fileSize();
-	m_node.fileOpenRead();
 	if (    _sha512.size() > 0
 	     && _sha512.size() != 128) {
 		ZEUS_ERROR("Set a wrong sha512 file type");
@@ -61,7 +63,9 @@ zeus::FileImpl::FileImpl(std::string _fileNameReal, std::string _fileNameShow, s
 }
 
 zeus::FileImpl::~FileImpl() {
-	m_node.fileClose();
+	if (m_node.fileIsOpen() == true) {
+		m_node.fileClose();
+	}
 }
 
 uint64_t zeus::FileImpl::getSize() {
@@ -94,8 +98,12 @@ zeus::Raw zeus::FileImpl::getPart(uint64_t _start, uint64_t _stop) {
 	if (_start >= m_size) {
 		throw std::invalid_argument("REQUEST start position out of file size" + etk::to_string(_start) + " > " + etk::to_string(m_size));
 	}
+	if (m_node.fileIsOpen() == false) {
+		m_node.fileOpenRead();
+	}
 	m_gettedData += (_stop - _start);
-	ZEUS_PRINT("Reading file : " << m_gettedData << "/" << m_size << " ==> " << float(m_gettedData)/float(m_size)*100.0f << "%");
+	//ZEUS_PRINT("Reading file : " << m_gettedData << "/" << m_size << " ==> " << float(m_gettedData)/float(m_size)*100.0f << "%");
+	std::cout << "Reading file : " << m_gettedData << "/" << m_size << " ==> " << float(m_gettedData)/float(m_size)*100.0f << "%                                      \r";
 	zeus::Raw tmp(_stop - _start);
 	if (m_node.fileSeek(_start, etk::seekNode_start) == false) {
 		ZEUS_ERROR("REQUEST seek error ...");
@@ -103,6 +111,9 @@ zeus::Raw zeus::FileImpl::getPart(uint64_t _start, uint64_t _stop) {
 		return zeus::Raw();
 	}
 	int64_t sizeCopy = m_node.fileRead(tmp.writeData(), 1, _stop-_start);
+	if (m_size <= _stop) {
+		m_node.fileClose();
+	}
 	// TODO : Check if copy is correct ...
 	return std::move(tmp);
 }

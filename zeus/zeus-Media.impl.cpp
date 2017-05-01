@@ -115,7 +115,7 @@ std::string zeus::MediaImpl::getDecoratedName() {
 ememory::SharedPtr<zeus::File> zeus::MediaImpl::getFile() {
 	auto it = m_metadata.find("mime-type");
 	if (it != m_metadata.end()) {
-		return zeus::File::create(m_basePath + m_fileName + "." + zeus::getExtention(it->second), "", it->second);
+		return zeus::File::create(m_basePath + m_fileName + "." + zeus::getExtention(it->second), "", it->second, getSha512());
 	}
 	// no mimetype specify ... ==> theoric impossible case ...
 	return zeus::File::create(m_basePath + m_fileName, "", "");

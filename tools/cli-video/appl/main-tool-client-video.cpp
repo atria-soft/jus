@@ -21,6 +21,7 @@
 #include <zeus/ObjectRemote.hpp>
 #include <echrono/Steady.hpp>
 #include <zeus/FutureGroup.hpp>
+#include <algue/sha512.hpp>
 
 static std::string extractAndRemove(const std::string& _inputValue, const char _startMark, const char _stopMark, std::vector<std::string>& _values) {
 	_values.clear();
@@ -46,12 +47,16 @@ static std::string extractAndRemove(const std::string& _inputValue, const char _
 }
 
 bool pushVideoFile(zeus::service::ProxyVideo& _srv, std::string _path, std::map<std::string,std::string> _basicKey = std::map<std::string,std::string>()) {
-	APPL_PRINT("Add media : '" << _path << "'");
 	std::string extention;
 	if (    _path.rfind('.') != std::string::npos
 	     && _path.rfind('.') != 0) {
 		extention = etk::tolower(std::string(_path.begin()+_path.rfind('.')+1, _path.end()));
 	}
+	// internal extention ....
+	if (extention == "sha512") {
+		return true;
+	}
+	APPL_PRINT("Add media : '" << _path << "'");
 	if (    extention != "avi"
 	     && extention != "mkv"
 	     && extention != "mov"
@@ -60,8 +65,16 @@ bool pushVideoFile(zeus::service::ProxyVideo& _srv, std::string _path, std::map<
 		APPL_ERROR("Sot send file : " << _path << " Not manage extention...");
 		return false;
 	}
+	std::string storedSha512;
+	if (etk::FSNodeExist(_path + ".sha512") == true) {
+		//TODO ...
+		storedSha512 = etk::FSNodeReadAllData(_path + ".sha512");
+	} else {
+		storedSha512 = algue::stringConvert(algue::sha512::encodeFromFile(_path));
+		etk::FSNodeWriteAllData(_path + ".sha512", storedSha512);
+	}
 	// TODO: Do it better ==> add the calback to know the push progression ...
-	uint32_t mediaId = _srv.add(zeus::File::create(_path)).waitFor(echrono::seconds(20000)).get();
+	uint32_t mediaId = _srv.add(zeus::File::create(_path, storedSha512)).waitFor(echrono::seconds(20000)).get();
 	if (mediaId == 0) {
 		APPL_ERROR("Get media ID = 0 With no error");
 		return false;

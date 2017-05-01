@@ -1,13 +1,14 @@
 [Unit]
 Description=zeus main router interface
 Wants=network-online.target
-After=network.target network-online.service
+#After=network.target network-online.service
 
 [Service]
-User=Heero
+User=heero
 #EnvironmentFile=/etc/conf.d/ushare
 ExecStart=/home/heero/.local/application/moebius-package-base.app/bin/zeus-router --elog-file= --elog-level=4
 Type=simple
+Nice=-10
 
 [Install]
 WantedBy=multi-user.target

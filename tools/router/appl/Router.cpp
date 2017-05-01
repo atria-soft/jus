@@ -236,6 +236,7 @@ ememory::SharedPtr<appl::GateWayInterface> appl::Router::get(const std::string& 
 						APPL_INFO("New Child log in = " << logFile);
 					}
 					std::string delay = "--router-delay=" + etk::to_string(*propertyDelayToStop);
+					//std::string delay = "--router-delay=-1";
 					APPL_INFO("execute: " << binary << " " << userConf << " --srv=all " << delay << " " << basePath << " " << logFile);
 					int ret = execlp( binary.c_str(),
 					                  binary.c_str(), // must repeate the binary name to have the name as first argument ...

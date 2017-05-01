@@ -53,6 +53,23 @@ lutin -cclang -mdebug zeus-package-base?build?run%zeus-launch:--srv=video
 lutin -cclang -mdebug zeus-package-base?build?run%zeus-gateway:--user=userName~server.org:--srv=user:--srv=picture:--srv=video
 ```
 
+Install and auto run:
+=====================
+
+copy systemd file ```tools/router/data/zeus-router.service``` in ```/usr/lib/systemd/system/zeus-router.service```
+
+Jump in ```ROOT```
+
+Force systemd toupdate his dataBase
+
+	systemctl daemon-reload
+
+Start the service:
+
+	systemctl start zeus-router.service
+
+
+
 
 License (MPL v2.0)
 =====================
