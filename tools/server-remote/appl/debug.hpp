@@ -16,13 +16,12 @@ namespace appl {
 #define APPL_CRITICAL(data)      APPL_BASE(1, data)
 #define APPL_ERROR(data)         APPL_BASE(2, data)
 #define APPL_WARNING(data)       APPL_BASE(3, data)
+#define APPL_INFO(data)          APPL_BASE(4, data)
 #ifdef DEBUG
-	#define APPL_INFO(data)          APPL_BASE(4, data)
 	#define APPL_DEBUG(data)         APPL_BASE(5, data)
 	#define APPL_VERBOSE(data)       APPL_BASE(6, data)
 	#define APPL_TODO(data)          APPL_BASE(4, "TODO : " << data)
 #else
-	#define APPL_INFO(data)          do { } while(false)
 	#define APPL_DEBUG(data)         do { } while(false)
 	#define APPL_VERBOSE(data)       do { } while(false)
 	#define APPL_TODO(data)          do { } while(false)
