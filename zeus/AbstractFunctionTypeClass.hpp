@@ -151,6 +151,9 @@ namespace zeus {
 						return;
 					}
 				}
+				ethread::metadataSet(zeus::g_threadKeyTransactionId, _obj->getTransactionId());
+				ethread::metadataSet(zeus::g_threadKeyTransactionSource, _obj->getSource());
+				ethread::metadataSet(zeus::g_threadKeyTransactionDestination, _obj->getDestination());
 				try {
 					// execute cmd:
 					zeus::executeClassCall(_interfaceClient, _obj, tmpClass, m_function);
@@ -205,6 +208,9 @@ namespace zeus {
 						    return true;
 						});
 				}
+				ethread::metadataRemove(zeus::g_threadKeyTransactionId);
+				ethread::metadataRemove(zeus::g_threadKeyTransactionSource);
+				ethread::metadataRemove(zeus::g_threadKeyTransactionDestination);
 			}
 	};
 	// specialization

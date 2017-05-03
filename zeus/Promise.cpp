@@ -44,17 +44,21 @@ void zeus::Promise::remoteObjectDestroyed() {
 }
 
 void zeus::Promise::andAll(zeus::Promise::Observer _callback) {
-	// TODO : Lock ...
-	m_callbackThen = _callback;
-	m_callbackElse = _callback;
+	{
+		std::unique_lock<std::mutex> lock(m_mutex);
+		m_callbackThen = _callback;
+		m_callbackElse = _callback;
+	}
 	if (isFinished() == false) {
 		return;
 	}
 	if (hasError() == false) {
+		std::unique_lock<std::mutex> lock(m_mutex);
 		if (m_callbackThen != nullptr) {
 			m_callbackThen(zeus::FutureBase(sharedFromThis()));
 		}
 	} else {
+		std::unique_lock<std::mutex> lock(m_mutex);
 		if (m_callbackElse != nullptr) {
 			m_callbackElse(zeus::FutureBase(sharedFromThis()));
 		}
@@ -62,14 +66,17 @@ void zeus::Promise::andAll(zeus::Promise::Observer _callback) {
 }
 
 void zeus::Promise::andThen(zeus::Promise::Observer _callback) {
-	// TODO : Lock ...
-	m_callbackThen = _callback;
+	{
+		std::unique_lock<std::mutex> lock(m_mutex);
+		m_callbackThen = _callback;
+	}
 	if (isFinished() == false) {
 		return;
 	}
 	if (hasError() == true) {
 		return;
 	}
+	std::unique_lock<std::mutex> lock(m_mutex);
 	if (m_callbackThen == nullptr) {
 		return;
 	}
@@ -77,43 +84,67 @@ void zeus::Promise::andThen(zeus::Promise::Observer _callback) {
 }
 
 void zeus::Promise::andElse(zeus::Promise::Observer _callback) {
-	// TODO : Lock ...
-	m_callbackElse = _callback;
+	{
+		std::unique_lock<std::mutex> lock(m_mutex);
+		m_callbackElse = _callback;
+	}
 	if (isFinished() == false) {
 		return;
 	}
 	if (hasError() == false) {
 		return;
 	}
+	std::unique_lock<std::mutex> lock(m_mutex);
 	if (m_callbackElse == nullptr) {
 		return;
 	}
 	m_callbackElse(zeus::FutureBase(sharedFromThis()));
 }
 
+void zeus::Promise::onProgress(zeus::Promise::ObserverProgress _callback) {
+	std::unique_lock<std::mutex> lock(m_mutex);
+	m_callbackProgress = _callback;
+}
 
 echrono::Duration zeus::Promise::getTransmitionTime() const {
 	if (isFinished() == false) {
 		return echrono::nanoseconds(0);
 	}
+	std::unique_lock<std::mutex> lock(m_mutex);
 	return m_receiveTime - m_sendTime;
 }
 
 bool zeus::Promise::setMessage(ememory::SharedPtr<zeus::Message> _value) {
-	m_receiveTime = echrono::Steady::now();
-	m_message = _value;
-	if (m_message == nullptr) {
-		return true;
+	{
+		std::unique_lock<std::mutex> lock(m_mutex);
+		m_receiveTime = echrono::Steady::now();
 	}
-	if (m_message->getPartFinish() == false) {
-		ZEUS_ERROR("set buffer that is not finished ...");
+	if (_value->getType() != zeus::message::type::progress) {
+		std::unique_lock<std::mutex> lock(m_mutex);
+		// notification of a progresion ...
+		if (m_callbackProgress != nullptr) {
+			return m_callbackProgress(_value.);
+		}
 		return false;
 	}
+	{
+		std::unique_lock<std::mutex> lock(m_mutex);
+		m_message = _value;
+		if (m_message == nullptr) {
+			return true;
+		}
+		if (m_message->getPartFinish() == false) {
+			ZEUS_ERROR("set buffer that is not finished ...");
+			return false;
+		}
+	}
 	if (hasError() == false) {
+		std::unique_lock<std::mutex> lock(m_mutex);
 		if (m_callbackThen != nullptr) {
 			return m_callbackThen(zeus::FutureBase(sharedFromThis()));
 		}
 	} else {
+		std::unique_lock<std::mutex> lock(m_mutex);
 		if (m_callbackElse != nullptr) {
 			return m_callbackElse(zeus::FutureBase(sharedFromThis()));
 		}
@@ -130,6 +161,7 @@ uint32_t zeus::Promise::getSource() const {
 }
 
 bool zeus::Promise::hasError() const {
+	std::unique_lock<std::mutex> lock(m_mutex);
 	if (m_message == nullptr) {
 		return true;
 	}
@@ -140,6 +172,7 @@ bool zeus::Promise::hasError() const {
 }
 
 std::string zeus::Promise::getErrorType() const {
+	std::unique_lock<std::mutex> lock(m_mutex);
 	if (m_message == nullptr) {
 		return "NULL_PTR";
 	}
@@ -150,6 +183,7 @@ std::string zeus::Promise::getErrorType() const {
 }
 
 std::string zeus::Promise::getErrorHelp() const {
+	std::unique_lock<std::mutex> lock(m_mutex);
 	if (m_message == nullptr) {
 		return "This is a nullptr future";
 	}
@@ -161,6 +195,7 @@ std::string zeus::Promise::getErrorHelp() const {
 
 
 bool zeus::Promise::isFinished() const {
+	std::unique_lock<std::mutex> lock(m_mutex);
 	if (m_message == nullptr) {
 		// in this case, we are waiting for an answer that the first packet is not arrived
 		return false;

@@ -58,6 +58,11 @@ namespace zeus {
 			 * @param[in] _callback Handle on the function to call in case of error on the call
 			 */
 			void andElse(zeus::Promise::Observer _callback);
+			/**
+			 * @brief Attach callback on activity of the action if user set some return information
+			 * @param[in] _callback Handle on the function to call in progress information
+			 */
+			void onProgress(zeus::Promise::ObserverProgress _callback);
 			/*
 			/ **
 			 * @brief Attach callback on a specific return action (ABORT)

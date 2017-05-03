@@ -64,6 +64,12 @@ void zeus::FutureBase::andElse(zeus::Promise::Observer _callback) {
 	m_promise->andElse(_callback);
 }
 
+void zeus::FutureBase::onProgress(zeus::Promise::ObserverProgress _callback) {
+	if (m_promise == nullptr) {
+		return;
+	}
+	m_promise->onProgress(_callback);
+}
 
 echrono::Duration zeus::FutureBase::getTransmitionTime() const {
 	if (m_promise == nullptr) {

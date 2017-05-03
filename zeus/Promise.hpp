@@ -21,12 +21,15 @@ namespace zeus {
 	class Promise : public ememory::EnableSharedFromThis<zeus::Promise> {
 		public:
 			using Observer = std::function<bool(zeus::FutureBase)>; //!< Define an Observer: function pointer
+			using ObserverProgress = std::function<void(const std::string&)>; //!< Define the observer on activity of the action (note that is a string, but it can contain json or other ...)
 		private:
+			std::mutex m_mutex; //!< local prevention of multiple acess
 			uint32_t m_transactionId; //!< waiting answer data
 			uint32_t m_source; //!< Source of the message.
 			ememory::SharedPtr<zeus::Message> m_message; //!< all buffer concatenate or last buffer if synchronous
 			Observer m_callbackThen; //!< observer callback When data arrive and NO error appear
 			Observer m_callbackElse; //!< observer callback When data arrive and AN error appear
+			ObserverProgress m_callbackProgress; //!< observer callback When progress is sended from the remote object called
 			//Observer m_callbackAbort; //!< observer callback When Action is abort by user
 			echrono::Steady m_sendTime; //!< time when the future has been sended request
 			echrono::Steady m_receiveTime; //!< time when the future has receve answer
@@ -60,6 +63,11 @@ namespace zeus {
 			 * @param[in] _callback Handle on the function to call in case of error on the call
 			 */
 			void andElse(zeus::Promise::Observer _callback);
+			/**
+			 * @brief Attach callback on activity of the action if user set some return information
+			 * @param[in] _callback Handle on the function to call in progress information
+			 */
+			void onProgress(zeus::Promise::ObserverProgress _callback);
 			/*
 			/ **
 			 * @brief Attach callback on a specific return action (ABORT)

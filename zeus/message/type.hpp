@@ -19,6 +19,7 @@ namespace zeus {
 			answer = 0x0002, //!< Answer from a previous call
 			data = 0x0003, //!< data message happend when partId > 0 it compleate the data of a parameter or an answer or an event
 			event = 0x0004, //!< Message in one way (no return is waiting and the message has no garenty...)
+			progress = 0x0005, //!< Message that prevent a future of a progression of an action
 		};
 		/**
 		 * @brief generate a display of the typemessage

@@ -35,6 +35,11 @@ bool zeus::checkOrderFunctionParameter() {
 	return value;
 }
 
+const std::string zeus::g_threadKeyTransactionId("zeus-transaction-id");
+const std::string zeus::g_threadKeyTransactionSource("zeus-transaction-source");
+const std::string zeus::g_threadKeyTransactiondestination("zeus-transaction-destination");
+
+
 enum zeus::AbstractFunction::type zeus::AbstractFunction::getType() const {
 	return m_type;
 }

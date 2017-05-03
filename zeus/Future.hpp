@@ -96,6 +96,14 @@ namespace zeus {
 				    });
 				return *this;
 			}
+			/**
+			 * @brief Attach callback on activity of the action if user set some return information
+			 * @param[in] _callback Handle on the function to call in progress information
+			 */
+			Future<ZEUS_RETURN>& onProgress(ObserverProgress _callback) {
+				zeus::FutureBase::onProgress(_callback);
+				return *this;
+			}
 	};
 	/**
 	 * @brief future template to cast type in a void methode (fallback)
@@ -176,6 +184,14 @@ namespace zeus {
 				    [=](zeus::FutureBase _fut) {
 				    	return _callback(zeus::Future<void>(_fut));
 				    });
+				return *this;
+			}
+			/**
+			 * @brief Attach callback on activity of the action if user set some return information
+			 * @param[in] _callback Handle on the function to call in progress information
+			 */
+			Future<void>& onProgress(ObserverProgress _callback) {
+				zeus::FutureBase::onProgress(_callback);
 				return *this;
 			}
 	};
