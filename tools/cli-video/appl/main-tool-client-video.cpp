@@ -45,6 +45,10 @@ static std::string extractAndRemove(const std::string& _inputValue, const char _
 	}
 	return out;
 }
+bool progressCall(const std::string& _value) {
+	
+}
+
 
 bool pushVideoFile(zeus::service::ProxyVideo& _srv, std::string _path, std::map<std::string,std::string> _basicKey = std::map<std::string,std::string>()) {
 	std::string extention;
@@ -91,15 +95,51 @@ bool pushVideoFile(zeus::service::ProxyVideo& _srv, std::string _path, std::map<
 	// Parse file name:
 	std::string fileName = etk::split(_path, '/').back();
 	APPL_INFO("Find fileName : '" << fileName << "'");
-	// Remove Date (XXXX)
+	// Remove Date (XXXX) or other title
 	std::vector<std::string> dates;
 	fileName = extractAndRemove(fileName, '(', ')', dates);
-	if (dates.size() > 1) {
-		APPL_INFO("                '" << fileName << "'");
-		APPL_ERROR("Parse Date error : () : " << dates);
-	} else if (dates.size() == 1) {
-		APPL_INFO("                '" << fileName << "'");
-		_basicKey.insert(std::pair<std::string,std::string>("date", dates[0]));
+	bool haveDate = false;
+	bool haveTitle = false;
+	for (auto &it: dates) {
+		if (it.size() == 0) {
+			continue;
+		}
+		if (    it[0] == '0'
+		     || it[0] == '1'
+		     || it[0] == '2'
+		     || it[0] == '3'
+		     || it[0] == '4'
+		     || it[0] == '5'
+		     || it[0] == '6'
+		     || it[0] == '7'
+		     || it[0] == '8'
+		     || it[0] == '9') {
+			// find a date ...
+			if (haveDate == true) {
+				APPL_INFO("                '" << fileName << "'");
+				APPL_ERROR("Parse Date error : () : " << it << " ==> multiple date");
+				continue;
+			}
+			haveDate = true;
+			_basicKey.insert(std::pair<std::string,std::string>("date", it));
+		} else {
+			if (haveTitle == true) {
+				APPL_INFO("                '" << fileName << "'");
+				APPL_ERROR("Parse Title error : () : " << it << " ==> multiple title");
+				continue;
+			}
+			haveTitle = true;
+			// Other title
+			_basicKey.insert(std::pair<std::string,std::string>("title2", it));
+		}
+	}
+	// remove unneeded date
+	if (haveDate == false) {
+		_basicKey.insert(std::pair<std::string,std::string>("date", ""));
+	}
+	// remove unneeded title 2
+	if (haveTitle == false) {
+		_basicKey.insert(std::pair<std::string,std::string>("title2", ""));
 	}
 	// Remove the actors [XXX YYY][EEE TTT]...
 	std::vector<std::string> acthors;
@@ -205,7 +245,9 @@ bool pushVideoFile(zeus::service::ProxyVideo& _srv, std::string _path, std::map<
 	// send all meta data:
 	zeus::FutureGroup group;
 	for (auto &itKey : _basicKey) {
-		APPL_WARNING("Set metaData: " << itKey.first << " : " << itKey.second);
+		if (itKey.second != "") {
+			APPL_WARNING("Set metaData: " << itKey.first << " : " << itKey.second);
+		}
 		group.add(media.setMetadata(itKey.first, itKey.second));
 	}
 	group.wait();
