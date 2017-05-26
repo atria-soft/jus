@@ -13,9 +13,9 @@
 
 
 namespace zeus {
-	static const std::string g_threadKeyTransactionId;
-	static const std::string g_threadKeyTransactionSource;
-	static const std::string g_threadKeyTransactiondestination;
+	extern const std::string g_threadKeyTransactionId;
+	extern const std::string g_threadKeyTransactionSource;
+	extern const std::string g_threadKeyTransactionDestination;
 	/**
 	 * @bried check if the compilater order the function element call in order or backOrder
 	 */

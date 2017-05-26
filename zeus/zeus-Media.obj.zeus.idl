@@ -65,3 +65,4 @@ string getSha512()
 #brief:Get decorated name of the file
 #return:decorated name: Name of the file decorated like StarWars-e04-A new Hope(1978).mkv
 string getDecoratedName()
+

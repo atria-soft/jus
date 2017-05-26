@@ -140,6 +140,20 @@ namespace appl {
 				}
 				return out;
 			}
+			uint32_t getId(std::string _sha512) override {
+				std::unique_lock<std::mutex> lock(g_mutex);
+				// TODO : Check right ...
+				uint32_t out;
+				for (size_t iii=0; iii<m_listFile.size(); ++iii) {
+					if (m_listFile[iii] == nullptr) {
+						continue;
+					}
+					if (m_listFile[iii]->getSha512() == _sha512) {
+						return m_listFile[iii]->getUniqueId();
+					}
+				}
+				throw std::invalid_argument("sha512 not find...");
+			}
 			
 			// Return a File Data (might be a video .tiff/.png/.jpg)
 			ememory::SharedPtr<zeus::Media> get(uint32_t _mediaId) override {

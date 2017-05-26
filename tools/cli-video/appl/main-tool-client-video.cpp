@@ -71,11 +71,39 @@ bool pushVideoFile(zeus::service::ProxyVideo& _srv, std::string _path, std::map<
 	}
 	std::string storedSha512;
 	if (etk::FSNodeExist(_path + ".sha512") == true) {
-		//TODO ...
-		storedSha512 = etk::FSNodeReadAllData(_path + ".sha512");
+		uint64_t time_sha512 = etk::FSNodeGetTimeModified(_path + ".sha512");
+		uint64_t time_elem = etk::FSNodeGetTimeModified(_path);
+		std::string storedSha512_file = etk::FSNodeReadAllData(_path + ".sha512");
+		if (time_elem > time_sha512) {
+			// check the current sha512 
+			storedSha512 = algue::stringConvert(algue::sha512::encodeFromFile(_path));
+			if (storedSha512_file != storedSha512) {
+				//need to remove the old sha file
+				auto idFileToRemove_fut = _srv.getId(storedSha512_file).waitFor(echrono::seconds(2));
+				if (idFileToRemove_fut.hasError() == true) {
+					APPL_ERROR("can not remove the remote file with sha " + storedSha512_file);
+				} else {
+					APPL_INFO("Remove old deprecated file: " + storedSha512_file);
+					_srv.remove(idFileToRemove_fut.get());
+					// note, no need to wait the call is async ... and the user does not interested with the result ...
+				}
+			}
+			// store new sha512 ==> this update tile too ...
+			etk::FSNodeWriteAllData(_path + ".sha512", storedSha512);
+		} else {
+			// store new sha512
+			storedSha512 = etk::FSNodeReadAllData(_path + ".sha512");
+		}
 	} else {
 		storedSha512 = algue::stringConvert(algue::sha512::encodeFromFile(_path));
 		etk::FSNodeWriteAllData(_path + ".sha512", storedSha512);
+	}
+	// push only if the file exist
+	// TODO : Check the metadata updating ...
+	auto idFile_fut = _srv.getId(storedSha512).waitFor(echrono::seconds(2));
+	if (idFile_fut.hasError() == false) {
+		// media already exit ==> stop here ...
+		return true;
 	}
 	// TODO: Do it better ==> add the calback to know the push progression ...
 	uint32_t mediaId = _srv.add(zeus::File::create(_path, storedSha512)).waitFor(echrono::seconds(20000)).get();

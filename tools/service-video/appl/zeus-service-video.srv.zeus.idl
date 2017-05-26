@@ -17,6 +17,12 @@ uint32 count()
 #return:List of the media Ids
 vector:uint32 getIds(uint32,uint32)
 
+#brief: Get the Id of the element with the current sha 512
+#param:sha512:Sha512 of the file searched
+#return:Id of the media
+uint32 getId(string)
+
+
 // ----------------- media Access -----------------------
 #brief:Get a media
 #param:mediaId:Id of the media

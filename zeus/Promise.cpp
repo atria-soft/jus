@@ -123,7 +123,8 @@ bool zeus::Promise::setMessage(ememory::SharedPtr<zeus::Message> _value) {
 		std::unique_lock<std::mutex> lock(m_mutex);
 		// notification of a progresion ...
 		if (m_callbackProgress != nullptr) {
-			return m_callbackProgress(_value.);
+			// TODO: return m_callbackProgress(_value.);
+			#warning progress callback to do ..
 		}
 		return false;
 	}

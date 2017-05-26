@@ -100,7 +100,7 @@ namespace zeus {
 			 * @brief Attach callback on activity of the action if user set some return information
 			 * @param[in] _callback Handle on the function to call in progress information
 			 */
-			Future<ZEUS_RETURN>& onProgress(ObserverProgress _callback) {
+			Future<ZEUS_RETURN>& onProgress(Promise::ObserverProgress _callback) {
 				zeus::FutureBase::onProgress(_callback);
 				return *this;
 			}
@@ -190,7 +190,7 @@ namespace zeus {
 			 * @brief Attach callback on activity of the action if user set some return information
 			 * @param[in] _callback Handle on the function to call in progress information
 			 */
-			Future<void>& onProgress(ObserverProgress _callback) {
+			Future<void>& onProgress(Promise::ObserverProgress _callback) {
 				zeus::FutureBase::onProgress(_callback);
 				return *this;
 			}

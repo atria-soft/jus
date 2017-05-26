@@ -23,7 +23,7 @@ namespace zeus {
 			using Observer = std::function<bool(zeus::FutureBase)>; //!< Define an Observer: function pointer
 			using ObserverProgress = std::function<void(const std::string&)>; //!< Define the observer on activity of the action (note that is a string, but it can contain json or other ...)
 		private:
-			std::mutex m_mutex; //!< local prevention of multiple acess
+			mutable std::mutex m_mutex; //!< local prevention of multiple acess
 			uint32_t m_transactionId; //!< waiting answer data
 			uint32_t m_source; //!< Source of the message.
 			ememory::SharedPtr<zeus::Message> m_message; //!< all buffer concatenate or last buffer if synchronous
