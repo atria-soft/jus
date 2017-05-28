@@ -653,7 +653,6 @@ void zeus::WebServer::answerError(uint32_t _clientTransactionId, uint32_t _sourc
 	writeBinary(answer);
 }
 
-
 void zeus::WebServer::answerVoid(uint32_t _clientTransactionId, uint32_t _source, uint32_t _destination) {
 	auto answer = zeus::message::Answer::create(sharedFromThis());
 	if (answer == nullptr) {
@@ -663,6 +662,18 @@ void zeus::WebServer::answerVoid(uint32_t _clientTransactionId, uint32_t _source
 	answer->setSource(_source);
 	answer->setDestination(_destination);
 	answer->addParameter();
+	writeBinary(answer);
+}
+
+void zeus::WebServer::progressNotify(uint32_t _clientTransactionId, uint32_t _source, uint32_t _destination, const std::string& _value) {
+	auto answer = zeus::message::Progress::create(sharedFromThis());
+	if (answer == nullptr) {
+		return;
+	}
+	answer->setTransactionId(_clientTransactionId);
+	answer->setSource(_source);
+	answer->setDestination(_destination);
+	answer->setData(_value);
 	writeBinary(answer);
 }
 

@@ -8,6 +8,7 @@
 #include <zeus/message/Answer.hpp>
 #include <zeus/message/Event.hpp>
 #include <zeus/message/Call.hpp>
+#include <zeus/message/Progress.hpp>
 #include <enet/WebSocket.hpp>
 #include <thread>
 #include <ememory/memory.hpp>
@@ -320,13 +321,21 @@ namespace zeus {
 				ememory::SharedPtr<zeus::message::Call> callElem = zeus::createCall(true, sharedFromThis(), id, _source, _destination, _eventName, std::forward<_ARGS>(_args)...);
 				callBinary(id, callElem);
 			}
+		public: // progress ...
+			/**
+			 * @brief Send a progression value to a specific call in progress
+			 * @param[in] _transactionId Current trasaction ID
+			 * @param[in] _source Source Id of the sending value
+			 * @param[in] _destination Destinatio of the progression
+			 * @param[in] _value Value to send
+			 */
+			void progressNotify(uint32_t _transactionId, uint32_t _source, uint32_t _destination, const std::string& _value);
 		public: // answers ...
 			/**
 			 * @brief 
 			 * @param[in] 
 			 * @return 
 			 */
-			
 			void answerProtocolError(uint32_t _transactionId, const std::string& _errorHelp);
 			/**
 			 * @brief Send an Answer of a function with single value

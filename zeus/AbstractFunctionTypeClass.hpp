@@ -9,13 +9,10 @@
 #include <zeus/debug.hpp>
 #include <zeus/AbstractFunction.hpp>
 #include <zeus/mineType.hpp>
+#include <zeus/ActionNotification.hpp>
 
 
 namespace zeus {
-	class ActionNotification {
-		public:
-			ActionNotification() {}
-	};
 	/**
 	 * @brief Execute a call on the function with a return value
 	 * @param[in] _interfaceClient Web interface to send data
@@ -32,7 +29,7 @@ namespace zeus {
 			return;
 		}
 		ZEUS_RETURN ret;
-		zeus::ActionNotification notifs;
+		zeus::ActionNotification notifs(_interfaceClient, _obj->getTransactionId(), _obj->getDestination(), _obj->getSource());
 		if (zeus::checkOrderFunctionParameter() == true) {
 			// clang generate a basic warning:
 			//      warning: multiple unsequenced modifications to 'idParam' [-Wunsequenced]
@@ -100,7 +97,7 @@ namespace zeus {
 		if (_obj == nullptr) {
 			return;
 		}
-		zeus::ActionNotification notifs;
+		zeus::ActionNotification notifs(_interfaceClient, _obj->getTransactionId(), _obj->getDestination(), _obj->getSource());
 		if (zeus::checkOrderFunctionParameter() == true) {
 			// clang generate a basic warning:
 			//      warning: multiple unsequenced modifications to 'idParam' [-Wunsequenced]

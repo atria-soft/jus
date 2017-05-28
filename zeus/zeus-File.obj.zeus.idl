@@ -62,3 +62,10 @@ raw getPart(uint64, uint64)
 #return:the sha512 of the file (calculated with the input stream.
 [tool-remote] string storeInFile(obj:zeus-File, string)
 
+#brief:Store all the data in a specific file.
+#param:file:Handle on the file.
+#param:filename:Local filename.
+#param:notif:Local filename.
+#return:the sha512 of the file (calculated with the input stream.
+[tool-remote] string storeInFileNotify(obj:zeus-File, string, ActionNotif)
+

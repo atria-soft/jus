@@ -119,6 +119,11 @@ zeus::Raw zeus::FileImpl::getPart(uint64_t _start, uint64_t _stop) {
 }
 
 std::string zeus::storeInFile(zeus::ProxyFile _file, std::string _filename) {
+	zeus::ActionNotification tmp;
+	return zeus::storeInFile(_file, _filename, tmp);
+}
+
+std::string zeus::storeInFile(zeus::ProxyFile _file, std::string _filename, zeus::ActionNotification _notification) {
 	auto futSize = _file.getSize();
 	auto futSha = _file.getSha512();
 	futSize.wait();
@@ -145,6 +150,7 @@ std::string zeus::storeInFile(zeus::ProxyFile _file, std::string _filename) {
 		offset += nbElement;
 		retSize -= nbElement;
 		ZEUS_VERBOSE("read: " << offset << "/" << futSize.get() << "    " << buffer.size());
+		"{\"pourcent\":" + etk::to_string(float(offset)/float(buffer.size())) + ", \"comment\":\"download\""
 	}
 	nodeFile.fileClose();
 	// get the final sha512 of the file:
@@ -157,5 +163,4 @@ std::string zeus::storeInFile(zeus::ProxyFile _file, std::string _filename) {
 	}
 	return sha512String;
 }
-
 

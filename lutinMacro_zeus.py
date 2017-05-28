@@ -36,6 +36,7 @@ list_of_known_type = [
     ["stream", "zeus::Stream"],
     ["json", "ejson::Object"],
     ["raw", "zeus::Raw"],
+    ["ActionNotif", "zeus::ActionNotification"],
     ]
 
 
@@ -429,6 +430,7 @@ class ServiceDefinition:
 		out += "#include <string>\n"
 		out += "#include <vector>\n"
 		out += "#include <ememory/memory.hpp>\n"
+		out += "#include <zeus/ActionNotification.hpp>\n"
 		for elem in self.imports:
 			prop = zeus_object_to_dictionary(elem)
 			out += "#include <" + prop["file_name_class_header"] + ">\n"

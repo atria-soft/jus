@@ -49,7 +49,9 @@ bool progressCall(const std::string& _value) {
 	
 }
 
-
+void progressCallback(const std::string& _value) {
+	APPL_PRINT("plop " << _value);
+}
 bool pushVideoFile(zeus::service::ProxyVideo& _srv, std::string _path, std::map<std::string,std::string> _basicKey = std::map<std::string,std::string>()) {
 	std::string extention;
 	if (    _path.rfind('.') != std::string::npos
@@ -106,7 +108,9 @@ bool pushVideoFile(zeus::service::ProxyVideo& _srv, std::string _path, std::map<
 		return true;
 	}
 	// TODO: Do it better ==> add the calback to know the push progression ...
-	uint32_t mediaId = _srv.add(zeus::File::create(_path, storedSha512)).waitFor(echrono::seconds(20000)).get();
+	auto sending = _srv.add(zeus::File::create(_path, storedSha512));
+	sending.onProgress(progressCallback);
+	uint32_t mediaId = sending.waitFor(echrono::seconds(20000)).get();
 	if (mediaId == 0) {
 		APPL_ERROR("Get media ID = 0 With no error");
 		return false;

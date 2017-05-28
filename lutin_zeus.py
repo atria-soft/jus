@@ -105,6 +105,7 @@ def configure(target, my_module):
 	my_module.add_header_file([
 	    'zeus/Raw.hpp',
 	    'zeus/zeus.hpp',
+	    'zeus/ActionNotification.hpp',
 	    'zeus/AbstractFunction.hpp',
 	    'zeus/AbstractFunctionTypeDirect.hpp',
 	    'zeus/AbstractFunctionTypeClass.hpp',
