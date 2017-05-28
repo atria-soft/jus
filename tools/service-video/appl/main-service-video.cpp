@@ -171,7 +171,10 @@ namespace appl {
 				throw std::invalid_argument("Wrong file ID ...");
 				//
 			}
-			uint32_t add(zeus::ProxyFile _dataFile) override {
+			uint32_t add(zeus::ActionNotification& _notifs, zeus::ProxyFile _dataFile) override {
+				//_action.setProgress("{\"pourcent\":" + etk::to_string(23.54) + ", \"comment\":\"Start loading file\"");
+				//_action.setProgress("{\"pourcent\":" + etk::to_string(23.54) + ", \"comment\":\"transfering file\"");;
+				//_action.setProgress("{\"pourcent\":" + etk::to_string(23.54) + ", \"comment\":\"synchronize meta-data\"");
 				uint64_t id = 0;
 				{
 					std::unique_lock<std::mutex> lock(g_mutex);
@@ -249,6 +252,7 @@ namespace appl {
 					} else {
 						++it;
 					}
+					g_needToStore = true;
 				}
 				if (find == false) {
 					throw std::invalid_argument("Wrong file name ...");

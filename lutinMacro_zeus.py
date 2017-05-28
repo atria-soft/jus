@@ -181,11 +181,15 @@ class AttributeDefinition:
 
 class FunctionDefinition:
 	def __init__(self):
-		self.name = "";
-		self.brief = "";
-		self.return_type = "";
-		self.return_brief = "";
+		self.name = ""
+		self.brief = ""
+		self.return_type = ""
+		self.return_brief = ""
 		self.parameters = []
+		self.is_action = False
+	
+	def set_action(self):
+		self.is_action = True
 	
 	def set_function_name(self, name):
 		self.name = remove_start_stop_spacer(name);
@@ -249,13 +253,14 @@ class FunctionDefinition:
 				out += elem["name"] + " "
 			if elem["brief"] != "":
 				out += elem["brief"] + " "
-			out += "\n"
+		if self.is_action == True:
+			out += space + " * @note: This is an action ==> it can notify of the progression of the call\n"
 		if self.return_brief != "":
 			out += space + " * @return " + self.return_brief + "\n"
 		out += space + " */\n"
 		return out
 	
-	def generate_cpp(self, space, class_name="", virtual=True):
+	def generate_cpp(self, space, class_name="", virtual=True, action=False):
 		out = "";
 		out += self.generate_doxy(space)
 		out += space
@@ -268,6 +273,9 @@ class FunctionDefinition:
 		out += self.name + "("
 		param_data = ""
 		id_parameter = 0
+		if self.is_action == True:
+			param_data += "zeus::ActionNotification& _notifs"
+			id_parameter += 1
 		for elem in self.parameters:
 			id_parameter += 1
 			if len(param_data) != 0:
@@ -320,7 +328,10 @@ class FunctionDefinition:
 		out += param_data
 		out += ") {\n"
 		space += "	"
-		out += space + 'return m_obj.call("' + self.name + '"'
+		if self.is_action == True:
+			out += space + 'return m_obj.callAction("' + self.name + '"'
+		else:
+			out += space + 'return m_obj.call("' + self.name + '"'
 		id_parameter = 0
 		for elem in self.parameters:
 			id_parameter += 1
@@ -897,17 +908,40 @@ def tool_generate_idl(target, module, data_option):
 				debug.warning("line " + str(id_line) + " ==> Unknow: keyword: '" + doc_keyword + "'")
 				debug.error("        support only: '#brief:' '#param:' '#return:' '#elem-brief:' '#elem-version:' '#elem-type:' '#elem-author:'")
 			continue
-		debug.extreme_verbose("Need to parse the fucntion/attribute line:")
+		debug.extreme_verbose("Need to parse the function/attribute line:")
 		debug.extreme_verbose("    '" + line + "'")
 		if line[:7] == "import ":
 			debug.debug("find import : " + line)
 			# TODO : Add check ...
 			service_def.add_import(line.split(" ")[1])
-		elif line[-1] == ")":
-			# Find a fundtion ==> parse it
+		elif    line[-1] == ")":
+			# Find a function ==> parse it
 			#debug.error("line " + str(id_line) + " Can not parse function the line dos not ended by a ')'")
 			#get first part (befor '('):
-			list_elems = line.replace("[tool-remote] ", "[tool-remote]").split("(")
+			# get type of the function (factory, tool, action, function(default))
+			type_function = "function"
+			if line[0] == "[":
+				if line[:13] == "[tool-remote]":
+					type_function = "tool-remote"
+					line = line[13:]
+				if line[:9] == "[factory]":
+					type_function = "factory"
+					line = line[9:]
+				if line[:10] == "[function]":
+					type_function = "function"
+					line = line[10:]
+				if line[:8] == "[action]":
+					type_function = "action"
+					line = line[8:]
+			
+			# remove wihte space
+			while len(line)>0 \
+			      and line[0] == " ":
+				line = line[1:]
+			if type_function == "factory":
+				line = " " + line
+			# parse the fuction
+			list_elems = line.split("(")
 			if len(list_elems) <= 1:
 				debug.error("line " + str(id_line) + " function parsing error missing the '(' element")
 			fist_part = list_elems[0].replace("   ", " ").replace("  ", " ").replace("  ", " ")
@@ -919,44 +953,50 @@ def tool_generate_idl(target, module, data_option):
 			# separate the 
 			list_elems = fist_part.split(" ")
 			if len(list_elems) <= 1:
-				debug.error("line " + str(id_line) + " fucntion return and name is nt parsable")
+				debug.error("line " + str(id_line) + " function return and name is not parsable")
 			return_value = list_elems[0]
 			function_name = list_elems[1]
 			# check types:
 			debug.extreme_verbose("        Parse of function done :")
 			current_def.set_function_name(function_name)
-			type_function = "normal"
-			if return_value[:13] == "[tool-remote]":
-				type_function = "tool"
-				current_def.set_return_type(return_value[13:])
-				debug.extreme_verbose("            return:" + return_value[13:])
-				if validate_type(return_value[13:]) == False:
-					debug.error("line " + str(id_line) + " fucntion return type unknow : '" + return_value + "' not in " + str(get_list_type()))
-			elif return_value == "[factory]":
-				type_function = "factory"
+			if type_function == "tool":
+				current_def.set_return_type(return_value)
+				debug.extreme_verbose("            return:" + return_value)
+				if validate_type(return_value) == False:
+					debug.error("line " + str(id_line) + " function return type unknow : '" + return_value + "' not in " + str(get_list_type()))
+			elif type_function == "factory":
 				if function_name != "create":
 					debug.error("line " + str(id_line) + " factory function name must be 'create' not '" + function_name + "'")
 				debug.extreme_verbose("            return: --- ")
 			elif validate_type(return_value) == False:
-				debug.error("line " + str(id_line) + " fucntion return type unknow : '" + return_value + "' not in " + str(get_list_type()))
+				debug.error("line " + str(id_line) + " function return type unknow : '" + return_value + "' not in " + str(get_list_type()))
 			else:
 				current_def.set_return_type(return_value)
 				debug.extreme_verbose("            return:" + return_value)
 			
 			for elem in argument_list:
 				if validate_type(elem) == False:
-					debug.error("line " + str(id_line) + " fucntion argument type unknow : '" + elem + "' not in " + str(get_list_type()))
+					debug.error("line " + str(id_line) + " function argument type unknow : '" + elem + "' not in " + str(get_list_type()))
 			debug.extreme_verbose("            name:" + function_name)
 			debug.extreme_verbose("            arguments:" + str(argument_list))
 			for elem in argument_list:
 				current_def.add_parameter_type(elem)
-			if type_function == "normal":
+			if type_function == "function":
+				service_def.add_function(current_def)
+			elif type_function == "action":
+				current_def.set_action()
 				service_def.add_function(current_def)
 			elif type_function == "factory":
 				service_def.add_factory(current_def)
-			else:
+			elif type_function == "tool-remote":
 				service_def.add_tool(current_def)
+			else:
+				debug.error("line " + str(id_line) + " Unknow type : " + str(type_function))
 		else:
+			# remove optionnal "property " at the start
+			if line[:9] == "property ":
+				line = line[9:]
+			# attribute parsing ==> parameters
 			# if must be a simple element separate with a space
 			if len(line.split("(")) != 1:
 				debug.error("line " + str(id_line) + " Can not parse function the line does not ended by a ')'")

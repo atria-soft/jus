@@ -44,6 +44,11 @@ namespace zeus {
 			 */
 			FutureBase(uint32_t _transactionId, ememory::SharedPtr<zeus::Message> _returnData, uint32_t _source=0);
 			/**
+			 * @brief set the call is an action an then it can receive remote data ==> the authorize the onProgress Callback ..
+			 * @note system use only ==> user have never to call this function...
+			 */
+			void setAction();
+			/**
 			 * @brief Attach callback on all return type of value
 			 * @param[in] _callback Handle on the function to call in all case
 			 */

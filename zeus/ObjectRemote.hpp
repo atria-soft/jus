@@ -107,9 +107,10 @@ namespace zeus {
 			bool exist() const;
 		public:
 			/**
-			 * @brief 
-			 * @param[in] 
-			 * @return 
+			 * @brief Call a remote function of the current object
+			 * @param[in] _functionName Name of the function
+			 * @param[in] _args All argument function needed by the remote to process the function
+			 * @return A generic future with all datas
 			 */
 			template<class... _ARGS>
 			zeus::FutureBase call(const std::string& _functionName, _ARGS&&... _args) {
@@ -125,6 +126,17 @@ namespace zeus {
 				                                         m_interface->m_remoteAddress,
 				                                         _functionName,
 				                                         _args...);
+			}
+			/**
+			 * @brief 
+			 * @param[in] 
+			 * @return 
+			 */
+			template<class... _ARGS>
+			zeus::FutureBase callAction(const std::string& _functionName, _ARGS&&... _args) {
+				zeus::FutureBase tmp = call(_functionName, _args...);
+				tmp.setAction();
+				return tmp;
 			}
 	};
 	

@@ -6,6 +6,7 @@
 #include <zeus/Promise.hpp>
 #include <zeus/FutureBase.hpp>
 #include <zeus/message/Answer.hpp>
+#include <zeus/message/Progress.hpp>
 #include <zeus/debug.hpp>
 #include <zeus/WebServer.hpp>
 
@@ -41,6 +42,10 @@ void zeus::Promise::remoteObjectDestroyed() {
 	answer->setPartFinish(true);
 	answer->addError("REMOTE-OBJECT-REMOVE", "The remote interface ot the Object has been destroyed");
 	setMessage(answer);
+}
+
+void zeus::Promise::setAction() {
+	m_isAction = true;
 }
 
 void zeus::Promise::andAll(zeus::Promise::Observer _callback) {
@@ -103,6 +108,9 @@ void zeus::Promise::andElse(zeus::Promise::Observer _callback) {
 
 void zeus::Promise::onProgress(zeus::Promise::ObserverProgress _callback) {
 	std::unique_lock<std::mutex> lock(m_mutex);
+	if (m_isAction == false) {
+		ZEUS_ERROR("Request a progress calback on a simple function call");
+	}
 	m_callbackProgress = _callback;
 }
 
@@ -123,8 +131,8 @@ bool zeus::Promise::setMessage(ememory::SharedPtr<zeus::Message> _value) {
 		std::unique_lock<std::mutex> lock(m_mutex);
 		// notification of a progresion ...
 		if (m_callbackProgress != nullptr) {
-			// TODO: return m_callbackProgress(_value.);
-			#warning progress callback to do ..
+			m_callbackProgress(static_cast<const zeus::message::Progress*>(m_message.get())->getData());
+			return false; // no error
 		}
 		return false;
 	}

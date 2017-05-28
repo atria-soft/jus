@@ -33,6 +33,8 @@ namespace zeus {
 			//Observer m_callbackAbort; //!< observer callback When Action is abort by user
 			echrono::Steady m_sendTime; //!< time when the future has been sended request
 			echrono::Steady m_receiveTime; //!< time when the future has receve answer
+			// TODO: Chek if it is not good to set it in DEBUG only ....
+			bool m_isAction; //!< Permit to filter the user setting a callbak that is never called ==> cosmetc usage
 		public:
 			/**
 			 * @brief Contructor of the FutureBase with an ofserver
@@ -48,6 +50,11 @@ namespace zeus {
 			 * @param[in] _source Source that is waiting for answer
 			 */
 			Promise(uint32_t _transactionId, ememory::SharedPtr<zeus::Message> _returnData, uint32_t _source=0);
+			/**
+			 * @brief set the call is an action an then it can receive remote data ==> the authorize the onProgress Callback ..
+			 * @note system use only ==> user have never to call this function...
+			 */
+			void setAction();
 			/**
 			 * @brief Attach callback on all return type of value
 			 * @param[in] _callback Handle on the function to call in all case

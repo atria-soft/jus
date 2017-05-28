@@ -110,9 +110,46 @@ namespace zeus {
 			}
 		public:
 			/**
-			 * @brief 
-			 * @param[in] 
-			 * @return 
+			 * @brief Advertise a new signal that use a specific call processing order
+			 * @param[in] _name Name of the function
+			 * @param[in] _func Pointer on the function to call when name call is requested
+			 * @return Pointer on the function abstraction call that is done
+			 * @note: this is for ACTION function call not normal function call
+			 */
+			template<class ZEUS_RETURN_VALUE,
+			         class ZEUS_CLASS_TYPE,
+			         class... ZEUS_FUNC_ARGS_TYPE>
+			zeus::AbstractFunction* advertise(const std::string& _name,
+			                                  ZEUS_RETURN_VALUE (ZEUS_CLASS_TYPE::*_func)(zeus::ActionNotification& _notifs, ZEUS_FUNC_ARGS_TYPE... _args)) {
+				if (etk::start_with(_name, "srv.") == true) {
+					ZEUS_ERROR("Advertise function start with 'srv.' is not permited ==> only allow for internal service: '" << _name << "'");
+					return nullptr;
+				}
+				for (auto &it : m_listFunction) {
+					if (it == nullptr) {
+						continue;
+					}
+					if (it->getName() == _name) {
+						ZEUS_ERROR("Advertise function already bind .. ==> can not be done...: '" << _name << "'");
+						return nullptr;
+					}
+				}
+				zeus::AbstractFunction* tmp = createAbstractFunctionClass(_name, _func);
+				if (tmp == nullptr) {
+					ZEUS_ERROR("can not create abstract function ... '" << _name << "'");
+					return nullptr;
+				}
+				tmp->setType(zeus::AbstractFunction::type::object);
+				ZEUS_VERBOSE("Add function '" << _name << "' in object mode");
+				m_listFunction.push_back(tmp);
+				return tmp;
+			}
+			/**
+			 * @brief Advertise a new signal that use a specific call processing order
+			 * @param[in] _name Name of the function
+			 * @param[in] _func Pointer on the function to call when name call is requested
+			 * @return Pointer on the function abstraction call that is done
+			 * @note: this is for normal function call not action call
 			 */
 			template<class ZEUS_RETURN_VALUE,
 			         class ZEUS_CLASS_TYPE,

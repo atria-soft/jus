@@ -25,6 +25,13 @@ zeus::FutureBase::FutureBase(ememory::SharedPtr<zeus::Promise> _promise) {
 	m_promise = _promise;
 }
 
+void zeus::FutureBase::setAction() {
+	if (m_promise == nullptr) {
+		return;
+	}
+	m_promise->setAction();
+}
+
 ememory::SharedPtr<zeus::Message> zeus::FutureBase::getRaw() {
 	if (m_promise == nullptr) {
 		return nullptr;
