@@ -392,14 +392,14 @@ void appl::MediaDecoder::init(ememory::SharedPtr<ClientProperty> _property, uint
 	}
 	APPL_WARNING("Get File");
 	media.getFile().andThen(
-	    [=](zeus::Future<zeus::ProxyFile> _fut) mutable {
+	    [=](const zeus::ProxyFile& _proxy) mutable {
 	    	APPL_WARNING("Receive ProxyFile");
-	    	m_remote->m_fileHandle = _fut.get();
+	    	m_remote->m_fileHandle = _proxy;
 	    	APPL_WARNING("We have handle");
 	    	m_remote->m_fileHandle.getSize().andThen(
-	    	    [=](zeus::Future<uint64_t> _fut) mutable {
+	    	    [=](const uint64_t& _value) mutable {
 	    	    	APPL_WARNING("Receive FileSize to index property");
-	    	    	uint64_t sizeOfBuffer = _fut.get();
+	    	    	uint64_t sizeOfBuffer = _value;
 	    	    	APPL_WARNING("pppllloooppp " << sizeOfBuffer);
 	    	    	m_remote->m_buffer.resize(sizeOfBuffer, 0);
 	    	    	APPL_WARNING("pppllloooppp");
@@ -501,7 +501,7 @@ int64_t appl::MediaDecoder::seekFunc(int64_t _offset, int _whence) {
 	return m_remote->m_bufferReadPosition;
 }
 
-bool appl::StreamBuffering::addDataCallback(zeus::Future<zeus::Raw> _fut, int64_t _positionRequest) {
+bool appl::StreamBuffering::addDataCallback(const zeus::Raw& _data, int64_t _positionRequest) {
 	#ifdef DEBUG
 		std::this_thread::sleep_for(std::chrono::milliseconds(10));
 	#endif
@@ -509,15 +509,10 @@ bool appl::StreamBuffering::addDataCallback(zeus::Future<zeus::Raw> _fut, int64_
 		std::unique_lock<std::mutex> lock(m_mutex);
 		bool find = false;
 		m_callInProgress = false;
-		if (_fut.hasError() == true) {
-			APPL_ERROR("Error when loading data (1 MB)");
-			return true;
-		}
 		// TODO : Check buffer size ...
-		zeus::Raw buffer = _fut.get();
-		APPL_DEBUG("    ==> receive DATA : " << _positionRequest << " size=" << buffer.size());
+		APPL_DEBUG("    ==> receive DATA : " << _positionRequest << " size=" << _data.size());
 		// copy data
-		memcpy(&m_buffer[_positionRequest], buffer.data(), buffer.size());
+		memcpy(&m_buffer[_positionRequest], _data.data(), _data.size());
 		// Update the buffer data and positionning
 		// find if the position correspond at a last positioning:
 		
@@ -525,20 +520,20 @@ bool appl::StreamBuffering::addDataCallback(zeus::Future<zeus::Raw> _fut, int64_
 		while (it != m_bufferFillSection.end()) {
 			if (    _positionRequest >= it->first
 			     && _positionRequest < it->second) {
-				if (_positionRequest + buffer.size() > it->second){
-					it->second = _positionRequest + buffer.size();
+				if (_positionRequest + _data.size() > it->second){
+					it->second = _positionRequest + _data.size();
 				}
 				find = true;
 				break;
 			} else if (it->second == _positionRequest) {
-				it->second += buffer.size();
+				it->second += _data.size();
 				find = true;
 				break;
 			}
 			auto it2 = it;
 			++it2;
 			if (    it2 != m_bufferFillSection.end()
-			     && _positionRequest + buffer.size() >= it2->first) {
+			     && _positionRequest + _data.size() >= it2->first) {
 				it2->first = _positionRequest;
 				find = true;
 				break;
@@ -550,7 +545,7 @@ bool appl::StreamBuffering::addDataCallback(zeus::Future<zeus::Raw> _fut, int64_
 		}
 		if (find == false) {
 			APPL_ERROR("insert new element in the list of values");
-			m_bufferFillSection.insert(it, std::pair<uint32_t,uint32_t>(_positionRequest, _positionRequest + buffer.size()));
+			m_bufferFillSection.insert(it, std::pair<uint32_t,uint32_t>(_positionRequest, _positionRequest + _data.size()));
 		}
 	}
 	checkIfWeNeedMoreDataFromNetwork();
@@ -625,8 +620,8 @@ void appl::StreamBuffering::checkIfWeNeedMoreDataFromNetwork() {
 				APPL_DEBUG("Request DATA: " << it->second << " size=" << sizeRequest);
 				auto futData = m_fileHandle.getPart(it->second, it->second + sizeRequest);
 				auto localShared = ememory::dynamicPointerCast<appl::StreamBuffering>(sharedFromThis());
-				futData.andThen([=](zeus::Future<zeus::Raw> _fut) mutable {
-				                	return localShared->addDataCallback(_fut, it->second);
+				futData.andThen([=](const zeus::Raw& _value) mutable {
+				                	return localShared->addDataCallback(_value, it->second);
 				                });
 				m_callInProgress = true;
 			}
@@ -643,8 +638,8 @@ void appl::StreamBuffering::checkIfWeNeedMoreDataFromNetwork() {
 			APPL_DEBUG("Request DATA : " << m_bufferReadPosition << " size=" << sizeRequest);
 			auto futData = m_fileHandle.getPart(m_bufferReadPosition, m_bufferReadPosition+sizeRequest);
 			auto localShared = ememory::dynamicPointerCast<appl::StreamBuffering>(sharedFromThis());
-			futData.andThen([=](zeus::Future<zeus::Raw> _fut) mutable {
-			                	return localShared->addDataCallback(_fut, m_bufferReadPosition);
+			futData.andThen([=](const zeus::Raw& _value) mutable {
+			                	return localShared->addDataCallback(_value, m_bufferReadPosition);
 			                });
 			m_callInProgress = true;
 			// nothing more to do ...
@@ -665,8 +660,8 @@ void appl::StreamBuffering::checkIfWeNeedMoreDataFromNetwork() {
 	APPL_DEBUG("Request DATA : " << m_bufferReadPosition << " size=" << sizeRequest);
 	auto futData = m_fileHandle.getPart(m_bufferReadPosition, m_bufferReadPosition + sizeRequest);
 	auto localShared = ememory::dynamicPointerCast<appl::StreamBuffering>(sharedFromThis());
-	futData.andThen([=](zeus::Future<zeus::Raw> _fut) mutable {
-	                	return localShared->addDataCallback(_fut, m_bufferReadPosition);
+	futData.andThen([=](const zeus::Raw& _value) mutable {
+	                	return localShared->addDataCallback(_value, m_bufferReadPosition);
 	                });
 	m_callInProgress = true;
 	if (find == false) {

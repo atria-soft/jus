@@ -310,7 +310,7 @@ class FunctionDefinition:
 			else:
 				param_data += elem["name"]
 		out += param_data
-		out += ");\n"
+		out += ") const;\n"
 		return out;
 	def generate_cpp_proxy(self, space, class_name):
 		out = "";
@@ -327,7 +327,7 @@ class FunctionDefinition:
 			else:
 				param_data += elem["name"]
 		out += param_data
-		out += ") {\n"
+		out += ") const {\n"
 		space += "	"
 		if self.is_action == True:
 			out += space + 'return m_obj.callAction("' + self.name + '"'
@@ -703,6 +703,7 @@ class ServiceDefinition:
 		out += "#include <zeus/RemoteProperty.hpp>\n"
 		out += "#include <string>\n"
 		out += "#include <vector>\n"
+		out += "#include <" + self.prop["file_name_class_header"] + ">\n"
 		for elem in self.imports:
 			prop = zeus_object_to_dictionary(elem)
 			#out += "#include <" + prop["file_name_class_header"] + ">\n"

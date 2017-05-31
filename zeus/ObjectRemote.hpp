@@ -85,7 +85,7 @@ namespace zeus {
 	 */
 	class ObjectRemote {
 		private:
-			ememory::SharedPtr<zeus::ObjectRemoteBase> m_interface;
+			mutable ememory::SharedPtr<zeus::ObjectRemoteBase> m_interface;
 		public:
 			/**
 			 * @brief 
@@ -113,7 +113,7 @@ namespace zeus {
 			 * @return A generic future with all datas
 			 */
 			template<class... _ARGS>
-			zeus::FutureBase call(const std::string& _functionName, _ARGS&&... _args) {
+			zeus::FutureBase call(const std::string& _functionName, _ARGS&&... _args) const {
 				if (    m_interface == nullptr
 				     || m_interface->m_interfaceWeb == nullptr) {
 					ememory::SharedPtr<zeus::message::Answer> ret = zeus::message::Answer::create(nullptr); // TODO : This is a real bad case ...
@@ -133,7 +133,7 @@ namespace zeus {
 			 * @return 
 			 */
 			template<class... _ARGS>
-			zeus::FutureBase callAction(const std::string& _functionName, _ARGS&&... _args) {
+			zeus::FutureBase callAction(const std::string& _functionName, _ARGS&&... _args) const {
 				zeus::FutureBase tmp = call(_functionName, _args...);
 				tmp.setAction();
 				return tmp;

@@ -69,7 +69,7 @@ namespace appl {
 			bool m_callInProgress;
 			bool m_stopRequested;
 		public:
-			bool addDataCallback(zeus::Future<zeus::Raw> _fut, int64_t _positionRequest);
+			bool addDataCallback(const zeus::Raw& _data, int64_t _positionRequest);
 			void checkIfWeNeedMoreDataFromNetwork();
 			uint64_t getSize() {
 				std::unique_lock<std::mutex> lock(m_mutex);

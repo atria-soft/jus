@@ -28,7 +28,7 @@ namespace zeus {
 			
 			void notify(const std::string& _value) {
 				if (m_interface != nullptr) {
-					m_interface->answerValue(m_transactionId, m_source, m_destination, _value);
+					m_interface->progressNotify(m_transactionId, m_source, m_destination, _value);
 				}
 			}
 	};

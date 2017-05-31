@@ -85,6 +85,14 @@ namespace zeus {
 				    });
 				return *this;
 			}
+			Future<ZEUS_RETURN>& andThen(std::function<bool(const ZEUS_RETURN&)> _callback) {
+				zeus::FutureBase::andThen(
+				    [=](zeus::FutureBase _fut) {
+				    	zeus::Future<ZEUS_RETURN> tmp(_fut);
+				    	return _callback(tmp.get());
+				    });
+				return *this;
+			}
 			/**
 			 * @brief Attach callback on a specific return action (ERROR)
 			 * @param[in] _callback Handle on the function to call in case of error on the call
@@ -93,6 +101,13 @@ namespace zeus {
 				zeus::FutureBase::andElse(
 				    [=](zeus::FutureBase _fut) {
 				    	return _callback(zeus::Future<ZEUS_RETURN>(_fut));
+				    });
+				return *this;
+			}
+			Future<ZEUS_RETURN>& andElse(std::function<bool(const std::string&, const std::string&)> _callback) {
+				zeus::FutureBase::andElse(
+				    [=](zeus::FutureBase _fut) {
+				    	return _callback(_fut.getErrorType(), _fut.getErrorHelp());
 				    });
 				return *this;
 			}
