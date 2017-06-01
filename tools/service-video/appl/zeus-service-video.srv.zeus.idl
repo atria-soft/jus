@@ -33,7 +33,7 @@ obj:zeus-Media get(uint32)
 #param:data:A file reference on the media (transmission is async)
 #return:Local personal ID of the media
 //#notification:Send progression in json
-[action] uint32 add(obj:zeus-File)
+[action string] uint32 add(obj:zeus-File)
 
 #brief:Remove a media in the service (no trash)
 #param:mediaId:Id of the media

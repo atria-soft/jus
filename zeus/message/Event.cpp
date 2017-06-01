@@ -10,6 +10,31 @@
 #include <etk/stdTools.hpp>
 #include <zeus/message/Event.hpp>
 
+void zeus::message::Event::generateDisplay(std::ostream& _os) const {
+	zeus::Message::generateDisplay(_os);
+	if (getNumberParameter() != 0) {
+		_os << " '" + simpleStringParam(0) + "'";
+	}
+}
+
+bool zeus::message::Event::writeOn(enet::WebSocket& _interface) {
+	std::unique_lock<std::mutex> lock = _interface.getScopeLock();
+	zeus::Message::writeOn(_interface);
+	_interface.writeData((uint8_t*)(&m_uid), sizeof(m_uid));
+	if (message::Parameter::writeOn(_interface) == false) {
+		return false;
+	}
+	int32_t count = _interface.send();
+	return count > 0;
+}
+
+void zeus::message::Event::composeWith(const uint8_t* _buffer, uint32_t _lenght) {
+	uint64_t* uuid = (uint64_t*)_buffer;
+	m_uid = *uuid;
+	// parse parameters:
+	message::Parameter::composeWith(&_buffer[sizeof(m_uid)], _lenght-sizeof(m_uid));
+}
+
 // ------------------------------------------------------------------------------------
 // -- Factory
 // ------------------------------------------------------------------------------------
@@ -17,3 +42,4 @@
 ememory::SharedPtr<zeus::message::Event> zeus::message::Event::create(ememory::SharedPtr<zeus::WebServer> _iface) {
 	return ememory::SharedPtr<zeus::message::Event>(new zeus::message::Event(_iface));
 }
+

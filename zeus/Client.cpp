@@ -121,6 +121,7 @@ void zeus::Client::onClientData(ememory::SharedPtr<zeus::Message> _value) {
 			}
 			answerProtocolError(transactionId, "interact with client, musty only call: link/unlink/movelink");
 			return;
+		/*
 		} else if (_value->getType() == zeus::message::type::event) {
 			ememory::SharedPtr<zeus::message::Event> eventObj = ememory::staticPointerCast<zeus::message::Event>(_value);
 			std::string callFunction = eventObj->getCall();
@@ -131,6 +132,7 @@ void zeus::Client::onClientData(ememory::SharedPtr<zeus::Message> _value) {
 			}
 			answerProtocolError(transactionId, "interact with client, musty only call: removeInterface");
 			return;
+		*/
 		}
 		m_interfaceWeb->answerError(transactionId, _value->getDestination(), _value->getSource(), "UNKNOW-ACTION");
 		return;

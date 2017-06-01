@@ -34,8 +34,7 @@ namespace zeus {
 	 * @param[in] 
 	 * @return 
 	 */
-	ememory::SharedPtr<zeus::message::Call> createBaseCall(bool _isEvent,
-	                                                       const ememory::SharedPtr<zeus::WebServer>& _iface,
+	ememory::SharedPtr<zeus::message::Call> createBaseCall(const ememory::SharedPtr<zeus::WebServer>& _iface,
 	                                                       uint64_t _transactionId,
 	                                                       const uint32_t& _source,
 	                                                       const uint32_t& _destination,
@@ -81,14 +80,13 @@ namespace zeus {
 	 * @return 
 	 */
 	template<class... _ARGS>
-	ememory::SharedPtr<zeus::message::Call> createCall(bool _isEvent,
-	                                                   const ememory::SharedPtr<zeus::WebServer>& _iface,
+	ememory::SharedPtr<zeus::message::Call> createCall(const ememory::SharedPtr<zeus::WebServer>& _iface,
 	                                                   uint64_t _transactionId,
 	                                                   const uint32_t& _source,
 	                                                   const uint32_t& _destination,
 	                                                   const std::string& _functionName,
 	                                                   _ARGS&&... _args) {
-		ememory::SharedPtr<zeus::message::Call> callElem = createBaseCall(_isEvent, _iface, _transactionId, _source, _destination, _functionName);
+		ememory::SharedPtr<zeus::message::Call> callElem = createBaseCall(_iface, _transactionId, _source, _destination, _functionName);
 		if (callElem == nullptr) {
 			return nullptr;
 		}
@@ -307,21 +305,10 @@ namespace zeus {
 			template<class... _ARGS>
 			zeus::FutureBase call(const uint32_t& _source, const uint32_t& _destination, const std::string& _functionName, _ARGS&&... _args) {
 				uint16_t id = getId();
-				ememory::SharedPtr<zeus::message::Call> callElem = zeus::createCall(false, sharedFromThis(), id, _source, _destination, _functionName, std::forward<_ARGS>(_args)...);
+				ememory::SharedPtr<zeus::message::Call> callElem = zeus::createCall(sharedFromThis(), id, _source, _destination, _functionName, std::forward<_ARGS>(_args)...);
 				return callBinary(id, callElem);
 			}
-			/**
-			 * @brief 
-			 * @param[in] 
-			 * @return 
-			 */
-			template<class... _ARGS>
-			void event(const uint32_t& _source, const uint32_t& _destination, const std::string& _eventName, _ARGS&&... _args) {
-				uint16_t id = getId();
-				ememory::SharedPtr<zeus::message::Call> callElem = zeus::createCall(true, sharedFromThis(), id, _source, _destination, _eventName, std::forward<_ARGS>(_args)...);
-				callBinary(id, callElem);
-			}
-		public: // progress ...
+		public: // Events ...
 			/**
 			 * @brief Send a progression value to a specific call in progress
 			 * @param[in] _transactionId Current trasaction ID
@@ -329,7 +316,15 @@ namespace zeus {
 			 * @param[in] _destination Destinatio of the progression
 			 * @param[in] _value Value to send
 			 */
-			void progressNotify(uint32_t _transactionId, uint32_t _source, uint32_t _destination, const std::string& _value);
+			template<class ZEUS_ARG>
+			void eventValue(uint32_t _clientTransactionId, uint32_t _source, uint32_t _destination, ZEUS_ARG _value) {
+				ememory::SharedPtr<zeus::message::Event> event = zeus::message::Event::create(sharedFromThis());
+				event->setTransactionId(_clientTransactionId);
+				event->setSource(_source);
+				event->setDestination(_destination);
+				event->addEvent(_value);
+				writeBinary(event);
+			}
 		public: // answers ...
 			/**
 			 * @brief 

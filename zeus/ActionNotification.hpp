@@ -10,6 +10,7 @@
 
 
 namespace zeus {
+	template<class ZEUS_TYPE_EVENT>
 	class ActionNotification {
 		private:
 			ememory::SharedPtr<zeus::WebServer> m_interface;
@@ -25,11 +26,15 @@ namespace zeus {
 			  m_transactionId(_transactionId),
 			  m_source(_source),
 			  m_destination(_destination) {}
-			
-			void notify(const std::string& _value) {
-				if (m_interface != nullptr) {
-					m_interface->progressNotify(m_transactionId, m_source, m_destination, _value);
+			// TODO: Deprecated ...
+			void notify(const ZEUS_TYPE_EVENT& _value) {
+				emit(_value);
+			}
+			void emit(const ZEUS_TYPE_EVENT& _value) {
+				if (m_interface == nullptr) {
+					return;
 				}
+				m_interface->eventValue(m_transactionId, m_source, m_destination, _value);
 			}
 	};
 }

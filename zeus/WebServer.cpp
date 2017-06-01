@@ -11,18 +11,13 @@
 #include <zeus/message/Data.hpp>
 
 
-ememory::SharedPtr<zeus::message::Call> zeus::createBaseCall(bool _isEvent,
-                                                             const ememory::SharedPtr<zeus::WebServer>& _iface,
+ememory::SharedPtr<zeus::message::Call> zeus::createBaseCall(const ememory::SharedPtr<zeus::WebServer>& _iface,
                                                              uint64_t _transactionId,
                                                              const uint32_t& _source,
                                                              const uint32_t& _destination,
                                                              const std::string& _functionName) {
 	ememory::SharedPtr<zeus::message::Call> obj;
-	if (_isEvent == false) {
-		obj = zeus::message::Call::create(_iface);
-	} else {
-		obj = zeus::message::Event::create(_iface);
-	}
+	obj = zeus::message::Call::create(_iface);
 	if (obj == nullptr) {
 		return nullptr;
 	}
@@ -664,16 +659,3 @@ void zeus::WebServer::answerVoid(uint32_t _clientTransactionId, uint32_t _source
 	answer->addParameter();
 	writeBinary(answer);
 }
-
-void zeus::WebServer::progressNotify(uint32_t _clientTransactionId, uint32_t _source, uint32_t _destination, const std::string& _value) {
-	auto answer = zeus::message::Progress::create(sharedFromThis());
-	if (answer == nullptr) {
-		return;
-	}
-	answer->setTransactionId(_clientTransactionId);
-	answer->setSource(_source);
-	answer->setDestination(_destination);
-	answer->setData(_value);
-	writeBinary(answer);
-}
-

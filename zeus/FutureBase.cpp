@@ -71,11 +71,11 @@ void zeus::FutureBase::andElse(zeus::Promise::Observer _callback) {
 	m_promise->andElse(_callback);
 }
 
-void zeus::FutureBase::onProgress(zeus::Promise::ObserverProgress _callback) {
+void zeus::FutureBase::onEvent(zeus::Promise::ObserverEvent _callback) {
 	if (m_promise == nullptr) {
 		return;
 	}
-	m_promise->onProgress(_callback);
+	m_promise->onEvent(_callback);
 }
 
 echrono::Duration zeus::FutureBase::getTransmitionTime() const {

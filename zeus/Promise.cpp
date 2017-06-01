@@ -6,7 +6,7 @@
 #include <zeus/Promise.hpp>
 #include <zeus/FutureBase.hpp>
 #include <zeus/message/Answer.hpp>
-#include <zeus/message/Progress.hpp>
+#include <zeus/message/Event.hpp>
 #include <zeus/debug.hpp>
 #include <zeus/WebServer.hpp>
 
@@ -106,12 +106,12 @@ void zeus::Promise::andElse(zeus::Promise::Observer _callback) {
 	m_callbackElse(zeus::FutureBase(sharedFromThis()));
 }
 
-void zeus::Promise::onProgress(zeus::Promise::ObserverProgress _callback) {
+void zeus::Promise::onEvent(zeus::Promise::ObserverEvent _callback) {
 	std::unique_lock<std::mutex> lock(m_mutex);
 	if (m_isAction == false) {
-		ZEUS_ERROR("Request a progress calback on a simple function call");
+		ZEUS_ERROR("Request a Event calback on a simple function call");
 	}
-	m_callbackProgress = _callback;
+	m_callbackEvent = _callback;
 }
 
 echrono::Duration zeus::Promise::getTransmitionTime() const {
@@ -127,11 +127,18 @@ bool zeus::Promise::setMessage(ememory::SharedPtr<zeus::Message> _value) {
 		std::unique_lock<std::mutex> lock(m_mutex);
 		m_receiveTime = echrono::Steady::now();
 	}
-	if (_value->getType() != zeus::message::type::progress) {
+	if (_value->getType() != zeus::message::type::event) {
 		std::unique_lock<std::mutex> lock(m_mutex);
 		// notification of a progresion ...
-		if (m_callbackProgress != nullptr) {
-			m_callbackProgress(static_cast<const zeus::message::Progress*>(m_message.get())->getData());
+		if (m_callbackEvent != nullptr) {
+			if (_value == nullptr) {
+				return true;
+			}
+			if (_value->getType() != zeus::message::type::event) {
+				ZEUS_WARNING("No Return value ...");
+				return true;
+			}
+			m_callbackEvent(ememory::staticPointerCast<zeus::message::Event>(_value));
 			return false; // no error
 		}
 		return false;

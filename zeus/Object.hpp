@@ -117,10 +117,11 @@ namespace zeus {
 			 * @note: this is for ACTION function call not normal function call
 			 */
 			template<class ZEUS_RETURN_VALUE,
+			         class ZEUS_ACTION_TYPE,
 			         class ZEUS_CLASS_TYPE,
 			         class... ZEUS_FUNC_ARGS_TYPE>
 			zeus::AbstractFunction* advertise(const std::string& _name,
-			                                  ZEUS_RETURN_VALUE (ZEUS_CLASS_TYPE::*_func)(zeus::ActionNotification& _notifs, ZEUS_FUNC_ARGS_TYPE... _args)) {
+			                                  ZEUS_RETURN_VALUE (ZEUS_CLASS_TYPE::*_func)(zeus::ActionNotification<ZEUS_ACTION_TYPE>& _notifs, ZEUS_FUNC_ARGS_TYPE... _args)) {
 				if (etk::start_with(_name, "srv.") == true) {
 					ZEUS_ERROR("Advertise function start with 'srv.' is not permited ==> only allow for internal service: '" << _name << "'");
 					return nullptr;

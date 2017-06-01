@@ -44,7 +44,7 @@ namespace zeus {
 			 */
 			FutureBase(uint32_t _transactionId, ememory::SharedPtr<zeus::Message> _returnData, uint32_t _source=0);
 			/**
-			 * @brief set the call is an action an then it can receive remote data ==> the authorize the onProgress Callback ..
+			 * @brief set the call is an action an then it can receive remote data ==> the authorize the onEvent Callback ..
 			 * @note system use only ==> user have never to call this function...
 			 */
 			void setAction();
@@ -65,9 +65,9 @@ namespace zeus {
 			void andElse(zeus::Promise::Observer _callback);
 			/**
 			 * @brief Attach callback on activity of the action if user set some return information
-			 * @param[in] _callback Handle on the function to call in progress information
+			 * @param[in] _callback Handle on the function to call in event information
 			 */
-			void onProgress(zeus::Promise::ObserverProgress _callback);
+			void onEvent(zeus::Promise::ObserverEvent _callback);
 			/*
 			/ **
 			 * @brief Attach callback on a specific return action (ABORT)

@@ -10,10 +10,11 @@
 // TODO : When do a cast of the type on the future ==> do a wait ...
 
 namespace zeus {
+	class void_tmp {};
 	/**
 	 * @brief future template to cast type in a specific type
 	 */
-	template<class ZEUS_RETURN, class ZEUS_EVENT=void>
+	template<class ZEUS_RETURN, class ZEUS_EVENT=void_tmp>
 	class Future : public zeus::FutureBase {
 		public:
 			/**
@@ -123,35 +124,29 @@ namespace zeus {
 			 * @param[in] _callback Handle on the function to call in progress information
 			 */
 			// TODO: this is deprecated ...
-			Future<ZEUS_RETURN>& onProgress(Promise::ObserverProgress _callback) {
-				zeus::FutureBase::onProgress(_callback);
+			Future<ZEUS_RETURN>& onProgress(Promise::ObserverEvent _callback) {
+				zeus::FutureBase::onEvent(_callback);
 				return *this;
 			}
+			//template<typename = std::enable_if<std::is_void<ZEUS_EVENT>::value, false>>
 			Future<ZEUS_RETURN>& onSignal(std::function<void(const ZEUS_EVENT&)> _callback) {
-				zeus::FutureBase::onSignal(
-				    [=](ememory::SharedPtr<zeus::Message> _msg) {
+				zeus::FutureBase::onEvent(
+				    [=](ememory::SharedPtr<zeus::message::Event> _msg) {
 				    	if (_msg == nullptr) {
 				    		return;
 				    	}
-				    	if (_msg->getType() != zeus::message::type::progress) {
-				    		ZEUS_WARNING("No Return value ...");
-				    		return;
-				    	}
-				    	return _callback(static_cast<zeus::message::Progress*>(_msg.get())->getAnswer<ZEUS_EVENT>());
+				    	_callback(_msg->getEvent<ZEUS_EVENT>());
 				    });
 				return *this;
 			}
+			//template<typename = std::enable_if<std::is_void<ZEUS_EVENT>::value, false>>
 			Future<ZEUS_RETURN>& onSignal(std::function<void(ZEUS_EVENT)> _callback) {
-				zeus::FutureBase::onSignal(
-				    [=](ememory::SharedPtr<zeus::Message> _msg) {
+				zeus::FutureBase::onEvent(
+				    [=](ememory::SharedPtr<zeus::message::Event> _msg) {
 				    	if (_msg == nullptr) {
 				    		return;
 				    	}
-				    	if (_msg->getType() != zeus::message::type::progress) {
-				    		ZEUS_WARNING("No Return value ...");
-				    		return;
-				    	}
-				    	return _callback(std::move(static_cast<zeus::message::Progress*>(_msg.get())->getAnswer<ZEUS_EVENT>()));
+				    	_callback(std::move(_msg->getEvent<ZEUS_EVENT>()));
 				    });
 				return *this;
 			}
@@ -160,7 +155,7 @@ namespace zeus {
 	 * @brief future template to cast type in a void methode (fallback)
 	 */
 	template<>
-	class Future<void,void> : public zeus::FutureBase {
+	class Future<void> : public zeus::FutureBase {
 		public:
 			/**
 			 * @brief contructor of the Future with the basic FutureBase
@@ -241,8 +236,8 @@ namespace zeus {
 			 * @brief Attach callback on activity of the action if user set some return information
 			 * @param[in] _callback Handle on the function to call in progress information
 			 */
-			Future<void>& onProgress(Promise::ObserverProgress _callback) {
-				zeus::FutureBase::onProgress(_callback);
+			Future<void>& onEvent(Promise::ObserverEvent _callback) {
+				zeus::FutureBase::onEvent(_callback);
 				return *this;
 			}
 	};

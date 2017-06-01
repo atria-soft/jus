@@ -119,11 +119,11 @@ zeus::Raw zeus::FileImpl::getPart(uint64_t _start, uint64_t _stop) {
 }
 
 std::string zeus::storeInFile(zeus::ProxyFile _file, std::string _filename) {
-	zeus::ActionNotification tmp;
+	zeus::ActionNotification<std::string> tmp;
 	return zeus::storeInFileNotify(_file, _filename, tmp);
 }
 
-std::string zeus::storeInFileNotify(zeus::ProxyFile _file, std::string _filename, zeus::ActionNotification _notification) {
+std::string zeus::storeInFileNotify(zeus::ProxyFile _file, std::string _filename, zeus::ActionNotification<std::string> _notification) {
 	auto futSize = _file.getSize();
 	auto futSha = _file.getSha512();
 	futSize.wait();

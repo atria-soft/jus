@@ -7,6 +7,7 @@
 
 #include <etk/types.hpp>
 #include <zeus/message/Message.hpp>
+#include <zeus/message/Event.hpp>
 #include <functional>
 #include <ememory/memory.hpp>
 #include <echrono/Steady.hpp>
@@ -21,7 +22,7 @@ namespace zeus {
 	class Promise : public ememory::EnableSharedFromThis<zeus::Promise> {
 		public:
 			using Observer = std::function<bool(zeus::FutureBase)>; //!< Define an Observer: function pointer
-			using ObserverProgress = std::function<void(const std::string&)>; //!< Define the observer on activity of the action (note that is a string, but it can contain json or other ...)
+			using ObserverEvent = std::function<void(ememory::SharedPtr<zeus::message::Event>)>; //!< Define the observer on activity of the action (note that is a string, but it can contain json or other ...)
 		private:
 			mutable std::mutex m_mutex; //!< local prevention of multiple acess
 			uint32_t m_transactionId; //!< waiting answer data
@@ -29,7 +30,7 @@ namespace zeus {
 			ememory::SharedPtr<zeus::Message> m_message; //!< all buffer concatenate or last buffer if synchronous
 			Observer m_callbackThen; //!< observer callback When data arrive and NO error appear
 			Observer m_callbackElse; //!< observer callback When data arrive and AN error appear
-			ObserverProgress m_callbackProgress; //!< observer callback When progress is sended from the remote object called
+			ObserverEvent m_callbackEvent; //!< observer callback when event is sended from the remote object called
 			//Observer m_callbackAbort; //!< observer callback When Action is abort by user
 			echrono::Steady m_sendTime; //!< time when the future has been sended request
 			echrono::Steady m_receiveTime; //!< time when the future has receve answer
@@ -51,7 +52,7 @@ namespace zeus {
 			 */
 			Promise(uint32_t _transactionId, ememory::SharedPtr<zeus::Message> _returnData, uint32_t _source=0);
 			/**
-			 * @brief set the call is an action an then it can receive remote data ==> the authorize the onProgress Callback ..
+			 * @brief set the call is an action an then it can receive remote data ==> the authorize the onEvent Callback ..
 			 * @note system use only ==> user have never to call this function...
 			 */
 			void setAction();
@@ -72,9 +73,9 @@ namespace zeus {
 			void andElse(zeus::Promise::Observer _callback);
 			/**
 			 * @brief Attach callback on activity of the action if user set some return information
-			 * @param[in] _callback Handle on the function to call in progress information
+			 * @param[in] _callback Handle on the function to call in event information
 			 */
-			void onProgress(zeus::Promise::ObserverProgress _callback);
+			void onEvent(zeus::Promise::ObserverEvent _callback);
 			/*
 			/ **
 			 * @brief Attach callback on a specific return action (ABORT)

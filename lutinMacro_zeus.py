@@ -36,7 +36,7 @@ list_of_known_type = [
     ["stream", "zeus::Stream"],
     ["json", "ejson::Object"],
     ["raw", "zeus::Raw"],
-    ["ActionNotif", "zeus::ActionNotification"],
+    ["ActionNotif", "zeus::ActionNotification<std::string>"],
     ]
 
 
@@ -184,12 +184,14 @@ class FunctionDefinition:
 	def __init__(self):
 		self.name = ""
 		self.brief = ""
+		self.action_type = "void_tmp"
 		self.return_type = ""
 		self.return_brief = ""
 		self.parameters = []
 		self.is_action = False
 	
-	def set_action(self):
+	def set_action(self, type):
+		self.action_type = remove_start_stop_spacer(type)
 		self.is_action = True
 	
 	def set_function_name(self, name):
@@ -238,7 +240,10 @@ class FunctionDefinition:
 		debug.info("       " + self.return_type + " " + self.name + "(")
 		for elem in self.parameters:
 			debug.info("               " + elem["type"] + " " + elem["name"] + ", # " + elem["brief"])
-		debug.info("       )")
+		if action_type == "void":
+			debug.info("       )")
+		else:
+			debug.info("       ) action/event type = '" + action_type + "'")
 	
 	def generate_doxy(self, space):
 		# generate doxygen comment:
@@ -275,7 +280,7 @@ class FunctionDefinition:
 		param_data = ""
 		id_parameter = 0
 		if self.is_action == True:
-			param_data += "zeus::ActionNotification& _notifs"
+			param_data += "zeus::ActionNotification<" + convert_type_in_cpp(self.action_type, False, True) + ">& _notifs"
 			id_parameter += 1
 		for elem in self.parameters:
 			id_parameter += 1
@@ -297,7 +302,10 @@ class FunctionDefinition:
 	def generate_hpp_proxy(self, space):
 		out = "";
 		out += self.generate_doxy(space)
-		out += space + "virtual zeus::Future<" + convert_type_in_cpp(self.return_type, True, False) + "> " + self.name + "("
+		out += space + "virtual zeus::Future<" + convert_type_in_cpp(self.return_type, True, False)
+		if self.action_type != "void_tmp":
+			out +=                         "," + convert_type_in_cpp(self.action_type, True, False)
+		out +=                             "> " + self.name + "("
 		param_data = ""
 		id_parameter = 0
 		for elem in self.parameters:
@@ -310,11 +318,14 @@ class FunctionDefinition:
 			else:
 				param_data += elem["name"]
 		out += param_data
-		out += ") const;\n"
+		out += ");\n"
 		return out;
 	def generate_cpp_proxy(self, space, class_name):
 		out = "";
-		out += space + "zeus::Future<" + convert_type_in_cpp(self.return_type, True, False) + "> " + class_name + "::" + self.name + "("
+		out += space + "zeus::Future<" + convert_type_in_cpp(self.return_type, True, False)
+		if self.action_type != "void_tmp":
+			out +=                 "," + convert_type_in_cpp(self.action_type, True, False)
+		out += "> " + class_name + "::" + self.name + "("
 		param_data = ""
 		id_parameter = 0
 		for elem in self.parameters:
@@ -327,7 +338,7 @@ class FunctionDefinition:
 			else:
 				param_data += elem["name"]
 		out += param_data
-		out += ") const {\n"
+		out += ") {\n"
 		space += "	"
 		if self.is_action == True:
 			out += space + 'return m_obj.callAction("' + self.name + '"'
@@ -933,9 +944,17 @@ def tool_generate_idl(target, module, data_option):
 				if line[:10] == "[function]":
 					type_function = "function"
 					line = line[10:]
-				if line[:8] == "[action]":
+				if line[:8] == "[action ":
 					type_function = "action"
 					line = line[8:]
+					type_event = "";
+					for elem in line:
+						if elem == "]":
+							break
+						type_event += elem
+					line = line[len(type_event)+1:]
+					if validate_type(type_event) == False:
+						debug.error("line " + str(id_line) + " action type unknow : '" + type_event + "' not in " + str(get_list_type()))
 			
 			# remove wihte space
 			while len(line)>0 \
@@ -987,7 +1006,7 @@ def tool_generate_idl(target, module, data_option):
 			if type_function == "function":
 				service_def.add_function(current_def)
 			elif type_function == "action":
-				current_def.set_action()
+				current_def.set_action(type_event)
 				service_def.add_function(current_def)
 			elif type_function == "factory":
 				service_def.add_factory(current_def)
