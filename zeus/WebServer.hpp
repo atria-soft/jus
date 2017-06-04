@@ -131,9 +131,7 @@ namespace zeus {
 		private:
 			uint32_t m_interfaceId;
 			uint16_t m_transmissionId;
-			uint16_t getId() {
-				return m_transmissionId++;
-			}
+			uint16_t getId();
 			std::mutex m_pendingCallMutex;
 			std::vector<std::pair<uint64_t, zeus::FutureBase>> m_pendingCall;
 		public:

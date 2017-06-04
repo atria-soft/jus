@@ -36,6 +36,17 @@ void zeus::createParam(int32_t _paramId,
 
 static uint32_t interfaceId = 1;
 
+
+uint16_t zeus::WebServer::getId() {
+	uint16_t tmp = m_transmissionId++;
+	if (m_transmissionId == 0) {
+		// TODO: correct this bug ...
+		ZEUS_ERROR("NOW you can have error on signals ...");
+		m_transmissionId++;
+	}
+	return tmp;
+}
+
 zeus::WebServer::WebServer() :
   m_connection(),
   m_processingPool(20),
