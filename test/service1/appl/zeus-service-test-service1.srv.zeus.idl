@@ -18,3 +18,7 @@ string getString(string)
 
 void getVoid()
 
+
+
+[action int32]void doSomething(int32)
+

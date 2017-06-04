@@ -15,7 +15,7 @@
 
 
 #include <etk/stdTools.hpp>
-#include <zeus/test/ProxyService1.hpp>
+#include <zeus/service/test/ProxyService1.hpp>
 #include <zeus/ProxyFile.hpp>
 #include <zeus/ObjectRemote.hpp>
 #include <echrono/Steady.hpp>
@@ -99,13 +99,35 @@ int main(int _argc, const char *_argv[]) {
 	for (auto &it: retServiceList.get()) {
 		APPL_INFO("    - " << it);
 	}
-	zeus::test::ProxyService1 srv = client1.getService("service1");
-	if (srv.exist() == true) {
-		auto retCall = srv.getU32(11);
-		retCall.wait();
-		APPL_INFO("value = " << retCall.get());
-	}
 	
+	zeus::service::test::ProxyService1 srv = client1.getService("test-service1");
+	if (srv.exist() == false) {
+		APPL_ERROR("can not connect service ... 'test-service1'");
+	} else {
+		{
+			auto retCall = srv.getU32(11);
+			retCall.wait();
+			APPL_INFO("value = " << retCall.get());
+		}
+		{
+			int32_t lasNumberSend = 3000;
+			auto retCall = srv.doSomething(lasNumberSend);
+			int32_t lastValue=0;
+			retCall.onSignal(
+			    [&](int32_t _value) {
+			    	APPL_DEBUG("getSignal : " << _value);
+			    	if (lastValue+1 != _value) {
+			    		APPL_ERROR("Send Event Wrong ORDER ... last=" << lastValue << " new=" << _value);
+			    	}
+			    	lastValue = _value;
+			    });
+			while (lasNumberSend != lastValue) {
+				std::this_thread::sleep_for(std::chrono::milliseconds(50));
+			}
+			retCall.wait();
+			APPL_INFO("END (receive " << lastValue << " signals");
+		}
+	}
 	int32_t iii=0;
 	while (iii < 3) {
 		std::this_thread::sleep_for(std::chrono::milliseconds(500));

@@ -25,7 +25,7 @@ def configure(target, my_module):
 	my_module.add_depend([
 	    'zeus-router',
 	    'zeus-gateway',
-	    'zeus-test-service1-impl',
+	    'zeus-service-test-service1-impl',
 	    'zeus-service-user-impl',
 	    'zeus-launcher',
 	    'zeus-test-client',

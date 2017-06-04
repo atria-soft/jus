@@ -32,7 +32,7 @@ def configure(target, my_module):
 	    ])
 	
 	zeus_macro = macro.load_macro('zeus')
-	zeus_macro.parse_object_idl(my_module, 'appl/zeus-test-service1.srv.zeus.idl')
+	zeus_macro.parse_object_idl(my_module, 'appl/zeus-service-test-service1.srv.zeus.idl')
 	
 	my_module.add_flag('c++', "-DSERVICE_NAME=\"\\\"test-service1\\\"\"")
 	return True

@@ -397,7 +397,7 @@ void appl::MediaDecoder::init(ememory::SharedPtr<ClientProperty> _property, uint
 	    	m_remote->m_fileHandle = _proxy;
 	    	APPL_WARNING("We have handle");
 	    	m_remote->m_fileHandle.getSize().andThen(
-	    	    [=](uint64_t _value) {
+	    	    [=](uint64_t _value) mutable {
 	    	    	APPL_WARNING("Receive FileSize to index property");
 	    	    	APPL_WARNING("pppllloooppp " << _value);
 	    	    	m_remote->m_buffer.resize(_value, 0);

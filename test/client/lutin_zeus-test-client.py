@@ -28,7 +28,7 @@ def configure(target, my_module):
 	my_module.add_path(".")
 	my_module.add_depend([
 	    'zeus',
-	    'zeus-test-service1',
+	    'zeus-service-test-service1',
 	    ])
 	my_module.add_src_file([
 	    'appl/debug.cpp',

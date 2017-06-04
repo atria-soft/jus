@@ -31,7 +31,7 @@ uint32_t zeus::WebObj::getFullId() {
 }
 
 void zeus::WebObj::receive(ememory::SharedPtr<zeus::Message> _value) {
-	ZEUS_ERROR("Receive a message ==> not implemented magaging ..." << _value);
+	ZEUS_ERROR("Receive a message ==> not implemented messaging ..." << _value);
 }
 
 void zeus::WebObj::display() {

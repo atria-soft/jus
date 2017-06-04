@@ -30,11 +30,11 @@ def configure(target, my_module):
 	my_module.add_depend([
 	    'zeus',
 	    'ejson',
-	    'zeus-test-service1'
+	    'zeus-service-test-service1'
 	    ])
 	my_module.add_src_file([
 	    'appl/debug.cpp',
-	    'appl/main-test-service1.cpp'
+	    'appl/main-service-test-service1.cpp'
 	    ])
 	my_module.add_flag('c++', "-DSERVICE_NAME=\"\\\"test-service1\\\"\"")
 	return True

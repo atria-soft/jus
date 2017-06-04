@@ -18,8 +18,8 @@
 
 #include <etk/stdTools.hpp>
 
-#include <zeus/test/Service1.hpp>
-#include <zeus/test/registerService1.hpp>
+#include <zeus/service/test/Service1.hpp>
+#include <zeus/service/test/registerService1.hpp>
 #include <zeus/File.hpp>
 #include <zeus/ProxyFile.hpp>
 #include <zeus/zeus-Media.impl.hpp>
@@ -38,7 +38,7 @@ static uint64_t createUniqueID() {
 	return m_lastMaxId;
 }
 namespace appl {
-	class TestService1 : public zeus::test::Service1  {
+	class TestService1 : public zeus::service::test::Service1  {
 		private:
 			std::string m_userName;
 		public:
@@ -65,6 +65,12 @@ namespace appl {
 			}
 			void getVoid() override {
 				// nothing to do ...;
+			}
+			void doSomething(zeus::ActionNotification<int32_t>& _notifs, int32_t _value) override {
+				for (int32_t iii=1; iii<=_value; ++iii) {
+					//std::this_thread::sleep_for(std::chrono::milliseconds(500));
+					_notifs.emit(iii);
+				}
 			}
 	};
 }
@@ -117,5 +123,5 @@ ETK_EXPORT_API void SERVICE_IO_peridic_call() {
 }
 
 
-ZEUS_TEST_SERVICE1_DECLARE(appl::TestService1);
+ZEUS_SERVICE_TEST_SERVICE1_DECLARE(appl::TestService1);
 

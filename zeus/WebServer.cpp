@@ -389,7 +389,8 @@ void zeus::WebServer::newMessage(ememory::SharedPtr<zeus::Message> _buffer) {
 	uint64_t tid = _buffer->getTransactionId();
 	// TODO : Check the UDI reaaly utility ...
 	if (    _buffer->getType() == zeus::message::type::answer
-	     || _buffer->getType() == zeus::message::type::data) {
+	     || _buffer->getType() == zeus::message::type::data
+	     || _buffer->getType() == zeus::message::type::event) {
 		std::unique_lock<std::mutex> lock(m_pendingCallMutex);
 		auto it = m_pendingCall.begin();
 		while (it != m_pendingCall.end()) {

@@ -31,6 +31,7 @@ void zeus::Client::onClientData(ememory::SharedPtr<zeus::Message> _value) {
 	if (_value == nullptr) {
 		return;
 	}
+	ZEUS_DEBUG("receive message : " << _value);
 	// TODO : We will receive here some notification and call ...like : 
 	/*
 	if (call && id = 0 && objectid == 0) {
@@ -118,21 +119,13 @@ void zeus::Client::onClientData(ememory::SharedPtr<zeus::Message> _value) {
 				}
 				m_interfaceWeb->answerError(transactionId, _value->getDestination(), _value->getSource(), "TRANSFER-OWNERSHIP-ERROR");
 				return;
-			}
-			answerProtocolError(transactionId, "interact with client, musty only call: link/unlink/movelink");
-			return;
-		/*
-		} else if (_value->getType() == zeus::message::type::event) {
-			ememory::SharedPtr<zeus::message::Event> eventObj = ememory::staticPointerCast<zeus::message::Event>(_value);
-			std::string callFunction = eventObj->getCall();
-			if (callFunction == "removeInterface") {
-				ZEUS_VERBOSE("Remove Object : " << eventObj);
-				m_interfaceWeb->interfaceRemoved(eventObj->getParameter<std::vector<uint16_t>>(0));
+			} else if (callFunction == "removeInterface") {
+				ZEUS_VERBOSE("Remove Object : " << callObj);
+				m_interfaceWeb->interfaceRemoved(callObj->getParameter<std::vector<uint16_t>>(0));
 				return;
 			}
-			answerProtocolError(transactionId, "interact with client, musty only call: removeInterface");
+			answerProtocolError(transactionId, "interact with client, musty only call: link/unlink/movelink/removeInterface");
 			return;
-		*/
 		}
 		m_interfaceWeb->answerError(transactionId, _value->getDestination(), _value->getSource(), "UNKNOW-ACTION");
 		return;
@@ -241,6 +234,7 @@ bool zeus::Client::connectTo(const std::string& _address, echrono::Duration _tim
 	
 	zeus::Future<uint16_t> retIdentify = call(0, ZEUS_ID_GATEWAY, "getAddress").wait();
 	if (retIdentify.hasError() == true) {
+		ZEUS_ERROR("Has error when getting Address of client ... " << retIdentify.getErrorType() << " ? " << retIdentify.getErrorHelp());
 		disconnect();
 		return false;
 	}

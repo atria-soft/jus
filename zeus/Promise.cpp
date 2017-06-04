@@ -127,15 +127,11 @@ bool zeus::Promise::setMessage(ememory::SharedPtr<zeus::Message> _value) {
 		std::unique_lock<std::mutex> lock(m_mutex);
 		m_receiveTime = echrono::Steady::now();
 	}
-	if (_value->getType() != zeus::message::type::event) {
+	if (_value->getType() == zeus::message::type::event) {
 		std::unique_lock<std::mutex> lock(m_mutex);
 		// notification of a progresion ...
 		if (m_callbackEvent != nullptr) {
 			if (_value == nullptr) {
-				return true;
-			}
-			if (_value->getType() != zeus::message::type::event) {
-				ZEUS_WARNING("No Return value ...");
 				return true;
 			}
 			m_callbackEvent(ememory::staticPointerCast<zeus::message::Event>(_value));

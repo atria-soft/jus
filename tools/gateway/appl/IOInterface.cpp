@@ -59,7 +59,7 @@ void appl::IOInterface::receive(ememory::SharedPtr<zeus::Message> _value) {
 	if (_value == nullptr) {
 		return;
 	}
-	//APPL_ERROR("    ==> parse DATA ...");
+	APPL_INFO("RECEIVE message " << _value);
 	uint32_t transactionId = _value->getTransactionId();
 	if (transactionId == 0) {
 		APPL_ERROR("Protocol error ==>missing id");
@@ -79,6 +79,10 @@ void appl::IOInterface::receive(ememory::SharedPtr<zeus::Message> _value) {
 		if (callFunction == "removeRouterClient") {
 			// TODO : Broadcast that an IO is remoed ...
 			m_state = appl::clientState::unconnect;
+			APPL_ERROR("Remote client disconnect ...");
+			zeus::WebServer* iface = getInterface();
+			iface->answerVoid(transactionId, _value->getDestination(), _value->getSource());
+			return;
 		}
 		switch (m_state) {
 			case appl::clientState::disconnect:

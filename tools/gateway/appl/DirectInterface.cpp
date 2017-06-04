@@ -104,9 +104,8 @@ void appl::DirectInterface::receive(ememory::SharedPtr<zeus::Message> _value) {
 			answerProtocolError(transactionId, "Must get first the Client ID... call 'getAddress' and not '" + callObj->getCall() + "'");
 			return;
 		}
-		APPL_INFO("Get the unique ID...");
 		m_uid = m_gateway->getId();
-		APPL_INFO("get ID : " << m_uid);
+		APPL_INFO("clent call getAddress ==> return addresse " << m_uid);
 		if (m_uid == 0) {
 			answerProtocolError(transactionId, "Can not get the Client ID...");
 			return;

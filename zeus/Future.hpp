@@ -30,7 +30,7 @@ namespace zeus {
 			 * @param[in] _base Generic base Future
 			 * @return the reference on the local element
 			 */
-			zeus::Future<ZEUS_RETURN>& operator= (const zeus::FutureBase& _base) {
+			zeus::Future<ZEUS_RETURN, ZEUS_EVENT>& operator= (const zeus::FutureBase& _base) {
 				m_promise = _base.m_promise;
 				return *this;
 			}
@@ -39,36 +39,36 @@ namespace zeus {
 			 * @return requested value
 			 */
 			ZEUS_RETURN get();
-			const Future<ZEUS_RETURN>& wait() const {
+			const Future<ZEUS_RETURN, ZEUS_EVENT>& wait() const {
 				zeus::FutureBase::wait();
 				return *this;
 			}
-			Future<ZEUS_RETURN>& wait() {
+			Future<ZEUS_RETURN, ZEUS_EVENT>& wait() {
 				zeus::FutureBase::wait();
 				return *this;
 			}
-			const Future<ZEUS_RETURN>& waitFor(echrono::Duration _delta = echrono::seconds(30)) const {
+			const Future<ZEUS_RETURN, ZEUS_EVENT>& waitFor(echrono::Duration _delta = echrono::seconds(30)) const {
 				zeus::FutureBase::waitFor(_delta);
 				return *this;
 			}
-			Future<ZEUS_RETURN>& waitFor(echrono::Duration _delta = echrono::seconds(30)) {
+			Future<ZEUS_RETURN, ZEUS_EVENT>& waitFor(echrono::Duration _delta = echrono::seconds(30)) {
 				zeus::FutureBase::waitFor(_delta);
 				return *this;
 			}
-			const Future<ZEUS_RETURN>& waitUntil(echrono::Steady _endTime) const {
+			const Future<ZEUS_RETURN, ZEUS_EVENT>& waitUntil(echrono::Steady _endTime) const {
 				zeus::FutureBase::waitUntil(_endTime);
 				return *this;
 			}
-			Future<ZEUS_RETURN>& waitUntil(echrono::Steady _endTime) {
+			Future<ZEUS_RETURN, ZEUS_EVENT>& waitUntil(echrono::Steady _endTime) {
 				zeus::FutureBase::waitUntil(_endTime);
 				return *this;
 			}
-			using ObserverFut = std::function<bool(zeus::Future<ZEUS_RETURN>)>; //!< Define an Observer: function pointer for the local specific Future
+			using ObserverFut = std::function<bool(zeus::Future<ZEUS_RETURN, ZEUS_EVENT>)>; //!< Define an Observer: function pointer for the local specific Future
 			/**
 			 * @brief Attach callback on all return type of value
 			 * @param[in] _callback Handle on the function to call in all case
 			 */
-			Future<ZEUS_RETURN>& andAll(ObserverFut _callback) {
+			Future<ZEUS_RETURN, ZEUS_EVENT>& andAll(ObserverFut _callback) {
 				zeus::FutureBase::andAll(
 				    [=](zeus::FutureBase _fut) {
 				    	return _callback(zeus::Future<ZEUS_RETURN>(_fut));
@@ -81,7 +81,7 @@ namespace zeus {
 			 */
 			/*
 			note : this is anbigous ???
-			Future<ZEUS_RETURN>& andThen(std::function<bool(const ZEUS_RETURN&)> _callback) {
+			Future<ZEUS_RETURN, ZEUS_EVENT>& andThen(std::function<bool(const ZEUS_RETURN&)> _callback) {
 				zeus::FutureBase::andThen(
 				    [=](zeus::FutureBase _fut) {
 				    	zeus::Future<ZEUS_RETURN> tmp(_fut);
@@ -90,7 +90,7 @@ namespace zeus {
 				return *this;
 			}
 			*/
-			Future<ZEUS_RETURN>& andThen(std::function<bool(ZEUS_RETURN)> _callback) {
+			Future<ZEUS_RETURN, ZEUS_EVENT>& andThen(std::function<bool(ZEUS_RETURN)> _callback) {
 				zeus::FutureBase::andThen(
 				    [=](zeus::FutureBase _fut) {
 				    	return _callback(std::move(zeus::Future<ZEUS_RETURN>(_fut).get()));
@@ -98,7 +98,7 @@ namespace zeus {
 				return *this;
 			}
 			/*
-			Future<ZEUS_RETURN>& andThen(ObserverFut _callback) {
+			Future<ZEUS_RETURN, ZEUS_EVENT>& andThen(ObserverFut _callback) {
 				zeus::FutureBase::andThen(
 				    [=](zeus::FutureBase _fut) {
 				    	return _callback(zeus::Future<ZEUS_RETURN>(_fut));
@@ -109,14 +109,16 @@ namespace zeus {
 			 * @brief Attach callback on a specific return action (ERROR)
 			 * @param[in] _callback Handle on the function to call in case of error on the call
 			 */
-			Future<ZEUS_RETURN>& andElse(ObserverFut _callback) {
+			/*
+			Future<ZEUS_RETURN, ZEUS_EVENT>& andElse(ObserverFut _callback) {
 				zeus::FutureBase::andElse(
 				    [=](zeus::FutureBase _fut) {
 				    	return _callback(zeus::Future<ZEUS_RETURN>(_fut));
 				    });
 				return *this;
 			}
-			Future<ZEUS_RETURN>& andElse(std::function<bool(const std::string&, const std::string&)> _callback) {
+			*/
+			Future<ZEUS_RETURN, ZEUS_EVENT>& andElse(std::function<bool(const std::string&, const std::string&)> _callback) {
 				zeus::FutureBase::andElse(
 				    [=](zeus::FutureBase _fut) {
 				    	return _callback(_fut.getErrorType(), _fut.getErrorHelp());
@@ -128,12 +130,13 @@ namespace zeus {
 			 * @param[in] _callback Handle on the function to call in progress information
 			 */
 			// TODO: this is deprecated ...
-			Future<ZEUS_RETURN>& onProgress(Promise::ObserverEvent _callback) {
+			Future<ZEUS_RETURN, ZEUS_EVENT>& onProgress(Promise::ObserverEvent _callback) {
 				zeus::FutureBase::onEvent(_callback);
 				return *this;
 			}
 			//template<typename = std::enable_if<std::is_void<ZEUS_EVENT>::value, false>>
-			Future<ZEUS_RETURN>& onSignal(std::function<void(const ZEUS_EVENT&)> _callback) {
+			/*
+			Future<ZEUS_RETURN, ZEUS_EVENT>& onSignal(std::function<void(const ZEUS_EVENT&)> _callback) {
 				zeus::FutureBase::onEvent(
 				    [=](ememory::SharedPtr<zeus::message::Event> _msg) {
 				    	if (_msg == nullptr) {
@@ -143,8 +146,9 @@ namespace zeus {
 				    });
 				return *this;
 			}
+			*/
 			//template<typename = std::enable_if<std::is_void<ZEUS_EVENT>::value, false>>
-			Future<ZEUS_RETURN>& onSignal(std::function<void(ZEUS_EVENT)> _callback) {
+			Future<ZEUS_RETURN, ZEUS_EVENT>& onSignal(std::function<void(ZEUS_EVENT)> _callback) {
 				zeus::FutureBase::onEvent(
 				    [=](ememory::SharedPtr<zeus::message::Event> _msg) {
 				    	if (_msg == nullptr) {
@@ -158,8 +162,8 @@ namespace zeus {
 	/**
 	 * @brief future template to cast type in a void methode (fallback)
 	 */
-	template<>
-	class Future<void> : public zeus::FutureBase {
+	template<class ZEUS_EVENT>
+	class Future<void, ZEUS_EVENT> : public zeus::FutureBase {
 		public:
 			/**
 			 * @brief contructor of the Future with the basic FutureBase
@@ -174,40 +178,40 @@ namespace zeus {
 			 * @param[in] _base Generic base Future
 			 * @return the reference on the local element
 			 */
-			zeus::Future<void>& operator= (const zeus::FutureBase& _base) {
+			zeus::Future<void, ZEUS_EVENT>& operator= (const zeus::FutureBase& _base) {
 				m_promise = _base.m_promise;
 				return *this;
 			}
-			const Future<void>& wait() const {
+			const Future<void, ZEUS_EVENT>& wait() const {
 				zeus::FutureBase::wait();
 				return *this;
 			}
-			Future<void>& wait() {
+			Future<void, ZEUS_EVENT>& wait() {
 				zeus::FutureBase::wait();
 				return *this;
 			}
-			const Future<void>& waitFor(echrono::Duration _delta = echrono::seconds(30)) const {
+			const Future<void, ZEUS_EVENT>& waitFor(echrono::Duration _delta = echrono::seconds(30)) const {
 				zeus::FutureBase::waitFor(_delta);
 				return *this;
 			}
-			Future<void>& waitFor(echrono::Duration _delta = echrono::seconds(30)) {
+			Future<void, ZEUS_EVENT>& waitFor(echrono::Duration _delta = echrono::seconds(30)) {
 				zeus::FutureBase::waitFor(_delta);
 				return *this;
 			}
-			const Future<void>& waitUntil(echrono::Steady _endTime) const {
+			const Future<void, ZEUS_EVENT>& waitUntil(echrono::Steady _endTime) const {
 				zeus::FutureBase::waitUntil(_endTime);
 				return *this;
 			}
-			Future<void>& waitUntil(echrono::Steady _endTime) {
+			Future<void, ZEUS_EVENT>& waitUntil(echrono::Steady _endTime) {
 				zeus::FutureBase::waitUntil(_endTime);
 				return *this;
 			}
-			using ObserverFut = std::function<bool(zeus::Future<void>)>; //!< Define an Observer: function pointer for the local specific Future
+			using ObserverFut = std::function<bool(zeus::Future<void, ZEUS_EVENT>)>; //!< Define an Observer: function pointer for the local specific Future
 			/**
 			 * @brief Attach callback on all return type of value
 			 * @param[in] _callback Handle on the function to call in all case
 			 */
-			Future<void>& andAll(ObserverFut _callback) {
+			Future<void, ZEUS_EVENT>& andAll(ObserverFut _callback) {
 				zeus::FutureBase::andAll(
 				    [=](zeus::FutureBase _fut) {
 				    	return _callback(zeus::Future<void>(_fut));
@@ -218,10 +222,19 @@ namespace zeus {
 			 * @brief Attach callback on a specific return action (SUCESS)
 			 * @param[in] _callback Handle on the function to call in case of sucess on the call
 			 */
-			Future<void>& andThen(ObserverFut _callback) {
+			/*
+			Future<void, ZEUS_EVENT>& andThen(ObserverFut _callback) {
 				zeus::FutureBase::andThen(
 				    [=](zeus::FutureBase _fut) {
 				    	return _callback(zeus::Future<void>(_fut));
+				    });
+				return *this;
+			}
+			*/
+			Future<void, ZEUS_EVENT>& andThen(std::function<bool()> _callback) {
+				zeus::FutureBase::andThen(
+				    [=](zeus::FutureBase _fut) {
+				    	return _callback();
 				    });
 				return *this;
 			}
@@ -229,10 +242,19 @@ namespace zeus {
 			 * @brief Attach callback on a specific return action (ERROR)
 			 * @param[in] _callback Handle on the function to call in case of error on the call
 			 */
-			Future<void>& andElse(ObserverFut _callback) {
+			/*
+			Future<void, ZEUS_EVENT>& andElse(ObserverFut _callback) {
 				zeus::FutureBase::andElse(
 				    [=](zeus::FutureBase _fut) {
 				    	return _callback(zeus::Future<void>(_fut));
+				    });
+				return *this;
+			}
+			*/
+			Future<void, ZEUS_EVENT>& andElse(std::function<bool(const std::string&, const std::string&)> _callback) {
+				zeus::FutureBase::andElse(
+				    [=](zeus::FutureBase _fut) {
+				    	return _callback(_fut.getErrorType(), _fut.getErrorHelp());
 				    });
 				return *this;
 			}
@@ -240,8 +262,20 @@ namespace zeus {
 			 * @brief Attach callback on activity of the action if user set some return information
 			 * @param[in] _callback Handle on the function to call in progress information
 			 */
-			Future<void>& onEvent(Promise::ObserverEvent _callback) {
+			/*
+			Future<void, ZEUS_EVENT>& onEvent(Promise::ObserverEvent _callback) {
 				zeus::FutureBase::onEvent(_callback);
+				return *this;
+			}
+			*/
+			Future<void, ZEUS_EVENT>& onSignal(std::function<void(ZEUS_EVENT)> _callback) {
+				zeus::FutureBase::onEvent(
+				    [=](ememory::SharedPtr<zeus::message::Event> _msg) {
+				    	if (_msg == nullptr) {
+				    		return;
+				    	}
+				    	_callback(std::move(_msg->getEvent<ZEUS_EVENT>()));
+				    });
 				return *this;
 			}
 	};
