@@ -11,6 +11,8 @@
 
 namespace zeus {
 	class void_tmp {};
+	template <class ZEUS_RETURN>
+	ZEUS_RETURN futureGetValue(ememory::SharedPtr<zeus::Promise>& _promise);
 	/**
 	 * @brief future template to cast type in a specific type
 	 */
@@ -38,7 +40,9 @@ namespace zeus {
 			 * @brief Get the value Requested with the type
 			 * @return requested value
 			 */
-			ZEUS_RETURN get();
+			ZEUS_RETURN get() {
+				return zeus::futureGetValue<ZEUS_RETURN>(m_promise);
+			}
 			const Future<ZEUS_RETURN, ZEUS_EVENT>& wait() const {
 				zeus::FutureBase::wait();
 				return *this;

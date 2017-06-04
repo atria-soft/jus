@@ -46,7 +46,7 @@ static std::string extractAndRemove(const std::string& _inputValue, const char _
 	return out;
 }
 bool progressCall(const std::string& _value) {
-	
+	return false;
 }
 
 void progressCallback(const std::string& _value) {
@@ -109,7 +109,7 @@ bool pushVideoFile(zeus::service::ProxyVideo& _srv, std::string _path, std::map<
 	}
 	// TODO: Do it better ==> add the calback to know the push progression ...
 	auto sending = _srv.add(zeus::File::create(_path, storedSha512));
-	sending.onProgress(progressCallback);
+	sending.onSignal(progressCallback);
 	uint32_t mediaId = sending.waitFor(echrono::seconds(20000)).get();
 	if (mediaId == 0) {
 		APPL_ERROR("Get media ID = 0 With no error");
