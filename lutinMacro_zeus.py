@@ -259,6 +259,7 @@ class FunctionDefinition:
 				out += elem["name"] + " "
 			if elem["brief"] != "":
 				out += elem["brief"] + " "
+			out += "\n"
 		if self.is_action == True:
 			out += space + " * @note: This is an action ==> it can notify of the progression of the call\n"
 		if self.return_brief != "":

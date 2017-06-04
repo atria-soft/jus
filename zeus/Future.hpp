@@ -79,13 +79,8 @@ namespace zeus {
 			 * @brief Attach callback on a specific return action (SUCESS)
 			 * @param[in] _callback Handle on the function to call in case of sucess on the call
 			 */
-			Future<ZEUS_RETURN>& andThen(ObserverFut _callback) {
-				zeus::FutureBase::andThen(
-				    [=](zeus::FutureBase _fut) {
-				    	return _callback(zeus::Future<ZEUS_RETURN>(_fut));
-				    });
-				return *this;
-			}
+			/*
+			note : this is anbigous ???
 			Future<ZEUS_RETURN>& andThen(std::function<bool(const ZEUS_RETURN&)> _callback) {
 				zeus::FutureBase::andThen(
 				    [=](zeus::FutureBase _fut) {
@@ -94,6 +89,7 @@ namespace zeus {
 				    });
 				return *this;
 			}
+			*/
 			Future<ZEUS_RETURN>& andThen(std::function<bool(ZEUS_RETURN)> _callback) {
 				zeus::FutureBase::andThen(
 				    [=](zeus::FutureBase _fut) {
@@ -101,6 +97,14 @@ namespace zeus {
 				    });
 				return *this;
 			}
+			/*
+			Future<ZEUS_RETURN>& andThen(ObserverFut _callback) {
+				zeus::FutureBase::andThen(
+				    [=](zeus::FutureBase _fut) {
+				    	return _callback(zeus::Future<ZEUS_RETURN>(_fut));
+				    });
+				return *this;
+			}*/
 			/**
 			 * @brief Attach callback on a specific return action (ERROR)
 			 * @param[in] _callback Handle on the function to call in case of error on the call

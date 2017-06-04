@@ -261,7 +261,7 @@ void appl::GateWay::cleanIO() {
 			// send the message the interface has been removed
 			zeus::WebServer* iface = it->getInterface();
 			uint16_t id = it->getId();
-			iface->event(ZEUS_ID_GATEWAY, uint32_t(id)<<16, "removeInterface", tmpIDToRemove);
+			iface->call(ZEUS_ID_GATEWAY, uint32_t(id)<<16, "removeInterface", tmpIDToRemove);
 			APPL_WARNING("Send it to :" << id << "  " << tmpIDToRemove);
 		}
 	}

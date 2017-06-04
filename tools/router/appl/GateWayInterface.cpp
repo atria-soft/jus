@@ -95,7 +95,7 @@ void appl::GateWayInterface::rmClient(ememory::SharedPtr<appl::ClientInterface> 
 			++it;
 		}
 	}
-	m_interfaceClient.event(uint32_t(id)<<16, ZEUS_ID_GATEWAY, "removeRouterClient", id);
+	m_interfaceClient.call(uint32_t(id)<<16, ZEUS_ID_GATEWAY, "removeRouterClient", id);
 }
 
 void appl::GateWayInterface::onServiceData(ememory::SharedPtr<zeus::Message> _value) {

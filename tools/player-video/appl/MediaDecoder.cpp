@@ -397,11 +397,10 @@ void appl::MediaDecoder::init(ememory::SharedPtr<ClientProperty> _property, uint
 	    	m_remote->m_fileHandle = _proxy;
 	    	APPL_WARNING("We have handle");
 	    	m_remote->m_fileHandle.getSize().andThen(
-	    	    [=](const uint64_t& _value) mutable {
+	    	    [=](uint64_t _value) {
 	    	    	APPL_WARNING("Receive FileSize to index property");
-	    	    	uint64_t sizeOfBuffer = _value;
-	    	    	APPL_WARNING("pppllloooppp " << sizeOfBuffer);
-	    	    	m_remote->m_buffer.resize(sizeOfBuffer, 0);
+	    	    	APPL_WARNING("pppllloooppp " << _value);
+	    	    	m_remote->m_buffer.resize(_value, 0);
 	    	    	APPL_WARNING("pppllloooppp");
 	    	    	m_remote->checkIfWeNeedMoreDataFromNetwork();
 	    	    	APPL_WARNING("pppppplllllloooooopppppp");
@@ -638,7 +637,7 @@ void appl::StreamBuffering::checkIfWeNeedMoreDataFromNetwork() {
 			APPL_DEBUG("Request DATA : " << m_bufferReadPosition << " size=" << sizeRequest);
 			auto futData = m_fileHandle.getPart(m_bufferReadPosition, m_bufferReadPosition+sizeRequest);
 			auto localShared = ememory::dynamicPointerCast<appl::StreamBuffering>(sharedFromThis());
-			futData.andThen([=](const zeus::Raw& _value) mutable {
+			futData.andThen([=](zeus::Raw _value) mutable {
 			                	return localShared->addDataCallback(_value, m_bufferReadPosition);
 			                });
 			m_callInProgress = true;
@@ -660,7 +659,7 @@ void appl::StreamBuffering::checkIfWeNeedMoreDataFromNetwork() {
 	APPL_DEBUG("Request DATA : " << m_bufferReadPosition << " size=" << sizeRequest);
 	auto futData = m_fileHandle.getPart(m_bufferReadPosition, m_bufferReadPosition + sizeRequest);
 	auto localShared = ememory::dynamicPointerCast<appl::StreamBuffering>(sharedFromThis());
-	futData.andThen([=](const zeus::Raw& _value) mutable {
+	futData.andThen([=](zeus::Raw _value) mutable {
 	                	return localShared->addDataCallback(_value, m_bufferReadPosition);
 	                });
 	m_callInProgress = true;

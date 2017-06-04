@@ -89,7 +89,7 @@ void appl::ElementProperty::loadData() {
 	                 	m_widget->markToRedraw();
 	                 	return true;
 	                 });
-	futMedia.andThen([=](const zeus::ProxyMedia& _media) mutable {
+	futMedia.andThen([=](zeus::ProxyMedia _media) mutable {
 	                 	APPL_INFO("    [" << tmpProperty->m_id << "] get media: " << tmpProperty->m_id);
 	                 	if (_media.exist() == false) {
 	                 		APPL_ERROR("get media error");
@@ -113,7 +113,7 @@ void appl::ElementProperty::loadData() {
 	                 	             	}
 	                 	             	return true;
 	                 	             })
-	                 	    .andThen([=](const std::string& _value) mutable {
+	                 	    .andThen([=](std::string _value) mutable {
 	                 	             	APPL_INFO("    [" << tmpProperty->m_id << "] get title: " << _value);
 	                 	             	{
 	                 	             		std::unique_lock<std::mutex> lock(tmpProperty->m_mutex);
@@ -140,7 +140,7 @@ void appl::ElementProperty::loadData() {
 	                 	             	}
 	                 	             	return true;
 	                 	             })
-	                 	    .andThen([=](const std::string& _value) mutable {
+	                 	    .andThen([=](std::string _value) mutable {
 	                 	             	APPL_ERROR("    [" << tmpProperty->m_id << "] get serie: " << _value);
 	                 	             	{
 	                 	             		std::unique_lock<std::mutex> lock(tmpProperty->m_mutex);
@@ -167,7 +167,7 @@ void appl::ElementProperty::loadData() {
 	                 	             	}
 	                 	             	return true;
 	                 	             })
-	                 	    .andThen([=](const std::string& _value) mutable {
+	                 	    .andThen([=](std::string _value) mutable {
 	                 	             	APPL_INFO("    [" << tmpProperty->m_id << "] get saison: " << _value);
 	                 	             	{
 	                 	             		std::unique_lock<std::mutex> lock(tmpProperty->m_mutex);
@@ -194,7 +194,7 @@ void appl::ElementProperty::loadData() {
 	                 	             	}
 	                 	             	return true;
 	                 	             })
-	                 	    .andThen([=](const std::string& _value) mutable {
+	                 	    .andThen([=](std::string _value) mutable {
 	                 	             	APPL_INFO("    [" << tmpProperty->m_id << "] get episode: " << _value);
 	                 	             	{
 	                 	             		std::unique_lock<std::mutex> lock(tmpProperty->m_mutex);
@@ -221,7 +221,7 @@ void appl::ElementProperty::loadData() {
 	                 	             	}
 	                 	             	return true;
 	                 	             })
-	                 	    .andThen([=](const std::string& _value) mutable {
+	                 	    .andThen([=](std::string _value) mutable {
 	                 	             	APPL_INFO("    [" << tmpProperty->m_id << "] get description: " << _value);
 	                 	             	{
 	                 	             		std::unique_lock<std::mutex> lock(tmpProperty->m_mutex);
@@ -248,7 +248,7 @@ void appl::ElementProperty::loadData() {
 	                 	             	}
 	                 	             	return true;
 	                 	             })
-	                 	    .andThen([=](const std::string& _value) mutable {
+	                 	    .andThen([=](std::string _value) mutable {
 	                 	             	APPL_INFO("    [" << tmpProperty->m_id << "] get production-methode: " << _value);
 	                 	             	{
 	                 	             		std::unique_lock<std::mutex> lock(tmpProperty->m_mutex);
@@ -275,7 +275,7 @@ void appl::ElementProperty::loadData() {
 	                 	             	}
 	                 	             	return true;
 	                 	             })
-	                 	    .andThen([=](const std::string& _value) mutable {
+	                 	    .andThen([=](std::string _value) mutable {
 	                 	             	APPL_INFO("    [" << tmpProperty->m_id << "] get type: " << _value);
 	                 	             	{
 	                 	             		std::unique_lock<std::mutex> lock(tmpProperty->m_mutex);
@@ -302,7 +302,7 @@ void appl::ElementProperty::loadData() {
 	                 	             	}
 	                 	             	return true;
 	                 	             })
-	                 	    .andThen([=](const std::string& _value) mutable {
+	                 	    .andThen([=](std::string _value) mutable {
 	                 	             	APPL_INFO("    [" << tmpProperty->m_id << "] get mine-type: " << _value);
 	                 	             	{
 	                 	             		std::unique_lock<std::mutex> lock(tmpProperty->m_mutex);

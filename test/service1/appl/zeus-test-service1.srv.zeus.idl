@@ -1,0 +1,20 @@
+#elem-brief: picture interface management
+#elem-version: 1.0
+#elem-type:PICTURE
+#elem-author:Heero Yui<yui.heero@gmail.com
+
+
+#brief:Title of the fucntion
+#param:parameterName:description of the parameter
+#return:Return description of the function
+uint32 getU32(uint32)
+
+
+vector:uint32 getVU32(vector:uint32)
+
+
+string getString(string)
+
+
+void getVoid()
+

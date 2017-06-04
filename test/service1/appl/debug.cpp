@@ -7,6 +7,6 @@
 #include <appl/debug.hpp>
 
 int32_t appl::getLogId() {
-	static int32_t g_val = elog::registerInstance("zeus-test-service1");
+	static int32_t g_val = elog::registerInstance("test-service1");
 	return g_val;
 }

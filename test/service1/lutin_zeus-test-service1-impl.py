@@ -1,11 +1,10 @@
 #!/usr/bin/python
 import lutin.debug as debug
 import lutin.tools as tools
-import lutin.macro as macro
 
 
 def get_type():
-	return "LIBRARY"
+	return "LIBRARY_DYNAMIC"
 	#return "BINARY"
 
 def get_sub_type():
@@ -27,13 +26,16 @@ def get_maintainer():
 	return ["Mr DUPIN Edouard <yui.heero@gmail.com>"]
 
 def configure(target, my_module):
+	my_module.add_path(".")
 	my_module.add_depend([
-	    'zeus'
+	    'zeus',
+	    'ejson',
+	    'zeus-test-service1'
 	    ])
-	
-	zeus_macro = macro.load_macro('zeus')
-	zeus_macro.parse_object_idl(my_module, 'appl/zeus-test-service1.srv.zeus.idl')
-	
+	my_module.add_src_file([
+	    'appl/debug.cpp',
+	    'appl/main-test-service1.cpp'
+	    ])
 	my_module.add_flag('c++', "-DSERVICE_NAME=\"\\\"test-service1\\\"\"")
 	return True
 
