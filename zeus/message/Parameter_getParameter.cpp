@@ -42,6 +42,11 @@ namespace zeus {
 			return out;
 		}
 		
+		// NOTE: The use of reinterpret cast is correct for all the generic machine but not for 
+		//       the small ex: ARM, whe the pointer need to be alligned ex: int64_t have all 
+		//       time an address where @%4 = 0.
+		//       The it is better to use the copy of valu at the correct positions ...
+		// TODO: Do it work for CPU in BIG endien ...
 		
 		template<>
 		uint8_t Parameter::getParameter<uint8_t>(int32_t _id) const {
@@ -53,32 +58,40 @@ namespace zeus {
 				const uint8_t* tmp = reinterpret_cast<const uint8_t*>(pointer);
 				return *tmp;
 			} else if (createType<uint16_t>() == type) {
-				const uint16_t* tmp = reinterpret_cast<const uint16_t*>(pointer);
-				return std::min(*tmp, uint16_t(UCHAR_MAX));
+				uint16_t tmp;
+				memcpy(&tmp, pointer, sizeof(tmp));
+				return std::min(tmp, uint16_t(UCHAR_MAX));
 			} else if (createType<uint32_t>() == type) {
-				const uint32_t* tmp = reinterpret_cast<const uint32_t*>(pointer);
-				return std::min(*tmp, uint32_t(UCHAR_MAX));
+				uint32_t tmp;
+				memcpy(&tmp, pointer, sizeof(tmp));
+				return std::min(tmp, uint32_t(UCHAR_MAX));
 			} else if (createType<uint64_t>() == type) {
-				const uint64_t* tmp = reinterpret_cast<const uint64_t*>(pointer);
-				return std::min(*tmp, uint64_t(UCHAR_MAX));
+				uint64_t tmp;
+				memcpy(&tmp, pointer, sizeof(tmp));
+				return std::min(tmp, uint64_t(UCHAR_MAX));
 			} else if (createType<int8_t>() == type) {
 				const int8_t* tmp = reinterpret_cast<const int8_t*>(pointer);
 				return std::max(int8_t(0), *tmp);
 			} else if (createType<int16_t>() == type) {
-				const int16_t* tmp = reinterpret_cast<const int16_t*>(pointer);
-				return etk::avg(int16_t(0), *tmp, int16_t(UCHAR_MAX));
+				int16_t tmp;
+				memcpy(&tmp, pointer, sizeof(tmp));
+				return etk::avg(int16_t(0), tmp, int16_t(UCHAR_MAX));
 			} else if (createType<int32_t>() == type) {
-				const int32_t* tmp = reinterpret_cast<const int32_t*>(pointer);
-				return etk::avg(int32_t(0), *tmp, int32_t(UCHAR_MAX));
+				int32_t tmp;
+				memcpy(&tmp, pointer, sizeof(tmp));
+				return etk::avg(int32_t(0), tmp, int32_t(UCHAR_MAX));
 			} else if (createType<int64_t>() == type) {
-				const int64_t* tmp = reinterpret_cast<const int64_t*>(pointer);
-				return etk::avg(int64_t(0), *tmp, int64_t(UCHAR_MAX));
+				int64_t tmp;
+				memcpy(&tmp, pointer, sizeof(tmp));
+				return etk::avg(int64_t(0), tmp, int64_t(UCHAR_MAX));
 			} else if (createType<float>() == type) {
-				const float* tmp = reinterpret_cast<const float*>(pointer);
-				return uint8_t(etk::avg(float(0), *tmp, float(UCHAR_MAX)));
+				float tmp;
+				memcpy(&tmp, pointer, sizeof(tmp));
+				return uint8_t(etk::avg(float(0), tmp, float(UCHAR_MAX)));
 			} else if (createType<double>() == type) {
-				const double* tmp = reinterpret_cast<const double*>(pointer);
-				return uint8_t(etk::avg(double(0), *tmp, double(UCHAR_MAX)));
+				double tmp;
+				memcpy(&tmp, pointer, sizeof(tmp));
+				return uint8_t(etk::avg(double(0), tmp, double(UCHAR_MAX)));
 			}
 			ZEUS_ERROR("Can not get type from '" << type << "'");
 			return 0;
@@ -93,32 +106,40 @@ namespace zeus {
 				const uint8_t* tmp = reinterpret_cast<const uint8_t*>(pointer);
 				return *tmp;
 			} else if (createType<uint16_t>() == type) {
-				const uint16_t* tmp = reinterpret_cast<const uint16_t*>(pointer);
-				return *tmp;
+				uint16_t tmp;
+				memcpy(&tmp, pointer, sizeof(tmp));
+				return tmp;
 			} else if (createType<uint32_t>() == type) {
-				const uint32_t* tmp = reinterpret_cast<const uint32_t*>(pointer);
-				return std::min(*tmp, uint32_t(USHRT_MAX));
+				uint32_t tmp;
+				memcpy(&tmp, pointer, sizeof(tmp));
+				return std::min(tmp, uint32_t(USHRT_MAX));
 			} else if (createType<uint64_t>() == type) {
-				const uint64_t* tmp = reinterpret_cast<const uint64_t*>(pointer);
-				return std::min(*tmp, uint64_t(USHRT_MAX));
+				uint64_t tmp;
+				memcpy(&tmp, pointer, sizeof(tmp));
+				return std::min(tmp, uint64_t(USHRT_MAX));
 			} else if (createType<int8_t>() == type) {
 				const int8_t* tmp = reinterpret_cast<const int8_t*>(pointer);
 				return std::max(int8_t(0), *tmp);
 			} else if (createType<int16_t>() == type) {
-				const int16_t* tmp = reinterpret_cast<const int16_t*>(pointer);
-				return std::max(int16_t(0), *tmp);
+				int16_t tmp;
+				memcpy(&tmp, pointer, sizeof(tmp));
+				return std::max(int16_t(0), tmp);
 			} else if (createType<int32_t>() == type) {
-				const int32_t* tmp = reinterpret_cast<const int32_t*>(pointer);
-				return etk::avg(int32_t(0), *tmp, int32_t(USHRT_MAX));
+				int32_t tmp;
+				memcpy(&tmp, pointer, sizeof(tmp));
+				return etk::avg(int32_t(0), tmp, int32_t(USHRT_MAX));
 			} else if (createType<int64_t>() == type) {
-				const int64_t* tmp = reinterpret_cast<const int64_t*>(pointer);
-				return etk::avg(int64_t(0), *tmp, int64_t(USHRT_MAX));
+				int64_t tmp;
+				memcpy(&tmp, pointer, sizeof(tmp));
+				return etk::avg(int64_t(0), tmp, int64_t(USHRT_MAX));
 			} else if (createType<float>() == type) {
-				const float* tmp = reinterpret_cast<const float*>(pointer);
-				return uint16_t(etk::avg(float(0), *tmp, float(USHRT_MAX)));
+				float tmp;
+				memcpy(&tmp, pointer, sizeof(tmp));
+				return uint16_t(etk::avg(float(0), tmp, float(USHRT_MAX)));
 			} else if (createType<double>() == type) {
-				const double* tmp = reinterpret_cast<const double*>(pointer);
-				return uint16_t(etk::avg(double(0), *tmp, double(USHRT_MAX)));
+				double tmp;
+				memcpy(&tmp, pointer, sizeof(tmp));
+				return uint16_t(etk::avg(double(0), tmp, double(USHRT_MAX)));
 			}
 			ZEUS_ERROR("Can not get type from '" << type << "'");
 			return 0;
@@ -135,32 +156,40 @@ namespace zeus {
 				const uint8_t* tmp = reinterpret_cast<const uint8_t*>(pointer);
 				return *tmp;
 			} else if (createType<uint16_t>() == type) {
-				const uint16_t* tmp = reinterpret_cast<const uint16_t*>(pointer);
-				return *tmp;
+				uint16_t tmp;
+				memcpy(&tmp, pointer, sizeof(tmp));
+				return tmp;
 			} else if (createType<uint32_t>() == type) {
-				const uint32_t* tmp = reinterpret_cast<const uint32_t*>(pointer);
-				return *tmp;
+				uint32_t tmp;
+				memcpy(&tmp, pointer, sizeof(tmp));
+				return tmp;
 			} else if (createType<uint64_t>() == type) {
-				const uint64_t* tmp = reinterpret_cast<const uint64_t*>(pointer);
-				return std::min(*tmp, uint64_t(ULONG_MAX));
+				uint64_t tmp;
+				memcpy(&tmp, pointer, sizeof(tmp));
+				return std::min(tmp, uint64_t(ULONG_MAX));
 			} else if (createType<int8_t>() == type) {
 				const int8_t* tmp = reinterpret_cast<const int8_t*>(pointer);
 				return std::max(int8_t(0), *tmp);
 			} else if (createType<int16_t>() == type) {
-				const int16_t* tmp = reinterpret_cast<const int16_t*>(pointer);
-				return std::max(int16_t(0), *tmp);
+				int16_t tmp;
+				memcpy(&tmp, pointer, sizeof(tmp));
+				return std::max(int16_t(0), tmp);
 			} else if (createType<int32_t>() == type) {
-				const int32_t* tmp = reinterpret_cast<const int32_t*>(pointer);
-				return std::max(int32_t(0), *tmp);
+				int32_t tmp;
+				memcpy(&tmp, pointer, sizeof(tmp));
+				return std::max(int32_t(0), tmp);
 			} else if (createType<int64_t>() == type) {
-				const int64_t* tmp = reinterpret_cast<const int64_t*>(pointer);
-				return etk::avg(int64_t(0), *tmp, int64_t(ULONG_MAX));
+				int64_t tmp;
+				memcpy(&tmp, pointer, sizeof(tmp));
+				return etk::avg(int64_t(0), tmp, int64_t(ULONG_MAX));
 			} else if (createType<float>() == type) {
-				const float* tmp = reinterpret_cast<const float*>(pointer);
-				return uint32_t(etk::avg(float(0), *tmp, float(ULONG_MAX)));
+				float tmp;
+				memcpy(&tmp, pointer, sizeof(tmp));
+				return uint32_t(etk::avg(float(0), tmp, float(ULONG_MAX)));
 			} else if (createType<double>() == type) {
-				const double* tmp = reinterpret_cast<const double*>(pointer);
-				return uint32_t(etk::avg(double(0), *tmp, double(ULONG_MAX)));
+				double tmp;
+				memcpy(&tmp, pointer, sizeof(tmp));
+				return uint32_t(etk::avg(double(0), tmp, double(ULONG_MAX)));
 			}
 			ZEUS_ERROR("Can not get type from '" << type << "'");
 			return 0;
@@ -169,40 +198,48 @@ namespace zeus {
 		template<>
 		uint64_t Parameter::getParameter<uint64_t>(int32_t _id) const {
 			zeus::message::ParamType type = getParameterType(_id);
-			const uint8_t* pointer = getParameterPointer(_id);
 			uint32_t dataSize = getParameterSize(_id);
-			//ZEUS_WARNING("get type " << type << "   with size=" << dataSize);
+			uint8_t* pointer = const_cast<uint8_t*>(getParameterPointer(_id));
+			ZEUS_WARNING("get type " << type << "   with size=" << dataSize << " pointer=" << uint64_t(pointer) << " sizeof(uint64_t)=" << int32_t(sizeof(uint64_t)));
 			// TODO : Check size ...
 			if (createType<uint8_t>() == type) {
-				const uint8_t* tmp = reinterpret_cast<const uint8_t*>(pointer);
+				uint8_t* tmp = reinterpret_cast<uint8_t*>(pointer);
 				return *tmp;
 			} else if (createType<uint16_t>() == type) {
-				const uint16_t* tmp = reinterpret_cast<const uint16_t*>(pointer);
-				return *tmp;
+				uint16_t tmp;
+				memcpy(&tmp, pointer, sizeof(tmp));
+				return tmp;
 			} else if (createType<uint32_t>() == type) {
-				const uint32_t* tmp = reinterpret_cast<const uint32_t*>(pointer);
-				return *tmp;
+				uint32_t tmp;
+				memcpy(&tmp, pointer, sizeof(tmp));
+				return tmp;
 			} else if (createType<uint64_t>() == type) {
-				const uint64_t* tmp = reinterpret_cast<const uint64_t*>(pointer);
-				return *tmp;
+				uint64_t tmp;
+				memcpy(&tmp, pointer, sizeof(tmp));
+				return tmp;
 			} else if (createType<int8_t>() == type) {
-				const int8_t* tmp = reinterpret_cast<const int8_t*>(pointer);
+				int8_t* tmp = reinterpret_cast<int8_t*>(pointer);
 				return std::max(int8_t(0), *tmp);
 			} else if (createType<int16_t>() == type) {
-				const int16_t* tmp = reinterpret_cast<const int16_t*>(pointer);
-				return std::max(int16_t(0), *tmp);
+				int16_t tmp;
+				memcpy(&tmp, pointer, sizeof(tmp));
+				return std::max(int16_t(0), tmp);
 			} else if (createType<int32_t>() == type) {
-				const int32_t* tmp = reinterpret_cast<const int32_t*>(pointer);
-				return std::max(int32_t(0), *tmp);
+				int32_t tmp;
+				memcpy(&tmp, pointer, sizeof(tmp));
+				return std::max(int32_t(0), tmp);
 			} else if (createType<int64_t>() == type) {
-				const int64_t* tmp = reinterpret_cast<const int64_t*>(pointer);
-				return std::max(int64_t(0), *tmp);
+				int64_t tmp;
+				memcpy(&tmp, pointer, sizeof(tmp));
+				return std::max(int64_t(0), tmp);
 			} else if (createType<float>() == type) {
-				const float* tmp = reinterpret_cast<const float*>(pointer);
-				return uint64_t(etk::avg(float(0), *tmp, float(ULONG_MAX)));
+				float tmp;
+				memcpy(&tmp, pointer, sizeof(tmp));
+				return uint64_t(etk::avg(float(0), tmp, float(ULONG_MAX)));
 			} else if (createType<double>() == type) {
-				const double* tmp = reinterpret_cast<const double*>(pointer);
-				return uint64_t(etk::avg(double(0), *tmp, double(ULONG_MAX)));
+				double tmp;
+				memcpy(&tmp, pointer, sizeof(tmp));
+				return uint64_t(etk::avg(double(0), tmp, double(ULONG_MAX)));
 			}
 			ZEUS_ERROR("Can not get type from '" << type << "'");
 			return 0;
@@ -225,32 +262,40 @@ namespace zeus {
 				const uint8_t* tmp = reinterpret_cast<const uint8_t*>(pointer);
 				return std::min(*tmp, uint8_t(SCHAR_MAX));
 			} else if (createType<uint16_t>() == type) {
-				const uint16_t* tmp = reinterpret_cast<const uint16_t*>(pointer);
-				return std::min(*tmp, uint16_t(SCHAR_MAX));
+				uint16_t tmp;
+				memcpy(&tmp, pointer, sizeof(tmp));
+				return std::min(tmp, uint16_t(SCHAR_MAX));
 			} else if (createType<uint32_t>() == type) {
-				const uint32_t* tmp = reinterpret_cast<const uint32_t*>(pointer);
-				return std::min(*tmp, uint32_t(SCHAR_MAX));
+				uint32_t tmp;
+				memcpy(&tmp, pointer, sizeof(tmp));
+				return std::min(tmp, uint32_t(SCHAR_MAX));
 			} else if (createType<uint64_t>() == type) {
-				const uint64_t* tmp = reinterpret_cast<const uint64_t*>(pointer);
-				return std::min(*tmp, uint64_t(SCHAR_MAX));
+				uint64_t tmp;
+				memcpy(&tmp, pointer, sizeof(tmp));
+				return std::min(tmp, uint64_t(SCHAR_MAX));
 			} else if (createType<int8_t>() == type) {
 				const int8_t* tmp = reinterpret_cast<const int8_t*>(pointer);
 				return *tmp;
 			} else if (createType<int16_t>() == type) {
-				const int16_t* tmp = reinterpret_cast<const int16_t*>(pointer);
-				return etk::avg(int16_t(SCHAR_MIN), *tmp, int16_t(SCHAR_MAX));
+				int16_t tmp;
+				memcpy(&tmp, pointer, sizeof(tmp));
+				return etk::avg(int16_t(SCHAR_MIN), tmp, int16_t(SCHAR_MAX));
 			} else if (createType<int32_t>() == type) {
-				const int32_t* tmp = reinterpret_cast<const int32_t*>(pointer);
-				return etk::avg(int32_t(SCHAR_MIN), *tmp, int32_t(SCHAR_MAX));
+				int32_t tmp;
+				memcpy(&tmp, pointer, sizeof(tmp));
+				return etk::avg(int32_t(SCHAR_MIN), tmp, int32_t(SCHAR_MAX));
 			} else if (createType<int64_t>() == type) {
-				const int64_t* tmp = reinterpret_cast<const int64_t*>(pointer);
-				return etk::avg(int64_t(SCHAR_MIN), *tmp, int64_t(SCHAR_MAX));
+				int64_t tmp;
+				memcpy(&tmp, pointer, sizeof(tmp));
+				return etk::avg(int64_t(SCHAR_MIN), tmp, int64_t(SCHAR_MAX));
 			} else if (createType<float>() == type) {
-				const float* tmp = reinterpret_cast<const float*>(pointer);
-				return int8_t(etk::avg(float(SCHAR_MIN), *tmp, float(SCHAR_MAX)));
+				float tmp;
+				memcpy(&tmp, pointer, sizeof(tmp));
+				return int8_t(etk::avg(float(SCHAR_MIN), tmp, float(SCHAR_MAX)));
 			} else if (createType<double>() == type) {
-				const double* tmp = reinterpret_cast<const double*>(pointer);
-				return int8_t(etk::avg(double(SCHAR_MIN), *tmp, double(SCHAR_MAX)));
+				double tmp;
+				memcpy(&tmp, pointer, sizeof(tmp));
+				return int8_t(etk::avg(double(SCHAR_MIN), tmp, double(SCHAR_MAX)));
 			}
 			ZEUS_ERROR("Can not get type from '" << type << "'");
 			return 0;
@@ -266,32 +311,40 @@ namespace zeus {
 				const uint8_t* tmp = reinterpret_cast<const uint8_t*>(pointer);
 				return *tmp;
 			} else if (createType<uint16_t>() == type) {
-				const uint16_t* tmp = reinterpret_cast<const uint16_t*>(pointer);
-				return std::min(*tmp, uint16_t(SHRT_MAX));
+				uint16_t tmp;
+				memcpy(&tmp, pointer, sizeof(tmp));
+				return std::min(tmp, uint16_t(SHRT_MAX));
 			} else if (createType<uint32_t>() == type) {
-				const uint32_t* tmp = reinterpret_cast<const uint32_t*>(pointer);
-				return std::min(*tmp, uint32_t(SHRT_MAX));
+				uint32_t tmp;
+				memcpy(&tmp, pointer, sizeof(tmp));
+				return std::min(tmp, uint32_t(SHRT_MAX));
 			} else if (createType<uint64_t>() == type) {
-				const uint64_t* tmp = reinterpret_cast<const uint64_t*>(pointer);
-				return std::min(*tmp, uint64_t(SHRT_MAX));
+				uint64_t tmp;
+				memcpy(&tmp, pointer, sizeof(tmp));
+				return std::min(tmp, uint64_t(SHRT_MAX));
 			} else if (createType<int8_t>() == type) {
 				const int8_t* tmp = reinterpret_cast<const int8_t*>(pointer);
 				return *tmp;
 			} else if (createType<int16_t>() == type) {
-				const int16_t* tmp = reinterpret_cast<const int16_t*>(pointer);
-				return *tmp;
+				uint16_t tmp;
+				memcpy(&tmp, pointer, sizeof(tmp));
+				return tmp;
 			} else if (createType<int32_t>() == type) {
-				const int32_t* tmp = reinterpret_cast<const int32_t*>(pointer);
-				return etk::avg(int32_t(SHRT_MIN), *tmp, int32_t(SHRT_MAX));
+				int32_t tmp;
+				memcpy(&tmp, pointer, sizeof(tmp));
+				return etk::avg(int32_t(SHRT_MIN), tmp, int32_t(SHRT_MAX));
 			} else if (createType<int64_t>() == type) {
-				const int64_t* tmp = reinterpret_cast<const int64_t*>(pointer);
-				return etk::avg(int64_t(SHRT_MIN), *tmp, int64_t(SHRT_MAX));
+				int64_t tmp;
+				memcpy(&tmp, pointer, sizeof(tmp));
+				return etk::avg(int64_t(SHRT_MIN), tmp, int64_t(SHRT_MAX));
 			} else if (createType<float>() == type) {
-				const float* tmp = reinterpret_cast<const float*>(pointer);
-				return int16_t(etk::avg(float(SHRT_MIN), *tmp, float(SHRT_MAX)));
+				float tmp;
+				memcpy(&tmp, pointer, sizeof(tmp));
+				return int16_t(etk::avg(float(SHRT_MIN), tmp, float(SHRT_MAX)));
 			} else if (createType<double>() == type) {
-				const double* tmp = reinterpret_cast<const double*>(pointer);
-				return int16_t(etk::avg(double(SHRT_MIN), *tmp, double(SHRT_MAX)));
+				double tmp;
+				memcpy(&tmp, pointer, sizeof(tmp));
+				return int16_t(etk::avg(double(SHRT_MIN), tmp, double(SHRT_MAX)));
 			}
 			ZEUS_ERROR("Can not get type from '" << type << "'");
 			return 0;
@@ -308,32 +361,40 @@ namespace zeus {
 				const uint8_t* tmp = reinterpret_cast<const uint8_t*>(pointer);
 				return *tmp;
 			} else if (createType<uint16_t>() == type) {
-				const uint16_t* tmp = reinterpret_cast<const uint16_t*>(pointer);
-				return *tmp;
+				uint16_t tmp;
+				memcpy(&tmp, pointer, sizeof(tmp));
+				return tmp;
 			} else if (createType<uint32_t>() == type) {
-				const uint32_t* tmp = reinterpret_cast<const uint32_t*>(pointer);
-				return std::min(*tmp, uint32_t(LONG_MAX));
+				uint32_t tmp;
+				memcpy(&tmp, pointer, sizeof(tmp));
+				return std::min(tmp, uint32_t(LONG_MAX));
 			} else if (createType<uint64_t>() == type) {
-				const uint64_t* tmp = reinterpret_cast<const uint64_t*>(pointer);
-				return std::min(*tmp, uint64_t(LONG_MAX));
+				uint64_t tmp;
+				memcpy(&tmp, pointer, sizeof(tmp));
+				return std::min(tmp, uint64_t(LONG_MAX));
 			} else if (createType<int8_t>() == type) {
 				const int8_t* tmp = reinterpret_cast<const int8_t*>(pointer);
 				return *tmp;
 			} else if (createType<int16_t>() == type) {
-				const int16_t* tmp = reinterpret_cast<const int16_t*>(pointer);
-				return *tmp;
+				int16_t tmp;
+				memcpy(&tmp, pointer, sizeof(tmp));
+				return tmp;
 			} else if (createType<int32_t>() == type) {
-				const int32_t* tmp = reinterpret_cast<const int32_t*>(pointer);
-				return *tmp;
+				int32_t tmp;
+				memcpy(&tmp, pointer, sizeof(tmp));
+				return tmp;
 			} else if (createType<int64_t>() == type) {
-				const int64_t* tmp = reinterpret_cast<const int64_t*>(pointer);
-				return etk::avg(int64_t(LONG_MIN), *tmp, int64_t(LONG_MAX));
+				int64_t tmp;
+				memcpy(&tmp, pointer, sizeof(tmp));
+				return etk::avg(int64_t(LONG_MIN), tmp, int64_t(LONG_MAX));
 			} else if (createType<float>() == type) {
-				const float* tmp = reinterpret_cast<const float*>(pointer);
-				return int32_t(etk::avg(float(LONG_MIN), *tmp, float(LONG_MAX)));
+				float tmp;
+				memcpy(&tmp, pointer, sizeof(tmp));
+				return int32_t(etk::avg(float(LONG_MIN), tmp, float(LONG_MAX)));
 			} else if (createType<double>() == type) {
-				const double* tmp = reinterpret_cast<const double*>(pointer);
-				return int32_t(etk::avg(double(LONG_MIN), *tmp, double(LONG_MAX)));
+				double tmp;
+				memcpy(&tmp, pointer, sizeof(tmp));
+				return int32_t(etk::avg(double(LONG_MIN), tmp, double(LONG_MAX)));
 			}
 			ZEUS_ERROR("Can not get type from '" << type << "'");
 			return 0;
@@ -350,32 +411,40 @@ namespace zeus {
 				const uint8_t* tmp = reinterpret_cast<const uint8_t*>(pointer);
 				return *tmp;
 			} else if (createType<uint16_t>() == type) {
-				const uint16_t* tmp = reinterpret_cast<const uint16_t*>(pointer);
-				return *tmp;
+				uint16_t tmp;
+				memcpy(&tmp, pointer, sizeof(tmp));
+				return tmp;
 			} else if (createType<uint32_t>() == type) {
-				const uint32_t* tmp = reinterpret_cast<const uint32_t*>(pointer);
-				return *tmp;
+				uint32_t tmp;
+				memcpy(&tmp, pointer, sizeof(tmp));
+				return tmp;
 			} else if (createType<uint64_t>() == type) {
-				const uint64_t* tmp = reinterpret_cast<const uint64_t*>(pointer);
-				return std::min(*tmp, uint64_t(LLONG_MAX));
+				uint64_t tmp;
+				memcpy(&tmp, pointer, sizeof(tmp));
+				return std::min(tmp, uint64_t(LLONG_MAX));
 			} else if (createType<int8_t>() == type) {
 				const int8_t* tmp = reinterpret_cast<const int8_t*>(pointer);
 				return *tmp;
 			} else if (createType<int16_t>() == type) {
-				const int16_t* tmp = reinterpret_cast<const int16_t*>(pointer);
-				return *tmp;
+				int16_t tmp;
+				memcpy(&tmp, pointer, sizeof(tmp));
+				return tmp;
 			} else if (createType<int32_t>() == type) {
-				const int32_t* tmp = reinterpret_cast<const int32_t*>(pointer);
-				return *tmp;
+				int32_t tmp;
+				memcpy(&tmp, pointer, sizeof(tmp));
+				return tmp;
 			} else if (createType<int64_t>() == type) {
-				const int64_t* tmp = reinterpret_cast<const int64_t*>(pointer);
-				return *tmp;
+				int64_t tmp;
+				memcpy(&tmp, pointer, sizeof(tmp));
+				return tmp;
 			} else if (createType<float>() == type) {
-				const float* tmp = reinterpret_cast<const float*>(pointer);
-				return int64_t(etk::avg(float(LLONG_MIN), *tmp, float(LLONG_MAX)));
+				float tmp;
+				memcpy(&tmp, pointer, sizeof(tmp));
+				return int64_t(etk::avg(float(LLONG_MIN), tmp, float(LLONG_MAX)));
 			} else if (createType<double>() == type) {
-				const double* tmp = reinterpret_cast<const double*>(pointer);
-				return int64_t(etk::avg(double(LLONG_MIN), *tmp, double(LLONG_MAX)));
+				double tmp;
+				memcpy(&tmp, pointer, sizeof(tmp));
+				return int64_t(etk::avg(double(LLONG_MIN), tmp, double(LLONG_MAX)));
 			}
 			ZEUS_ERROR("Can not get type from '" << type << "'");
 			return 0;
@@ -391,32 +460,40 @@ namespace zeus {
 				const uint8_t* tmp = reinterpret_cast<const uint8_t*>(pointer);
 				return *tmp;
 			} else if (createType<uint16_t>() == type) {
-				const uint16_t* tmp = reinterpret_cast<const uint16_t*>(pointer);
-				return *tmp;
+				uint16_t tmp;
+				memcpy(&tmp, pointer, sizeof(tmp));
+				return tmp;
 			} else if (createType<uint32_t>() == type) {
-				const uint32_t* tmp = reinterpret_cast<const uint32_t*>(pointer);
-				return *tmp;
+				uint32_t tmp;
+				memcpy(&tmp, pointer, sizeof(tmp));
+				return tmp;
 			} else if (createType<uint64_t>() == type) {
-				const uint64_t* tmp = reinterpret_cast<const uint64_t*>(pointer);
-				return *tmp;
+				uint64_t tmp;
+				memcpy(&tmp, pointer, sizeof(tmp));
+				return tmp;
 			} else if (createType<int8_t>() == type) {
 				const int8_t* tmp = reinterpret_cast<const int8_t*>(pointer);
 				return *tmp;
 			} else if (createType<int16_t>() == type) {
-				const int16_t* tmp = reinterpret_cast<const int16_t*>(pointer);
-				return *tmp;
+				int16_t tmp;
+				memcpy(&tmp, pointer, sizeof(tmp));
+				return tmp;
 			} else if (createType<int32_t>() == type) {
-				const int32_t* tmp = reinterpret_cast<const int32_t*>(pointer);
-				return *tmp;
+				int32_t tmp;
+				memcpy(&tmp, pointer, sizeof(tmp));
+				return tmp;
 			} else if (createType<int64_t>() == type) {
-				const int64_t* tmp = reinterpret_cast<const int64_t*>(pointer);
-				return *tmp;
+				int64_t tmp;
+				memcpy(&tmp, pointer, sizeof(tmp));
+				return tmp;
 			} else if (createType<float>() == type) {
-				const float* tmp = reinterpret_cast<const float*>(pointer);
-				return *tmp;
+				float tmp;
+				memcpy(&tmp, pointer, sizeof(tmp));
+				return tmp;
 			} else if (createType<double>() == type) {
-				const double* tmp = reinterpret_cast<const double*>(pointer);
-				return *tmp;
+				double tmp;
+				memcpy(&tmp, pointer, sizeof(tmp));
+				return tmp;
 			}
 			ZEUS_ERROR("Can not get type from '" << type << "'");
 			return 0.0f;
@@ -431,32 +508,40 @@ namespace zeus {
 				const uint8_t* tmp = reinterpret_cast<const uint8_t*>(pointer);
 				return *tmp;
 			} else if (createType<uint16_t>() == type) {
-				const uint16_t* tmp = reinterpret_cast<const uint16_t*>(pointer);
-				return *tmp;
+				uint16_t tmp;
+				memcpy(&tmp, pointer, sizeof(tmp));
+				return tmp;
 			} else if (createType<uint32_t>() == type) {
-				const uint32_t* tmp = reinterpret_cast<const uint32_t*>(pointer);
-				return *tmp;
+				uint32_t tmp;
+				memcpy(&tmp, pointer, sizeof(tmp));
+				return tmp;
 			} else if (createType<uint64_t>() == type) {
-				const uint64_t* tmp = reinterpret_cast<const uint64_t*>(pointer);
-				return *tmp;
+				uint64_t tmp;
+				memcpy(&tmp, pointer, sizeof(tmp));
+				return tmp;
 			} else if (createType<int8_t>() == type) {
 				const int8_t* tmp = reinterpret_cast<const int8_t*>(pointer);
 				return *tmp;
 			} else if (createType<int16_t>() == type) {
-				const int16_t* tmp = reinterpret_cast<const int16_t*>(pointer);
-				return *tmp;
+				int16_t tmp;
+				memcpy(&tmp, pointer, sizeof(tmp));
+				return tmp;
 			} else if (createType<int32_t>() == type) {
-				const int32_t* tmp = reinterpret_cast<const int32_t*>(pointer);
-				return *tmp;
+				int32_t tmp;
+				memcpy(&tmp, pointer, sizeof(tmp));
+				return tmp;
 			} else if (createType<int64_t>() == type) {
-				const int64_t* tmp = reinterpret_cast<const int64_t*>(pointer);
-				return *tmp;
+				int64_t tmp;
+				memcpy(&tmp, pointer, sizeof(tmp));
+				return tmp;
 			} else if (createType<float>() == type) {
-				const float* tmp = reinterpret_cast<const float*>(pointer);
-				return *tmp;
+				float tmp;
+				memcpy(&tmp, pointer, sizeof(tmp));
+				return tmp;
 			} else if (createType<double>() == type) {
-				const double* tmp = reinterpret_cast<const double*>(pointer);
-				return *tmp;
+				double tmp;
+				memcpy(&tmp, pointer, sizeof(tmp));
+				return tmp;
 			}
 			ZEUS_ERROR("Can not get type from '" << type << "'");
 			return 0.0;

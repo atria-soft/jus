@@ -16,6 +16,9 @@ zeus::message::Parameter::Parameter(ememory::SharedPtr<zeus::WebServer> _iface):
   Message(_iface) {
 	
 }
+zeus::message::Parameter::~Parameter() {
+	ZEUS_ERROR("remove MESSAGE parameter ...");
+}
 
 bool zeus::message::Parameter::writeOn(enet::WebSocket& _interface) {
 	uint8_t* data = nullptr;
@@ -31,6 +34,7 @@ bool zeus::message::Parameter::writeOn(enet::WebSocket& _interface) {
 }
 
 void zeus::message::Parameter::composeWith(const uint8_t* _buffer, uint32_t _lenght) {
+	ZEUS_ERROR("MESSAGE parameter ... ==> clear() ...");
 	m_parameter.clear();
 	uint16_t nbParameters = 0;
 	if (_lenght < sizeof(uint16_t)) {
@@ -40,6 +44,7 @@ void zeus::message::Parameter::composeWith(const uint8_t* _buffer, uint32_t _len
 	uint32_t offset = 0;
 	memcpy(&nbParameters, &_buffer[offset], sizeof(uint16_t));
 	offset += sizeof(uint16_t);
+	ZEUS_ERROR("MESSAGE parameter ... ==> resize() ...");
 	m_parameter.resize(nbParameters, std::make_pair(-1, std::vector<uint8_t>()));
 	// Load all Parameters
 	nbParameters = 0;
@@ -63,7 +68,8 @@ void zeus::message::Parameter::composeWith(const uint8_t* _buffer, uint32_t _len
 }
 
 zeus::message::ParamType zeus::message::Parameter::getParameterType(int32_t _id) const {
-	if (m_parameter.size() <= _id) {
+	if (m_parameter.size() <= _id
+	     && _id < 0) {
 		ZEUS_ERROR("out of range Id for parameter ... " << _id << " have " << m_parameter.size());
 		return createType<void>();
 	}
@@ -123,20 +129,34 @@ zeus::message::ParamType zeus::message::Parameter::getParameterType(int32_t _id)
 
 const uint8_t* zeus::message::Parameter::getParameterPointer(int32_t _id) const {
 	const uint8_t* out = nullptr;
-	if (m_parameter.size() <= _id) {
+	if (    m_parameter.size() <= _id
+	     && _id < 0) {
 		ZEUS_ERROR("out of range Id for parameter ... " << _id << " have " << m_parameter.size());
 		return out;
 	}
 	if (m_parameter[_id].first <= -1) {
 		getParameterType(_id); // this function initialize this parameter if needed ...
 	}
-	out = reinterpret_cast<const uint8_t*>(&m_parameter[_id].second[m_parameter[_id].first]);
+	if (m_parameter[_id].second.size() == 0) {
+		ZEUS_ERROR("Second parameter have no size ... ");
+		return out;
+	}
+	ZEUS_ERROR("Second parameter size=" << m_parameter[_id].second.size() << "    first elem=" << m_parameter[_id].first);
+	out = static_cast<const uint8_t*>(&(m_parameter[_id].second[m_parameter[_id].first]));
+	{
+		std::vector<int16_t> tmppppp;
+		for (auto &it:m_parameter[_id].second) {
+			tmppppp.push_back(it);
+		}
+		ZEUS_ERROR("    buffer=" << tmppppp);
+	}
 	return out;
 }
 
 uint32_t zeus::message::Parameter::getParameterSize(int32_t _id) const {
 	int32_t out = 0;
-	if (m_parameter.size() <= _id) {
+	if (m_parameter.size() <= _id
+	     && _id < 0) {
 		ZEUS_ERROR("out of range Id for parameter ... " << _id << " have " << m_parameter.size());
 		return 0;
 	}

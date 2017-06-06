@@ -130,11 +130,5 @@ generate_basic_type(std::vector<uint16_t>, "vector:uint16", 0x010B, true, true);
 generate_basic_type(std::vector<uint8_t>, "vector:uint8", 0x010C, true, true);
 generate_basic_type(std::vector<std::string>, "vector:string", 0x010D, false, true);
 
-
-#if 0
-generate_basic_type(zeus::File, "file", 0x000E, false, false);
-generate_basic_type(zeus::FileServer, "file", 0x000E, false, false);
-#endif
-
 const uint16_t zeus::message::paramTypeObject = 0xFFFF;
 
