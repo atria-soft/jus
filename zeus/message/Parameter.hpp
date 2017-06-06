@@ -18,7 +18,6 @@ namespace zeus {
 				mutable std::vector<std::pair<int32_t,std::vector<uint8_t>>> m_parameter; //!< list of the parameter (offset of start data and buffer of data (subprotocol...)
 			public:
 				Parameter(ememory::SharedPtr<zeus::WebServer> _iface);
-				~Parameter();
 				/**
 				 * @brief Template to get a parameter with a specific type
 				 * @param[in] _id Number of the parameter

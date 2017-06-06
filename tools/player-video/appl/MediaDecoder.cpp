@@ -390,20 +390,16 @@ void appl::MediaDecoder::init(ememory::SharedPtr<ClientProperty> _property, uint
 		APPL_ERROR("get media error");
 		return;
 	}
-	APPL_WARNING("Get File");
+	APPL_DEBUG("Get File");
 	media.getFile().andThen(
 	    [=](const zeus::ProxyFile& _proxy) mutable {
-	    	APPL_WARNING("Receive ProxyFile");
+	    	APPL_DEBUG("Receive ProxyFile");
 	    	m_remote->m_fileHandle = _proxy;
-	    	APPL_WARNING("We have handle");
 	    	m_remote->m_fileHandle.getSize().andThen(
 	    	    [=](uint64_t _value) mutable {
-	    	    	APPL_WARNING("Receive FileSize to index property");
-	    	    	APPL_WARNING("pppllloooppp " << _value);
-	    	    	//m_remote->m_buffer.resize(_value, 0);
-	    	    	APPL_WARNING("pppllloooppp");
-	    	    	//m_remote->checkIfWeNeedMoreDataFromNetwork();
-	    	    	APPL_WARNING("pppppplllllloooooopppppp");
+	    	    	APPL_DEBUG("Receive FileSize to index property" << _value);
+	    	    	m_remote->m_buffer.resize(_value, 0);
+	    	    	m_remote->checkIfWeNeedMoreDataFromNetwork();
 	    	    	return true;
 	    	    });
 	    	return true;
