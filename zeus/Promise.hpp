@@ -6,9 +6,9 @@
 #pragma once
 
 #include <etk/types.hpp>
+#include <functional>
 #include <zeus/message/Message.hpp>
 #include <zeus/message/Event.hpp>
-#include <functional>
 #include <ememory/memory.hpp>
 #include <echrono/Steady.hpp>
 #include <echrono/Duration.hpp>
