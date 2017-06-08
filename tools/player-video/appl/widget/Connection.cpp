@@ -80,6 +80,7 @@ void appl::widget::Connection::onCallbackButtonValidate() {
 	APPL_INFO("Connect with : '" << m_login << "' ... '" << m_password << "'");
 	m_baseProperty->setLogin(m_login);
 	m_baseProperty->setPassword(m_password);
+	m_baseProperty->disconnect();
 	m_baseProperty->connect();
 	if (m_baseProperty->getConnection().isAlive() == false) {
 		APPL_ERROR("    ==> NOT Authentify to '" << m_baseProperty->getLogin() << "'");

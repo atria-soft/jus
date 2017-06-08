@@ -8,7 +8,6 @@
 #include <zeus/message/Answer.hpp>
 #include <zeus/message/Event.hpp>
 #include <zeus/message/Call.hpp>
-#include <zeus/message/Progress.hpp>
 #include <enet/WebSocket.hpp>
 #include <thread>
 #include <ememory/memory.hpp>
@@ -30,9 +29,13 @@ namespace zeus {
 	class WebServer;
 	class ObjectRemoteBase;
 	/**
-	 * @brief 
-	 * @param[in] 
-	 * @return 
+	 * @brief Create a basic call message with all the basic information needed
+	 * @param[in] _iface WebServer interface handle
+	 * @param[in] _transactionId UniqueId of the transaction (must be != 0)
+	 * @param[in] _source Unique local zeus network adress of a service or an Object (the source of the message address)
+	 * @param[in] _destination Unique local zeus network adress of a service or an Object (the destination of the message address)
+	 * @param[in] _functionName The name of the function to call
+	 * @return handle on the new message to call on the remote object
 	 */
 	ememory::SharedPtr<zeus::message::Call> createBaseCall(const ememory::SharedPtr<zeus::WebServer>& _iface,
 	                                                       uint64_t _transactionId,
@@ -40,17 +43,19 @@ namespace zeus {
 	                                                       const uint32_t& _destination,
 	                                                       const std::string& _functionName);
 	/**
-	 * @brief 
-	 * @param[in] 
-	 * @return 
+	 * @brief This is the last call of createParam recursive function (no more parameter to add)
+	 * @param[in] _parmaId Id of the parameter to add.
+	 * @param[in] _obj message where to add the parameter.
 	 */
 	void createParam(int32_t _paramId,
 	                 ememory::SharedPtr<zeus::message::Call> _obj);
 	
 	/**
-	 * @brief 
-	 * @param[in] 
-	 * @return 
+	 * @brief Template to add a parameter of a function in recursive form
+	 * @param[in] _parmaId Id of the parameter to add.
+	 * @param[in] _obj message where to add the parameter.
+	 * @param[in] _param Parameter value to add.
+	 * @param[in] _args... other argument to add (in recursive call)
 	 */
 	template<class ZEUS_TYPE, class... _ARGS>
 	void createParam(int32_t _paramId,
@@ -62,11 +67,12 @@ namespace zeus {
 		createParam(_paramId, _obj, std::forward<_ARGS>(_args)...);
 	}
 	/**
-	 * @brief 
-	 * @param[in] 
-	 * @return 
+	 * @brief Template specialization in 'const char*' to add a parameter of a function in recursive form
+	 * @param[in] _parmaId Id of the parameter to add.
+	 * @param[in] _obj message where to add the parameter.
+	 * @param[in] _param Parameter value to add (char* that is converted in std::string).
+	 * @param[in] _args... other argument to add (in recursive call)
 	 */
-	// convert const char in std::string ...
 	template<class... _ARGS>
 	void createParam(int32_t _paramId,
 	                 ememory::SharedPtr<zeus::message::Call> _obj,
@@ -75,9 +81,14 @@ namespace zeus {
 		createParam(_paramId, _obj, std::string(_param), std::forward<_ARGS>(_args)...);
 	}
 	/**
-	 * @brief 
-	 * @param[in] 
-	 * @return 
+	 * @brieftemplate to create a ZEUS CALL message with all the parameter in arguments
+	 * @param[in] _iface WebServer interface handle
+	 * @param[in] _transactionId UniqueId of the transaction (must be != 0)
+	 * @param[in] _source Unique local zeus network adress of a service or an Object (the source of the message address)
+	 * @param[in] _destination Unique local zeus network adress of a service or an Object (the destination of the message address)
+	 * @param[in] _functionName The name of the function to call
+	 * @param[in] _args... argument of the call to do
+	 * @return handle on the new message to call on the remote object
 	 */
 	template<class... _ARGS>
 	ememory::SharedPtr<zeus::message::Call> createCall(const ememory::SharedPtr<zeus::WebServer>& _iface,
@@ -94,19 +105,19 @@ namespace zeus {
 		return callElem;
 	}
 	/**
-	 * @brief 
+	 * @brief Web interface of a service engine
 	 */
 	class WebServer : public ememory::EnableSharedFromThis<zeus::WebServer> {
 		protected:
-			std::mutex m_mutex;
+			std::mutex m_mutex; //!< main interface lock
 		public:
 			std::vector<ememory::SharedPtr<zeus::WebObj>> m_actifObject; //!< List of all active object created and that remove is in progress ...
 		private:
-			enet::WebSocket m_connection;
-			ethread::Pool m_processingPool;
-			std::vector<ememory::SharedPtr<zeus::Message>> m_listPartialMessage;
-			uint16_t m_localAddress;
-			uint16_t m_localIdObjectIncrement; //!< attribute an unique ID for an object
+			enet::WebSocket m_connection; //!< Zeus protocol is based on a webSocket to be compatible with Java-script
+			ethread::Pool m_processingPool; //!< Thread pool processing of the input data
+			std::vector<ememory::SharedPtr<zeus::Message>> m_listPartialMessage; //!< list of all message that data has not finished to arrive.
+			uint16_t m_localAddress; //!< Local client address.
+			uint16_t m_localIdObjectIncrement; //!< attribute an unique ID for an object.
 		public:
 			uint16_t getAddress() const {
 				return m_localAddress;
@@ -118,8 +129,8 @@ namespace zeus {
 				return m_localIdObjectIncrement++;
 			}
 		private:
-			std::vector<ememory::SharedPtr<zeus::WebObj>> m_listObject;
-			std::vector<ememory::WeakPtr<zeus::ObjectRemoteBase>> m_listRemoteObject;
+			std::vector<ememory::SharedPtr<zeus::WebObj>> m_listObject; //!< List of all local object that is reference in the system.
+			std::vector<ememory::WeakPtr<zeus::ObjectRemoteBase>> m_listRemoteObject; //!< List of all object that we have a reference in the local interface.
 		public:
 			void addWebObj(ememory::SharedPtr<zeus::WebObj> _obj);
 			void addWebObjRemote(ememory::SharedPtr<zeus::ObjectRemoteBase> _obj);

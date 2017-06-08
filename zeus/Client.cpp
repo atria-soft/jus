@@ -192,19 +192,22 @@ zeus::Future<std::vector<std::string>> zeus::Client::getServiceList() {
 }
 
 // TODO : This is an active waiting ==> this is bad ... ==> use future, it will be better
-bool zeus::Client::waitForService(const std::string& _serviceName) {
-	int32_t delayMax = 10;
-	while (delayMax > 0) {
+bool zeus::Client::waitForService(const std::string& _serviceName, echrono::Duration _delta) {
+	echrono::Steady start = echrono::Steady::now();
+	while (echrono::Steady::now() - start < _delta) {
 		auto listValues = getServiceList();
-		listValues.wait();
+		listValues.waitFor(echrono::seconds(1));
+		if (listValues.hasError() == true) {
+			ZEUS_ERROR("Wait for service (get list service) timeout ... ==> " << listValues.getErrorType() << " help=" << listValues.getErrorHelp());
+			return false;
+		}
 		for (auto &it: listValues.get()) {
 			if (it == _serviceName) {
 				return true;
 			}
 		}
-		std::this_thread::sleep_for(std::chrono::milliseconds(100));
-		delayMax--;
 	}
+	ZEUS_ERROR("Wait for service timeout ...");
 	return false;
 }
 

@@ -35,7 +35,7 @@ namespace appl {
 			  m_nbElementLoaded(0) {
 				
 			}
-		protected:
+		public:
 			enum appl::statusLoadingData m_metadataUpdated; //!< Check value to know when metadata is getted (like thumb ...)
 			uint32_t m_nbElementLoaded; //!< this cont the number of lement loaded to set tle media full loaded
 		public:

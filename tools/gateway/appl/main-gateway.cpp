@@ -305,7 +305,7 @@ int main(int _argc, const char *_argv[]) {
 			} else {
 				elog::flush();
 				std::this_thread::sleep_for(std::chrono::seconds(1));
-				APPL_INFO("service in waiting ... " << iii << "/inf");
+				APPL_INFO("gateway in waiting ... " << iii << "/inf");
 			}
 			iii++;
 		}

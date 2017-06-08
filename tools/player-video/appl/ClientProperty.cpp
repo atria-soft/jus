@@ -48,6 +48,10 @@ void appl::ClientProperty::fromJson(ejson::Object _obj) {
 	m_port = _obj["port"].toNumber().getU64();
 }
 
+void appl::ClientProperty::disconnect() {
+	m_connection.disconnect();
+}
+
 void appl::ClientProperty::connect() {
 	if (m_connection.isAlive() == true) {
 		m_connection.pingIsAlive();

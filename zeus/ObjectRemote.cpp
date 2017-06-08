@@ -29,7 +29,7 @@ zeus::ObjectRemoteBase::~ObjectRemoteBase() {
 	ZEUS_VERBOSE("[" << m_id << "/" << m_objectId << "] DESTROY => to remote [" << (m_remoteAddress>>16) << "/" << (m_remoteAddress&0xFFFF) << "]");
 	if (m_isLinked == true) {
 		zeus::Future<bool> ret = m_interfaceWeb->call(getFullId(), m_remoteAddress&0xFFFF0000, "unlink", m_remoteAddress);
-		ret.wait();
+		ret.waitFor(echrono::seconds(1));
 		if (ret.hasError() == true) {
 			ZEUS_WARNING("return call error: " << ret.getErrorType() << " help:" << ret.getErrorHelp());
 			ZEUS_WARNING("Can not unlink with the object id: " << (m_remoteAddress>>16) << "/" << (m_remoteAddress&0xFFFF) << " ==> link error");

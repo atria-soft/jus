@@ -43,26 +43,50 @@ namespace zeus {
 			ZEUS_RETURN get() {
 				return zeus::futureGetValue<ZEUS_RETURN>(m_promise);
 			}
+			/**
+			 * @brief Wait the end of the Future processing.
+			 * @note A time out of 5 second is automaticly set...
+			 */
 			const Future<ZEUS_RETURN, ZEUS_EVENT>& wait() const {
 				zeus::FutureBase::wait();
 				return *this;
 			}
+			/**
+			 * @brief Wait the end of the Future processing.
+			 * @note A time out of 5 second is automaticly set...
+			 */
 			Future<ZEUS_RETURN, ZEUS_EVENT>& wait() {
 				zeus::FutureBase::wait();
 				return *this;
 			}
+			/**
+			 * @brief Wait the end of the Future processing for a specific time
+			 * @param[in] _delta Duration to wait the end of the processing (default 30 seconds)
+			 */
 			const Future<ZEUS_RETURN, ZEUS_EVENT>& waitFor(echrono::Duration _delta = echrono::seconds(30)) const {
 				zeus::FutureBase::waitFor(_delta);
 				return *this;
 			}
+			/**
+			 * @brief Wait the end of the Future processing for a specific time
+			 * @param[in] _delta Duration to wait the end of the processing (default 30 seconds)
+			 */
 			Future<ZEUS_RETURN, ZEUS_EVENT>& waitFor(echrono::Duration _delta = echrono::seconds(30)) {
 				zeus::FutureBase::waitFor(_delta);
 				return *this;
 			}
+			/**
+			 * @brief Wait the end of the Future processing while a specific time is not reach.
+			 * @param[in] _endTime The time where the wait will stop if the process is not ended.
+			 */
 			const Future<ZEUS_RETURN, ZEUS_EVENT>& waitUntil(echrono::Steady _endTime) const {
 				zeus::FutureBase::waitUntil(_endTime);
 				return *this;
 			}
+			/**
+			 * @brief Wait the end of the Future processing while a specific time is not reach.
+			 * @param[in] _endTime The time where the wait will stop if the process is not ended.
+			 */
 			Future<ZEUS_RETURN, ZEUS_EVENT>& waitUntil(echrono::Steady _endTime) {
 				zeus::FutureBase::waitUntil(_endTime);
 				return *this;
@@ -75,16 +99,15 @@ namespace zeus {
 			Future<ZEUS_RETURN, ZEUS_EVENT>& andAll(ObserverFut _callback) {
 				zeus::FutureBase::andAll(
 				    [=](zeus::FutureBase _fut) {
-				    	return _callback(zeus::Future<ZEUS_RETURN>(_fut));
+				    	return _callback(zeus::Future<ZEUS_RETURN, ZEUS_EVENT>(_fut));
 				    });
 				return *this;
 			}
+			#if 0
 			/**
 			 * @brief Attach callback on a specific return action (SUCESS)
-			 * @param[in] _callback Handle on the function to call in case of sucess on the call
+			 * @param[in] _callback Handle on the function to call in case of sucess on the call (return value)
 			 */
-			/*
-			note : this is anbigous ???
 			Future<ZEUS_RETURN, ZEUS_EVENT>& andThen(std::function<bool(const ZEUS_RETURN&)> _callback) {
 				zeus::FutureBase::andThen(
 				    [=](zeus::FutureBase _fut) {
@@ -93,35 +116,35 @@ namespace zeus {
 				    });
 				return *this;
 			}
-			*/
+			#endif
+			/**
+			 * @brief Attach callback on a specific return action (SUCESS)
+			 * @param[in] _callback Handle on the function to call in case of sucess on the call (return value)
+			 */
 			Future<ZEUS_RETURN, ZEUS_EVENT>& andThen(std::function<bool(ZEUS_RETURN)> _callback) {
 				zeus::FutureBase::andThen(
 				    [=](zeus::FutureBase _fut) {
-				    	return _callback(std::move(zeus::Future<ZEUS_RETURN>(_fut).get()));
+				    	return _callback(std::move(zeus::Future<ZEUS_RETURN, ZEUS_EVENT>(_fut).get()));
 				    });
 				return *this;
 			}
-			/*
+			#if 0
+			/**
+			 * @brief Attach callback on a specific return action (SUCESS)
+			 * @param[in] _callback Handle on the function to call in case of sucess on the call (Future parameter)
+			 */
 			Future<ZEUS_RETURN, ZEUS_EVENT>& andThen(ObserverFut _callback) {
 				zeus::FutureBase::andThen(
 				    [=](zeus::FutureBase _fut) {
-				    	return _callback(zeus::Future<ZEUS_RETURN>(_fut));
-				    });
-				return *this;
-			}*/
-			/**
-			 * @brief Attach callback on a specific return action (ERROR)
-			 * @param[in] _callback Handle on the function to call in case of error on the call
-			 */
-			/*
-			Future<ZEUS_RETURN, ZEUS_EVENT>& andElse(ObserverFut _callback) {
-				zeus::FutureBase::andElse(
-				    [=](zeus::FutureBase _fut) {
-				    	return _callback(zeus::Future<ZEUS_RETURN>(_fut));
+				    	return _callback(zeus::Future<ZEUS_RETURN, ZEUS_EVENT>(_fut));
 				    });
 				return *this;
 			}
-			*/
+			#endif
+			/**
+			 * @brief Attach callback on a specific return action (ERROR)
+			 * @param[in] _callback Handle on the function to call in case of error on the call (with error parameter (ERROR type, Help string)
+			 */
 			Future<ZEUS_RETURN, ZEUS_EVENT>& andElse(std::function<bool(const std::string&, const std::string&)> _callback) {
 				zeus::FutureBase::andElse(
 				    [=](zeus::FutureBase _fut) {
@@ -129,17 +152,25 @@ namespace zeus {
 				    });
 				return *this;
 			}
+			#if 0
 			/**
-			 * @brief Attach callback on activity of the action if user set some return information
-			 * @param[in] _callback Handle on the function to call in progress information
+			 * @brief Attach callback on a specific return action (ERROR)
+			 * @param[in] _callback Handle on the function to call in case of error on the call (Future parameter)
 			 */
-			// TODO: this is deprecated ...
-			Future<ZEUS_RETURN, ZEUS_EVENT>& onProgress(Promise::ObserverEvent _callback) {
-				zeus::FutureBase::onEvent(_callback);
+			Future<ZEUS_RETURN, ZEUS_EVENT>& andElse(ObserverFut _callback) {
+				zeus::FutureBase::andElse(
+				    [=](zeus::FutureBase _fut) {
+				    	return _callback(zeus::Future<ZEUS_RETURN>(_fut));
+				    });
 				return *this;
 			}
+			#endif
+			#if 0
+			/**
+			 * @brief Attach callback on activity of the action / signal
+			 * @param[in] _callback Handle on the function to call in progress information
+			 */
 			//template<typename = std::enable_if<std::is_void<ZEUS_EVENT>::value, false>>
-			/*
 			Future<ZEUS_RETURN, ZEUS_EVENT>& onSignal(std::function<void(const ZEUS_EVENT&)> _callback) {
 				zeus::FutureBase::onEvent(
 				    [=](ememory::SharedPtr<zeus::message::Event> _msg) {
@@ -150,7 +181,11 @@ namespace zeus {
 				    });
 				return *this;
 			}
-			*/
+			#endif
+			/**
+			 * @brief Attach callback on activity of the action / signal
+			 * @param[in] _callback Handle on the function to call in progress information
+			 */
 			//template<typename = std::enable_if<std::is_void<ZEUS_EVENT>::value, false>>
 			Future<ZEUS_RETURN, ZEUS_EVENT>& onSignal(std::function<void(ZEUS_EVENT)> _callback) {
 				zeus::FutureBase::onEvent(
@@ -186,26 +221,51 @@ namespace zeus {
 				m_promise = _base.m_promise;
 				return *this;
 			}
+			// TODO : Fusion Wait and Wait For ...
+			/**
+			 * @brief Wait the end of the Future processing.
+			 * @note A time out of 5 second is automaticly set...
+			 */
 			const Future<void, ZEUS_EVENT>& wait() const {
 				zeus::FutureBase::wait();
 				return *this;
 			}
+			/**
+			 * @brief Wait the end of the Future processing.
+			 * @note A time out of 5 second is automaticly set...
+			 */
 			Future<void, ZEUS_EVENT>& wait() {
 				zeus::FutureBase::wait();
 				return *this;
 			}
+			/**
+			 * @brief Wait the end of the Future processing for a specific time
+			 * @param[in] _delta Duration to wait the end of the processing (default 30 seconds)
+			 */
 			const Future<void, ZEUS_EVENT>& waitFor(echrono::Duration _delta = echrono::seconds(30)) const {
 				zeus::FutureBase::waitFor(_delta);
 				return *this;
 			}
+			/**
+			 * @brief Wait the end of the Future processing for a specific time
+			 * @param[in] _delta Duration to wait the end of the processing (default 30 seconds)
+			 */
 			Future<void, ZEUS_EVENT>& waitFor(echrono::Duration _delta = echrono::seconds(30)) {
 				zeus::FutureBase::waitFor(_delta);
 				return *this;
 			}
+			/**
+			 * @brief Wait the end of the Future processing while a specific time is not reach.
+			 * @param[in] _endTime The time where the wait will stop if the process is not ended.
+			 */
 			const Future<void, ZEUS_EVENT>& waitUntil(echrono::Steady _endTime) const {
 				zeus::FutureBase::waitUntil(_endTime);
 				return *this;
 			}
+			/**
+			 * @brief Wait the end of the Future processing while a specific time is not reach.
+			 * @param[in] _endTime The time where the wait will stop if the process is not ended.
+			 */
 			Future<void, ZEUS_EVENT>& waitUntil(echrono::Steady _endTime) {
 				zeus::FutureBase::waitUntil(_endTime);
 				return *this;
@@ -218,23 +278,27 @@ namespace zeus {
 			Future<void, ZEUS_EVENT>& andAll(ObserverFut _callback) {
 				zeus::FutureBase::andAll(
 				    [=](zeus::FutureBase _fut) {
-				    	return _callback(zeus::Future<void>(_fut));
+				    	return _callback(zeus::Future<void, ZEUS_EVENT>(_fut));
 				    });
 				return *this;
 			}
+			#if 0
 			/**
 			 * @brief Attach callback on a specific return action (SUCESS)
-			 * @param[in] _callback Handle on the function to call in case of sucess on the call
+			 * @param[in] _callback Handle on the function to call in case of sucess on the call (Future parameter)
 			 */
-			/*
 			Future<void, ZEUS_EVENT>& andThen(ObserverFut _callback) {
 				zeus::FutureBase::andThen(
 				    [=](zeus::FutureBase _fut) {
-				    	return _callback(zeus::Future<void>(_fut));
+				    	return _callback(zeus::Future<void, ZEUS_EVENT>(_fut));
 				    });
 				return *this;
 			}
-			*/
+			#endif
+			/**
+			 * @brief Attach callback on a specific return action (SUCESS)
+			 * @param[in] _callback Handle on the function to call in case of sucess on the call (void parameter)
+			 */
 			Future<void, ZEUS_EVENT>& andThen(std::function<bool()> _callback) {
 				zeus::FutureBase::andThen(
 				    [=](zeus::FutureBase _fut) {
@@ -242,19 +306,23 @@ namespace zeus {
 				    });
 				return *this;
 			}
+			#if 0
 			/**
 			 * @brief Attach callback on a specific return action (ERROR)
-			 * @param[in] _callback Handle on the function to call in case of error on the call
+			 * @param[in] _callback Handle on the function to call in case of error on the call (Future parameter)
 			 */
-			/*
 			Future<void, ZEUS_EVENT>& andElse(ObserverFut _callback) {
 				zeus::FutureBase::andElse(
 				    [=](zeus::FutureBase _fut) {
-				    	return _callback(zeus::Future<void>(_fut));
+				    	return _callback(zeus::Future<void, ZEUS_EVENT>(_fut));
 				    });
 				return *this;
 			}
-			*/
+			#endif
+			/**
+			 * @brief Attach callback on a specific return action (ERROR)
+			 * @param[in] _callback Handle on the function to call in case of error on the call (with error parameter (ERROR type, Help string)
+			 */
 			Future<void, ZEUS_EVENT>& andElse(std::function<bool(const std::string&, const std::string&)> _callback) {
 				zeus::FutureBase::andElse(
 				    [=](zeus::FutureBase _fut) {
@@ -262,16 +330,28 @@ namespace zeus {
 				    });
 				return *this;
 			}
+			#if 0
 			/**
-			 * @brief Attach callback on activity of the action if user set some return information
+			 * @brief Attach callback on activity of the action / signal
 			 * @param[in] _callback Handle on the function to call in progress information
 			 */
-			/*
-			Future<void, ZEUS_EVENT>& onEvent(Promise::ObserverEvent _callback) {
-				zeus::FutureBase::onEvent(_callback);
+			//template<typename = std::enable_if<std::is_void<ZEUS_EVENT>::value, false>>
+			Future<void, ZEUS_EVENT>& onSignal(std::function<void(const ZEUS_EVENT&)> _callback) {
+				zeus::FutureBase::onEvent(
+				    [=](ememory::SharedPtr<zeus::message::Event> _msg) {
+				    	if (_msg == nullptr) {
+				    		return;
+				    	}
+				    	_callback(_msg->getEvent<ZEUS_EVENT>());
+				    });
 				return *this;
 			}
-			*/
+			#endif
+			/**
+			 * @brief Attach callback on activity of the action / signal
+			 * @param[in] _callback Handle on the function to call in progress information
+			 */
+			//template<typename = std::enable_if<std::is_void<ZEUS_EVENT>::value, false>>
 			Future<void, ZEUS_EVENT>& onSignal(std::function<void(ZEUS_EVENT)> _callback) {
 				zeus::FutureBase::onEvent(
 				    [=](ememory::SharedPtr<zeus::message::Event> _msg) {

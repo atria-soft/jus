@@ -343,17 +343,17 @@ namespace appl {
 				if (_sqlLikeRequest == "") {
 					throw std::invalid_argument("empty request");
 				}
-				APPL_INFO("check : " << _sqlLikeRequest);
+				APPL_DEBUG("check : " << _sqlLikeRequest);
 				std::vector<std::vector<std::string>> listAndParsed = interpreteSQLRequest(_sqlLikeRequest);
 				std::unique_lock<std::mutex> lock(g_mutex);
 				for (auto &it : m_listFile) {
 					if (it == nullptr) {
 						continue;
 					}
-					APPL_INFO("    [" << it->getUniqueId() << "   list=" << mapToString(it->getMetadataDirect()));
+					APPL_DEBUG("    [" << it->getUniqueId() << "   list=" << mapToString(it->getMetadataDirect()));
 					bool isCorrectElement = isValid(listAndParsed, it->getMetadataDirect());
 					if (isCorrectElement == true) {
-						APPL_INFO("        select");
+						APPL_DEBUG("        select");
 						out.push_back(it->getUniqueId());
 					}
 				}

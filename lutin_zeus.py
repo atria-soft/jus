@@ -60,7 +60,6 @@ def configure(target, my_module):
 	    'zeus/message/Data.cpp',
 	    'zeus/message/Event.cpp',
 	    'zeus/message/Flow.cpp',
-	    'zeus/message/Progress.cpp',
 	    'zeus/message/Parameter_addParameter.cpp',
 	    'zeus/message/Parameter_getParameter.cpp',
 	    'zeus/message/ParamType.cpp',
@@ -74,7 +73,6 @@ def configure(target, my_module):
 	    'zeus/message/Data.hpp',
 	    'zeus/message/Event.hpp',
 	    'zeus/message/Flow.hpp',
-	    'zeus/message/Progress.hpp',
 	    'zeus/message/ParamType.hpp',
 	    'zeus/message/type.hpp',
 	    ])

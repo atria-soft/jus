@@ -104,11 +104,46 @@ namespace zeus {
 	#define ZEUS_BUFFER_FLAG_TYPE_MESSAGE (0x07)
 	/**
 	 * @brief Protocol buffer to transmit datas
+	 * @note: A simple shematics to understand what is the order of messaging
+	 * <pre>
+	 *    client       routeur          Gateway           service/Object
+	 *       |            |                |                     |
+	 *       |            .                .                     |
+	 *       |                                                   |
+	 *       o------------CALL XXX (id=666)(part 0) ----->o      |
+	 *       |    |                                       |      |
+	 *       |    o-------DATA (id=666)(part 1) --------->|      |
+	 *       |    |                                       |      |
+	 *       |    o-------DATA (id=666)(part 2) --------->|      |
+	 *       |    |                 ...                   |      |
+	 *       |    o-------DATA (id=666)(part n) [end] --->o---->*-*
+	 *       |                                                  | |
+	 *       |                                                  | | P
+	 *       |                                                  | | R
+	 *       |<--------- EVENT (id=666) ------------------------| | O
+	 *       |                                                  | | C
+	 *       |                                                  | | E
+	 *       |<--------- EVENT (id=666) ------------------------| | S
+	 *       |                                                  | | S
+	 *       |                                                  | | I
+	 *       |                                                  | | N
+	 *       |                                                  | | G
+	 *       |                                                  | |
+	 *       |    o<------ANSWER XXX (id=666)(part 0) ----------*-*
+	 *       |    |                                       |      |
+	 *       |    |<------DATA (id=666)(part 1) ----------o      |
+	 *       |    |                                       |      |
+	 *       |    |<------DATA (id=666)(part 2) ----------o      |
+	 *       |    |                                       |      |
+	 *       |<---o<------DATA (id=666)(part m) [end] ----o      |
+	 *       |                                                   |
+	 *       |                                                   |
+	 * </pre>
 	 */
 	class Message {
 		friend std::ostream& operator<<(std::ostream&, zeus::Message*);
 		protected:
-			ememory::SharedPtr<zeus::WebServer> m_iface;
+			ememory::SharedPtr<zeus::WebServer> m_iface; //!< link to the interface
 		protected:
 			/**
 			 * @brief basic constructor (hidden to force the use of ememory::SharedPtr) @ref zeus::Message::create

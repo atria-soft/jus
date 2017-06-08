@@ -15,8 +15,12 @@ namespace zeus {
 	// TODO : Add the posiboilities to have a andFinished()
 	class FutureGroup {
 		private:
-			std::vector<zeus::FutureBase> m_listFuture;
+			std::vector<zeus::FutureBase> m_listFuture; //!< List of all Future that we need to wait the end.
 		public:
+			/**
+			 * @brief Add an other Future to wait the end.
+			 * @param[in] _fut Future to add.
+			 */
 			void add(const zeus::FutureBase& _fut);
 			/**
 			 * @brief Wait the Future receive data

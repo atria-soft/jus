@@ -20,8 +20,6 @@ namespace etk {
 				return "event";
 			case zeus::message::type::data:
 				return "data";
-			case zeus::message::type::progress:
-				return "progress";
 		}
 		return "???";
 	}
@@ -43,8 +41,6 @@ enum zeus::message::type zeus::message::getTypeFromInt(uint16_t _value) {
 			return zeus::message::type::data;
 		case 4:
 			return zeus::message::type::event;
-		case 5:
-			return zeus::message::type::progress;
 	}
 	return zeus::message::type::unknow;
 }

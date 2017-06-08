@@ -230,7 +230,8 @@ void zeus::Promise::waitFor(echrono::Duration _delta) const {
 		std::this_thread::sleep_for(echrono::milliseconds(10));
 	}
 	if (isFinished() == false) {
-		ZEUS_WARNING("Wait timeout ...");
+		ZEUS_WARNING("Wait timeout ... " << _delta);
+		//elog::displayBacktrace();
 	}
 }
 
@@ -241,7 +242,8 @@ void zeus::Promise::waitUntil(echrono::Steady _endTime) const {
 		std::this_thread::sleep_for(echrono::milliseconds(10));
 	}
 	if (isFinished() == false) {
-		ZEUS_WARNING("Wait timeout ...");
+		ZEUS_WARNING("Wait timeout ..." << _endTime);
+		//elog::displayBacktrace();
 	}
 }
 

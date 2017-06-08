@@ -101,13 +101,13 @@ void appl::ElementProperty::loadData() {
 	                 		m_widget->markToRedraw();
 	                 		return true;
 	                 	}
-	                 	
+	                 	int32_t nbCallOfMetaData = 7;
 	                 	_media.getMetadata("title")
 	                 	    .andElse([=](const std::string& _error, const std::string& _help) mutable {
 	                 	             	{
 	                 	             		std::unique_lock<std::mutex> lock(tmpProperty->m_mutex);
 	                 	             		tmpProperty->m_nbElementLoaded++;
-	                 	             		if (tmpProperty->m_nbElementLoaded >= 8) {
+	                 	             		if (tmpProperty->m_nbElementLoaded >= nbCallOfMetaData) {
 	                 	             			tmpProperty->m_metadataUpdated = appl::statusLoadingData::done;
 	                 	             		}
 	                 	             	}
@@ -123,7 +123,7 @@ void appl::ElementProperty::loadData() {
 	                 	             	{
 	                 	             		std::unique_lock<std::mutex> lock(tmpProperty->m_mutex);
 	                 	             		tmpProperty->m_nbElementLoaded++;
-	                 	             		if (tmpProperty->m_nbElementLoaded >= 8) {
+	                 	             		if (tmpProperty->m_nbElementLoaded >= nbCallOfMetaData) {
 	                 	             			tmpProperty->m_metadataUpdated = appl::statusLoadingData::done;
 	                 	             		}
 	                 	             	}
@@ -134,7 +134,7 @@ void appl::ElementProperty::loadData() {
 	                 	             	{
 	                 	             		std::unique_lock<std::mutex> lock(tmpProperty->m_mutex);
 	                 	             		tmpProperty->m_nbElementLoaded++;
-	                 	             		if (tmpProperty->m_nbElementLoaded >= 8) {
+	                 	             		if (tmpProperty->m_nbElementLoaded >= nbCallOfMetaData) {
 	                 	             			tmpProperty->m_metadataUpdated = appl::statusLoadingData::done;
 	                 	             		}
 	                 	             	}
@@ -150,7 +150,7 @@ void appl::ElementProperty::loadData() {
 	                 	             	{
 	                 	             		std::unique_lock<std::mutex> lock(tmpProperty->m_mutex);
 	                 	             		tmpProperty->m_nbElementLoaded++;
-	                 	             		if (tmpProperty->m_nbElementLoaded >= 8) {
+	                 	             		if (tmpProperty->m_nbElementLoaded >= nbCallOfMetaData) {
 	                 	             			tmpProperty->m_metadataUpdated = appl::statusLoadingData::done;
 	                 	             		}
 	                 	             	}
@@ -161,7 +161,7 @@ void appl::ElementProperty::loadData() {
 	                 	             	{
 	                 	             		std::unique_lock<std::mutex> lock(tmpProperty->m_mutex);
 	                 	             		tmpProperty->m_nbElementLoaded++;
-	                 	             		if (tmpProperty->m_nbElementLoaded >= 8) {
+	                 	             		if (tmpProperty->m_nbElementLoaded >= nbCallOfMetaData) {
 	                 	             			tmpProperty->m_metadataUpdated = appl::statusLoadingData::done;
 	                 	             		}
 	                 	             	}
@@ -177,7 +177,7 @@ void appl::ElementProperty::loadData() {
 	                 	             	{
 	                 	             		std::unique_lock<std::mutex> lock(tmpProperty->m_mutex);
 	                 	             		tmpProperty->m_nbElementLoaded++;
-	                 	             		if (tmpProperty->m_nbElementLoaded >= 8) {
+	                 	             		if (tmpProperty->m_nbElementLoaded >= nbCallOfMetaData) {
 	                 	             			tmpProperty->m_metadataUpdated = appl::statusLoadingData::done;
 	                 	             		}
 	                 	             	}
@@ -188,7 +188,7 @@ void appl::ElementProperty::loadData() {
 	                 	             	{
 	                 	             		std::unique_lock<std::mutex> lock(tmpProperty->m_mutex);
 	                 	             		tmpProperty->m_nbElementLoaded++;
-	                 	             		if (tmpProperty->m_nbElementLoaded >= 8) {
+	                 	             		if (tmpProperty->m_nbElementLoaded >= nbCallOfMetaData) {
 	                 	             			tmpProperty->m_metadataUpdated = appl::statusLoadingData::done;
 	                 	             		}
 	                 	             	}
@@ -204,7 +204,7 @@ void appl::ElementProperty::loadData() {
 	                 	             	{
 	                 	             		std::unique_lock<std::mutex> lock(tmpProperty->m_mutex);
 	                 	             		tmpProperty->m_nbElementLoaded++;
-	                 	             		if (tmpProperty->m_nbElementLoaded >= 8) {
+	                 	             		if (tmpProperty->m_nbElementLoaded >= nbCallOfMetaData) {
 	                 	             			tmpProperty->m_metadataUpdated = appl::statusLoadingData::done;
 	                 	             		}
 	                 	             	}
@@ -215,7 +215,7 @@ void appl::ElementProperty::loadData() {
 	                 	             	{
 	                 	             		std::unique_lock<std::mutex> lock(tmpProperty->m_mutex);
 	                 	             		tmpProperty->m_nbElementLoaded++;
-	                 	             		if (tmpProperty->m_nbElementLoaded >= 8) {
+	                 	             		if (tmpProperty->m_nbElementLoaded >= nbCallOfMetaData) {
 	                 	             			tmpProperty->m_metadataUpdated = appl::statusLoadingData::done;
 	                 	             		}
 	                 	             	}
@@ -231,7 +231,7 @@ void appl::ElementProperty::loadData() {
 	                 	             	{
 	                 	             		std::unique_lock<std::mutex> lock(tmpProperty->m_mutex);
 	                 	             		tmpProperty->m_nbElementLoaded++;
-	                 	             		if (tmpProperty->m_nbElementLoaded >= 8) {
+	                 	             		if (tmpProperty->m_nbElementLoaded >= nbCallOfMetaData) {
 	                 	             			tmpProperty->m_metadataUpdated = appl::statusLoadingData::done;
 	                 	             		}
 	                 	             	}
@@ -242,7 +242,7 @@ void appl::ElementProperty::loadData() {
 	                 	             	{
 	                 	             		std::unique_lock<std::mutex> lock(tmpProperty->m_mutex);
 	                 	             		tmpProperty->m_nbElementLoaded++;
-	                 	             		if (tmpProperty->m_nbElementLoaded >= 8) {
+	                 	             		if (tmpProperty->m_nbElementLoaded >= nbCallOfMetaData) {
 	                 	             			tmpProperty->m_metadataUpdated = appl::statusLoadingData::done;
 	                 	             		}
 	                 	             	}
@@ -258,7 +258,7 @@ void appl::ElementProperty::loadData() {
 	                 	             	{
 	                 	             		std::unique_lock<std::mutex> lock(tmpProperty->m_mutex);
 	                 	             		tmpProperty->m_nbElementLoaded++;
-	                 	             		if (tmpProperty->m_nbElementLoaded >= 8) {
+	                 	             		if (tmpProperty->m_nbElementLoaded >= nbCallOfMetaData) {
 	                 	             			tmpProperty->m_metadataUpdated = appl::statusLoadingData::done;
 	                 	             		}
 	                 	             	}
@@ -269,7 +269,7 @@ void appl::ElementProperty::loadData() {
 	                 	             	{
 	                 	             		std::unique_lock<std::mutex> lock(tmpProperty->m_mutex);
 	                 	             		tmpProperty->m_nbElementLoaded++;
-	                 	             		if (tmpProperty->m_nbElementLoaded >= 8) {
+	                 	             		if (tmpProperty->m_nbElementLoaded >= nbCallOfMetaData) {
 	                 	             			tmpProperty->m_metadataUpdated = appl::statusLoadingData::done;
 	                 	             		}
 	                 	             	}
@@ -285,7 +285,7 @@ void appl::ElementProperty::loadData() {
 	                 	             	{
 	                 	             		std::unique_lock<std::mutex> lock(tmpProperty->m_mutex);
 	                 	             		tmpProperty->m_nbElementLoaded++;
-	                 	             		if (tmpProperty->m_nbElementLoaded >= 8) {
+	                 	             		if (tmpProperty->m_nbElementLoaded >= nbCallOfMetaData) {
 	                 	             			tmpProperty->m_metadataUpdated = appl::statusLoadingData::done;
 	                 	             		}
 	                 	             	}
@@ -296,7 +296,7 @@ void appl::ElementProperty::loadData() {
 	                 	             	{
 	                 	             		std::unique_lock<std::mutex> lock(tmpProperty->m_mutex);
 	                 	             		tmpProperty->m_nbElementLoaded++;
-	                 	             		if (tmpProperty->m_nbElementLoaded >= 8) {
+	                 	             		if (tmpProperty->m_nbElementLoaded >= nbCallOfMetaData) {
 	                 	             			tmpProperty->m_metadataUpdated = appl::statusLoadingData::done;
 	                 	             		}
 	                 	             	}
@@ -319,7 +319,7 @@ void appl::ElementProperty::loadData() {
 	                 	             	{
 	                 	             		std::unique_lock<std::mutex> lock(tmpProperty->m_mutex);
 	                 	             		tmpProperty->m_nbElementLoaded++;
-	                 	             		if (tmpProperty->m_nbElementLoaded >= 8) {
+	                 	             		if (tmpProperty->m_nbElementLoaded >= nbCallOfMetaData) {
 	                 	             			tmpProperty->m_metadataUpdated = appl::statusLoadingData::done;
 	                 	             		}
 	                 	             	}
@@ -646,7 +646,7 @@ void appl::ElementDisplayed::generateDisplay(vec2 _startPos, vec2 _size) {
 	std::string textToDisplay;
 	if (m_property != nullptr) {
 		if (m_property->LoadDataEnded() == false) {
-			textToDisplay += "<br/><i>Loading in progress</i>";
+			textToDisplay += "<br/><i>Loading in progress</i> ... " + etk::to_string(m_property->m_nbElementLoaded) + "/8";
 		} else {
 			std::unique_lock<std::mutex> lock(m_property->m_mutex);
 			//m_text.setClipping(drawClippingPos, drawClippingSize);
