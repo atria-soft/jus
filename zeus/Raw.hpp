@@ -13,9 +13,9 @@ namespace zeus {
 	 */
 	class Raw {
 		private:
-			uint32_t m_size;
-			const uint8_t* m_dataExternal;
-			std::vector<uint8_t> m_dataInternal;
+			uint32_t m_size; //!< Size of the DATA
+			const uint8_t* m_dataExternal; //!< The raw buffer is contituated with ecternal static data
+			std::vector<uint8_t> m_dataInternal; //!< the data is allocated in local.
 		public:
 			/**
 			 * @brief generic constructor
@@ -23,18 +23,29 @@ namespace zeus {
 			Raw();
 			/**
 			 * @brief generic constructor
+			 * @param[in] _size Data size that might be allocated by default
 			 */
 			Raw(uint32_t _size);
-			
+			/**
+			 * @brief generic constructor (ecternal data)
+			 * @param[in] _size Data size of the external data
+			 * @param[in] _data Pointer of the externaldata
+			 */
 			Raw(uint32_t _size, const uint8_t* _data);
-			
-			~Raw();
-			
-			
+			/**
+			 * @breif Get size of the data
+			 * @return the size of the data >=0
+			 */
 			uint32_t size() const;
-			
+			/**
+			 * @brief Get a pointer on the data
+			 * @return a pointer on the data (or nullptr)
+			 */
 			const uint8_t* data() const;
+			/**
+			 * @brief Get a writable pointer on the data
+			 * @return a pointer on the data (or nullptr)
+			 */
 			uint8_t* writeData();
 	};
 }
-

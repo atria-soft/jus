@@ -183,7 +183,6 @@ void zeus::WebServer::connect(bool _async){
 		ZEUS_ERROR("creating async sender thread!");
 		return;
 	}
-	
 	while (    _async == false
 	        && m_threadAsyncRunning == true
 	        && m_connection.isAlive() != true) {
@@ -630,16 +629,14 @@ void zeus::WebServer::threadAsyncCallback() {
 }
 
 
-zeus::FutureBase zeus::WebServer::callBinary(uint64_t _transactionId,
-                                             ememory::SharedPtr<zeus::Message> _obj,
-                                             const uint32_t& _destination) {
+zeus::FutureBase zeus::WebServer::callBinary(ememory::SharedPtr<zeus::Message> _obj) {
 	if (isActive() == false) {
 		ZEUS_ERROR("Send [STOP] ==> not connected (no TCP)");
 		ememory::SharedPtr<zeus::message::Answer> obj = zeus::message::Answer::create(sharedFromThis());
 		obj->addError("NOT-CONNECTED", "Client interface not connected (no TCP)");
-		return zeus::FutureBase(_transactionId, obj);
+		return zeus::FutureBase(_obj->getTransactionId(), obj);
 	}
-	zeus::FutureBase tmpFuture(_transactionId);
+	zeus::FutureBase tmpFuture(_obj->getTransactionId());
 	{
 		std::unique_lock<std::mutex> lock(m_pendingCallMutex);
 		m_pendingCall.push_back(std::make_pair(uint64_t(0), tmpFuture));

@@ -19,6 +19,8 @@
 #include <appl/MediaDecoder.hpp>
 #include <appl/widget/ListViewer.hpp>
 
+#define ZEUS_VIDEO_PLAYER_MULTIPLE_BUFFER (4)
+
 namespace appl {
 	namespace widget {
 		class VideoDisplay : public ewol::Widget {
@@ -44,7 +46,8 @@ namespace appl {
 				int32_t m_GLtexture; //!< openGL id on the element (Texture position)
 				int32_t m_GLtexID; //!< openGL id on the element (texture ID)
 			protected:
-				ememory::SharedPtr<ewol::resource::Texture> m_resource; //!< texture resources
+				int32_t m_useElement;
+				ememory::SharedPtr<ewol::resource::Texture> m_resource[ZEUS_VIDEO_PLAYER_MULTIPLE_BUFFER]; //!< texture resources
 			protected:
 				static const int32_t m_vboIdCoord;
 				static const int32_t m_vboIdCoordTex;

@@ -29,11 +29,6 @@ zeus::Raw::Raw(uint32_t _size, const uint8_t* _data) :
 	
 }
 
-zeus::Raw::~Raw() {
-	
-}
-
-
 uint32_t zeus::Raw::size() const {
 	return m_size;
 }

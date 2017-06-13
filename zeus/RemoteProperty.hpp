@@ -18,8 +18,8 @@ namespace zeus {
 	template<typename ZEUS_TYPE_PROPERTY>
 	class RemoteProperty {
 		private:
-			zeus::ObjectRemote& m_remoteObject;
-			std::string m_name;
+			zeus::ObjectRemote& m_remoteObject; //!< Remote ofject interface
+			std::string m_name; //!< Name of the property to call.
 		public:
 			/**
 			 * @brief generic constructor

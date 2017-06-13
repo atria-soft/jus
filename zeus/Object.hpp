@@ -20,49 +20,46 @@
 namespace zeus {
 	class Client;
 	/**
-	 * @brief 
-	 * @param[in] 
-	 * @return 
+	 * @brief An object is an element callable from the remote.
 	 */
 	class Object : public zeus::RemoteProcessCall {
-		protected:
-			std::mutex m_mutex;
-		protected:
-			std::vector<zeus::FutureBase> m_callMultiData;
 		public:
-			uint16_t getObjectId() { return m_objectId; }
 			/**
-			 * @brief 
-			 * @param[in] 
-			 * @return 
+			 * @brief Get the current object local unique ID
+			 * @return The unique Object id
+			 */
+			uint16_t getObjectId() {
+				return m_objectId;
+			}
+			/**
+			 * @brief Contruct a new callable object
+			 * @param[in] _iface Network interface
+			 * @param[in] _objectId Unique Id of the object
 			 */
 			Object(const ememory::SharedPtr<zeus::WebServer>& _iface, uint16_t _objectId);
 			/**
-			 * @brief 
-			 * @param[in] 
-			 * @return 
+			 * @brief generic destructor
 			 */
-			virtual ~Object();
+			virtual ~Object() = default;
 		public:
+			/**
+			 * @brief Receive message to parse and execute
+			 * @param[in] _value Message to process
+			 */
 			void receive(ememory::SharedPtr<zeus::Message> _value);
 		private:
 			/**
-			 * @brief 
-			 * @param[in] 
-			 * @return 
+			 * @brief Specific call depending of the type of the object.
+			 * @param[in] _call Name of the function that is called.
+			 * @param[in] _value Message to process.
 			 */
-			void callBinary(ememory::SharedPtr<zeus::Message> _obj);
-			/**
-			 * @brief 
-			 * @param[in] 
-			 * @return 
-			 */
-			virtual void callBinary2(const std::string& _call, ememory::SharedPtr<zeus::message::Call> _obj) = 0;
+			virtual void callBinary(const std::string& _call, ememory::SharedPtr<zeus::message::Call> _value) = 0;
 		public:
 			/**
-			 * @brief 
-			 * @param[in] 
-			 * @return 
+			 * @brief Advertise a new function in the service/object ==> it is force the start with "obj.".
+			 * @param[in] _name Name of the function
+			 * @param[in] _func pointer on the function that might be used to call it.
+			 * @return an handle on an abstract function that can be called.
 			 */
 			// Add Local fuction (depend on this class)
 			template<class ZEUS_RETURN_VALUE,
@@ -70,7 +67,7 @@ namespace zeus {
 			         class... ZEUS_FUNC_ARGS_TYPE>
 			zeus::AbstractFunction* advertise(std::string _name,
 			                                  ZEUS_RETURN_VALUE (ZEUS_CLASS_TYPE::*_func)(ZEUS_FUNC_ARGS_TYPE... _args)) {
-				_name = "srv." + _name;
+				_name = "obj." + _name;
 				for (auto &it : m_listFunction) {
 					if (it == nullptr) {
 						continue;
@@ -91,18 +88,15 @@ namespace zeus {
 				return tmp;
 			}
 	};
-	
+	/**
+	 * @brief The object is all time different, and we need to called it corectly and keep it alive while the remote user need it.
+	 *        The this class permit to have a a pointer on the temporary object.
+	 */
 	template<class ZEUS_TYPE_OBJECT>
 	class ObjectType : public zeus::Object {
 		private:
-			ememory::SharedPtr<ZEUS_TYPE_OBJECT> m_interface; // direct handle on the data;
+			ememory::SharedPtr<ZEUS_TYPE_OBJECT> m_interface; //!< handle on the object that might be called.
 		public:
-			/*
-			ObjectType(zeus::Client* _client, uint16_t _objectId, uint16_t _clientId) :
-			  Object(_client, _objectId) {
-				m_interface = ememory::makeShared<ZEUS_TYPE_OBJECT>(/ *_clientId* /);
-			}
-			*/
 			ObjectType(const ememory::SharedPtr<zeus::WebServer>& _iface, uint16_t _objectId, const ememory::SharedPtr<ZEUS_TYPE_OBJECT>& _element) :
 			  Object(_iface, _objectId),
 			  m_interface(_element) {
@@ -180,12 +174,7 @@ namespace zeus {
 				m_listFunction.push_back(tmp);
 				return tmp;
 			}
-			/**
-			 * @brief 
-			 * @param[in] 
-			 * @return 
-			 */
-			bool isFunctionAuthorized(uint64_t _clientId, const std::string& _funcName) {
+			bool isFunctionAuthorized(uint64_t _clientId, const std::string& _funcName) override {
 				/*
 				auto it = m_interface.find(_clientId);
 				if (it == m_interface.end()) {
@@ -197,11 +186,11 @@ namespace zeus {
 				return true;
 			}
 			/**
-			 * @brief 
-			 * @param[in] 
-			 * @return 
+			 * @brief Find and call the functionwith a specific name
+			 * @param[in] _call Function name to call
+			 * @param[in] _value Message to process.
 			 */
-			void callBinary2(const std::string& _call, ememory::SharedPtr<zeus::message::Call> _obj) {
+			void callBinary(const std::string& _call, ememory::SharedPtr<zeus::message::Call> _value) {
 				for (auto &it2 : m_listFunction) {
 					if (it2 == nullptr) {
 						continue;
@@ -209,22 +198,24 @@ namespace zeus {
 					if (it2->getName() != _call) {
 						continue;
 					}
+					// TODO: Check if client is athorized ...
+					// depending on where the function is defined, the call is not the same ...
 					switch (it2->getType()) {
 						case zeus::AbstractFunction::type::object: {
 							ZEUS_TYPE_OBJECT* elem = m_interface.get();
-							it2->execute(m_interfaceWeb, _obj, (void*)elem);
+							it2->execute(m_interfaceWeb, _value, (void*)elem);
 							return;
 						}
 						case zeus::AbstractFunction::type::local: {
-							it2->execute(m_interfaceWeb, _obj, (void*)((RemoteProcessCall*)this));
+							it2->execute(m_interfaceWeb, _value, (void*)((RemoteProcessCall*)this));
 							return;
 						}
 						case zeus::AbstractFunction::type::service: {
-							it2->execute(m_interfaceWeb, _obj, (void*)this);
+							it2->execute(m_interfaceWeb, _value, (void*)this);
 							return;
 						}
 						case zeus::AbstractFunction::type::global: {
-							it2->execute(m_interfaceWeb, _obj, nullptr);
+							it2->execute(m_interfaceWeb, _value, nullptr);
 							return;
 						}
 						case zeus::AbstractFunction::type::unknow:
@@ -232,8 +223,11 @@ namespace zeus {
 							break;
 					}
 				}
-				m_interfaceWeb->answerError(_obj->getTransactionId(), _obj->getDestination(), _obj->getSource(), "FUNCTION-UNKNOW", "not find function name: '" + _call + "'");
-				return;
+				m_interfaceWeb->answerError(_value->getTransactionId(),
+				                            _value->getDestination(),
+				                            _value->getSource(),
+				                            "FUNCTION-UNKNOW",
+				                            "not find function name: '" + _call + "'");
 			}
 	};
 }

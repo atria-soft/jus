@@ -119,35 +119,63 @@ namespace zeus {
 			uint16_t m_localAddress; //!< Local client address.
 			uint16_t m_localIdObjectIncrement; //!< attribute an unique ID for an object.
 		public:
+			/**
+			 * @brief Get the unique ID of the client
+			 * @return the client Mai address
+			 */
 			uint16_t getAddress() const {
 				return m_localAddress;
 			}
+			/**
+			 * @brief Set the new wlient address
+			 * @param[in] _address Address of the client
+			 */
 			void setAddress(uint16_t _address) {
 				m_localAddress = _address;
 			}
+			/**
+			 * @brief Get a new unique object ID
+			 * @return a new single object ID
+			 */
 			uint16_t getNewObjectId() {
+				std::unique_lock<std::mutex> lock(m_mutex);
 				return m_localIdObjectIncrement++;
 			}
 		private:
 			std::vector<ememory::SharedPtr<zeus::WebObj>> m_listObject; //!< List of all local object that is reference in the system.
 			std::vector<ememory::WeakPtr<zeus::ObjectRemoteBase>> m_listRemoteObject; //!< List of all object that we have a reference in the local interface.
 		public:
+			/**
+			 * @brief Add a local WebObject to maage all his callback
+			 * @param[in] _obj Object to add
+			 */
 			void addWebObj(ememory::SharedPtr<zeus::WebObj> _obj);
+			/**
+			 * @brief Add a REMOTE WebObject to maage all his callback
+			 * @param[in] _obj Object to add
+			 */
 			void addWebObjRemote(ememory::SharedPtr<zeus::ObjectRemoteBase> _obj);
+			/**
+			 * @brief Clear all Object that have no more remote user.
+			 */
 			void cleanDeadObject();
 			/**
 			 * @brief Set the list of interface that has been removed ...
 			 */
 			void interfaceRemoved(std::vector<uint16_t> _list);
 		private:
-			uint32_t m_interfaceId;
-			uint16_t m_transmissionId;
+			uint32_t m_interfaceId; //!< local client interface ID
+			uint16_t m_transmissionId; //!< Unique Id of a transmission (it is != 0)
+			/**
+			 * @brief Get a new transmission ID
+			 * @return Unique ID of the transmision
+			 */
 			uint16_t getId();
-			std::mutex m_pendingCallMutex;
-			std::vector<std::pair<uint64_t, zeus::FutureBase>> m_pendingCall;
+			std::mutex m_pendingCallMutex; //!< local call of a pendinc call venctor update
+			std::vector<std::pair<uint64_t, zeus::FutureBase>> m_pendingCall; //!< List of pending call interface
 		public:
 			using Observer = std::function<void(ememory::SharedPtr<zeus::Message>)>; //!< Define an Observer: function pointer
-			Observer m_observerElement;
+			Observer m_observerElement; //!< Observer on a new message arriving
 			/**
 			 * @brief Connect an function member on the signal with the shared_ptr object.
 			 * @param[in] _class shared_ptr Object on whe we need to call ==> the object is get in keeped in weak_ptr.
@@ -162,7 +190,7 @@ namespace zeus {
 		public:
 			using ObserverRequestUri = std::function<bool(const std::string&)>; //!< Define an Observer on the specific URI requested callback: function pointer (return true if the connection is accepted or not)
 		protected:
-			ObserverRequestUri m_observerRequestUri;
+			ObserverRequestUri m_observerRequestUri; //!< Observer on a requesting URI connection
 		public:
 			/**
 			 * @brief Connect on the URI requested.
@@ -175,147 +203,141 @@ namespace zeus {
 					return (*_class.*_func)(_value);
 				};
 			}
+			/**
+			 * @brief Set the Observer on URI requesting
+			 * @param[in] _func Observer function
+			 */
 			void connectUri(WebServer::ObserverRequestUri _func) {
 				m_observerRequestUri = _func;
 			}
-			
 		public:
 			/**
-			 * @brief 
-			 * @param[in] 
-			 * @return 
+			 * @brief Webserver contructor
 			 */
 			WebServer(); // TODO : Set it in a factory to force the use of sharedPtr
 			/**
-			 * @brief 
-			 * @param[in] 
-			 * @return 
+			 * @brief Webserver contructor
+			 * @param[in] _connection TCP connection interface
+			 * @param[in] _isServer Set it true if the local interface in a server
 			 */
 			WebServer(enet::Tcp _connection, bool _isServer);
 			/**
-			 * @brief 
-			 * @param[in] 
-			 * @return 
+			 * @brief Destructor
 			 */
 			virtual ~WebServer();
 			/**
-			 * @brief 
-			 * @param[in] 
+			 * @brief Set the low level network interface
+			 * @param[in] _connection TCP connection interface
+			 * @param[in] _isServer Set it true if the local interface in a server
+			 * @param[in] _userName Name on the user connected
 			 * @return 
 			 */
 			void setInterface(enet::Tcp _connection, bool _isServer, const std::string& _userName="");
 			/**
-			 * @brief 
-			 * @param[in] 
-			 * @return 
+			 * @brief Connect on the remote interface
+			 * @param[in] _async if true, the cunnection does not wait all the connection process is done to return
 			 */
 			void connect(bool _async = false);
 			/**
-			 * @brief 
-			 * @param[in] 
-			 * @return 
+			 * @brief Disconnect from the remote
+			 * @param[in] _inThreadStop The call is done in the thread processing the input message
 			 */
 			void disconnect(bool _inThreadStop = false);
 			/**
-			 * @brief 
-			 * @param[in] 
-			 * @return 
+			 * @brief Check if the link is alive
+			 * @return true The connection is alive
+			 * @return false THe connection is dead
 			 */
 			bool isActive() const;
 			/**
-			 * @brief 
-			 * @param[in] 
-			 * @return 
+			 * @brief set the interface name
+			 * @param[in] _name Ne name of the interface
 			 */
 			void setInterfaceName(const std::string& _name);
 			/**
-			 * @brief 
-			 * @param[in] 
-			 * @return 
+			 * @brief Write a message preformated
+			 * @param[in] _data Message to write
+			 * @return Number of byte written
 			 */
 			int32_t writeBinary(ememory::SharedPtr<zeus::Message> _data);
 			/**
-			 * @brief 
-			 * @param[in] 
-			 * @return 
+			 * @brief Send a ping to the remote connection
 			 */
 			void ping();
 			/**
-			 * @brief 
-			 * @param[in] 
-			 * @return 
+			 * @brief Called by the underprotocol for a new URI connection
+			 * @param[in] _uri URI connection (GET)
+			 * @param[in] _protocols Protocol requested in the URI (ZEUS:1.0/ZEUS:0.8)
+			 * @return true the connection is accepted
+			 * @return false the connection is rejected
 			 */
 			bool onReceiveUri(const std::string& _uri, const std::vector<std::string>& _protocols);
 			/**
-			 * @brief 
-			 * @param[in] 
-			 * @return 
+			 * @brief The Zeus protocol is based on a webSocket, then the connection can send full fragment (it call newMessage when data is parsed
+			 * @param[in] _frame A frame that has been just received
+			 * @param[in] _isBinary the frame is binary if true, it is a string id false
 			 */
 			void onReceiveData(std::vector<uint8_t>& _frame, bool _isBinary);
 			/**
-			 * @brief 
-			 * @param[in] 
-			 * @return 
+			 * @brief Receive a message to parse
+			 * @param[in] _buffer Message to interprete
 			 */
 			void newMessage(ememory::SharedPtr<zeus::Message> _buffer);
 		public:
 			/**
-			 * @brief 
-			 * @param[in] 
-			 * @return 
+			 * @brief Get the last time a transmission has been done on the websocket (RECEIVE)
+			 * @return Steady Time of the last transmission
 			 */
 			const echrono::Steady& getLastTimeReceive() {
 				return m_connection.getLastTimeReceive();
 			}
 			/**
-			 * @brief 
-			 * @param[in] 
-			 * @return 
+			 * @brief Get the last time a transmission has been done on the websocket (EMIT)
+			 * @return Steady Time of the last transmission
 			 */
 			const echrono::Steady& getLastTimeSend() {
 				return m_connection.getLastTimeSend();
 			}
 		private:
-			using ActionAsync = std::function<bool(WebServer* _interface)>;
-			std::mutex m_threadAsyncMutex;
-			std::thread* m_threadAsync;
-			bool m_threadAsyncRunning;
-			std::vector<ActionAsync> m_threadAsyncList;
-			std::vector<ActionAsync> m_threadAsyncList2;
+			using ActionAsync = std::function<bool(WebServer* _interface)>; //!< type of the action for sending big data on the websocket
+			std::mutex m_threadAsyncMutex; //!< Mutex fot the thread to send async data
+			std::thread* m_threadAsync; //!< sending async data thread. TODO: Set it in a thread pool ...
+			bool m_threadAsyncRunning; //!< Threa is running
+			std::vector<ActionAsync> m_threadAsyncList; //!< List of action to send (current)
+			std::vector<ActionAsync> m_threadAsyncList2; //!< list of action to send whenwurrent is sending in progress
+			// TODO: Abord async sender ...
 		private:
 			/**
-			 * @brief 
-			 * @param[in] 
-			 * @return 
+			 * @brief Thread callback to send data
 			 */
 			void threadAsyncCallback();
 		public:
 			/**
-			 * @brief 
-			 * @param[in] 
-			 * @return 
+			 * @brief Add an async data to send
+			 * @param[in] _elem Action lambda to send data
 			 */
 			void addAsync(ActionAsync _elem);
 		private:
 			/**
-			 * @brief 
-			 * @param[in] 
-			 * @return 
+			 * @brief Add a message in the list of data that might be sended
+			 * @param[in] _obj Message to send
+			 * @return Future that will get the return values
 			 */
-			zeus::FutureBase callBinary(uint64_t _transactionId,
-			                            ememory::SharedPtr<zeus::Message> _obj,
-			                            const uint32_t& _service=0);
+			zeus::FutureBase callBinary(ememory::SharedPtr<zeus::Message> _obj);
 		public:
 			/**
-			 * @brief 
-			 * @param[in] 
-			 * @return 
+			 * @brief Create a call with specific parameteurs
+			 * @param[in] _source Source Id of the sending value
+			 * @param[in] _destination Destinatio of the progression
+			 * @param[in] _functionName Function name to call
+			 * @param[in] _args... Argument to add on the current message
+			 * @return Future that will get the return values
 			 */
 			template<class... _ARGS>
 			zeus::FutureBase call(const uint32_t& _source, const uint32_t& _destination, const std::string& _functionName, _ARGS&&... _args) {
 				uint16_t id = getId();
 				ememory::SharedPtr<zeus::message::Call> callElem = zeus::createCall(sharedFromThis(), id, _source, _destination, _functionName, std::forward<_ARGS>(_args)...);
-				return callBinary(id, callElem);
+				return callBinary(callElem);
 			}
 		public: // Events ...
 			/**
@@ -336,9 +358,9 @@ namespace zeus {
 			}
 		public: // answers ...
 			/**
-			 * @brief 
-			 * @param[in] 
-			 * @return 
+			 * @brief Create an ansers with PROTOCLL error and an help
+			 * @param[in] _transactionId Current trasaction ID
+			 * @param[in] _errorHelp Help for the user to understand the error and correct it
 			 */
 			void answerProtocolError(uint32_t _transactionId, const std::string& _errorHelp);
 			/**
@@ -371,9 +393,27 @@ namespace zeus {
 			 */
 			void answerError(uint32_t _clientTransactionId, uint32_t _source, uint32_t _destination, const std::string& _errorValue, const std::string& _errorComment="");
 		public:
-			// for debug only:
+			/**
+			 * @brief Display list of all objects
+			 * @note For debug only
+			 */
 			void listObjects();
+			/**
+			 * @brief Transfer the remote object onership from an adress to an other
+			 * @param[in] _objectAddress Local interface object address (uID)
+			 * @param[in] _sourceAddress Remote object to change the address
+			 * @param[in] _destinataireAddress New adress that replace the _sourceAddress
+			 * @return true The onership has been changed
+			 * @return false An error apears
+			 */
 			bool transferRemoteObjectOwnership(uint16_t _objectAddress, uint32_t _sourceAddress, uint32_t _destinataireAddress);
+			/**
+			 * @brief Remove a local object dependence on a remote object ==> permit to the server to remove it
+			 * @param[in] _objectAddress Local interface object address (uID)
+			 * @param[in] _sourceAddress Remote object that the adress must be removed
+			 * @return true The onership has been removed
+			 * @return false An error apears
+			 */
 			bool removeObjectOwnership(uint16_t _objectAddress, uint32_t _sourceAddress);
 	};
 }

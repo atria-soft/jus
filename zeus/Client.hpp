@@ -29,25 +29,30 @@ namespace zeus {
 			ememory::SharedPtr<zeus::WebServer> m_interfaceWeb; //!< Interface on the Websocket interface
 			std::vector<ememory::WeakPtr<zeus::ObjectRemoteBase>> m_listConnectedService; //!< Connect only one time on each service, not needed more.
 		public:
+			/**
+			 * @brief answer a protocol error on the websocket ==> this stop the communication
+			 * @param[in] _transactionId The tansation ID that have an error
+			 * @param[in] _errorHelp Help developper/user to understand where the problem come from.
+			 */
 			void answerProtocolError(uint32_t _transactionId, const std::string& _errorHelp);
+			/**
+			 * @brief Get the client web interface
+			 * @return A shared pointer on the client server
+			 */
 			ememory::SharedPtr<zeus::WebServer> getWebInterface() {
 				return m_interfaceWeb;
 			}
 			/**
-			 * @brief 
-			 * @param[in] 
-			 * @return 
+			 * @brief Contructor of a client
 			 */
 			Client();
 			/**
-			 * @brief 
-			 * @param[in] 
-			 * @return 
+			 * @brief Destructor of a client
 			 */
 			virtual ~Client();
 		protected:
 			/**
-			 * @brief Connetc to a remote extern server
+			 * @brief Connect to a remote extern server
 			 * @param[in] _address Address of the user: "ABCD.efgh~atria-soft.com:1993"
 			 * @param[in] _timeOut duration that we are waiting the server answer
 			 */
@@ -91,9 +96,10 @@ namespace zeus {
 			 * @return Pointer on an interface of remote service
 			 */
 			zeus::ObjectRemote getService(const std::string& _serviceName);
-			using factoryService = std::function<void(uint32_t, ememory::SharedPtr<zeus::WebServer>& _iface, uint32_t _destination)>; // call this function anser to the callter the requested Object
 			
-			std::map<std::string,factoryService> m_listServicesAvaillable; //!< list of all factory availlable
+			using factoryService = std::function<void(uint32_t, ememory::SharedPtr<zeus::WebServer>& _iface, uint32_t _destination)>; //!< call this function anser to the caller the requested Object
+			
+			std::map<std::string,factoryService> m_listServicesAvaillable; //!< list of all factory availlable (to create new services)
 			/**
 			 * @brief Provide a service with a specific name
 			 * @param[in] _serviceName Name of the service
@@ -101,6 +107,11 @@ namespace zeus {
 			 * @return true if the service is acepted or false if not
 			 */
 			bool serviceAdd(const std::string& _serviceName, factoryService _factory);
+			/**
+			 * @brief Revmove a service from the list of availlable services
+			 * @param[in] _serviceName Name of the service to remove
+			 * @return true The service has been removed, false otherwise.
+			 */
 			bool serviceRemove(const std::string& _serviceName);
 		private:
 			/**
@@ -142,15 +153,14 @@ namespace zeus {
 			void onPropertyChangePort();
 		public:
 			/**
-			 * @brief 
-			 * @param[in] 
-			 * @return 
+			 * @brief Send a ping to prevent the protocol time-out (no transmission)
+			 * @note let the system use this function.
 			 */
 			void pingIsAlive();
 			/**
-			 * @brief 
-			 * @param[in] 
-			 * @return 
+			 * @brief Check if the server/connection is alive
+			 * @return true The connection is alive
+			 * @return false The connection is dead
 			 */
 			bool isAlive();
 			/**
@@ -162,9 +172,25 @@ namespace zeus {
 			 */
 			void cleanDeadObject();
 		public:
+			// TODO: Remove this from here ... ==> create a proxy to gateway (service manager)
+			/**
+			 * @brief Get the number of services.
+			 * @return Future on the services count.
+			 */
 			zeus::Future<int32_t> getServiceCount();
+			/**
+			 * @brief Get the whole list of services availlable
+			 * @return Future on the list of service (names)
+			 */
 			zeus::Future<std::vector<std::string>> getServiceList();
 			// TODO : This is an active waiting ==> this is bad ... ==> use future, it will be better
+			/**
+			 * @brief Wait for a service wake up (and be availlable)
+			 * @param[in] _serviceName Name of the service to wait.
+			 * @param[in] _delta Duration to wait the service
+			 * @return true The service is availlable
+			 * @return false The service is not availlable.
+			 */
 			bool waitForService(const std::string& _serviceName, echrono::Duration _delta = echrono::seconds(1));
 	};
 }

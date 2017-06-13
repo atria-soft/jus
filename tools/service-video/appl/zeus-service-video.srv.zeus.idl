@@ -1,6 +1,6 @@
 #elem-brief: picture interface management
 #elem-version: 1.0
-#elem-type:PICTURE
+#elem-type:VIDEO
 #elem-author:Heero Yui<yui.heero@gmail.com
 
 import zeus-File

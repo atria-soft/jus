@@ -43,14 +43,18 @@ void appl::widget::VideoDisplay::init() {
 	loadProgram();
 	m_matrixApply.identity();
 	// By default we load a graphic resource ...
-	if (m_resource == nullptr) {
-		m_resource = ewol::resource::Texture::create();
-		if (m_resource == nullptr) {
-			EWOL_ERROR("Can not CREATE Image resource");
-			return;
+	
+	m_useElement = 0;
+	for (int32_t iii=0; iii<ZEUS_VIDEO_PLAYER_MULTIPLE_BUFFER; ++iii) {
+		if (m_resource[iii] == nullptr) {
+			m_resource[iii] = ewol::resource::Texture::create();
+			if (m_resource[iii] == nullptr) {
+				EWOL_ERROR("Can not CREATE Image resource");
+				return;
+			}
+			// All time need to configure in RGB, By default it is in RGBA ...
+			m_resource[iii]->get().configure(ivec2(128,128), egami::colorType::RGB8);
 		}
-		// All time need to configure in RGB, By default it is in RGBA ...
-		m_resource->get().configure(ivec2(128,128), egami::colorType::RGB8);
 	}
 	// Create the River manager for tha application or part of the application.
 	m_audioManager = audio::river::Manager::create("zeus-video-player");
@@ -173,10 +177,13 @@ void appl::widget::VideoDisplay::onDraw() {
 		APPL_WARNING("Nothink to draw...");
 		return;
 	}
-	if (m_resource == nullptr) {
+	/*
+	if (    m_resource[iii] == nullptr
+	     || m_resource2 == nullptr) {
 		// this is a normale case ... the user can choice to have no image ...
 		return;
 	}
+	*/
 	if (m_GLprogram == nullptr) {
 		APPL_ERROR("No shader ...");
 		return;
@@ -186,8 +193,9 @@ void appl::widget::VideoDisplay::onDraw() {
 	m_GLprogram->use();
 	m_GLprogram->uniformMatrix(m_GLMatrix, tmpMatrix);
 	// TextureID
-	if (m_resource != nullptr) {
-		m_GLprogram->setTexture0(m_GLtexID, m_resource->getRendererId());
+	
+	if (m_resource[m_useElement] != nullptr) {
+		m_GLprogram->setTexture0(m_GLtexID, m_resource[m_useElement]->getRendererId());
 	}
 	// position:
 	m_GLprogram->sendAttributePointer(m_GLPosition, m_VBO, m_vboIdCoord);
@@ -302,51 +310,69 @@ void appl::widget::VideoDisplay::periodicEvent(const ewol::event::Time& _event) 
 	}
 	// SET AUDIO:
 	bool getSomething = false;
-	int32_t idSlot = m_decoder->audioGetOlderSlot();
-	if (    idSlot != -1
-	     && m_currentTime > m_decoder->m_audioPool[idSlot].m_time) {
-		APPL_VERBOSE("Get Slot AUDIO " << m_currentTime << " > " << m_decoder->m_audioPool[idSlot].m_time);
-		if (m_audioInterface == nullptr) {
-			// start audio interface the first time we need it
-			APPL_ERROR("==========================================================");
-			APPL_ERROR("==               Presence of Audio: " << m_decoder->haveAudio() << "              ==");
-			APPL_ERROR("==========================================================");
-			if (m_decoder->haveAudio() == true) {
-				m_audioInterface = m_audioManager->createOutput(m_decoder->audioGetSampleRate(),
-				                                                m_decoder->audioGetChannelMap(),
-				                                                m_decoder->audioGetFormat(),
-				                                                "speaker");
-				if(m_audioInterface == nullptr) {
-					APPL_ERROR("Can not create Audio interface");
+	bool cleaning = true;
+	while (cleaning == true) {
+		int32_t idSlot = m_decoder->audioGetOlderSlot();
+		if (    idSlot != -1
+		     && m_currentTime > m_decoder->m_audioPool[idSlot].m_time) {
+			APPL_VERBOSE("Get Slot AUDIO " << m_currentTime << " > " << m_decoder->m_audioPool[idSlot].m_time);
+			if (m_audioInterface == nullptr) {
+				// start audio interface the first time we need it
+				APPL_ERROR("==========================================================");
+				APPL_ERROR("==               Presence of Audio: " << m_decoder->haveAudio() << "              ==");
+				APPL_ERROR("==========================================================");
+				if (m_decoder->haveAudio() == true) {
+					m_audioInterface = m_audioManager->createOutput(m_decoder->audioGetSampleRate(),
+					                                                m_decoder->audioGetChannelMap(),
+					                                                m_decoder->audioGetFormat(),
+					                                                "speaker");
+					if(m_audioInterface == nullptr) {
+						APPL_ERROR("Can not create Audio interface");
+					}
+					m_audioInterface->setReadwrite();
+					m_audioInterface->start();
 				}
-				m_audioInterface->setReadwrite();
-				m_audioInterface->start();
 			}
+			if (m_audioInterface != nullptr) {
+				int32_t nbSample =   m_decoder->m_audioPool[idSlot].m_buffer.size()
+				                   / audio::getFormatBytes(m_decoder->m_audioPool[idSlot].m_format)
+				                   / m_decoder->m_audioPool[idSlot].m_map.size();
+				m_audioInterface->write(&m_decoder->m_audioPool[idSlot].m_buffer[0], nbSample);
+			}
+			m_decoder->m_audioPool[idSlot].m_isUsed = false;
+			getSomething = true;
+		} else {
+			cleaning = false;
 		}
-		if (m_audioInterface != nullptr) {
-			int32_t nbSample =   m_decoder->m_audioPool[idSlot].m_buffer.size()
-			                   / audio::getFormatBytes(m_decoder->m_audioPool[idSlot].m_format)
-			                   / m_decoder->m_audioPool[idSlot].m_map.size();
-			m_audioInterface->write(&m_decoder->m_audioPool[idSlot].m_buffer[0], nbSample);
-		}
-		m_decoder->m_audioPool[idSlot].m_isUsed = false;
-		getSomething = true;
 	}
 	// SET VIDEO:
-	idSlot = m_decoder->videoGetOlderSlot();
-	// check the slot is valid and check display time of the element:
-	if (    idSlot != -1
-	     && m_currentTime > m_decoder->m_videoPool[idSlot].m_time) {
-		APPL_VERBOSE("Get Slot VIDEO " << m_currentTime << " > " << m_decoder->m_audioPool[idSlot].m_time);
-		m_resource->get().swap(m_decoder->m_videoPool[idSlot].m_image);
-		m_imageSize = m_resource->get().getSize();
-		ivec2 tmpSize = m_decoder->m_videoPool[idSlot].m_imagerealSize;
-		m_decoder->m_videoPool[idSlot].m_imagerealSize = m_videoSize;
-		m_videoSize = tmpSize;
-		m_decoder->m_videoPool[idSlot].m_isUsed = false;
-		m_resource->flush();
+	cleaning = true;
+	int32_t nbDumpFrame = 0;
+	while (cleaning == true) {
+		int32_t idSlot = m_decoder->videoGetOlderSlot();
+		// check the slot is valid and check display time of the element:
+		if (    idSlot != -1
+		     && m_currentTime > m_decoder->m_videoPool[idSlot].m_time) {
+			APPL_VERBOSE("Get Slot VIDEO " << m_currentTime << " > " << m_decoder->m_audioPool[idSlot].m_time);
+			m_resource[m_useElement]->get().swap(m_decoder->m_videoPool[idSlot].m_image);
+			m_resource[m_useElement]->flush();
+			m_useElement++;
+			if (m_useElement == ZEUS_VIDEO_PLAYER_MULTIPLE_BUFFER) {
+				m_useElement = 0;
+			}
+			m_imageSize = m_resource[m_useElement]->get().getSize();
+			ivec2 tmpSize = m_decoder->m_videoPool[idSlot].m_imageRealSize;
+			m_decoder->m_videoPool[idSlot].m_imageRealSize = m_videoSize;
+			m_videoSize = tmpSize;
+			m_decoder->m_videoPool[idSlot].m_isUsed = false;
+			nbDumpFrame++;
+			getSomething = true;
+		} else {
+			cleaning = false;
+		}
+	}
+	if (nbDumpFrame != 0) {
 		m_nbFramePushed++;
-		getSomething = true;
 	}
 	// Display FPS ...
 	m_LastResetCounter += _event.getDeltaCallDuration();

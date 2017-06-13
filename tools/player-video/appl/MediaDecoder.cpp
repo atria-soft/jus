@@ -119,12 +119,14 @@ static int32_t nextP2(int32_t _value) {
 }
 
 void appl::MessageElementVideo::setSize(const ivec2& _size) {
-	if (m_imagerealSize != _size) {
+	if (m_imageRealSize != _size) {
 		// Resize the buffer:
-		m_imagerealSize = _size;
-		m_image.resize(ivec2(nextP2(_size.x()), nextP2(_size.y())));
-		m_lineSize = m_image.getSize().x() * 3; // 3 is for RGBA
-		//m_image.getSize();
+		m_imageRealSize = _size;
+		m_imagePow2Size = ivec2(nextP2(_size.x()), nextP2(_size.y()));
+		m_lineSize = m_imagePow2Size.x() * 3;
+	}
+	if (m_image.getSize() != m_imagePow2Size) {
+		m_image.resize(m_imagePow2Size);
 	}
 }
 void appl::MessageElementAudio::configure(audio::format _format, uint32_t _sampleRate, int32_t _nbChannel, int32_t _nbSample) {
@@ -340,7 +342,8 @@ int appl::MediaDecoder::open_codec_context(int *_streamId, AVFormatContext *_for
 		}
 		// Init the decoders, with or without reference counting
 		av_dict_set(&opts, "refcounted_frames", "0", 0);
-		av_dict_set(&opts, "threads", "auto", 0);
+		//av_dict_set(&opts, "threads", "auto", 0);
+		av_dict_set(&opts, "threads", "4", 0);
 		if ((ret = avcodec_open2(dec_ctx, dec, &opts)) < 0) {
 			APPL_ERROR("Failed to open " << av_get_media_type_string(_type) << " codec");
 			return ret;

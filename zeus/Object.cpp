@@ -17,45 +17,33 @@ zeus::Object::Object(const ememory::SharedPtr<zeus::WebServer>& _iface, uint16_t
 	
 }
 
-
-zeus::Object::~Object() {
-	
-}
-
-
 void zeus::Object::receive(ememory::SharedPtr<zeus::Message> _value) {
 	if (_value == nullptr) {
 		return;
 	}
-	uint32_t tmpID = _value->getTransactionId();
-	uint32_t source = _value->getSource();
-	zeus::FutureBase futData(tmpID, _value, source);
-	if (futData.isFinished() == true) {
-		callBinary(futData.getRaw());
-	} else {
-		m_callMultiData.push_back(futData);
-	}
-}
-
-void zeus::Object::callBinary(ememory::SharedPtr<zeus::Message> _obj) {
-	if (_obj == nullptr) {
+	if (_value->getPartFinish() == false) {
+		ZEUS_ERROR("call a receive function with a not finished message ...");
 		return;
 	}
-	if (_obj->getType() == zeus::message::type::event) {
+	if (_value->getType() == zeus::message::type::event) {
 		ZEUS_ERROR("Unknow event: '...'");
 		return;
 	}
-	if (_obj->getType() == zeus::message::type::answer) {
+	if (_value->getType() == zeus::message::type::answer) {
 		ZEUS_ERROR("Local Answer: '...'");
 		return;
 	}
-	if (_obj->getType() == zeus::message::type::call) {
-		ememory::SharedPtr<zeus::message::Call> callObj = ememory::staticPointerCast<zeus::message::Call>(_obj);
+	if (_value->getType() == zeus::message::type::data) {
+		ZEUS_ERROR("Local DATA: '...'");
+		return;
+	}
+	if (_value->getType() == zeus::message::type::call) {
+		ememory::SharedPtr<zeus::message::Call> callObj = ememory::staticPointerCast<zeus::message::Call>(_value);
 		uint32_t source = callObj->getSource();
 		uint32_t sourceId = callObj->getSourceId();
 		std::string callFunction = callObj->getCall();
 		if (isFunctionAuthorized(sourceId, callFunction) == true) {
-			callBinary2(callFunction, callObj);
+			callBinary(callFunction, callObj);
 			return;
 		} else {
 			m_interfaceWeb->answerError(callObj->getTransactionId(), getFullId(), source, "NOT-AUTHORIZED-FUNCTION", "");
@@ -63,5 +51,3 @@ void zeus::Object::callBinary(ememory::SharedPtr<zeus::Message> _obj) {
 		}
 	}
 }
-
-

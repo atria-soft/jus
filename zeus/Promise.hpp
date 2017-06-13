@@ -17,7 +17,7 @@
 namespace zeus {
 	class FutureBase;
 	/**
-	 * @brief Data interface of the future (the future can be copied, but the data need to stay...
+	 * @brief Data interface of the future (the future can be copied, but the data need to stay...)
 	 */
 	class Promise : public ememory::EnableSharedFromThis<zeus::Promise> {
 		public:

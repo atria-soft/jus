@@ -14,14 +14,35 @@ namespace zeus {
 	 */
 	class Proxy {
 		protected:
-			zeus::ObjectRemote m_obj; //!< Service instance handle
+			zeus::ObjectRemote m_obj; //!< Object instance handle
 		public:
-			zeus::ObjectIntrospect sys;
+			zeus::ObjectIntrospect sys; //!< publish introspection function call
 		public:
-			const Proxy& operator= (const zeus::ObjectRemote& _srv);
+			/**
+			 * @brief a simple proxy constructor
+			 */
 			Proxy();
+			/** 
+			 * @brief Contructor of a proxy
+			 * @param[in] _obj an the object remote handle
+			 */
+			
+			Proxy(const zeus::ObjectRemote& _obj);
+			/** 
+			 * @brief Set operator
+			 * @param[in] _obj an other service remote
+			 * @return A reference on this proxy.
+			 */
+			const Proxy& operator= (const zeus::ObjectRemote& _obj);
+			/**
+			 * @brief set destructor VIRTUAL
+			 */
 			virtual ~Proxy() = default;
-			Proxy(const zeus::ObjectRemote& _srv);
+			/**
+			 * @brief Permit to check if the remote hss been corectly created
+			 * @return true The object exist
+			 * @return false The object is NOT accessible
+			 */
 			bool exist() const;
 	};
 }

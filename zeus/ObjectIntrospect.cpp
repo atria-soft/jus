@@ -6,40 +6,40 @@
 
 #include <zeus/ObjectIntrospect.hpp>
 
-zeus::ObjectIntrospect::ObjectIntrospect(zeus::ObjectRemote& _srv):
-  m_srv(_srv) {
+zeus::ObjectIntrospect::ObjectIntrospect(zeus::ObjectRemote& _obj):
+  m_obj(_obj) {
 	
 }
 
 zeus::Future<std::string> zeus::ObjectIntrospect::getDescription() {
-	return m_srv.call("sys.getDescription");
+	return m_obj.call("obj.getDescription");
 }
 
 zeus::Future<std::string> zeus::ObjectIntrospect::getVersion() {
-	return m_srv.call("sys.getVersion");
+	return m_obj.call("obj.getVersion");
 }
 
 zeus::Future<std::string> zeus::ObjectIntrospect::getType() {
-	return m_srv.call("sys.getType");
+	return m_obj.call("obj.getType");
 }
 
 zeus::Future<std::vector<std::string>> zeus::ObjectIntrospect::getExtention() {
-	return m_srv.call("sys.getExtention");
+	return m_obj.call("obj.getExtention");
 }
 
 zeus::Future<std::vector<std::string>> zeus::ObjectIntrospect::getAuthors() {
-	return m_srv.call("sys.getAuthors");
+	return m_obj.call("obj.getAuthors");
 }
 
 zeus::Future<std::vector<std::string>> zeus::ObjectIntrospect::getFunctions() {
-	return m_srv.call("sys.getFunctions");
+	return m_obj.call("obj.getFunctions");
 }
 
 zeus::Future<std::string> zeus::ObjectIntrospect::getFunctionPrototype(std::string _functionName) {
-	return m_srv.call("sys.getFunctionPrototype", _functionName);
+	return m_obj.call("obj.getFunctionPrototype", _functionName);
 }
 
 zeus::Future<std::string> zeus::ObjectIntrospect::getFunctionDescription(std::string _functionName) {
-	return m_srv.call("sys.getFunctionDescription", _functionName);
+	return m_obj.call("obj.getFunctionDescription", _functionName);
 }
 

@@ -54,10 +54,6 @@ zeus::ObjectRemote::ObjectRemote(ememory::SharedPtr<zeus::ObjectRemoteBase> _int
 	}
 }
 
-zeus::ObjectRemote::~ObjectRemote() {
-	
-}
-
 bool zeus::ObjectRemote::exist() const {
 	if (m_interface == nullptr) {
 		return false;
