@@ -23,10 +23,6 @@ zeus::Future<std::string> zeus::ObjectIntrospect::getType() {
 	return m_obj.call("sys.getType");
 }
 
-zeus::Future<std::vector<std::string>> zeus::ObjectIntrospect::getExtention() {
-	return m_obj.call("sys.getExtention");
-}
-
 zeus::Future<std::vector<std::string>> zeus::ObjectIntrospect::getAuthors() {
 	return m_obj.call("sys.getAuthors");
 }

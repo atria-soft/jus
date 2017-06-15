@@ -36,11 +36,6 @@ namespace zeus {
 			 */
 			zeus::Future<std::string> getType();
 			/**
-			 * @brief Get the list of extention availlable of the object (more specific of the service)
-			 * @return A future on all extention availlable. Format: "typeExtention:xx.yy.zz"
-			 */
-			zeus::Future<std::vector<std::string>> getExtention();
-			/**
 			 * @brief get the list of all authors of the objects
 			 * @return A future on the list of authors. Format: "NAME surname <email@someware.xxx>"
 			 */

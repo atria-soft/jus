@@ -63,7 +63,8 @@ void zeus::message::Parameter::composeWith(const uint8_t* _buffer, uint32_t _len
 }
 
 zeus::message::ParamType zeus::message::Parameter::getParameterType(int32_t _id) const {
-	if (m_parameter.size() <= _id) {
+	if (    m_parameter.size() <= _id
+	     || _id < 0) {
 		ZEUS_ERROR("out of range Id for parameter ... " << _id << " have " << m_parameter.size());
 		return createType<void>();
 	}
@@ -124,7 +125,7 @@ zeus::message::ParamType zeus::message::Parameter::getParameterType(int32_t _id)
 const uint8_t* zeus::message::Parameter::getParameterPointer(int32_t _id) const {
 	const uint8_t* out = nullptr;
 	if (    m_parameter.size() <= _id
-	     && _id < 0) {
+	     || _id < 0) {
 		ZEUS_ERROR("out of range Id for parameter ... " << _id << " have " << m_parameter.size());
 		return out;
 	}
@@ -143,7 +144,7 @@ const uint8_t* zeus::message::Parameter::getParameterPointer(int32_t _id) const 
 uint32_t zeus::message::Parameter::getParameterSize(int32_t _id) const {
 	int32_t out = 0;
 	if (    m_parameter.size() <= _id
-	     && _id < 0) {
+	     || _id < 0) {
 		ZEUS_ERROR("out of range Id for parameter ... " << _id << " have " << m_parameter.size());
 		return 0;
 	}

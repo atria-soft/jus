@@ -523,14 +523,18 @@ int main(int _argc, const char *_argv[]) {
 					APPL_PRINT("    desc=" << proxy.sys.getDescription().wait().get());
 					APPL_PRINT("    version=" << proxy.sys.getVersion().wait().get());
 					APPL_PRINT("    type=" << proxy.sys.getType().wait().get());
-					APPL_PRINT("    extention=" << proxy.sys.getExtention().wait().get());
 					APPL_PRINT("    authors=" << proxy.sys.getAuthors().wait().get());
 					auto listFunctions = proxy.sys.getFunctions().wait().get();
 					APPL_PRINT("    functions: " << listFunctions.size());
 					for (auto &it: listFunctions) {
-						APPL_PRINT("        " << it);
-						APPL_PRINT("            prototype=" << proxy.sys.getFunctionPrototype(it).wait().get());
-						APPL_PRINT("            desc=" << proxy.sys.getFunctionDescription(it).wait().get());
+						#if 0
+							APPL_PRINT("        " << it);
+							APPL_PRINT("            prototype=" << proxy.sys.getFunctionPrototype(it).wait().get());
+							APPL_PRINT("            desc=" << proxy.sys.getFunctionDescription(it).wait().get());
+						#else
+							APPL_PRINT("        " << proxy.sys.getFunctionPrototype(it).wait().get());
+							APPL_PRINT("            " << proxy.sys.getFunctionDescription(it).wait().get());
+						#endif
 					}
 				}
 			} else {
