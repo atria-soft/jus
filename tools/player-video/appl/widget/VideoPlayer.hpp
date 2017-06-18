@@ -19,12 +19,13 @@
 #include <appl/MediaDecoder.hpp>
 #include <appl/widget/ListViewer.hpp>
 
-#define ZEUS_VIDEO_PLAYER_MULTIPLE_BUFFER (4)
+#define ZEUS_VIDEO_PLAYER_MULTIPLE_BUFFER (1)
 
 namespace appl {
 	namespace widget {
 		class VideoDisplay : public ewol::Widget {
 			public:
+				esignal::Signal<std::string> signalOther;
 				esignal::Signal<int32_t> signalFps;
 				esignal::Signal<echrono::Duration> signalPosition; //!< signal the current duration of the video duration
 				esignal::Signal<echrono::Duration> signalDuration; //!< signal the current duration of the video duration

@@ -41,6 +41,7 @@ void appl::widget::Player::init() {
 	subBind(ewol::widget::Button, "[" + etk::to_string(getId()) + "]appl-player-bt-play", signalValue, sharedFromThis(), &appl::widget::Player::onCallbackButtonPlay);
 	subBind(ewol::widget::Button, "[" + etk::to_string(getId()) + "]appl-player-bt-next", signalPressed, sharedFromThis(), &appl::widget::Player::onCallbackButtonNext);
 	
+	subBind(appl::widget::VideoDisplay, "[" + etk::to_string(getId()) + "]appl-player-display", signalOther, sharedFromThis(), &appl::widget::Player::onCallbackOther);
 	subBind(appl::widget::VideoDisplay, "[" + etk::to_string(getId()) + "]appl-player-display", signalPosition, sharedFromThis(), &appl::widget::Player::onCallbackPosition);
 	subBind(appl::widget::VideoDisplay, "[" + etk::to_string(getId()) + "]appl-player-display", signalDuration, sharedFromThis(), &appl::widget::Player::onCallbackDuration);
 	subBind(appl::widget::VideoDisplay, "[" + etk::to_string(getId()) + "]appl-player-display", signalFinish, sharedFromThis(), &appl::widget::Player::onCallbackFinished);
@@ -174,7 +175,10 @@ void appl::widget::Player::onCallbackLightRequest(const float& _value) {
 }
 
 
-
+void appl::widget::Player::onCallbackOther(const std::string& _plop) {
+	APPL_DEBUG("FPS = " << _plop);
+	propertySetOnWidgetNamed("[" + etk::to_string(getId()) + "]appl-player-label-fps", "value", "FPS=<font color='orangered'>" + _plop + "</font>");
+}
 
 void appl::widget::Player::onCallbackFPS(const int32_t& _fps) {
 	APPL_DEBUG("FPS = " << _fps);

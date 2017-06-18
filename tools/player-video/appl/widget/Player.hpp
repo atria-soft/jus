@@ -52,6 +52,7 @@ namespace appl {
 				void onCallbackVolumeRequest(const float& _value);
 				void onCallbackLightRequest(const float& _value);
 				void onCallbackFPS(const int32_t& _fps);
+				void onCallbackOther(const std::string& _plop);
 				void onCallbackFinished();
 		};
 	};

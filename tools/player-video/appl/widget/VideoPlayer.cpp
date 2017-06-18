@@ -288,6 +288,7 @@ void appl::widget::VideoDisplay::onRegenerateDisplay() {
 	} else {
 		// nothing to display ...
 	}
+	markToRedraw();
 }
 
 void appl::widget::VideoDisplay::periodicEvent(const ewol::event::Time& _event) {
@@ -353,14 +354,14 @@ void appl::widget::VideoDisplay::periodicEvent(const ewol::event::Time& _event) 
 		// check the slot is valid and check display time of the element:
 		if (    idSlot != -1
 		     && m_currentTime > m_decoder->m_videoPool[idSlot].m_time) {
-			APPL_VERBOSE("Get Slot VIDEO " << m_currentTime << " > " << m_decoder->m_audioPool[idSlot].m_time);
+			APPL_WARNING("Get Slot VIDEO " << m_currentTime << " > " << m_decoder->m_audioPool[idSlot].m_time);
 			m_resource[m_useElement]->get().swap(m_decoder->m_videoPool[idSlot].m_image);
 			m_resource[m_useElement]->flush();
 			m_useElement++;
 			if (m_useElement == ZEUS_VIDEO_PLAYER_MULTIPLE_BUFFER) {
 				m_useElement = 0;
 			}
-			m_imageSize = m_resource[m_useElement]->get().getSize();
+			m_imageSize = m_resource[m_useElement]->get().getGPUSize();
 			ivec2 tmpSize = m_decoder->m_videoPool[idSlot].m_imageRealSize;
 			m_decoder->m_videoPool[idSlot].m_imageRealSize = m_videoSize;
 			m_videoSize = tmpSize;
@@ -379,6 +380,7 @@ void appl::widget::VideoDisplay::periodicEvent(const ewol::event::Time& _event) 
 	if (m_LastResetCounter > echrono::seconds(1)) {
 		m_LastResetCounter.reset();
 		signalFps.emit(m_nbFramePushed);
+		signalOther.emit(std::to_string(m_nbFramePushed) + " " + etk::to_string(m_resource[m_useElement]->get().getSize()) + " " + etk::to_string(m_resource[m_useElement]->get().getGPUSize()) );
 		m_nbFramePushed = 0;
 	}
 	if (    getSomething == false

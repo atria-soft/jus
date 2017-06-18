@@ -101,32 +101,14 @@ static void unPlanar(void* _bufferOut, const void* _bufferIn, int32_t _nbSample,
 	}
 }
 
-/**
- * @brief get the next power 2 if the input
- * @param[in] value Value that we want the next power of 2
- * @return result value
- */
-static int32_t nextP2(int32_t _value) {
-	int32_t val=1;
-	for (int32_t iii=1; iii<31; iii++) {
-		if (_value <= val) {
-			return val;
-		}
-		val *=2;
-	}
-	EWOL_CRITICAL("impossible CASE....");
-	return val;
-}
-
 void appl::MessageElementVideo::setSize(const ivec2& _size) {
 	if (m_imageRealSize != _size) {
 		// Resize the buffer:
 		m_imageRealSize = _size;
-		m_imagePow2Size = ivec2(nextP2(_size.x()), nextP2(_size.y()));
-		m_lineSize = m_imagePow2Size.x() * 3;
+		m_lineSize = m_imageRealSize.x() * 3;
 	}
-	if (m_image.getSize() != m_imagePow2Size) {
-		m_image.resize(m_imagePow2Size);
+	if (m_image.getSize() != m_imageRealSize) {
+		m_image.resize(m_imageRealSize);
 	}
 }
 void appl::MessageElementAudio::configure(audio::format _format, uint32_t _sampleRate, int32_t _nbChannel, int32_t _nbSample) {
@@ -200,9 +182,12 @@ int appl::MediaDecoder::decode_packet(int *_gotFrame, int _cached) {
 			return ret;
 		}
 		if (*_gotFrame) {
+			/*
 			if (    m_frame->width != m_size.x()
-			     || m_frame->height != m_size.y() ||
-				m_frame->format != m_pixelFormat) {
+			     || m_frame->height != m_size.y()
+			     || m_frame->format != m_pixelFormat) {
+			*/
+			if (m_frame->format != m_pixelFormat) {
 				// To handle this change, one could call av_image_alloc again and decode the following frames into another rawvideo file.
 				APPL_ERROR("Width, height and pixel format have to be constant in a rawvideo file, but the width, height or pixel format of the input video changed:");
 				APPL_ERROR("old: size=" << m_size << " format=" << av_get_pix_fmt_name(m_pixelFormat));
@@ -227,7 +212,8 @@ int appl::MediaDecoder::decode_packet(int *_gotFrame, int _cached) {
 			if (slotId == -1) {
 				APPL_ERROR("an error occured when getting an empty slot for video");
 			} else {
-				m_videoPool[slotId].setSize(ivec2(m_frame->width, m_frame->height));
+				//m_videoPool[slotId].setSize(ivec2(m_frame->width, m_frame->height));
+				m_videoPool[slotId].setSize(m_size);
 				uint8_t* dataPointer = (uint8_t*)(m_videoPool[slotId].m_image.getTextureDataPointer());
 				// Convert Image in RGB:
 				sws_scale(m_convertContext,
@@ -719,12 +705,15 @@ void appl::MediaDecoder::init() {
 		m_videoDecoderContext = m_videoStream->codec;
 		// allocate image where the decoded image will be put
 		m_size.setValue(m_videoDecoderContext->width, m_videoDecoderContext->height);
+		if (m_size.x() > 512) {
+			m_size /= 2;
+		}
 		m_pixelFormat = m_videoDecoderContext->pix_fmt;
 		
-		m_videoPool.resize(10);
+		m_videoPool.resize(1);
 		APPL_INFO("Open video stream with property: size=" << m_size << " pixel format=" << av_get_pix_fmt_name(m_pixelFormat) << " fps=" << getFps(m_videoDecoderContext) << " tick/frame=" << m_videoDecoderContext->ticks_per_frame);
 		// convert the image format:
-		m_convertContext = sws_getContext(m_size.x(), m_size.y(), m_pixelFormat,
+		m_convertContext = sws_getContext(m_videoDecoderContext->width, m_videoDecoderContext->height, m_pixelFormat,
 		                                  m_size.x(), m_size.y(), AV_PIX_FMT_RGB24,
 		                                  0, 0, 0, 0);
 	}

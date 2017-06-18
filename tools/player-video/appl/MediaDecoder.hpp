@@ -41,13 +41,11 @@ namespace appl {
 		public:
 			egami::Image m_image; //!< Image to manage internal data
 			ivec2 m_imageRealSize; //!< Real size of the image, in OpenGL we need power of 2 border size.
-			ivec2 m_imagePow2Size;
 			int32_t m_lineSize; //!< Size of a single line (in byte)
 			void setSize(const ivec2& _newSize);
 			MessageElementVideo():
 			  m_image(ivec2(32,32), egami::colorType::RGB8),
-			  m_imageRealSize(32,32),
-			  m_imagePow2Size(32,32) {
+			  m_imageRealSize(32,32) {
 				
 			}
 	};
