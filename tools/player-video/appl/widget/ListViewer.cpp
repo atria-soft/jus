@@ -212,6 +212,7 @@ void appl::ElementProperty::loadData() {
 	                 	             });
 	                 	_media.getMetadata("description")
 	                 	    .andElse([=](const std::string& _error, const std::string& _help) mutable {
+	                 	             	APPL_ERROR("Get remot error : " << _error << " " << _help << "     [BEGIN]");
 	                 	             	{
 	                 	             		std::unique_lock<std::mutex> lock(tmpProperty->m_mutex);
 	                 	             		tmpProperty->m_nbElementLoaded++;
@@ -219,6 +220,7 @@ void appl::ElementProperty::loadData() {
 	                 	             			tmpProperty->m_metadataUpdated = appl::statusLoadingData::done;
 	                 	             		}
 	                 	             	}
+	                 	             	APPL_ERROR("Get remot error : " << _error << " " << _help << "     [END]");
 	                 	             	return true;
 	                 	             })
 	                 	    .andThen([=](std::string _value) mutable {

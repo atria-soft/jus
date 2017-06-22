@@ -128,13 +128,22 @@ bool zeus::Promise::setMessage(ememory::SharedPtr<zeus::Message> _value) {
 		m_receiveTime = echrono::Steady::now();
 	}
 	if (_value->getType() == zeus::message::type::event) {
+		ObserverEvent callback;
+		{
+			std::unique_lock<std::mutex> lock(m_mutex);
+			callback = m_callbackEvent;
+		}
 		std::unique_lock<std::mutex> lock(m_mutex);
 		// notification of a progresion ...
-		if (m_callbackEvent != nullptr) {
+		if (callback != nullptr) {
 			if (_value == nullptr) {
 				return true;
 			}
-			m_callbackEvent(ememory::staticPointerCast<zeus::message::Event>(_value));
+			callback(ememory::staticPointerCast<zeus::message::Event>(_value));
+			{
+				std::unique_lock<std::mutex> lock(m_mutex);
+				m_callbackEvent = std::move(callback);
+			}
 			return false; // no error
 		}
 		return false;
@@ -151,15 +160,36 @@ bool zeus::Promise::setMessage(ememory::SharedPtr<zeus::Message> _value) {
 		}
 	}
 	if (hasError() == false) {
-		std::unique_lock<std::mutex> lock(m_mutex);
-		if (m_callbackThen != nullptr) {
-			return m_callbackThen(zeus::FutureBase(sharedFromThis()));
+		Observer callback;
+		{
+			std::unique_lock<std::mutex> lock(m_mutex);
+			callback = std::move(m_callbackThen);
+		}
+		if (callback != nullptr) {
+			bool ret = callback(zeus::FutureBase(sharedFromThis()));
+			{
+				std::unique_lock<std::mutex> lock(m_mutex);
+				m_callbackThen = std::move(callback);
+			}
+			return ret;
 		}
 	} else {
-		std::unique_lock<std::mutex> lock(m_mutex);
-		if (m_callbackElse != nullptr) {
-			return m_callbackElse(zeus::FutureBase(sharedFromThis()));
+		ZEUS_ERROR("plop ...");
+		Observer callback;
+		{
+			std::unique_lock<std::mutex> lock(m_mutex);
+			callback = m_callbackElse;
 		}
+		ZEUS_ERROR("plop .2.");
+		if (callback != nullptr) {
+			bool ret = callback(zeus::FutureBase(sharedFromThis()));
+			{
+				std::unique_lock<std::mutex> lock(m_mutex);
+				m_callbackElse = std::move(callback);
+			}
+			return ret;
+		}
+		ZEUS_ERROR("plop .3.");
 	}
 	return true;
 }
