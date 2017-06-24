@@ -214,7 +214,7 @@ class FunctionDefinition:
 		self.parameters.append({
 		    "type":"",
 		    "name":remove_start_stop_spacer(name),
-		    "brief":remove_start_stop_spacer(desc)
+		    "brief":remove_start_stop_spacer(desc).replace("\"", "\\\"")
 		    })
 	
 	def set_return_comment(self, desc):
@@ -389,10 +389,10 @@ class ServiceDefinition:
 		self.brief = remove_start_stop_spacer(value).replace("\"", "\\\"")
 	
 	def set_version(self, value):
-		self.version = remove_start_stop_spacer(value)
+		self.version = remove_start_stop_spacer(value).replace("\"", "\\\"")
 	
 	def set_api(self, value):
-		self.api = remove_start_stop_spacer(value)
+		self.api = remove_start_stop_spacer(value).replace("\"", "\\\"")
 	
 	def add_author(self, value):
 		self.authors.append(remove_start_stop_spacer(value).replace("\"", "\\\""))
