@@ -27,11 +27,14 @@
 
 static std::mutex g_mutex;
 static std::string g_basePath;
+static std::string g_basePathCover;
+static std::string g_basePathCoverGroup;
 static std::string g_baseDBName = std::string(SERVICE_NAME) + "-database.json";
 
 static std::vector<ememory::SharedPtr<zeus::MediaImpl>> m_listFile;
 
 static uint64_t m_lastMaxId = 0;
+static uint64_t m_lastMaxImportId = 0;
 static bool g_needToStore = false;
 
 static uint64_t createUniqueID() {
@@ -39,6 +42,10 @@ static uint64_t createUniqueID() {
 	return m_lastMaxId;
 }
 
+static uint64_t createUniqueImportID() {
+	m_lastMaxImportId++;
+	return m_lastMaxImportId;
+}
 
 static std::string removeSpaceOutQuote(const std::string& _in) {
 	std::string out;
@@ -176,10 +183,12 @@ namespace appl {
 				//_action.setProgress("{\"pourcent\":" + etk::to_string(23.54) + ", \"comment\":\"transfering file\"");;
 				//_action.setProgress("{\"pourcent\":" + etk::to_string(23.54) + ", \"comment\":\"synchronize meta-data\"");
 				uint64_t id = 0;
+				uint64_t importId = 0;
 				{
 					std::unique_lock<std::mutex> lock(g_mutex);
 					// TODO : Check right ...
 					id = createUniqueID();
+					importId = createUniqueImportID();
 				}
 				auto futRemoteSha512 = _dataFile.getSha512();
 				auto futType = _dataFile.getMineType();
@@ -201,7 +210,7 @@ namespace appl {
 						}
 					}
 				}
-				std::string tmpFileName = g_basePath + "tmpImport_" + etk::to_string(id);
+				std::string tmpFileName = g_basePath + "tmpImport_" + etk::to_string(importId);
 				std::string sha512String = zeus::storeInFile(_dataFile, tmpFileName);
 				futType.wait();
 				futName.wait();
@@ -394,6 +403,65 @@ namespace appl {
 				return out;
 			}
 			
+			ememory::SharedPtr<zeus::File> internalGetCover(const std::string& _baseName, const std::string& _mediaString, uint32_t _maxSize) {
+				if (etk::FSNodeExist(_baseName + _mediaString + ".jpg") == true) {
+					return zeus::File::create(_baseName + _mediaString + ".jpg", "", "");
+				}
+				if (etk::FSNodeExist(_baseName + _mediaString + ".png") == true) {
+					return zeus::File::create(_baseName + _mediaString + ".jpg", "", "");
+				}
+				throw std::runtime_error("No cover availlable");
+			}
+			
+			void internalSetCover(const std::string& _baseName, zeus::ActionNotification<std::string>& _notifs, zeus::ProxyFile _cover, std::string _mediaString) {
+				uint64_t importId = 0;
+				{
+					std::unique_lock<std::mutex> lock(g_mutex);
+					importId = createUniqueImportID();
+				}
+				auto futType = _cover.getMineType();
+				std::string tmpFileName = g_basePath + "tmpImport_" + etk::to_string(importId);
+				std::string sha512String = zeus::storeInFile(_cover, tmpFileName);
+				futType.wait();
+				if (etk::FSNodeGetSize(tmpFileName) == 0) {
+					APPL_ERROR("try to store an empty file");
+					throw std::runtime_error("file size == 0");
+				}
+				if (etk::FSNodeGetSize(tmpFileName) > 1024*1024) {
+					APPL_ERROR("try to store a Bigger file");
+					throw std::runtime_error("file size > 1Mo");
+				}
+				if (futType.get() == "image/png") {
+					std::unique_lock<std::mutex> lock(g_mutex);
+					etk::FSNodeRemove(_baseName + _mediaString + ".jpg");
+					etk::FSNodeMove(tmpFileName, _baseName + _mediaString + ".png");
+				} else if (futType.get() == "image/jpeg") {
+					std::unique_lock<std::mutex> lock(g_mutex);
+					etk::FSNodeRemove(_baseName + _mediaString + ".png");
+					etk::FSNodeMove(tmpFileName, _baseName + _mediaString + ".jpg");
+				} else {
+					APPL_ERROR("try to store a file with the wrong format");
+					throw std::runtime_error("wrong foramt :" + futType.get() + " support only image/jpeg, image/png");
+				}
+				
+			}
+			
+			ememory::SharedPtr<zeus::File> getCover(uint32_t _mediaId, uint32_t _maxSize) override {
+				return internalGetCover(g_basePathCover, etk::to_string(_mediaId), _maxSize);
+			}
+			
+			void setCover(zeus::ActionNotification<std::string>& _notifs, zeus::ProxyFile _cover, uint32_t _mediaId) override {
+				return internalSetCover(g_basePathCover, _notifs, _cover, etk::to_string(_mediaId));
+			}
+			
+			ememory::SharedPtr<zeus::File> getGroupCover(std::string _groupName, uint32_t _maxSize) override {
+				return internalGetCover(g_basePathCoverGroup, _groupName, _maxSize);
+			}
+			
+			void setGroupCover(zeus::ActionNotification<std::string>& _notifs, zeus::ProxyFile _cover, std::string _groupName) override {
+				return internalSetCover(g_basePathCoverGroup, _notifs, _cover, _groupName);
+			}
+
 	};
 }
 
@@ -440,6 +508,8 @@ static void load_db() {
 
 ETK_EXPORT_API bool SERVICE_IO_init(int _argc, const char *_argv[], std::string _basePath) {
 	g_basePath = _basePath;
+	g_basePathCover = _basePath + "/AAAASDGDFGQN4352SCVdfgBSXDFGFCVQDSGFQSfd_cover/";
+	g_basePathCoverGroup = _basePath + "/AAAASDGDFGQN4352SCVdfgBSXDFGFCVQDSGFQSfd_cover_group/";
 	std::unique_lock<std::mutex> lock(g_mutex);
 	APPL_WARNING("Load USER: " << g_basePath);
 	load_db();

@@ -55,16 +55,38 @@ vector:uint32 getSQL(string)
 #param:sqlLikeRequest:A string containing the request on the data
 #return:All The possible values of a key
 vector:string getMetadataValuesWhere(string, string)
-/*
+
+
+////////////////////////////////////////////////////////
+// Covers AREA
+////////////////////////////////////////////////////////
+
 #brief:Get a media cover
 #param:mediaId:Id of the media
 #param:maxSize:max size of the image requested (can return a smaller image)
 #return:A simple file that might contain a jpg or png file
 obj:zeus-File getCover(uint32, uint32)
 
+#brief:Set a media cover
+#param:cover:A simple file that might contain a jpg or png file
+#param:mediaId:Id of the media
+[action string] void setCover(obj:zeus-File, uint32)
+
+/*
 #brief:Get a media cover
 #param:sqlLikeRequest:sql request mode to filter the cover
 #param:maxSize:max size of the image requested (can return a smaller image)
 #return:A simple file that might contain a jpg or png file
 obj:zeus-File getGroupCover(string, uint32)
 */
+
+#brief:Get a group cover
+#param:groupName:Name of the group to get the cover (like "Albator24", "big-loup", "StarWax", "Nanaruto" ...)
+#param:maxSize:max size of the image requested (can return a smaller image)
+#return:A simple file that might contain a jpg or png file
+obj:zeus-File getGroupCover(string, uint32)
+
+#brief:Set a group cover
+#param:cover:A simple file that might contain a jpg or png file
+#param:groupName:Name of the group to get the cover (like "Albator24", "Big-loup", "StarWax", "Nanaruto" ...)
+[action string] void setGroupCover(obj:zeus-File, string)
