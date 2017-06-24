@@ -185,12 +185,7 @@ namespace zeus {
 				*/
 				return true;
 			}
-			/**
-			 * @brief Find and call the functionwith a specific name
-			 * @param[in] _call Function name to call
-			 * @param[in] _value Message to process.
-			 */
-			void callBinary(const std::string& _call, ememory::SharedPtr<zeus::message::Call> _value) {
+			void callBinary(const std::string& _call, ememory::SharedPtr<zeus::message::Call> _value) override {
 				for (auto &it2 : m_listFunction) {
 					if (it2 == nullptr) {
 						continue;
