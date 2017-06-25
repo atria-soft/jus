@@ -58,7 +58,8 @@ bool pushVideoFile(zeus::service::ProxyVideo& _srv, std::string _path, std::map<
 	     && _path.rfind('.') != 0) {
 		extention = etk::tolower(std::string(_path.begin()+_path.rfind('.')+1, _path.end()));
 	}
-	// internal extention ....
+	std::string fileName = etk::split(_path, '/').back();
+	// internal extention ...
 	if (extention == "sha512") {
 		return true;
 	}
@@ -67,9 +68,34 @@ bool pushVideoFile(zeus::service::ProxyVideo& _srv, std::string _path, std::map<
 	     && extention != "mkv"
 	     && extention != "mov"
 	     && extention != "mp4"
-	     && extention != "ts") {
+	     && extention != "ts"
+	     && fileName != "cover_1.jpg"
+	     && fileName != "cover_1.png"
+	     && fileName != "cover_1.till"
+	     && fileName != "cover_1.bmp"
+	     && fileName != "cover_1.tga") {
 		APPL_ERROR("Sot send file : " << _path << " Not manage extention...");
 		return false;
+	}
+	if (    fileName == "cover_1.jpg"
+	     || fileName == "cover_1.png"
+	     || fileName == "cover_1.till"
+	     || fileName == "cover_1.bmp"
+	     || fileName == "cover_1.tga") {
+		// find a cover...
+		APPL_INFO("Send cover for: " << _basicKey["series-name"] << " " << _basicKey["saison"]);
+		if (_basicKey["series-name"] == "") {
+			APPL_ERROR("    ==> can not asociate at a specific seri");
+			return false;
+		}
+		std::string groupName = _basicKey["series-name"];
+		if (_basicKey["saison"] != "") {
+			groupName += ":" + _basicKey["saison"];
+		}
+		auto sending = _srv.setGroupCover(zeus::File::create(_path, ""), groupName);
+		sending.onSignal(progressCallback);
+		sending.waitFor(echrono::seconds(20000));
+		return true;
 	}
 	std::string storedSha512;
 	if (etk::FSNodeExist(_path + ".sha512") == true) {
@@ -123,9 +149,6 @@ bool pushVideoFile(zeus::service::ProxyVideo& _srv, std::string _path, std::map<
 	}
 	
 	// TODO: if the media have meta data ==> this mean that the media already added before ...
-	
-	// Parse file name:
-	std::string fileName = etk::split(_path, '/').back();
 	APPL_INFO("Find fileName : '" << fileName << "'");
 	// Remove Date (XXXX) or other title
 	std::vector<std::string> dates;

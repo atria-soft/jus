@@ -336,7 +336,50 @@ bool appl::ElementProperty::LoadDataEnded() {
 	std::unique_lock<std::mutex> lock(m_mutex);
 	return m_metadataUpdated == appl::statusLoadingData::done;
 }
+void appl::ElementPropertyGroup::loadData() {
+	// Check progression status:
+	{
+		std::unique_lock<std::mutex> lock(m_mutex);
+		if (m_metadataUpdated != appl::statusLoadingData::noData) {
+			return;
+		}
+		m_metadataUpdated = appl::statusLoadingData::inProgress;
+	}
+	auto tmpProperty = sharedFromThis();
+	// Get the media
+	auto futMedia = m_remoteServiceVideo.getGroupCover(m_title, 128);
+	futMedia.andElse([=](const std::string& _error, const std::string& _help) mutable {
+	                 	APPL_INFO("    [" << tmpProperty->m_id << "] get cover error on group: " << tmpProperty->m_title << ": " << _help);
+	                 	{
+	                 		std::unique_lock<std::mutex> lock(tmpProperty->m_mutex);
+	                 		tmpProperty->m_metadataUpdated = appl::statusLoadingData::done;
+	                 	}
+	                 	m_widget->markToRedraw();
+	                 	return true;
+	                 });
+	futMedia.andThen([=](zeus::ProxyFile _media) mutable {
+	                 	APPL_INFO("    [" << tmpProperty->m_id << "] get cover on group: " << tmpProperty->m_title);
+	                 	auto mineTypeFut = _media.getMineType();
+	                 	std::vector<uint8_t> bufferData = zeus::storeInMemory(_media);
+	                 	APPL_INFO("    [" << tmpProperty->m_id << "] get cover on group: " << tmpProperty->m_title << " store in memory " << bufferData.size());
+	                 	std::string mineType = mineTypeFut.wait().get();
+	                 	APPL_INFO("    [" << tmpProperty->m_id << "] get cover on group: " << tmpProperty->m_title << " mineType '" << mineType << "'");
+	                 	{
+	                 		std::unique_lock<std::mutex> lock(tmpProperty->m_mutex);
+	                 		tmpProperty->m_thumb = egami::load(mineType, bufferData);
+	                 		tmpProperty->m_thumbPresent = true;
+	                 	}
+	                 	APPL_WARNING("Get the Thumb ... " << tmpProperty->m_title << " ==> " << tmpProperty->m_thumb);
+	                 	m_widget->markToRedraw();
+	                 	tmpProperty->m_metadataUpdated = appl::statusLoadingData::done;
+	                 	return true;
+	                 });
+}
 
+bool appl::ElementPropertyGroup::LoadDataEnded() {
+	std::unique_lock<std::mutex> lock(m_mutex);
+	return m_metadataUpdated == appl::statusLoadingData::done;
+}
 
 void appl::widget::ListViewer::backHistory() {
 	if (m_history.size() == 0) {
@@ -395,7 +438,7 @@ void appl::widget::ListViewer::searchElementsInternal(const std::string& _filter
 			
 		}
 		for (auto &it : returnValues) {
-			auto elem = ememory::makeShared<ElementPropertyGroup>();
+			auto elem = ememory::makeShared<ElementPropertyGroup>(remoteServiceVideo, ememory::staticPointerCast<ewol::Widget>(sharedFromThis()));
 			if (elem == nullptr) {
 				APPL_ERROR("Can not allocate element... " << it);
 				continue;
@@ -540,6 +583,9 @@ void appl::widget::ListViewer::onRegenerateDisplay() {
 			}
 			if (offset + iii < m_listElementGroup.size()) {
 				elem->m_propertyGroup = m_listElementGroup[offset + iii];
+				if (elem->m_propertyGroup != nullptr) {
+					elem->m_propertyGroup->loadData();
+				}
 			} else {
 				elem->m_propertyGroup.reset();
 			}
@@ -678,9 +724,12 @@ void appl::ElementDisplayed::generateDisplay(vec2 _startPos, vec2 _size) {
 			textToDisplay += "<i>" + m_property->m_description + "</i>";
 		}
 	} else {
-		std::unique_lock<std::mutex> lock(m_propertyGroup->m_mutex);
-		//m_text.setClipping(drawClippingPos, drawClippingSize);
-		textToDisplay = "<br/><b>" + m_propertyGroup->m_title + "</b><br/>";
+		if (m_propertyGroup->LoadDataEnded() == false) {
+			textToDisplay += "<br/><b>" + m_propertyGroup->m_title + "</b><br/><i>Loading in progress</i> ...";
+		} else {
+			//m_text.setClipping(drawClippingPos, drawClippingSize);
+			textToDisplay = "<br/><b>" + m_propertyGroup->m_title + "</b><br/>";
+		}
 	}
 	m_text.printDecorated(textToDisplay);
 	
@@ -698,8 +747,16 @@ void appl::ElementDisplayed::generateDisplay(vec2 _startPos, vec2 _size) {
 			m_image.setSource("DATA:Home.svg", 128);
 		}
 	} else {
-		std::unique_lock<std::mutex> lock(m_propertyGroup->m_mutex);
-		m_image.setSource("DATA:Home.svg", 128);
+		if (m_propertyGroup->LoadDataEnded() == false) {
+			m_image.setSource("DATA:Home.svg", 128);
+		} else {
+			std::unique_lock<std::mutex> lock(m_propertyGroup->m_mutex);
+			if (m_propertyGroup->m_thumbPresent == false) {
+				m_image.setSource("DATA:Home.svg", 128);
+			} else {
+				m_image.setSource(m_propertyGroup->m_thumb);
+			}
+		}
 	}
 	m_image.setPos(_startPos+vec2(10,10));
 	m_image.print(vec2(_size.y(), _size.y())-vec2(20,20));

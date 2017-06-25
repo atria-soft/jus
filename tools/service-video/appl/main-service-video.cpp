@@ -405,10 +405,10 @@ namespace appl {
 			
 			ememory::SharedPtr<zeus::File> internalGetCover(const std::string& _baseName, const std::string& _mediaString, uint32_t _maxSize) {
 				if (etk::FSNodeExist(_baseName + _mediaString + ".jpg") == true) {
-					return zeus::File::create(_baseName + _mediaString + ".jpg", "", "");
+					return zeus::File::create(_baseName + _mediaString + ".jpg");
 				}
 				if (etk::FSNodeExist(_baseName + _mediaString + ".png") == true) {
-					return zeus::File::create(_baseName + _mediaString + ".jpg", "", "");
+					return zeus::File::create(_baseName + _mediaString + ".png");
 				}
 				throw std::runtime_error("No cover availlable");
 			}

@@ -32,7 +32,8 @@ namespace appl {
 			  m_remoteServiceVideo(_remoteServiceVideo),
 			  m_widget(_widget),
 			  m_metadataUpdated(appl::statusLoadingData::noData),
-			  m_nbElementLoaded(0) {
+			  m_nbElementLoaded(0),
+			  m_thumbPresent(false) {
 				
 			}
 		public:
@@ -44,6 +45,7 @@ namespace appl {
 			uint64_t m_id; //!< Remote Id of the Media
 			
 			egami::Image m_thumb; //!< simple image describing the element
+			bool m_thumbPresent; //!< if true, the Image is loaded
 			std::string m_title; //!< Title of the Element
 			std::string m_description; //!< Description of the element
 			std::string m_serie; //!< Name of the serie or empty
@@ -57,12 +59,31 @@ namespace appl {
 			// TODO: int64_t m_globalPersonalView; //!< number of time this media has been viewed
 			void loadData();
 	};
-	class ElementPropertyGroup {
+	class ElementPropertyGroup : public ememory::EnableSharedFromThis<appl::ElementPropertyGroup> {
+		private:
+			zeus::service::ProxyVideo m_remoteServiceVideo;
+			ewol::WidgetShared m_widget;
+			enum appl::statusLoadingData m_metadataUpdated; //!< Check value to know when metadata is getted (like thumb ...)
+			uint32_t m_nbElementLoaded; //!< this cont the number of lement loaded to set tle media full loaded
+		public:
+			ElementPropertyGroup(zeus::service::ProxyVideo& _remoteServiceVideo, ewol::WidgetShared _widget):
+			  m_remoteServiceVideo(_remoteServiceVideo),
+			  m_widget(_widget),
+			  m_metadataUpdated(appl::statusLoadingData::noData),
+			  m_nbElementLoaded(0),
+			  m_thumbPresent(false) {
+				
+			}
+		public:
+			bool LoadDataEnded();
 		public:
 			std::mutex m_mutex;
 			uint64_t m_id; //!< Remote Id of the Media
 			std::string m_title; //!< Title of the Group
 			std::string m_filter; //!< element to add in the filter
+			egami::Image m_thumb; //!< simple image describing the element
+			bool m_thumbPresent; //!< if true, the Image is loaded
+			void loadData();
 	};
 	class ElementDisplayed {
 		public:

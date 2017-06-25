@@ -24,7 +24,7 @@
 			<spacer expand="true,false" fill="true"/>
 			<spacer expand="true,false" fill="true"/>
 		</sizer>
-		<appl_ProgressBar name="[{ID}]appl-player-progress-bar" expand="true,false" fill="true" step="0.01" min="0"/>
+		<appl_ProgressBar name="[{ID}]appl-player-progress-bar" expand="true,false" fill="true" step="0.01" min="0" min-size="30,30px"/>
 		<sizer mode="hori" fill="true" expand="true,false">
 			<label name="[{ID}]appl-player-label-time"/>
 			<spacer expand="true,false" fill="true"/>
