@@ -164,3 +164,42 @@ std::string zeus::storeInFileNotify(zeus::ProxyFile _file, std::string _filename
 	return sha512String;
 }
 
+std::vector<uint8_t> zeus::storeInMemory(zeus::ProxyFile _file) {
+	std::vector<uint8_t> out;
+	auto futSize = _file.getSize();
+	auto futSha = _file.getSha512();
+	futSize.wait();
+	int64_t retSize = futSize.get();
+	int64_t offset = 0;
+	
+	algue::Sha512 shaCtx;
+	out.resize(retSize);
+	int64_t currentOffset = 0;
+	while (retSize > 0) {
+		// get by batch of 1 MB
+		int32_t nbElement = 1*1024*1024;
+		if (retSize<nbElement) {
+			nbElement = retSize;
+		}
+		auto futData = _file.getPart(offset, offset + nbElement);
+		futData.wait();
+		if (futData.hasError() == true) {
+			throw std::runtime_error("Error when loading data");
+		}
+		zeus::Raw buffer = futData.get();
+		shaCtx.update(buffer.data(), buffer.size());
+		memcpy(&out[currentOffset], buffer.data(), buffer.size());
+		currentOffset += buffer.size();
+		offset += nbElement;
+		retSize -= nbElement;
+		ZEUS_VERBOSE("read: " << offset << "/" << futSize.get() << "    " << buffer.size());
+	}
+	// get the final sha512 of the file:
+	std::string sha512String = algue::stringConvert(shaCtx.finalize());
+	futSha.wait();
+	if (sha512String != futSha.get()) {
+		ZEUS_ERROR("get wrong Sha512 local : '" << sha512String << "'");
+		ZEUS_ERROR("get wrong Sha512 remote: '" << futSha.get() << "'");
+	}
+	return out;
+}

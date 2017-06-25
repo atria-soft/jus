@@ -200,7 +200,7 @@ namespace zeus {
 			zeus::message::ParamType type = getParameterType(_id);
 			uint32_t dataSize = getParameterSize(_id);
 			uint8_t* pointer = const_cast<uint8_t*>(getParameterPointer(_id));
-			ZEUS_WARNING("get type " << type << "   with size=" << dataSize << " pointer=" << uint64_t(pointer) << " sizeof(uint64_t)=" << int32_t(sizeof(uint64_t)));
+			//ZEUS_WARNING("get type " << type << "   with size=" << dataSize << " pointer=" << uint64_t(pointer) << " sizeof(uint64_t)=" << int32_t(sizeof(uint64_t)));
 			// TODO : Check size ...
 			if (createType<uint8_t>() == type) {
 				uint8_t* tmp = reinterpret_cast<uint8_t*>(pointer);

@@ -258,8 +258,8 @@ class SendAsyncBinary {
 		}
 };
 
-#define ZEUS_LOG_INPUT_OUTPUT ZEUS_WARNING
-//#define ZEUS_LOG_INPUT_OUTPUT ZEUS_VERBOSE
+//#define ZEUS_LOG_INPUT_OUTPUT ZEUS_WARNING
+#define ZEUS_LOG_INPUT_OUTPUT ZEUS_VERBOSE
 
 
 int32_t zeus::WebServer::writeBinary(ememory::SharedPtr<zeus::Message> _obj) {
@@ -311,7 +311,6 @@ void zeus::WebServer::onReceiveData(std::vector<uint8_t>& _frame, bool _isBinary
 		disconnect(true);
 		return;
 	}
-	ZEUS_INFO("receive DATA ... ");
 	ememory::SharedPtr<zeus::Message> dataRaw = zeus::Message::create(sharedFromThis(), _frame);
 	if (dataRaw == nullptr) {
 		ZEUS_ERROR("Message Allocation ERROR ... ");

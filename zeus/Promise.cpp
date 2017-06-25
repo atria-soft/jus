@@ -174,13 +174,11 @@ bool zeus::Promise::setMessage(ememory::SharedPtr<zeus::Message> _value) {
 			return ret;
 		}
 	} else {
-		ZEUS_ERROR("plop ...");
 		Observer callback;
 		{
 			std::unique_lock<std::mutex> lock(m_mutex);
 			callback = m_callbackElse;
 		}
-		ZEUS_ERROR("plop .2.");
 		if (callback != nullptr) {
 			bool ret = callback(zeus::FutureBase(sharedFromThis()));
 			{
@@ -189,7 +187,6 @@ bool zeus::Promise::setMessage(ememory::SharedPtr<zeus::Message> _value) {
 			}
 			return ret;
 		}
-		ZEUS_ERROR("plop .3.");
 	}
 	return true;
 }
