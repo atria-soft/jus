@@ -76,6 +76,7 @@ void appl::ElementProperty::loadData() {
 		}
 		m_metadataUpdated = appl::statusLoadingData::inProgress;
 	}
+	int32_t nbCallOfMetaData = 8;
 	auto tmpProperty = sharedFromThis();
 	// Get the media
 	zeus::Future<zeus::ProxyMedia> futMedia = m_remoteServiceVideo.get(m_id);
@@ -101,7 +102,6 @@ void appl::ElementProperty::loadData() {
 	                 		m_widget->markToRedraw();
 	                 		return true;
 	                 	}
-	                 	int32_t nbCallOfMetaData = 7;
 	                 	_media.getMetadata("title")
 	                 	    .andElse([=](const std::string& _error, const std::string& _help) mutable {
 	                 	             	{
@@ -141,7 +141,7 @@ void appl::ElementProperty::loadData() {
 	                 	             	return true;
 	                 	             })
 	                 	    .andThen([=](std::string _value) mutable {
-	                 	             	APPL_ERROR("    [" << tmpProperty->m_id << "] get serie: " << _value);
+	                 	             	APPL_INFO("    [" << tmpProperty->m_id << "] get serie: " << _value);
 	                 	             	{
 	                 	             		std::unique_lock<std::mutex> lock(tmpProperty->m_mutex);
 	                 	             		tmpProperty->m_serie = _value;
@@ -212,7 +212,7 @@ void appl::ElementProperty::loadData() {
 	                 	             });
 	                 	_media.getMetadata("description")
 	                 	    .andElse([=](const std::string& _error, const std::string& _help) mutable {
-	                 	             	APPL_ERROR("Get remot error : " << _error << " " << _help << "     [BEGIN]");
+	                 	             	APPL_INFO("Get remot error : " << _error << " " << _help);
 	                 	             	{
 	                 	             		std::unique_lock<std::mutex> lock(tmpProperty->m_mutex);
 	                 	             		tmpProperty->m_nbElementLoaded++;
@@ -220,7 +220,6 @@ void appl::ElementProperty::loadData() {
 	                 	             			tmpProperty->m_metadataUpdated = appl::statusLoadingData::done;
 	                 	             		}
 	                 	             	}
-	                 	             	APPL_ERROR("Get remot error : " << _error << " " << _help << "     [END]");
 	                 	             	return true;
 	                 	             })
 	                 	    .andThen([=](std::string _value) mutable {
@@ -330,6 +329,86 @@ void appl::ElementProperty::loadData() {
 	                 	//elem->m_thumb = remoteServiceVideo.mediaThumbGet(it, 128).wait().get();
 	                 	return true;
 	                 });
+	auto futMediaCover = m_remoteServiceVideo.getCover(m_id, 128);
+	futMediaCover.andElse([=](const std::string& _error, const std::string& _help) mutable {
+	                      	APPL_INFO("    [" << tmpProperty->m_id << "] get cover error: " << tmpProperty->m_id << ": " << _help);
+	                      	// TODO : Remove this ...
+	                      	std::this_thread::sleep_for(std::chrono::milliseconds(400));
+	                      	std::string serie;
+	                      	{
+	                      		std::unique_lock<std::mutex> lock(tmpProperty->m_mutex);
+	                      		serie = tmpProperty->m_serie;
+	                      	}
+	                      	if (serie != "") {
+	                      		auto futMediaGroupCover = m_remoteServiceVideo.getGroupCover(serie, 128);
+	                      		futMediaGroupCover.andElse([=](const std::string& _error, const std::string& _help) mutable {
+	                      		                        	APPL_INFO("    [" << tmpProperty->m_id << "] get cover Group error: " << serie << ": " << _help);
+	                      		                        	{
+	                      		                        		m_widget->markToRedraw();
+	                      		                        		std::unique_lock<std::mutex> lock(tmpProperty->m_mutex);
+	                      		                        		tmpProperty->m_nbElementLoaded++;
+	                      		                        		if (tmpProperty->m_nbElementLoaded >= nbCallOfMetaData) {
+	                      		                        			tmpProperty->m_metadataUpdated = appl::statusLoadingData::done;
+	                      		                        		}
+	                      		                        	}
+	                      		                        	return true;
+	                      		                        });
+	                      		futMediaGroupCover.andThen([=](zeus::ProxyFile _media) mutable {
+	                      		                        	APPL_INFO("    [" << tmpProperty->m_id << "] get cover Group on: " << serie);
+	                      		                        	auto mineTypeFut = _media.getMineType();
+	                      		                        	std::vector<uint8_t> bufferData = zeus::storeInMemory(_media);
+	                      		                        	APPL_INFO("    [" << tmpProperty->m_id << "] get cover Group on: " << serie << " store in memory " << bufferData.size());
+	                      		                        	std::string mineType = mineTypeFut.wait().get();
+	                      		                        	APPL_INFO("    [" << tmpProperty->m_id << "] get cover Group on: " << serie << " mineType '" << mineType << "'");
+	                      		                        	{
+	                      		                        		std::unique_lock<std::mutex> lock(tmpProperty->m_mutex);
+	                      		                        		tmpProperty->m_thumb = egami::load(mineType, bufferData);
+	                      		                        		tmpProperty->m_thumbPresent = true;
+	                      		                        	}
+	                      		                        	APPL_WARNING("Get the Thumb ... " << tmpProperty->m_title << " ==> " << tmpProperty->m_thumb);
+	                      		                        	m_widget->markToRedraw();
+	                      		                        	{
+	                      		                        		std::unique_lock<std::mutex> lock(tmpProperty->m_mutex);
+	                      		                        		tmpProperty->m_nbElementLoaded++;
+	                      		                        		if (tmpProperty->m_nbElementLoaded >= nbCallOfMetaData) {
+	                      		                        			tmpProperty->m_metadataUpdated = appl::statusLoadingData::done;
+	                      		                        		}
+	                      		                        	}
+	                      		                        	return true;
+	                      		                        });
+	                      	} else {
+	                      		m_widget->markToRedraw();
+	                      		std::unique_lock<std::mutex> lock(tmpProperty->m_mutex);
+	                      		tmpProperty->m_nbElementLoaded++;
+	                      		if (tmpProperty->m_nbElementLoaded >= nbCallOfMetaData) {
+	                      			tmpProperty->m_metadataUpdated = appl::statusLoadingData::done;
+	                      		}
+	                      	}
+	                      	return true;
+	                      });
+	futMediaCover.andThen([=](zeus::ProxyFile _media) mutable {
+	                      	APPL_INFO("    [" << tmpProperty->m_id << "] get cover on: " << tmpProperty->m_id);
+	                      	auto mineTypeFut = _media.getMineType();
+	                      	std::vector<uint8_t> bufferData = zeus::storeInMemory(_media);
+	                      	APPL_INFO("    [" << tmpProperty->m_id << "] get cover on: " << tmpProperty->m_id << " store in memory " << bufferData.size());
+	                      	std::string mineType = mineTypeFut.wait().get();
+	                      	APPL_INFO("    [" << tmpProperty->m_id << "] get cover on: " << tmpProperty->m_id << " mineType '" << mineType << "'");
+	                      	{
+	                      		std::unique_lock<std::mutex> lock(tmpProperty->m_mutex);
+	                      		tmpProperty->m_thumb = egami::load(mineType, bufferData);
+	                      		tmpProperty->m_thumbPresent = true;
+	                      	}
+	                      	APPL_WARNING("Get the Thumb ... " << tmpProperty->m_title << " ==> " << tmpProperty->m_thumb);
+	                      	m_widget->markToRedraw();
+	                      	{
+	                      		std::unique_lock<std::mutex> lock(tmpProperty->m_mutex);
+	                      		tmpProperty->m_nbElementLoaded++;
+	                      		if (tmpProperty->m_nbElementLoaded >= nbCallOfMetaData) {
+	                      			tmpProperty->m_metadataUpdated = appl::statusLoadingData::done;
+	                      		}
+	                      	}
+	                      	return true;
+	                      });
 }
 
 bool appl::ElementProperty::LoadDataEnded() {
@@ -737,29 +816,52 @@ void appl::ElementDisplayed::generateDisplay(vec2 _startPos, vec2 _size) {
 	// -- Display Image...
 	// --------------------------------------------
 	if (m_property != nullptr) {
-		std::unique_lock<std::mutex> lock(m_property->m_mutex);
-		if (etk::start_with(m_property->m_mineType, "video") == true) {
-			m_image.setSource("DATA:Video.svg", 128);
-		} else if (etk::start_with(m_property->m_mineType, "audio") == true) {
-			m_image.setSource("DATA:MusicNote.svg", 128);
-		} else {
-			APPL_DEBUG("Set image: Unknow type '" << m_property->m_mineType << "'");
-			m_image.setSource("DATA:Home.svg", 128);
-		}
-	} else {
-		if (m_propertyGroup->LoadDataEnded() == false) {
+		bool haveThumb = false;
+		if (m_property->LoadDataEnded() == false) {
+			haveThumb = false;
 			m_image.setSource("DATA:Home.svg", 128);
 		} else {
-			std::unique_lock<std::mutex> lock(m_propertyGroup->m_mutex);
-			if (m_propertyGroup->m_thumbPresent == false) {
-				m_image.setSource("DATA:Home.svg", 128);
+			std::unique_lock<std::mutex> lock(m_property->m_mutex);
+			if (m_property->m_thumbPresent == true) {
+				haveThumb = true;
+				m_image.setSource(m_property->m_thumb);
+				m_image.setPos(_startPos);
+				m_image.print(vec2(_size.y(), _size.y()));
 			} else {
-				m_image.setSource(m_propertyGroup->m_thumb);
+				if (etk::start_with(m_property->m_mineType, "video") == true) {
+					m_image.setSource("DATA:Video.svg", 128);
+				} else if (etk::start_with(m_property->m_mineType, "audio") == true) {
+					m_image.setSource("DATA:MusicNote.svg", 128);
+				} else {
+					APPL_DEBUG("Set image: Unknow type '" << m_property->m_mineType << "'");
+					m_image.setSource("DATA:Home.svg", 128);
+				}
 			}
 		}
+		if (haveThumb == false) {
+			m_image.setPos(_startPos+vec2(10,10));
+			m_image.print(vec2(_size.y(), _size.y())-vec2(20,20));
+		}
+	} else {
+		bool haveThumb = false;
+		if (m_propertyGroup->LoadDataEnded() == false) {
+			haveThumb = false;
+		} else {
+			std::unique_lock<std::mutex> lock(m_propertyGroup->m_mutex);
+			if (m_propertyGroup->m_thumbPresent == true) {
+				haveThumb = true;
+				m_image.setSource(m_propertyGroup->m_thumb);
+				m_image.setPos(_startPos);
+				m_image.print(vec2(_size.y(), _size.y()));
+			}
+		}
+		if (haveThumb == false) {
+			m_image.setSource("DATA:Home.svg", 128);
+			m_image.setPos(_startPos+vec2(10,10));
+			m_image.print(vec2(_size.y(), _size.y())-vec2(20,20));
+		}
 	}
-	m_image.setPos(_startPos+vec2(10,10));
-	m_image.print(vec2(_size.y(), _size.y())-vec2(20,20));
+	
 }
 
 

@@ -19,7 +19,7 @@
 #include <appl/MediaDecoder.hpp>
 #include <appl/widget/ListViewer.hpp>
 
-#define ZEUS_VIDEO_PLAYER_MULTIPLE_BUFFER (1)
+#define ZEUS_VIDEO_PLAYER_MULTIPLE_BUFFER (8)
 
 namespace appl {
 	namespace widget {

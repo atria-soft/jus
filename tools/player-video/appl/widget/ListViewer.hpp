@@ -111,6 +111,19 @@ namespace appl {
 			}
 	};
 	
+	class ElementCache {
+		private:
+			std::string m_name;
+			ememory::SharedPtr<ewol::resource::Texture> m_resource;
+			echrono::Steady m_lastRequestTime;
+	};
+	
+	class CacheImageManager {
+		private:
+			std::vector<ElementCache> m_imageCoverGroupCache; //!< All image cash of the group cover
+			
+	};
+	
 	namespace widget {
 		class ListViewer;
 		using ListViewerShared = ememory::SharedPtr<appl::widget::ListViewer>;
