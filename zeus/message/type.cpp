@@ -8,7 +8,7 @@
 #include <zeus/message/type.hpp>
 
 namespace etk {
-	template<> std::string to_string<enum zeus::message::type>(const enum zeus::message::type& _value) {
+	template<> etk::String toString<enum zeus::message::type>(const enum zeus::message::type& _value) {
 		switch (_value) {
 			case zeus::message::type::unknow:
 				return "unknow";
@@ -24,8 +24,8 @@ namespace etk {
 		return "???";
 	}
 }
-std::ostream& zeus::message::operator <<(std::ostream& _os, enum zeus::message::type _value) {
-	_os << etk::to_string(_value);
+etk::Stream& zeus::message::operator <<(etk::Stream& _os, enum zeus::message::type _value) {
+	_os << etk::toString(_value);
 	return _os;
 }
 

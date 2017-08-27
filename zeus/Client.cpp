@@ -8,10 +8,10 @@
 #include <zeus/Client.hpp>
 #include <zeus/debug.hpp>
 
-static const std::string protocolError = "PROTOCOL-ERROR";
+static const etk::String protocolError = "PROTOCOL-ERROR";
 
 
-void zeus::Client::answerProtocolError(uint32_t _transactionId, const std::string& _errorHelp) {
+void zeus::Client::answerProtocolError(uint32_t _transactionId, const etk::String& _errorHelp) {
 	m_interfaceWeb->answerError(_transactionId, 0, ZEUS_ID_SERVICE_ROOT, protocolError, _errorHelp);
 	m_interfaceWeb->disconnect();
 	ZEUS_TODO("Do this error return ... " << _errorHelp);
@@ -57,16 +57,16 @@ void zeus::Client::onClientData(ememory::SharedPtr<zeus::Message> _value) {
 	// Check if we are the destinated Of this message 
 	if (_value->getDestinationId() != m_interfaceWeb->getAddress()) {
 		ZEUS_ERROR("Protocol error ==> Wrong ID of the interface " << _value->getDestinationId() << " != " << m_interfaceWeb->getAddress());
-		answerProtocolError(transactionId, "wrong adress: request " + etk::to_string(_value->getDestinationId()) + " have " + etk::to_string(m_interfaceWeb->getAddress()));
+		answerProtocolError(transactionId, "wrong adress: request " + etk::toString(_value->getDestinationId()) + " have " + etk::toString(m_interfaceWeb->getAddress()));
 		return;
 	}
 	if (_value->getDestinationObjectId() == ZEUS_ID_GATEWAY_OBJECT) {
 		if (_value->getType() == zeus::message::type::call) {
 			ememory::SharedPtr<zeus::message::Call> callObj = ememory::staticPointerCast<zeus::message::Call>(_value);
-			std::string callFunction = callObj->getCall();
+			etk::String callFunction = callObj->getCall();
 			if (callFunction == "link") {
 				// link with a specific service:
-				std::string serviceName = callObj->getParameter<std::string>(0);
+				etk::String serviceName = callObj->getParameter<etk::String>(0);
 				for (auto &it : m_listServicesAvaillable) {
 					if (it.first == serviceName) {
 						ZEUS_INFO("find service : " << it.first);
@@ -82,7 +82,7 @@ void zeus::Client::onClientData(ememory::SharedPtr<zeus::Message> _value) {
 						ememory::SharedPtr<zeus::Object> newService = it.second(this, tmpId, _value->getSourceId());
 						// TODO : Do it better ...
 						
-						//m_listProvicedService.push_back(newService);
+						//m_listProvicedService.pushBack(newService);
 						// Return the Value of the object service .... this is really bad, Maybe add a message type for this...
 						m_interfaceWeb->answerValue(transactionId, _value->getDestination(), _value->getSource(), (uint32_t(m_interfaceWeb->getAddress())<<16)+tmpId);
 						*/
@@ -121,7 +121,7 @@ void zeus::Client::onClientData(ememory::SharedPtr<zeus::Message> _value) {
 				return;
 			} else if (callFunction == "removeInterface") {
 				ZEUS_VERBOSE("Remove Object : " << callObj);
-				m_interfaceWeb->interfaceRemoved(callObj->getParameter<std::vector<uint16_t>>(0));
+				m_interfaceWeb->interfaceRemoved(callObj->getParameter<etk::Vector<uint16_t>>(0));
 				return;
 			}
 			answerProtocolError(transactionId, "interact with client, musty only call: link/unlink/movelink/removeInterface");
@@ -135,7 +135,7 @@ void zeus::Client::onClientData(ememory::SharedPtr<zeus::Message> _value) {
 	ZEUS_ERROR("Get Data On the Communication interface that is not understand ... : " << _value);
 }
 
-bool zeus::Client::serviceAdd(const std::string& _serviceName, factoryService _factory) {
+bool zeus::Client::serviceAdd(const etk::String& _serviceName, factoryService _factory) {
 	// Check if we can provide new service:
 	zeus::Future<bool> futValidate = m_interfaceWeb->call(uint32_t(m_interfaceWeb->getAddress())<<16, ZEUS_GATEWAY_ADDRESS, "serviceAdd", _serviceName);
 	futValidate.wait(); // TODO: Set timeout ...
@@ -143,11 +143,11 @@ bool zeus::Client::serviceAdd(const std::string& _serviceName, factoryService _f
 		ZEUS_ERROR("Can not provide a new sevice ... '" << futValidate.getErrorType() << "' help:" << futValidate.getErrorHelp());
 		return false;
 	}
-	m_listServicesAvaillable.insert(std::make_pair(_serviceName, _factory));
+	m_listServicesAvaillable.insert(etk::makePair(_serviceName, _factory));
 	return true;
 }
 
-bool zeus::Client::serviceRemove(const std::string& _serviceName) {
+bool zeus::Client::serviceRemove(const etk::String& _serviceName) {
 	// Check if we can provide new service:
 	zeus::Future<bool> futValidate = m_interfaceWeb->call(uint32_t(m_interfaceWeb->getAddress())<<16, ZEUS_GATEWAY_ADDRESS, "serviceRemove", _serviceName);
 	futValidate.wait(); // TODO: Set timeout ...
@@ -159,7 +159,7 @@ bool zeus::Client::serviceRemove(const std::string& _serviceName) {
 	return true;
 }
 
-zeus::ObjectRemote zeus::Client::getService(const std::string& _name) {
+zeus::ObjectRemote zeus::Client::getService(const etk::String& _name) {
 	ZEUS_TODO("Lock here");
 	auto it = m_listConnectedService.begin();
 	while (it != m_listConnectedService.end()) {
@@ -187,12 +187,12 @@ zeus::Future<int32_t> zeus::Client::getServiceCount() {
 	return call(ZEUS_NO_ID_OBJECT, ZEUS_ID_GATEWAY, "getServiceCount");
 }
 
-zeus::Future<std::vector<std::string>> zeus::Client::getServiceList() {
+zeus::Future<etk::Vector<etk::String>> zeus::Client::getServiceList() {
 	return call(ZEUS_NO_ID_OBJECT, ZEUS_ID_GATEWAY, "getServiceList");
 }
 
 // TODO : This is an active waiting ==> this is bad ... ==> use future, it will be better
-bool zeus::Client::waitForService(const std::string& _serviceName, echrono::Duration _delta) {
+bool zeus::Client::waitForService(const etk::String& _serviceName, echrono::Duration _delta) {
 	echrono::Steady start = echrono::Steady::now();
 	while (echrono::Steady::now() - start < _delta) {
 		auto listValues = getServiceList();
@@ -221,10 +221,15 @@ void zeus::Client::onPropertyChangePort(){
 }
 
 
-bool zeus::Client::connectTo(const std::string& _address, echrono::Duration _timeOut) {
+bool zeus::Client::connectTo(const etk::String& _address, echrono::Duration _timeOut) {
 	ZEUS_DEBUG("connect [START]");
 	disconnect();
-	enet::Tcp connection = std::move(enet::connectTcpClient(*propertyIp, *propertyPort, 1));
+	enet::Tcp connection = etk::move(enet::connectTcpClient(*propertyIp, *propertyPort, 1));
+	if (connection.getConnectionStatus() != enet::Tcp::status::link) {
+		ZEUS_WARNING("Can not connect on the TC interface ...");
+		return false;
+	}
+	ZEUS_INFO("connect Connection TCP is OK");
 	m_interfaceWeb = ememory::makeShared<zeus::WebServer>();
 	if (m_interfaceWeb == nullptr) {
 		ZEUS_ERROR("Allocate connection error");
@@ -232,7 +237,7 @@ bool zeus::Client::connectTo(const std::string& _address, echrono::Duration _tim
 	}
 	ZEUS_WARNING("Request connect user " << _address);
 	m_interfaceWeb->connect(this, &zeus::Client::onClientData);
-	m_interfaceWeb->setInterface(std::move(connection), false, _address);
+	m_interfaceWeb->setInterface(etk::move(connection), false, _address);
 	m_interfaceWeb->connect();
 	
 	zeus::Future<uint16_t> retIdentify = call(0, ZEUS_ID_GATEWAY, "getAddress").wait();
@@ -280,7 +285,7 @@ bool zeus::Client::connect(echrono::Duration _timeOut) {
 	return retIdentify.get();
 }
 
-bool zeus::Client::connect(const std::string& _address, echrono::Duration _timeOut) {
+bool zeus::Client::connect(const etk::String& _address, echrono::Duration _timeOut) {
 	m_clientName = _address;
 	bool ret = connectTo(_address, _timeOut);
 	if (ret==false) {
@@ -297,7 +302,7 @@ bool zeus::Client::connect(const std::string& _address, echrono::Duration _timeO
 	return retIdentify.get();
 }
 
-bool zeus::Client::connect(const std::string& _address, const std::string& _userPassword, echrono::Duration _timeOut) {
+bool zeus::Client::connect(const etk::String& _address, const etk::String& _userPassword, echrono::Duration _timeOut) {
 	m_clientName = _address;
 	bool ret = connectTo(_address, _timeOut);
 	if (ret==false) {
@@ -314,7 +319,7 @@ bool zeus::Client::connect(const std::string& _address, const std::string& _user
 	return retIdentify.get();
 }
 
-bool zeus::Client::connect(const std::string& _address, const std::string& _clientName, const std::string& _clientTocken, echrono::Duration _timeOut) {
+bool zeus::Client::connect(const etk::String& _address, const etk::String& _clientName, const etk::String& _clientTocken, echrono::Duration _timeOut) {
 	m_clientName = _clientName;
 	bool ret = connectTo(_address, _timeOut);
 	if (ret==false) {

@@ -8,7 +8,7 @@
 #include <zeus/debug.hpp>
 
 
-static std::vector<std::pair<std::string, std::string>> mineList = {
+static etk::Vector<etk::Pair<etk::String, etk::String>> mineList = {
   /* Video files */
   { "webm",  "video/webm"},
   { "asf",   "video/x-ms-asf"},
@@ -151,7 +151,7 @@ static std::vector<std::pair<std::string, std::string>> mineList = {
   { "js",      "code/javascript"},
 };
 
-std::string zeus::getMineType(std::string _extention) {
+etk::String zeus::getMineType(etk::String _extention) {
 	_extention = etk::tolower(_extention);
 	for (auto &it : mineList) {
 		if (it.first == _extention) {
@@ -164,7 +164,7 @@ std::string zeus::getMineType(std::string _extention) {
 	return "unknow/" + _extention;
 }
 
-std::string zeus::getExtention(std::string _mineType) {
+etk::String zeus::getExtention(etk::String _mineType) {
 	_mineType = etk::tolower(_mineType);
 	for (auto &it : mineList) {
 		if (it.second == _mineType) {

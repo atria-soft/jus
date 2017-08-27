@@ -141,7 +141,7 @@ namespace zeus {
 	 * </pre>
 	 */
 	class Message {
-		friend std::ostream& operator<<(std::ostream&, zeus::Message*);
+		friend etk::Stream& operator<<(etk::Stream&, zeus::Message*);
 		protected:
 			ememory::SharedPtr<zeus::WebServer> m_iface; //!< link to the interface
 		protected:
@@ -164,11 +164,11 @@ namespace zeus {
 			 * @param[in] _buffer Message on the data
 			 * @return Allocated Message.
 			 */
-			static ememory::SharedPtr<zeus::Message> create(ememory::SharedPtr<zeus::WebServer> _iface, const std::vector<uint8_t>& _buffer);
+			static ememory::SharedPtr<zeus::Message> create(ememory::SharedPtr<zeus::WebServer> _iface, const etk::Vector<uint8_t>& _buffer);
 		protected:
 			uint32_t m_interfaceID; //!< For debug ==> unterface ID ...
 			message::headerBin m_header; //!< header of the protocol
-			std::vector<zeus::ActionAsyncClient> m_multipleSend; //!< Async element to send data on the webinterface when too big ...
+			etk::Vector<zeus::ActionAsyncClient> m_multipleSend; //!< Async element to send data on the webinterface when too big ...
 		public:
 			/**
 			 * @brief Check if async element are present on this buffer
@@ -181,8 +181,8 @@ namespace zeus {
 			 * @brief Get the list of async data to send
 			 * @return Vector of the async data (the async are moved out ... call only one time)
 			 */
-			std::vector<zeus::ActionAsyncClient> moveAsync() {
-				return std::move(m_multipleSend);
+			etk::Vector<zeus::ActionAsyncClient> moveAsync() {
+				return etk::move(m_multipleSend);
 			}
 			/**
 			 * @brief When multiple frame buffer, they need to concatenate the data... call this function with the new data to append it ...
@@ -305,7 +305,7 @@ namespace zeus {
 			 */
 			// This fucntion does not lock the interface
 			virtual bool writeOn(enet::WebSocket& _interface);
-			virtual void generateDisplay(std::ostream& _os) const ;
+			virtual void generateDisplay(etk::Stream& _os) const ;
 	};
 	/**
 	 * @brief generate a display of the typemessage
@@ -313,7 +313,7 @@ namespace zeus {
 	 * @value[in] _obj Message to display
 	 * @return a reference of the stream
 	 */
-	std::ostream& operator <<(std::ostream& _os, ememory::SharedPtr<zeus::Message> _obj);
+	etk::Stream& operator <<(etk::Stream& _os, ememory::SharedPtr<zeus::Message> _obj);
 	
 	namespace message {
 		// internal:
@@ -322,13 +322,13 @@ namespace zeus {
 		 * @param[in] _data Message to add type
 		 * @param[in] _type generic type to add
 		 */
-		void addType(std::vector<uint8_t>& _data, zeus::message::ParamType _type);
+		void addType(etk::Vector<uint8_t>& _data, zeus::message::ParamType _type);
 		/**
 		 * @brief Add a parameter object type in the buffer
 		 * @param[in] _data Message to add type
 		 * @param[in] _type string of the type to add
 		 */
-		void addTypeObject(std::vector<uint8_t>& _data, const std::string _type);
+		void addTypeObject(etk::Vector<uint8_t>& _data, const etk::String _type);
 	}
 }
 

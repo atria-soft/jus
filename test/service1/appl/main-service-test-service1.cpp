@@ -25,10 +25,10 @@
 #include <zeus/zeus-Media.impl.hpp>
 
 static std::mutex g_mutex;
-static std::string g_basePath;
-static std::string g_baseDBName = std::string(SERVICE_NAME) + "-database.json";
+static etk::String g_basePath;
+static etk::String g_baseDBName = etk::String(SERVICE_NAME) + "-database.json";
 
-static std::vector<ememory::SharedPtr<zeus::MediaImpl>> m_listFile;
+static etk::Vector<ememory::SharedPtr<zeus::MediaImpl>> m_listFile;
 
 static uint64_t m_lastMaxId = 0;
 static bool g_needToStore = false;
@@ -40,7 +40,7 @@ static uint64_t createUniqueID() {
 namespace appl {
 	class TestService1 : public zeus::service::test::Service1  {
 		private:
-			std::string m_userName;
+			etk::String m_userName;
 		public:
 			TestService1(uint16_t _clientId) {
 				APPL_VERBOSE("New TestService1 ... for user: " << _clientId);
@@ -53,14 +53,14 @@ namespace appl {
 				return _value*2;
 			}
 			
-			std::vector<uint32_t> getVU32(std::vector<uint32_t> _value) override {
+			etk::Vector<uint32_t> getVU32(etk::Vector<uint32_t> _value) override {
 				for (auto &it: _value) {
 					it *= 2;
 				}
 				return _value;
 			}
 			
-			std::string getString(std::string _value) override {
+			etk::String getString(etk::String _value) override {
 				return "get:'" + _value + "'";
 			}
 			void getVoid() override {
@@ -94,7 +94,7 @@ static void load_db() {
 	g_needToStore = false;
 }
 
-ETK_EXPORT_API bool SERVICE_IO_init(int _argc, const char *_argv[], std::string _basePath) {
+ETK_EXPORT_API bool SERVICE_IO_init(int _argc, const char *_argv[], etk::String _basePath) {
 	g_basePath = _basePath;
 	std::unique_lock<std::mutex> lock(g_mutex);
 	APPL_INFO("Load USER: " << g_basePath);

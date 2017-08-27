@@ -110,12 +110,12 @@ namespace zeus {
 			 * @brief get type of the error
 			 * @return the string of the error type
 			 */
-			std::string getErrorType() const;
+			etk::String getErrorType() const;
 			/**
 			 * @brief get help of the error
 			 * @return the string of the error help
 			 */
-			std::string getErrorHelp() const;
+			etk::String getErrorHelp() const;
 			/**
 			 * @brief Check if the Futur is a valid data
 			 * @return return true if the data is valid

@@ -13,10 +13,10 @@
 
 #include <zeus/AbstractFunction.hpp>
 
-static const std::string protocolError = "PROTOCOL-ERROR";
+static const etk::String protocolError = "PROTOCOL-ERROR";
 
 appl::DirectInterface::DirectInterface(enet::Tcp _connection) :
-  m_interfaceWeb(std::move(_connection), true) {
+  m_interfaceWeb(etk::move(_connection), true) {
 	m_uid = 0;
 	m_state = appl::clientState::unconnect;
 	APPL_INFO("-----------------------");
@@ -32,23 +32,23 @@ appl::DirectInterface::~DirectInterface() {
 	APPL_INFO("--------------------------");
 }
 /*
-void appl::clientSpecificInterface::answerProtocolError(uint32_t _transactionId, const std::string& _errorHelp) {
+void appl::clientSpecificInterface::answerProtocolError(uint32_t _transactionId, const etk::String& _errorHelp) {
 	m_interfaceWeb->answerError(_transactionId, m_routeurUID, ZEUS_ID_SERVICE_ROOT, protocolError, _errorHelp);
 	m_interfaceWeb->sendCtrl(m_routeurUID, ZEUS_ID_SERVICE_ROOT, "DISCONNECT");
 	m_state = appl::clientState::disconnect;
 }
 */
-bool appl::DirectInterface::requestURI(const std::string& _uri) {
+bool appl::DirectInterface::requestURI(const etk::String& _uri) {
 	APPL_WARNING("request Direct connection: '" << _uri << "'");
-	std::string tmpURI = _uri;
+	etk::String tmpURI = _uri;
 	if (tmpURI.size() == 0) {
 		APPL_ERROR("Empty URI ... not supported ...");
 		return false;
 	}
 	if (tmpURI[0] == '/') {
-		tmpURI = std::string(tmpURI.begin() + 1, tmpURI.end());
+		tmpURI = etk::String(tmpURI.begin() + 1, tmpURI.end());
 	}
-	std::vector<std::string> listValue = etk::split(tmpURI, '?');
+	etk::Vector<etk::String> listValue = etk::split(tmpURI, '?');
 	if (listValue.size() == 0) {
 		APPL_ERROR("can not parse URI ...");
 		return false;
@@ -110,7 +110,7 @@ void appl::DirectInterface::receive(ememory::SharedPtr<zeus::Message> _value) {
 			answerProtocolError(transactionId, "Can not get the Client ID...");
 			return;
 		}
-		m_interfaceWeb.setInterfaceName("cli-" + etk::to_string(m_uid));
+		m_interfaceWeb.setInterfaceName("cli-" + etk::toString(m_uid));
 		m_interfaceWeb.answerValue(transactionId, _value->getDestination(), _value->getSource(), m_uid);
 	} else {
 		appl::IOInterface::receive(_value);

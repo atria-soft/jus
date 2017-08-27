@@ -19,18 +19,18 @@
 #include <zeus/ProxyClientProperty.hpp>
 
 static std::mutex g_mutex;
-static std::string g_basePath;
-static std::string g_baseDBName = std::string(SERVICE_NAME) + "-database.json";
+static etk::String g_basePath;
+static etk::String g_baseDBName = etk::String(SERVICE_NAME) + "-database.json";
 static ejson::Document g_database;
 
 namespace appl {
 	class SystemService : public zeus::service::User {
 		private:
 			zeus::ProxyClientProperty m_client;
-			std::string m_userName;
+			etk::String m_userName;
 		public:
 			/*
-			SystemService(ememory::SharedPtr<zeus::ClientProperty> _client, const std::string& _userName) :
+			SystemService(ememory::SharedPtr<zeus::ClientProperty> _client, const etk::String& _userName) :
 			  m_client(_client),
 			  m_userName(_userName) {
 				APPL_WARNING("New SystemService ... for user: ");
@@ -43,9 +43,9 @@ namespace appl {
 				APPL_WARNING("Delete service-user interface.");
 			}
 		public:
-			std::vector<std::string> clientGroupsGet(std::string _clientName) {
+			etk::Vector<etk::String> clientGroupsGet(etk::String _clientName) {
 				APPL_WARNING("call clientGroupsGet : " << _clientName);
-				std::vector<std::string> out;
+				etk::Vector<etk::String> out;
 				/*
 				if (m_client == nullptr) {
 					return out;
@@ -55,7 +55,7 @@ namespace appl {
 				/*
 				if (m_client.getName().get() != "") {
 					std::unique_lock<std::mutex> lock(g_mutex);
-					std::vector<std::string> out;
+					etk::Vector<etk::String> out;
 					ejson::Object clients = g_database["client"].toObject();
 					if (clients.exist() == false) {
 						// Section never created
@@ -67,22 +67,22 @@ namespace appl {
 						return out;
 					}
 					if (client["tocken"].toString().get() != "") {
-						out.push_back("connected");
+						out.pushBack("connected");
 					}
 					// TODO: check banishing ...
 					ejson::Array groups = client["group"].toArray();
 					for (auto it : groups) {
-						out.push_back(it.toString().get());
+						out.pushBack(it.toString().get());
 					}
 				}
 				*/
 				// TODO: Check default visibility ... (if user want to have default visibility at Noone ==> then public must be removed...
 				if (true) {
-					out.push_back("public");
+					out.pushBack("public");
 				}
 				return out;
 			}
-			bool checkTocken(std::string _clientName, std::string _tocken) {
+			bool checkTocken(etk::String _clientName, etk::String _tocken) {
 				std::unique_lock<std::mutex> lock(g_mutex);
 				APPL_INFO("Check TOCKEN for : '" << _clientName << "' tocken='" << _clientName << "'");
 				ejson::Object clients = g_database["client"].toObject();
@@ -99,7 +99,7 @@ namespace appl {
 				}
 				// TODO: check banishing ...
 				// TODO: Do it better ...
-				std::string registerTocken = client["tocken"].toString().get();
+				etk::String registerTocken = client["tocken"].toString().get();
 				if (registerTocken == _tocken) {
 					APPL_INFO("     ==> return true");
 					return true;
@@ -107,10 +107,10 @@ namespace appl {
 				APPL_INFO("     ==> return false");
 				return false;
 			}
-			bool checkAuth(std::string _password) {
+			bool checkAuth(etk::String _password) {
 				std::unique_lock<std::mutex> lock(g_mutex);
 				APPL_INFO("Check AUTH for : '" << _password << "'");
-				std::string pass = g_database["password"].toString().get();
+				etk::String pass = g_database["password"].toString().get();
 				if (pass == "") {
 					// pb password
 					return false;
@@ -120,7 +120,7 @@ namespace appl {
 				}
 				return false;
 			}
-			std::vector<std::string> filterClientServices(std::string _clientName, std::vector<std::string> _currentList) {
+			etk::Vector<etk::String> filterClientServices(etk::String _clientName, etk::Vector<etk::String> _currentList) {
 				std::unique_lock<std::mutex> lock(g_mutex);
 				APPL_INFO("Filter services : '" << _clientName << "' " << _currentList);
 				// When connected to our session ==> we have no control access ...
@@ -128,14 +128,14 @@ namespace appl {
 					APPL_INFO("    return all");
 					return _currentList;
 				}
-				std::vector<std::string> out;
+				etk::Vector<etk::String> out;
 				APPL_TODO("Filter service list ==> not implemented...");
 				return out;
 			}
 	};
 }
 
-ETK_EXPORT_API bool SERVICE_IO_init(int _argc, const char *_argv[], std::string _basePath) {
+ETK_EXPORT_API bool SERVICE_IO_init(int _argc, const char *_argv[], etk::String _basePath) {
 	g_basePath = _basePath;
 	std::unique_lock<std::mutex> lock(g_mutex);
 	APPL_WARNING("Load USER: " << g_basePath);

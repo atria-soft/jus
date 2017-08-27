@@ -10,7 +10,7 @@
 #include <etk/stdTools.hpp>
 #include <zeus/message/Event.hpp>
 
-void zeus::message::Event::generateDisplay(std::ostream& _os) const {
+void zeus::message::Event::generateDisplay(etk::Stream& _os) const {
 	zeus::Message::generateDisplay(_os);
 	if (getNumberParameter() != 0) {
 		_os << " '" + simpleStringParam(0) + "'";

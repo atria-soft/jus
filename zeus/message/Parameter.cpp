@@ -40,7 +40,7 @@ void zeus::message::Parameter::composeWith(const uint8_t* _buffer, uint32_t _len
 	uint32_t offset = 0;
 	memcpy(&nbParameters, &_buffer[offset], sizeof(uint16_t));
 	offset += sizeof(uint16_t);
-	m_parameter.resize(nbParameters, std::make_pair(-1, std::vector<uint8_t>()));
+	m_parameter.resize(nbParameters, etk::makePair(-1, etk::Vector<uint8_t>()));
 	// Load all Parameters
 	nbParameters = 0;
 	while (    nbParameters < m_parameter.size()
@@ -53,7 +53,7 @@ void zeus::message::Parameter::composeWith(const uint8_t* _buffer, uint32_t _len
 			ZEUS_ERROR("Wrong parameter size : " << sizeParam << " / availlable=" << _lenght-offset);
 			return;
 		}
-		std::vector<uint8_t> data;
+		etk::Vector<uint8_t> data;
 		data.resize(sizeParam);
 		memcpy(&data[0], &_buffer[offset], data.size() * sizeof(uint8_t));
 		offset += data.size() * sizeof(uint8_t);
@@ -85,20 +85,20 @@ zeus::message::ParamType zeus::message::Parameter::getParameterType(int32_t _id)
 	if (typeId == createType<uint32_t>().getId()) { m_parameter[_id].first = 2; return createType<uint32_t>(); }
 	if (typeId == createType<uint16_t>().getId()) { m_parameter[_id].first = 2; return createType<uint16_t>(); }
 	if (typeId == createType<uint8_t>().getId()) { m_parameter[_id].first = 2; return createType<uint8_t>(); }
-	if (typeId == createType<std::string>().getId()) { m_parameter[_id].first = 2; return createType<std::string>(); }
-	if (typeId == createType<std::vector<void>>().getId()) { m_parameter[_id].first = 2; return createType<std::vector<void>>(); }
-	if (typeId == createType<std::vector<bool>>().getId()) { m_parameter[_id].first = 2; return createType<std::vector<bool>>(); }
-	if (typeId == createType<std::vector<float>>().getId()) { m_parameter[_id].first = 2; return createType<std::vector<float>>(); }
-	if (typeId == createType<std::vector<double>>().getId()) { m_parameter[_id].first = 2; return createType<std::vector<double>>(); }
-	if (typeId == createType<std::vector<int64_t>>().getId()) { m_parameter[_id].first = 2; return createType<std::vector<int64_t>>(); }
-	if (typeId == createType<std::vector<int32_t>>().getId()) { m_parameter[_id].first = 2; return createType<std::vector<int32_t>>(); }
-	if (typeId == createType<std::vector<int16_t>>().getId()) { m_parameter[_id].first = 2; return createType<std::vector<int16_t>>(); }
-	if (typeId == createType<std::vector<int8_t>>().getId()) { m_parameter[_id].first = 2; return createType<std::vector<int8_t>>(); }
-	if (typeId == createType<std::vector<uint64_t>>().getId()) { m_parameter[_id].first = 2; return createType<std::vector<uint64_t>>(); }
-	if (typeId == createType<std::vector<uint32_t>>().getId()) { m_parameter[_id].first = 2; return createType<std::vector<uint32_t>>(); }
-	if (typeId == createType<std::vector<uint16_t>>().getId()) { m_parameter[_id].first = 2; return createType<std::vector<uint16_t>>(); }
-	if (typeId == createType<std::vector<uint8_t>>().getId()) { m_parameter[_id].first = 2; return createType<std::vector<uint8_t>>(); }
-	if (typeId == createType<std::vector<std::string>>().getId()) { m_parameter[_id].first = 2; return createType<std::vector<std::string>>(); }
+	if (typeId == createType<etk::String>().getId()) { m_parameter[_id].first = 2; return createType<etk::String>(); }
+	if (typeId == createType<etk::Vector<void>>().getId()) { m_parameter[_id].first = 2; return createType<etk::Vector<void>>(); }
+	if (typeId == createType<etk::Vector<bool>>().getId()) { m_parameter[_id].first = 2; return createType<etk::Vector<bool>>(); }
+	if (typeId == createType<etk::Vector<float>>().getId()) { m_parameter[_id].first = 2; return createType<etk::Vector<float>>(); }
+	if (typeId == createType<etk::Vector<double>>().getId()) { m_parameter[_id].first = 2; return createType<etk::Vector<double>>(); }
+	if (typeId == createType<etk::Vector<int64_t>>().getId()) { m_parameter[_id].first = 2; return createType<etk::Vector<int64_t>>(); }
+	if (typeId == createType<etk::Vector<int32_t>>().getId()) { m_parameter[_id].first = 2; return createType<etk::Vector<int32_t>>(); }
+	if (typeId == createType<etk::Vector<int16_t>>().getId()) { m_parameter[_id].first = 2; return createType<etk::Vector<int16_t>>(); }
+	if (typeId == createType<etk::Vector<int8_t>>().getId()) { m_parameter[_id].first = 2; return createType<etk::Vector<int8_t>>(); }
+	if (typeId == createType<etk::Vector<uint64_t>>().getId()) { m_parameter[_id].first = 2; return createType<etk::Vector<uint64_t>>(); }
+	if (typeId == createType<etk::Vector<uint32_t>>().getId()) { m_parameter[_id].first = 2; return createType<etk::Vector<uint32_t>>(); }
+	if (typeId == createType<etk::Vector<uint16_t>>().getId()) { m_parameter[_id].first = 2; return createType<etk::Vector<uint16_t>>(); }
+	if (typeId == createType<etk::Vector<uint8_t>>().getId()) { m_parameter[_id].first = 2; return createType<etk::Vector<uint8_t>>(); }
+	if (typeId == createType<etk::Vector<etk::String>>().getId()) { m_parameter[_id].first = 2; return createType<etk::Vector<etk::String>>(); }
 	if (typeId == createType<zeus::Raw>().getId()) { m_parameter[_id].first = 2; return createType<zeus::Raw>(); }
 	if (typeId == paramTypeObject) {
 		const char* tmp = reinterpret_cast<const char*>(&m_parameter[_id].second[2]);
@@ -114,7 +114,7 @@ zeus::message::ParamType zeus::message::Parameter::getParameterType(int32_t _id)
 			m_parameter[_id].first = 0;
 			return zeus::message::ParamType("no-name", typeId);
 		}
-		std::string type(tmp);
+		etk::String type(tmp);
 		m_parameter[_id].first = type.size() + sizeof(uint16_t) + 1; // add \0
 		return zeus::message::ParamType(type, typeId);
 	}
@@ -158,21 +158,21 @@ uint16_t zeus::message::Parameter::getNumberParameter() const {
 	return m_parameter.size();
 }
 
-std::string zeus::message::Parameter::simpleStringParam(uint32_t _id) const {
+etk::String zeus::message::Parameter::simpleStringParam(uint32_t _id) const {
 	zeus::message::ParamType paramType = getParameterType(_id);
 	if (paramType.isVector() == false) {
 		if (paramType.isNumber() == true) {
-			return etk::to_string(getParameter<int64_t>(_id));
+			return etk::toString(getParameter<int64_t>(_id));
 		}
 	}
 	if (paramType == createType<bool>()) {
-		return etk::to_string(getParameter<bool>(_id));
+		return etk::toString(getParameter<bool>(_id));
 	}
-	if (paramType == createType<std::string>()) {
-		return "{" + getParameter<std::string>(_id) + "}";
+	if (paramType == createType<etk::String>()) {
+		return "{" + getParameter<etk::String>(_id) + "}";
 	}
-	if (paramType == createType<std::vector<std::string>>()) {
-		return "[" + etk::to_string(getParameter<std::vector<std::string>>(_id)) + "]";
+	if (paramType == createType<etk::Vector<etk::String>>()) {
+		return "[" + etk::toString(getParameter<etk::Vector<etk::String>>(_id)) + "]";
 	}
 	return paramType.getName();
 }

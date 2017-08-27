@@ -19,7 +19,7 @@ namespace zeus {
 			ememory::SharedPtr<zeus::WebServer> m_interfaceWeb; //!< web interface
 			uint16_t m_id; //!< Id Of the local interface
 			uint16_t m_objectId; //!< Local Object Id
-			std::vector<uint32_t> m_listRemoteConnected; //!< Number of service connected
+			etk::Vector<uint32_t> m_listRemoteConnected; //!< Number of service connected
 		public:
 			/**
 			 * @brief Contructor

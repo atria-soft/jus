@@ -32,8 +32,8 @@ namespace zeus {
 		}
 		
 		template<>
-		std::string Parameter::getParameter<std::string>(int32_t _id) const {
-			std::string out;
+		etk::String Parameter::getParameter<etk::String>(int32_t _id) const {
+			etk::String out;
 			zeus::message::ParamType type = getParameterType(_id);
 			const uint8_t* pointer = getParameterPointer(_id);
 			uint32_t dataSize = getParameterSize(_id);
@@ -60,18 +60,18 @@ namespace zeus {
 			} else if (createType<uint16_t>() == type) {
 				uint16_t tmp;
 				memcpy(&tmp, pointer, sizeof(tmp));
-				return std::min(tmp, uint16_t(UCHAR_MAX));
+				return etk::min(tmp, uint16_t(UCHAR_MAX));
 			} else if (createType<uint32_t>() == type) {
 				uint32_t tmp;
 				memcpy(&tmp, pointer, sizeof(tmp));
-				return std::min(tmp, uint32_t(UCHAR_MAX));
+				return etk::min(tmp, uint32_t(UCHAR_MAX));
 			} else if (createType<uint64_t>() == type) {
 				uint64_t tmp;
 				memcpy(&tmp, pointer, sizeof(tmp));
-				return std::min(tmp, uint64_t(UCHAR_MAX));
+				return etk::min(tmp, uint64_t(UCHAR_MAX));
 			} else if (createType<int8_t>() == type) {
 				const int8_t* tmp = reinterpret_cast<const int8_t*>(pointer);
-				return std::max(int8_t(0), *tmp);
+				return etk::max(int8_t(0), *tmp);
 			} else if (createType<int16_t>() == type) {
 				int16_t tmp;
 				memcpy(&tmp, pointer, sizeof(tmp));
@@ -112,18 +112,18 @@ namespace zeus {
 			} else if (createType<uint32_t>() == type) {
 				uint32_t tmp;
 				memcpy(&tmp, pointer, sizeof(tmp));
-				return std::min(tmp, uint32_t(USHRT_MAX));
+				return etk::min(tmp, uint32_t(USHRT_MAX));
 			} else if (createType<uint64_t>() == type) {
 				uint64_t tmp;
 				memcpy(&tmp, pointer, sizeof(tmp));
-				return std::min(tmp, uint64_t(USHRT_MAX));
+				return etk::min(tmp, uint64_t(USHRT_MAX));
 			} else if (createType<int8_t>() == type) {
 				const int8_t* tmp = reinterpret_cast<const int8_t*>(pointer);
-				return std::max(int8_t(0), *tmp);
+				return etk::max(int8_t(0), *tmp);
 			} else if (createType<int16_t>() == type) {
 				int16_t tmp;
 				memcpy(&tmp, pointer, sizeof(tmp));
-				return std::max(int16_t(0), tmp);
+				return etk::max(int16_t(0), tmp);
 			} else if (createType<int32_t>() == type) {
 				int32_t tmp;
 				memcpy(&tmp, pointer, sizeof(tmp));
@@ -166,18 +166,18 @@ namespace zeus {
 			} else if (createType<uint64_t>() == type) {
 				uint64_t tmp;
 				memcpy(&tmp, pointer, sizeof(tmp));
-				return std::min(tmp, uint64_t(ULONG_MAX));
+				return etk::min(tmp, uint64_t(ULONG_MAX));
 			} else if (createType<int8_t>() == type) {
 				const int8_t* tmp = reinterpret_cast<const int8_t*>(pointer);
-				return std::max(int8_t(0), *tmp);
+				return etk::max(int8_t(0), *tmp);
 			} else if (createType<int16_t>() == type) {
 				int16_t tmp;
 				memcpy(&tmp, pointer, sizeof(tmp));
-				return std::max(int16_t(0), tmp);
+				return etk::max(int16_t(0), tmp);
 			} else if (createType<int32_t>() == type) {
 				int32_t tmp;
 				memcpy(&tmp, pointer, sizeof(tmp));
-				return std::max(int32_t(0), tmp);
+				return etk::max(int32_t(0), tmp);
 			} else if (createType<int64_t>() == type) {
 				int64_t tmp;
 				memcpy(&tmp, pointer, sizeof(tmp));
@@ -219,19 +219,19 @@ namespace zeus {
 				return tmp;
 			} else if (createType<int8_t>() == type) {
 				int8_t* tmp = reinterpret_cast<int8_t*>(pointer);
-				return std::max(int8_t(0), *tmp);
+				return etk::max(int8_t(0), *tmp);
 			} else if (createType<int16_t>() == type) {
 				int16_t tmp;
 				memcpy(&tmp, pointer, sizeof(tmp));
-				return std::max(int16_t(0), tmp);
+				return etk::max(int16_t(0), tmp);
 			} else if (createType<int32_t>() == type) {
 				int32_t tmp;
 				memcpy(&tmp, pointer, sizeof(tmp));
-				return std::max(int32_t(0), tmp);
+				return etk::max(int32_t(0), tmp);
 			} else if (createType<int64_t>() == type) {
 				int64_t tmp;
 				memcpy(&tmp, pointer, sizeof(tmp));
-				return std::max(int64_t(0), tmp);
+				return etk::max(int64_t(0), tmp);
 			} else if (createType<float>() == type) {
 				float tmp;
 				memcpy(&tmp, pointer, sizeof(tmp));
@@ -260,19 +260,19 @@ namespace zeus {
 			// TODO : Check size ...
 			if (createType<uint8_t>() == type) {
 				const uint8_t* tmp = reinterpret_cast<const uint8_t*>(pointer);
-				return std::min(*tmp, uint8_t(SCHAR_MAX));
+				return etk::min(*tmp, uint8_t(SCHAR_MAX));
 			} else if (createType<uint16_t>() == type) {
 				uint16_t tmp;
 				memcpy(&tmp, pointer, sizeof(tmp));
-				return std::min(tmp, uint16_t(SCHAR_MAX));
+				return etk::min(tmp, uint16_t(SCHAR_MAX));
 			} else if (createType<uint32_t>() == type) {
 				uint32_t tmp;
 				memcpy(&tmp, pointer, sizeof(tmp));
-				return std::min(tmp, uint32_t(SCHAR_MAX));
+				return etk::min(tmp, uint32_t(SCHAR_MAX));
 			} else if (createType<uint64_t>() == type) {
 				uint64_t tmp;
 				memcpy(&tmp, pointer, sizeof(tmp));
-				return std::min(tmp, uint64_t(SCHAR_MAX));
+				return etk::min(tmp, uint64_t(SCHAR_MAX));
 			} else if (createType<int8_t>() == type) {
 				const int8_t* tmp = reinterpret_cast<const int8_t*>(pointer);
 				return *tmp;
@@ -313,15 +313,15 @@ namespace zeus {
 			} else if (createType<uint16_t>() == type) {
 				uint16_t tmp;
 				memcpy(&tmp, pointer, sizeof(tmp));
-				return std::min(tmp, uint16_t(SHRT_MAX));
+				return etk::min(tmp, uint16_t(SHRT_MAX));
 			} else if (createType<uint32_t>() == type) {
 				uint32_t tmp;
 				memcpy(&tmp, pointer, sizeof(tmp));
-				return std::min(tmp, uint32_t(SHRT_MAX));
+				return etk::min(tmp, uint32_t(SHRT_MAX));
 			} else if (createType<uint64_t>() == type) {
 				uint64_t tmp;
 				memcpy(&tmp, pointer, sizeof(tmp));
-				return std::min(tmp, uint64_t(SHRT_MAX));
+				return etk::min(tmp, uint64_t(SHRT_MAX));
 			} else if (createType<int8_t>() == type) {
 				const int8_t* tmp = reinterpret_cast<const int8_t*>(pointer);
 				return *tmp;
@@ -367,11 +367,11 @@ namespace zeus {
 			} else if (createType<uint32_t>() == type) {
 				uint32_t tmp;
 				memcpy(&tmp, pointer, sizeof(tmp));
-				return std::min(tmp, uint32_t(LONG_MAX));
+				return etk::min(tmp, uint32_t(LONG_MAX));
 			} else if (createType<uint64_t>() == type) {
 				uint64_t tmp;
 				memcpy(&tmp, pointer, sizeof(tmp));
-				return std::min(tmp, uint64_t(LONG_MAX));
+				return etk::min(tmp, uint64_t(LONG_MAX));
 			} else if (createType<int8_t>() == type) {
 				const int8_t* tmp = reinterpret_cast<const int8_t*>(pointer);
 				return *tmp;
@@ -421,7 +421,7 @@ namespace zeus {
 			} else if (createType<uint64_t>() == type) {
 				uint64_t tmp;
 				memcpy(&tmp, pointer, sizeof(tmp));
-				return std::min(tmp, uint64_t(LLONG_MAX));
+				return etk::min(tmp, uint64_t(LLONG_MAX));
 			} else if (createType<int8_t>() == type) {
 				const int8_t* tmp = reinterpret_cast<const int8_t*>(pointer);
 				return *tmp;
@@ -571,52 +571,52 @@ namespace zeus {
 		
 		
 		template<>
-		std::vector<uint8_t> Parameter::getParameter<std::vector<uint8_t>>(int32_t _id) const {
-			std::vector<uint8_t> out;
+		etk::Vector<uint8_t> Parameter::getParameter<etk::Vector<uint8_t>>(int32_t _id) const {
+			etk::Vector<uint8_t> out;
 			zeus::message::ParamType type = getParameterType(_id);
 			const uint8_t* pointer = getParameterPointer(_id);
 			uint32_t dataSize = getParameterSize(_id);
 			// TODO : Check size ...
-			if (type == createType<std::vector<void>>()) {
+			if (type == createType<etk::Vector<void>>()) {
 				return out;
-			} else if (createType<std::vector<uint8_t>>() == type) {
+			} else if (createType<etk::Vector<uint8_t>>() == type) {
 				int32_t nbElement = dataSize / sizeof(uint8_t);
 				out.resize(nbElement);
 				memcpy(&out[0], pointer, nbElement * sizeof(uint8_t));
 				return out;
-			} else if (createType<std::vector<uint16_t>>() == type) {
+			} else if (createType<etk::Vector<uint16_t>>() == type) {
 				const uint16_t* tmp = reinterpret_cast<const uint16_t*>(pointer);
 				int32_t nbElement = dataSize / sizeof(uint16_t);
 				out.resize(nbElement);
 				for (size_t iii=0; iii<nbElement; ++iii) {
-					out[iii] = std::min(tmp[iii], uint16_t(UCHAR_MAX));
+					out[iii] = etk::min(tmp[iii], uint16_t(UCHAR_MAX));
 				}
 				return out;
-			} else if (createType<std::vector<uint32_t>>() == type) {
+			} else if (createType<etk::Vector<uint32_t>>() == type) {
 				const uint32_t* tmp = reinterpret_cast<const uint32_t*>(pointer);
 				int32_t nbElement = dataSize / sizeof(uint32_t);
 				out.resize(nbElement);
 				for (size_t iii=0; iii<nbElement; ++iii) {
-					out[iii] = std::min(tmp[iii], uint32_t(UCHAR_MAX));
+					out[iii] = etk::min(tmp[iii], uint32_t(UCHAR_MAX));
 				}
 				return out;
-			} else if (createType<std::vector<uint64_t>>() == type) {
+			} else if (createType<etk::Vector<uint64_t>>() == type) {
 				const uint64_t* tmp = reinterpret_cast<const uint64_t*>(pointer);
 				int32_t nbElement = dataSize / sizeof(uint64_t);
 				out.resize(nbElement);
 				for (size_t iii=0; iii<nbElement; ++iii) {
-					out[iii] = std::min(tmp[iii], uint64_t(UCHAR_MAX));
+					out[iii] = etk::min(tmp[iii], uint64_t(UCHAR_MAX));
 				}
 				return out;
-			} else if (createType<std::vector<int8_t>>() == type) {
+			} else if (createType<etk::Vector<int8_t>>() == type) {
 				const int8_t* tmp = reinterpret_cast<const int8_t*>(pointer);
 				int32_t nbElement = dataSize / sizeof(int8_t);
 				out.resize(nbElement);
 				for (size_t iii=0; iii<nbElement; ++iii) {
-					out[iii] = std::max(int8_t(0), tmp[iii]);
+					out[iii] = etk::max(int8_t(0), tmp[iii]);
 				}
 				return out;
-			} else if (createType<std::vector<int16_t>>() == type) {
+			} else if (createType<etk::Vector<int16_t>>() == type) {
 				const int16_t* tmp = reinterpret_cast<const int16_t*>(pointer);
 				int32_t nbElement = dataSize / sizeof(int16_t);
 				out.resize(nbElement);
@@ -624,7 +624,7 @@ namespace zeus {
 					out[iii] = etk::avg(int16_t(0), tmp[iii], int16_t(UCHAR_MAX));
 				}
 				return out;
-			} else if (createType<std::vector<int32_t>>() == type) {
+			} else if (createType<etk::Vector<int32_t>>() == type) {
 				const int32_t* tmp = reinterpret_cast<const int32_t*>(pointer);
 				int32_t nbElement = dataSize / sizeof(int32_t);
 				out.resize(nbElement);
@@ -632,7 +632,7 @@ namespace zeus {
 					out[iii] = etk::avg(int32_t(0), tmp[iii], int32_t(UCHAR_MAX));
 				}
 				return out;
-			} else if (createType<std::vector<int64_t>>() == type) {
+			} else if (createType<etk::Vector<int64_t>>() == type) {
 				const int64_t* tmp = reinterpret_cast<const int64_t*>(pointer);
 				int32_t nbElement = dataSize / sizeof(int64_t);
 				out.resize(nbElement);
@@ -640,7 +640,7 @@ namespace zeus {
 					out[iii] = etk::avg(int64_t(0), tmp[iii], int64_t(UCHAR_MAX));
 				}
 				return out;
-			} else if (createType<std::vector<float>>() == type) {
+			} else if (createType<etk::Vector<float>>() == type) {
 				const float* tmp = reinterpret_cast<const float*>(pointer);
 				int32_t nbElement = dataSize / sizeof(float);
 				out.resize(nbElement);
@@ -648,7 +648,7 @@ namespace zeus {
 					out[iii] = uint8_t(etk::avg(float(0), tmp[iii], float(UCHAR_MAX)));
 				}
 				return out;
-			} else if (createType<std::vector<double>>() == type) {
+			} else if (createType<etk::Vector<double>>() == type) {
 				const double* tmp = reinterpret_cast<const double*>(pointer);
 				int32_t nbElement = dataSize / sizeof(double);
 				out.resize(nbElement);
@@ -661,15 +661,15 @@ namespace zeus {
 			return out;
 		}
 		template<>
-		std::vector<uint16_t> Parameter::getParameter<std::vector<uint16_t>>(int32_t _id) const {
-			std::vector<uint16_t> out;
+		etk::Vector<uint16_t> Parameter::getParameter<etk::Vector<uint16_t>>(int32_t _id) const {
+			etk::Vector<uint16_t> out;
 			zeus::message::ParamType type = getParameterType(_id);
 			const uint8_t* pointer = getParameterPointer(_id);
 			uint32_t dataSize = getParameterSize(_id);
 			// TODO : Check size ...
-			if (type == createType<std::vector<void>>()) {
+			if (type == createType<etk::Vector<void>>()) {
 				return out;
-			} else if (createType<std::vector<uint8_t>>() == type) {
+			} else if (createType<etk::Vector<uint8_t>>() == type) {
 				const uint8_t* tmp = reinterpret_cast<const uint8_t*>(pointer);
 				int32_t nbElement = dataSize / sizeof(uint8_t);
 				out.resize(nbElement);
@@ -677,44 +677,44 @@ namespace zeus {
 					out[iii] = tmp[iii];
 				}
 				return out;
-			} else if (createType<std::vector<uint16_t>>() == type) {
+			} else if (createType<etk::Vector<uint16_t>>() == type) {
 				int32_t nbElement = dataSize / sizeof(uint16_t);
 				out.resize(nbElement);
 				memcpy(&out[0], pointer, nbElement * sizeof(uint16_t));
 				return out;
-			} else if (createType<std::vector<uint32_t>>() == type) {
+			} else if (createType<etk::Vector<uint32_t>>() == type) {
 				const uint32_t* tmp = reinterpret_cast<const uint32_t*>(pointer);
 				int32_t nbElement = dataSize / sizeof(uint32_t);
 				out.resize(nbElement);
 				for (size_t iii=0; iii<nbElement; ++iii) {
-					out[iii] = std::min(tmp[iii], uint32_t(USHRT_MAX));
+					out[iii] = etk::min(tmp[iii], uint32_t(USHRT_MAX));
 				}
 				return out;
-			} else if (createType<std::vector<uint64_t>>() == type) {
+			} else if (createType<etk::Vector<uint64_t>>() == type) {
 				const uint64_t* tmp = reinterpret_cast<const uint64_t*>(pointer);
 				int32_t nbElement = dataSize / sizeof(uint64_t);
 				out.resize(nbElement);
 				for (size_t iii=0; iii<nbElement; ++iii) {
-					out[iii] = std::min(tmp[iii], uint64_t(USHRT_MAX));
+					out[iii] = etk::min(tmp[iii], uint64_t(USHRT_MAX));
 				}
 				return out;
-			} else if (createType<std::vector<int8_t>>() == type) {
+			} else if (createType<etk::Vector<int8_t>>() == type) {
 				const int8_t* tmp = reinterpret_cast<const int8_t*>(pointer);
 				int32_t nbElement = dataSize / sizeof(int8_t);
 				out.resize(nbElement);
 				for (size_t iii=0; iii<nbElement; ++iii) {
-					out[iii] = std::max(int8_t(0), tmp[iii]);
+					out[iii] = etk::max(int8_t(0), tmp[iii]);
 				}
 				return out;
-			} else if (createType<std::vector<int16_t>>() == type) {
+			} else if (createType<etk::Vector<int16_t>>() == type) {
 				const int16_t* tmp = reinterpret_cast<const int16_t*>(pointer);
 				int32_t nbElement = dataSize / sizeof(int16_t);
 				out.resize(nbElement);
 				for (size_t iii=0; iii<nbElement; ++iii) {
-					out[iii] = std::max(int16_t(0), tmp[iii]);
+					out[iii] = etk::max(int16_t(0), tmp[iii]);
 				}
 				return out;
-			} else if (createType<std::vector<int32_t>>() == type) {
+			} else if (createType<etk::Vector<int32_t>>() == type) {
 				const int32_t* tmp = reinterpret_cast<const int32_t*>(pointer);
 				int32_t nbElement = dataSize / sizeof(int32_t);
 				out.resize(nbElement);
@@ -722,7 +722,7 @@ namespace zeus {
 					out[iii] = etk::avg(int32_t(0), tmp[iii], int32_t(USHRT_MAX));
 				}
 				return out;
-			} else if (createType<std::vector<int64_t>>() == type) {
+			} else if (createType<etk::Vector<int64_t>>() == type) {
 				const int64_t* tmp = reinterpret_cast<const int64_t*>(pointer);
 				int32_t nbElement = dataSize / sizeof(int64_t);
 				out.resize(nbElement);
@@ -730,7 +730,7 @@ namespace zeus {
 					out[iii] = etk::avg(int64_t(0), tmp[iii], int64_t(USHRT_MAX));
 				}
 				return out;
-			} else if (createType<std::vector<float>>() == type) {
+			} else if (createType<etk::Vector<float>>() == type) {
 				const float* tmp = reinterpret_cast<const float*>(pointer);
 				int32_t nbElement = dataSize / sizeof(float);
 				out.resize(nbElement);
@@ -738,7 +738,7 @@ namespace zeus {
 					out[iii] = uint16_t(etk::avg(float(0), tmp[iii], float(USHRT_MAX)));
 				}
 				return out;
-			} else if (createType<std::vector<double>>() == type) {
+			} else if (createType<etk::Vector<double>>() == type) {
 				const double* tmp = reinterpret_cast<const double*>(pointer);
 				int32_t nbElement = dataSize / sizeof(double);
 				out.resize(nbElement);
@@ -752,15 +752,15 @@ namespace zeus {
 		}
 		
 		template<>
-		std::vector<uint32_t> Parameter::getParameter<std::vector<uint32_t>>(int32_t _id) const {
-			std::vector<uint32_t> out;
+		etk::Vector<uint32_t> Parameter::getParameter<etk::Vector<uint32_t>>(int32_t _id) const {
+			etk::Vector<uint32_t> out;
 			zeus::message::ParamType type = getParameterType(_id);
 			const uint8_t* pointer = getParameterPointer(_id);
 			uint32_t dataSize = getParameterSize(_id);
 			// TODO : Check size ...
-			if (type == createType<std::vector<void>>()) {
+			if (type == createType<etk::Vector<void>>()) {
 				return out;
-			} else if (createType<std::vector<uint8_t>>() == type) {
+			} else if (createType<etk::Vector<uint8_t>>() == type) {
 				const uint8_t* tmp = reinterpret_cast<const uint8_t*>(pointer);
 				int32_t nbElement = dataSize / sizeof(uint8_t);
 				out.resize(nbElement);
@@ -768,7 +768,7 @@ namespace zeus {
 					out[iii] = tmp[iii];
 				}
 				return out;
-			} else if (createType<std::vector<uint16_t>>() == type) {
+			} else if (createType<etk::Vector<uint16_t>>() == type) {
 				const uint16_t* tmp = reinterpret_cast<const uint16_t*>(pointer);
 				int32_t nbElement = dataSize / sizeof(uint16_t);
 				out.resize(nbElement);
@@ -776,44 +776,44 @@ namespace zeus {
 					out[iii] = tmp[iii];
 				}
 				return out;
-			} else if (createType<std::vector<uint32_t>>() == type) {
+			} else if (createType<etk::Vector<uint32_t>>() == type) {
 				int32_t nbElement = dataSize / sizeof(uint32_t);
 				out.resize(nbElement);
 				memcpy(&out[0], pointer, nbElement * sizeof(uint32_t));
 				return out;
-			} else if (createType<std::vector<uint64_t>>() == type) {
+			} else if (createType<etk::Vector<uint64_t>>() == type) {
 				const uint64_t* tmp = reinterpret_cast<const uint64_t*>(pointer);
 				int32_t nbElement = dataSize / sizeof(uint64_t);
 				out.resize(nbElement);
 				for (size_t iii=0; iii<nbElement; ++iii) {
-					out[iii] = std::min(tmp[iii], uint64_t(ULONG_MAX));
+					out[iii] = etk::min(tmp[iii], uint64_t(ULONG_MAX));
 				}
 				return out;
-			} else if (createType<std::vector<int8_t>>() == type) {
+			} else if (createType<etk::Vector<int8_t>>() == type) {
 				const int8_t* tmp = reinterpret_cast<const int8_t*>(pointer);
 				int32_t nbElement = dataSize / sizeof(int8_t);
 				out.resize(nbElement);
 				for (size_t iii=0; iii<nbElement; ++iii) {
-					out[iii] = std::max(int8_t(0), tmp[iii]);
+					out[iii] = etk::max(int8_t(0), tmp[iii]);
 				}
 				return out;
-			} else if (createType<std::vector<int16_t>>() == type) {
+			} else if (createType<etk::Vector<int16_t>>() == type) {
 				const int16_t* tmp = reinterpret_cast<const int16_t*>(pointer);
 				int32_t nbElement = dataSize / sizeof(int16_t);
 				out.resize(nbElement);
 				for (size_t iii=0; iii<nbElement; ++iii) {
-					out[iii] = std::max(int16_t(0), tmp[iii]);
+					out[iii] = etk::max(int16_t(0), tmp[iii]);
 				}
 				return out;
-			} else if (createType<std::vector<int32_t>>() == type) {
+			} else if (createType<etk::Vector<int32_t>>() == type) {
 				const int32_t* tmp = reinterpret_cast<const int32_t*>(pointer);
 				int32_t nbElement = dataSize / sizeof(int32_t);
 				out.resize(nbElement);
 				for (size_t iii=0; iii<nbElement; ++iii) {
-					out[iii] = std::max(int32_t(0), tmp[iii]);
+					out[iii] = etk::max(int32_t(0), tmp[iii]);
 				}
 				return out;
-			} else if (createType<std::vector<int64_t>>() == type) {
+			} else if (createType<etk::Vector<int64_t>>() == type) {
 				const int64_t* tmp = reinterpret_cast<const int64_t*>(pointer);
 				int32_t nbElement = dataSize / sizeof(int64_t);
 				out.resize(nbElement);
@@ -821,7 +821,7 @@ namespace zeus {
 					out[iii] = etk::avg(int64_t(0), tmp[iii], int64_t(ULONG_MAX));
 				}
 				return out;
-			} else if (createType<std::vector<float>>() == type) {
+			} else if (createType<etk::Vector<float>>() == type) {
 				const float* tmp = reinterpret_cast<const float*>(pointer);
 				int32_t nbElement = dataSize / sizeof(float);
 				out.resize(nbElement);
@@ -829,7 +829,7 @@ namespace zeus {
 					out[iii] = uint32_t(etk::avg(float(0), tmp[iii], float(ULONG_MAX)));
 				}
 				return out;
-			} else if (createType<std::vector<double>>() == type) {
+			} else if (createType<etk::Vector<double>>() == type) {
 				const double* tmp = reinterpret_cast<const double*>(pointer);
 				int32_t nbElement = dataSize / sizeof(double);
 				out.resize(nbElement);
@@ -843,15 +843,15 @@ namespace zeus {
 		}
 		
 		template<>
-		std::vector<uint64_t> Parameter::getParameter<std::vector<uint64_t>>(int32_t _id) const {
-			std::vector<uint64_t> out;
+		etk::Vector<uint64_t> Parameter::getParameter<etk::Vector<uint64_t>>(int32_t _id) const {
+			etk::Vector<uint64_t> out;
 			zeus::message::ParamType type = getParameterType(_id);
 			const uint8_t* pointer = getParameterPointer(_id);
 			uint32_t dataSize = getParameterSize(_id);
 			// TODO : Check size ...
-			if (type == createType<std::vector<void>>()) {
+			if (type == createType<etk::Vector<void>>()) {
 				return out;
-			} else if (createType<std::vector<uint8_t>>() == type) {
+			} else if (createType<etk::Vector<uint8_t>>() == type) {
 				const uint8_t* tmp = reinterpret_cast<const uint8_t*>(pointer);
 				int32_t nbElement = dataSize / sizeof(uint8_t);
 				out.resize(nbElement);
@@ -859,7 +859,7 @@ namespace zeus {
 					out[iii] = tmp[iii];
 				}
 				return out;
-			} else if (createType<std::vector<uint16_t>>() == type) {
+			} else if (createType<etk::Vector<uint16_t>>() == type) {
 				const uint16_t* tmp = reinterpret_cast<const uint16_t*>(pointer);
 				int32_t nbElement = dataSize / sizeof(uint16_t);
 				out.resize(nbElement);
@@ -867,7 +867,7 @@ namespace zeus {
 					out[iii] = tmp[iii];
 				}
 				return out;
-			} else if (createType<std::vector<uint32_t>>() == type) {
+			} else if (createType<etk::Vector<uint32_t>>() == type) {
 				const uint32_t* tmp = reinterpret_cast<const uint32_t*>(pointer);
 				int32_t nbElement = dataSize / sizeof(uint32_t);
 				out.resize(nbElement);
@@ -875,44 +875,44 @@ namespace zeus {
 					out[iii] = tmp[iii];
 				}
 				return out;
-			} else if (createType<std::vector<uint64_t>>() == type) {
+			} else if (createType<etk::Vector<uint64_t>>() == type) {
 				int32_t nbElement = dataSize / sizeof(uint64_t);
 				out.resize(nbElement);
 				memcpy(&out[0], pointer, nbElement * sizeof(uint64_t));
 				return out;
-			} else if (createType<std::vector<int8_t>>() == type) {
+			} else if (createType<etk::Vector<int8_t>>() == type) {
 				const int8_t* tmp = reinterpret_cast<const int8_t*>(pointer);
 				int32_t nbElement = dataSize / sizeof(int8_t);
 				out.resize(nbElement);
 				for (size_t iii=0; iii<nbElement; ++iii) {
-					out[iii] = std::max(int8_t(0), tmp[iii]);
+					out[iii] = etk::max(int8_t(0), tmp[iii]);
 				}
 				return out;
-			} else if (createType<std::vector<int16_t>>() == type) {
+			} else if (createType<etk::Vector<int16_t>>() == type) {
 				const int16_t* tmp = reinterpret_cast<const int16_t*>(pointer);
 				int32_t nbElement = dataSize / sizeof(int16_t);
 				out.resize(nbElement);
 				for (size_t iii=0; iii<nbElement; ++iii) {
-					out[iii] = std::max(int16_t(0), tmp[iii]);
+					out[iii] = etk::max(int16_t(0), tmp[iii]);
 				}
 				return out;
-			} else if (createType<std::vector<int32_t>>() == type) {
+			} else if (createType<etk::Vector<int32_t>>() == type) {
 				const int32_t* tmp = reinterpret_cast<const int32_t*>(pointer);
 				int32_t nbElement = dataSize / sizeof(int32_t);
 				out.resize(nbElement);
 				for (size_t iii=0; iii<nbElement; ++iii) {
-					out[iii] = std::max(int32_t(0), tmp[iii]);
+					out[iii] = etk::max(int32_t(0), tmp[iii]);
 				}
 				return out;
-			} else if (createType<std::vector<int64_t>>() == type) {
+			} else if (createType<etk::Vector<int64_t>>() == type) {
 				const int64_t* tmp = reinterpret_cast<const int64_t*>(pointer);
 				int32_t nbElement = dataSize / sizeof(int64_t);
 				out.resize(nbElement);
 				for (size_t iii=0; iii<nbElement; ++iii) {
-					out[iii] = std::max(int64_t(0), tmp[iii]);
+					out[iii] = etk::max(int64_t(0), tmp[iii]);
 				}
 				return out;
-			} else if (createType<std::vector<float>>() == type) {
+			} else if (createType<etk::Vector<float>>() == type) {
 				const float* tmp = reinterpret_cast<const float*>(pointer);
 				int32_t nbElement = dataSize / sizeof(float);
 				out.resize(nbElement);
@@ -920,7 +920,7 @@ namespace zeus {
 					out[iii] = uint64_t(etk::avg(float(0), tmp[iii], float(ULONG_MAX)));
 				}
 				return out;
-			} else if (createType<std::vector<double>>() == type) {
+			} else if (createType<etk::Vector<double>>() == type) {
 				const double* tmp = reinterpret_cast<const double*>(pointer);
 				int32_t nbElement = dataSize / sizeof(double);
 				out.resize(nbElement);
@@ -934,52 +934,52 @@ namespace zeus {
 		}
 		
 		template<>
-		std::vector<int8_t> Parameter::getParameter<std::vector<int8_t>>(int32_t _id) const {
-			std::vector<int8_t> out;
+		etk::Vector<int8_t> Parameter::getParameter<etk::Vector<int8_t>>(int32_t _id) const {
+			etk::Vector<int8_t> out;
 			zeus::message::ParamType type = getParameterType(_id);
 			const uint8_t* pointer = getParameterPointer(_id);
 			uint32_t dataSize = getParameterSize(_id);
 			// TODO : Check size ...
-			if (type == createType<std::vector<void>>()) {
+			if (type == createType<etk::Vector<void>>()) {
 				return out;
-			} else if (createType<std::vector<uint8_t>>() == type) {
+			} else if (createType<etk::Vector<uint8_t>>() == type) {
 				const uint8_t* tmp = reinterpret_cast<const uint8_t*>(pointer);
 				int32_t nbElement = dataSize / sizeof(uint8_t);
 				out.resize(nbElement);
 				for (size_t iii=0; iii<nbElement; ++iii) {
-					out[iii] = std::min(tmp[iii], uint8_t(SCHAR_MAX));
+					out[iii] = etk::min(tmp[iii], uint8_t(SCHAR_MAX));
 				}
 				return out;
-			} else if (createType<std::vector<uint16_t>>() == type) {
+			} else if (createType<etk::Vector<uint16_t>>() == type) {
 				const uint16_t* tmp = reinterpret_cast<const uint16_t*>(pointer);
 				int32_t nbElement = dataSize / sizeof(uint16_t);
 				out.resize(nbElement);
 				for (size_t iii=0; iii<nbElement; ++iii) {
-					out[iii] = std::min(tmp[iii], uint16_t(SCHAR_MAX));
+					out[iii] = etk::min(tmp[iii], uint16_t(SCHAR_MAX));
 				}
 				return out;
-			} else if (createType<std::vector<uint32_t>>() == type) {
+			} else if (createType<etk::Vector<uint32_t>>() == type) {
 				const uint32_t* tmp = reinterpret_cast<const uint32_t*>(pointer);
 				int32_t nbElement = dataSize / sizeof(uint32_t);
 				out.resize(nbElement);
 				for (size_t iii=0; iii<nbElement; ++iii) {
-					out[iii] = std::min(tmp[iii], uint32_t(SCHAR_MAX));
+					out[iii] = etk::min(tmp[iii], uint32_t(SCHAR_MAX));
 				}
 				return out;
-			} else if (createType<std::vector<uint64_t>>() == type) {
+			} else if (createType<etk::Vector<uint64_t>>() == type) {
 				const uint64_t* tmp = reinterpret_cast<const uint64_t*>(pointer);
 				int32_t nbElement = dataSize / sizeof(uint64_t);
 				out.resize(nbElement);
 				for (size_t iii=0; iii<nbElement; ++iii) {
-					out[iii] = std::min(tmp[iii], uint64_t(SCHAR_MAX));
+					out[iii] = etk::min(tmp[iii], uint64_t(SCHAR_MAX));
 				}
 				return out;
-			} else if (createType<std::vector<int8_t>>() == type) {
+			} else if (createType<etk::Vector<int8_t>>() == type) {
 				int32_t nbElement = dataSize / sizeof(int8_t);
 				out.resize(nbElement);
 				memcpy(&out[0], pointer, nbElement * sizeof(int8_t));
 				return out;
-			} else if (createType<std::vector<int16_t>>() == type) {
+			} else if (createType<etk::Vector<int16_t>>() == type) {
 				const int16_t* tmp = reinterpret_cast<const int16_t*>(pointer);
 				int32_t nbElement = dataSize / sizeof(int16_t);
 				out.resize(nbElement);
@@ -987,7 +987,7 @@ namespace zeus {
 					out[iii] = etk::avg(int16_t(SCHAR_MIN), tmp[iii], int16_t(SCHAR_MAX));
 				}
 				return out;
-			} else if (createType<std::vector<int32_t>>() == type) {
+			} else if (createType<etk::Vector<int32_t>>() == type) {
 				const int32_t* tmp = reinterpret_cast<const int32_t*>(pointer);
 				int32_t nbElement = dataSize / sizeof(int32_t);
 				out.resize(nbElement);
@@ -995,7 +995,7 @@ namespace zeus {
 					out[iii] = etk::avg(int32_t(SCHAR_MIN), tmp[iii], int32_t(SCHAR_MAX));
 				}
 				return out;
-			} else if (createType<std::vector<int64_t>>() == type) {
+			} else if (createType<etk::Vector<int64_t>>() == type) {
 				const int64_t* tmp = reinterpret_cast<const int64_t*>(pointer);
 				int32_t nbElement = dataSize / sizeof(int64_t);
 				out.resize(nbElement);
@@ -1003,7 +1003,7 @@ namespace zeus {
 					out[iii] = etk::avg(int64_t(SCHAR_MIN), tmp[iii], int64_t(SCHAR_MAX));
 				}
 				return out;
-			} else if (createType<std::vector<float>>() == type) {
+			} else if (createType<etk::Vector<float>>() == type) {
 				const float* tmp = reinterpret_cast<const float*>(pointer);
 				int32_t nbElement = dataSize / sizeof(float);
 				out.resize(nbElement);
@@ -1011,7 +1011,7 @@ namespace zeus {
 					out[iii] = int8_t(etk::avg(float(SCHAR_MIN), tmp[iii], float(SCHAR_MAX)));
 				}
 				return out;
-			} else if (createType<std::vector<double>>() == type) {
+			} else if (createType<etk::Vector<double>>() == type) {
 				const double* tmp = reinterpret_cast<const double*>(pointer);
 				int32_t nbElement = dataSize / sizeof(double);
 				out.resize(nbElement);
@@ -1025,15 +1025,15 @@ namespace zeus {
 		}
 		
 		template<>
-		std::vector<int16_t> Parameter::getParameter<std::vector<int16_t>>(int32_t _id) const {
-			std::vector<int16_t> out;
+		etk::Vector<int16_t> Parameter::getParameter<etk::Vector<int16_t>>(int32_t _id) const {
+			etk::Vector<int16_t> out;
 			zeus::message::ParamType type = getParameterType(_id);
 			const uint8_t* pointer = getParameterPointer(_id);
 			uint32_t dataSize = getParameterSize(_id);
 			// TODO : Check size ...
-			if (type == createType<std::vector<void>>()) {
+			if (type == createType<etk::Vector<void>>()) {
 				return out;
-			} else if (createType<std::vector<uint8_t>>() == type) {
+			} else if (createType<etk::Vector<uint8_t>>() == type) {
 				const uint8_t* tmp = reinterpret_cast<const uint8_t*>(pointer);
 				int32_t nbElement = dataSize / sizeof(uint8_t);
 				out.resize(nbElement);
@@ -1041,31 +1041,31 @@ namespace zeus {
 					out[iii] = tmp[iii];
 				}
 				return out;
-			} else if (createType<std::vector<uint16_t>>() == type) {
+			} else if (createType<etk::Vector<uint16_t>>() == type) {
 				const uint16_t* tmp = reinterpret_cast<const uint16_t*>(pointer);
 				int32_t nbElement = dataSize / sizeof(uint16_t);
 				out.resize(nbElement);
 				for (size_t iii=0; iii<nbElement; ++iii) {
-					out[iii] = std::min(tmp[iii], uint16_t(SHRT_MAX));
+					out[iii] = etk::min(tmp[iii], uint16_t(SHRT_MAX));
 				}
 				return out;
-			} else if (createType<std::vector<uint32_t>>() == type) {
+			} else if (createType<etk::Vector<uint32_t>>() == type) {
 				const uint32_t* tmp = reinterpret_cast<const uint32_t*>(pointer);
 				int32_t nbElement = dataSize / sizeof(uint32_t);
 				out.resize(nbElement);
 				for (size_t iii=0; iii<nbElement; ++iii) {
-					out[iii] = std::min(tmp[iii], uint32_t(SHRT_MAX));
+					out[iii] = etk::min(tmp[iii], uint32_t(SHRT_MAX));
 				}
 				return out;
-			} else if (createType<std::vector<uint64_t>>() == type) {
+			} else if (createType<etk::Vector<uint64_t>>() == type) {
 				const uint64_t* tmp = reinterpret_cast<const uint64_t*>(pointer);
 				int32_t nbElement = dataSize / sizeof(uint64_t);
 				out.resize(nbElement);
 				for (size_t iii=0; iii<nbElement; ++iii) {
-					out[iii] = std::min(tmp[iii], uint64_t(SHRT_MAX));
+					out[iii] = etk::min(tmp[iii], uint64_t(SHRT_MAX));
 				}
 				return out;
-			} else if (createType<std::vector<int8_t>>() == type) {
+			} else if (createType<etk::Vector<int8_t>>() == type) {
 				const int8_t* tmp = reinterpret_cast<const int8_t*>(pointer);
 				int32_t nbElement = dataSize / sizeof(int8_t);
 				out.resize(nbElement);
@@ -1073,12 +1073,12 @@ namespace zeus {
 					out[iii] = tmp[iii];
 				}
 				return out;
-			} else if (createType<std::vector<int16_t>>() == type) {
+			} else if (createType<etk::Vector<int16_t>>() == type) {
 				int32_t nbElement = dataSize / sizeof(int16_t);
 				out.resize(nbElement);
 				memcpy(&out[0], pointer, nbElement * sizeof(int16_t));
 				return out;
-			} else if (createType<std::vector<int32_t>>() == type) {
+			} else if (createType<etk::Vector<int32_t>>() == type) {
 				const int32_t* tmp = reinterpret_cast<const int32_t*>(pointer);
 				int32_t nbElement = dataSize / sizeof(int32_t);
 				out.resize(nbElement);
@@ -1086,7 +1086,7 @@ namespace zeus {
 					out[iii] = etk::avg(int32_t(SHRT_MIN), tmp[iii], int32_t(SHRT_MAX));
 				}
 				return out;
-			} else if (createType<std::vector<int64_t>>() == type) {
+			} else if (createType<etk::Vector<int64_t>>() == type) {
 				const int64_t* tmp = reinterpret_cast<const int64_t*>(pointer);
 				int32_t nbElement = dataSize / sizeof(int64_t);
 				out.resize(nbElement);
@@ -1094,7 +1094,7 @@ namespace zeus {
 					out[iii] = etk::avg(int64_t(SHRT_MIN), tmp[iii], int64_t(SHRT_MAX));
 				}
 				return out;
-			} else if (createType<std::vector<float>>() == type) {
+			} else if (createType<etk::Vector<float>>() == type) {
 				const float* tmp = reinterpret_cast<const float*>(pointer);
 				int32_t nbElement = dataSize / sizeof(float);
 				out.resize(nbElement);
@@ -1102,7 +1102,7 @@ namespace zeus {
 					out[iii] = int16_t(etk::avg(float(SHRT_MIN), tmp[iii], float(SHRT_MAX)));
 				}
 				return out;
-			} else if (createType<std::vector<double>>() == type) {
+			} else if (createType<etk::Vector<double>>() == type) {
 				const double* tmp = reinterpret_cast<const double*>(pointer);
 				int32_t nbElement = dataSize / sizeof(double);
 				out.resize(nbElement);
@@ -1116,15 +1116,15 @@ namespace zeus {
 		}
 		
 		template<>
-		std::vector<int32_t> Parameter::getParameter<std::vector<int32_t>>(int32_t _id) const {
-			std::vector<int32_t> out;
+		etk::Vector<int32_t> Parameter::getParameter<etk::Vector<int32_t>>(int32_t _id) const {
+			etk::Vector<int32_t> out;
 			zeus::message::ParamType type = getParameterType(_id);
 			const uint8_t* pointer = getParameterPointer(_id);
 			uint32_t dataSize = getParameterSize(_id);
 			// TODO : Check size ...
-			if (type == createType<std::vector<void>>()) {
+			if (type == createType<etk::Vector<void>>()) {
 				return out;
-			} else if (createType<std::vector<uint8_t>>() == type) {
+			} else if (createType<etk::Vector<uint8_t>>() == type) {
 				const uint8_t* tmp = reinterpret_cast<const uint8_t*>(pointer);
 				int32_t nbElement = dataSize / sizeof(uint8_t);
 				out.resize(nbElement);
@@ -1132,7 +1132,7 @@ namespace zeus {
 					out[iii] = tmp[iii];
 				}
 				return out;
-			} else if (createType<std::vector<uint16_t>>() == type) {
+			} else if (createType<etk::Vector<uint16_t>>() == type) {
 				const uint16_t* tmp = reinterpret_cast<const uint16_t*>(pointer);
 				int32_t nbElement = dataSize / sizeof(uint16_t);
 				out.resize(nbElement);
@@ -1140,23 +1140,23 @@ namespace zeus {
 					out[iii] = tmp[iii];
 				}
 				return out;
-			} else if (createType<std::vector<uint32_t>>() == type) {
+			} else if (createType<etk::Vector<uint32_t>>() == type) {
 				const uint32_t* tmp = reinterpret_cast<const uint32_t*>(pointer);
 				int32_t nbElement = dataSize / sizeof(uint32_t);
 				out.resize(nbElement);
 				for (size_t iii=0; iii<nbElement; ++iii) {
-					out[iii] = std::min(tmp[iii], uint32_t(LONG_MAX));
+					out[iii] = etk::min(tmp[iii], uint32_t(LONG_MAX));
 				}
 				return out;
-			} else if (createType<std::vector<uint64_t>>() == type) {
+			} else if (createType<etk::Vector<uint64_t>>() == type) {
 				const uint64_t* tmp = reinterpret_cast<const uint64_t*>(pointer);
 				int32_t nbElement = dataSize / sizeof(uint64_t);
 				out.resize(nbElement);
 				for (size_t iii=0; iii<nbElement; ++iii) {
-					out[iii] = std::min(tmp[iii], uint64_t(LONG_MAX));
+					out[iii] = etk::min(tmp[iii], uint64_t(LONG_MAX));
 				}
 				return out;
-			} else if (createType<std::vector<int8_t>>() == type) {
+			} else if (createType<etk::Vector<int8_t>>() == type) {
 				const int8_t* tmp = reinterpret_cast<const int8_t*>(pointer);
 				int32_t nbElement = dataSize / sizeof(int8_t);
 				out.resize(nbElement);
@@ -1164,7 +1164,7 @@ namespace zeus {
 					out[iii] = tmp[iii];
 				}
 				return out;
-			} else if (createType<std::vector<int16_t>>() == type) {
+			} else if (createType<etk::Vector<int16_t>>() == type) {
 				const int16_t* tmp = reinterpret_cast<const int16_t*>(pointer);
 				int32_t nbElement = dataSize / sizeof(int16_t);
 				out.resize(nbElement);
@@ -1172,12 +1172,12 @@ namespace zeus {
 					out[iii] = tmp[iii];
 				}
 				return out;
-			} else if (createType<std::vector<int32_t>>() == type) {
+			} else if (createType<etk::Vector<int32_t>>() == type) {
 				int32_t nbElement = dataSize / sizeof(int32_t);
 				out.resize(nbElement);
 				memcpy(&out[0], pointer, nbElement * sizeof(int32_t));
 				return out;
-			} else if (createType<std::vector<int64_t>>() == type) {
+			} else if (createType<etk::Vector<int64_t>>() == type) {
 				const int64_t* tmp = reinterpret_cast<const int64_t*>(pointer);
 				int32_t nbElement = dataSize / sizeof(int64_t);
 				out.resize(nbElement);
@@ -1185,7 +1185,7 @@ namespace zeus {
 					out[iii] = etk::avg(int64_t(LONG_MIN), tmp[iii], int64_t(LONG_MAX));
 				}
 				return out;
-			} else if (createType<std::vector<float>>() == type) {
+			} else if (createType<etk::Vector<float>>() == type) {
 				const float* tmp = reinterpret_cast<const float*>(pointer);
 				int32_t nbElement = dataSize / sizeof(float);
 				out.resize(nbElement);
@@ -1193,7 +1193,7 @@ namespace zeus {
 					out[iii] = int32_t(etk::avg(float(LONG_MIN), tmp[iii], float(LONG_MAX)));
 				}
 				return out;
-			} else if (createType<std::vector<double>>() == type) {
+			} else if (createType<etk::Vector<double>>() == type) {
 				const double* tmp = reinterpret_cast<const double*>(pointer);
 				int32_t nbElement = dataSize / sizeof(double);
 				out.resize(nbElement);
@@ -1207,15 +1207,15 @@ namespace zeus {
 		}
 		
 		template<>
-		std::vector<int64_t> Parameter::getParameter<std::vector<int64_t>>(int32_t _id) const {
-			std::vector<int64_t> out;
+		etk::Vector<int64_t> Parameter::getParameter<etk::Vector<int64_t>>(int32_t _id) const {
+			etk::Vector<int64_t> out;
 			zeus::message::ParamType type = getParameterType(_id);
 			const uint8_t* pointer = getParameterPointer(_id);
 			uint32_t dataSize = getParameterSize(_id);
 			// TODO : Check size ...
-			if (type == createType<std::vector<void>>()) {
+			if (type == createType<etk::Vector<void>>()) {
 				return out;
-			} else if (createType<std::vector<uint8_t>>() == type) {
+			} else if (createType<etk::Vector<uint8_t>>() == type) {
 				const uint8_t* tmp = reinterpret_cast<const uint8_t*>(pointer);
 				int32_t nbElement = dataSize / sizeof(uint8_t);
 				out.resize(nbElement);
@@ -1223,7 +1223,7 @@ namespace zeus {
 					out[iii] = tmp[iii];
 				}
 				return out;
-			} else if (createType<std::vector<uint16_t>>() == type) {
+			} else if (createType<etk::Vector<uint16_t>>() == type) {
 				const uint16_t* tmp = reinterpret_cast<const uint16_t*>(pointer);
 				int32_t nbElement = dataSize / sizeof(uint16_t);
 				out.resize(nbElement);
@@ -1231,7 +1231,7 @@ namespace zeus {
 					out[iii] = tmp[iii];
 				}
 				return out;
-			} else if (createType<std::vector<uint32_t>>() == type) {
+			} else if (createType<etk::Vector<uint32_t>>() == type) {
 				const uint32_t* tmp = reinterpret_cast<const uint32_t*>(pointer);
 				int32_t nbElement = dataSize / sizeof(uint32_t);
 				out.resize(nbElement);
@@ -1239,15 +1239,15 @@ namespace zeus {
 					out[iii] = tmp[iii];
 				}
 				return out;
-			} else if (createType<std::vector<uint64_t>>() == type) {
+			} else if (createType<etk::Vector<uint64_t>>() == type) {
 				const uint64_t* tmp = reinterpret_cast<const uint64_t*>(pointer);
 				int32_t nbElement = dataSize / sizeof(uint64_t);
 				out.resize(nbElement);
 				for (size_t iii=0; iii<nbElement; ++iii) {
-					out[iii] = std::min(tmp[iii], uint64_t(LLONG_MAX));
+					out[iii] = etk::min(tmp[iii], uint64_t(LLONG_MAX));
 				}
 				return out;
-			} else if (createType<std::vector<int8_t>>() == type) {
+			} else if (createType<etk::Vector<int8_t>>() == type) {
 				const int8_t* tmp = reinterpret_cast<const int8_t*>(pointer);
 				int32_t nbElement = dataSize / sizeof(int8_t);
 				out.resize(nbElement);
@@ -1255,7 +1255,7 @@ namespace zeus {
 					out[iii] = tmp[iii];
 				}
 				return out;
-			} else if (createType<std::vector<int16_t>>() == type) {
+			} else if (createType<etk::Vector<int16_t>>() == type) {
 				const int16_t* tmp = reinterpret_cast<const int16_t*>(pointer);
 				int32_t nbElement = dataSize / sizeof(int16_t);
 				out.resize(nbElement);
@@ -1263,7 +1263,7 @@ namespace zeus {
 					out[iii] = tmp[iii];
 				}
 				return out;
-			} else if (createType<std::vector<int32_t>>() == type) {
+			} else if (createType<etk::Vector<int32_t>>() == type) {
 				const int32_t* tmp = reinterpret_cast<const int32_t*>(pointer);
 				int32_t nbElement = dataSize / sizeof(int32_t);
 				out.resize(nbElement);
@@ -1271,12 +1271,12 @@ namespace zeus {
 					out[iii] = tmp[iii];
 				}
 				return out;
-			} else if (createType<std::vector<int64_t>>() == type) {
+			} else if (createType<etk::Vector<int64_t>>() == type) {
 				int32_t nbElement = dataSize / sizeof(int64_t);
 				out.resize(nbElement);
 				memcpy(&out[0], pointer, nbElement * sizeof(int64_t));
 				return out;
-			} else if (createType<std::vector<float>>() == type) {
+			} else if (createType<etk::Vector<float>>() == type) {
 				const float* tmp = reinterpret_cast<const float*>(pointer);
 				int32_t nbElement = dataSize / sizeof(float);
 				out.resize(nbElement);
@@ -1284,7 +1284,7 @@ namespace zeus {
 					out[iii] = int64_t(etk::avg(float(LLONG_MIN), tmp[iii], float(LLONG_MAX)));
 				}
 				return out;
-			} else if (createType<std::vector<double>>() == type) {
+			} else if (createType<etk::Vector<double>>() == type) {
 				const double* tmp = reinterpret_cast<const double*>(pointer);
 				int32_t nbElement = dataSize / sizeof(double);
 				out.resize(nbElement);
@@ -1298,15 +1298,15 @@ namespace zeus {
 		}
 		
 		template<>
-		std::vector<float> Parameter::getParameter<std::vector<float>>(int32_t _id) const {
-			std::vector<float> out;
+		etk::Vector<float> Parameter::getParameter<etk::Vector<float>>(int32_t _id) const {
+			etk::Vector<float> out;
 			zeus::message::ParamType type = getParameterType(_id);
 			const uint8_t* pointer = getParameterPointer(_id);
 			uint32_t dataSize = getParameterSize(_id);
 			// TODO : Check size ...
-			if (type == createType<std::vector<void>>()) {
+			if (type == createType<etk::Vector<void>>()) {
 				return out;
-			} else if (createType<std::vector<uint8_t>>() == type) {
+			} else if (createType<etk::Vector<uint8_t>>() == type) {
 				const uint8_t* tmp = reinterpret_cast<const uint8_t*>(pointer);
 				int32_t nbElement = dataSize / sizeof(uint8_t);
 				out.resize(nbElement);
@@ -1314,7 +1314,7 @@ namespace zeus {
 					out[iii] = tmp[iii];
 				}
 				return out;
-			} else if (createType<std::vector<uint16_t>>() == type) {
+			} else if (createType<etk::Vector<uint16_t>>() == type) {
 				const uint16_t* tmp = reinterpret_cast<const uint16_t*>(pointer);
 				int32_t nbElement = dataSize / sizeof(uint16_t);
 				out.resize(nbElement);
@@ -1322,7 +1322,7 @@ namespace zeus {
 					out[iii] = tmp[iii];
 				}
 				return out;
-			} else if (createType<std::vector<uint32_t>>() == type) {
+			} else if (createType<etk::Vector<uint32_t>>() == type) {
 				const uint32_t* tmp = reinterpret_cast<const uint32_t*>(pointer);
 				int32_t nbElement = dataSize / sizeof(uint32_t);
 				out.resize(nbElement);
@@ -1330,7 +1330,7 @@ namespace zeus {
 					out[iii] = tmp[iii];
 				}
 				return out;
-			} else if (createType<std::vector<uint64_t>>() == type) {
+			} else if (createType<etk::Vector<uint64_t>>() == type) {
 				const uint64_t* tmp = reinterpret_cast<const uint64_t*>(pointer);
 				int32_t nbElement = dataSize / sizeof(uint64_t);
 				out.resize(nbElement);
@@ -1338,7 +1338,7 @@ namespace zeus {
 					out[iii] = tmp[iii];
 				}
 				return out;
-			} else if (createType<std::vector<int8_t>>() == type) {
+			} else if (createType<etk::Vector<int8_t>>() == type) {
 				const int8_t* tmp = reinterpret_cast<const int8_t*>(pointer);
 				int32_t nbElement = dataSize / sizeof(int8_t);
 				out.resize(nbElement);
@@ -1346,7 +1346,7 @@ namespace zeus {
 					out[iii] = tmp[iii];
 				}
 				return out;
-			} else if (createType<std::vector<int16_t>>() == type) {
+			} else if (createType<etk::Vector<int16_t>>() == type) {
 				const int16_t* tmp = reinterpret_cast<const int16_t*>(pointer);
 				int32_t nbElement = dataSize / sizeof(int16_t);
 				out.resize(nbElement);
@@ -1354,7 +1354,7 @@ namespace zeus {
 					out[iii] = tmp[iii];
 				}
 				return out;
-			} else if (createType<std::vector<int32_t>>() == type) {
+			} else if (createType<etk::Vector<int32_t>>() == type) {
 				const int32_t* tmp = reinterpret_cast<const int32_t*>(pointer);
 				int32_t nbElement = dataSize / sizeof(int32_t);
 				out.resize(nbElement);
@@ -1362,7 +1362,7 @@ namespace zeus {
 					out[iii] = tmp[iii];
 				}
 				return out;
-			} else if (createType<std::vector<int64_t>>() == type) {
+			} else if (createType<etk::Vector<int64_t>>() == type) {
 				const int64_t* tmp = reinterpret_cast<const int64_t*>(pointer);
 				int32_t nbElement = dataSize / sizeof(int64_t);
 				out.resize(nbElement);
@@ -1370,12 +1370,12 @@ namespace zeus {
 					out[iii] = tmp[iii];
 				}
 				return out;
-			} else if (createType<std::vector<float>>() == type) {
+			} else if (createType<etk::Vector<float>>() == type) {
 				int32_t nbElement = dataSize / sizeof(float);
 				out.resize(nbElement);
 				memcpy(&out[0], pointer, nbElement * sizeof(float));
 				return out;
-			} else if (createType<std::vector<double>>() == type) {
+			} else if (createType<etk::Vector<double>>() == type) {
 				const double* tmp = reinterpret_cast<const double*>(pointer);
 				int32_t nbElement = dataSize / sizeof(double);
 				out.resize(nbElement);
@@ -1389,15 +1389,15 @@ namespace zeus {
 		}
 		
 		template<>
-		std::vector<double> Parameter::getParameter<std::vector<double>>(int32_t _id) const {
-			std::vector<double> out;
+		etk::Vector<double> Parameter::getParameter<etk::Vector<double>>(int32_t _id) const {
+			etk::Vector<double> out;
 			zeus::message::ParamType type = getParameterType(_id);
 			const uint8_t* pointer = getParameterPointer(_id);
 			uint32_t dataSize = getParameterSize(_id);
 			// TODO : Check size ...
-			if (type == createType<std::vector<void>>()) {
+			if (type == createType<etk::Vector<void>>()) {
 				return out;
-			} else if (createType<std::vector<uint8_t>>() == type) {
+			} else if (createType<etk::Vector<uint8_t>>() == type) {
 				const uint8_t* tmp = reinterpret_cast<const uint8_t*>(pointer);
 				int32_t nbElement = dataSize / sizeof(uint8_t);
 				out.resize(nbElement);
@@ -1405,7 +1405,7 @@ namespace zeus {
 					out[iii] = tmp[iii];
 				}
 				return out;
-			} else if (createType<std::vector<uint16_t>>() == type) {
+			} else if (createType<etk::Vector<uint16_t>>() == type) {
 				const uint16_t* tmp = reinterpret_cast<const uint16_t*>(pointer);
 				int32_t nbElement = dataSize / sizeof(uint16_t);
 				out.resize(nbElement);
@@ -1413,7 +1413,7 @@ namespace zeus {
 					out[iii] = tmp[iii];
 				}
 				return out;
-			} else if (createType<std::vector<uint32_t>>() == type) {
+			} else if (createType<etk::Vector<uint32_t>>() == type) {
 				const uint32_t* tmp = reinterpret_cast<const uint32_t*>(pointer);
 				int32_t nbElement = dataSize / sizeof(uint32_t);
 				out.resize(nbElement);
@@ -1421,7 +1421,7 @@ namespace zeus {
 					out[iii] = tmp[iii];
 				}
 				return out;
-			} else if (createType<std::vector<uint64_t>>() == type) {
+			} else if (createType<etk::Vector<uint64_t>>() == type) {
 				const uint64_t* tmp = reinterpret_cast<const uint64_t*>(pointer);
 				int32_t nbElement = dataSize / sizeof(uint64_t);
 				out.resize(nbElement);
@@ -1429,7 +1429,7 @@ namespace zeus {
 					out[iii] = tmp[iii];
 				}
 				return out;
-			} else if (createType<std::vector<int8_t>>() == type) {
+			} else if (createType<etk::Vector<int8_t>>() == type) {
 				const int8_t* tmp = reinterpret_cast<const int8_t*>(pointer);
 				int32_t nbElement = dataSize / sizeof(int8_t);
 				out.resize(nbElement);
@@ -1437,7 +1437,7 @@ namespace zeus {
 					out[iii] = tmp[iii];
 				}
 				return out;
-			} else if (createType<std::vector<int16_t>>() == type) {
+			} else if (createType<etk::Vector<int16_t>>() == type) {
 				const int16_t* tmp = reinterpret_cast<const int16_t*>(pointer);
 				int32_t nbElement = dataSize / sizeof(int16_t);
 				out.resize(nbElement);
@@ -1445,7 +1445,7 @@ namespace zeus {
 					out[iii] = tmp[iii];
 				}
 				return out;
-			} else if (createType<std::vector<int32_t>>() == type) {
+			} else if (createType<etk::Vector<int32_t>>() == type) {
 				const int32_t* tmp = reinterpret_cast<const int32_t*>(pointer);
 				int32_t nbElement = dataSize / sizeof(int32_t);
 				out.resize(nbElement);
@@ -1453,7 +1453,7 @@ namespace zeus {
 					out[iii] = tmp[iii];
 				}
 				return out;
-			} else if (createType<std::vector<int64_t>>() == type) {
+			} else if (createType<etk::Vector<int64_t>>() == type) {
 				const int64_t* tmp = reinterpret_cast<const int64_t*>(pointer);
 				int32_t nbElement = dataSize / sizeof(int64_t);
 				out.resize(nbElement);
@@ -1461,7 +1461,7 @@ namespace zeus {
 					out[iii] = tmp[iii];
 				}
 				return out;
-			} else if (createType<std::vector<float>>() == type) {
+			} else if (createType<etk::Vector<float>>() == type) {
 				const float* tmp = reinterpret_cast<const float*>(pointer);
 				int32_t nbElement = dataSize / sizeof(float);
 				out.resize(nbElement);
@@ -1469,7 +1469,7 @@ namespace zeus {
 					out[iii] = tmp[iii];
 				}
 				return out;
-			} else if (createType<std::vector<double>>() == type) {
+			} else if (createType<etk::Vector<double>>() == type) {
 				int32_t nbElement = dataSize / sizeof(double);
 				out.resize(nbElement);
 				memcpy(&out[0], pointer, nbElement * sizeof(double));
@@ -1480,15 +1480,15 @@ namespace zeus {
 		}
 		
 		template<>
-		std::vector<bool> Parameter::getParameter<std::vector<bool>>(int32_t _id) const {
-			std::vector<bool> out;
+		etk::Vector<bool> Parameter::getParameter<etk::Vector<bool>>(int32_t _id) const {
+			etk::Vector<bool> out;
 			zeus::message::ParamType type = getParameterType(_id);
 			const uint8_t* pointer = getParameterPointer(_id);
 			uint32_t dataSize = getParameterSize(_id);
 			// TODO : Check size ...
-			if (type == createType<std::vector<void>>()) {
+			if (type == createType<etk::Vector<void>>()) {
 				return out;
-			} else if (createType<std::vector<bool>>() == type) {
+			} else if (createType<etk::Vector<bool>>() == type) {
 				const uint8_t* tmp = reinterpret_cast<const uint8_t*>(pointer);
 				int32_t nbElement = dataSize / sizeof(uint8_t);
 				out.resize(nbElement);
@@ -1502,14 +1502,14 @@ namespace zeus {
 		}
 		
 		template<>
-		std::vector<std::string> Parameter::getParameter<std::vector<std::string>>(int32_t _id) const {
-			std::vector<std::string> out;
+		etk::Vector<etk::String> Parameter::getParameter<etk::Vector<etk::String>>(int32_t _id) const {
+			etk::Vector<etk::String> out;
 			zeus::message::ParamType type = getParameterType(_id);
 			const uint8_t* pointer = getParameterPointer(_id);
 			uint32_t dataSize = getParameterSize(_id);
-			if (type == createType<std::vector<void>>()) {
+			if (type == createType<etk::Vector<void>>()) {
 				return out;
-			} else if (createType<std::vector<std::string>>() == type) {
+			} else if (createType<etk::Vector<etk::String>>() == type) {
 				// first element is the number of elements:
 				const uint16_t* tmp = reinterpret_cast<const uint16_t*>(pointer);
 				out.resize(*tmp);

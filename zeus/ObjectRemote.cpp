@@ -9,7 +9,7 @@
 
 
 
-zeus::ObjectRemoteBase::ObjectRemoteBase(const ememory::SharedPtr<zeus::WebServer>& _iface, uint16_t _localId, uint16_t _localObjectId, uint32_t _address, const std::string& _type):
+zeus::ObjectRemoteBase::ObjectRemoteBase(const ememory::SharedPtr<zeus::WebServer>& _iface, uint16_t _localId, uint16_t _localObjectId, uint32_t _address, const etk::String& _type):
   zeus::WebObj(_iface, _localId, _localObjectId),
   m_type(_type),
   m_remoteAddress(_address),
@@ -43,7 +43,7 @@ bool zeus::ObjectRemoteBase::exist() const {
 	return m_isLinked;
 }
 
-const std::string& zeus::ObjectRemoteBase::getName() const {
+const etk::String& zeus::ObjectRemoteBase::getName() const {
 	return m_type;
 }
 

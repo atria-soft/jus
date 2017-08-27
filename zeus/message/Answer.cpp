@@ -10,7 +10,7 @@
 #include <etk/stdTools.hpp>
 #include <zeus/message/Answer.hpp>
 
-void zeus::message::Answer::generateDisplay(std::ostream& _os) const {
+void zeus::message::Answer::generateDisplay(etk::Stream& _os) const {
 	zeus::Message::generateDisplay(_os);
 	if (getNumberParameter() != 0) {
 		_os << " '" + simpleStringParam(0) + "'";
@@ -26,15 +26,15 @@ bool zeus::message::Answer::hasError() const {
 	return m_errorType.size() != 0;
 }
 
-const std::string& zeus::message::Answer::getError() const {
+const etk::String& zeus::message::Answer::getError() const {
 	return m_errorType;
 }
 
-const std::string& zeus::message::Answer::getErrorHelp() const {
+const etk::String& zeus::message::Answer::getErrorHelp() const {
 	return m_errorHelp;
 }
 
-void zeus::message::Answer::addError(const std::string& _value, const std::string& _comment) {
+void zeus::message::Answer::addError(const etk::String& _value, const etk::String& _comment) {
 	m_errorType = _value;
 	m_errorHelp = _comment;
 }

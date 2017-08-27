@@ -11,31 +11,31 @@ zeus::ObjectIntrospect::ObjectIntrospect(zeus::ObjectRemote& _obj):
 	
 }
 
-zeus::Future<std::string> zeus::ObjectIntrospect::getDescription() {
+zeus::Future<etk::String> zeus::ObjectIntrospect::getDescription() {
 	return m_obj.call("sys.getDescription");
 }
 
-zeus::Future<std::string> zeus::ObjectIntrospect::getVersion() {
+zeus::Future<etk::String> zeus::ObjectIntrospect::getVersion() {
 	return m_obj.call("sys.getVersion");
 }
 
-zeus::Future<std::string> zeus::ObjectIntrospect::getType() {
+zeus::Future<etk::String> zeus::ObjectIntrospect::getType() {
 	return m_obj.call("sys.getType");
 }
 
-zeus::Future<std::vector<std::string>> zeus::ObjectIntrospect::getAuthors() {
+zeus::Future<etk::Vector<etk::String>> zeus::ObjectIntrospect::getAuthors() {
 	return m_obj.call("sys.getAuthors");
 }
 
-zeus::Future<std::vector<std::string>> zeus::ObjectIntrospect::getFunctions() {
+zeus::Future<etk::Vector<etk::String>> zeus::ObjectIntrospect::getFunctions() {
 	return m_obj.call("sys.getFunctions");
 }
 
-zeus::Future<std::string> zeus::ObjectIntrospect::getFunctionPrototype(std::string _functionName) {
+zeus::Future<etk::String> zeus::ObjectIntrospect::getFunctionPrototype(etk::String _functionName) {
 	return m_obj.call("sys.getFunctionPrototype", _functionName);
 }
 
-zeus::Future<std::string> zeus::ObjectIntrospect::getFunctionDescription(std::string _functionName) {
+zeus::Future<etk::String> zeus::ObjectIntrospect::getFunctionDescription(etk::String _functionName) {
 	return m_obj.call("sys.getFunctionDescription", _functionName);
 }
 

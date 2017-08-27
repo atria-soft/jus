@@ -10,10 +10,10 @@
 #include <etk/stdTools.hpp>
 #include <zeus/message/Call.hpp>
 
-void zeus::message::Call::generateDisplay(std::ostream& _os) const {
+void zeus::message::Call::generateDisplay(etk::Stream& _os) const {
 	zeus::Message::generateDisplay(_os);
 	_os << " '" + m_callName + "'";
-	_os << " nbParam=" + etk::to_string(getNumberParameter());
+	_os << " nbParam=" + etk::toString(getNumberParameter());
 	if (getNumberParameter() != 0) {
 		_os << " paramType(";
 		for (int32_t iii=0; iii<getNumberParameter(); ++iii) {
@@ -26,11 +26,11 @@ void zeus::message::Call::generateDisplay(std::ostream& _os) const {
 	}
 }
 
-const std::string& zeus::message::Call::getCall() const {
+const etk::String& zeus::message::Call::getCall() const {
 	return m_callName;
 }
 
-void zeus::message::Call::setCall(const std::string& _value) {
+void zeus::message::Call::setCall(const etk::String& _value) {
 	m_callName = _value;
 }
 

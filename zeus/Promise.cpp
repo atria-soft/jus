@@ -142,7 +142,7 @@ bool zeus::Promise::setMessage(ememory::SharedPtr<zeus::Message> _value) {
 			callback(ememory::staticPointerCast<zeus::message::Event>(_value));
 			{
 				std::unique_lock<std::mutex> lock(m_mutex);
-				m_callbackEvent = std::move(callback);
+				m_callbackEvent = etk::move(callback);
 			}
 			return false; // no error
 		}
@@ -163,13 +163,13 @@ bool zeus::Promise::setMessage(ememory::SharedPtr<zeus::Message> _value) {
 		Observer callback;
 		{
 			std::unique_lock<std::mutex> lock(m_mutex);
-			callback = std::move(m_callbackThen);
+			callback = etk::move(m_callbackThen);
 		}
 		if (callback != nullptr) {
 			bool ret = callback(zeus::FutureBase(sharedFromThis()));
 			{
 				std::unique_lock<std::mutex> lock(m_mutex);
-				m_callbackThen = std::move(callback);
+				m_callbackThen = etk::move(callback);
 			}
 			return ret;
 		}
@@ -183,7 +183,7 @@ bool zeus::Promise::setMessage(ememory::SharedPtr<zeus::Message> _value) {
 			bool ret = callback(zeus::FutureBase(sharedFromThis()));
 			{
 				std::unique_lock<std::mutex> lock(m_mutex);
-				m_callbackElse = std::move(callback);
+				m_callbackElse = etk::move(callback);
 			}
 			return ret;
 		}
@@ -210,7 +210,7 @@ bool zeus::Promise::hasError() const {
 	return static_cast<const zeus::message::Answer*>(m_message.get())->hasError();
 }
 
-std::string zeus::Promise::getErrorType() const {
+etk::String zeus::Promise::getErrorType() const {
 	std::unique_lock<std::mutex> lock(m_mutex);
 	if (m_message == nullptr) {
 		return "NULL_PTR";
@@ -221,7 +221,7 @@ std::string zeus::Promise::getErrorType() const {
 	return static_cast<const zeus::message::Answer*>(m_message.get())->getError();
 }
 
-std::string zeus::Promise::getErrorHelp() const {
+etk::String zeus::Promise::getErrorHelp() const {
 	std::unique_lock<std::mutex> lock(m_mutex);
 	if (m_message == nullptr) {
 		return "This is a nullptr future";

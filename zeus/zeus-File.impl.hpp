@@ -11,20 +11,20 @@
 namespace zeus {
 	class FileImpl : public zeus::File {
 		private:
-			std::string m_filename; //!< Name of the file
+			etk::String m_filename; //!< Name of the file
 			etk::FSNode m_node; //!< File node access
 			size_t m_size; //!< Size of the file
 			size_t m_gettedData; //!< Number of byte loaded by the remote client
-			std::string m_mineType; //!< Mine Type of the file
-			std::string m_sha512; //!< Global file sha-512
+			etk::String m_mineType; //!< Mine Type of the file
+			etk::String m_sha512; //!< Global file sha-512
 		public:
-			FileImpl(std::string _fileNameReal, std::string _fileNameShow, std::string _mineType, std::string _sha512="");
-			FileImpl(std::string _fileNameReal, std::string _sha512="");
+			FileImpl(etk::String _fileNameReal, etk::String _fileNameShow, etk::String _mineType, etk::String _sha512="");
+			FileImpl(etk::String _fileNameReal, etk::String _sha512="");
 			~FileImpl();
 			uint64_t getSize() override;
-			std::string getName() override;
-			std::string getSha512() override;
-			std::string getMineType() override;
+			etk::String getName() override;
+			etk::String getSha512() override;
+			etk::String getMineType() override;
 			zeus::Raw getPart(uint64_t _start, uint64_t _stop) override;
 		
 	};

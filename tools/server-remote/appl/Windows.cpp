@@ -28,7 +28,7 @@
 #include <appl/widget/meta/StdPopUp.hpp>
 
 
-static std::string g_baseDBName = "USERDATA:config.json";
+static etk::String g_baseDBName = "USERDATA:config.json";
 
 void appl::Windows::store_db() {
 	APPL_DEBUG("Store database [START]");
@@ -98,12 +98,12 @@ void appl::Windows::init() {
 }
 
 
-void appl::Windows::onCallbackShortCut(const std::string& _value) {
+void appl::Windows::onCallbackShortCut(const etk::String& _value) {
 	APPL_WARNING("Event from ShortCut : " << _value);
 	onCallbackMenuEvent(_value);
 }
 
-void appl::Windows::onCallbackMenuEvent(const std::string& _value) {
+void appl::Windows::onCallbackMenuEvent(const etk::String& _value) {
 	APPL_WARNING("Event from Menu : " << _value);
 	if (_value == "menu:connect") {
 		appl::widget::ConnectionShared tmpWidget = appl::widget::Connection::create();
@@ -167,8 +167,8 @@ void appl::Windows::onCallbackReboot() {
 	}
 	zeus::Future<void> listElem = remoteService.reboot().wait();
 	if (listElem.hasError() == true) {
-		popUpWidgetPush(ewol::widget::StdPopUp::create("title", std::string("Error occured"),
-		                                               "comment", std::string("Reboot can not be done")));
+		popUpWidgetPush(ewol::widget::StdPopUp::create("title", etk::String("Error occured"),
+		                                               "comment", etk::String("Reboot can not be done")));
 	}
 }
 
@@ -197,8 +197,8 @@ void appl::Windows::onCallbackShutdown() {
 	}
 	zeus::Future<void> listElem = remoteService.shutdown().wait();
 	if (listElem.hasError() == true) {
-		popUpWidgetPush(ewol::widget::StdPopUp::create("title", std::string("Error occured"),
-		                                               "comment", std::string("Reboot can not be done")));
+		popUpWidgetPush(ewol::widget::StdPopUp::create("title", etk::String("Error occured"),
+		                                               "comment", etk::String("Reboot can not be done")));
 	}
 }
 

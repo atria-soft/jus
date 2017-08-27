@@ -25,28 +25,28 @@
 #include <zeus/ProxyFile.hpp>
 
 static std::mutex g_mutex;
-static std::string g_basePath;
-static std::string g_baseDBName = std::string(SERVICE_NAME) + "-database.json";
+static etk::String g_basePath;
+static etk::String g_baseDBName = etk::String(SERVICE_NAME) + "-database.json";
 class FileProperty {
 	public:
 		uint64_t m_id; //!< use local reference ID to have faster access on the file ...
-		std::string m_fileName; // Sha 512
-		std::string m_name;
-		std::string m_mineType;
+		etk::String m_fileName; // Sha 512
+		etk::String m_name;
+		etk::String m_mineType;
 		echrono::Time m_creationData;
-		std::map<std::string, std::string> m_metadata;
+		etk::Map<etk::String, etk::String> m_metadata;
 };
-static std::vector<FileProperty> m_listFile;
+static etk::Vector<FileProperty> m_listFile;
 
 class Album {
 	public:
 		uint32_t m_id; //!< use local reference ID to have faster access on the file ...
 		uint32_t m_parentId; //!< parent Album ID
-		std::string m_name; //!< name of the Album
-		std::string m_description; //!< description of the album
-		std::vector<uint32_t> m_listMedia; //!< List of media in this album
+		etk::String m_name; //!< name of the Album
+		etk::String m_description; //!< description of the album
+		etk::Vector<uint32_t> m_listMedia; //!< List of media in this album
 };
-static std::vector<Album> m_listAlbum;
+static etk::Vector<Album> m_listAlbum;
 
 static uint64_t m_lastMaxId = 0;
 static bool g_needToStore = false;
@@ -61,10 +61,10 @@ namespace appl {
 		private:
 			//ememory::SharedPtr<zeus::ClientProperty>& m_client;
 			zeus::ProxyClientProperty m_client;
-			std::string m_userName;
+			etk::String m_userName;
 		public:
 			/*
-			PictureService(ememory::SharedPtr<zeus::ClientProperty>& _client, const std::string& _userName) :
+			PictureService(ememory::SharedPtr<zeus::ClientProperty>& _client, const etk::String& _userName) :
 			  m_client(_client),
 			  m_userName(_userName) {
 				APPL_WARNING("New PictureService ... for user: ");
@@ -83,12 +83,12 @@ namespace appl {
 				return m_listFile.size();
 			}
 			
-			std::vector<uint32_t> mediaIdGetRange(uint32_t _start, uint32_t _stop) override {
+			etk::Vector<uint32_t> mediaIdGetRange(uint32_t _start, uint32_t _stop) override {
 				std::unique_lock<std::mutex> lock(g_mutex);
 				// TODO : Check right ...
-				std::vector<uint32_t> out;
+				etk::Vector<uint32_t> out;
 				for (size_t iii=_start; iii<m_listFile.size() && iii<_stop; ++iii) {
-					out.push_back(m_listFile[iii].m_id);
+					out.pushBack(m_listFile[iii].m_id);
 				}
 				return out;
 			}
@@ -118,8 +118,8 @@ namespace appl {
 				
 				auto futType = _dataFile.getMineType();
 				auto futName = _dataFile.getName();
-				std::string tmpFileName = g_basePath + "tmpImport_" + etk::to_string(id);
-				std::string sha512String = zeus::storeInFile(_dataFile, tmpFileName);
+				etk::String tmpFileName = g_basePath + "tmpImport_" + etk::toString(id);
+				etk::String sha512String = zeus::storeInFile(_dataFile, tmpFileName);
 				futType.wait();
 				futName.wait();
 				// TODO : Get internal data of the file and remove all the meta-data ==> proper files ...
@@ -145,7 +145,7 @@ namespace appl {
 				property.m_name = futName.get();
 				property.m_mineType = futType.get();
 				property.m_creationData = echrono::Time::now();
-				m_listFile.push_back(property);
+				m_listFile.pushBack(property);
 				g_needToStore = true;
 				APPL_DEBUG(" filename : " << sha512String);
 				return id;
@@ -189,20 +189,20 @@ namespace appl {
 				}
 			}
 			
-			std::vector<std::string> mediaMetadataGetKeys(uint32_t _mediaId) override {
-				std::vector<std::string> out;
+			etk::Vector<etk::String> mediaMetadataGetKeys(uint32_t _mediaId) override {
+				etk::Vector<etk::String> out;
 				for (auto &it : m_listFile) {
 					if (it.m_id == _mediaId) {
 						for (auto &itM : it.m_metadata) {
-							out.push_back(itM.first);
+							out.pushBack(itM.first);
 						}
 						return out;
 					}
 				}
 				throw std::invalid_argument("Wrong Album ID ...");
 			}
-			std::string mediaMetadataGetKey(uint32_t _mediaId, std::string _key) override {
-				std::vector<std::string> out;
+			etk::String mediaMetadataGetKey(uint32_t _mediaId, etk::String _key) override {
+				etk::Vector<etk::String> out;
 				for (auto &it : m_listFile) {
 					if (it.m_id == _mediaId) {
 						auto itM = it.m_metadata.find(_key);
@@ -214,21 +214,21 @@ namespace appl {
 				}
 				throw std::invalid_argument("Wrong Album ID ...");
 			}
-			void mediaMetadataSetKey(uint32_t _mediaId, std::string _key, std::string _value) override {
+			void mediaMetadataSetKey(uint32_t _mediaId, etk::String _key, etk::String _value) override {
 				for (auto &it : m_listFile) {
 					if (it.m_id == _mediaId) {
 						auto itM = it.m_metadata.find(_key);
 						if (itM != it.m_metadata.end()) {
 							itM->second = _value;
 						} else {
-							it.m_metadata.insert(std::make_pair(_key, _value));
+							it.m_metadata.insert(etk::makePair(_key, _value));
 						}
 						return;
 					}
 				}
 				throw std::invalid_argument("Wrong Album ID ...");
 			}
-			uint32_t albumCreate(std::string _albumName) override {
+			uint32_t albumCreate(etk::String _albumName) override {
 				std::unique_lock<std::mutex> lock(g_mutex);
 				// TODO : Check right ...
 				for (auto &it : m_listAlbum) {
@@ -239,7 +239,7 @@ namespace appl {
 				Album album;
 				album.m_id = createUniqueID();
 				album.m_name = _albumName;
-				m_listAlbum.push_back(album);
+				m_listAlbum.pushBack(album);
 				return album.m_id;
 			}
 			
@@ -258,15 +258,15 @@ namespace appl {
 				}
 				throw std::invalid_argument("Wrong Album ID ...");
 			}
-			std::vector<uint32_t> albumGetList() override {
+			etk::Vector<uint32_t> albumGetList() override {
 				std::unique_lock<std::mutex> lock(g_mutex);
-				std::vector<uint32_t> out;
+				etk::Vector<uint32_t> out;
 				for (auto &it : m_listAlbum) {
-					out.push_back(it.m_id);
+					out.pushBack(it.m_id);
 				}
 				return out;
 			}
-			std::string albumNameGet(uint32_t _albumId) override {
+			etk::String albumNameGet(uint32_t _albumId) override {
 				std::unique_lock<std::mutex> lock(g_mutex);
 				for (auto &it : m_listAlbum) {
 					if (it.m_id == _albumId) {
@@ -276,7 +276,7 @@ namespace appl {
 				throw std::invalid_argument("Wrong Album ID ...");
 				return "";
 			}
-			void albumNameSet(uint32_t _albumId, std::string _albumName) override {
+			void albumNameSet(uint32_t _albumId, etk::String _albumName) override {
 				std::unique_lock<std::mutex> lock(g_mutex);
 				for (auto &it : m_listAlbum) {
 					if (it.m_id == _albumId) {
@@ -286,7 +286,7 @@ namespace appl {
 				}
 				throw std::invalid_argument("Wrong Album ID ...");
 			}
-			std::string albumDescriptionGet(uint32_t _albumId) override {
+			etk::String albumDescriptionGet(uint32_t _albumId) override {
 				std::unique_lock<std::mutex> lock(g_mutex);
 				for (auto &it : m_listAlbum) {
 					if (it.m_id == _albumId) {
@@ -296,7 +296,7 @@ namespace appl {
 				throw std::invalid_argument("Wrong Album ID ...");
 				return "";
 			}
-			void albumDescriptionSet(uint32_t _albumId, std::string _desc) override {
+			void albumDescriptionSet(uint32_t _albumId, etk::String _desc) override {
 				std::unique_lock<std::mutex> lock(g_mutex);
 				for (auto &it : m_listAlbum) {
 					if (it.m_id == _albumId) {
@@ -316,7 +316,7 @@ namespace appl {
 								return;
 							}
 						}
-						it.m_listMedia.push_back(_mediaId);
+						it.m_listMedia.pushBack(_mediaId);
 						return;
 					}
 				}
@@ -351,16 +351,16 @@ namespace appl {
 				throw std::invalid_argument("Wrong Album ID ...");
 				return 0;
 			}
-			std::vector<uint32_t> albumMediaIdGet(uint32_t _albumId, uint32_t _start, uint32_t _stop) override {
+			etk::Vector<uint32_t> albumMediaIdGet(uint32_t _albumId, uint32_t _start, uint32_t _stop) override {
 				std::unique_lock<std::mutex> lock(g_mutex);
 				for (auto &it : m_listAlbum) {
 					if (it.m_id == _albumId) {
-						std::vector<uint32_t> out;
+						etk::Vector<uint32_t> out;
 						for (size_t iii=_start;
 						         iii<it.m_listMedia.size()
 						      && iii<_stop;
 						     ++iii) {
-							out.push_back(it.m_listMedia[iii]);
+							out.pushBack(it.m_listMedia[iii]);
 						}
 						return out;
 					}
@@ -464,13 +464,13 @@ static void load_db() {
 			for (auto itValue = tmpObj.begin();
 			     itValue != tmpObj.end();
 			     ++itValue) {
-				property.m_metadata.insert(std::make_pair(itValue.getKey(), (*itValue).toString().get()));
+				property.m_metadata.insert(etk::makePair(itValue.getKey(), (*itValue).toString().get()));
 			}
 		}
 		if (property.m_fileName == "") {
 			APPL_ERROR("Can not access on the file : ... No name ");
 		} else {
-			m_listFile.push_back(property);
+			m_listFile.pushBack(property);
 		}
 	}
 	ejson::Array listAlbumArray = database["list-album"].toArray();
@@ -484,14 +484,14 @@ static void load_db() {
 		ejson::Array listMadiaArray = albumElement["media"].toArray();
 		for (const auto itArrayMedia: listMadiaArray) {
 			uint64_t tmp = itArrayMedia.toNumber().getU64();
-			album.m_listMedia.push_back(tmp);
+			album.m_listMedia.pushBack(tmp);
 		}
-		m_listAlbum.push_back(album);
+		m_listAlbum.pushBack(album);
 	}
 	g_needToStore = false;
 }
 
-ETK_EXPORT_API bool SERVICE_IO_init(int _argc, const char *_argv[], std::string _basePath) {
+ETK_EXPORT_API bool SERVICE_IO_init(int _argc, const char *_argv[], etk::String _basePath) {
 	g_basePath = _basePath;
 	std::unique_lock<std::mutex> lock(g_mutex);
 	APPL_WARNING("Load USER: " << g_basePath);

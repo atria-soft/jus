@@ -64,8 +64,8 @@ namespace appl {
 				esignal::Signal<ememory::SharedPtr<appl::ClientProperty>> signalValidate; //!< select file(s)
 			protected:
 				ememory::SharedPtr<appl::ClientProperty> m_baseProperty;
-				std::string m_login;
-				std::string m_password;
+				etk::String m_login;
+				etk::String m_password;
 				Connection();
 				void init() override;
 			public:
@@ -73,7 +73,7 @@ namespace appl {
 				virtual ~Connection();
 				void setProperty(ememory::SharedPtr<appl::ClientProperty> _baseProperty=nullptr);
 			private:
-				std::string getCompleateFileName();
+				etk::String getCompleateFileName();
 				void updateCurrentFolder();
 			public:
 				void onGetFocus() override;
@@ -81,8 +81,8 @@ namespace appl {
 				// callback functions:
 				void onCallbackButtonValidate();
 				void onCallbackButtonCancel();
-				void onCallbackEntryLoginChangeValue(const std::string& _value);
-				void onCallbackEntryPasswordChangeValue(const std::string& _value);
+				void onCallbackEntryLoginChangeValue(const etk::String& _value);
+				void onCallbackEntryPasswordChangeValue(const etk::String& _value);
 		};
 	};
 };

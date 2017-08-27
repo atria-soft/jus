@@ -46,14 +46,14 @@ namespace appl {
 			
 			egami::Image m_thumb; //!< simple image describing the element
 			bool m_thumbPresent; //!< if true, the Image is loaded
-			std::string m_title; //!< Title of the Element
-			std::string m_description; //!< Description of the element
-			std::string m_serie; //!< Name of the serie or empty
-			std::string m_episode; //!< Id of the Episode or empty
-			std::string m_saison; //!< id of the saison or empty
-			std::string m_mineType; //!< mine type: video/audio/image/...
-			std::string m_type; //!< type of the element
-			std::string m_productMethode; //!< Methode of production
+			etk::String m_title; //!< Title of the Element
+			etk::String m_description; //!< Description of the element
+			etk::String m_serie; //!< Name of the serie or empty
+			etk::String m_episode; //!< Id of the Episode or empty
+			etk::String m_saison; //!< id of the saison or empty
+			etk::String m_mineType; //!< mine type: video/audio/image/...
+			etk::String m_type; //!< type of the element
+			etk::String m_productMethode; //!< Methode of production
 			// TODO: float m_globalNote; //!< note over [0,0..1,0]
 			// TODO: int32_t m_countPersonalView; //!< number of view this media
 			// TODO: int64_t m_globalPersonalView; //!< number of time this media has been viewed
@@ -79,8 +79,8 @@ namespace appl {
 		public:
 			std::mutex m_mutex;
 			uint64_t m_id; //!< Remote Id of the Media
-			std::string m_title; //!< Title of the Group
-			std::string m_filter; //!< element to add in the filter
+			etk::String m_title; //!< Title of the Group
+			etk::String m_filter; //!< element to add in the filter
 			egami::Image m_thumb; //!< simple image describing the element
 			bool m_thumbPresent; //!< if true, the Image is loaded
 			void loadData();
@@ -113,14 +113,14 @@ namespace appl {
 	
 	class ElementCache {
 		private:
-			std::string m_name;
+			etk::String m_name;
 			ememory::SharedPtr<ewol::resource::Texture> m_resource;
 			echrono::Steady m_lastRequestTime;
 	};
 	
 	class CacheImageManager {
 		private:
-			std::vector<ElementCache> m_imageCoverGroupCache; //!< All image cash of the group cover
+			etk::Vector<ElementCache> m_imageCoverGroupCache; //!< All image cash of the group cover
 			
 	};
 	
@@ -137,11 +137,11 @@ namespace appl {
 			protected:
 				ememory::SharedPtr<ClientProperty> m_clientProp; //!< Generic entrypoint on the Client
 			protected:
-				std::vector<ememory::SharedPtr<ElementProperty>> m_listElement; //!< list of all element getted in the remote access
-				std::vector<ememory::SharedPtr<ElementPropertyGroup>> m_listElementGroup; //!< list of all element getted in the remote access
-				std::string m_currentFilter;
-				std::string m_currentGroup;
-				std::vector<ememory::SharedPtr<ElementDisplayed>> m_listDisplay; //!< list of element in the current local display
+				etk::Vector<ememory::SharedPtr<ElementProperty>> m_listElement; //!< list of all element getted in the remote access
+				etk::Vector<ememory::SharedPtr<ElementPropertyGroup>> m_listElementGroup; //!< list of all element getted in the remote access
+				etk::String m_currentFilter;
+				etk::String m_currentGroup;
+				etk::Vector<ememory::SharedPtr<ElementDisplayed>> m_listDisplay; //!< list of element in the current local display
 				uint64_t m_currentPayed;
 			protected:
 				//! @brief constructor
@@ -158,11 +158,11 @@ namespace appl {
 				void setClientProperty(ememory::SharedPtr<ClientProperty> _prop) {
 					m_clientProp = _prop;
 				}
-				void searchElements(std::string _filter="");
-				void searchElementsInternal(const std::string& _filter, const std::string& _group="", bool _storeHistory=true);
+				void searchElements(etk::String _filter="");
+				void searchElementsInternal(const etk::String& _filter, const etk::String& _group="", bool _storeHistory=true);
 				bool onEventInput(const ewol::event::Input& _event) override;
 			protected:
-				std::vector<std::pair<std::string,std::string>> m_history;
+				etk::Vector<etk::Pair<etk::String,etk::String>> m_history;
 			public:
 				void backHistory();
 			public:

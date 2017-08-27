@@ -15,12 +15,12 @@ namespace appl {
 		public:
 			zeus::WebServer* m_interfaceWeb;
 		public:
-			std::string m_clientName;
+			etk::String m_clientName;
 			clientSpecificInterface();
 			~clientSpecificInterface();
 			bool start(appl::GateWay* _gateway, zeus::WebServer* _interfaceWeb, uint16_t _id);
 			void send(ememory::SharedPtr<zeus::Message> _data);
-			//void answerProtocolError(uint32_t _transactionId, const std::string& _errorHelp);
+			//void answerProtocolError(uint32_t _transactionId, const etk::String& _errorHelp);
 			zeus::WebServer* getInterface();
 			bool isConnected();
 	};
@@ -28,12 +28,12 @@ namespace appl {
 	class RouterInterface {
 		private:
 			enum clientState m_state; // state machine ..
-			std::vector<ememory::SharedPtr<clientSpecificInterface>> m_listClients; // TODO : Maybe remove this ...
+			etk::Vector<ememory::SharedPtr<clientSpecificInterface>> m_listClients; // TODO : Maybe remove this ...
 		private:
 			appl::GateWay* m_gateway;
 			zeus::WebServer m_interfaceWeb;
 		public:
-			RouterInterface(const std::string& _ip, uint16_t _port, std::string _userName, appl::GateWay* _gateway);
+			RouterInterface(const etk::String& _ip, uint16_t _port, etk::String _userName, appl::GateWay* _gateway);
 			virtual ~RouterInterface();
 			void stop();
 			void onClientData(ememory::SharedPtr<zeus::Message> _value);

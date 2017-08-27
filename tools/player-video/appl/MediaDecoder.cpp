@@ -101,14 +101,20 @@ static void unPlanar(void* _bufferOut, const void* _bufferIn, int32_t _nbSample,
 	}
 }
 
+
 void appl::MessageElementVideo::setSize(const ivec2& _size) {
 	if (m_imageRealSize != _size) {
 		// Resize the buffer:
 		m_imageRealSize = _size;
-		m_lineSize = m_imageRealSize.x() * 3;
+		//m_lineSize = m_imageRealSize.x() * 3;
+		m_lineSize = m_imageRealSize.x() * 4;
 	}
-	if (m_image.getSize() != m_imageRealSize) {
-		m_image.resize(m_imageRealSize);
+	if (m_image.getType() != egami::colorType::RGBA8) {
+		m_image.configure(m_imageRealSize, egami::colorType::RGBA8);
+	} else {
+		if (m_image.getSize() != m_imageRealSize) {
+			m_image.resize(m_imageRealSize);
+		}
 	}
 }
 void appl::MessageElementAudio::configure(audio::format _format, uint32_t _sampleRate, int32_t _nbChannel, int32_t _nbSample) {
@@ -169,7 +175,62 @@ appl::MediaDecoder::MediaDecoder() :
 appl::MediaDecoder::~MediaDecoder() {
 	uninit();
 }
+/*
+etk::color<float,4> yuvToRGBA(uint32_t
 
+unsigned char* rgb_image = new unsigned char[width * height * 3]; //width and height of the image to be converted
+
+int y;
+int cr;
+int cb;
+
+double r;
+double g;
+double b;
+
+for (int i = 0, j = 0; i < width * height * 3; i+=6 j+=4) {
+    //first pixel
+    y = yuyv_image[j];
+    cb = yuyv_image[j+1];
+    cr = yuyv_image[j+3];
+
+    r = y + (1.4065 * (cr - 128));
+    g = y - (0.3455 * (cb - 128)) - (0.7169 * (cr - 128));
+    b = y + (1.7790 * (cb - 128));
+
+    //This prevents colour distortions in your rgb image
+    if (r < 0) r = 0;
+    else if (r > 255) r = 255;
+    if (g < 0) g = 0;
+    else if (g > 255) g = 255;
+    if (b < 0) b = 0;
+    else if (b > 255) b = 255;
+
+    rgb_image[i] = (unsigned char)r;
+    rgb_image[i+1] = (unsigned char)g;
+    rgb_image[i+2] = (unsigned char)b;
+
+    //second pixel
+    y = yuyv_image[j+2];
+    cb = yuyv_image[j+1];
+    cr = yuyv_image[j+3];
+
+    r = y + (1.4065 * (cr - 128));
+    g = y - (0.3455 * (cb - 128)) - (0.7169 * (cr - 128));
+    b = y + (1.7790 * (cb - 128));
+
+    if (r < 0) r = 0;
+    else if (r > 255) r = 255;
+    if (g < 0) g = 0;
+    else if (g > 255) g = 255;
+    if (b < 0) b = 0;
+    else if (b > 255) b = 255;
+
+    rgb_image[i+3] = (unsigned char)r;
+    rgb_image[i+4] = (unsigned char)g;
+    rgb_image[i+5] = (unsigned char)b;
+}
+*/
 int appl::MediaDecoder::decode_packet(int *_gotFrame, int _cached) {
 	int ret = 0;
 	int decoded = m_packet.size;
@@ -215,13 +276,23 @@ int appl::MediaDecoder::decode_packet(int *_gotFrame, int _cached) {
 				//m_videoPool[slotId].setSize(ivec2(m_frame->width, m_frame->height));
 				m_videoPool[slotId].setSize(m_size);
 				uint8_t* dataPointer = (uint8_t*)(m_videoPool[slotId].m_image.getTextureDataPointer());
-				// Convert Image in RGB:
+				// Convert/rescale Image in RGB:
 				sws_scale(m_convertContext,
 				          (const uint8_t **)(m_frame->data),
 				          m_frame->linesize,
 				          0, m_frame->height,
 				          &dataPointer,
 				          &m_videoPool[slotId].m_lineSize);
+				// change RGB in RGBA:
+				for (int32_t yyy=m_frame->height-1; yyy>=0; --yyy) {
+					uint8_t* startLine = dataPointer + yyy*m_videoPool[slotId].m_lineSize;
+					for (int32_t xxx=m_frame->width-1; xxx>=0; --xxx) {
+						startLine[xxx*4+3] = 0xFF;
+						startLine[xxx*4+2] = startLine[xxx*3+2];
+						startLine[xxx*4+1] = startLine[xxx*3+1];
+						startLine[xxx*4+0] = startLine[xxx*3+0];
+					}
+				}
 				m_videoPool[slotId].m_id = m_videoFrameCount;
 				m_videoPool[slotId].m_time = m_currentVideoTime;
 				m_videoPool[slotId].m_duration = echrono::Duration(0, 1000000000.0/float(getFps(m_videoDecoderContext)));
@@ -529,7 +600,7 @@ bool appl::StreamBuffering::addDataCallback(const zeus::Raw& _data, int64_t _pos
 		}
 		if (find == false) {
 			APPL_ERROR("insert new element in the list of values");
-			m_bufferFillSection.insert(it, std::pair<uint32_t,uint32_t>(_positionRequest, _positionRequest + _data.size()));
+			m_bufferFillSection.insert(it, etk::Pair<uint32_t,uint32_t>(_positionRequest, _positionRequest + _data.size()));
 		}
 	}
 	checkIfWeNeedMoreDataFromNetwork();
@@ -705,9 +776,11 @@ void appl::MediaDecoder::init() {
 		m_videoDecoderContext = m_videoStream->codec;
 		// allocate image where the decoded image will be put
 		m_size.setValue(m_videoDecoderContext->width, m_videoDecoderContext->height);
-		if (m_size.x() > 512) {
+		#if 1
+		while (m_size.x() > 512) {
 			m_size /= 2;
 		}
+		#endif
 		m_pixelFormat = m_videoDecoderContext->pix_fmt;
 		
 		m_videoPool.resize(1);
@@ -716,6 +789,8 @@ void appl::MediaDecoder::init() {
 		m_convertContext = sws_getContext(m_videoDecoderContext->width, m_videoDecoderContext->height, m_pixelFormat,
 		                                  m_size.x(), m_size.y(), AV_PIX_FMT_RGB24,
 		                                  0, 0, 0, 0);
+		// AV_PIX_FMT_RGB24
+		// AV_PIX_FMT_BGRA 
 	}
 	// Open Audio Decoder:
 	if (open_codec_context(&m_audioStream_idx, m_formatContext, AVMEDIA_TYPE_AUDIO) >= 0) {

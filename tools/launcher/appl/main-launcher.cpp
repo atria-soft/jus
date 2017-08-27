@@ -19,27 +19,27 @@
 #include <zeus/Client.hpp>
 #include <zeus/zeus.hpp>
 
-typedef bool (*SERVICE_IO_init_t)(int _argc, const char *_argv[], std::string _basePath);
+typedef bool (*SERVICE_IO_init_t)(int _argc, const char *_argv[], etk::String _basePath);
 typedef bool (*SERVICE_IO_uninit_t)();
 typedef void (*SERVICE_IO_peridic_call_t)();
 typedef zeus::Object* (*SERVICE_IO_instanciate_t)(uint32_t, ememory::SharedPtr<zeus::WebServer>&, uint32_t);
 
 class PlugginAccess {
 	private:
-		std::string m_name;
+		etk::String m_name;
 		void* m_handle;
 		SERVICE_IO_init_t m_SERVICE_IO_init;
 		SERVICE_IO_uninit_t m_SERVICE_IO_uninit;
 		SERVICE_IO_peridic_call_t m_SERVICE_IO_peridic_call;
 		SERVICE_IO_instanciate_t m_SERVICE_IO_instanciate;
 	public:
-		PlugginAccess(const std::string& _name) :
+		PlugginAccess(const etk::String& _name) :
 		  m_name(_name),
 		  m_handle(nullptr),
 		  m_SERVICE_IO_init(nullptr),
 		  m_SERVICE_IO_uninit(nullptr),
 		  m_SERVICE_IO_instanciate(nullptr) {
-			std::string srv = etk::FSNodeGetApplicationPath() + "/../lib/libzeus-service-" + m_name + "-impl.so";
+			etk::String srv = etk::FSNodeGetApplicationPath() + "/../lib/libzeus-service-" + m_name + "-impl.so";
 			APPL_PRINT("Try to open service with name: '" << m_name << "' at position: '" << srv << "'");
 			m_handle = dlopen(srv.c_str(), RTLD_LAZY);
 			if (!m_handle) {
@@ -75,7 +75,7 @@ class PlugginAccess {
 		~PlugginAccess() {
 			
 		}
-		bool init(int _argc, const char *_argv[], std::string _basePath) {
+		bool init(int _argc, const char *_argv[], etk::String _basePath) {
 			if (m_SERVICE_IO_init == nullptr) {
 				return false;
 			}
@@ -119,24 +119,24 @@ class PlugginAccess {
 int main(int _argc, const char *_argv[]) {
 	etk::init(_argc, _argv);
 	zeus::init(_argc, _argv);
-	std::string ip;
+	etk::String ip;
 	uint16_t port = 1985;
-	std::string basePath;
-	std::vector<std::string> services;
+	etk::String basePath;
+	etk::Vector<etk::String> services;
 	for (int32_t iii=0; iii<_argc ; ++iii) {
-		std::string data = _argv[iii];
+		etk::String data = _argv[iii];
 		if (etk::start_with(data, "--ip=") == true) {
-			ip = std::string(&data[5]);
+			ip = etk::String(&data[5]);
 		} else if (etk::start_with(data, "--port=") == true) {
-			port = etk::string_to_uint16_t(std::string(&data[7]));
+			port = etk::string_to_uint16_t(etk::String(&data[7]));
 		} else if (etk::start_with(data, "--base-path=") == true) {
-			basePath = std::string(&data[12]);
+			basePath = etk::String(&data[12]);
 			if (    basePath.size() != 0
 			     && basePath[basePath.size()-1] != '/') {
 				basePath += '/';
 			}
 		} else if (etk::start_with(data, "--srv=") == true) {
-			services.push_back(std::string(&data[6]));
+			services.pushBack(etk::String(&data[6]));
 		} else if (    data == "-h"
 		            || data == "--help") {
 			APPL_PRINT(etk::getApplicationName() << " - help : ");
@@ -149,11 +149,11 @@ int main(int _argc, const char *_argv[]) {
 		}
 	}
 	zeus::Client m_client;
-	std::vector<ememory::SharedPtr<PlugginAccess>> listElements;
+	etk::Vector<ememory::SharedPtr<PlugginAccess>> listElements;
 	
 	for (auto &it: services) {
 		ememory::SharedPtr<PlugginAccess> tmp = ememory::makeShared<PlugginAccess>(it);
-		listElements.push_back(tmp);
+		listElements.pushBack(tmp);
 	}
 	
 	for (auto &it: listElements) {

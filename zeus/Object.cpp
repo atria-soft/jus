@@ -41,7 +41,7 @@ void zeus::Object::receive(ememory::SharedPtr<zeus::Message> _value) {
 		ememory::SharedPtr<zeus::message::Call> callObj = ememory::staticPointerCast<zeus::message::Call>(_value);
 		uint32_t source = callObj->getSource();
 		uint32_t sourceId = callObj->getSourceId();
-		std::string callFunction = callObj->getCall();
+		etk::String callFunction = callObj->getCall();
 		if (isFunctionAuthorized(sourceId, callFunction) == true) {
 			callBinary(callFunction, callObj);
 			return;

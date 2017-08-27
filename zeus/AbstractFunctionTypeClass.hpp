@@ -165,17 +165,17 @@ namespace zeus {
 			 * @param[in] _name Name of the function
 			 * @param[in] _fptr Pointer on the function
 			 */
-			AbstractActionTypeClass(const std::string& _name, functionType _fptr):
+			AbstractActionTypeClass(const etk::String& _name, functionType _fptr):
 			  AbstractFunction(_name),
 			  m_function(_fptr) {
 			}
-			std::string getPrototypeReturn() const override {
+			etk::String getPrototypeReturn() const override {
 				return m_returnType.getName();
 			}
-			std::vector<std::string> getPrototypeParam() const override {
-				std::vector<std::string> out;
+			etk::Vector<etk::String> getPrototypeParam() const override {
+				etk::Vector<etk::String> out;
 				for (size_t iii=0; iii<sizeof...(ZEUS_TYPES); ++iii) {
-					out.push_back(m_paramType[iii].getName());
+					out.pushBack(m_paramType[iii].getName());
 				}
 				return out;
 			}
@@ -197,10 +197,10 @@ namespace zeus {
 				// check parameter number
 				if (_obj->getNumberParameter() != sizeof...(ZEUS_TYPES)) {
 					ZEUS_ERROR("Wrong number of Parameters ...");
-					std::string help = "request ";
-					help += etk::to_string(_obj->getNumberParameter());
+					etk::String help = "request ";
+					help += etk::toString(_obj->getNumberParameter());
 					help += " parameters and need ";
-					help += etk::to_string(sizeof...(ZEUS_TYPES));
+					help += etk::toString(sizeof...(ZEUS_TYPES));
 					help += " parameters. prototype function:";
 					help += getPrototype();
 					_interfaceClient->answerError(_obj->getTransactionId(),
@@ -217,7 +217,7 @@ namespace zeus {
 						                              _obj->getDestination(),
 						                              _obj->getSource(),
 						                              "WRONG-PARAMETER-TYPE",
-						                              std::string("Parameter id ") + etk::to_string(iii) + " not compatible with type: '" + m_paramType[iii].getName() + "'");
+						                              etk::String("Parameter id ") + etk::toString(iii) + " not compatible with type: '" + m_paramType[iii].getName() + "'");
 						return;
 					}
 				}
@@ -299,17 +299,17 @@ namespace zeus {
 			 * @param[in] _name Name of the function
 			 * @param[in] _fptr Pointer on the function
 			 */
-			AbstractFunctionTypeClass(const std::string& _name, functionType _fptr):
+			AbstractFunctionTypeClass(const etk::String& _name, functionType _fptr):
 			  AbstractFunction(_name),
 			  m_function(_fptr) {
 			}
-			std::string getPrototypeReturn() const override {
+			etk::String getPrototypeReturn() const override {
 				return m_returnType.getName();
 			}
-			std::vector<std::string> getPrototypeParam() const override {
-				std::vector<std::string> out;
+			etk::Vector<etk::String> getPrototypeParam() const override {
+				etk::Vector<etk::String> out;
 				for (size_t iii=0; iii<sizeof...(ZEUS_TYPES); ++iii) {
-					out.push_back(m_paramType[iii].getName());
+					out.pushBack(m_paramType[iii].getName());
 				}
 				return out;
 			}
@@ -331,10 +331,10 @@ namespace zeus {
 				// check parameter number
 				if (_obj->getNumberParameter() != sizeof...(ZEUS_TYPES)) {
 					ZEUS_ERROR("Wrong number of Parameters ...");
-					std::string help = "request ";
-					help += etk::to_string(_obj->getNumberParameter());
+					etk::String help = "request ";
+					help += etk::toString(_obj->getNumberParameter());
 					help += " parameters and need ";
-					help += etk::to_string(sizeof...(ZEUS_TYPES));
+					help += etk::toString(sizeof...(ZEUS_TYPES));
 					help += " parameters. prototype function:";
 					help += getPrototype();
 					_interfaceClient->answerError(_obj->getTransactionId(),
@@ -351,7 +351,7 @@ namespace zeus {
 						                              _obj->getDestination(),
 						                              _obj->getSource(),
 						                              "WRONG-PARAMETER-TYPE",
-						                              std::string("Parameter id ") + etk::to_string(iii) + " not compatible with type: '" + m_paramType[iii].getName() + "'");
+						                              etk::String("Parameter id ") + etk::toString(iii) + " not compatible with type: '" + m_paramType[iii].getName() + "'");
 						return;
 					}
 				}
@@ -436,7 +436,7 @@ namespace zeus {
 	 * @return Abstract type of the function
 	 */
 	template <typename ZEUS_RETURN, class ZEUS_EVENT, class ZEUS_CLASS_TYPE, typename... ZEUS_TYPES>
-	AbstractFunction* createAbstractFunctionClass(const std::string& _name, ZEUS_RETURN (ZEUS_CLASS_TYPE::*_fffp)(zeus::ActionNotification<ZEUS_EVENT>& _notifs, ZEUS_TYPES...)) {
+	AbstractFunction* createAbstractFunctionClass(const etk::String& _name, ZEUS_RETURN (ZEUS_CLASS_TYPE::*_fffp)(zeus::ActionNotification<ZEUS_EVENT>& _notifs, ZEUS_TYPES...)) {
 		return new AbstractActionTypeClass<ZEUS_RETURN, ZEUS_EVENT, ZEUS_CLASS_TYPE, ZEUS_TYPES...>(_name, _fffp);
 	}
 	/**
@@ -446,7 +446,7 @@ namespace zeus {
 	 * @return Abstract type of the function
 	 */
 	template <typename ZEUS_RETURN, class ZEUS_CLASS_TYPE, typename... ZEUS_TYPES>
-	AbstractFunction* createAbstractFunctionClass(const std::string& _name, ZEUS_RETURN (ZEUS_CLASS_TYPE::*_fffp)(ZEUS_TYPES...)) {
+	AbstractFunction* createAbstractFunctionClass(const etk::String& _name, ZEUS_RETURN (ZEUS_CLASS_TYPE::*_fffp)(ZEUS_TYPES...)) {
 		return new AbstractFunctionTypeClass<ZEUS_RETURN, ZEUS_CLASS_TYPE, ZEUS_TYPES...>(_name, _fffp);
 	}
 }

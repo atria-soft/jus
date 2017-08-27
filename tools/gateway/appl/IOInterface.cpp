@@ -13,7 +13,7 @@
 
 #include <zeus/AbstractFunction.hpp>
 
-static const std::string protocolError = "PROTOCOL-ERROR";
+static const etk::String protocolError = "PROTOCOL-ERROR";
 
 appl::IOInterface::IOInterface() {
 	m_uid = 0;
@@ -30,7 +30,7 @@ appl::IOInterface::~IOInterface() {
 	// TODO : ... m_gateway->removeIO(sharedFromThis());
 }
 
-void appl::IOInterface::answerProtocolError(uint32_t _transactionId, const std::string& _errorHelp) {
+void appl::IOInterface::answerProtocolError(uint32_t _transactionId, const etk::String& _errorHelp) {
 	zeus::WebServer* iface = getInterface();
 	iface->answerError(_transactionId, 0, ZEUS_ID_SERVICE_ROOT, protocolError, _errorHelp);
 	//m_interfaceRouterClient->sendCtrl(m_routeurUID, ZEUS_ID_SERVICE_ROOT, "DISCONNECT");
@@ -46,12 +46,12 @@ bool appl::IOInterface::start(appl::GateWay* _gateway, uint16_t _id) {
 	} else {
 		m_state = appl::clientState::connectDirect;
 	}
-	//m_interfaceRouterClient->setInterfaceName("cli-" + etk::to_string(m_uid));
+	//m_interfaceRouterClient->setInterfaceName("cli-" + etk::toString(m_uid));
 	APPL_WARNING("[" << m_uid << "] New IO interface");
 	return true;
 }
 
-const std::vector<std::string>& appl::IOInterface::getServiceList() {
+const etk::Vector<etk::String>& appl::IOInterface::getServiceList() {
 	return m_listService;
 }
 
@@ -75,7 +75,7 @@ void appl::IOInterface::receive(ememory::SharedPtr<zeus::Message> _value) {
 			return;
 		}
 		ememory::SharedPtr<zeus::message::Call> callObj = ememory::staticPointerCast<zeus::message::Call>(_value);
-		std::string callFunction = callObj->getCall();
+		etk::String callFunction = callObj->getCall();
 		if (callFunction == "removeRouterClient") {
 			// TODO : Broadcast that an IO is remoed ...
 			m_state = appl::clientState::unconnect;
@@ -122,8 +122,8 @@ void appl::IOInterface::receive(ememory::SharedPtr<zeus::Message> _value) {
 					}
 					#if 0
 						if (callFunction == "identify") {
-							std::string clientName = callObj->getParameter<std::string>(0);
-							std::string clientTocken = callObj->getParameter<std::string>(1);
+							etk::String clientName = callObj->getParameter<etk::String>(0);
+							etk::String clientTocken = callObj->getParameter<etk::String>(1);
 							if (m_userService == nullptr) {
 								answerProtocolError(transactionId, "gateWay internal error 3");
 								return;
@@ -144,7 +144,7 @@ void appl::IOInterface::receive(ememory::SharedPtr<zeus::Message> _value) {
 							m_clientName = clientName;
 						}
 						if (callFunction == "auth") {
-							std::string password = callObj->getParameter<std::string>(0);
+							etk::String password = callObj->getParameter<etk::String>(0);
 							zeus::Future<bool> fut = m_userService->m_interfaceClient.call(m_localIdUser, ZEUS_ID_SERVICE_ROOT, "checkAuth", password);
 							fut.wait(); // TODO: Set timeout ...
 							if (fut.hasError() == true) {
@@ -167,7 +167,7 @@ void appl::IOInterface::receive(ememory::SharedPtr<zeus::Message> _value) {
 						// --------------------------------
 						// -- Get groups:
 						// --------------------------------
-						zeus::Future<std::vector<std::string>> futGroup = m_userService->m_interfaceClient.call(m_localIdUser, ZEUS_ID_SERVICE_ROOT, "clientGroupsGet", m_clientName);
+						zeus::Future<etk::Vector<etk::String>> futGroup = m_userService->m_interfaceClient.call(m_localIdUser, ZEUS_ID_SERVICE_ROOT, "clientGroupsGet", m_clientName);
 						futGroup.wait(); // TODO: Set timeout ...
 						if (futGroup.hasError() == true) {
 							APPL_ERROR("Get error from the service ...");
@@ -179,8 +179,8 @@ void appl::IOInterface::receive(ememory::SharedPtr<zeus::Message> _value) {
 						// --------------------------------
 						// -- Get services:
 						// --------------------------------
-						std::vector<std::string> currentServices = m_gatewayInterface->getAllServiceName();
-						zeus::Future<std::vector<std::string>> futServices = m_userService->m_interfaceClient.call(m_localIdUser, ZEUS_ID_SERVICE_ROOT, "filterClientServices", m_clientName, currentServices);
+						etk::Vector<etk::String> currentServices = m_gatewayInterface->getAllServiceName();
+						zeus::Future<etk::Vector<etk::String>> futServices = m_userService->m_interfaceClient.call(m_localIdUser, ZEUS_ID_SERVICE_ROOT, "filterClientServices", m_clientName, currentServices);
 						futServices.wait(); // TODO: Set timeout ...
 						if (futServices.hasError() == true) {
 							APPL_ERROR("Get error from the service ...");
@@ -190,8 +190,8 @@ void appl::IOInterface::receive(ememory::SharedPtr<zeus::Message> _value) {
 						}
 						m_clientServices = futServices.get();
 						APPL_WARNING("Connection of: '" << m_clientName << "' to '" << m_userConnectionName << "'");
-						APPL_WARNING("       groups: " << etk::to_string(m_clientgroups));
-						APPL_WARNING("     services: " << etk::to_string(m_clientServices));
+						APPL_WARNING("       groups: " << etk::toString(m_clientgroups));
+						APPL_WARNING("     services: " << etk::toString(m_clientServices));
 					#endif
 					m_gateway->addIO(sharedFromThis());
 					
@@ -202,7 +202,7 @@ void appl::IOInterface::receive(ememory::SharedPtr<zeus::Message> _value) {
 				}
 				if (callFunction == "link") {
 					// TODO : Filter services access ...
-					std::string serviceName = callObj->getParameter<std::string>(0);
+					etk::String serviceName = callObj->getParameter<etk::String>(0);
 					if (m_gateway->serviceExist(serviceName) == false) {
 						zeus::WebServer* iface = getInterface();
 						iface->answerValue(transactionId, _value->getDestination(), _value->getSource(), false);
@@ -229,7 +229,7 @@ void appl::IOInterface::receive(ememory::SharedPtr<zeus::Message> _value) {
 				{
 					if (callFunction == "serviceAdd") {
 						zeus::WebServer* iface = getInterface();
-						std::string serviceName = callObj->getParameter<std::string>(0);
+						etk::String serviceName = callObj->getParameter<etk::String>(0);
 						if (serviceName == "") {
 							iface->answerValue(transactionId, _value->getDestination(), _value->getSource(), false);
 							return;
@@ -240,13 +240,13 @@ void appl::IOInterface::receive(ememory::SharedPtr<zeus::Message> _value) {
 							return;
 						}
 						ZEUS_INFO("Register new service '" << serviceName << "' in " << m_uid);
-						m_listService.push_back(serviceName);
+						m_listService.pushBack(serviceName);
 						iface->answerValue(transactionId, _value->getDestination(), _value->getSource(), true);
 						return;
 					}
 					if (callFunction == "serviceRemove") {
 						zeus::WebServer* iface = getInterface();
-						std::string serviceName = callObj->getParameter<std::string>(0);
+						etk::String serviceName = callObj->getParameter<etk::String>(0);
 						if (serviceName == "") {
 							iface->answerValue(transactionId, _value->getDestination(), _value->getSource(), false);
 						}
@@ -278,7 +278,7 @@ void appl::IOInterface::receive(ememory::SharedPtr<zeus::Message> _value) {
 					}
 					if (callFunction == "link") {
 						// TODO : Filter services access ...
-						std::string serviceName = callObj->getParameter<std::string>(0);
+						etk::String serviceName = callObj->getParameter<etk::String>(0);
 						if (m_gateway->serviceExist(serviceName) == false) {
 							zeus::WebServer* iface = getInterface();
 							iface->answerValue(transactionId, _value->getDestination(), _value->getSource(), false);

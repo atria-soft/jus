@@ -12,12 +12,12 @@ namespace zeus {
 	 * @param[in] _extention file extention (without the '.')
 	 * @return The generic mine tipe in http format
 	 */
-	std::string getMineType(std::string _extention);
+	etk::String getMineType(etk::String _extention);
 	/**
 	 * @brief Retrive the extention of a file with his mine type
 	 * @param[in] _mineType Mine tipe in http format
 	 * @return file extention (without the '.')
 	 */
-	std::string getExtention(std::string _mineType);
+	etk::String getExtention(etk::String _mineType);
 };
 

@@ -11,7 +11,7 @@
 #include <etk/os/FSNode.hpp>
 #include "debug.hpp"
 
-ememory::SharedPtr<zeus::Media> zeus::Media::create(std::string _fileNameReal) {
+ememory::SharedPtr<zeus::Media> zeus::Media::create(etk::String _fileNameReal) {
 	return ememory::makeShared<zeus::MediaImpl>(0, _fileNameReal);
 }
 
@@ -29,7 +29,7 @@ ejson::Object zeus::MediaImpl::getJson() {
 	return out;
 }
 
-zeus::MediaImpl::MediaImpl(const std::string& _basePath, ejson::Object _property) :
+zeus::MediaImpl::MediaImpl(const etk::String& _basePath, ejson::Object _property) :
   m_basePath(_basePath) {
 	m_id = _property["id"].toNumber().getU64();
 	ZEUS_INFO("get ID : " << m_id);
@@ -39,7 +39,7 @@ zeus::MediaImpl::MediaImpl(const std::string& _basePath, ejson::Object _property
 		for (auto itValue = tmpObj.begin();
 		     itValue != tmpObj.end();
 		     ++itValue) {
-			m_metadata.insert(std::make_pair(itValue.getKey(), (*itValue).toString().get()));
+			m_metadata.insert(etk::makePair(itValue.getKey(), (*itValue).toString().get()));
 		}
 	}
 }
@@ -48,15 +48,15 @@ uint64_t zeus::MediaImpl::getUniqueId() {
 	return m_id;
 }
 
-zeus::MediaImpl::MediaImpl(uint64_t _id, const std::string& _fileNameReal, const std::string& _basePath):
+zeus::MediaImpl::MediaImpl(uint64_t _id, const etk::String& _fileNameReal, const etk::String& _basePath):
   m_id(_id),
   m_basePath(_basePath),
   m_fileName(_fileNameReal) {
-	std::string extention;
-	if (    m_fileName.rfind('.') != std::string::npos
+	etk::String extention;
+	if (    m_fileName.rfind('.') != etk::String::npos
 	     && m_fileName.rfind('.') != 0) {
-		extention = etk::tolower(std::string(m_fileName.begin()+m_fileName.rfind('.')+1, m_fileName.end()));
-		m_fileName = std::string(m_fileName.begin(), m_fileName.begin()+m_fileName.rfind('.'));
+		extention = etk::tolower(etk::String(m_fileName.begin()+m_fileName.rfind('.')+1, m_fileName.end()));
+		m_fileName = etk::String(m_fileName.begin(), m_fileName.begin()+m_fileName.rfind('.'));
 	}
 	if (extention != "") {
 		setMetadata("mime-type", zeus::getMineType(extention));
@@ -68,18 +68,18 @@ zeus::MediaImpl::~MediaImpl() {
 	
 }
 
-std::string zeus::MediaImpl::getMineType() {
+etk::String zeus::MediaImpl::getMineType() {
 	return getMetadata("mime-type");
 }
 
 
-std::string zeus::MediaImpl::getSha512() {
+etk::String zeus::MediaImpl::getSha512() {
 	try {
 		return getMetadata("sha512");
 	} catch (std::invalid_argument _eee) {
 		// Nothing to do ...
 	}
-	std::string sha512;
+	etk::String sha512;
 	auto it = m_metadata.find("mime-type");
 	if (it != m_metadata.end()) {
 		sha512 = algue::stringConvert(algue::sha512::encodeFromFile(m_basePath + m_fileName + "." + zeus::getExtention(it->second)));
@@ -93,13 +93,13 @@ std::string zeus::MediaImpl::getSha512() {
 
 void zeus::MediaImpl::forceUpdateDecoratedName() {
 	// force the new calculation ..
-	std::string value = getDecoratedNameFrom(m_metadata);
+	etk::String value = getDecoratedNameFrom(m_metadata);
 	setMetadata("decorated-name", value);
 }
 
-std::string zeus::MediaImpl::getDecoratedName() {
+etk::String zeus::MediaImpl::getDecoratedName() {
 	try {
-		std::string out = getMetadata("decorated-name");
+		etk::String out = getMetadata("decorated-name");
 		if (out != "") {
 			return out;
 		}
@@ -107,7 +107,7 @@ std::string zeus::MediaImpl::getDecoratedName() {
 		// Nothing to do ...
 	}
 	// Store the metadat to not calculated it all the time ...
-	std::string value = getDecoratedNameFrom(m_metadata);
+	etk::String value = getDecoratedNameFrom(m_metadata);
 	setMetadata("decorated-name", value);
 	return value;
 }
@@ -121,15 +121,15 @@ ememory::SharedPtr<zeus::File> zeus::MediaImpl::getFile() {
 	return zeus::File::create(m_basePath + m_fileName, "", "");
 }
 
-std::vector<std::string> zeus::MediaImpl::getMetadataKeys() {
-	std::vector<std::string> out;
+etk::Vector<etk::String> zeus::MediaImpl::getMetadataKeys() {
+	etk::Vector<etk::String> out;
 	for (auto &it : m_metadata) {
-		out.push_back(it.first);
+		out.pushBack(it.first);
 	}
 	return out;
 }
 
-std::string zeus::MediaImpl::getMetadata(std::string _key) {
+etk::String zeus::MediaImpl::getMetadata(etk::String _key) {
 	auto it = m_metadata.find(_key);
 	if (it != m_metadata.end()) {
 		return it->second;
@@ -137,7 +137,7 @@ std::string zeus::MediaImpl::getMetadata(std::string _key) {
 	throw std::invalid_argument("KEY '" + _key + "' Does not exist");
 }
 
-void zeus::MediaImpl::setMetadata(std::string _key, std::string _value) {
+void zeus::MediaImpl::setMetadata(etk::String _key, etk::String _value) {
 	ZEUS_INFO("metadataSetKey: '" << _key << "' value='" << _value << "'");
 	auto it = m_metadata.find(_key);
 	if (it != m_metadata.end()) {
@@ -149,7 +149,7 @@ void zeus::MediaImpl::setMetadata(std::string _key, std::string _value) {
 			it->second = _value;
 		}
 	} else {
-		m_metadata.insert(std::make_pair(_key, _value));
+		m_metadata.insert(etk::makePair(_key, _value));
 	}
 	// hook to remove some case that does not call the callback ==> can change many times ...
 	if (    _key == "sha512"
@@ -171,7 +171,7 @@ bool zeus::MediaImpl::erase() {
 	return etk::FSNodeRemove(m_basePath + m_fileName);
 }
 
-bool zeus::MediaImpl::move(const std::string& _newOffsetFile) {
+bool zeus::MediaImpl::move(const etk::String& _newOffsetFile) {
 	ZEUS_INFO("move file : '" << m_basePath + m_fileName << "' ==> " << m_basePath + _newOffsetFile << "'");
 	if (_newOffsetFile == m_fileName) {
 		// nothing to do ...
@@ -194,7 +194,7 @@ bool zeus::MediaImpl::move(const std::string& _newOffsetFile) {
 
 
 
-std::string zeus::MediaImpl::getMetadataFrom(const std::map<std::string, std::string>& _metadata, std::string _key) {
+etk::String zeus::MediaImpl::getMetadataFrom(const etk::Map<etk::String, etk::String>& _metadata, etk::String _key) {
 	auto it = _metadata.find(_key);
 	if (it != _metadata.end()) {
 		return it->second;
@@ -202,21 +202,21 @@ std::string zeus::MediaImpl::getMetadataFrom(const std::map<std::string, std::st
 	return "";
 }
 
-std::string zeus::MediaImpl::getDecoratedNameFrom(const std::map<std::string, std::string>& _metadata) {
-	std::string basePath;
-	std::string type = getMetadataFrom(_metadata, "type");
-	std::string title = getMetadataFrom(_metadata, "title");
+etk::String zeus::MediaImpl::getDecoratedNameFrom(const etk::Map<etk::String, etk::String>& _metadata) {
+	etk::String basePath;
+	etk::String type = getMetadataFrom(_metadata, "type");
+	etk::String title = getMetadataFrom(_metadata, "title");
 	/*
 	ZEUS_INFO("---- : " << type << "  " << title << "   ");
 	for (auto &it: _metadata) {
 		ZEUS_INFO("         " << it.first << "  " << it.second);
 	}
 	*/
-	std::string out;
+	etk::String out;
 	if (type == "film") {
-		std::string productionMethode = getMetadataFrom(_metadata, "production-methode");
-		std::string serie = getMetadataFrom(_metadata, "series-name");
-		std::string episode = getMetadataFrom(_metadata, "episode");
+		etk::String productionMethode = getMetadataFrom(_metadata, "production-methode");
+		etk::String serie = getMetadataFrom(_metadata, "series-name");
+		etk::String episode = getMetadataFrom(_metadata, "episode");
 		if (productionMethode == "picture") {
 			// real film with real human
 			basePath += "film/";
@@ -236,10 +236,10 @@ std::string zeus::MediaImpl::getDecoratedNameFrom(const std::map<std::string, st
 			out += "e" + episode + "-";
 		}
 	} else if (type == "tv-show") {
-		std::string productionMethode = getMetadataFrom(_metadata, "production-methode");
-		std::string serie = getMetadataFrom(_metadata, "series-name");
-		std::string saison = getMetadataFrom(_metadata, "saison");
-		std::string episode = getMetadataFrom(_metadata, "episode");
+		etk::String productionMethode = getMetadataFrom(_metadata, "production-methode");
+		etk::String serie = getMetadataFrom(_metadata, "series-name");
+		etk::String saison = getMetadataFrom(_metadata, "saison");
+		etk::String episode = getMetadataFrom(_metadata, "episode");
 		if (productionMethode == "picture") {
 			// real film with real human
 			basePath += "tv-show/";
@@ -269,8 +269,8 @@ std::string zeus::MediaImpl::getDecoratedNameFrom(const std::map<std::string, st
 			}
 		}
 	} else if (type == "theater") {
-		std::string serie = getMetadataFrom(_metadata, "series-name");
-		std::string episode = getMetadataFrom(_metadata, "episode");
+		etk::String serie = getMetadataFrom(_metadata, "series-name");
+		etk::String episode = getMetadataFrom(_metadata, "episode");
 		basePath += type + "/";
 		if (serie != "") {
 			basePath += serie + "/";
@@ -284,8 +284,8 @@ std::string zeus::MediaImpl::getDecoratedNameFrom(const std::map<std::string, st
 			}
 		}
 	} else if (type == "one-man") {
-		std::string author = getMetadataFrom(_metadata, "author");
-		std::string episode = getMetadataFrom(_metadata, "episode");
+		etk::String author = getMetadataFrom(_metadata, "author");
+		etk::String episode = getMetadataFrom(_metadata, "episode");
 		basePath += type + "/";
 		if (author != "") {
 			basePath += author + "/";
@@ -302,9 +302,9 @@ std::string zeus::MediaImpl::getDecoratedNameFrom(const std::map<std::string, st
 	            || type == "album") {
 		// soundtrack: Original sound track from films
 		// album: general audio track
-		std::string author = getMetadataFrom(_metadata, "author");
-		std::string album = getMetadataFrom(_metadata, "album");
-		std::string episode = getMetadataFrom(_metadata, "episode");
+		etk::String author = getMetadataFrom(_metadata, "author");
+		etk::String album = getMetadataFrom(_metadata, "album");
+		etk::String episode = getMetadataFrom(_metadata, "episode");
 		basePath += type + "/";
 		if (author != "") {
 			basePath += author + "/";
@@ -323,16 +323,16 @@ std::string zeus::MediaImpl::getDecoratedNameFrom(const std::map<std::string, st
 		}
 	} else if (type == "file") {
 		// generic file that is provided to the generic cloud system ==> simple sharing of files
-		std::string path = getMetadataFrom(_metadata, "path");
+		etk::String path = getMetadataFrom(_metadata, "path");
 		basePath += type + "/";
 		if (path != "") {
 			basePath += path + "/";
 		}
 	} else {
-		std::string author = getMetadataFrom(_metadata, "author");
-		std::string group = getMetadataFrom(_metadata, "group");
-		std::string episode = getMetadataFrom(_metadata, "episode");
-		std::string serie = getMetadataFrom(_metadata, "series-name");
+		etk::String author = getMetadataFrom(_metadata, "author");
+		etk::String group = getMetadataFrom(_metadata, "group");
+		etk::String episode = getMetadataFrom(_metadata, "episode");
+		etk::String serie = getMetadataFrom(_metadata, "series-name");
 		basePath += "unknow/";
 		if (author != "") {
 			out += author + "-";
@@ -348,7 +348,7 @@ std::string zeus::MediaImpl::getDecoratedNameFrom(const std::map<std::string, st
 		}
 	}
 	out += title;
-	std::string mimeType = getMetadataFrom(_metadata, "mime-type");
+	etk::String mimeType = getMetadataFrom(_metadata, "mime-type");
 	if (mimeType != "") {
 		return basePath + out + "." + zeus::getExtention(mimeType);
 	}

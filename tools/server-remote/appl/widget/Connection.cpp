@@ -16,8 +16,8 @@
 #include <ewol/widget/Image.hpp>
 #include <ewol/widget/Composer.hpp>
 #include <ewol/widget/Manager.hpp>
-//#include <vector>
-#include <vector>
+//#include <etk/Vector.hpp>
+#include <etk/Vector.hpp>
 #include <etk/tool.hpp>
 #include <appl/debug.hpp>
 
@@ -33,10 +33,10 @@ appl::widget::Connection::Connection() :
 void appl::widget::Connection::init() {
 	ewol::widget::Composer::init();
 	loadFromFile("DATA:gui-connection.xml", getId());
-	subBind(ewol::widget::Entry, "[" + etk::to_string(getId()) + "]connect-login", signalModify, sharedFromThis(), &appl::widget::Connection::onCallbackEntryLoginChangeValue);
-	subBind(ewol::widget::Entry, "[" + etk::to_string(getId()) + "]connect-password", signalModify, sharedFromThis(), &appl::widget::Connection::onCallbackEntryPasswordChangeValue);
-	subBind(ewol::widget::Button, "[" + etk::to_string(getId()) + "]connect-bt", signalPressed, sharedFromThis(), &appl::widget::Connection::onCallbackButtonValidate);
-	subBind(ewol::widget::Button, "[" + etk::to_string(getId()) + "]cancel-bt", signalPressed, sharedFromThis(), &appl::widget::Connection::onCallbackButtonCancel);
+	subBind(ewol::widget::Entry, "[" + etk::toString(getId()) + "]connect-login", signalModify, sharedFromThis(), &appl::widget::Connection::onCallbackEntryLoginChangeValue);
+	subBind(ewol::widget::Entry, "[" + etk::toString(getId()) + "]connect-password", signalModify, sharedFromThis(), &appl::widget::Connection::onCallbackEntryPasswordChangeValue);
+	subBind(ewol::widget::Button, "[" + etk::toString(getId()) + "]connect-bt", signalPressed, sharedFromThis(), &appl::widget::Connection::onCallbackButtonValidate);
+	subBind(ewol::widget::Button, "[" + etk::toString(getId()) + "]cancel-bt", signalPressed, sharedFromThis(), &appl::widget::Connection::onCallbackButtonCancel);
 	setProperty(nullptr);
 	propertyCanFocus.set(true);
 }
@@ -54,24 +54,24 @@ void appl::widget::Connection::setProperty(ememory::SharedPtr<appl::ClientProper
 	}
 	m_login = m_baseProperty->getLogin();
 	m_password = m_baseProperty->getPassword();
-	propertySetOnWidgetNamed("[" + etk::to_string(getId()) + "]connect-login", "value", m_login);
-	propertySetOnWidgetNamed("[" + etk::to_string(getId()) + "]connect-password", "value", m_password);
+	propertySetOnWidgetNamed("[" + etk::toString(getId()) + "]connect-login", "value", m_login);
+	propertySetOnWidgetNamed("[" + etk::toString(getId()) + "]connect-password", "value", m_password);
 }
 
 void appl::widget::Connection::onGetFocus() {
 	// transfert focus on a specific widget...
-	propertySetOnWidgetNamed("[" + etk::to_string(getId()) + "]connect-login", "focus", "true");
+	propertySetOnWidgetNamed("[" + etk::toString(getId()) + "]connect-login", "focus", "true");
 }
 
 appl::widget::Connection::~Connection() {
 	
 }
 
-void appl::widget::Connection::onCallbackEntryLoginChangeValue(const std::string& _value) {
+void appl::widget::Connection::onCallbackEntryLoginChangeValue(const etk::String& _value) {
 	m_login = _value;
 }
 
-void appl::widget::Connection::onCallbackEntryPasswordChangeValue(const std::string& _value) {
+void appl::widget::Connection::onCallbackEntryPasswordChangeValue(const etk::String& _value) {
 	m_password = _value;
 }
 

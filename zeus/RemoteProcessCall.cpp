@@ -53,47 +53,47 @@ zeus::RemoteProcessCall::RemoteProcessCall(const ememory::SharedPtr<zeus::WebSer
 	}
 }
 
-void zeus::RemoteProcessCall::setDescription(const std::string& _desc) {
+void zeus::RemoteProcessCall::setDescription(const etk::String& _desc) {
 	m_description = _desc;
 }
 
-std::string zeus::RemoteProcessCall::getDescription() {
+etk::String zeus::RemoteProcessCall::getDescription() {
 	return m_description;
 }
 
-void zeus::RemoteProcessCall::setVersion(const std::string& _desc) {
+void zeus::RemoteProcessCall::setVersion(const etk::String& _desc) {
 	m_version = _desc;
 }
 
-std::string zeus::RemoteProcessCall::getVersion() {
+etk::String zeus::RemoteProcessCall::getVersion() {
 	return m_version;
 }
 
-void zeus::RemoteProcessCall::setVersionImplementation(const std::string& _desc) {
+void zeus::RemoteProcessCall::setVersionImplementation(const etk::String& _desc) {
 	m_versionImplement = _desc;
 }
 
-std::string zeus::RemoteProcessCall::getVersionImplementation() {
+etk::String zeus::RemoteProcessCall::getVersionImplementation() {
 	return m_versionImplement;
 }
 
-void zeus::RemoteProcessCall::addAuthor(const std::string& _name, const std::string& _email) {
-	m_authors.push_back(std::make_pair(_name, _email));
+void zeus::RemoteProcessCall::addAuthor(const etk::String& _name, const etk::String& _email) {
+	m_authors.pushBack(etk::makePair(_name, _email));
 }
 
-const std::vector<std::pair<std::string,std::string>>& zeus::RemoteProcessCall::getAuthors() const {
+const etk::Vector<etk::Pair<etk::String,etk::String>>& zeus::RemoteProcessCall::getAuthors() const {
 	return m_authors;
 }
 
-std::vector<std::string> zeus::RemoteProcessCall::getAuthors2() {
-	std::vector<std::string> out;
+etk::Vector<etk::String> zeus::RemoteProcessCall::getAuthors2() {
+	etk::Vector<etk::String> out;
 	for (auto &it : m_authors) {
-		out.push_back(it.first + "<" + it.second + ">");
+		out.pushBack(it.first + "<" + it.second + ">");
 	}
 	return out;
 }
 
-zeus::AbstractFunction* zeus::RemoteProcessCall::getFunction(std::string _funcName) {
+zeus::AbstractFunction* zeus::RemoteProcessCall::getFunction(etk::String _funcName) {
 	for (auto &it : m_listFunction) {
 		if (it == nullptr) {
 			continue;
@@ -106,17 +106,17 @@ zeus::AbstractFunction* zeus::RemoteProcessCall::getFunction(std::string _funcNa
 	return nullptr;
 }
 
-std::string zeus::RemoteProcessCall::getType() {
+etk::String zeus::RemoteProcessCall::getType() {
 	return m_type;
 }
 
-void zeus::RemoteProcessCall::setType(const std::string& _type) {
+void zeus::RemoteProcessCall::setType(const etk::String& _type) {
 	m_type = _type;
 }
 
 
-std::vector<std::string> zeus::RemoteProcessCall::getFunctions() {
-	std::vector<std::string> out;
+etk::Vector<etk::String> zeus::RemoteProcessCall::getFunctions() {
+	etk::Vector<etk::String> out;
 	for (auto &it: m_listFunction) {
 		if (it == nullptr) {
 			continue;
@@ -126,15 +126,15 @@ std::vector<std::string> zeus::RemoteProcessCall::getFunctions() {
 			continue;
 		}
 		*/
-		out.push_back(it->getName());
+		out.pushBack(it->getName());
 	}
 	return out;
 }
 
-std::vector<std::string> zeus::RemoteProcessCall::getFunctionSignature(std::string _funcName) {
+etk::Vector<etk::String> zeus::RemoteProcessCall::getFunctionSignature(etk::String _funcName) {
 	/*
 	if (isFunctionAuthorized(_funcName) == false) {
-		return std::vector<std::string>();
+		return etk::Vector<etk::String>();
 	}
 	*/
 	for (auto &it: m_listFunction) {
@@ -144,15 +144,15 @@ std::vector<std::string> zeus::RemoteProcessCall::getFunctionSignature(std::stri
 		if (it->getName() != _funcName) {
 			continue;
 		}
-		std::vector<std::string> out;
+		etk::Vector<etk::String> out;
 		out = it->getPrototypeParam();
 		out.insert(out.begin(), it->getPrototypeReturn());
 		return out;
 	}
-	return std::vector<std::string>();
+	return etk::Vector<etk::String>();
 }
 
-std::string zeus::RemoteProcessCall::getFunctionPrototype(std::string _funcName) {
+etk::String zeus::RemoteProcessCall::getFunctionPrototype(etk::String _funcName) {
 	/*
 	if (isFunctionAuthorized(_funcName) == false) {
 		return "";
@@ -170,10 +170,10 @@ std::string zeus::RemoteProcessCall::getFunctionPrototype(std::string _funcName)
 	return "";
 }
 
-std::string zeus::RemoteProcessCall::getFunctionDescription(std::string _funcName) {
+etk::String zeus::RemoteProcessCall::getFunctionDescription(etk::String _funcName) {
 	/*
 	if (isFunctionAuthorized(_funcName) == false) {
-		return std::string("UNKNOW Function: ") + _funcName;
+		return etk::String("UNKNOW Function: ") + _funcName;
 	}
 	*/
 	for (auto &it: m_listFunction) {
@@ -189,7 +189,7 @@ std::string zeus::RemoteProcessCall::getFunctionDescription(std::string _funcNam
 
 }
 
-bool zeus::RemoteProcessCall::isFunctionAuthorized(uint64_t _clientSessionID, const std::string& _funcName) {
+bool zeus::RemoteProcessCall::isFunctionAuthorized(uint64_t _clientSessionID, const etk::String& _funcName) {
 	ZEUS_ERROR("lllllllllllllllllllllllllllllllllllllllllllllllllllllllllll");
 	return true;
 }

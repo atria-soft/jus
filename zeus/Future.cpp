@@ -144,7 +144,7 @@ namespace zeus {
 		return static_cast<zeus::message::Answer*>(_promise->getRaw().get())->getAnswer<float>();
 	}
 	template<>
-	std::string futureGetValue<std::string>(ememory::SharedPtr<zeus::Promise>& _promise) {
+	etk::String futureGetValue<etk::String>(ememory::SharedPtr<zeus::Promise>& _promise) {
 		if (    _promise == nullptr
 		     || _promise->getRaw() == nullptr) {
 			return "";
@@ -153,11 +153,11 @@ namespace zeus {
 			ZEUS_WARNING("No Return value ...");
 			return "";
 		}
-		return static_cast<zeus::message::Answer*>(_promise->getRaw().get())->getAnswer<std::string>();
+		return static_cast<zeus::message::Answer*>(_promise->getRaw().get())->getAnswer<etk::String>();
 	}
 	template<>
-	std::vector<int64_t> futureGetValue<std::vector<int64_t>>(ememory::SharedPtr<zeus::Promise>& _promise) {
-		std::vector<int64_t> out;
+	etk::Vector<int64_t> futureGetValue<etk::Vector<int64_t>>(ememory::SharedPtr<zeus::Promise>& _promise) {
+		etk::Vector<int64_t> out;
 		if (    _promise == nullptr
 		     || _promise->getRaw() == nullptr) {
 			return out;
@@ -166,12 +166,12 @@ namespace zeus {
 			ZEUS_WARNING("No Return value ...");
 			return out;
 		}
-		out = static_cast<zeus::message::Answer*>(_promise->getRaw().get())->getAnswer<std::vector<int64_t>>();
+		out = static_cast<zeus::message::Answer*>(_promise->getRaw().get())->getAnswer<etk::Vector<int64_t>>();
 		return out;
 	}
 	template<>
-	std::vector<int32_t> futureGetValue<std::vector<int32_t>>(ememory::SharedPtr<zeus::Promise>& _promise) {
-		std::vector<int32_t> out;
+	etk::Vector<int32_t> futureGetValue<etk::Vector<int32_t>>(ememory::SharedPtr<zeus::Promise>& _promise) {
+		etk::Vector<int32_t> out;
 		if (    _promise == nullptr
 		     || _promise->getRaw() == nullptr) {
 			return out;
@@ -180,12 +180,12 @@ namespace zeus {
 			ZEUS_WARNING("No Return value ...");
 			return out;
 		}
-		out = static_cast<zeus::message::Answer*>(_promise->getRaw().get())->getAnswer<std::vector<int32_t>>();
+		out = static_cast<zeus::message::Answer*>(_promise->getRaw().get())->getAnswer<etk::Vector<int32_t>>();
 		return out;
 	}
 	template<>
-	std::vector<int16_t> futureGetValue<std::vector<int16_t>>(ememory::SharedPtr<zeus::Promise>& _promise) {
-		std::vector<int16_t> out;
+	etk::Vector<int16_t> futureGetValue<etk::Vector<int16_t>>(ememory::SharedPtr<zeus::Promise>& _promise) {
+		etk::Vector<int16_t> out;
 		if (    _promise == nullptr
 		     || _promise->getRaw() == nullptr) {
 			return out;
@@ -194,12 +194,12 @@ namespace zeus {
 			ZEUS_WARNING("No Return value ...");
 			return out;
 		}
-		out = static_cast<zeus::message::Answer*>(_promise->getRaw().get())->getAnswer<std::vector<int16_t>>();
+		out = static_cast<zeus::message::Answer*>(_promise->getRaw().get())->getAnswer<etk::Vector<int16_t>>();
 		return out;
 	}
 	template<>
-	std::vector<int8_t> futureGetValue<std::vector<int8_t>>(ememory::SharedPtr<zeus::Promise>& _promise) {
-		std::vector<int8_t> out;
+	etk::Vector<int8_t> futureGetValue<etk::Vector<int8_t>>(ememory::SharedPtr<zeus::Promise>& _promise) {
+		etk::Vector<int8_t> out;
 		if (    _promise == nullptr
 		     || _promise->getRaw() == nullptr) {
 			return out;
@@ -208,12 +208,12 @@ namespace zeus {
 			ZEUS_WARNING("No Return value ...");
 			return out;
 		}
-		out = static_cast<zeus::message::Answer*>(_promise->getRaw().get())->getAnswer<std::vector<int8_t>>();
+		out = static_cast<zeus::message::Answer*>(_promise->getRaw().get())->getAnswer<etk::Vector<int8_t>>();
 		return out;
 	}
 	template<>
-	std::vector<uint64_t> futureGetValue<std::vector<uint64_t>>(ememory::SharedPtr<zeus::Promise>& _promise) {
-		std::vector<uint64_t> out;
+	etk::Vector<uint64_t> futureGetValue<etk::Vector<uint64_t>>(ememory::SharedPtr<zeus::Promise>& _promise) {
+		etk::Vector<uint64_t> out;
 		if (    _promise == nullptr
 		     || _promise->getRaw() == nullptr) {
 			return out;
@@ -222,12 +222,12 @@ namespace zeus {
 			ZEUS_WARNING("No Return value ...");
 			return out;
 		}
-		out = static_cast<zeus::message::Answer*>(_promise->getRaw().get())->getAnswer<std::vector<uint64_t>>();
+		out = static_cast<zeus::message::Answer*>(_promise->getRaw().get())->getAnswer<etk::Vector<uint64_t>>();
 		return out;
 	}
 	template<>
-	std::vector<uint32_t> futureGetValue<std::vector<uint32_t>>(ememory::SharedPtr<zeus::Promise>& _promise) {
-		std::vector<uint32_t> out;
+	etk::Vector<uint32_t> futureGetValue<etk::Vector<uint32_t>>(ememory::SharedPtr<zeus::Promise>& _promise) {
+		etk::Vector<uint32_t> out;
 		if (    _promise == nullptr
 		     || _promise->getRaw() == nullptr) {
 			return out;
@@ -236,12 +236,12 @@ namespace zeus {
 			ZEUS_WARNING("No Return value ...");
 			return out;
 		}
-		out = static_cast<zeus::message::Answer*>(_promise->getRaw().get())->getAnswer<std::vector<uint32_t>>();
+		out = static_cast<zeus::message::Answer*>(_promise->getRaw().get())->getAnswer<etk::Vector<uint32_t>>();
 		return out;
 	}
 	template<>
-	std::vector<uint16_t> futureGetValue<std::vector<uint16_t>>(ememory::SharedPtr<zeus::Promise>& _promise) {
-		std::vector<uint16_t> out;
+	etk::Vector<uint16_t> futureGetValue<etk::Vector<uint16_t>>(ememory::SharedPtr<zeus::Promise>& _promise) {
+		etk::Vector<uint16_t> out;
 		if (    _promise == nullptr
 		     || _promise->getRaw() == nullptr) {
 			return out;
@@ -250,12 +250,12 @@ namespace zeus {
 			ZEUS_WARNING("No Return value ...");
 			return out;
 		}
-		out = static_cast<zeus::message::Answer*>(_promise->getRaw().get())->getAnswer<std::vector<uint16_t>>();
+		out = static_cast<zeus::message::Answer*>(_promise->getRaw().get())->getAnswer<etk::Vector<uint16_t>>();
 		return out;
 	}
 	template<>
-	std::vector<uint8_t> futureGetValue<std::vector<uint8_t>>(ememory::SharedPtr<zeus::Promise>& _promise) {
-		std::vector<uint8_t> out;
+	etk::Vector<uint8_t> futureGetValue<etk::Vector<uint8_t>>(ememory::SharedPtr<zeus::Promise>& _promise) {
+		etk::Vector<uint8_t> out;
 		if (    _promise == nullptr
 		     || _promise->getRaw() == nullptr) {
 			return out;
@@ -264,12 +264,12 @@ namespace zeus {
 			ZEUS_WARNING("No Return value ...");
 			return out;
 		}
-		out = static_cast<zeus::message::Answer*>(_promise->getRaw().get())->getAnswer<std::vector<uint8_t>>();
+		out = static_cast<zeus::message::Answer*>(_promise->getRaw().get())->getAnswer<etk::Vector<uint8_t>>();
 		return out;
 	}
 	template<>
-	std::vector<double> futureGetValue<std::vector<double>>(ememory::SharedPtr<zeus::Promise>& _promise) {
-		std::vector<double> out;
+	etk::Vector<double> futureGetValue<etk::Vector<double>>(ememory::SharedPtr<zeus::Promise>& _promise) {
+		etk::Vector<double> out;
 		if (    _promise == nullptr
 		     || _promise->getRaw() == nullptr) {
 			return out;
@@ -278,12 +278,12 @@ namespace zeus {
 			ZEUS_WARNING("No Return value ...");
 			return out;
 		}
-		out = static_cast<zeus::message::Answer*>(_promise->getRaw().get())->getAnswer<std::vector<double>>();
+		out = static_cast<zeus::message::Answer*>(_promise->getRaw().get())->getAnswer<etk::Vector<double>>();
 		return out;
 	}
 	template<>
-	std::vector<float> futureGetValue<std::vector<float>>(ememory::SharedPtr<zeus::Promise>& _promise) {
-		std::vector<float> out;
+	etk::Vector<float> futureGetValue<etk::Vector<float>>(ememory::SharedPtr<zeus::Promise>& _promise) {
+		etk::Vector<float> out;
 		if (    _promise == nullptr
 		     || _promise->getRaw() == nullptr) {
 			return out;
@@ -292,12 +292,12 @@ namespace zeus {
 			ZEUS_WARNING("No Return value ...");
 			return out;
 		}
-		out = static_cast<zeus::message::Answer*>(_promise->getRaw().get())->getAnswer<std::vector<float>>();
+		out = static_cast<zeus::message::Answer*>(_promise->getRaw().get())->getAnswer<etk::Vector<float>>();
 		return out;
 	}
 	template<>
-	std::vector<std::string> futureGetValue<std::vector<std::string>>(ememory::SharedPtr<zeus::Promise>& _promise) {
-		std::vector<std::string> out;
+	etk::Vector<etk::String> futureGetValue<etk::Vector<etk::String>>(ememory::SharedPtr<zeus::Promise>& _promise) {
+		etk::Vector<etk::String> out;
 		if (    _promise == nullptr
 		     || _promise->getRaw() == nullptr) {
 			return out;
@@ -306,12 +306,12 @@ namespace zeus {
 			ZEUS_WARNING("No Return value ...");
 			return out;
 		}
-		out = static_cast<zeus::message::Answer*>(_promise->getRaw().get())->getAnswer<std::vector<std::string>>();
+		out = static_cast<zeus::message::Answer*>(_promise->getRaw().get())->getAnswer<etk::Vector<etk::String>>();
 		return out;
 	}
 	template<>
-	std::vector<bool> futureGetValue<std::vector<bool>>(ememory::SharedPtr<zeus::Promise>& _promise) {
-		std::vector<bool> out;
+	etk::Vector<bool> futureGetValue<etk::Vector<bool>>(ememory::SharedPtr<zeus::Promise>& _promise) {
+		etk::Vector<bool> out;
 		if (    _promise == nullptr
 		     || _promise->getRaw() == nullptr) {
 			return out;
@@ -320,7 +320,7 @@ namespace zeus {
 			ZEUS_WARNING("No Return value ...");
 			return out;
 		}
-		out = static_cast<zeus::message::Answer*>(_promise->getRaw().get())->getAnswer<std::vector<bool>>();
+		out = static_cast<zeus::message::Answer*>(_promise->getRaw().get())->getAnswer<etk::Vector<bool>>();
 		return out;
 	}
 	template<>

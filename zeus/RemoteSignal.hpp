@@ -24,7 +24,7 @@ namespace zeus {
 			/**
 			 * @brief generic constructor
 			 */
-			RemoteProperty(zeus::ObjectRemote& _remoteObject, const std::string& _name) :
+			RemoteProperty(zeus::ObjectRemote& _remoteObject, const etk::String& _name) :
 			  esignal::Signal<ZEUS_TYPE_SIGNAL>(&zeus::RemoteSignal<ZEUS_TYPE_SIGNAL>::countConnection, _name),
 			  m_remoteObject(_remoteObject),
 			  m_name(_name) {

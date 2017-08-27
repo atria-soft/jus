@@ -119,14 +119,14 @@ bool zeus::FutureBase::hasError() const {
 	return m_promise->hasError();
 }
 
-std::string zeus::FutureBase::getErrorType() const {
+etk::String zeus::FutureBase::getErrorType() const {
 	if (m_promise == nullptr) {
 		return "NULL_PTR";
 	}
 	return m_promise->getErrorType();
 }
 
-std::string zeus::FutureBase::getErrorHelp() const {
+etk::String zeus::FutureBase::getErrorHelp() const {
 	if (m_promise == nullptr) {
 		return "This is a nullptr future";
 	}

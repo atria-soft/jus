@@ -26,7 +26,7 @@ namespace appl {
 				
 			}
 			virtual ~TcpServerInput() {}
-			void start(const std::string& _host, uint16_t _port) {
+			void start(const etk::String& _host, uint16_t _port) {
 				m_interface.setHostNane(_host);
 				m_interface.setPort(_port);
 				m_interface.link();
@@ -54,14 +54,14 @@ namespace appl {
 				// get datas:
 				while (m_threadRunning == true) {
 					// READ section data:
-					enet::Tcp data = std::move(m_interface.waitNext());
+					enet::Tcp data = etk::move(m_interface.waitNext());
 					if (data.getConnectionStatus() != enet::Tcp::status::link) {
 						APPL_CRITICAL("New TCP connection (DEAD ....) ==> gateway is dead ...");
 						// TODO: Check interaface: if (m_interface.
 						std::this_thread::sleep_for(std::chrono::milliseconds(300));
 					}
 					APPL_VERBOSE("New connection");
-					m_gateway->newDirectInterface(std::move(data));
+					m_gateway->newDirectInterface(etk::move(data));
 				}
 			}
 	};
@@ -69,9 +69,9 @@ namespace appl {
 
 void appl::GateWay::newDirectInterface(enet::Tcp _connection) {
 	APPL_WARNING("New TCP connection (service)");
-	ememory::SharedPtr<appl::DirectInterface> tmp = ememory::makeShared<appl::DirectInterface>(std::move(_connection));
+	ememory::SharedPtr<appl::DirectInterface> tmp = ememory::makeShared<appl::DirectInterface>(etk::move(_connection));
 	tmp->start(this);
-	m_listTemporaryIO.push_back(tmp);
+	m_listTemporaryIO.pushBack(tmp);
 }
 
 appl::GateWay::GateWay() :
@@ -92,7 +92,7 @@ appl::GateWay::~GateWay() {
 }
 
 void appl::GateWay::addIO(const ememory::SharedPtr<appl::IOInterface>& _io) {
-	m_listIO.push_back(_io);
+	m_listIO.pushBack(_io);
 	// REMOVE of temporary element in the temporary list:
 	auto it = m_listTemporaryIO.begin();
 	while (it != m_listTemporaryIO.end()) {
@@ -137,7 +137,7 @@ void appl::GateWay::stop() {
 	m_listIO.clear();
 }
 
-bool appl::GateWay::serviceExist(const std::string& _service) {
+bool appl::GateWay::serviceExist(const etk::String& _service) {
 	for (auto &it : m_listIO) {
 		if (it == nullptr) {
 			continue;
@@ -154,7 +154,7 @@ bool appl::GateWay::serviceExist(const std::string& _service) {
 	return false;
 }
 
-uint16_t appl::GateWay::serviceClientIdGet(const std::string& _service) {
+uint16_t appl::GateWay::serviceClientIdGet(const etk::String& _service) {
 	for (auto &it : m_listIO) {
 		if (it == nullptr) {
 			continue;
@@ -172,8 +172,8 @@ uint16_t appl::GateWay::serviceClientIdGet(const std::string& _service) {
 }
 
 
-std::vector<std::string> appl::GateWay::getAllServiceName() {
-	std::vector<std::string> out;
+etk::Vector<etk::String> appl::GateWay::getAllServiceName() {
+	etk::Vector<etk::String> out;
 	// TODO : Change this it is old and deprecated ...
 	for (auto &it : m_listIO) {
 		if (it == nullptr) {
@@ -183,7 +183,7 @@ std::vector<std::string> appl::GateWay::getAllServiceName() {
 			continue;
 		}
 		for (auto &srvIt : it->getServiceList()) {
-			out.push_back(srvIt);
+			out.pushBack(srvIt);
 		}
 	}
 	return out;
@@ -211,14 +211,14 @@ bool appl::GateWay::send(ememory::SharedPtr<zeus::Message> _data) {
 
 void appl::GateWay::cleanIO() {
 	APPL_VERBOSE("Check if something need to be clean ...");
-	std::vector<uint16_t> tmpIDToRemove;
+	etk::Vector<uint16_t> tmpIDToRemove;
 	// Clean all IOs...
 	{
 		auto it = m_listIO.begin();
 		while (it != m_listIO.end()) {
 			if (*it != nullptr) {
 				if ((*it)->isConnected() == false) {
-					tmpIDToRemove.push_back((*it)->getId());
+					tmpIDToRemove.pushBack((*it)->getId());
 					it = m_listIO.erase(it);
 					continue;
 				}

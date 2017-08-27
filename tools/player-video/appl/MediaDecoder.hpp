@@ -51,10 +51,10 @@ namespace appl {
 	};
 	class MessageElementAudio : public appl::MessageElement {
 		public:
-			std::vector<uint8_t> m_buffer; //!< raw audio data
+			etk::Vector<uint8_t> m_buffer; //!< raw audio data
 			audio::format m_format; //!< Audio format buffer
 			uint32_t m_sampleRate; //!< sample rate of the buffer
-			std::vector<audio::channel> m_map; //!< Channel map of the buffer
+			etk::Vector<audio::channel> m_map; //!< Channel map of the buffer
 			void configure(audio::format _format, uint32_t _sampleRate, int32_t _nbChannel, int32_t _nbSample);
 	};
 	class StreamBuffering : public ememory::EnableSharedFromThis<StreamBuffering> {
@@ -64,9 +64,9 @@ namespace appl {
 			ememory::SharedPtr<appl::ClientProperty>  m_property; //!< Remote interface that must get data
 			uint32_t                                  m_mediaId; //!< remote media ID that need to get data
 			zeus::ProxyFile                           m_fileHandle; //!< Reference on the remote file
-			std::vector<uint8_t>                      m_buffer; //!< preallocated with all needed data
+			etk::Vector<uint8_t>                      m_buffer; //!< preallocated with all needed data
 			int32_t                                   m_bufferReadPosition; //!< Current position that is read
-			std::vector<std::pair<uint32_t,uint32_t>> m_bufferFillSection; //!< List of <start-stop> position that contain data
+			etk::Vector<etk::Pair<uint32_t,uint32_t>> m_bufferFillSection; //!< List of <start-stop> position that contain data
 			bool m_callInProgress;
 			bool m_stopRequested;
 		public:
@@ -76,7 +76,7 @@ namespace appl {
 				std::unique_lock<std::mutex> lock(m_mutex);
 				return m_buffer.size();
 			}
-			std::vector<std::pair<uint32_t,uint32_t>> getDownloadPart() {
+			etk::Vector<etk::Pair<uint32_t,uint32_t>> getDownloadPart() {
 				std::unique_lock<std::mutex> lock(m_mutex);
 				return m_bufferFillSection;
 			}
@@ -98,9 +98,9 @@ namespace appl {
 				return m_duration;
 			}
 		public:
-			std::vector<MessageElementAudio> m_audioPool;
+			etk::Vector<MessageElementAudio> m_audioPool;
 			echrono::Duration m_currentAudioTime;
-			std::vector<MessageElementVideo> m_videoPool;
+			etk::Vector<MessageElementVideo> m_videoPool;
 			echrono::Duration m_currentVideoTime;
 			bool m_updateVideoTimeStampAfterSeek;
 			bool getSeekDone() {
@@ -125,7 +125,7 @@ namespace appl {
 			enum AVPixelFormat m_pixelFormat;
 			AVStream *m_videoStream;
 			AVStream *m_audioStream;
-			std::string m_sourceFilename;
+			etk::String m_sourceFilename;
 			
 			int32_t m_videoStream_idx;
 			int32_t m_audioStream_idx;
@@ -154,14 +154,14 @@ namespace appl {
 			bool m_audioPresent;
 			audio::format m_audioFormat; //!< Audio format buffer
 			uint32_t m_audioSampleRate; //!< sample rate of the buffer
-			std::vector<audio::channel> m_audioMap; //!< Channel map of the buffer
+			etk::Vector<audio::channel> m_audioMap; //!< Channel map of the buffer
 			bool haveAudio() {
 				return m_audioPresent;
 			}
 			uint32_t audioGetSampleRate() {
 				return m_audioSampleRate;
 			}
-			std::vector<audio::channel> audioGetChannelMap() {
+			etk::Vector<audio::channel> audioGetChannelMap() {
 				return m_audioMap;
 			}
 			audio::format audioGetFormat() {
@@ -185,17 +185,17 @@ namespace appl {
 			// @brief INTERNAL seek callback
 			int64_t seekFunc(int64_t _offset, int _whence);
 			
-			std::vector<std::pair<float,float>> getDownloadPart() {
-				std::vector<std::pair<float,float>> out;
+			etk::Vector<etk::Pair<float,float>> getDownloadPart() {
+				etk::Vector<etk::Pair<float,float>> out;
 				if (m_remote == nullptr) {
 					return out;
 				}
-				std::vector<std::pair<uint32_t,uint32_t>> vals = m_remote->getDownloadPart();
+				etk::Vector<etk::Pair<uint32_t,uint32_t>> vals = m_remote->getDownloadPart();
 				echrono::Duration totalTime = getDuration();
 				float size = totalTime.toSeconds()/float(m_remote->getSize());
 				//APPL_ERROR(" duration in sec : " << totalTime << " => " << totalTime.toSeconds());
 				for (auto &it : vals) {
-					out.push_back(std::pair<float,float>(float(it.first)*size, float(it.second)*size));
+					out.pushBack(etk::Pair<float,float>(float(it.first)*size, float(it.second)*size));
 				}
 				return out;
 			}

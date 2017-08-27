@@ -17,7 +17,7 @@ namespace zeus {
 			protected:
 				uint32_t m_partId;
 				uint16_t m_parameterId;
-				std::vector<uint8_t> m_data;
+				etk::Vector<uint8_t> m_data;
 			protected:
 				/**
 				 * @brief basic constructor (hidden to force the use of ememory::SharedPtr) @ref zeus::message::Data::create
@@ -30,7 +30,7 @@ namespace zeus {
 				void composeWith(const uint8_t* _buffer, uint32_t _lenght) override;
 				// TODO :... void appendMessageData(ememory::SharedPtr<zeus::message::Data> _obj) override;
 				bool writeOn(enet::WebSocket& _interface) override;
-				void generateDisplay(std::ostream& _os) const override;
+				void generateDisplay(etk::Stream& _os) const override;
 			public:
 				/**
 				 * @brief Create a shared pointer on the MessageData
@@ -68,7 +68,7 @@ namespace zeus {
 				/**
 				 * @brief Get data reference
 				 */
-				const std::vector<uint8_t>& getData() const {
+				const etk::Vector<uint8_t>& getData() const {
 					return m_data;
 				}
 				

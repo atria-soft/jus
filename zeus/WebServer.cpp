@@ -15,7 +15,7 @@ ememory::SharedPtr<zeus::message::Call> zeus::createBaseCall(const ememory::Shar
                                                              uint64_t _transactionId,
                                                              const uint32_t& _source,
                                                              const uint32_t& _destination,
-                                                             const std::string& _functionName) {
+                                                             const etk::String& _functionName) {
 	ememory::SharedPtr<zeus::message::Call> obj;
 	obj = zeus::message::Call::create(_iface);
 	if (obj == nullptr) {
@@ -72,19 +72,19 @@ zeus::WebServer::WebServer(enet::Tcp _connection, bool _isServer) :
   m_threadAsync(nullptr) {
 	m_interfaceId = interfaceId++;
 	m_threadAsyncRunning = false;
-	setInterface(std::move(_connection), _isServer);
+	setInterface(etk::move(_connection), _isServer);
 }
 
-void zeus::WebServer::setInterface(enet::Tcp _connection, bool _isServer, const std::string& _userName) {
-	m_connection.setInterface(std::move(_connection), _isServer);
+void zeus::WebServer::setInterface(enet::Tcp _connection, bool _isServer, const etk::String& _userName) {
+	m_connection.setInterface(etk::move(_connection), _isServer);
 	m_connection.connect(this, &zeus::WebServer::onReceiveData);
 	if (_isServer == true) {
 		m_connection.connectUri(this, &zeus::WebServer::onReceiveUri);
 		m_connection.start();
 	} else {
-		std::vector<std::string> protocols;
-		protocols.push_back("zeus/0.8");
-		protocols.push_back("zeus/1.0");
+		etk::Vector<etk::String> protocols;
+		protocols.pushBack("zeus/0.8");
+		protocols.pushBack("zeus/1.0");
 		m_connection.start("/" + _userName, protocols);
 	}
 }
@@ -104,21 +104,21 @@ zeus::WebServer::~WebServer() {
 	ZEUS_WARNING("destroy WebServer ...  [STOP]");
 }
 
-void zeus::WebServer::setInterfaceName(const std::string& _name) {
+void zeus::WebServer::setInterfaceName(const etk::String& _name) {
 	//ethread::setName(*m_thread, "Tcp-" + _name);
 }
 
 void zeus::WebServer::addWebObj(ememory::SharedPtr<zeus::WebObj> _obj) {
 	//std::unique_lock<std::mutex> lock(m_mutex);
-	m_listObject.push_back(_obj);
+	m_listObject.pushBack(_obj);
 }
 
 void zeus::WebServer::addWebObjRemote(ememory::SharedPtr<zeus::ObjectRemoteBase> _obj) {
 	//std::unique_lock<std::mutex> lock(m_mutex);
-	m_listRemoteObject.push_back(_obj);
+	m_listRemoteObject.pushBack(_obj);
 }
 
-void zeus::WebServer::interfaceRemoved(std::vector<uint16_t> _list) {
+void zeus::WebServer::interfaceRemoved(etk::Vector<uint16_t> _list) {
 	ZEUS_WARNING("Remove interface : " << _list);
 	for (int32_t iii=0; iii < _list.size(); ++iii) {
 		// Call All remote Object object
@@ -213,14 +213,14 @@ void zeus::WebServer::disconnect(bool _inThreadStop){
 
 class SendAsyncBinary {
 	private:
-		std::vector<zeus::ActionAsyncClient> m_async;
+		etk::Vector<zeus::ActionAsyncClient> m_async;
 		uint64_t m_transactionId;
 		uint32_t m_source;
 		uint32_t m_destination;
 		uint32_t m_partId;
 	public:
-		SendAsyncBinary(uint64_t _transactionId, const uint32_t& _source, const uint32_t& _destination, std::vector<zeus::ActionAsyncClient> _async) :
-		  m_async(std::move(_async)),
+		SendAsyncBinary(uint64_t _transactionId, const uint32_t& _source, const uint32_t& _destination, etk::Vector<zeus::ActionAsyncClient> _async) :
+		  m_async(etk::move(_async)),
 		  m_transactionId(_transactionId),
 		  m_source(_source),
 		  m_destination(_destination),
@@ -273,14 +273,14 @@ int32_t zeus::WebServer::writeBinary(ememory::SharedPtr<zeus::Message> _obj) {
 	ZEUS_LOG_INPUT_OUTPUT("Send    :" << _obj);
 	if (_obj->writeOn(m_connection) == true) {
 		if (_obj->haveAsync() == true) {
-			addAsync(SendAsyncBinary(_obj->getTransactionId(), _obj->getSource(), _obj->getDestination(), std::move(_obj->moveAsync())));
+			addAsync(SendAsyncBinary(_obj->getTransactionId(), _obj->getSource(), _obj->getDestination(), etk::move(_obj->moveAsync())));
 		}
 		return 1;
 	}
 	return -1;
 }
 
-bool zeus::WebServer::onReceiveUri(const std::string& _uri, const std::vector<std::string>& _protocols) {
+bool zeus::WebServer::onReceiveUri(const etk::String& _uri, const etk::Vector<etk::String>& _protocols) {
 	ZEUS_INFO("Receive Header uri: " << _uri);
 	bool findProtocol = false;
 	for (auto &it : _protocols) {
@@ -305,7 +305,7 @@ bool zeus::WebServer::onReceiveUri(const std::string& _uri, const std::vector<st
 	return false;
 }
 
-void zeus::WebServer::onReceiveData(std::vector<uint8_t>& _frame, bool _isBinary) {
+void zeus::WebServer::onReceiveData(etk::Vector<uint8_t>& _frame, bool _isBinary) {
 	if (_isBinary == true) {
 		ZEUS_ERROR("Receive non binary frame ...");
 		disconnect(true);
@@ -351,7 +351,7 @@ void zeus::WebServer::newMessage(ememory::SharedPtr<zeus::Message> _buffer) {
 	if (    _buffer->getPartFinish() == false
 	     && _buffer->getType() != zeus::message::type::data) {
 		//std::unique_lock<std::mutex> lock(m_mutex);
-		m_listPartialMessage.push_back(_buffer);
+		m_listPartialMessage.pushBack(_buffer);
 		return;
 	}
 	if (_buffer->getType() == zeus::message::type::data) {
@@ -602,7 +602,7 @@ bool zeus::WebServer::removeObjectOwnership(uint16_t _objectAddress, uint32_t _s
 
 void zeus::WebServer::addAsync(zeus::WebServer::ActionAsync _elem) {
 	std::unique_lock<std::mutex> lock(m_threadAsyncMutex);
-	m_threadAsyncList2.push_back(_elem);
+	m_threadAsyncList2.pushBack(_elem);
 	ZEUS_DEBUG("ADD element to send ... " << m_threadAsyncList2.size());
 }
 
@@ -615,7 +615,7 @@ void zeus::WebServer::threadAsyncCallback() {
 		if (m_threadAsyncList2.size() != 0) {
 			std::unique_lock<std::mutex> lock(m_threadAsyncMutex);
 			for (auto &it : m_threadAsyncList2) {
-				m_threadAsyncList.push_back(it);
+				m_threadAsyncList.pushBack(it);
 			}
 			m_threadAsyncList2.clear();
 		}
@@ -650,13 +650,13 @@ zeus::FutureBase zeus::WebServer::callBinary(ememory::SharedPtr<zeus::Message> _
 	zeus::FutureBase tmpFuture(_obj->getTransactionId());
 	{
 		std::unique_lock<std::mutex> lock(m_pendingCallMutex);
-		m_pendingCall.push_back(std::make_pair(uint64_t(0), tmpFuture));
+		m_pendingCall.pushBack(etk::makePair(uint64_t(0), tmpFuture));
 	}
 	writeBinary(_obj);
 	return tmpFuture;
 }
 
-void zeus::WebServer::answerError(uint32_t _clientTransactionId, uint32_t _source, uint32_t _destination, const std::string& _errorValue, const std::string& _errorHelp) {
+void zeus::WebServer::answerError(uint32_t _clientTransactionId, uint32_t _source, uint32_t _destination, const etk::String& _errorValue, const etk::String& _errorHelp) {
 	auto answer = zeus::message::Answer::create(sharedFromThis());
 	if (answer == nullptr) {
 		return;

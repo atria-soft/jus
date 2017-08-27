@@ -25,7 +25,7 @@ namespace appl {
 	namespace widget {
 		class VideoDisplay : public ewol::Widget {
 			public:
-				esignal::Signal<std::string> signalOther;
+				esignal::Signal<etk::String> signalOther;
 				esignal::Signal<int32_t> signalFps;
 				esignal::Signal<echrono::Duration> signalPosition; //!< signal the current duration of the video duration
 				esignal::Signal<echrono::Duration> signalDuration; //!< signal the current duration of the video duration
@@ -69,7 +69,7 @@ namespace appl {
 				void onDraw() override;
 				void onRegenerateDisplay() override;
 			public:
-				void setFile(const std::string& _fileName);
+				void setFile(const etk::String& _fileName);
 				void setZeusMedia(ememory::SharedPtr<ClientProperty> _property, uint32_t _mediaId);
 			protected:
 				bool m_isPalying;
@@ -94,9 +94,9 @@ namespace appl {
 					return echrono::Duration(0);
 				}
 				void seek(const echrono::Duration& _time);
-				std::vector<std::pair<float,float>> getDownloadPart() {
+				etk::Vector<etk::Pair<float,float>> getDownloadPart() {
 					if (m_decoder == nullptr) {
-						return std::vector<std::pair<float,float>>();
+						return etk::Vector<etk::Pair<float,float>>();
 					}
 					return m_decoder->getDownloadPart();
 				}

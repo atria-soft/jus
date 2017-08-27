@@ -13,11 +13,11 @@
 #include <zeus/AbstractFunction.hpp>
 
 
-static const std::string protocolError = "PROTOCOL-ERROR";
+static const etk::String protocolError = "PROTOCOL-ERROR";
 
 appl::ClientInterface::ClientInterface(enet::Tcp _connection, appl::Router* _routerInterface) :
   m_routerInterface(_routerInterface),
-  m_interfaceClient(std::move(_connection), true),
+  m_interfaceClient(etk::move(_connection), true),
   m_uid(0) {
 	APPL_INFO("----------------");
 	APPL_INFO("-- NEW Client --");
@@ -32,19 +32,19 @@ appl::ClientInterface::~ClientInterface() {
 	APPL_INFO("-------------------");
 }
 
-bool appl::ClientInterface::requestURI(const std::string& _uri) {
+bool appl::ClientInterface::requestURI(const etk::String& _uri) {
 	APPL_WARNING("request connect on CLIENT: '" << _uri << "'");
 	if(m_routerInterface == nullptr) {
 		APPL_ERROR("Can not access to the main GateWay interface (nullptr)");
 		return false;
 	}
-	std::string tmpURI = _uri;
+	etk::String tmpURI = _uri;
 	if (tmpURI.size() == 0) {
 		APPL_ERROR("Empty URI ... not supported ...");
 		return false;
 	}
 	if (tmpURI[0] == '/') {
-		tmpURI = std::string(tmpURI.begin() + 1, tmpURI.end());
+		tmpURI = etk::String(tmpURI.begin() + 1, tmpURI.end());
 	}
 	// TODO : Remove subParameters xxx?YYY
 	m_userGateWay = m_routerInterface->get(tmpURI);
@@ -87,7 +87,7 @@ bool appl::ClientInterface::isAlive() {
 	return ret;
 }
 
-void appl::ClientInterface::answerProtocolError(uint32_t _transactionId, const std::string& _errorHelp) {
+void appl::ClientInterface::answerProtocolError(uint32_t _transactionId, const etk::String& _errorHelp) {
 	m_interfaceClient.answerError(_transactionId, 0, 0, protocolError, _errorHelp);
 	m_interfaceClient.disconnect(true);
 }
@@ -106,7 +106,7 @@ void appl::ClientInterface::onClientData(ememory::SharedPtr<zeus::Message> _valu
 	}
 	// check correct SourceID
 	if (_value->getSourceId() != m_uid) {
-		answerProtocolError(transactionId, "message with the wrong source ID : " + etk::to_string(_value->getSourceId()) + " != " + etk::to_string(m_uid));
+		answerProtocolError(transactionId, "message with the wrong source ID : " + etk::toString(_value->getSourceId()) + " != " + etk::toString(m_uid));
 		return;
 	}
 	// Check gateway corectly connected
@@ -133,7 +133,7 @@ void appl::ClientInterface::onClientData(ememory::SharedPtr<zeus::Message> _valu
 			answerProtocolError(transactionId, "Can not get the Client ID...");
 			return;
 		}
-		m_interfaceClient.setInterfaceName("cli-" + etk::to_string(m_uid));
+		m_interfaceClient.setInterfaceName("cli-" + etk::toString(m_uid));
 		m_interfaceClient.answerValue(transactionId, _value->getDestination(), _value->getSource(), m_uid);
 	} else {
 		// send data to the gateway

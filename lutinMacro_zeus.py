@@ -7,7 +7,7 @@ import copy
 list_of_known_type = [
     ["void", "void"],
     ["bool", "bool"],
-    ["string", "std::string"],
+    ["string", "etk::String"],
     ["int8", "int8_t"],
     ["int16", "int16_t"],
     ["int32", "int32_t"],
@@ -18,25 +18,25 @@ list_of_known_type = [
     ["uint64", "uint64_t"],
     ["float32", "float"],
     ["float64", "double"],
-    ["vector:bool", "std::vector<bool>"],
-    ["vector:string", "std::vector<std::string>"],
-    ["vector:int8", "std::vector<int8_t>"],
-    ["vector:int16", "std::vector<int16_t>"],
-    ["vector:int32", "std::vector<int32_t>"],
-    ["vector:int64", "std::vector<int64_t>"],
-    ["vector:uint8", "std::vector<uint8_t>"],
-    ["vector:uint16", "std::vector<uint16_t>"],
-    ["vector:uint32", "std::vector<uint32_t>"],
-    ["vector:uint64", "std::vector<uint64_t>"],
-    ["vector:float32", "std::vector<float>"],
-    ["vector:float64", "std::vector<double>"],
+    ["vector:bool", "etk::Vector<bool>"],
+    ["vector:string", "etk::Vector<etk::String>"],
+    ["vector:int8", "etk::Vector<int8_t>"],
+    ["vector:int16", "etk::Vector<int16_t>"],
+    ["vector:int32", "etk::Vector<int32_t>"],
+    ["vector:int64", "etk::Vector<int64_t>"],
+    ["vector:uint8", "etk::Vector<uint8_t>"],
+    ["vector:uint16", "etk::Vector<uint16_t>"],
+    ["vector:uint32", "etk::Vector<uint32_t>"],
+    ["vector:uint64", "etk::Vector<uint64_t>"],
+    ["vector:float32", "etk::Vector<float>"],
+    ["vector:float64", "etk::Vector<double>"],
     ["duration", "echrono::Duration"],
     ["time", "echrono::Time"],
     ["file", "zeus::File"],
     ["stream", "zeus::Stream"],
     ["json", "ejson::Object"],
     ["raw", "zeus::Raw"],
-    ["ActionNotif", "zeus::ActionNotification<std::string>"],
+    ["ActionNotif", "zeus::ActionNotification<etk::String>"],
     ]
 
 
@@ -439,8 +439,8 @@ class ServiceDefinition:
 		out += "#include <etk/types.hpp>\n"
 		out += "#include <eproperty/Value.hpp>\n"
 		out += "#include <zeus/Raw.hpp>\n"
-		out += "#include <string>\n"
-		out += "#include <vector>\n"
+		out += "#include <etk/String.hpp>\n"
+		out += "#include <etk/Vector.hpp>\n"
 		out += "#include <ememory/memory.hpp>\n"
 		out += "#include <zeus/ActionNotification.hpp>\n"
 		for elem in self.imports:
@@ -540,7 +540,7 @@ class ServiceDefinition:
 		out += "		\n"
 		out += "		template<>\n"
 		out += "		void Parameter::addParameter<ememory::SharedPtr<" + self.prop["name_class"] + ">>(uint16_t _paramId, const ememory::SharedPtr<" + self.prop["name_class"] + ">& _value) {\n"
-		out += "			std::vector<uint8_t> data;\n"
+		out += "			etk::Vector<uint8_t> data;\n"
 		"""
 		out += "			addType(data, createType<" + class_name + ">());\n"
 		"""
@@ -562,7 +562,7 @@ class ServiceDefinition:
 		out += "			}\n"
 		# return Object ID and interface adress
 		out += "			memcpy(&data[currentOffset], &fullId, 4);\n"
-		out += "			m_parameter.push_back(std::make_pair(startOffset,data));\n"
+		out += "			m_parameter.pushBack(etk::makePair(startOffset,data));\n"
 		out += "		}\n"
 		out += "		\n"
 		out += "		template<>\n"
@@ -603,8 +603,8 @@ class ServiceDefinition:
 		out += "#include <zeus/Object.hpp>\n"
 		out += "#include <zeus/Client.hpp>\n"
 		out += "#include <" + self.prop["file_name_class_header"] + ">\n"
-		out += "#include <string>\n"
-		out += "#include <vector>\n"
+		out += "#include <etk/String.hpp>\n"
+		out += "#include <etk/Vector.hpp>\n"
 		out += "\n"
 		space = ""
 		for elem in self.name[:-1]:
@@ -713,8 +713,8 @@ class ServiceDefinition:
 		out += "#include <zeus/ObjectRemote.hpp>\n"
 		out += "#include <zeus/Proxy.hpp>\n"
 		out += "#include <zeus/RemoteProperty.hpp>\n"
-		out += "#include <string>\n"
-		out += "#include <vector>\n"
+		out += "#include <etk/String.hpp>\n"
+		out += "#include <etk/Vector.hpp>\n"
 		out += "#include <" + self.prop["file_name_class_header"] + ">\n"
 		for elem in self.imports:
 			prop = zeus_object_to_dictionary(elem)

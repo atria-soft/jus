@@ -40,8 +40,8 @@ appl::widget::ProgressBar::~ProgressBar() {
 
 void appl::widget::ProgressBar::calculateMinMaxSize() {
 	vec2 minTmp = propertyMinSize->getPixel();
-	m_minSize.setValue(std::max(minTmp.x(), 40.0f),
-	                   std::max(minTmp.y(), dotRadius*2.0f) );
+	m_minSize.setValue(etk::max(minTmp.x(), 40.0f),
+	                   etk::max(minTmp.y(), dotRadius*2.0f) );
 	markToRedraw();
 }
 
@@ -65,7 +65,7 @@ void appl::widget::ProgressBar::onRegenerateDisplay() {
 	for (auto &it: m_listAvaillable) {
 		//APPL_INFO("plop        " << it.first << " " << it.second);
 		m_draw.setPos(vec3(dotRadius+(it.first/propertyMaximum)*(m_size.x()-2*dotRadius), m_size.y()*0.1, 0));
-		m_draw.rectangleWidth(vec3(std::min((m_size.x()-2*dotRadius), (it.second/propertyMaximum)*(m_size.x()-2*dotRadius)), m_size.y()*0.8, 0) );
+		m_draw.rectangleWidth(vec3(etk::min((m_size.x()-2*dotRadius), (it.second/propertyMaximum)*(m_size.x()-2*dotRadius)), m_size.y()*0.8, 0) );
 	}
 	
 	m_draw.setColor(m_textColorDone);
@@ -105,7 +105,7 @@ bool appl::widget::ProgressBar::onEventInput(const ewol::event::Input& _event) {
 }
 
 void appl::widget::ProgressBar::updateValue(float _newValue) {
-	_newValue = std::max(std::min(_newValue, *propertyMaximum), 0.0f);
+	_newValue = etk::max(etk::min(_newValue, *propertyMaximum), 0.0f);
 	propertyValue.setDirect(_newValue);
 	markToRedraw();
 }

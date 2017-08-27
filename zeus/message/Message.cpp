@@ -64,7 +64,7 @@ void zeus::Message::clear() {
 	m_header.flags = ZEUS_BUFFER_FLAG_FINISH;
 }
 
-std::ostream& zeus::operator <<(std::ostream& _os, ememory::SharedPtr<zeus::Message> _obj) {
+etk::Stream& zeus::operator <<(etk::Stream& _os, ememory::SharedPtr<zeus::Message> _obj) {
 	_os << "zeus::Message: ";
 	if (_obj == nullptr) {
 		_os << "nullptr";
@@ -73,12 +73,12 @@ std::ostream& zeus::operator <<(std::ostream& _os, ememory::SharedPtr<zeus::Mess
 	}
 	return _os;
 }
-void zeus::Message::generateDisplay(std::ostream& _os) const {
-	//out += " v=" + etk::to_string(m_header.versionProtocol); // set it in the websocket
-	_os << " if=" << etk::to_string(getInterfaceId());
-	_os << " tr-id=" << etk::to_string(getTransactionId());
-	_os << " src=" << etk::to_string(getSourceId()) << "/" << etk::to_string(getSourceObjectId());
-	_os << " dst=" << etk::to_string(getDestinationId()) << "/" << etk::to_string(getDestinationObjectId());
+void zeus::Message::generateDisplay(etk::Stream& _os) const {
+	//out += " v=" + etk::toString(m_header.versionProtocol); // set it in the websocket
+	_os << " if=" << etk::toString(getInterfaceId());
+	_os << " tr-id=" << etk::toString(getTransactionId());
+	_os << " src=" << etk::toString(getSourceId()) << "/" << etk::toString(getSourceObjectId());
+	_os << " dst=" << etk::toString(getDestinationId()) << "/" << etk::toString(getDestinationObjectId());
 	if (getPartFinish() == true) {
 		_os << " finish";
 	}
@@ -191,7 +191,7 @@ ememory::SharedPtr<zeus::Message> zeus::Message::create(ememory::SharedPtr<zeus:
 	return ememory::SharedPtr<zeus::Message>(new zeus::Message(_iface));
 }
 
-ememory::SharedPtr<zeus::Message> zeus::Message::create(ememory::SharedPtr<zeus::WebServer> _iface, const std::vector<uint8_t>& _buffer) {
+ememory::SharedPtr<zeus::Message> zeus::Message::create(ememory::SharedPtr<zeus::WebServer> _iface, const etk::Vector<uint8_t>& _buffer) {
 	zeus::message::headerBin header;
 	if (_buffer.size() < sizeof(zeus::message::headerBin)) {
 		ZEUS_ERROR("wrong size of the buffer: " << _buffer.size() << " must be " << sizeof(zeus::message::headerBin));

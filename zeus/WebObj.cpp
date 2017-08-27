@@ -42,7 +42,7 @@ void zeus::WebObj::display() {
 }
 
 void zeus::WebObj::addRemote(uint32_t _id) {
-	m_listRemoteConnected.push_back(_id);
+	m_listRemoteConnected.pushBack(_id);
 }
 
 

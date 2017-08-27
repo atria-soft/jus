@@ -12,10 +12,10 @@
 namespace appl {
 	class ClientProperty {
 		public:
-			std::string fromUser;
-			std::string toUser;
-			std::string pass;
-			std::string address;
+			etk::String fromUser;
+			etk::String toUser;
+			etk::String pass;
+			etk::String address;
 			uint16_t port;
 			zeus::Client connection;
 			ClientProperty();
@@ -23,10 +23,10 @@ namespace appl {
 			void disconnect();
 			ejson::Object toJson();
 			void fromJson(ejson::Object _obj);
-			void setLogin(std::string _login);
-			std::string getLogin();
-			void setPassword(std::string _password);
-			std::string getPassword();
+			void setLogin(etk::String _login);
+			etk::String getLogin();
+			void setPassword(etk::String _password);
+			etk::String getPassword();
 	};
 }
 

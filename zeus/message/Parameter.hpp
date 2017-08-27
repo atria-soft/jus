@@ -15,7 +15,7 @@ namespace zeus {
 		class Parameter:
 		  public Message {
 			protected:
-				mutable std::vector<std::pair<int32_t,std::vector<uint8_t>>> m_parameter; //!< list of the parameter (offset of start data and buffer of data (subprotocol...)
+				mutable etk::Vector<etk::Pair<int32_t,etk::Vector<uint8_t>>> m_parameter; //!< list of the parameter (offset of start data and buffer of data (subprotocol...)
 			public:
 				Parameter(ememory::SharedPtr<zeus::WebServer> _iface);
 				/**
@@ -62,7 +62,7 @@ namespace zeus {
 				 * @param[in] _id Number of the parameter
 				 * @return readable string
 				 */
-				std::string simpleStringParam(uint32_t _id) const;
+				etk::String simpleStringParam(uint32_t _id) const;
 				void composeWith(const uint8_t* _buffer, uint32_t _lenght) override;
 				// !! This function does not lock the socket interface
 				bool writeOn(enet::WebSocket& _interface) override;

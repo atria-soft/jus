@@ -27,7 +27,7 @@ namespace appl {
 			void localCreate(ewol::Context& _context) {
 				// parse all the argument of the application
 				for (int32_t iii=0 ; iii<_context.getCmd().size(); iii++) {
-					std::string tmpppp = _context.getCmd().get(iii);
+					etk::String tmpppp = _context.getCmd().get(iii);
 					if (    tmpppp == "-h"
 					     || tmpppp == "--help") {
 						APPL_INFO("  -h/--help display this help" );

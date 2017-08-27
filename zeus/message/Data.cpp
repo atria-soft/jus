@@ -10,11 +10,11 @@
 #include <etk/stdTools.hpp>
 #include <zeus/message/Data.hpp>
 
-void zeus::message::Data::generateDisplay(std::ostream& _os) const {
+void zeus::message::Data::generateDisplay(etk::Stream& _os) const {
 	zeus::Message::generateDisplay(_os);
-	_os << " paramId=" << etk::to_string(m_parameterId);
-	_os << " part=" << etk::to_string(m_partId);
-	_os << " nbData=" << etk::to_string(m_data.size());
+	_os << " paramId=" << etk::toString(m_parameterId);
+	_os << " part=" << etk::toString(m_partId);
+	_os << " nbData=" << etk::toString(m_data.size());
 }
 
 void zeus::message::Data::addData(uint16_t _parameterId, void* _data, uint32_t _size) {

@@ -23,7 +23,7 @@ namespace appl {
 			ememory::SharedPtr<ClientProperty> m_clientProp;
 			appl::widget::ListViewerShared m_listViewer;
 			appl::widget::PlayerShared m_player;
-			std::vector<std::string> m_list;
+			etk::Vector<etk::String> m_list;
 			int32_t m_id;
 		public:
 			DECLARE_FACTORY(Windows);
@@ -32,7 +32,7 @@ namespace appl {
 			void onCallbackPrevious();
 			void onCallbackPlay(const bool& _isPressed);
 			void onCallbackNext();
-			void addFile(const std::string& _file);
+			void addFile(const etk::String& _file);
 			void onCallbackSeekRequest(const float& _value);
 			
 			
@@ -40,8 +40,8 @@ namespace appl {
 			void onCallbackConnectionError(const ememory::SharedPtr<ClientProperty>& _prop);
 			void onCallbackConnectionCancel();
 			
-			void onCallbackShortCut(const std::string& _value);
-			void onCallbackMenuEvent(const std::string& _value);
+			void onCallbackShortCut(const etk::String& _value);
+			void onCallbackMenuEvent(const etk::String& _value);
 		protected:
 			void load_db();
 			void store_db();

@@ -45,7 +45,7 @@ appl::widget::ListViewer::~ListViewer() {
 	
 }
 
-void appl::widget::ListViewer::searchElements(std::string _filter) {
+void appl::widget::ListViewer::searchElements(etk::String _filter) {
 	if (_filter == "group") {
 		searchElementsInternal("*", "type");
 	} else if (_filter == "film") {
@@ -80,7 +80,7 @@ void appl::ElementProperty::loadData() {
 	auto tmpProperty = sharedFromThis();
 	// Get the media
 	zeus::Future<zeus::ProxyMedia> futMedia = m_remoteServiceVideo.get(m_id);
-	futMedia.andElse([=](const std::string& _error, const std::string& _help) mutable {
+	futMedia.andElse([=](const etk::String& _error, const etk::String& _help) mutable {
 	                 	APPL_INFO("    [" << tmpProperty->m_id << "] get media error: " << tmpProperty->m_id);
 	                 	{
 	                 		std::unique_lock<std::mutex> lock(tmpProperty->m_mutex);
@@ -103,7 +103,7 @@ void appl::ElementProperty::loadData() {
 	                 		return true;
 	                 	}
 	                 	_media.getMetadata("title")
-	                 	    .andElse([=](const std::string& _error, const std::string& _help) mutable {
+	                 	    .andElse([=](const etk::String& _error, const etk::String& _help) mutable {
 	                 	             	{
 	                 	             		std::unique_lock<std::mutex> lock(tmpProperty->m_mutex);
 	                 	             		tmpProperty->m_nbElementLoaded++;
@@ -113,7 +113,7 @@ void appl::ElementProperty::loadData() {
 	                 	             	}
 	                 	             	return true;
 	                 	             })
-	                 	    .andThen([=](std::string _value) mutable {
+	                 	    .andThen([=](etk::String _value) mutable {
 	                 	             	APPL_INFO("    [" << tmpProperty->m_id << "] get title: " << _value);
 	                 	             	{
 	                 	             		std::unique_lock<std::mutex> lock(tmpProperty->m_mutex);
@@ -130,7 +130,7 @@ void appl::ElementProperty::loadData() {
 	                 	             	return true;
 	                 	             });
 	                 	_media.getMetadata("series-name")
-	                 	    .andElse([=](const std::string& _error, const std::string& _help) mutable {
+	                 	    .andElse([=](const etk::String& _error, const etk::String& _help) mutable {
 	                 	             	{
 	                 	             		std::unique_lock<std::mutex> lock(tmpProperty->m_mutex);
 	                 	             		tmpProperty->m_nbElementLoaded++;
@@ -140,7 +140,7 @@ void appl::ElementProperty::loadData() {
 	                 	             	}
 	                 	             	return true;
 	                 	             })
-	                 	    .andThen([=](std::string _value) mutable {
+	                 	    .andThen([=](etk::String _value) mutable {
 	                 	             	APPL_INFO("    [" << tmpProperty->m_id << "] get serie: " << _value);
 	                 	             	{
 	                 	             		std::unique_lock<std::mutex> lock(tmpProperty->m_mutex);
@@ -157,7 +157,7 @@ void appl::ElementProperty::loadData() {
 	                 	             	return true;
 	                 	             });
 	                 	_media.getMetadata("saison")
-	                 	    .andElse([=](const std::string& _error, const std::string& _help) mutable {
+	                 	    .andElse([=](const etk::String& _error, const etk::String& _help) mutable {
 	                 	             	{
 	                 	             		std::unique_lock<std::mutex> lock(tmpProperty->m_mutex);
 	                 	             		tmpProperty->m_nbElementLoaded++;
@@ -167,7 +167,7 @@ void appl::ElementProperty::loadData() {
 	                 	             	}
 	                 	             	return true;
 	                 	             })
-	                 	    .andThen([=](std::string _value) mutable {
+	                 	    .andThen([=](etk::String _value) mutable {
 	                 	             	APPL_INFO("    [" << tmpProperty->m_id << "] get saison: " << _value);
 	                 	             	{
 	                 	             		std::unique_lock<std::mutex> lock(tmpProperty->m_mutex);
@@ -184,7 +184,7 @@ void appl::ElementProperty::loadData() {
 	                 	             	return true;
 	                 	             });
 	                 	_media.getMetadata("episode")
-	                 	    .andElse([=](const std::string& _error, const std::string& _help) mutable {
+	                 	    .andElse([=](const etk::String& _error, const etk::String& _help) mutable {
 	                 	             	{
 	                 	             		std::unique_lock<std::mutex> lock(tmpProperty->m_mutex);
 	                 	             		tmpProperty->m_nbElementLoaded++;
@@ -194,7 +194,7 @@ void appl::ElementProperty::loadData() {
 	                 	             	}
 	                 	             	return true;
 	                 	             })
-	                 	    .andThen([=](std::string _value) mutable {
+	                 	    .andThen([=](etk::String _value) mutable {
 	                 	             	APPL_INFO("    [" << tmpProperty->m_id << "] get episode: " << _value);
 	                 	             	{
 	                 	             		std::unique_lock<std::mutex> lock(tmpProperty->m_mutex);
@@ -211,7 +211,7 @@ void appl::ElementProperty::loadData() {
 	                 	             	return true;
 	                 	             });
 	                 	_media.getMetadata("description")
-	                 	    .andElse([=](const std::string& _error, const std::string& _help) mutable {
+	                 	    .andElse([=](const etk::String& _error, const etk::String& _help) mutable {
 	                 	             	APPL_INFO("Get remot error : " << _error << " " << _help);
 	                 	             	{
 	                 	             		std::unique_lock<std::mutex> lock(tmpProperty->m_mutex);
@@ -222,7 +222,7 @@ void appl::ElementProperty::loadData() {
 	                 	             	}
 	                 	             	return true;
 	                 	             })
-	                 	    .andThen([=](std::string _value) mutable {
+	                 	    .andThen([=](etk::String _value) mutable {
 	                 	             	APPL_INFO("    [" << tmpProperty->m_id << "] get description: " << _value);
 	                 	             	{
 	                 	             		std::unique_lock<std::mutex> lock(tmpProperty->m_mutex);
@@ -239,7 +239,7 @@ void appl::ElementProperty::loadData() {
 	                 	             	return true;
 	                 	             });
 	                 	_media.getMetadata("production-methode")
-	                 	    .andElse([=](const std::string& _error, const std::string& _help) mutable {
+	                 	    .andElse([=](const etk::String& _error, const etk::String& _help) mutable {
 	                 	             	{
 	                 	             		std::unique_lock<std::mutex> lock(tmpProperty->m_mutex);
 	                 	             		tmpProperty->m_nbElementLoaded++;
@@ -249,7 +249,7 @@ void appl::ElementProperty::loadData() {
 	                 	             	}
 	                 	             	return true;
 	                 	             })
-	                 	    .andThen([=](std::string _value) mutable {
+	                 	    .andThen([=](etk::String _value) mutable {
 	                 	             	APPL_INFO("    [" << tmpProperty->m_id << "] get production-methode: " << _value);
 	                 	             	{
 	                 	             		std::unique_lock<std::mutex> lock(tmpProperty->m_mutex);
@@ -266,7 +266,7 @@ void appl::ElementProperty::loadData() {
 	                 	             	return true;
 	                 	             });
 	                 	_media.getMetadata("type")
-	                 	    .andElse([=](const std::string& _error, const std::string& _help) mutable {
+	                 	    .andElse([=](const etk::String& _error, const etk::String& _help) mutable {
 	                 	             	{
 	                 	             		std::unique_lock<std::mutex> lock(tmpProperty->m_mutex);
 	                 	             		tmpProperty->m_nbElementLoaded++;
@@ -276,7 +276,7 @@ void appl::ElementProperty::loadData() {
 	                 	             	}
 	                 	             	return true;
 	                 	             })
-	                 	    .andThen([=](std::string _value) mutable {
+	                 	    .andThen([=](etk::String _value) mutable {
 	                 	             	APPL_INFO("    [" << tmpProperty->m_id << "] get type: " << _value);
 	                 	             	{
 	                 	             		std::unique_lock<std::mutex> lock(tmpProperty->m_mutex);
@@ -293,7 +293,7 @@ void appl::ElementProperty::loadData() {
 	                 	             	return true;
 	                 	             });
 	                 	_media.getMineType()
-	                 	    .andElse([=](const std::string& _error, const std::string& _help) mutable {
+	                 	    .andElse([=](const etk::String& _error, const etk::String& _help) mutable {
 	                 	             	{
 	                 	             		std::unique_lock<std::mutex> lock(tmpProperty->m_mutex);
 	                 	             		tmpProperty->m_nbElementLoaded++;
@@ -303,7 +303,7 @@ void appl::ElementProperty::loadData() {
 	                 	             	}
 	                 	             	return true;
 	                 	             })
-	                 	    .andThen([=](std::string _value) mutable {
+	                 	    .andThen([=](etk::String _value) mutable {
 	                 	             	APPL_INFO("    [" << tmpProperty->m_id << "] get mine-type: " << _value);
 	                 	             	{
 	                 	             		std::unique_lock<std::mutex> lock(tmpProperty->m_mutex);
@@ -330,18 +330,18 @@ void appl::ElementProperty::loadData() {
 	                 	return true;
 	                 });
 	auto futMediaCover = m_remoteServiceVideo.getCover(m_id, 128);
-	futMediaCover.andElse([=](const std::string& _error, const std::string& _help) mutable {
+	futMediaCover.andElse([=](const etk::String& _error, const etk::String& _help) mutable {
 	                      	APPL_INFO("    [" << tmpProperty->m_id << "] get cover error: " << tmpProperty->m_id << ": " << _help);
 	                      	// TODO : Remove this ...
 	                      	std::this_thread::sleep_for(std::chrono::milliseconds(400));
-	                      	std::string serie;
+	                      	etk::String serie;
 	                      	{
 	                      		std::unique_lock<std::mutex> lock(tmpProperty->m_mutex);
 	                      		serie = tmpProperty->m_serie;
 	                      	}
 	                      	if (serie != "") {
 	                      		auto futMediaGroupCover = m_remoteServiceVideo.getGroupCover(serie, 128);
-	                      		futMediaGroupCover.andElse([=](const std::string& _error, const std::string& _help) mutable {
+	                      		futMediaGroupCover.andElse([=](const etk::String& _error, const etk::String& _help) mutable {
 	                      		                        	APPL_INFO("    [" << tmpProperty->m_id << "] get cover Group error: " << serie << ": " << _help);
 	                      		                        	{
 	                      		                        		m_widget->markToRedraw();
@@ -356,9 +356,9 @@ void appl::ElementProperty::loadData() {
 	                      		futMediaGroupCover.andThen([=](zeus::ProxyFile _media) mutable {
 	                      		                        	APPL_INFO("    [" << tmpProperty->m_id << "] get cover Group on: " << serie);
 	                      		                        	auto mineTypeFut = _media.getMineType();
-	                      		                        	std::vector<uint8_t> bufferData = zeus::storeInMemory(_media);
+	                      		                        	etk::Vector<uint8_t> bufferData = zeus::storeInMemory(_media);
 	                      		                        	APPL_INFO("    [" << tmpProperty->m_id << "] get cover Group on: " << serie << " store in memory " << bufferData.size());
-	                      		                        	std::string mineType = mineTypeFut.wait().get();
+	                      		                        	etk::String mineType = mineTypeFut.wait().get();
 	                      		                        	APPL_INFO("    [" << tmpProperty->m_id << "] get cover Group on: " << serie << " mineType '" << mineType << "'");
 	                      		                        	{
 	                      		                        		std::unique_lock<std::mutex> lock(tmpProperty->m_mutex);
@@ -389,9 +389,9 @@ void appl::ElementProperty::loadData() {
 	futMediaCover.andThen([=](zeus::ProxyFile _media) mutable {
 	                      	APPL_INFO("    [" << tmpProperty->m_id << "] get cover on: " << tmpProperty->m_id);
 	                      	auto mineTypeFut = _media.getMineType();
-	                      	std::vector<uint8_t> bufferData = zeus::storeInMemory(_media);
+	                      	etk::Vector<uint8_t> bufferData = zeus::storeInMemory(_media);
 	                      	APPL_INFO("    [" << tmpProperty->m_id << "] get cover on: " << tmpProperty->m_id << " store in memory " << bufferData.size());
-	                      	std::string mineType = mineTypeFut.wait().get();
+	                      	etk::String mineType = mineTypeFut.wait().get();
 	                      	APPL_INFO("    [" << tmpProperty->m_id << "] get cover on: " << tmpProperty->m_id << " mineType '" << mineType << "'");
 	                      	{
 	                      		std::unique_lock<std::mutex> lock(tmpProperty->m_mutex);
@@ -427,7 +427,7 @@ void appl::ElementPropertyGroup::loadData() {
 	auto tmpProperty = sharedFromThis();
 	// Get the media
 	auto futMedia = m_remoteServiceVideo.getGroupCover(m_title, 128);
-	futMedia.andElse([=](const std::string& _error, const std::string& _help) mutable {
+	futMedia.andElse([=](const etk::String& _error, const etk::String& _help) mutable {
 	                 	APPL_INFO("    [" << tmpProperty->m_id << "] get cover error on group: " << tmpProperty->m_title << ": " << _help);
 	                 	{
 	                 		std::unique_lock<std::mutex> lock(tmpProperty->m_mutex);
@@ -439,9 +439,9 @@ void appl::ElementPropertyGroup::loadData() {
 	futMedia.andThen([=](zeus::ProxyFile _media) mutable {
 	                 	APPL_INFO("    [" << tmpProperty->m_id << "] get cover on group: " << tmpProperty->m_title);
 	                 	auto mineTypeFut = _media.getMineType();
-	                 	std::vector<uint8_t> bufferData = zeus::storeInMemory(_media);
+	                 	etk::Vector<uint8_t> bufferData = zeus::storeInMemory(_media);
 	                 	APPL_INFO("    [" << tmpProperty->m_id << "] get cover on group: " << tmpProperty->m_title << " store in memory " << bufferData.size());
-	                 	std::string mineType = mineTypeFut.wait().get();
+	                 	etk::String mineType = mineTypeFut.wait().get();
 	                 	APPL_INFO("    [" << tmpProperty->m_id << "] get cover on group: " << tmpProperty->m_title << " mineType '" << mineType << "'");
 	                 	{
 	                 		std::unique_lock<std::mutex> lock(tmpProperty->m_mutex);
@@ -466,11 +466,11 @@ void appl::widget::ListViewer::backHistory() {
 		return;
 	}
 	auto value = m_history.back();
-	m_history.pop_back();
+	m_history.popBack();
 	searchElementsInternal(value.first, value.second, false);
 }
 
-void appl::widget::ListViewer::searchElementsInternal(const std::string& _filter, const std::string& _group, bool _storeHistory) {
+void appl::widget::ListViewer::searchElementsInternal(const etk::String& _filter, const etk::String& _group, bool _storeHistory) {
 	m_listElement.clear();
 	m_listElementGroup.clear();
 	m_listDisplay.clear();
@@ -481,7 +481,7 @@ void appl::widget::ListViewer::searchElementsInternal(const std::string& _filter
 	}
 	if (    m_currentFilter != ""
 	     && _storeHistory == true) {
-		m_history.push_back(std::make_pair(m_currentFilter, m_currentGroup));
+		m_history.pushBack(etk::makePair(m_currentFilter, m_currentGroup));
 	}
 	m_currentFilter = _filter;
 	m_currentGroup = _group;
@@ -505,12 +505,12 @@ void appl::widget::ListViewer::searchElementsInternal(const std::string& _filter
 		return;
 	}
 	if (m_currentGroup != "") {
-		zeus::Future<std::vector<std::string>> listElem = remoteServiceVideo.getMetadataValuesWhere(m_currentGroup, m_currentFilter).wait();
+		zeus::Future<etk::Vector<etk::String>> listElem = remoteServiceVideo.getMetadataValuesWhere(m_currentGroup, m_currentFilter).wait();
 		if (listElem.hasError() == true) {
 			APPL_ERROR("    ==> Can not get elements from video service <with fileter ! '" << m_currentFilter << "' : " << listElem.getErrorType() << " : " << listElem.getErrorHelp());
 			return;
 		}
-		std::vector<std::string> returnValues = listElem.get();
+		etk::Vector<etk::String> returnValues = listElem.get();
 		APPL_INFO("Get some Values: " << returnValues << "");
 		if (returnValues.size() == 1) {
 			// TODO: if we have a single element and this is requested as a group ==> just jump in it
@@ -530,15 +530,15 @@ void appl::widget::ListViewer::searchElementsInternal(const std::string& _filter
 				elem->m_title = it;
 			}
 			//elem->m_thumb = remoteServiceVideo.mediaThumbGet(it, 128).wait().get();
-			m_listElementGroup.push_back(elem);
+			m_listElementGroup.pushBack(elem);
 		}
 	} else {
-		zeus::Future<std::vector<uint32_t>> listElem = remoteServiceVideo.getSQL(m_currentFilter).wait();
+		zeus::Future<etk::Vector<uint32_t>> listElem = remoteServiceVideo.getSQL(m_currentFilter).wait();
 		if (listElem.hasError() == true) {
 			APPL_ERROR("    ==> Can not get element from video service <with fileter ! '" << m_currentFilter << "' : " << listElem.getErrorType() << " : " << listElem.getErrorHelp());
 			return;
 		}
-		std::vector<uint32_t> returnValues = listElem.get();
+		etk::Vector<uint32_t> returnValues = listElem.get();
 		APPL_INFO("Get some Values: " << returnValues << "");
 		for (auto &it : returnValues) {
 			auto elem = ememory::makeShared<ElementProperty>(remoteServiceVideo, ememory::staticPointerCast<ewol::Widget>(sharedFromThis()));
@@ -548,7 +548,7 @@ void appl::widget::ListViewer::searchElementsInternal(const std::string& _filter
 			}
 			elem->m_id = it;
 			// ==> loading is done when display is requested ...
-			m_listElement.push_back(elem);
+			m_listElement.pushBack(elem);
 		}
 	}
 	APPL_INFO("Request All is done");
@@ -571,7 +571,7 @@ void appl::widget::ListViewer::onRegenerateDisplay() {
 	if (needRedraw() == false) {
 		return;
 	}
-	std::u32string errorString = U"No element Availlable";
+	etk::UString errorString = U"No element Availlable";
 	
 	m_text.clear();
 	// to know the size of one line : 
@@ -643,7 +643,7 @@ void appl::widget::ListViewer::onRegenerateDisplay() {
 		m_listDisplay.clear();
 		for (size_t iii=0; iii<verticalNumber; ++iii) {
 			auto elem = ememory::makeShared<ElementDisplayed>();
-			m_listDisplay.push_back(elem);
+			m_listDisplay.pushBack(elem);
 		}
 	}
 	int32_t offset = m_originScrooled.y() / realPixelSize.y();
@@ -716,7 +716,7 @@ void appl::widget::ListViewer::onRegenerateDisplay() {
 		startPos -= vec2(0, elementSize.y());
 	}
 	m_maxSize.setX(m_size.x());
-	m_maxSize.setY(float(std::max(m_listElement.size(),m_listElementGroup.size()))*elementSize.y());
+	m_maxSize.setY(float(etk::max(m_listElement.size(),m_listElementGroup.size()))*elementSize.y());
 	// call the herited class...
 	ewol::widget::WidgetScrolled::onRegenerateDisplay();
 }
@@ -770,10 +770,10 @@ void appl::ElementDisplayed::generateDisplay(vec2 _startPos, vec2 _size) {
 	//APPL_VERBOSE("[" << getId() << "] {" << errorString << "} display at pos : " << tmpTextOrigin);
 	m_text.setTextAlignement(originText.x(), originText.x()+_size.x()-_size.y(), ewol::compositing::alignDisable);
 	// TODO: m_text.setClipping(originText, vec2(originText.x()+_size.x()-_size.y(), _size.y()));
-	std::string textToDisplay;
+	etk::String textToDisplay;
 	if (m_property != nullptr) {
 		if (m_property->LoadDataEnded() == false) {
-			textToDisplay += "<br/><i>Loading in progress</i> ... " + etk::to_string(m_property->m_nbElementLoaded) + "/8";
+			textToDisplay += "<br/><i>Loading in progress</i> ... " + etk::toString(m_property->m_nbElementLoaded) + "/8";
 		} else {
 			std::unique_lock<std::mutex> lock(m_property->m_mutex);
 			//m_text.setClipping(drawClippingPos, drawClippingSize);
@@ -896,7 +896,7 @@ bool appl::widget::ListViewer::onEventInput(const ewol::event::Input& _event) {
 				if (prop == nullptr) {
 					return true;
 				}
-				std::string fullTitle;
+				etk::String fullTitle;
 				if (prop->m_serie != "") {
 					fullTitle += prop->m_serie + "-";
 				}
@@ -915,7 +915,7 @@ bool appl::widget::ListViewer::onEventInput(const ewol::event::Input& _event) {
 				if (prop == nullptr) {
 					return true;
 				}
-				std::string newGroup = "";
+				etk::String newGroup = "";
 				if (m_currentGroup == "type") {
 					if (prop->m_filter == "film") {
 						newGroup = "production-methode";

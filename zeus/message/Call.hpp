@@ -15,7 +15,7 @@ namespace zeus {
 		  public message::Parameter {
 			friend class zeus::Message;
 			protected:
-				std::string m_callName;
+				etk::String m_callName;
 			protected:
 				/**
 				 * @brief basic constructor (hidden to force the use of ememory::SharedPtr) @ref zeus::message::Call::create
@@ -27,7 +27,7 @@ namespace zeus {
 				void composeWith(const uint8_t* _buffer, uint32_t _lenght) override;
 				void appendMessageData(ememory::SharedPtr<zeus::message::Data> _obj) override;
 				bool writeOn(enet::WebSocket& _interface) override;
-				void generateDisplay(std::ostream& _os) const override;
+				void generateDisplay(etk::Stream& _os) const override;
 			public:
 				/**
 				 * @brief Create a shared pointer on the MessageCall
@@ -42,12 +42,12 @@ namespace zeus {
 				 * @brief get the call value of the buffer
 				 * @return string of the function to call
 				 */
-				const std::string& getCall() const;
+				const etk::String& getCall() const;
 				/**
 				 * @brief Set the call value of the buffer
 				 * @param[in] _value Function to call
 				 */
-				void setCall(const std::string& _value);
+				void setCall(const etk::String& _value);
 				
 		};
 	}

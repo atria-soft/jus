@@ -22,11 +22,11 @@
 #include <zeus/FutureGroup.hpp>
 #include <algue/sha512.hpp>
 
-static std::string extractAndRemove(const std::string& _inputValue, const char _startMark, const char _stopMark, std::vector<std::string>& _values) {
+static etk::String extractAndRemove(const etk::String& _inputValue, const char _startMark, const char _stopMark, etk::Vector<etk::String>& _values) {
 	_values.clear();
-	std::string out;
+	etk::String out;
 	bool inside=false;
-	std::string insideData;
+	etk::String insideData;
 	for (auto &it : _inputValue) {
 		if (    inside == false
 		     && it == _startMark) {
@@ -34,7 +34,7 @@ static std::string extractAndRemove(const std::string& _inputValue, const char _
 		} else if (    inside == true
 		            && it == _stopMark) {
 			inside = false;
-			_values.push_back(insideData);
+			_values.pushBack(insideData);
 			insideData.clear();
 		} else if (inside == true) {
 			insideData += it;
@@ -44,19 +44,19 @@ static std::string extractAndRemove(const std::string& _inputValue, const char _
 	}
 	return out;
 }
-bool progressCall(const std::string& _value) {
+bool progressCall(const etk::String& _value) {
 	return false;
 }
 
-void progressCallback(const std::string& _value) {
+void progressCallback(const etk::String& _value) {
 	APPL_PRINT("plop " << _value);
 }
 #if 0
-bool pushVideoFile(zeus::service::ProxyVideo& _srv, std::string _path, std::map<std::string,std::string> _basicKey = std::map<std::string,std::string>()) {
-	std::string extention;
-	if (    _path.rfind('.') != std::string::npos
+bool pushVideoFile(zeus::service::ProxyVideo& _srv, etk::String _path, etk::Map<etk::String,etk::String> _basicKey = etk::Map<etk::String,std::string>()) {
+	etk::String extention;
+	if (    _path.rfind('.') != etk::String::npos
 	     && _path.rfind('.') != 0) {
-		extention = etk::tolower(std::string(_path.begin()+_path.rfind('.')+1, _path.end()));
+		extention = etk::tolower(etk::String(_path.begin()+_path.rfind('.')+1, _path.end()));
 	}
 	// internal extention ....
 	if (extention == "sha512") {
@@ -71,11 +71,11 @@ bool pushVideoFile(zeus::service::ProxyVideo& _srv, std::string _path, std::map<
 		APPL_ERROR("Sot send file : " << _path << " Not manage extention...");
 		return false;
 	}
-	std::string storedSha512;
+	etk::String storedSha512;
 	if (etk::FSNodeExist(_path + ".sha512") == true) {
 		uint64_t time_sha512 = etk::FSNodeGetTimeModified(_path + ".sha512");
 		uint64_t time_elem = etk::FSNodeGetTimeModified(_path);
-		std::string storedSha512_file = etk::FSNodeReadAllData(_path + ".sha512");
+		etk::String storedSha512_file = etk::FSNodeReadAllData(_path + ".sha512");
 		if (time_elem > time_sha512) {
 			// check the current sha512 
 			storedSha512 = algue::stringConvert(algue::sha512::encodeFromFile(_path));
@@ -125,10 +125,10 @@ bool pushVideoFile(zeus::service::ProxyVideo& _srv, std::string _path, std::map<
 	// TODO: if the media have meta data ==> this mean that the media already added before ...
 	
 	// Parse file name:
-	std::string fileName = etk::split(_path, '/').back();
+	etk::String fileName = etk::split(_path, '/').back();
 	APPL_INFO("Find fileName : '" << fileName << "'");
 	// Remove Date (XXXX) or other title
-	std::vector<std::string> dates;
+	etk::Vector<etk::String> dates;
 	fileName = extractAndRemove(fileName, '(', ')', dates);
 	bool haveDate = false;
 	bool haveTitle = false;
@@ -153,7 +153,7 @@ bool pushVideoFile(zeus::service::ProxyVideo& _srv, std::string _path, std::map<
 				continue;
 			}
 			haveDate = true;
-			_basicKey.insert(std::pair<std::string,std::string>("date", it));
+			_basicKey.insert(etk::Pair<etk::String,etk::String>("date", it));
 		} else {
 			if (haveTitle == true) {
 				APPL_INFO("                '" << fileName << "'");
@@ -162,39 +162,39 @@ bool pushVideoFile(zeus::service::ProxyVideo& _srv, std::string _path, std::map<
 			}
 			haveTitle = true;
 			// Other title
-			_basicKey.insert(std::pair<std::string,std::string>("title2", it));
+			_basicKey.insert(etk::Pair<etk::String,etk::String>("title2", it));
 		}
 	}
 	// remove unneeded date
 	if (haveDate == false) {
-		_basicKey.insert(std::pair<std::string,std::string>("date", ""));
+		_basicKey.insert(etk::Pair<etk::String,etk::String>("date", ""));
 	}
 	// remove unneeded title 2
 	if (haveTitle == false) {
-		_basicKey.insert(std::pair<std::string,std::string>("title2", ""));
+		_basicKey.insert(etk::Pair<etk::String,etk::String>("title2", ""));
 	}
 	// Remove the actors [XXX YYY][EEE TTT]...
-	std::vector<std::string> acthors;
+	etk::Vector<etk::String> acthors;
 	fileName = extractAndRemove(fileName, '[', ']', acthors);
 	if (acthors.size() > 0) {
 		APPL_INFO("                '" << fileName << "'");
-		std::string actorList;
+		etk::String actorList;
 		for (auto &itActor : acthors) {
 			if (actorList != "") {
 				actorList += ";";
 			}
 			actorList += itActor;
 		}
-		_basicKey.insert(std::pair<std::string,std::string>("acthors", actorList));
+		_basicKey.insert(etk::Pair<etk::String,etk::String>("acthors", actorList));
 	}
 	
 	// remove extention
-	fileName = std::string(fileName.begin(), fileName.begin() + fileName.size() - (extention.size()+1));
+	fileName = etk::String(fileName.begin(), fileName.begin() + fileName.size() - (extention.size()+1));
 	
-	std::vector<std::string> listElementBase = etk::split(fileName, '-');
+	etk::Vector<etk::String> listElementBase = etk::split(fileName, '-');
 	
-	std::vector<std::string> listElement;
-	std::string tmpStartString;
+	etk::Vector<etk::String> listElement;
+	etk::String tmpStartString;
 	for (size_t iii=0; iii<listElementBase.size(); ++iii) {
 		if (    listElementBase[iii][0] != 's'
 		     && listElementBase[iii][0] != 'e') {
@@ -203,20 +203,20 @@ bool pushVideoFile(zeus::service::ProxyVideo& _srv, std::string _path, std::map<
 			}
 			tmpStartString += listElementBase[iii];
 		} else {
-			listElement.push_back(tmpStartString);
+			listElement.pushBack(tmpStartString);
 			tmpStartString = "";
 			for (/* nothing to do */; iii<listElementBase.size(); ++iii) {
-				listElement.push_back(listElementBase[iii]);
+				listElement.pushBack(listElementBase[iii]);
 			}
 		}
 		
 	}
 	if (tmpStartString != "") {
-		listElement.push_back(tmpStartString);
+		listElement.pushBack(tmpStartString);
 	}
 	if (listElement.size() == 1) {
 		// nothing to do , it might be a film ...
-		_basicKey.insert(std::pair<std::string,std::string>("title", etk::to_string(listElement[0])));
+		_basicKey.insert(etk::Pair<etk::String,etk::String>("title", etk::toString(listElement[0])));
 	} else {
 		/*
 		for (auto &itt : listElement) {
@@ -229,47 +229,47 @@ bool pushVideoFile(zeus::service::ProxyVideo& _srv, std::string _path, std::map<
 			// internal formalisme ...
 			int32_t saison = -1;
 			int32_t episode = -1;
-			std::string seriesName = listElement[0];
+			etk::String seriesName = listElement[0];
 			
-			_basicKey.insert(std::pair<std::string,std::string>("series-name", etk::to_string(seriesName)));
-			std::string fullEpisodeName = listElement[3];
+			_basicKey.insert(etk::Pair<etk::String,etk::String>("series-name", etk::toString(seriesName)));
+			etk::String fullEpisodeName = listElement[3];
 			for (int32_t yyy=4; yyy<listElement.size(); ++yyy) {
 				fullEpisodeName += "-" + listElement[yyy];
 			}
-			_basicKey.insert(std::pair<std::string,std::string>("title", etk::to_string(fullEpisodeName)));
-			if (std::string(&listElement[1][1]) == "XX") {
+			_basicKey.insert(etk::Pair<etk::String,etk::String>("title", etk::toString(fullEpisodeName)));
+			if (etk::String(&listElement[1][1]) == "XX") {
 				// saison unknow ... ==> nothing to do ...
 			} else {
 				saison = etk::string_to_int32_t(&listElement[1][1]);
 			}
-			if (std::string(&listElement[2][1]) == "XX") {
+			if (etk::String(&listElement[2][1]) == "XX") {
 				// episode unknow ... ==> nothing to do ...
 			} else {
 				episode = etk::string_to_int32_t(&listElement[2][1]);
 				
-				_basicKey.insert(std::pair<std::string,std::string>("episode", etk::to_string(episode)));
+				_basicKey.insert(etk::Pair<etk::String,etk::String>("episode", etk::toString(episode)));
 			}
 			APPL_INFO("Find a internal mode series: :");
 			APPL_INFO("    origin       : '" << fileName << "'");
-			std::string saisonPrint = "XX";
-			std::string episodePrint = "XX";
+			etk::String saisonPrint = "XX";
+			etk::String episodePrint = "XX";
 			if (saison < 0) {
 				// nothing to do
 			} else if(saison < 10) {
-				saisonPrint = "0" + etk::to_string(saison);
-				_basicKey.insert(std::pair<std::string,std::string>("saison", etk::to_string(saison)));
+				saisonPrint = "0" + etk::toString(saison);
+				_basicKey.insert(etk::Pair<etk::String,etk::String>("saison", etk::toString(saison)));
 			} else {
-				saisonPrint = etk::to_string(saison);
-				_basicKey.insert(std::pair<std::string,std::string>("saison", etk::to_string(saison)));
+				saisonPrint = etk::toString(saison);
+				_basicKey.insert(etk::Pair<etk::String,etk::String>("saison", etk::toString(saison)));
 			}
 			if (episode < 0) {
 				// nothing to do
 			} else if(episode < 10) {
-				episodePrint = "0" + etk::to_string(episode);
-				_basicKey.insert(std::pair<std::string,std::string>("episode", etk::to_string(episode)));
+				episodePrint = "0" + etk::toString(episode);
+				_basicKey.insert(etk::Pair<etk::String,etk::String>("episode", etk::toString(episode)));
 			} else {
-				episodePrint = etk::to_string(episode);
-				_basicKey.insert(std::pair<std::string,std::string>("episode", etk::to_string(episode)));
+				episodePrint = etk::toString(episode);
+				_basicKey.insert(etk::Pair<etk::String,etk::String>("episode", etk::toString(episode)));
 			}
 			APPL_PRINT("     ==> '" << seriesName << "-s" << saisonPrint << "-e" << episodePrint << "-" << fullEpisodeName << "'");
 		}
@@ -286,107 +286,107 @@ bool pushVideoFile(zeus::service::ProxyVideo& _srv, std::string _path, std::map<
 	return true;
 }
 
-void installVideoPath(zeus::service::ProxyVideo& _srv, std::string _path, std::map<std::string,std::string> _basicKey = std::map<std::string,std::string>()) {
+void installVideoPath(zeus::service::ProxyVideo& _srv, etk::String _path, etk::Map<etk::String,etk::String> _basicKey = etk::Map<etk::String,std::string>()) {
 	etk::FSNode node(_path);
 	APPL_INFO("Parse : '" << _path << "'");
-	std::vector<std::string> listSubPath = node.folderGetSub(true, false, "*");
+	etk::Vector<etk::String> listSubPath = node.folderGetSub(true, false, "*");
 	for (auto &itPath : listSubPath) {
-		std::map<std::string,std::string> basicKeyTmp = _basicKey;
+		etk::Map<etk::String,etk::String> basicKeyTmp = _basicKey;
 		APPL_INFO("Add Sub path: '" << itPath << "'");
-		std::string lastPathName = etk::split(itPath, '/').back();
+		etk::String lastPathName = etk::split(itPath, '/').back();
 		if (basicKeyTmp.size() == 0) {
 			APPL_INFO("find A '" << lastPathName << "' " << basicKeyTmp.size());
 			if (lastPathName == "film") {
-				basicKeyTmp.insert(std::pair<std::string,std::string>("type", "film"));
-				basicKeyTmp.insert(std::pair<std::string,std::string>("production-methode", "picture"));
+				basicKeyTmp.insert(etk::Pair<etk::String,etk::String>("type", "film"));
+				basicKeyTmp.insert(etk::Pair<etk::String,etk::String>("production-methode", "picture"));
 			} else if (lastPathName == "film-annimation") {
-				basicKeyTmp.insert(std::pair<std::string,std::string>("type", "film"));
-				basicKeyTmp.insert(std::pair<std::string,std::string>("production-methode", "draw"));
+				basicKeyTmp.insert(etk::Pair<etk::String,etk::String>("type", "film"));
+				basicKeyTmp.insert(etk::Pair<etk::String,etk::String>("production-methode", "draw"));
 			} else if (lastPathName == "film-short") { // short films
-				basicKeyTmp.insert(std::pair<std::string,std::string>("type", "film"));
-				basicKeyTmp.insert(std::pair<std::string,std::string>("production-methode", "short"));
+				basicKeyTmp.insert(etk::Pair<etk::String,etk::String>("type", "film"));
+				basicKeyTmp.insert(etk::Pair<etk::String,etk::String>("production-methode", "short"));
 			} else if (lastPathName == "tv-show") {
-				basicKeyTmp.insert(std::pair<std::string,std::string>("type", "tv-show"));
-				basicKeyTmp.insert(std::pair<std::string,std::string>("production-methode", "picture"));
+				basicKeyTmp.insert(etk::Pair<etk::String,etk::String>("type", "tv-show"));
+				basicKeyTmp.insert(etk::Pair<etk::String,etk::String>("production-methode", "picture"));
 			} else if (lastPathName == "tv-show-annimation") {
-				basicKeyTmp.insert(std::pair<std::string,std::string>("type", "tv-show"));
-				basicKeyTmp.insert(std::pair<std::string,std::string>("production-methode", "draw"));
+				basicKeyTmp.insert(etk::Pair<etk::String,etk::String>("type", "tv-show"));
+				basicKeyTmp.insert(etk::Pair<etk::String,etk::String>("production-methode", "draw"));
 			} else if (lastPathName == "theater") {
-				basicKeyTmp.insert(std::pair<std::string,std::string>("type", "theater"));
+				basicKeyTmp.insert(etk::Pair<etk::String,etk::String>("type", "theater"));
 			} else if (lastPathName == "one-man") {
-				basicKeyTmp.insert(std::pair<std::string,std::string>("type", "one-man"));
+				basicKeyTmp.insert(etk::Pair<etk::String,etk::String>("type", "one-man"));
 			}
 		} else {
 			APPL_INFO("find B '" << lastPathName << "' " << basicKeyTmp.size());
 			if (lastPathName == "saison_01") {
-				basicKeyTmp.insert(std::pair<std::string,std::string>("saison", "1"));
+				basicKeyTmp.insert(etk::Pair<etk::String,etk::String>("saison", "1"));
 			} else if (lastPathName == "saison_02") {
-				basicKeyTmp.insert(std::pair<std::string,std::string>("saison", "2"));
+				basicKeyTmp.insert(etk::Pair<etk::String,etk::String>("saison", "2"));
 			} else if (lastPathName == "saison_03") {
-				basicKeyTmp.insert(std::pair<std::string,std::string>("saison", "3"));
+				basicKeyTmp.insert(etk::Pair<etk::String,etk::String>("saison", "3"));
 			} else if (lastPathName == "saison_04") {
-				basicKeyTmp.insert(std::pair<std::string,std::string>("saison", "4"));
+				basicKeyTmp.insert(etk::Pair<etk::String,etk::String>("saison", "4"));
 			} else if (lastPathName == "saison_05") {
-				basicKeyTmp.insert(std::pair<std::string,std::string>("saison", "5"));
+				basicKeyTmp.insert(etk::Pair<etk::String,etk::String>("saison", "5"));
 			} else if (lastPathName == "saison_06") {
-				basicKeyTmp.insert(std::pair<std::string,std::string>("saison", "6"));
+				basicKeyTmp.insert(etk::Pair<etk::String,etk::String>("saison", "6"));
 			} else if (lastPathName == "saison_07") {
-				basicKeyTmp.insert(std::pair<std::string,std::string>("saison", "7"));
+				basicKeyTmp.insert(etk::Pair<etk::String,etk::String>("saison", "7"));
 			} else if (lastPathName == "saison_08") {
-				basicKeyTmp.insert(std::pair<std::string,std::string>("saison", "8"));
+				basicKeyTmp.insert(etk::Pair<etk::String,etk::String>("saison", "8"));
 			} else if (lastPathName == "saison_09") {
-				basicKeyTmp.insert(std::pair<std::string,std::string>("saison", "9"));
+				basicKeyTmp.insert(etk::Pair<etk::String,etk::String>("saison", "9"));
 			} else if (lastPathName == "saison_10") {
-				basicKeyTmp.insert(std::pair<std::string,std::string>("saison", "10"));
+				basicKeyTmp.insert(etk::Pair<etk::String,etk::String>("saison", "10"));
 			} else if (lastPathName == "saison_11") {
-				basicKeyTmp.insert(std::pair<std::string,std::string>("saison", "11"));
+				basicKeyTmp.insert(etk::Pair<etk::String,etk::String>("saison", "11"));
 			} else if (lastPathName == "saison_12") {
-				basicKeyTmp.insert(std::pair<std::string,std::string>("saison", "12"));
+				basicKeyTmp.insert(etk::Pair<etk::String,etk::String>("saison", "12"));
 			} else if (lastPathName == "saison_13") {
-				basicKeyTmp.insert(std::pair<std::string,std::string>("saison", "13"));
+				basicKeyTmp.insert(etk::Pair<etk::String,etk::String>("saison", "13"));
 			} else if (lastPathName == "saison_14") {
-				basicKeyTmp.insert(std::pair<std::string,std::string>("saison", "14"));
+				basicKeyTmp.insert(etk::Pair<etk::String,etk::String>("saison", "14"));
 			} else if (lastPathName == "saison_15") {
-				basicKeyTmp.insert(std::pair<std::string,std::string>("saison", "15"));
+				basicKeyTmp.insert(etk::Pair<etk::String,etk::String>("saison", "15"));
 			} else if (lastPathName == "saison_16") {
-				basicKeyTmp.insert(std::pair<std::string,std::string>("saison", "16"));
+				basicKeyTmp.insert(etk::Pair<etk::String,etk::String>("saison", "16"));
 			} else if (lastPathName == "saison_17") {
-				basicKeyTmp.insert(std::pair<std::string,std::string>("saison", "17"));
+				basicKeyTmp.insert(etk::Pair<etk::String,etk::String>("saison", "17"));
 			} else if (lastPathName == "saison_18") {
-				basicKeyTmp.insert(std::pair<std::string,std::string>("saison", "18"));
+				basicKeyTmp.insert(etk::Pair<etk::String,etk::String>("saison", "18"));
 			} else if (lastPathName == "saison_19") {
-				basicKeyTmp.insert(std::pair<std::string,std::string>("saison", "19"));
+				basicKeyTmp.insert(etk::Pair<etk::String,etk::String>("saison", "19"));
 			} else if (lastPathName == "saison_20") {
-				basicKeyTmp.insert(std::pair<std::string,std::string>("saison", "20"));
+				basicKeyTmp.insert(etk::Pair<etk::String,etk::String>("saison", "20"));
 			} else if (lastPathName == "saison_21") {
-				basicKeyTmp.insert(std::pair<std::string,std::string>("saison", "21"));
+				basicKeyTmp.insert(etk::Pair<etk::String,etk::String>("saison", "21"));
 			} else if (lastPathName == "saison_22") {
-				basicKeyTmp.insert(std::pair<std::string,std::string>("saison", "22"));
+				basicKeyTmp.insert(etk::Pair<etk::String,etk::String>("saison", "22"));
 			} else if (lastPathName == "saison_23") {
-				basicKeyTmp.insert(std::pair<std::string,std::string>("saison", "23"));
+				basicKeyTmp.insert(etk::Pair<etk::String,etk::String>("saison", "23"));
 			} else if (lastPathName == "saison_24") {
-				basicKeyTmp.insert(std::pair<std::string,std::string>("saison", "24"));
+				basicKeyTmp.insert(etk::Pair<etk::String,etk::String>("saison", "24"));
 			} else if (lastPathName == "saison_25") {
-				basicKeyTmp.insert(std::pair<std::string,std::string>("saison", "25"));
+				basicKeyTmp.insert(etk::Pair<etk::String,etk::String>("saison", "25"));
 			} else if (lastPathName == "saison_26") {
-				basicKeyTmp.insert(std::pair<std::string,std::string>("saison", "26"));
+				basicKeyTmp.insert(etk::Pair<etk::String,etk::String>("saison", "26"));
 			} else if (lastPathName == "saison_27") {
-				basicKeyTmp.insert(std::pair<std::string,std::string>("saison", "27"));
+				basicKeyTmp.insert(etk::Pair<etk::String,etk::String>("saison", "27"));
 			} else if (lastPathName == "saison_28") {
-				basicKeyTmp.insert(std::pair<std::string,std::string>("saison", "28"));
+				basicKeyTmp.insert(etk::Pair<etk::String,etk::String>("saison", "28"));
 			} else if (lastPathName == "saison_29") {
-				basicKeyTmp.insert(std::pair<std::string,std::string>("saison", "29"));
+				basicKeyTmp.insert(etk::Pair<etk::String,etk::String>("saison", "29"));
 			} else {
-				basicKeyTmp.insert(std::pair<std::string,std::string>("series-name", lastPathName));
+				basicKeyTmp.insert(etk::Pair<etk::String,etk::String>("series-name", lastPathName));
 			}
 		}
 		installVideoPath(_srv, itPath, basicKeyTmp);
 	}
 	// Add files :
-	std::vector<std::string> listSubFile = node.folderGetSub(false, true, "*");
+	etk::Vector<etk::String> listSubFile = node.folderGetSub(false, true, "*");
 	for (auto &itFile : listSubFile) {
 		
-		std::map<std::string,std::string> basicKeyTmp = _basicKey;
+		etk::Map<etk::String,etk::String> basicKeyTmp = _basicKey;
 		pushVideoFile(_srv, itFile, _basicKey);
 		
 	}
@@ -398,17 +398,17 @@ int main(int _argc, const char *_argv[]) {
 	elog::init(_argc, _argv);
 	zeus::init(_argc, _argv);
 	zeus::Client client1;
-	std::string login = "test1";
-	std::string address = "";
+	etk::String login = "test1";
+	etk::String address = "";
 	uint32_t port = 0;
-	std::string pass = "coucou";
-	std::string requestAction = "";
-	std::vector<std::string> args;
+	etk::String pass = "coucou";
+	etk::String requestAction = "";
+	etk::Vector<etk::String> args;
 	for (int32_t iii=1; iii<_argc ; ++iii) {
-		std::string data = _argv[iii];
+		etk::String data = _argv[iii];
 		if (etk::start_with(data, "--login=") == true) {
 			// separate loggin and IP adress ...
-			std::vector<std::string> listElem = etk::split(&data[8], '~');
+			etk::Vector<etk::String> listElem = etk::split(&data[8], '~');
 			if (listElem.size() == 0) {
 				APPL_ERROR("Not enouth element in the login ... need use a XXX~SERVER.org:zzz");
 				return -1;
@@ -417,7 +417,7 @@ int main(int _argc, const char *_argv[]) {
 			if (listElem.size() == 1) {
 				// connnect on local host ... nothing to do
 			} else {
-				std::vector<std::string> listElem2 = etk::split(listElem[1], ':');
+				etk::Vector<etk::String> listElem2 = etk::split(listElem[1], ':');
 				if (listElem2.size() >= 1) {
 					address = listElem2[0];
 				}
@@ -445,7 +445,7 @@ int main(int _argc, const char *_argv[]) {
 			if (requestAction == "") {
 				requestAction = data;
 			} else {
-				args.push_back(data);
+				args.pushBack(data);
 			}
 		}
 	}
@@ -473,7 +473,7 @@ int main(int _argc, const char *_argv[]) {
 		APPL_PRINT("== List: ");
 		APPL_PRINT("============================================");
 		zeus::Future<int32_t> retNbService = client1.getServiceCount();
-		zeus::Future<std::vector<std::string>> retServiceList = client1.getServiceList();
+		zeus::Future<etk::Vector<etk::String>> retServiceList = client1.getServiceList();
 		retNbService.wait();
 		APPL_INFO("Nb services = " << retNbService.get());
 		retServiceList.wait();
@@ -490,14 +490,14 @@ int main(int _argc, const char *_argv[]) {
 		APPL_PRINT("============================================");
 		// Send a full path:
 		if (args.size() == 0) {
-			zeus::Future<std::vector<std::string>> retServiceList = client1.getServiceList();
+			zeus::Future<etk::Vector<etk::String>> retServiceList = client1.getServiceList();
 			retServiceList.wait();
 			for (auto &it: retServiceList.get()) {
 				zeus::Proxy proxy = client1.getService(it);
 				if (proxy.exist() == false) {
 					APPL_ERROR("[" << it << "] ==> can not connect ..." );
 				} else {
-					std::string desc = proxy.sys.getDescription().wait().get();
+					etk::String desc = proxy.sys.getDescription().wait().get();
 					APPL_PRINT("[" << it << "] " << desc);
 				}
 			}
@@ -506,7 +506,7 @@ int main(int _argc, const char *_argv[]) {
 			APPL_ERROR("== action: '" << requestAction << "' can have 0 or 1 arguments");
 			APPL_PRINT("============================================");
 		} else {
-			zeus::Future<std::vector<std::string>> retServiceList = client1.getServiceList();
+			zeus::Future<etk::Vector<etk::String>> retServiceList = client1.getServiceList();
 			retServiceList.wait();
 			bool exist = false;
 			for (auto &it: retServiceList.get()) {

@@ -9,16 +9,16 @@
 #include <enet/TcpServer.hpp>
 #include <etk/os/FSNode.hpp>
 
-static std::string g_pathDBName = "USERDATA:router-database.json";
+static etk::String g_pathDBName = "USERDATA:router-database.json";
 
 class UserAvaillable {
 	public:
-		std::string m_name;
-		std::string m_basePath;
+		etk::String m_name;
+		etk::String m_basePath;
 		bool m_accessMediaCenter;
 		FILE* m_subProcess;
 };
-std::vector<UserAvaillable> g_listUserAvaillable;
+etk::Vector<UserAvaillable> g_listUserAvaillable;
 bool g_needToStore = false;
 
 static void store_db() {
@@ -56,7 +56,7 @@ static void load_db() {
 		userProperty.m_basePath = userElement["path"].toString().get();
 		userProperty.m_accessMediaCenter = userElement["access-media-center"].toBoolean().get();
 		APPL_INFO("find USER: '" << userProperty.m_name << "'");
-		g_listUserAvaillable.push_back(userProperty);
+		g_listUserAvaillable.pushBack(userProperty);
 	}
 	g_needToStore = false;
 }
@@ -79,7 +79,7 @@ namespace appl {
 				
 			}
 			virtual ~TcpServerInput() {}
-			void start(const std::string& _host, uint16_t _port) {
+			void start(const etk::String& _host, uint16_t _port) {
 				m_interface.setHostNane(_host);
 				m_interface.setPort(_port);
 				m_interface.link();
@@ -106,12 +106,12 @@ namespace appl {
 				// get datas:
 				while (m_threadRunning == true) {
 					// READ section data:
-					enet::Tcp data = std::move(m_interface.waitNext());
+					enet::Tcp data = etk::move(m_interface.waitNext());
 					ZEUS_VERBOSE("New connection");
 					if (m_service == true) {
-						m_router->newClientGateWay(std::move(data));
+						m_router->newClientGateWay(etk::move(data));
 					} else {
-						m_router->newClient(std::move(data));
+						m_router->newClient(etk::move(data));
 					}
 				}
 			}
@@ -120,16 +120,16 @@ namespace appl {
 
 void appl::Router::newClientGateWay(enet::Tcp _connection) {
 	ZEUS_WARNING("New TCP connection (service)");
-	ememory::SharedPtr<appl::GateWayInterface> tmp = ememory::makeShared<appl::GateWayInterface>(std::move(_connection), this);
+	ememory::SharedPtr<appl::GateWayInterface> tmp = ememory::makeShared<appl::GateWayInterface>(etk::move(_connection), this);
 	tmp->start();
-	m_GateWayList.push_back(tmp);
+	m_GateWayList.pushBack(tmp);
 }
 
 void appl::Router::newClient(enet::Tcp _connection) {
 	ZEUS_WARNING("New TCP connection (client)");
-	ememory::SharedPtr<appl::ClientInterface> tmp = ememory::makeShared<appl::ClientInterface>(std::move(_connection), this);
+	ememory::SharedPtr<appl::ClientInterface> tmp = ememory::makeShared<appl::ClientInterface>(etk::move(_connection), this);
 	tmp->start();
-	m_clientList.push_back(tmp);
+	m_clientList.pushBack(tmp);
 }
 
 appl::Router::Router() :
@@ -161,7 +161,7 @@ void appl::Router::stop() {
 	
 }
 
-bool appl::Router::userIsConnected(const std::string& _userName) {
+bool appl::Router::userIsConnected(const etk::String& _userName) {
 	for (auto &it : m_GateWayList) {
 		if (it == nullptr) {
 			continue;
@@ -180,7 +180,7 @@ bool appl::Router::userIsConnected(const std::string& _userName) {
 #include <unistd.h>
 
 
-ememory::SharedPtr<appl::GateWayInterface> appl::Router::get(const std::string& _userName) {
+ememory::SharedPtr<appl::GateWayInterface> appl::Router::get(const etk::String& _userName) {
 	// TODO : Start USer only when needed, not get it all time started...
 	for (auto &it : m_GateWayList) {
 		if (it == nullptr) {
@@ -196,7 +196,7 @@ ememory::SharedPtr<appl::GateWayInterface> appl::Router::get(const std::string& 
 		if (it.m_name == _userName) {
 			#if 0
 				// start interface:
-				std::string cmd = "~/dev/perso/out/Linux_x86_64/debug/staging/clang/zeus-package-base/zeus-package-base.app/bin/zeus-gateway";
+				etk::String cmd = "~/dev/perso/out/Linux_x86_64/debug/staging/clang/zeus-package-base/zeus-package-base.app/bin/zeus-gateway";
 				cmd += " --user=" + it.m_name + " ";
 				cmd += " --srv=user";
 				cmd += " --srv=picture";
@@ -220,10 +220,10 @@ ememory::SharedPtr<appl::GateWayInterface> appl::Router::get(const std::string& 
 				} else {
 					// We're in the child here.
 					APPL_ERROR("Child Execution ...");
-					std::string binary = etk::FSNodeGetApplicationPath() + "/zeus-gateway";
-					std::string userConf = "--user=" + it.m_name;
-					std::string basePath = "--base-path=" + it.m_basePath;
-					std::string logFile;
+					etk::String binary = etk::FSNodeGetApplicationPath() + "/zeus-gateway";
+					etk::String userConf = "--user=" + it.m_name;
+					etk::String basePath = "--base-path=" + it.m_basePath;
+					etk::String logFile;
 					if (*propertyStdOut == false) {
 						logFile = it.m_basePath + "/log/gateway.log";
 						if (    logFile.size() != 0
@@ -231,12 +231,12 @@ ememory::SharedPtr<appl::GateWayInterface> appl::Router::get(const std::string& 
 							logFile = etk::FSNodeGetHomePath() + &logFile[1];
 						}
 						logFile = "--elog-file=" + logFile;
-						//std::string logFile = "--elog-file=/home/heero/.local/share/zeus-DATA/SDFGHTHBSDFGSQDHZSRDFGSDFGSDFGSDFG/log/gateway.log";
-						//std::string logFile = " ";
+						//etk::String logFile = "--elog-file=/home/heero/.local/share/zeus-DATA/SDFGHTHBSDFGSQDHZSRDFGSDFGSDFGSDFG/log/gateway.log";
+						//etk::String logFile = " ";
 						APPL_INFO("New Child log in = " << logFile);
 					}
-					std::string delay = "--router-delay=" + etk::to_string(*propertyDelayToStop);
-					//std::string delay = "--router-delay=-1";
+					etk::String delay = "--router-delay=" + etk::toString(*propertyDelayToStop);
+					//etk::String delay = "--router-delay=-1";
 					APPL_INFO("execute: " << binary << " " << userConf << " --srv=all " << delay << " " << basePath << " " << logFile);
 					int ret = execlp( binary.c_str(),
 					                  binary.c_str(), // must repeate the binary name to have the name as first argument ...
@@ -273,14 +273,14 @@ ememory::SharedPtr<appl::GateWayInterface> appl::Router::get(const std::string& 
 }
 
 
-std::vector<std::string> appl::Router::getAllUserName() {
-	std::vector<std::string> out;
+etk::Vector<etk::String> appl::Router::getAllUserName() {
+	etk::Vector<etk::String> out;
 	/*
 	for (auto &it : m_GateWayList) {
 		if (it == nullptr) {
 			continue;
 		}
-		out.push_back(it->getName());
+		out.pushBack(it->getName());
 	}
 	*/
 	return out;

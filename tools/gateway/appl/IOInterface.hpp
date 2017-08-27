@@ -22,9 +22,9 @@ namespace appl {
 			appl::GateWay* m_gateway;
 		protected:
 			uint16_t m_uid; //!< Client unique ID (for routing)
-			std::vector<std::string> m_listService;
+			etk::Vector<etk::String> m_listService;
 		public:
-			const std::vector<std::string>& getServiceList();
+			const etk::Vector<etk::String>& getServiceList();
 		public:
 			enum clientState m_state; // state machine ...
 			IOInterface();
@@ -41,7 +41,7 @@ namespace appl {
 			uint16_t getId() const {
 				return m_uid;
 			}
-			void answerProtocolError(uint32_t _transactionId, const std::string& _errorHelp);
+			void answerProtocolError(uint32_t _transactionId, const etk::String& _errorHelp);
 			virtual zeus::WebServer* getInterface() = 0;
 			virtual bool isConnected() { return false; };
 	};

@@ -15,7 +15,7 @@ namespace zeus {
 		private:
 			uint32_t m_size; //!< Size of the DATA
 			const uint8_t* m_dataExternal; //!< The raw buffer is contituated with ecternal static data
-			std::vector<uint8_t> m_dataInternal; //!< the data is allocated in local.
+			etk::Vector<uint8_t> m_dataInternal; //!< the data is allocated in local.
 		public:
 			/**
 			 * @brief generic constructor

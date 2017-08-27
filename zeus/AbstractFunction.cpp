@@ -35,9 +35,9 @@ bool zeus::checkOrderFunctionParameter() {
 	return value;
 }
 
-const std::string zeus::g_threadKeyTransactionId("zeus-transaction-id");
-const std::string zeus::g_threadKeyTransactionSource("zeus-transaction-source");
-const std::string zeus::g_threadKeyTransactionDestination("zeus-transaction-destination");
+const etk::String zeus::g_threadKeyTransactionId("zeus-transaction-id");
+const etk::String zeus::g_threadKeyTransactionSource("zeus-transaction-source");
+const etk::String zeus::g_threadKeyTransactionDestination("zeus-transaction-destination");
 
 
 enum zeus::AbstractFunction::type zeus::AbstractFunction::getType() const {
@@ -48,36 +48,36 @@ void zeus::AbstractFunction::setType(enum zeus::AbstractFunction::type _type) {
 	m_type = _type;
 }
 
-const std::string& zeus::AbstractFunction::getName() const {
+const etk::String& zeus::AbstractFunction::getName() const {
 	return m_name;
 }
 
-const std::string& zeus::AbstractFunction::getDescription() const {
+const etk::String& zeus::AbstractFunction::getDescription() const {
 	return m_description;
 }
 
-void zeus::AbstractFunction::setDescription(const std::string& _desc) {
+void zeus::AbstractFunction::setDescription(const etk::String& _desc) {
 	m_description = _desc;
 }
 
-void zeus::AbstractFunction::setParam(int32_t _idParam, const std::string& _name, const std::string& _desc) {
+void zeus::AbstractFunction::setParam(int32_t _idParam, const etk::String& _name, const etk::String& _desc) {
 	ZEUS_TODO("not implemented set param ... '" << _name << "'");
 }
 
-void zeus::AbstractFunction::addParam(const std::string& _name, const std::string& _desc) {
-	m_paramsDescription.push_back(std::make_pair(_name, _desc));
+void zeus::AbstractFunction::addParam(const etk::String& _name, const etk::String& _desc) {
+	m_paramsDescription.pushBack(etk::makePair(_name, _desc));
 }
 
-void zeus::AbstractFunction::setReturn(const std::string& _desc) {
+void zeus::AbstractFunction::setReturn(const etk::String& _desc) {
 	m_returnDescription = _desc;
 }
 
-std::string zeus::AbstractFunction::getPrototype() const {
-	std::string out = getPrototypeReturn();
+etk::String zeus::AbstractFunction::getPrototype() const {
+	etk::String out = getPrototypeReturn();
 	out += " ";
 	out += m_name;
 	out += "(";
-	std::vector<std::string> tmp = getPrototypeParam();
+	etk::Vector<etk::String> tmp = getPrototypeParam();
 	for (size_t iii=0; iii<tmp.size(); ++iii) {
 		if (iii != 0) {
 			out += ", ";
@@ -92,10 +92,10 @@ std::string zeus::AbstractFunction::getPrototype() const {
 }
 
 
-std::string zeus::AbstractFunction::getSignature() const {
-	std::string out = getPrototypeReturn();
+etk::String zeus::AbstractFunction::getSignature() const {
+	etk::String out = getPrototypeReturn();
 	out += "(";
-	std::vector<std::string> tmp = getPrototypeParam();
+	etk::Vector<etk::String> tmp = getPrototypeParam();
 	for (size_t iii=0; iii<tmp.size(); ++iii) {
 		if (iii != 0) {
 			out += ",";
@@ -106,7 +106,7 @@ std::string zeus::AbstractFunction::getSignature() const {
 	return out;
 }
 
-zeus::AbstractFunction::AbstractFunction(const std::string& _name):
+zeus::AbstractFunction::AbstractFunction(const etk::String& _name):
   m_type(zeus::AbstractFunction::type::unknow),
   m_name(_name),
   m_description("") {

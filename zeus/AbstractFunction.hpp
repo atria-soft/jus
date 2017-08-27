@@ -13,9 +13,9 @@
 
 
 namespace zeus {
-	extern const std::string g_threadKeyTransactionId;
-	extern const std::string g_threadKeyTransactionSource;
-	extern const std::string g_threadKeyTransactionDestination;
+	extern const etk::String g_threadKeyTransactionId;
+	extern const etk::String g_threadKeyTransactionSource;
+	extern const etk::String g_threadKeyTransactionDestination;
 	/**
 	 * @bried check if the compilater order the function element call in order or backOrder
 	 */
@@ -29,7 +29,7 @@ namespace zeus {
 			 * @brief Constructor
 			 * @param[in] _name Nmae of the function
 			 */
-			AbstractFunction(const std::string& _name);
+			AbstractFunction(const etk::String& _name);
 		public:
 			/**
 			 * @brief generic virtual destructor
@@ -60,28 +60,28 @@ namespace zeus {
 			 */
 			void setType(enum type _type);
 		protected:
-			std::string m_name; //!< name of the function
+			etk::String m_name; //!< name of the function
 		public:
 			/**
 			 * @brief Get the name of the function.
 			 * @return Function name
 			 */
-			const std::string& getName() const;
+			const etk::String& getName() const;
 		protected:
-			std::string m_description; //!< description of the function
+			etk::String m_description; //!< description of the function
 		public:
 			/**
 			 * @brief Get the description of the function
 			 * @return The description string of the function (same as doxygen 'brief')
 			 */
-			const std::string& getDescription() const;
+			const etk::String& getDescription() const;
 			/**
 			 * @brief Set a new description of the function
 			 * @param[in] _desc Descriptive string
 			 */
-			void setDescription(const std::string& _desc);
+			void setDescription(const etk::String& _desc);
 		protected:
-			std::vector<std::pair<std::string, std::string>> m_paramsDescription; //!< List of the parameter descriptions.
+			etk::Vector<etk::Pair<etk::String, etk::String>> m_paramsDescription; //!< List of the parameter descriptions.
 		public:
 			/**
 			 * @brief Set the parameter name and description
@@ -89,42 +89,42 @@ namespace zeus {
 			 * @param[in] _name Name of the parameter
 			 * @param[in] _desc Description of the parameter
 			 */
-			void setParam(int32_t _idParam, const std::string& _name, const std::string& _desc);
+			void setParam(int32_t _idParam, const etk::String& _name, const etk::String& _desc);
 			/**
 			 * @brief Set the parameter name and description of the last parameter not set (increment id every element)
 			 * @param[in] _name Name of the parameter
 			 * @param[in] _desc Description of the parameter
 			 */
-			void addParam(const std::string& _name, const std::string& _desc);
+			void addParam(const etk::String& _name, const etk::String& _desc);
 		protected:
-			std::string m_returnDescription; //!< Return description of the Function
+			etk::String m_returnDescription; //!< Return description of the Function
 		public:
 			/**
 			 * @brief Set the return description of the Function
 			 * @param[in] _desc Description of the return parameter
 			 */
-			void setReturn(const std::string& _desc);
+			void setReturn(const etk::String& _desc);
 		public:
 			/**
 			 * @brief Get the prototype of the function with the parameter name and type
 			 * @return The fucntion like "void maFonction(int32 parameter_1, vector:string parameter_2);"
 			 */
-			std::string getPrototype() const;
+			etk::String getPrototype() const;
 			/**
 			 * @brief Get the signature of the function
 			 * @return The signature of the function: "void(int32,vector:string);"
 			 */
-			virtual std::string getSignature() const;
+			virtual etk::String getSignature() const;
 			/**
 			 * @brief Get the string of the type of the return value
 			 * @return type string of the return value
 			 */
-			virtual std::string getPrototypeReturn() const = 0;
+			virtual etk::String getPrototypeReturn() const = 0;
 			/**
 			 * @brief Get the list of type of the parameter
 			 * @return List of types (zeus singature mode)
 			 */
-			virtual std::vector<std::string> getPrototypeParam() const = 0;
+			virtual etk::Vector<etk::String> getPrototypeParam() const = 0;
 			/**
 			 * @brief Execute the function with all parameter properties
 			 * @param[in] _interfaceClient Web interface to anser values

@@ -5,7 +5,7 @@
  */
 #pragma once
 
-#include <string>
+#include <etk/String.hpp>
 
 namespace zeus {
 	namespace message {
@@ -14,7 +14,7 @@ namespace zeus {
 		 */
 		class ParamType {
 			protected:
-				const std::string m_typeName; //!< generic type
+				const etk::String m_typeName; //!< generic type
 				const uint16_t m_id; //!< simplification ID (if possible)
 				const bool m_isNumber; //!< if the element is a number (convertion possible)
 				const bool m_isVector; //!< if the element is a vector (convertion possible)
@@ -31,12 +31,12 @@ namespace zeus {
 				/**
 				 * @copydoc zeus::message::ParamType::ParamType
 				 */
-				ParamType(const std::string& _name, uint16_t _id, bool _isNumber=false, bool _isVector=false);
+				ParamType(const etk::String& _name, uint16_t _id, bool _isNumber=false, bool _isVector=false);
 				/**
 				 * @brief Get name of tha parameter
 				 * @return string describing the TYPE
 				 */
-				const std::string& getName() const;
+				const etk::String& getName() const;
 				/**
 				 * @brief Get generic Id of the type
 				 * @return unsigned int containing the type
@@ -59,13 +59,13 @@ namespace zeus {
 				 * @param[in] _obj Other parameter to compare type in strin
 				 * @return true if the 2 object are identical
 				 */
-				bool operator == (const std::string& _value) const;
+				bool operator == (const etk::String& _value) const;
 				/**
 				 * @brief Difference comparaison with an other parameter
 				 * @param[in] _obj Other parameter to compare type in string
 				 * @return true if the 2 object are different
 				 */
-				bool operator != (const std::string& _value) const;
+				bool operator != (const etk::String& _value) const;
 				/**
 				 * @brief Egality comparaison with an other parameter
 				 * @param[in] _obj Other parameter to compare type enum integer
@@ -96,7 +96,7 @@ namespace zeus {
 		 * @param[in] _obj Object to display
 		 * @return The inpout stream
 		 */
-		std::ostream& operator <<(std::ostream& _os, const zeus::message::ParamType& _obj);
+		etk::Stream& operator <<(etk::Stream& _os, const zeus::message::ParamType& _obj);
 		/**
 		 * @brief Template to automaticly get the type of an generic std type without create a dynamic element
 		 * @return generic parameter created

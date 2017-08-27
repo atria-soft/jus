@@ -124,7 +124,7 @@ namespace zeus {
 			Future<ZEUS_RETURN, ZEUS_EVENT>& andThen(std::function<bool(ZEUS_RETURN)> _callback) {
 				zeus::FutureBase::andThen(
 				    [=](zeus::FutureBase _fut) {
-				    	return _callback(std::move(zeus::Future<ZEUS_RETURN, ZEUS_EVENT>(_fut).get()));
+				    	return _callback(etk::move(zeus::Future<ZEUS_RETURN, ZEUS_EVENT>(_fut).get()));
 				    });
 				return *this;
 			}
@@ -145,7 +145,7 @@ namespace zeus {
 			 * @brief Attach callback on a specific return action (ERROR)
 			 * @param[in] _callback Handle on the function to call in case of error on the call (with error parameter (ERROR type, Help string)
 			 */
-			Future<ZEUS_RETURN, ZEUS_EVENT>& andElse(std::function<bool(const std::string&, const std::string&)> _callback) {
+			Future<ZEUS_RETURN, ZEUS_EVENT>& andElse(std::function<bool(const etk::String&, const etk::String&)> _callback) {
 				zeus::FutureBase::andElse(
 				    [=](zeus::FutureBase _fut) {
 				    	return _callback(_fut.getErrorType(), _fut.getErrorHelp());
@@ -193,7 +193,7 @@ namespace zeus {
 				    	if (_msg == nullptr) {
 				    		return;
 				    	}
-				    	_callback(std::move(_msg->getEvent<ZEUS_EVENT>()));
+				    	_callback(etk::move(_msg->getEvent<ZEUS_EVENT>()));
 				    });
 				return *this;
 			}
@@ -323,7 +323,7 @@ namespace zeus {
 			 * @brief Attach callback on a specific return action (ERROR)
 			 * @param[in] _callback Handle on the function to call in case of error on the call (with error parameter (ERROR type, Help string)
 			 */
-			Future<void, ZEUS_EVENT>& andElse(std::function<bool(const std::string&, const std::string&)> _callback) {
+			Future<void, ZEUS_EVENT>& andElse(std::function<bool(const etk::String&, const etk::String&)> _callback) {
 				zeus::FutureBase::andElse(
 				    [=](zeus::FutureBase _fut) {
 				    	return _callback(_fut.getErrorType(), _fut.getErrorHelp());
@@ -358,7 +358,7 @@ namespace zeus {
 				    	if (_msg == nullptr) {
 				    		return;
 				    	}
-				    	_callback(std::move(_msg->getEvent<ZEUS_EVENT>()));
+				    	_callback(etk::move(_msg->getEvent<ZEUS_EVENT>()));
 				    });
 				return *this;
 			}

@@ -41,7 +41,7 @@ namespace zeus {
 	                                                       uint64_t _transactionId,
 	                                                       const uint32_t& _source,
 	                                                       const uint32_t& _destination,
-	                                                       const std::string& _functionName);
+	                                                       const etk::String& _functionName);
 	/**
 	 * @brief This is the last call of createParam recursive function (no more parameter to add)
 	 * @param[in] _parmaId Id of the parameter to add.
@@ -70,7 +70,7 @@ namespace zeus {
 	 * @brief Template specialization in 'const char*' to add a parameter of a function in recursive form
 	 * @param[in] _parmaId Id of the parameter to add.
 	 * @param[in] _obj message where to add the parameter.
-	 * @param[in] _param Parameter value to add (char* that is converted in std::string).
+	 * @param[in] _param Parameter value to add (char* that is converted in etk::String).
 	 * @param[in] _args... other argument to add (in recursive call)
 	 */
 	template<class... _ARGS>
@@ -78,7 +78,7 @@ namespace zeus {
 	                 ememory::SharedPtr<zeus::message::Call> _obj,
 	                 const char* _param,
 	                 _ARGS&&... _args) {
-		createParam(_paramId, _obj, std::string(_param), std::forward<_ARGS>(_args)...);
+		createParam(_paramId, _obj, etk::String(_param), std::forward<_ARGS>(_args)...);
 	}
 	/**
 	 * @brieftemplate to create a ZEUS CALL message with all the parameter in arguments
@@ -95,7 +95,7 @@ namespace zeus {
 	                                                   uint64_t _transactionId,
 	                                                   const uint32_t& _source,
 	                                                   const uint32_t& _destination,
-	                                                   const std::string& _functionName,
+	                                                   const etk::String& _functionName,
 	                                                   _ARGS&&... _args) {
 		ememory::SharedPtr<zeus::message::Call> callElem = createBaseCall(_iface, _transactionId, _source, _destination, _functionName);
 		if (callElem == nullptr) {
@@ -111,11 +111,11 @@ namespace zeus {
 		protected:
 			std::mutex m_mutex; //!< main interface lock
 		public:
-			std::vector<ememory::SharedPtr<zeus::WebObj>> m_actifObject; //!< List of all active object created and that remove is in progress ...
+			etk::Vector<ememory::SharedPtr<zeus::WebObj>> m_actifObject; //!< List of all active object created and that remove is in progress ...
 		private:
 			enet::WebSocket m_connection; //!< Zeus protocol is based on a webSocket to be compatible with Java-script
 			ethread::Pool m_processingPool; //!< Thread pool processing of the input data
-			std::vector<ememory::SharedPtr<zeus::Message>> m_listPartialMessage; //!< list of all message that data has not finished to arrive.
+			etk::Vector<ememory::SharedPtr<zeus::Message>> m_listPartialMessage; //!< list of all message that data has not finished to arrive.
 			uint16_t m_localAddress; //!< Local client address.
 			uint16_t m_localIdObjectIncrement; //!< attribute an unique ID for an object.
 		public:
@@ -142,8 +142,8 @@ namespace zeus {
 				return m_localIdObjectIncrement++;
 			}
 		private:
-			std::vector<ememory::SharedPtr<zeus::WebObj>> m_listObject; //!< List of all local object that is reference in the system.
-			std::vector<ememory::WeakPtr<zeus::ObjectRemoteBase>> m_listRemoteObject; //!< List of all object that we have a reference in the local interface.
+			etk::Vector<ememory::SharedPtr<zeus::WebObj>> m_listObject; //!< List of all local object that is reference in the system.
+			etk::Vector<ememory::WeakPtr<zeus::ObjectRemoteBase>> m_listRemoteObject; //!< List of all object that we have a reference in the local interface.
 		public:
 			/**
 			 * @brief Add a local WebObject to maage all his callback
@@ -162,7 +162,7 @@ namespace zeus {
 			/**
 			 * @brief Set the list of interface that has been removed ...
 			 */
-			void interfaceRemoved(std::vector<uint16_t> _list);
+			void interfaceRemoved(etk::Vector<uint16_t> _list);
 		private:
 			uint32_t m_interfaceId; //!< local client interface ID
 			uint16_t m_transmissionId; //!< Unique Id of a transmission (it is != 0)
@@ -172,7 +172,7 @@ namespace zeus {
 			 */
 			uint16_t getId();
 			std::mutex m_pendingCallMutex; //!< local call of a pendinc call venctor update
-			std::vector<std::pair<uint64_t, zeus::FutureBase>> m_pendingCall; //!< List of pending call interface
+			etk::Vector<etk::Pair<uint64_t, zeus::FutureBase>> m_pendingCall; //!< List of pending call interface
 		public:
 			using Observer = std::function<void(ememory::SharedPtr<zeus::Message>)>; //!< Define an Observer: function pointer
 			Observer m_observerElement; //!< Observer on a new message arriving
@@ -188,7 +188,7 @@ namespace zeus {
 				};
 			}
 		public:
-			using ObserverRequestUri = std::function<bool(const std::string&)>; //!< Define an Observer on the specific URI requested callback: function pointer (return true if the connection is accepted or not)
+			using ObserverRequestUri = std::function<bool(const etk::String&)>; //!< Define an Observer on the specific URI requested callback: function pointer (return true if the connection is accepted or not)
 		protected:
 			ObserverRequestUri m_observerRequestUri; //!< Observer on a requesting URI connection
 		public:
@@ -198,8 +198,8 @@ namespace zeus {
 			 * @param[in] _func Function to call.
 			 */
 			template<class CLASS_TYPE>
-			void connectUri(CLASS_TYPE* _class, bool (CLASS_TYPE::*_func)(const std::string&)) {
-				m_observerRequestUri = [=](const std::string& _value){
+			void connectUri(CLASS_TYPE* _class, bool (CLASS_TYPE::*_func)(const etk::String&)) {
+				m_observerRequestUri = [=](const etk::String& _value){
 					return (*_class.*_func)(_value);
 				};
 			}
@@ -232,7 +232,7 @@ namespace zeus {
 			 * @param[in] _userName Name on the user connected
 			 * @return 
 			 */
-			void setInterface(enet::Tcp _connection, bool _isServer, const std::string& _userName="");
+			void setInterface(enet::Tcp _connection, bool _isServer, const etk::String& _userName="");
 			/**
 			 * @brief Connect on the remote interface
 			 * @param[in] _async if true, the cunnection does not wait all the connection process is done to return
@@ -253,7 +253,7 @@ namespace zeus {
 			 * @brief set the interface name
 			 * @param[in] _name Ne name of the interface
 			 */
-			void setInterfaceName(const std::string& _name);
+			void setInterfaceName(const etk::String& _name);
 			/**
 			 * @brief Write a message preformated
 			 * @param[in] _data Message to write
@@ -271,13 +271,13 @@ namespace zeus {
 			 * @return true the connection is accepted
 			 * @return false the connection is rejected
 			 */
-			bool onReceiveUri(const std::string& _uri, const std::vector<std::string>& _protocols);
+			bool onReceiveUri(const etk::String& _uri, const etk::Vector<etk::String>& _protocols);
 			/**
 			 * @brief The Zeus protocol is based on a webSocket, then the connection can send full fragment (it call newMessage when data is parsed
 			 * @param[in] _frame A frame that has been just received
 			 * @param[in] _isBinary the frame is binary if true, it is a string id false
 			 */
-			void onReceiveData(std::vector<uint8_t>& _frame, bool _isBinary);
+			void onReceiveData(etk::Vector<uint8_t>& _frame, bool _isBinary);
 			/**
 			 * @brief Receive a message to parse
 			 * @param[in] _buffer Message to interprete
@@ -303,8 +303,8 @@ namespace zeus {
 			std::mutex m_threadAsyncMutex; //!< Mutex fot the thread to send async data
 			std::thread* m_threadAsync; //!< sending async data thread. TODO: Set it in a thread pool ...
 			bool m_threadAsyncRunning; //!< Threa is running
-			std::vector<ActionAsync> m_threadAsyncList; //!< List of action to send (current)
-			std::vector<ActionAsync> m_threadAsyncList2; //!< list of action to send whenwurrent is sending in progress
+			etk::Vector<ActionAsync> m_threadAsyncList; //!< List of action to send (current)
+			etk::Vector<ActionAsync> m_threadAsyncList2; //!< list of action to send whenwurrent is sending in progress
 			// TODO: Abord async sender ...
 		private:
 			/**
@@ -334,7 +334,7 @@ namespace zeus {
 			 * @return Future that will get the return values
 			 */
 			template<class... _ARGS>
-			zeus::FutureBase call(const uint32_t& _source, const uint32_t& _destination, const std::string& _functionName, _ARGS&&... _args) {
+			zeus::FutureBase call(const uint32_t& _source, const uint32_t& _destination, const etk::String& _functionName, _ARGS&&... _args) {
 				uint16_t id = getId();
 				ememory::SharedPtr<zeus::message::Call> callElem = zeus::createCall(sharedFromThis(), id, _source, _destination, _functionName, std::forward<_ARGS>(_args)...);
 				return callBinary(callElem);
@@ -362,7 +362,7 @@ namespace zeus {
 			 * @param[in] _transactionId Current trasaction ID
 			 * @param[in] _errorHelp Help for the user to understand the error and correct it
 			 */
-			void answerProtocolError(uint32_t _transactionId, const std::string& _errorHelp);
+			void answerProtocolError(uint32_t _transactionId, const etk::String& _errorHelp);
 			/**
 			 * @brief Send an Answer of a function with single value
 			 * @param[in] _clientTransactionId Transaction ID
@@ -391,7 +391,7 @@ namespace zeus {
 			 * @param[in] _errorComment Help comment of the error
 			 * @param[in] _srcObjectId Client to send control
 			 */
-			void answerError(uint32_t _clientTransactionId, uint32_t _source, uint32_t _destination, const std::string& _errorValue, const std::string& _errorComment="");
+			void answerError(uint32_t _clientTransactionId, uint32_t _source, uint32_t _destination, const etk::String& _errorValue, const etk::String& _errorComment="");
 		public:
 			/**
 			 * @brief Display list of all objects

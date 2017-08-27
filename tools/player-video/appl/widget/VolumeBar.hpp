@@ -27,7 +27,7 @@ namespace appl {
 				esignal::Signal<float> signalChange;
 				esignal::Signal<float> signalHide; //!< Hide value [0..1] ==> 0 is hidden
 			public:
-				//eproperty::Value<std::string> propertyShape; //!< name of the shape used
+				//eproperty::Value<etk::String> propertyShape; //!< name of the shape used
 				eproperty::Value<float> propertyValue; //!< current value of the VolumeBar
 				eproperty::Value<float> propertyStep; //!< Up and down step value
 				eproperty::Value<float> propertyMinimum; //!< minimum value of the VolumeBar
@@ -65,9 +65,9 @@ namespace appl {
 				void onRegenerateDisplay() override;
 				bool onEventInput(const ewol::event::Input& _event) override;
 			private:
-				std::vector<std::pair<float,float>> m_listAvaillable;
+				etk::Vector<etk::Pair<float,float>> m_listAvaillable;
 			public:
-				void setRangeAvaillable(std::vector<std::pair<float,float>>& _values) {
+				void setRangeAvaillable(etk::Vector<etk::Pair<float,float>>& _values) {
 					m_listAvaillable = _values;
 				}
 			protected:

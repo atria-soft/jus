@@ -27,7 +27,7 @@ namespace zeus {
 				};
 				void composeWith(const uint8_t* _buffer, uint32_t _lenght) override;
 				bool writeOn(enet::WebSocket& _interface) override;
-				void generateDisplay(std::ostream& _os) const override;
+				void generateDisplay(etk::Stream& _os) const override;
 			public:
 				/**
 				 * @brief Create a shared pointer on the Event

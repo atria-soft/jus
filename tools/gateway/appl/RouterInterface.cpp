@@ -13,7 +13,7 @@
 
 #include <zeus/AbstractFunction.hpp>
 
-static const std::string protocolError = "PROTOCOL-ERROR";
+static const etk::String protocolError = "PROTOCOL-ERROR";
 
 appl::clientSpecificInterface::clientSpecificInterface() {
 	m_uid = 0;
@@ -99,7 +99,7 @@ void appl::clientSpecificInterface::receive(ememory::SharedPtr<zeus::Message> _v
 		return;
 	}
 	ememory::SharedPtr<zeus::message::Call> callObj = ememory::staticPointerCast<zeus::message::Call>(_value);
-	std::string callFunction = callObj->getCall();
+	etk::String callFunction = callObj->getCall();
 	switch (m_state) {
 		case appl::clientState::disconnect:
 		case appl::clientState::unconnect:
@@ -127,8 +127,8 @@ void appl::clientSpecificInterface::receive(ememory::SharedPtr<zeus::Message> _v
 					return;
 				}
 				if (callFunction == "identify") {
-					std::string clientName = callObj->getParameter<std::string>(0);
-					std::string clientTocken = callObj->getParameter<std::string>(1);
+					etk::String clientName = callObj->getParameter<etk::String>(0);
+					etk::String clientTocken = callObj->getParameter<etk::String>(1);
 					if (m_userService == nullptr) {
 						answerProtocolError(transactionId, "gateWay internal error 3");
 						return;
@@ -149,7 +149,7 @@ void appl::clientSpecificInterface::receive(ememory::SharedPtr<zeus::Message> _v
 					m_clientName = clientName;
 				}
 				if (callFunction == "auth") {
-					std::string password = callObj->getParameter<std::string>(0);
+					etk::String password = callObj->getParameter<etk::String>(0);
 					zeus::Future<bool> fut = m_userService->m_interfaceClient.call(m_localIdUser, ZEUS_ID_SERVICE_ROOT, "checkAuth", password);
 					fut.wait(); // TODO: Set timeout ...
 					if (fut.hasError() == true) {
@@ -170,7 +170,7 @@ void appl::clientSpecificInterface::receive(ememory::SharedPtr<zeus::Message> _v
 				// --------------------------------
 				// -- Get groups:
 				// --------------------------------
-				zeus::Future<std::vector<std::string>> futGroup = m_userService->m_interfaceClient.call(m_localIdUser, ZEUS_ID_SERVICE_ROOT, "clientGroupsGet", m_clientName);
+				zeus::Future<etk::Vector<etk::String>> futGroup = m_userService->m_interfaceClient.call(m_localIdUser, ZEUS_ID_SERVICE_ROOT, "clientGroupsGet", m_clientName);
 				futGroup.wait(); // TODO: Set timeout ...
 				if (futGroup.hasError() == true) {
 					APPL_ERROR("Get error from the service ...");
@@ -182,8 +182,8 @@ void appl::clientSpecificInterface::receive(ememory::SharedPtr<zeus::Message> _v
 				// --------------------------------
 				// -- Get services:
 				// --------------------------------
-				std::vector<std::string> currentServices = m_gatewayInterface->getAllServiceName();
-				zeus::Future<std::vector<std::string>> futServices = m_userService->m_interfaceClient.call(m_localIdUser, ZEUS_ID_SERVICE_ROOT, "filterClientServices", m_clientName, currentServices);
+				etk::Vector<etk::String> currentServices = m_gatewayInterface->getAllServiceName();
+				zeus::Future<etk::Vector<etk::String>> futServices = m_userService->m_interfaceClient.call(m_localIdUser, ZEUS_ID_SERVICE_ROOT, "filterClientServices", m_clientName, currentServices);
 				futServices.wait(); // TODO: Set timeout ...
 				if (futServices.hasError() == true) {
 					APPL_ERROR("Get error from the service ...");
@@ -193,8 +193,8 @@ void appl::clientSpecificInterface::receive(ememory::SharedPtr<zeus::Message> _v
 				}
 				m_clientServices = futServices.get();
 				APPL_WARNING("Connection of: '" << m_clientName << "' to '" << m_userConnectionName << "'");
-				APPL_WARNING("       groups: " << etk::to_string(m_clientgroups));
-				APPL_WARNING("     services: " << etk::to_string(m_clientServices));
+				APPL_WARNING("       groups: " << etk::toString(m_clientgroups));
+				APPL_WARNING("     services: " << etk::toString(m_clientServices));
 				
 				
 				m_interfaceWeb->answerValue(transactionId, _value->getClientId(), _value->getServiceId(), true);
@@ -219,7 +219,7 @@ void appl::clientSpecificInterface::receive(ememory::SharedPtr<zeus::Message> _v
 					}
 					if (callFunction == "link") {
 						// first param:
-						std::string serviceName = callObj->getParameter<std::string>(0);
+						etk::String serviceName = callObj->getParameter<etk::String>(0);
 						ZEUS_ERROR("Connect to service : " << serviceName << " " << m_uid);
 						// Check if service already link:
 						auto it = m_listConnectedService.begin();
@@ -249,7 +249,7 @@ void appl::clientSpecificInterface::receive(ememory::SharedPtr<zeus::Message> _v
 									m_interfaceWeb->answerError(transactionId, _value->getClientId(), _value->getServiceId(), "ERROR-CREATE-SERVICE-INSTANCE");
 									return;
 								}
-								m_listConnectedService.push_back(srv);
+								m_listConnectedService.pushBack(srv);
 								ZEUS_ERROR("      ==> get ID : " << m_uid);
 								m_interfaceWeb->answerValue(transactionId, _value->getClientId(), _value->getServiceId(), m_listConnectedService.size());
 								return;
@@ -318,19 +318,19 @@ void appl::clientSpecificInterface::receive(ememory::SharedPtr<zeus::Message> _v
 #endif
 
 
-appl::RouterInterface::RouterInterface(const std::string& _ip, uint16_t _port, std::string _userName, appl::GateWay* _gateway) :
+appl::RouterInterface::RouterInterface(const etk::String& _ip, uint16_t _port, etk::String _userName, appl::GateWay* _gateway) :
   m_state(appl::clientState::unconnect),
   m_gateway(_gateway),
   m_interfaceWeb() {
 	APPL_INFO("----------------------------------------");
 	APPL_INFO("-- NEW Connection to the ROUTER       --");
 	APPL_INFO("----------------------------------------");
-	enet::Tcp connection = std::move(enet::connectTcpClient(_ip, _port));
+	enet::Tcp connection = etk::move(enet::connectTcpClient(_ip, _port));
 	if (connection.getConnectionStatus() != enet::Tcp::status::link) {
 		APPL_ERROR("Can not connect the GateWay-front-end");
 		return;
 	}
-	m_interfaceWeb.setInterface(std::move(connection), false, _userName);
+	m_interfaceWeb.setInterface(etk::move(connection), false, _userName);
 	m_interfaceWeb.connect(this, &appl::RouterInterface::onClientData);
 	m_interfaceWeb.connect(true);
 	m_interfaceWeb.setInterfaceName("cli-GW-to-router");
@@ -381,7 +381,7 @@ void appl::RouterInterface::onClientData(ememory::SharedPtr<zeus::Message> _valu
 			return;
 		}
 	}
-	m_listClients.push_back(ememory::makeShared<clientSpecificInterface>());
+	m_listClients.pushBack(ememory::makeShared<clientSpecificInterface>());
 	size_t localId = m_listClients.size()-1;
 	bool ret = m_listClients[localId]->start(m_gateway, &m_interfaceWeb, sourceId);
 	if (ret == false) {

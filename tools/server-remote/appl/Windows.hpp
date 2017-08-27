@@ -28,8 +28,8 @@ namespace appl {
 			
 			void onCallbackConnectionValidate(const ememory::SharedPtr<ClientProperty>& _prop);
 			void onCallbackConnectionCancel();
-			void onCallbackShortCut(const std::string& _value);
-			void onCallbackMenuEvent(const std::string& _value);
+			void onCallbackShortCut(const etk::String& _value);
+			void onCallbackMenuEvent(const etk::String& _value);
 	};
 }
 

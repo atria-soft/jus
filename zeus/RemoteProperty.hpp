@@ -19,12 +19,12 @@ namespace zeus {
 	class RemoteProperty {
 		private:
 			zeus::ObjectRemote& m_remoteObject; //!< Remote ofject interface
-			std::string m_name; //!< Name of the property to call.
+			etk::String m_name; //!< Name of the property to call.
 		public:
 			/**
 			 * @brief generic constructor
 			 */
-			RemoteProperty(zeus::ObjectRemote& _remoteObject, const std::string& _name) :
+			RemoteProperty(zeus::ObjectRemote& _remoteObject, const etk::String& _name) :
 			  m_remoteObject(_remoteObject),
 			  m_name(_name) {
 				

@@ -26,15 +26,15 @@ int main(int _argc, const char *_argv[]) {
 	elog::init(_argc, _argv);
 	zeus::init(_argc, _argv);
 	zeus::Client client1;
-	std::string fromUser = "test1";
-	std::string toUser = "test1";
-	std::string pass = "coucou";
+	etk::String fromUser = "test1";
+	etk::String toUser = "test1";
+	etk::String pass = "coucou";
 	for (int32_t iii=0; iii<_argc ; ++iii) {
-		std::string data = _argv[iii];
+		etk::String data = _argv[iii];
 		if (etk::start_with(data, "--ip=") == true) {
-			client1.propertyIp.set(std::string(&data[5]));
+			client1.propertyIp.set(etk::String(&data[5]));
 		} else if (etk::start_with(data, "--port=") == true) {
-			client1.propertyPort.set(etk::string_to_uint16_t(std::string(&data[7])));
+			client1.propertyPort.set(etk::string_to_uint16_t(etk::String(&data[7])));
 		} else if (etk::start_with(data, "--from=") == true) {
 			fromUser = &data[7];
 		} else if (etk::start_with(data, "--to=") == true) {
@@ -91,7 +91,7 @@ int main(int _argc, const char *_argv[]) {
 	APPL_INFO("    -- Get service count");
 	APPL_INFO("    ----------------------------------");
 	zeus::Future<int32_t> retNbService = client1.getServiceCount();
-	zeus::Future<std::vector<std::string>> retServiceList = client1.getServiceList();
+	zeus::Future<etk::Vector<etk::String>> retServiceList = client1.getServiceList();
 	retNbService.wait();
 	APPL_INFO("Nb services = " << retNbService.get());
 	retServiceList.wait();

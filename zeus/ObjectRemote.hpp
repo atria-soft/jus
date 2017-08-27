@@ -22,7 +22,7 @@ namespace zeus {
 	class ObjectRemoteBase : public zeus::WebObj {
 		friend class ObjectRemote;
 		private:
-			std::string m_type; //!< name of the remote object
+			etk::String m_type; //!< name of the remote object
 			uint32_t m_remoteAddress; //!< remote adress of the object
 			bool m_isLinked; //!< link status of the object
 		public:
@@ -45,7 +45,7 @@ namespace zeus {
 			                 uint16_t _localId,
 			                 uint16_t _localObjectId,
 			                 uint32_t _address,
-			                 const std::string& _type);
+			                 const etk::String& _type);
 			/**
 			 * @brief Generic destructor
 			 */
@@ -60,7 +60,7 @@ namespace zeus {
 			 * @brief Get the name of the object (use in client service check name)
 			 * @TODO: Remove this API
 			 */
-			const std::string& getName() const;
+			const etk::String& getName() const;
 			/**
 			 * @brief Get the remote interface ID
 			 * @return The Id of the remote interface
@@ -109,7 +109,7 @@ namespace zeus {
 			 * @return A generic future with all datas
 			 */
 			template<class... _ARGS>
-			zeus::FutureBase call(const std::string& _functionName, _ARGS&&... _args) const {
+			zeus::FutureBase call(const etk::String& _functionName, _ARGS&&... _args) const {
 				if (    m_interface == nullptr
 				     || m_interface->m_interfaceWeb == nullptr) {
 					ememory::SharedPtr<zeus::message::Answer> ret = zeus::message::Answer::create(nullptr); // TODO : This is a real bad case ...
@@ -130,7 +130,7 @@ namespace zeus {
 			 * @return A generic future with all datas
 			 */
 			template<class... _ARGS>
-			zeus::FutureBase callAction(const std::string& _functionName, _ARGS&&... _args) const {
+			zeus::FutureBase callAction(const etk::String& _functionName, _ARGS&&... _args) const {
 				zeus::FutureBase tmp = call(_functionName, _args...);
 				tmp.setAction();
 				return tmp;

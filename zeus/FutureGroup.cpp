@@ -8,7 +8,7 @@
 #include <zeus/debug.hpp>
 
 void zeus::FutureGroup::add(const zeus::FutureBase& _fut) {
-	m_listFuture.push_back(_fut);
+	m_listFuture.pushBack(_fut);
 }
 
 void zeus::FutureGroup::wait() const {

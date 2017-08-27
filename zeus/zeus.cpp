@@ -14,7 +14,7 @@ static bool& getInitSatatus() {
 
 void zeus::init(int _argc, const char** _argv) {
 	for (int32_t iii=0; iii<_argc; ++iii) {
-		std::string value = _argv[iii];
+		etk::String value = _argv[iii];
 		if (etk::start_with(value, "--zeus") == true) {
 			ZEUS_ERROR("Unknow parameter type: '" << value << "'");
 		}

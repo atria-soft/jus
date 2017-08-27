@@ -17,7 +17,7 @@ namespace appl {
 		private:
 			appl::Router* m_routerInterface;
 			zeus::WebServer m_interfaceClient;
-			bool requestURI(const std::string& _uri);
+			bool requestURI(const etk::String& _uri);
 		public:
 			ememory::SharedPtr<appl::GateWayInterface> m_userGateWay;
 			uint16_t m_uid; //!< gateway unique ID ==> to have an internal routage ...
@@ -36,7 +36,7 @@ namespace appl {
 			}
 			bool isAlive();
 			
-			void answerProtocolError(uint32_t _transactionId, const std::string& _errorHelp);
+			void answerProtocolError(uint32_t _transactionId, const etk::String& _errorHelp);
 			
 			
 	};

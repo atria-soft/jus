@@ -20,7 +20,7 @@ namespace appl {
 		using UpBarWeak = ememory::WeakPtr<appl::widget::UpBar>;
 		class UpBar : public ewol::widget::Composer {
 			public: // properties
-				eproperty::Value<std::string> propertyType; //!< Type of the bar
+				eproperty::Value<etk::String> propertyType; //!< Type of the bar
 				eproperty::Value<float> propertyValue; //!< value of the bar ...
 			public: // signals
 				esignal::Signal<float> signalChange; //!< Value of the bar

@@ -15,17 +15,17 @@ namespace appl {
 		private:
 			uint64_t m_clientUID;
 		private:
-			std::vector<ememory::SharedPtr<appl::GateWayInterface>> m_GateWayList; //!< List of all service availlable with their specific connection interface
-			std::vector<ememory::SharedPtr<appl::ClientInterface>> m_clientList; //!< List of all Client interface with their own connection
+			etk::Vector<ememory::SharedPtr<appl::GateWayInterface>> m_GateWayList; //!< List of all service availlable with their specific connection interface
+			etk::Vector<ememory::SharedPtr<appl::ClientInterface>> m_clientList; //!< List of all Client interface with their own connection
 			ememory::SharedPtr<appl::TcpServerInput> m_interfaceClientServer;
 			ememory::SharedPtr<appl::TcpServerInput> m_interfaceGateWayServer;
 			ejson::Document m_listUser;
 		public:
 			eproperty::Value<bool> propertyStdOut; //!< not set the log in the stdout or in the local file
-			eproperty::Value<std::string> propertyClientIp;
+			eproperty::Value<etk::String> propertyClientIp;
 			eproperty::Value<uint16_t> propertyClientPort;
 			eproperty::Value<uint16_t> propertyClientMax;
-			eproperty::Value<std::string> propertyGateWayIp;
+			eproperty::Value<etk::String> propertyGateWayIp;
 			eproperty::Value<uint16_t> propertyGateWayPort;
 			eproperty::Value<uint16_t> propertyGateWayMax;
 			eproperty::Value<int32_t> propertyDelayToStop;
@@ -35,10 +35,10 @@ namespace appl {
 			void start();
 			void stop();
 			// Get a specific user gateway:
-			ememory::SharedPtr<appl::GateWayInterface> get(const std::string& _userName);
-			bool userIsConnected(const std::string& _userName);
+			ememory::SharedPtr<appl::GateWayInterface> get(const etk::String& _userName);
+			bool userIsConnected(const etk::String& _userName);
 			
-			std::vector<std::string> getAllUserName();
+			etk::Vector<etk::String> getAllUserName();
 			void newClientGateWay(enet::Tcp _connection);
 			void newClient(enet::Tcp _connection);
 			void cleanIO();

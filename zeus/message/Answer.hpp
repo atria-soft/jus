@@ -16,8 +16,8 @@ namespace zeus {
 		  public message::Parameter {
 			friend class zeus::Message;
 			protected:
-				std::string m_errorType;
-				std::string m_errorHelp;
+				etk::String m_errorType;
+				etk::String m_errorHelp;
 			protected:
 				/**
 				 * @brief basic constructor (hidden to force the use of ememory::SharedPtr) @ref zeus::message::Answer::create
@@ -29,7 +29,7 @@ namespace zeus {
 				void composeWith(const uint8_t* _buffer, uint32_t _lenght) override;
 				void appendMessageData(ememory::SharedPtr<zeus::message::Data> _obj) override;
 				bool writeOn(enet::WebSocket& _interface) override;
-				void generateDisplay(std::ostream& _os) const override;
+				void generateDisplay(etk::Stream& _os) const override;
 			public:
 				/**
 				 * @brief Create a shared pointer on the Answer
@@ -61,7 +61,7 @@ namespace zeus {
 				 * @param[in] _value error value (simple string with no space with all capital letter separaete with '_'
 				 * @param[in] _comment Human readable help to understand the error
 				 */
-				void addError(const std::string& _value, const std::string& _comment);
+				void addError(const etk::String& _value, const etk::String& _comment);
 				/**
 				 * @brief Check if the answer have an error
 				 * @return status of the error.
@@ -71,12 +71,12 @@ namespace zeus {
 				 * @brief get the error value (if exist)
 				 * @return string of the error
 				 */
-				const std::string& getError() const;
+				const etk::String& getError() const;
 				/**
 				 * @brief get the error help (if exist)
 				 * @return string of the error help
 				 */
-				const std::string& getErrorHelp() const;
+				const etk::String& getErrorHelp() const;
 		};
 	}
 }

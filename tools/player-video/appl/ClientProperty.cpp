@@ -100,14 +100,14 @@ void appl::ClientProperty::connect() {
 	APPL_INFO("Done");
 }
 
-void appl::ClientProperty::setLogin(std::string _login) {
+void appl::ClientProperty::setLogin(etk::String _login) {
 	m_fromUser = "";
 	m_toUser = "";
 	m_address = "";
 	m_port = 0;
 	// separate loggin and IP adress ...
-	std::string login;
-	std::vector<std::string> listElem = etk::split(_login, '~');
+	etk::String login;
+	etk::Vector<etk::String> listElem = etk::split(_login, '~');
 	if (listElem.size() == 0) {
 		APPL_ERROR("Not enouth element in the login ...");
 		return;
@@ -117,7 +117,7 @@ void appl::ClientProperty::setLogin(std::string _login) {
 	if (listElem.size() == 1) {
 		// connnect on local host ... nothing to do
 	} else {
-		std::vector<std::string> listElem2 = etk::split(listElem[1], ':');
+		etk::Vector<etk::String> listElem2 = etk::split(listElem[1], ':');
 		if (listElem2.size() >= 1) {
 			m_address = listElem2[0];
 		}
@@ -127,8 +127,8 @@ void appl::ClientProperty::setLogin(std::string _login) {
 	}
 }
 
-std::string appl::ClientProperty::getLogin() {
-	std::string out = m_fromUser;
+etk::String appl::ClientProperty::getLogin() {
+	etk::String out = m_fromUser;
 	bool hasTild = false;
 	if (m_address != "") {
 		if (hasTild == false) {
@@ -143,16 +143,16 @@ std::string appl::ClientProperty::getLogin() {
 			out += "~" ;
 			hasTild = true;
 		}
-		out += ":" + etk::to_string(m_port);
+		out += ":" + etk::toString(m_port);
 	}
 	return out;
 }
 
-void appl::ClientProperty::setPassword(std::string _password) {
+void appl::ClientProperty::setPassword(etk::String _password) {
 	m_pass = _password;
 }
 
-std::string appl::ClientProperty::getPassword() {
+etk::String appl::ClientProperty::getPassword() {
 	return m_pass;
 }
 

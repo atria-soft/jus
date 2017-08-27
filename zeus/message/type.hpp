@@ -26,7 +26,7 @@ namespace zeus {
 		 * @value[in] _value Value to add
 		 * @return a reference of the stream
 		 */
-		std::ostream& operator <<(std::ostream& _os, enum zeus::message::type _value);
+		etk::Stream& operator <<(etk::Stream& _os, enum zeus::message::type _value);
 		/**
 		 * @brief convert the type in a correct enumeration value
 		 * @param[in] _value Value of type to convert

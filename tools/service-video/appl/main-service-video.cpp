@@ -26,12 +26,12 @@
 #include <zeus/zeus-Media.impl.hpp>
 
 static std::mutex g_mutex;
-static std::string g_basePath;
-static std::string g_basePathCover;
-static std::string g_basePathCoverGroup;
-static std::string g_baseDBName = std::string(SERVICE_NAME) + "-database.json";
+static etk::String g_basePath;
+static etk::String g_basePathCover;
+static etk::String g_basePathCoverGroup;
+static etk::String g_baseDBName = etk::String(SERVICE_NAME) + "-database.json";
 
-static std::vector<ememory::SharedPtr<zeus::MediaImpl>> m_listFile;
+static etk::Vector<ememory::SharedPtr<zeus::MediaImpl>> m_listFile;
 
 static uint64_t m_lastMaxId = 0;
 static uint64_t m_lastMaxImportId = 0;
@@ -47,8 +47,8 @@ static uint64_t createUniqueImportID() {
 	return m_lastMaxImportId;
 }
 
-static std::string removeSpaceOutQuote(const std::string& _in) {
-	std::string out;
+static etk::String removeSpaceOutQuote(const etk::String& _in) {
+	etk::String out;
 	bool insideQuote = false;
 	for (auto &it : _in) {
 		if (it == '\'') {
@@ -68,10 +68,10 @@ static std::string removeSpaceOutQuote(const std::string& _in) {
 	return out;
 }
 
-static std::vector<std::string> splitAction(const std::string& _in) {
-	std::vector<std::string> out;
+static etk::Vector<etk::String> splitAction(const etk::String& _in) {
+	etk::Vector<etk::String> out;
 	bool insideQuote = false;
-	std::string value;
+	etk::String value;
 	for (auto &it : _in) {
 		if (it == '\'') {
 			if (insideQuote == false) {
@@ -80,7 +80,7 @@ static std::vector<std::string> splitAction(const std::string& _in) {
 				insideQuote = false;
 			}
 			if (value != "") {
-				out.push_back(value);
+				out.pushBack(value);
 				value.clear();
 			}
 		} else {
@@ -88,20 +88,20 @@ static std::vector<std::string> splitAction(const std::string& _in) {
 		}
 	}
 	if (value != "") {
-		out.push_back(value);
+		out.pushBack(value);
 	}
 	return out;
 }
 
-static void metadataChange(zeus::MediaImpl* _element, const std::string& _key) {
+static void metadataChange(zeus::MediaImpl* _element, const etk::String& _key) {
 	g_needToStore = true;
 	// meta_data have chage ==> we need to upfdate the path of the file where the data is stored ...
 	if (_element == nullptr) {
 		return;
 	}
 	_element->forceUpdateDecoratedName();
-	std::string current = _element->getFileName();
-	std::string next = _element->getDecoratedName() + "_" + _element->getSha512();
+	etk::String current = _element->getFileName();
+	etk::String next = _element->getDecoratedName() + "_" + _element->getSha512();
 	if (next == current) {
 		return;
 	}
@@ -113,10 +113,10 @@ namespace appl {
 		private:
 			//ememory::SharedPtr<zeus::ClientProperty>& m_client;
 			zeus::ProxyClientProperty m_client;
-			std::string m_userName;
+			etk::String m_userName;
 		public:
 			/*
-			VideoService(ememory::SharedPtr<zeus::ClientProperty>& _client, const std::string& _userName) :
+			VideoService(ememory::SharedPtr<zeus::ClientProperty>& _client, const etk::String& _userName) :
 			  m_client(_client),
 			  m_userName(_userName) {
 				APPL_WARNING("New VideoService ... for user: ");
@@ -135,19 +135,19 @@ namespace appl {
 				return m_listFile.size();
 			}
 			
-			std::vector<uint32_t> getIds(uint32_t _start, uint32_t _stop) override {
+			etk::Vector<uint32_t> getIds(uint32_t _start, uint32_t _stop) override {
 				std::unique_lock<std::mutex> lock(g_mutex);
 				// TODO : Check right ...
-				std::vector<uint32_t> out;
+				etk::Vector<uint32_t> out;
 				for (size_t iii=_start; iii<m_listFile.size() && iii<_stop; ++iii) {
 					if (m_listFile[iii] == nullptr) {
 						continue;
 					}
-					out.push_back(m_listFile[iii]->getUniqueId());
+					out.pushBack(m_listFile[iii]->getUniqueId());
 				}
 				return out;
 			}
-			uint32_t getId(std::string _sha512) override {
+			uint32_t getId(etk::String _sha512) override {
 				std::unique_lock<std::mutex> lock(g_mutex);
 				// TODO : Check right ...
 				uint32_t out;
@@ -178,10 +178,10 @@ namespace appl {
 				throw std::invalid_argument("Wrong file ID ...");
 				//
 			}
-			uint32_t add(zeus::ActionNotification<std::string>& _notifs, zeus::ProxyFile _dataFile) override {
-				//_action.setProgress("{\"pourcent\":" + etk::to_string(23.54) + ", \"comment\":\"Start loading file\"");
-				//_action.setProgress("{\"pourcent\":" + etk::to_string(23.54) + ", \"comment\":\"transfering file\"");;
-				//_action.setProgress("{\"pourcent\":" + etk::to_string(23.54) + ", \"comment\":\"synchronize meta-data\"");
+			uint32_t add(zeus::ActionNotification<etk::String>& _notifs, zeus::ProxyFile _dataFile) override {
+				//_action.setProgress("{\"pourcent\":" + etk::toString(23.54) + ", \"comment\":\"Start loading file\"");
+				//_action.setProgress("{\"pourcent\":" + etk::toString(23.54) + ", \"comment\":\"transfering file\"");;
+				//_action.setProgress("{\"pourcent\":" + etk::toString(23.54) + ", \"comment\":\"synchronize meta-data\"");
 				uint64_t id = 0;
 				uint64_t importId = 0;
 				{
@@ -195,7 +195,7 @@ namespace appl {
 				auto futName = _dataFile.getName();
 				// wait the sha1 to check his existance:
 				futRemoteSha512.wait();
-				std::string sha512StringRemote = futRemoteSha512.get();
+				etk::String sha512StringRemote = futRemoteSha512.get();
 				{
 					std::unique_lock<std::mutex> lock(g_mutex);
 					for (auto &it : m_listFile) {
@@ -210,8 +210,8 @@ namespace appl {
 						}
 					}
 				}
-				std::string tmpFileName = g_basePath + "tmpImport_" + etk::to_string(importId);
-				std::string sha512String = zeus::storeInFile(_dataFile, tmpFileName);
+				etk::String tmpFileName = g_basePath + "tmpImport_" + etk::toString(importId);
+				etk::String sha512String = zeus::storeInFile(_dataFile, tmpFileName);
 				futType.wait();
 				futName.wait();
 				// move the file at the good position:
@@ -227,7 +227,7 @@ namespace appl {
 					property->setMetadata("sha512", sha512String);
 					property->setMetadata("mime-type", futType.get());
 					property->setCallbackMetadataChange(&metadataChange);
-					m_listFile.push_back(property);
+					m_listFile.pushBack(property);
 					g_needToStore = true;
 				} else {
 					std::unique_lock<std::mutex> lock(g_mutex);
@@ -235,7 +235,7 @@ namespace appl {
 					ememory::SharedPtr<zeus::MediaImpl> property = ememory::makeShared<zeus::MediaImpl>(id, sha512String, g_basePath);
 					property->setMetadata("sha512", sha512String);
 					property->setCallbackMetadataChange(&metadataChange);
-					m_listFile.push_back(property);
+					m_listFile.pushBack(property);
 					g_needToStore = true;
 				}
 				APPL_DEBUG(" filename : " << sha512String);
@@ -273,14 +273,14 @@ namespace appl {
 				}
 			}
 			
-			std::vector<std::vector<std::string>> interpreteSQLRequest(const std::string& _sqlLikeRequest) {
-				std::vector<std::vector<std::string>> out;
+			etk::Vector<etk::Vector<etk::String>> interpreteSQLRequest(const etk::String& _sqlLikeRequest) {
+				etk::Vector<etk::Vector<etk::String>> out;
 				if (_sqlLikeRequest != "*") {
-					std::vector<std::string> listAnd = etk::split(_sqlLikeRequest, "AND");
+					etk::Vector<etk::String> listAnd = etk::split(_sqlLikeRequest, "AND");
 					APPL_INFO("Find list AND : ");
 					for (auto &it : listAnd) {
 						it = removeSpaceOutQuote(it);
-						std::vector<std::string> elements = splitAction(it);
+						etk::Vector<etk::String> elements = splitAction(it);
 						if (elements.size() != 3) {
 							APPL_ERROR("element : '" + it + "' have wrong spliting " << elements);
 							throw std::invalid_argument("element : \"" + it + "\" have wrong spliting");
@@ -294,14 +294,14 @@ namespace appl {
 							throw std::invalid_argument("action invalid : '" + elements[1] + "' only availlable : [==,!=,<=,>=,<,>]");
 						}
 						APPL_INFO("    - '" << elements[0] << "' action='" << elements[1] << "' with='" << elements[2] << "'");
-						out.push_back(elements);
+						out.pushBack(elements);
 					}
 				}
 				return out;
 			}
 			
-			bool isValid(const std::vector<std::vector<std::string>>& _listElement,
-			             const std::map<std::string, std::string>& _metadata) {
+			bool isValid(const etk::Vector<etk::Vector<etk::String>>& _listElement,
+			             const etk::Map<etk::String, etk::String>& _metadata) {
 				for (auto &itCheck : _listElement) {
 					// find matadataValue:
 					auto itM = _metadata.find(itCheck[0]);
@@ -338,8 +338,8 @@ namespace appl {
 				return true;
 			}
 			
-			std::string mapToString(const std::map<std::string, std::string>& _metadata) {
-				std::string out = "{";
+			etk::String mapToString(const etk::Map<etk::String, etk::String>& _metadata) {
+				etk::String out = "{";
 				for (auto &it : _metadata) {
 					out += it.first + ":" + it.second + ",";
 				}
@@ -347,13 +347,13 @@ namespace appl {
 				return out;
 			}
 			
-			std::vector<uint32_t> getSQL(std::string _sqlLikeRequest) override {
-				std::vector<uint32_t> out;
+			etk::Vector<uint32_t> getSQL(etk::String _sqlLikeRequest) override {
+				etk::Vector<uint32_t> out;
 				if (_sqlLikeRequest == "") {
 					throw std::invalid_argument("empty request");
 				}
 				APPL_DEBUG("check : " << _sqlLikeRequest);
-				std::vector<std::vector<std::string>> listAndParsed = interpreteSQLRequest(_sqlLikeRequest);
+				etk::Vector<etk::Vector<etk::String>> listAndParsed = interpreteSQLRequest(_sqlLikeRequest);
 				std::unique_lock<std::mutex> lock(g_mutex);
 				for (auto &it : m_listFile) {
 					if (it == nullptr) {
@@ -363,18 +363,18 @@ namespace appl {
 					bool isCorrectElement = isValid(listAndParsed, it->getMetadataDirect());
 					if (isCorrectElement == true) {
 						APPL_DEBUG("        select");
-						out.push_back(it->getUniqueId());
+						out.pushBack(it->getUniqueId());
 					}
 				}
 				return out;
 			}
 			
-			std::vector<std::string> getMetadataValuesWhere(std::string _keyName, std::string _sqlLikeRequest) override {
-				std::vector<std::string> out;
+			etk::Vector<etk::String> getMetadataValuesWhere(etk::String _keyName, etk::String _sqlLikeRequest) override {
+				etk::Vector<etk::String> out;
 				if (_sqlLikeRequest == "") {
 					throw std::invalid_argument("empty request");
 				}
-				std::vector<std::vector<std::string>> listAndParsed = interpreteSQLRequest(_sqlLikeRequest);
+				etk::Vector<etk::Vector<etk::String>> listAndParsed = interpreteSQLRequest(_sqlLikeRequest);
 				std::unique_lock<std::mutex> lock(g_mutex);
 				for (auto &it : m_listFile) {
 					if (it == nullptr) {
@@ -388,7 +388,7 @@ namespace appl {
 					if (it2 == it->getMetadataDirect().end()) {
 						continue;
 					}
-					std::string value = it2->second;
+					etk::String value = it2->second;
 					isCorrectElement = false;
 					for (auto &it2: out) {
 						if (it2 == value) {
@@ -397,13 +397,13 @@ namespace appl {
 						}
 					}
 					if (isCorrectElement == false) {
-						out.push_back(value);
+						out.pushBack(value);
 					}
 				}
 				return out;
 			}
 			
-			ememory::SharedPtr<zeus::File> internalGetCover(const std::string& _baseName, const std::string& _mediaString, uint32_t _maxSize) {
+			ememory::SharedPtr<zeus::File> internalGetCover(const etk::String& _baseName, const etk::String& _mediaString, uint32_t _maxSize) {
 				if (etk::FSNodeExist(_baseName + _mediaString + ".jpg") == true) {
 					return zeus::File::create(_baseName + _mediaString + ".jpg");
 				}
@@ -413,15 +413,15 @@ namespace appl {
 				throw std::runtime_error("No cover availlable");
 			}
 			
-			void internalSetCover(const std::string& _baseName, zeus::ActionNotification<std::string>& _notifs, zeus::ProxyFile _cover, std::string _mediaString) {
+			void internalSetCover(const etk::String& _baseName, zeus::ActionNotification<etk::String>& _notifs, zeus::ProxyFile _cover, etk::String _mediaString) {
 				uint64_t importId = 0;
 				{
 					std::unique_lock<std::mutex> lock(g_mutex);
 					importId = createUniqueImportID();
 				}
 				auto futType = _cover.getMineType();
-				std::string tmpFileName = g_basePath + "tmpImport_" + etk::to_string(importId);
-				std::string sha512String = zeus::storeInFile(_cover, tmpFileName);
+				etk::String tmpFileName = g_basePath + "tmpImport_" + etk::toString(importId);
+				etk::String sha512String = zeus::storeInFile(_cover, tmpFileName);
 				futType.wait();
 				if (etk::FSNodeGetSize(tmpFileName) == 0) {
 					APPL_ERROR("try to store an empty file");
@@ -447,18 +447,18 @@ namespace appl {
 			}
 			
 			ememory::SharedPtr<zeus::File> getCover(uint32_t _mediaId, uint32_t _maxSize) override {
-				return internalGetCover(g_basePathCover, etk::to_string(_mediaId), _maxSize);
+				return internalGetCover(g_basePathCover, etk::toString(_mediaId), _maxSize);
 			}
 			
-			void setCover(zeus::ActionNotification<std::string>& _notifs, zeus::ProxyFile _cover, uint32_t _mediaId) override {
-				return internalSetCover(g_basePathCover, _notifs, _cover, etk::to_string(_mediaId));
+			void setCover(zeus::ActionNotification<etk::String>& _notifs, zeus::ProxyFile _cover, uint32_t _mediaId) override {
+				return internalSetCover(g_basePathCover, _notifs, _cover, etk::toString(_mediaId));
 			}
 			
-			ememory::SharedPtr<zeus::File> getGroupCover(std::string _groupName, uint32_t _maxSize) override {
+			ememory::SharedPtr<zeus::File> getGroupCover(etk::String _groupName, uint32_t _maxSize) override {
 				return internalGetCover(g_basePathCoverGroup, _groupName, _maxSize);
 			}
 			
-			void setGroupCover(zeus::ActionNotification<std::string>& _notifs, zeus::ProxyFile _cover, std::string _groupName) override {
+			void setGroupCover(zeus::ActionNotification<etk::String>& _notifs, zeus::ProxyFile _cover, etk::String _groupName) override {
 				return internalSetCover(g_basePathCoverGroup, _notifs, _cover, _groupName);
 			}
 
@@ -500,13 +500,13 @@ static void load_db() {
 			APPL_ERROR("Can not access on the file : ... No name ");
 		} else {
 			property->setCallbackMetadataChange(&metadataChange);
-			m_listFile.push_back(property);
+			m_listFile.pushBack(property);
 		}
 	}
 	g_needToStore = false;
 }
 
-ETK_EXPORT_API bool SERVICE_IO_init(int _argc, const char *_argv[], std::string _basePath) {
+ETK_EXPORT_API bool SERVICE_IO_init(int _argc, const char *_argv[], etk::String _basePath) {
 	g_basePath = _basePath;
 	g_basePathCover = _basePath + "/AAAASDGDFGQN4352SCVdfgBSXDFGFCVQDSGFQSfd_cover/";
 	g_basePathCoverGroup = _basePath + "/AAAASDGDFGQN4352SCVdfgBSXDFGFCVQDSGFQSfd_cover_group/";

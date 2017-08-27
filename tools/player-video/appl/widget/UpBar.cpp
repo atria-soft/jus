@@ -17,7 +17,7 @@
 #include <ewol/widget/Image.hpp>
 #include <ewol/widget/Composer.hpp>
 #include <ewol/widget/Manager.hpp>
-#include <vector>
+#include <etk/Vector.hpp>
 #include <etk/tool.hpp>
 #include <appl/debug.hpp>
 
@@ -50,11 +50,11 @@ void appl::widget::UpBar::init() {
 		}
 	}
 	if (*propertyType == "volume") {
-		subBind(appl::widget::VolumeBar, "[" + etk::to_string(getId()) + "]appl-upbar-range", signalChange, sharedFromThis(), &appl::widget::UpBar::onCallbackVolumeRequest);
+		subBind(appl::widget::VolumeBar, "[" + etk::toString(getId()) + "]appl-upbar-range", signalChange, sharedFromThis(), &appl::widget::UpBar::onCallbackVolumeRequest);
 	} else {
-		subBind(appl::widget::VolumeBar, "[" + etk::to_string(getId()) + "]appl-upbar-range", signalChange, sharedFromThis(), &appl::widget::UpBar::onCallbackLightRequest);
+		subBind(appl::widget::VolumeBar, "[" + etk::toString(getId()) + "]appl-upbar-range", signalChange, sharedFromThis(), &appl::widget::UpBar::onCallbackLightRequest);
 	}
-	subBind(appl::widget::VolumeBar, "[" + etk::to_string(getId()) + "]appl-upbar-range", signalHide, sharedFromThis(), &appl::widget::UpBar::onCallbackHide);
+	subBind(appl::widget::VolumeBar, "[" + etk::toString(getId()) + "]appl-upbar-range", signalHide, sharedFromThis(), &appl::widget::UpBar::onCallbackHide);
 	markToRedraw();
 }
 
@@ -67,8 +67,8 @@ void appl::widget::UpBar::onCallbackVolumeRequest(const float& _value) {
 	APPL_DEBUG("volume change value=" << _value << " dB");
 	APPL_DEBUG("===========================================================================");
 	signalChange.emit(_value);
-	std::string display = etk::to_string(int32_t(_value)) + "." + etk::to_string(std::abs(int32_t(_value*10.0f)-int32_t(_value)*10));
-	propertySetOnWidgetNamed("[" + etk::to_string(getId()) + "]appl-upbar-label", "value", display + " dB");
+	etk::String display = etk::toString(int32_t(_value)) + "." + etk::toString(std::abs(int32_t(_value*10.0f)-int32_t(_value)*10));
+	propertySetOnWidgetNamed("[" + etk::toString(getId()) + "]appl-upbar-label", "value", display + " dB");
 }
 
 void appl::widget::UpBar::onCallbackLightRequest(const float& _value) {
@@ -76,17 +76,17 @@ void appl::widget::UpBar::onCallbackLightRequest(const float& _value) {
 	APPL_DEBUG("Light change value=" << _value << " %");
 	APPL_DEBUG("===========================================================================");
 	signalChange.emit(float(int32_t(_value))*0.01f);
-	std::string display = etk::to_string(int32_t(_value));
-	propertySetOnWidgetNamed("[" + etk::to_string(getId()) + "]appl-upbar-label", "value", display + " %");
+	etk::String display = etk::toString(int32_t(_value));
+	propertySetOnWidgetNamed("[" + etk::toString(getId()) + "]appl-upbar-label", "value", display + " %");
 }
 
 void appl::widget::UpBar::onCallbackHide(const float& _value) {
 	if (_value == 0.0f) {
-		propertySetOnWidgetNamed("[" + etk::to_string(getId()) + "]appl-upbar-label", "hide", etk::to_string(true));
-		propertySetOnWidgetNamed("[" + etk::to_string(getId()) + "]appl-upbar-image", "hide", etk::to_string(true));
+		propertySetOnWidgetNamed("[" + etk::toString(getId()) + "]appl-upbar-label", "hide", etk::toString(true));
+		propertySetOnWidgetNamed("[" + etk::toString(getId()) + "]appl-upbar-image", "hide", etk::toString(true));
 	} else {
-		propertySetOnWidgetNamed("[" + etk::to_string(getId()) + "]appl-upbar-label", "hide", etk::to_string(false));
-		propertySetOnWidgetNamed("[" + etk::to_string(getId()) + "]appl-upbar-image", "hide", etk::to_string(false));
+		propertySetOnWidgetNamed("[" + etk::toString(getId()) + "]appl-upbar-label", "hide", etk::toString(false));
+		propertySetOnWidgetNamed("[" + etk::toString(getId()) + "]appl-upbar-image", "hide", etk::toString(false));
 	}
 }
 
@@ -96,7 +96,7 @@ void appl::widget::UpBar::onChangePropertyType() {
 }
 
 void appl::widget::UpBar::onChangePropertyValue() {
-	propertySetOnWidgetNamed("[" + etk::to_string(getId()) + "]appl-upbar-range", "value", etk::to_string(*propertyValue));
+	propertySetOnWidgetNamed("[" + etk::toString(getId()) + "]appl-upbar-range", "value", etk::toString(*propertyValue));
 	if (*propertyType == "volume") {
 		onCallbackVolumeRequest(*propertyValue);
 	} else {

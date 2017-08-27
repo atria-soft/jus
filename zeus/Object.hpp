@@ -53,7 +53,7 @@ namespace zeus {
 			 * @param[in] _call Name of the function that is called.
 			 * @param[in] _value Message to process.
 			 */
-			virtual void callBinary(const std::string& _call, ememory::SharedPtr<zeus::message::Call> _value) = 0;
+			virtual void callBinary(const etk::String& _call, ememory::SharedPtr<zeus::message::Call> _value) = 0;
 		public:
 			/**
 			 * @brief Advertise a new function in the service/object ==> it is force the start with "obj.".
@@ -65,7 +65,7 @@ namespace zeus {
 			template<class ZEUS_RETURN_VALUE,
 			         class ZEUS_CLASS_TYPE,
 			         class... ZEUS_FUNC_ARGS_TYPE>
-			zeus::AbstractFunction* advertise(std::string _name,
+			zeus::AbstractFunction* advertise(etk::String _name,
 			                                  ZEUS_RETURN_VALUE (ZEUS_CLASS_TYPE::*_func)(ZEUS_FUNC_ARGS_TYPE... _args)) {
 				_name = "obj." + _name;
 				for (auto &it : m_listFunction) {
@@ -84,7 +84,7 @@ namespace zeus {
 				}
 				tmp->setType(zeus::AbstractFunction::type::service);
 				ZEUS_VERBOSE("Add function '" << _name << "' in local mode");
-				m_listFunction.push_back(tmp);
+				m_listFunction.pushBack(tmp);
 				return tmp;
 			}
 	};
@@ -114,7 +114,7 @@ namespace zeus {
 			         class ZEUS_ACTION_TYPE,
 			         class ZEUS_CLASS_TYPE,
 			         class... ZEUS_FUNC_ARGS_TYPE>
-			zeus::AbstractFunction* advertise(const std::string& _name,
+			zeus::AbstractFunction* advertise(const etk::String& _name,
 			                                  ZEUS_RETURN_VALUE (ZEUS_CLASS_TYPE::*_func)(zeus::ActionNotification<ZEUS_ACTION_TYPE>& _notifs, ZEUS_FUNC_ARGS_TYPE... _args)) {
 				if (etk::start_with(_name, "srv.") == true) {
 					ZEUS_ERROR("Advertise function start with 'srv.' is not permited ==> only allow for internal service: '" << _name << "'");
@@ -136,7 +136,7 @@ namespace zeus {
 				}
 				tmp->setType(zeus::AbstractFunction::type::object);
 				ZEUS_VERBOSE("Add function '" << _name << "' in object mode");
-				m_listFunction.push_back(tmp);
+				m_listFunction.pushBack(tmp);
 				return tmp;
 			}
 			/**
@@ -149,7 +149,7 @@ namespace zeus {
 			template<class ZEUS_RETURN_VALUE,
 			         class ZEUS_CLASS_TYPE,
 			         class... ZEUS_FUNC_ARGS_TYPE>
-			zeus::AbstractFunction* advertise(const std::string& _name,
+			zeus::AbstractFunction* advertise(const etk::String& _name,
 			                                  ZEUS_RETURN_VALUE (ZEUS_CLASS_TYPE::*_func)(ZEUS_FUNC_ARGS_TYPE... _args)) {
 				if (etk::start_with(_name, "srv.") == true) {
 					ZEUS_ERROR("Advertise function start with 'srv.' is not permited ==> only allow for internal service: '" << _name << "'");
@@ -171,10 +171,10 @@ namespace zeus {
 				}
 				tmp->setType(zeus::AbstractFunction::type::object);
 				ZEUS_VERBOSE("Add function '" << _name << "' in object mode");
-				m_listFunction.push_back(tmp);
+				m_listFunction.pushBack(tmp);
 				return tmp;
 			}
-			bool isFunctionAuthorized(uint64_t _clientId, const std::string& _funcName) override {
+			bool isFunctionAuthorized(uint64_t _clientId, const etk::String& _funcName) override {
 				/*
 				auto it = m_interface.find(_clientId);
 				if (it == m_interface.end()) {
@@ -185,7 +185,7 @@ namespace zeus {
 				*/
 				return true;
 			}
-			void callBinary(const std::string& _call, ememory::SharedPtr<zeus::message::Call> _value) override {
+			void callBinary(const etk::String& _call, ememory::SharedPtr<zeus::message::Call> _value) override {
 				for (auto &it2 : m_listFunction) {
 					if (it2 == nullptr) {
 						continue;

@@ -67,8 +67,8 @@ appl::widget::VolumeBar::~VolumeBar() {
 
 void appl::widget::VolumeBar::calculateMinMaxSize() {
 	vec2 minTmp = propertyMinSize->getPixel();
-	m_minSize.setValue(std::max(minTmp.x(), 40.0f),
-	                   std::max(minTmp.y(), std::max(minTmp.x(), 40.0f)) );
+	m_minSize.setValue(etk::max(minTmp.x(), 40.0f),
+	                   etk::max(minTmp.y(), etk::max(minTmp.x(), 40.0f)) );
 	markToRedraw();
 }
 
@@ -159,7 +159,7 @@ bool appl::widget::VolumeBar::onEventInput(const ewol::event::Input& _event) {
 }
 
 void appl::widget::VolumeBar::updateValue(float _newValue) {
-	_newValue = std::max(std::min(_newValue, *propertyMaximum), *propertyMinimum);
+	_newValue = etk::max(etk::min(_newValue, *propertyMaximum), *propertyMinimum);
 	propertyValue.setDirect(_newValue);
 	markToRedraw();
 }

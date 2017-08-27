@@ -27,29 +27,29 @@
 #include <zeus/Client.hpp>
 #include <zeus/zeus.hpp>
 
-typedef bool (*SERVICE_IO_init_t)(int _argc, const char *_argv[], std::string _basePath);
+typedef bool (*SERVICE_IO_init_t)(int _argc, const char *_argv[], etk::String _basePath);
 typedef bool (*SERVICE_IO_uninit_t)();
 typedef void (*SERVICE_IO_peridic_call_t)();
 typedef zeus::Object* (*SERVICE_IO_instanciate_t)(uint32_t, ememory::SharedPtr<zeus::WebServer>&, uint32_t);
 
 class PlugginAccess {
 	private:
-		std::string m_name;
-		std::string m_fullName;
+		etk::String m_name;
+		etk::String m_fullName;
 		void* m_handle;
 		SERVICE_IO_init_t m_SERVICE_IO_init;
 		SERVICE_IO_uninit_t m_SERVICE_IO_uninit;
 		SERVICE_IO_peridic_call_t m_SERVICE_IO_peridic_call;
 		SERVICE_IO_instanciate_t m_SERVICE_IO_instanciate;
 	public:
-		PlugginAccess(const std::string& _name, const std::string& _fullName) :
+		PlugginAccess(const etk::String& _name, const etk::String& _fullName) :
 		  m_name(_name),
 		  m_fullName(_fullName),
 		  m_handle(nullptr),
 		  m_SERVICE_IO_init(nullptr),
 		  m_SERVICE_IO_uninit(nullptr),
 		  m_SERVICE_IO_instanciate(nullptr) {
-			std::string srv = etk::FSNodeGetApplicationPath() + "/../lib/lib" + m_fullName + "-impl.so";
+			etk::String srv = etk::FSNodeGetApplicationPath() + "/../lib/lib" + m_fullName + "-impl.so";
 			APPL_PRINT("Try to open service with name: '" << m_name << "' at position: '" << srv << "' with full name=" << m_fullName);
 			m_handle = dlopen(srv.c_str(), RTLD_LAZY);
 			if (!m_handle) {
@@ -85,7 +85,7 @@ class PlugginAccess {
 		~PlugginAccess() {
 			
 		}
-		bool init(int _argc, const char *_argv[], std::string _basePath) {
+		bool init(int _argc, const char *_argv[], etk::String _basePath) {
 			if (m_SERVICE_IO_init == nullptr) {
 				return false;
 			}
@@ -132,8 +132,8 @@ int main(int _argc, const char *_argv[]) {
 	zeus::init(_argc, _argv);
 	appl::GateWay basicGateway;
 	#ifdef GATEWAY_ENABLE_LAUNCHER
-	std::string basePath;
-	std::vector<std::string> services;
+	etk::String basePath;
+	etk::Vector<etk::String> services;
 	zeus::Client m_client;
 	// The default service port is 1985
 	m_client.propertyPort.set(1985);
@@ -141,17 +141,17 @@ int main(int _argc, const char *_argv[]) {
 	// default delay to disconnect is 30 seconds:
 	uint32_t routerDisconnectionDelay = 30;
 	for (int32_t iii=0; iii<_argc ; ++iii) {
-		std::string data = _argv[iii];
+		etk::String data = _argv[iii];
 		if (etk::start_with(data, "--user=") == true) {
-			basicGateway.propertyUserName.set(std::string(&data[7]));
+			basicGateway.propertyUserName.set(etk::String(&data[7]));
 		} else if (data == "--no-router") {
 			basicGateway.propertyRouterNo.set(true);
 		} else if (etk::start_with(data, "--router-ip=") == true) {
-			basicGateway.propertyRouterIp.set(std::string(&data[12]));
+			basicGateway.propertyRouterIp.set(etk::String(&data[12]));
 		} else if (etk::start_with(data, "--router-port=") == true) {
-			basicGateway.propertyRouterPort.set(etk::string_to_uint16_t(std::string(&data[14])));
+			basicGateway.propertyRouterPort.set(etk::string_to_uint16_t(etk::String(&data[14])));
 		} else if (etk::start_with(data, "--router-delay=") == true) {
-			int32_t value = etk::string_to_int32_t(std::string(&data[15]));
+			int32_t value = etk::string_to_int32_t(etk::String(&data[15]));
 			if (value == -1) {
 				routerDisconnectionDelay = 999999999;
 			} else if (value == 0) {
@@ -166,26 +166,26 @@ int main(int _argc, const char *_argv[]) {
 			}
 			basicGateway.propertyServiceExtern.set(value);
 		} else if (etk::start_with(data, "--service-ip=") == true) {
-			basicGateway.propertyServiceIp.set(std::string(&data[13]));
+			basicGateway.propertyServiceIp.set(etk::String(&data[13]));
 			#ifdef GATEWAY_ENABLE_LAUNCHER
-				m_client.propertyIp.set(std::string(&data[13]));
+				m_client.propertyIp.set(etk::String(&data[13]));
 			#endif
 		} else if (etk::start_with(data, "--service-port=") == true) {
-			basicGateway.propertyServicePort.set(etk::string_to_uint16_t(std::string(&data[15])));
+			basicGateway.propertyServicePort.set(etk::string_to_uint16_t(etk::String(&data[15])));
 			#ifdef GATEWAY_ENABLE_LAUNCHER
-				m_client.propertyPort.set(etk::string_to_uint16_t(std::string(&data[15])));
+				m_client.propertyPort.set(etk::string_to_uint16_t(etk::String(&data[15])));
 			#endif
 		} else if (etk::start_with(data, "--service-max=") == true) {
-			basicGateway.propertyServiceMax.set(etk::string_to_uint16_t(std::string(&data[14])));
+			basicGateway.propertyServiceMax.set(etk::string_to_uint16_t(etk::String(&data[14])));
 		#ifdef GATEWAY_ENABLE_LAUNCHER
 		} else if (etk::start_with(data, "--base-path=") == true) {
-			basePath = std::string(&data[12]);
+			basePath = etk::String(&data[12]);
 			if (    basePath.size() != 0
 			     && basePath[basePath.size()-1] != '/') {
 				basePath += '/';
 			}
 		} else if (etk::start_with(data, "--srv=") == true) {
-			services.push_back(std::string(&data[6]));
+			services.pushBack(etk::String(&data[6]));
 		#endif
 		} else if (    data == "-h"
 		            || data == "--help") {
@@ -209,26 +209,26 @@ int main(int _argc, const char *_argv[]) {
 		}
 	}
 	#ifdef GATEWAY_ENABLE_LAUNCHER
-	std::vector<std::pair<std::string,std::string>> listAvaillableServices;
+	etk::Vector<etk::Pair<etk::String,etk::String>> listAvaillableServices;
 	if (services.size() != 0) {
 		// find all services:
 		etk::FSNode dataPath(etk::FSNodeGetApplicationPath() + "/../share");
-		std::vector<std::string> listSubPath = dataPath.folderGetSub(true, false, ".*");
+		etk::Vector<etk::String> listSubPath = dataPath.folderGetSub(true, false, ".*");
 		APPL_DEBUG(" Base data path: " << dataPath.getName());
 		APPL_DEBUG(" SubPath: " << listSubPath);
 		for (auto &it: listSubPath) {
 			if (etk::FSNodeExist(it + "/zeus/") == true) {
 				etk::FSNode dataPath(it + "/zeus/");
-				std::vector<std::string> listServices = dataPath.folderGetSub(false, true, ".*\\.srv");
+				etk::Vector<etk::String> listServices = dataPath.folderGetSub(false, true, ".*\\.srv");
 				for (auto &it2: listServices) {
-					std::string nameFileSrv = etk::FSNode(it2).getNameFile();
-					std::vector<std::string> spl = etk::split(std::string(nameFileSrv.begin(), nameFileSrv.end()-4), "-service-");
+					etk::String nameFileSrv = etk::FSNode(it2).getNameFile();
+					etk::Vector<etk::String> spl = etk::split(etk::String(nameFileSrv.begin(), nameFileSrv.end()-4), "-service-");
 					if (spl.size() != 2) {
 						APPL_ERROR("reject service, wrong format ... '" << it2 << "' missing XXX-service-SERVICE-NAME.srv");
 						continue;
 					}
 					APPL_INFO("find service : " << it2);
-					listAvaillableServices.push_back(std::make_pair(spl[1], std::string(nameFileSrv.begin(), nameFileSrv.end()-4)));
+					listAvaillableServices.pushBack(etk::makePair(spl[1], etk::String(nameFileSrv.begin(), nameFileSrv.end()-4)));
 				}
 			} else {
 				// not check the second path ==> no service availlable
@@ -256,12 +256,12 @@ int main(int _argc, const char *_argv[]) {
 	#ifdef GATEWAY_ENABLE_LAUNCHER
 	} else {
 		bool routerAlive = true;
-		std::vector<ememory::SharedPtr<PlugginAccess>> listElements;
+		etk::Vector<ememory::SharedPtr<PlugginAccess>> listElements;
 		if (    services.size() == 1
 		     && services[0] == "all") {
 			for (auto &it: listAvaillableServices) {
 				ememory::SharedPtr<PlugginAccess> tmp = ememory::makeShared<PlugginAccess>(it.first, it.second);
-				listElements.push_back(tmp);
+				listElements.pushBack(tmp);
 			}
 		} else {
 			for (auto &it: services) {
@@ -270,7 +270,7 @@ int main(int _argc, const char *_argv[]) {
 				for (auto &it2: listAvaillableServices) {
 					if (it2.first == it) {
 						ememory::SharedPtr<PlugginAccess> tmp = ememory::makeShared<PlugginAccess>(it2.first, it2.second);
-						listElements.push_back(tmp);
+						listElements.pushBack(tmp);
 						find = true;
 						break;
 					}

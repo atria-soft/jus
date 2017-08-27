@@ -6,7 +6,7 @@
 #pragma once
 
 #include <zeus/FutureBase.hpp>
-#include <vector>
+#include <etk/Vector.hpp>
 
 namespace zeus {
 	/**
@@ -15,7 +15,7 @@ namespace zeus {
 	// TODO : Add the posiboilities to have a andFinished()
 	class FutureGroup {
 		private:
-			std::vector<zeus::FutureBase> m_listFuture; //!< List of all Future that we need to wait the end.
+			etk::Vector<zeus::FutureBase> m_listFuture; //!< List of all Future that we need to wait the end.
 		public:
 			/**
 			 * @brief Add an other Future to wait the end.

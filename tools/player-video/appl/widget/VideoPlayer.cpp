@@ -54,6 +54,9 @@ void appl::widget::VideoDisplay::init() {
 			}
 			// All time need to configure in RGB, By default it is in RGBA ...
 			m_resource[iii]->get().configure(ivec2(128,128), egami::colorType::RGB8);
+			// Configure to use the minimum of CPU
+			m_resource[iii]->setRepeat(false);
+			m_resource[iii]->setFilterMode(ewol::resource::TextureFilter::nearest);
 		}
 	}
 	// Create the River manager for tha application or part of the application.
@@ -77,7 +80,7 @@ void appl::widget::VideoDisplay::loadProgram() {
 		m_GLtexID    = m_GLprogram->getUniform("EW_texID");
 	}
 }
-void appl::widget::VideoDisplay::setFile(const std::string& _filename) {
+void appl::widget::VideoDisplay::setFile(const etk::String& _filename) {
 	/*
 	// Stop playing in all case...
 	stop();
@@ -380,7 +383,7 @@ void appl::widget::VideoDisplay::periodicEvent(const ewol::event::Time& _event) 
 	if (m_LastResetCounter > echrono::seconds(1)) {
 		m_LastResetCounter.reset();
 		signalFps.emit(m_nbFramePushed);
-		signalOther.emit(std::to_string(m_nbFramePushed) + " " + etk::to_string(m_resource[m_useElement]->get().getSize()) + " " + etk::to_string(m_resource[m_useElement]->get().getGPUSize()) );
+		signalOther.emit(etk::toString(m_nbFramePushed) + " " + etk::toString(m_resource[m_useElement]->get().getSize()) + " " + etk::toString(m_resource[m_useElement]->get().getGPUSize()) );
 		m_nbFramePushed = 0;
 	}
 	if (    getSomething == false

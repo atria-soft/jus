@@ -20,8 +20,8 @@ namespace appl {
 			bool start(appl::GateWay* _gateway);
 			void receive(ememory::SharedPtr<zeus::Message> _data);
 			void send(ememory::SharedPtr<zeus::Message> _data);
-			bool requestURI(const std::string& _uri);
-			//void answerProtocolError(uint32_t _transactionId, const std::string& _errorHelp);
+			bool requestURI(const etk::String& _uri);
+			//void answerProtocolError(uint32_t _transactionId, const etk::String& _errorHelp);
 			zeus::WebServer* getInterface() {
 				return &m_interfaceWeb;
 			}

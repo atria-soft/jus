@@ -29,7 +29,7 @@
 #include <appl/widget/Player.hpp>
 
 
-static std::string g_baseDBName = "USERDATA:config.json";
+static etk::String g_baseDBName = "USERDATA:config.json";
 
 void appl::Windows::store_db() {
 	APPL_DEBUG("Store database [START]");
@@ -65,7 +65,7 @@ appl::Windows::Windows():
   m_id(0),
   m_fullScreen(false) {
 	addObjectType("appl::Windows");
-	propertyTitle.setDirectCheck(std::string("sample ") + PROJECT_NAME);
+	propertyTitle.setDirectCheck(etk::String("sample ") + PROJECT_NAME);
 }
 
 void appl::Windows::init() {
@@ -120,12 +120,12 @@ void appl::Windows::init() {
 }
 
 
-void appl::Windows::onCallbackShortCut(const std::string& _value) {
+void appl::Windows::onCallbackShortCut(const etk::String& _value) {
 	APPL_WARNING("Event from ShortCut : " << _value);
 	onCallbackMenuEvent(_value);
 }
 
-void appl::Windows::onCallbackMenuEvent(const std::string& _value) {
+void appl::Windows::onCallbackMenuEvent(const etk::String& _value) {
 	APPL_WARNING("Event from Menu : " << _value);
 	if (m_player != nullptr) {
 		m_player->stop();
@@ -242,9 +242,9 @@ void appl::Windows::onCallbackPrevious() {
 		tmpDisp->setFile(m_list[m_id]);
 		tmpDisp->play();
 		echrono::Duration time = tmpDisp->getDuration();
-		APPL_DEBUG("duration = " << time << "  " << etk::to_string(time.toSeconds()));
+		APPL_DEBUG("duration = " << time << "  " << etk::toString(time.toSeconds()));
 		propertySetOnWidgetNamed("progress-bar", "value", "0");
-		propertySetOnWidgetNamed("progress-bar", "max", etk::to_string(time.toSeconds()));
+		propertySetOnWidgetNamed("progress-bar", "max", etk::toString(time.toSeconds()));
 	}
 }
 
@@ -268,26 +268,26 @@ void appl::Windows::onCallbackNext() {
 		tmpDisp->setFile(m_list[m_id]);
 		tmpDisp->play();
 		echrono::Duration time = tmpDisp->getDuration();
-		APPL_DEBUG("duration = " << time << "  " << etk::to_string(time.toSeconds()));
+		APPL_DEBUG("duration = " << time << "  " << etk::toString(time.toSeconds()));
 		propertySetOnWidgetNamed("progress-bar", "value", "0");
-		propertySetOnWidgetNamed("progress-bar", "max", etk::to_string(time.toSeconds()));
+		propertySetOnWidgetNamed("progress-bar", "max", etk::toString(time.toSeconds()));
 	}
 }
 
 
 
-void appl::Windows::addFile(const std::string& _file) {
+void appl::Windows::addFile(const etk::String& _file) {
 	APPL_DEBUG("Add file : " << _file);
-	m_list.push_back(_file);
+	m_list.pushBack(_file);
 	if (m_list.size() == 1) {
 		m_id = 0;
 		ememory::SharedPtr<appl::widget::VideoDisplay> tmpDisp = ememory::dynamicPointerCast<appl::widget::VideoDisplay>(getSubObjectNamed("displayer"));
 		if (tmpDisp != nullptr) {
 			tmpDisp->setFile(m_list[m_id]);
 			echrono::Duration time = tmpDisp->getDuration();
-			APPL_DEBUG("duration = " << time << "  " << etk::to_string(time.toSeconds()));
+			APPL_DEBUG("duration = " << time << "  " << etk::toString(time.toSeconds()));
 			propertySetOnWidgetNamed("progress-bar", "value", "0");
-			propertySetOnWidgetNamed("progress-bar", "max", etk::to_string(time.toSeconds()));
+			propertySetOnWidgetNamed("progress-bar", "max", etk::toString(time.toSeconds()));
 		}
 	}
 }

@@ -52,11 +52,16 @@ def configure(target, my_module):
 	    ])
 	my_module.add_flag('c++', [
 	    "-DPROJECT_NAME=\"\\\""+ my_module.get_name()+"\\\"\"",
-	    "-DAPPL_VERSION=\"\\\"" + tools.version_to_string(my_module.get_version()) + "\\\"\"",
+	    "-DAPPL_VERSION=\"\\\"" + tools.version_toString(my_module.get_version()) + "\\\"\"",
 	    "-Wno-deprecated-declarations"
 	    ])
 	my_module.copy_path('data/*')
 	my_module.add_path(".")
+	if "MacOs" in target.get_type():
+		pass#my_module.set_pkg("ICON", "data/icon.icns")
+	else:
+		my_module.set_pkg("ICON", "data/icon.png")
+	
 	
 	my_module.add_pkg("RIGHT", "SET_ORIENTATION")
 	my_module.add_pkg("RIGHT", "VIBRATE")
