@@ -109,12 +109,12 @@ void zeus::WebServer::setInterfaceName(const etk::String& _name) {
 }
 
 void zeus::WebServer::addWebObj(ememory::SharedPtr<zeus::WebObj> _obj) {
-	//std::unique_lock<std::mutex> lock(m_mutex);
+	//std::unique_lock<ethread::Mutex> lock(m_mutex);
 	m_listObject.pushBack(_obj);
 }
 
 void zeus::WebServer::addWebObjRemote(ememory::SharedPtr<zeus::ObjectRemoteBase> _obj) {
-	//std::unique_lock<std::mutex> lock(m_mutex);
+	//std::unique_lock<ethread::Mutex> lock(m_mutex);
 	m_listRemoteObject.pushBack(_obj);
 }
 
@@ -152,7 +152,7 @@ void zeus::WebServer::interfaceRemoved(etk::Vector<uint16_t> _list) {
 		}
 	}
 	for (int32_t iii=0; iii < _list.size(); ++iii) {
-		std::unique_lock<std::mutex> lock(m_pendingCallMutex);
+		std::unique_lock<ethread::Mutex> lock(m_pendingCallMutex);
 		auto it = m_pendingCall.begin();
 		while (it != m_pendingCall.end()) {
 			if (it->second.isValid() == false) {
@@ -177,7 +177,7 @@ bool zeus::WebServer::isActive() const {
 void zeus::WebServer::connect(bool _async){
 	ZEUS_DEBUG("connect [START]");
 	m_threadAsyncRunning = true;
-	m_threadAsync = new std::thread([&](void *){ this->threadAsyncCallback();}, nullptr);
+	m_threadAsync = new ethread::Thread([&](void *){ this->threadAsyncCallback();}, nullptr);
 	if (m_threadAsync == nullptr) {
 		m_threadAsyncRunning = false;
 		ZEUS_ERROR("creating async sender thread!");
@@ -350,13 +350,13 @@ void zeus::WebServer::newMessage(ememory::SharedPtr<zeus::Message> _buffer) {
 	}
 	if (    _buffer->getPartFinish() == false
 	     && _buffer->getType() != zeus::message::type::data) {
-		//std::unique_lock<std::mutex> lock(m_mutex);
+		//std::unique_lock<ethread::Mutex> lock(m_mutex);
 		m_listPartialMessage.pushBack(_buffer);
 		return;
 	}
 	if (_buffer->getType() == zeus::message::type::data) {
 		// Add data in a previous buffer...
-		//std::unique_lock<std::mutex> lock(m_mutex);
+		//std::unique_lock<ethread::Mutex> lock(m_mutex);
 		auto it = m_listPartialMessage.begin();
 		while (it != m_listPartialMessage.end()) {
 			if (*it == nullptr) {
@@ -391,7 +391,7 @@ void zeus::WebServer::newMessage(ememory::SharedPtr<zeus::Message> _buffer) {
 	if (    _buffer->getType() == zeus::message::type::answer
 	     || _buffer->getType() == zeus::message::type::data
 	     || _buffer->getType() == zeus::message::type::event) {
-		std::unique_lock<std::mutex> lock(m_pendingCallMutex);
+		std::unique_lock<ethread::Mutex> lock(m_pendingCallMutex);
 		auto it = m_pendingCall.begin();
 		while (it != m_pendingCall.end()) {
 			if (it->second.isValid() == false) {
@@ -429,7 +429,7 @@ void zeus::WebServer::newMessage(ememory::SharedPtr<zeus::Message> _buffer) {
 				return;
 			}
 		}
-		//std::unique_lock<std::mutex> lock(m_mutex);
+		//std::unique_lock<ethread::Mutex> lock(m_mutex);
 		// call local map object on remote object
 		for (auto &it : m_listRemoteObject) {
 			ememory::SharedPtr<zeus::ObjectRemoteBase> tmp = it.lock();
@@ -468,7 +468,7 @@ void zeus::WebServer::newMessage(ememory::SharedPtr<zeus::Message> _buffer) {
 	    	bool ret = fut.setMessage(_buffer);
 	    	if (ret == true) {
 	    		ZEUS_LOG_INPUT_OUTPUT("    ==> start LOCK");
-	    		std::unique_lock<std::mutex> lock(m_pendingCallMutex);
+	    		std::unique_lock<ethread::Mutex> lock(m_pendingCallMutex);
 	    		ZEUS_LOG_INPUT_OUTPUT("    ==>       LOCK done");
 	    		auto it = m_pendingCall.begin();
 	    		while (it != m_pendingCall.end()) {
@@ -493,7 +493,7 @@ void zeus::WebServer::newMessage(ememory::SharedPtr<zeus::Message> _buffer) {
 }
 
 void zeus::WebServer::listObjects() {
-	//std::unique_lock<std::mutex> lock(m_mutex);
+	//std::unique_lock<ethread::Mutex> lock(m_mutex);
 	if (    m_listObject.size() == 0
 	     && m_listRemoteObject.size() == 0) {
 		return;
@@ -515,7 +515,7 @@ void zeus::WebServer::listObjects() {
 }
 
 void zeus::WebServer::cleanDeadObject() {
-	//std::unique_lock<std::mutex> lock(m_mutex);
+	//std::unique_lock<ethread::Mutex> lock(m_mutex);
 	if (    m_listObject.size() == 0
 	     && m_listRemoteObject.size() == 0) {
 		return;
@@ -545,7 +545,7 @@ void zeus::WebServer::cleanDeadObject() {
 }
 
 bool zeus::WebServer::transferRemoteObjectOwnership(uint16_t _objectAddress, uint32_t _sourceAddress, uint32_t _destinataireAddress) {
-	//std::unique_lock<std::mutex> lock(m_mutex);
+	//std::unique_lock<ethread::Mutex> lock(m_mutex);
 	if (    m_listObject.size() == 0
 	     && m_listRemoteObject.size() == 0) {
 		return false;
@@ -572,7 +572,7 @@ bool zeus::WebServer::transferRemoteObjectOwnership(uint16_t _objectAddress, uin
 }
 
 bool zeus::WebServer::removeObjectOwnership(uint16_t _objectAddress, uint32_t _sourceAddress) {
-	//std::unique_lock<std::mutex> lock(m_mutex);
+	//std::unique_lock<ethread::Mutex> lock(m_mutex);
 	if (    m_listObject.size() == 0
 	     && m_listRemoteObject.size() == 0) {
 		return false;
@@ -601,7 +601,7 @@ bool zeus::WebServer::removeObjectOwnership(uint16_t _objectAddress, uint32_t _s
 }
 
 void zeus::WebServer::addAsync(zeus::WebServer::ActionAsync _elem) {
-	std::unique_lock<std::mutex> lock(m_threadAsyncMutex);
+	std::unique_lock<ethread::Mutex> lock(m_threadAsyncMutex);
 	m_threadAsyncList2.pushBack(_elem);
 	ZEUS_DEBUG("ADD element to send ... " << m_threadAsyncList2.size());
 }
@@ -613,7 +613,7 @@ void zeus::WebServer::threadAsyncCallback() {
 	while (    m_threadAsyncRunning == true
 	        && m_connection.isAlive() == true) {
 		if (m_threadAsyncList2.size() != 0) {
-			std::unique_lock<std::mutex> lock(m_threadAsyncMutex);
+			std::unique_lock<ethread::Mutex> lock(m_threadAsyncMutex);
 			for (auto &it : m_threadAsyncList2) {
 				m_threadAsyncList.pushBack(it);
 			}
@@ -649,7 +649,7 @@ zeus::FutureBase zeus::WebServer::callBinary(ememory::SharedPtr<zeus::Message> _
 	}
 	zeus::FutureBase tmpFuture(_obj->getTransactionId());
 	{
-		std::unique_lock<std::mutex> lock(m_pendingCallMutex);
+		std::unique_lock<ethread::Mutex> lock(m_pendingCallMutex);
 		m_pendingCall.pushBack(etk::makePair(uint64_t(0), tmpFuture));
 	}
 	writeBinary(_obj);

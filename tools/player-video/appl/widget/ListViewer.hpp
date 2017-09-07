@@ -41,7 +41,7 @@ namespace appl {
 			uint32_t m_nbElementLoaded; //!< this cont the number of lement loaded to set tle media full loaded
 		public:
 			bool LoadDataEnded();
-			std::mutex m_mutex;
+			ethread::Mutex m_mutex;
 			uint64_t m_id; //!< Remote Id of the Media
 			
 			egami::Image m_thumb; //!< simple image describing the element
@@ -77,7 +77,7 @@ namespace appl {
 		public:
 			bool LoadDataEnded();
 		public:
-			std::mutex m_mutex;
+			ethread::Mutex m_mutex;
 			uint64_t m_id; //!< Remote Id of the Media
 			etk::String m_title; //!< Title of the Group
 			etk::String m_filter; //!< element to add in the filter

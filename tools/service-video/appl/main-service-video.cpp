@@ -11,7 +11,7 @@
 #include <zeus/zeus.hpp>
 #include <echrono/Time.hpp>
 
-#include <mutex>
+#include <ethread/Mutex.hpp>
 #include <ejson/ejson.hpp>
 #include <etk/os/FSNode.hpp>
 #include <sstream>
@@ -25,7 +25,7 @@
 #include <zeus/ProxyFile.hpp>
 #include <zeus/zeus-Media.impl.hpp>
 
-static std::mutex g_mutex;
+static ethread::Mutex g_mutex;
 static etk::String g_basePath;
 static etk::String g_basePathCover;
 static etk::String g_basePathCoverGroup;
@@ -130,13 +130,13 @@ namespace appl {
 			}
 		public:
 			uint32_t count() override {
-				std::unique_lock<std::mutex> lock(g_mutex);
+				std::unique_lock<ethread::Mutex> lock(g_mutex);
 				// TODO : Check right ...
 				return m_listFile.size();
 			}
 			
 			etk::Vector<uint32_t> getIds(uint32_t _start, uint32_t _stop) override {
-				std::unique_lock<std::mutex> lock(g_mutex);
+				std::unique_lock<ethread::Mutex> lock(g_mutex);
 				// TODO : Check right ...
 				etk::Vector<uint32_t> out;
 				for (size_t iii=_start; iii<m_listFile.size() && iii<_stop; ++iii) {
@@ -148,7 +148,7 @@ namespace appl {
 				return out;
 			}
 			uint32_t getId(etk::String _sha512) override {
-				std::unique_lock<std::mutex> lock(g_mutex);
+				std::unique_lock<ethread::Mutex> lock(g_mutex);
 				// TODO : Check right ...
 				uint32_t out;
 				for (size_t iii=0; iii<m_listFile.size(); ++iii) {
@@ -164,7 +164,7 @@ namespace appl {
 			
 			// Return a File Data (might be a video .tiff/.png/.jpg)
 			ememory::SharedPtr<zeus::Media> get(uint32_t _mediaId) override {
-				std::unique_lock<std::mutex> lock(g_mutex);
+				std::unique_lock<ethread::Mutex> lock(g_mutex);
 				// TODO : Check right ...
 				ememory::SharedPtr<zeus::MediaImpl> property;
 				for (auto &it : m_listFile) {
@@ -185,7 +185,7 @@ namespace appl {
 				uint64_t id = 0;
 				uint64_t importId = 0;
 				{
-					std::unique_lock<std::mutex> lock(g_mutex);
+					std::unique_lock<ethread::Mutex> lock(g_mutex);
 					// TODO : Check right ...
 					id = createUniqueID();
 					importId = createUniqueImportID();
@@ -197,7 +197,7 @@ namespace appl {
 				futRemoteSha512.wait();
 				etk::String sha512StringRemote = futRemoteSha512.get();
 				{
-					std::unique_lock<std::mutex> lock(g_mutex);
+					std::unique_lock<ethread::Mutex> lock(g_mutex);
 					for (auto &it : m_listFile) {
 						if (it == nullptr) {
 							continue;
@@ -221,7 +221,7 @@ namespace appl {
 					throw std::runtime_error("file size == 0");
 				}
 				if (zeus::getExtention(futType.get()) != "") {
-					std::unique_lock<std::mutex> lock(g_mutex);
+					std::unique_lock<ethread::Mutex> lock(g_mutex);
 					etk::FSNodeMove(tmpFileName, g_basePath + sha512String + "." + zeus::getExtention(futType.get()));
 					ememory::SharedPtr<zeus::MediaImpl> property = ememory::makeShared<zeus::MediaImpl>(id, sha512String + "." + zeus::getExtention(futType.get()), g_basePath);
 					property->setMetadata("sha512", sha512String);
@@ -230,7 +230,7 @@ namespace appl {
 					m_listFile.pushBack(property);
 					g_needToStore = true;
 				} else {
-					std::unique_lock<std::mutex> lock(g_mutex);
+					std::unique_lock<ethread::Mutex> lock(g_mutex);
 					etk::FSNodeMove(tmpFileName, g_basePath + sha512String);
 					ememory::SharedPtr<zeus::MediaImpl> property = ememory::makeShared<zeus::MediaImpl>(id, sha512String, g_basePath);
 					property->setMetadata("sha512", sha512String);
@@ -242,7 +242,7 @@ namespace appl {
 				return id;
 			}
 			void remove(uint32_t _mediaId) override {
-				std::unique_lock<std::mutex> lock(g_mutex);
+				std::unique_lock<ethread::Mutex> lock(g_mutex);
 				// TODO : Check right ...
 				//Check if the file exist:
 				bool find = false;
@@ -354,7 +354,7 @@ namespace appl {
 				}
 				APPL_DEBUG("check : " << _sqlLikeRequest);
 				etk::Vector<etk::Vector<etk::String>> listAndParsed = interpreteSQLRequest(_sqlLikeRequest);
-				std::unique_lock<std::mutex> lock(g_mutex);
+				std::unique_lock<ethread::Mutex> lock(g_mutex);
 				for (auto &it : m_listFile) {
 					if (it == nullptr) {
 						continue;
@@ -375,7 +375,7 @@ namespace appl {
 					throw std::invalid_argument("empty request");
 				}
 				etk::Vector<etk::Vector<etk::String>> listAndParsed = interpreteSQLRequest(_sqlLikeRequest);
-				std::unique_lock<std::mutex> lock(g_mutex);
+				std::unique_lock<ethread::Mutex> lock(g_mutex);
 				for (auto &it : m_listFile) {
 					if (it == nullptr) {
 						continue;
@@ -416,7 +416,7 @@ namespace appl {
 			void internalSetCover(const etk::String& _baseName, zeus::ActionNotification<etk::String>& _notifs, zeus::ProxyFile _cover, etk::String _mediaString) {
 				uint64_t importId = 0;
 				{
-					std::unique_lock<std::mutex> lock(g_mutex);
+					std::unique_lock<ethread::Mutex> lock(g_mutex);
 					importId = createUniqueImportID();
 				}
 				auto futType = _cover.getMineType();
@@ -432,11 +432,11 @@ namespace appl {
 					throw std::runtime_error("file size > 1Mo");
 				}
 				if (futType.get() == "image/png") {
-					std::unique_lock<std::mutex> lock(g_mutex);
+					std::unique_lock<ethread::Mutex> lock(g_mutex);
 					etk::FSNodeRemove(_baseName + _mediaString + ".jpg");
 					etk::FSNodeMove(tmpFileName, _baseName + _mediaString + ".png");
 				} else if (futType.get() == "image/jpeg") {
-					std::unique_lock<std::mutex> lock(g_mutex);
+					std::unique_lock<ethread::Mutex> lock(g_mutex);
 					etk::FSNodeRemove(_baseName + _mediaString + ".png");
 					etk::FSNodeMove(tmpFileName, _baseName + _mediaString + ".jpg");
 				} else {
@@ -510,7 +510,7 @@ ETK_EXPORT_API bool SERVICE_IO_init(int _argc, const char *_argv[], etk::String 
 	g_basePath = _basePath;
 	g_basePathCover = _basePath + "/AAAASDGDFGQN4352SCVdfgBSXDFGFCVQDSGFQSfd_cover/";
 	g_basePathCoverGroup = _basePath + "/AAAASDGDFGQN4352SCVdfgBSXDFGFCVQDSGFQSfd_cover_group/";
-	std::unique_lock<std::mutex> lock(g_mutex);
+	std::unique_lock<ethread::Mutex> lock(g_mutex);
 	APPL_WARNING("Load USER: " << g_basePath);
 	load_db();
 	APPL_WARNING("new USER: [STOP]");
@@ -518,7 +518,7 @@ ETK_EXPORT_API bool SERVICE_IO_init(int _argc, const char *_argv[], etk::String 
 }
 
 ETK_EXPORT_API bool SERVICE_IO_uninit() {
-	std::unique_lock<std::mutex> lock(g_mutex);
+	std::unique_lock<ethread::Mutex> lock(g_mutex);
 	store_db();
 	APPL_WARNING("delete USER [STOP]");
 	return true;

@@ -37,7 +37,7 @@ void zeus::message::Data::setPartId(uint32_t _value) {
 }
 
 bool zeus::message::Data::writeOn(enet::WebSocket& _interface) {
-	std::unique_lock<std::mutex> lock = _interface.getScopeLock();
+	std::unique_lock<ethread::Mutex> lock = _interface.getScopeLock();
 	if (zeus::Message::writeOn(_interface) == false) {
 		return false;
 	}

@@ -9,7 +9,7 @@
 #include <zeus/message/Event.hpp>
 #include <zeus/message/Call.hpp>
 #include <enet/WebSocket.hpp>
-#include <thread>
+#include <ethread/Thread.hpp>
 #include <ememory/memory.hpp>
 #include <zeus/AbstractFunction.hpp>
 #include <zeus/FutureBase.hpp>
@@ -109,7 +109,7 @@ namespace zeus {
 	 */
 	class WebServer : public ememory::EnableSharedFromThis<zeus::WebServer> {
 		protected:
-			std::mutex m_mutex; //!< main interface lock
+			ethread::Mutex m_mutex; //!< main interface lock
 		public:
 			etk::Vector<ememory::SharedPtr<zeus::WebObj>> m_actifObject; //!< List of all active object created and that remove is in progress ...
 		private:
@@ -138,7 +138,7 @@ namespace zeus {
 			 * @return a new single object ID
 			 */
 			uint16_t getNewObjectId() {
-				std::unique_lock<std::mutex> lock(m_mutex);
+				std::unique_lock<ethread::Mutex> lock(m_mutex);
 				return m_localIdObjectIncrement++;
 			}
 		private:
@@ -171,10 +171,10 @@ namespace zeus {
 			 * @return Unique ID of the transmision
 			 */
 			uint16_t getId();
-			std::mutex m_pendingCallMutex; //!< local call of a pendinc call venctor update
+			ethread::Mutex m_pendingCallMutex; //!< local call of a pendinc call venctor update
 			etk::Vector<etk::Pair<uint64_t, zeus::FutureBase>> m_pendingCall; //!< List of pending call interface
 		public:
-			using Observer = std::function<void(ememory::SharedPtr<zeus::Message>)>; //!< Define an Observer: function pointer
+			using Observer = etk::Function<void(ememory::SharedPtr<zeus::Message>)>; //!< Define an Observer: function pointer
 			Observer m_observerElement; //!< Observer on a new message arriving
 			/**
 			 * @brief Connect an function member on the signal with the shared_ptr object.
@@ -188,7 +188,7 @@ namespace zeus {
 				};
 			}
 		public:
-			using ObserverRequestUri = std::function<bool(const etk::String&)>; //!< Define an Observer on the specific URI requested callback: function pointer (return true if the connection is accepted or not)
+			using ObserverRequestUri = etk::Function<bool(const etk::String&)>; //!< Define an Observer on the specific URI requested callback: function pointer (return true if the connection is accepted or not)
 		protected:
 			ObserverRequestUri m_observerRequestUri; //!< Observer on a requesting URI connection
 		public:
@@ -299,9 +299,9 @@ namespace zeus {
 				return m_connection.getLastTimeSend();
 			}
 		private:
-			using ActionAsync = std::function<bool(WebServer* _interface)>; //!< type of the action for sending big data on the websocket
-			std::mutex m_threadAsyncMutex; //!< Mutex fot the thread to send async data
-			std::thread* m_threadAsync; //!< sending async data thread. TODO: Set it in a thread pool ...
+			using ActionAsync = etk::Function<bool(WebServer* _interface)>; //!< type of the action for sending big data on the websocket
+			ethread::Mutex m_threadAsyncMutex; //!< Mutex fot the thread to send async data
+			ethread::Thread* m_threadAsync; //!< sending async data thread. TODO: Set it in a thread pool ...
 			bool m_threadAsyncRunning; //!< Threa is running
 			etk::Vector<ActionAsync> m_threadAsyncList; //!< List of action to send (current)
 			etk::Vector<ActionAsync> m_threadAsyncList2; //!< list of action to send whenwurrent is sending in progress

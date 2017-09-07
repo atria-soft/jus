@@ -490,7 +490,7 @@ int appl::MediaDecoder::readFunc(uint8_t* _buf, int _bufSize) {
 	}
 	// Real Load of the data:
 	{
-		std::unique_lock<std::mutex> lock(m_remote->m_mutex);
+		std::unique_lock<ethread::Mutex> lock(m_remote->m_mutex);
 		memcpy(_buf, &m_remote->m_buffer[m_remote->m_bufferReadPosition], _bufSize);
 		m_remote->m_bufferReadPosition += _bufSize;
 	}
@@ -499,7 +499,7 @@ int appl::MediaDecoder::readFunc(uint8_t* _buf, int _bufSize) {
 }
 
 int32_t appl::StreamBuffering::sizeReadable() {
-	std::unique_lock<std::mutex> lock(m_mutex);
+	std::unique_lock<ethread::Mutex> lock(m_mutex);
 	for (auto &it : m_bufferFillSection) {
 		if (    m_bufferReadPosition >= it.first
 		     && m_bufferReadPosition < it.second) {
@@ -561,7 +561,7 @@ bool appl::StreamBuffering::addDataCallback(const zeus::Raw& _data, int64_t _pos
 		std::this_thread::sleep_for(std::chrono::milliseconds(10));
 	#endif
 	{
-		std::unique_lock<std::mutex> lock(m_mutex);
+		std::unique_lock<ethread::Mutex> lock(m_mutex);
 		bool find = false;
 		m_callInProgress = false;
 		// TODO : Check buffer size ...
@@ -609,24 +609,24 @@ bool appl::StreamBuffering::addDataCallback(const zeus::Raw& _data, int64_t _pos
 
 
 appl::StreamBuffering::StreamBuffering() {
-	std::unique_lock<std::mutex> lock(m_mutex);
+	std::unique_lock<ethread::Mutex> lock(m_mutex);
 	m_callInProgress = false;
 	m_stopRequested = false;
 	m_mediaId = 0;
 	m_bufferReadPosition = 0;
 }
 void appl::StreamBuffering::stopStream() {
-	std::unique_lock<std::mutex> lock(m_mutex);
+	std::unique_lock<ethread::Mutex> lock(m_mutex);
 	m_stopRequested = true;
 }
 void appl::StreamBuffering::startStream() {
-	std::unique_lock<std::mutex> lock(m_mutex);
+	std::unique_lock<ethread::Mutex> lock(m_mutex);
 	m_stopRequested = false;
 }
 
 // TODO: Add requested section ...
 void appl::StreamBuffering::checkIfWeNeedMoreDataFromNetwork() {
-	std::unique_lock<std::mutex> lock(m_mutex);
+	std::unique_lock<ethread::Mutex> lock(m_mutex);
 	// check if enought data:
 	bool find = false;
 	if (m_callInProgress == true) {

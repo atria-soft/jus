@@ -7,13 +7,13 @@
 #include <appl/debug.hpp>
 #include <etk/etk.hpp>
 
-#include <mutex>
+#include <ethread/Mutex.hpp>
 #include <etk/os/FSNode.hpp>
 #include <sstream>
 #include <stdlib.h>
 #include <stdio.h>
 #include <dlfcn.h>
-#include <thread>
+#include <ethread/Thread.hpp>
 #include <etk/stdTools.hpp>
 #include <zeus/Object.hpp>
 #include <zeus/Client.hpp>

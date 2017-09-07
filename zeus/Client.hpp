@@ -97,7 +97,7 @@ namespace zeus {
 			 */
 			zeus::ObjectRemote getService(const etk::String& _serviceName);
 			
-			using factoryService = std::function<void(uint32_t, ememory::SharedPtr<zeus::WebServer>& _iface, uint32_t _destination)>; //!< call this function anser to the caller the requested Object
+			using factoryService = etk::Function<void(uint32_t, ememory::SharedPtr<zeus::WebServer>& _iface, uint32_t _destination)>; //!< call this function anser to the caller the requested Object
 			
 			etk::Map<etk::String,factoryService> m_listServicesAvaillable; //!< list of all factory availlable (to create new services)
 			/**

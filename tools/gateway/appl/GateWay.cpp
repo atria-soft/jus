@@ -15,7 +15,7 @@ namespace appl {
 	class TcpServerInput {
 		private:
 			enet::TcpServer m_interface;
-			std::thread* m_thread;
+			ethread::Thread* m_thread;
 			bool m_threadRunning;
 			appl::GateWay* m_gateway;
 		public:
@@ -32,7 +32,7 @@ namespace appl {
 				m_interface.link();
 				m_threadRunning = true;
 				APPL_INFO("Start waiting on " << _host << " " << _port);
-				m_thread = new std::thread([&](void *){ this->threadCallback();}, nullptr);
+				m_thread = new ethread::Thread([&](void *){ this->threadCallback();}, nullptr);
 				if (m_thread == nullptr) {
 					m_threadRunning = false;
 					APPL_ERROR("creating callback thread!");

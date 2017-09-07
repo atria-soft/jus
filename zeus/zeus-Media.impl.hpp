@@ -17,9 +17,9 @@ namespace zeus {
 			etk::String m_basePath; //!< basic global path
 			etk::String m_fileName; //!< Name of the file
 			etk::Map<etk::String, etk::String> m_metadata; //!< all extra property
-			std::function<void(zeus::MediaImpl*, const etk::String& )> m_callback;
+			etk::Function<void(zeus::MediaImpl*, const etk::String& )> m_callback;
 		public:
-			void setCallbackMetadataChange(std::function<void(zeus::MediaImpl*, const etk::String& )> _callback) {
+			void setCallbackMetadataChange(etk::Function<void(zeus::MediaImpl*, const etk::String& )> _callback) {
 				m_callback = _callback;
 			}
 		public:

@@ -91,7 +91,7 @@ namespace zeus {
 				zeus::FutureBase::waitUntil(_endTime);
 				return *this;
 			}
-			using ObserverFut = std::function<bool(zeus::Future<ZEUS_RETURN, ZEUS_EVENT>)>; //!< Define an Observer: function pointer for the local specific Future
+			using ObserverFut = etk::Function<bool(zeus::Future<ZEUS_RETURN, ZEUS_EVENT>)>; //!< Define an Observer: function pointer for the local specific Future
 			/**
 			 * @brief Attach callback on all return type of value
 			 * @param[in] _callback Handle on the function to call in all case
@@ -108,7 +108,7 @@ namespace zeus {
 			 * @brief Attach callback on a specific return action (SUCESS)
 			 * @param[in] _callback Handle on the function to call in case of sucess on the call (return value)
 			 */
-			Future<ZEUS_RETURN, ZEUS_EVENT>& andThen(std::function<bool(const ZEUS_RETURN&)> _callback) {
+			Future<ZEUS_RETURN, ZEUS_EVENT>& andThen(etk::Function<bool(const ZEUS_RETURN&)> _callback) {
 				zeus::FutureBase::andThen(
 				    [=](zeus::FutureBase _fut) {
 				    	zeus::Future<ZEUS_RETURN> tmp(_fut);
@@ -121,7 +121,7 @@ namespace zeus {
 			 * @brief Attach callback on a specific return action (SUCESS)
 			 * @param[in] _callback Handle on the function to call in case of sucess on the call (return value)
 			 */
-			Future<ZEUS_RETURN, ZEUS_EVENT>& andThen(std::function<bool(ZEUS_RETURN)> _callback) {
+			Future<ZEUS_RETURN, ZEUS_EVENT>& andThen(etk::Function<bool(ZEUS_RETURN)> _callback) {
 				zeus::FutureBase::andThen(
 				    [=](zeus::FutureBase _fut) {
 				    	return _callback(etk::move(zeus::Future<ZEUS_RETURN, ZEUS_EVENT>(_fut).get()));
@@ -145,7 +145,7 @@ namespace zeus {
 			 * @brief Attach callback on a specific return action (ERROR)
 			 * @param[in] _callback Handle on the function to call in case of error on the call (with error parameter (ERROR type, Help string)
 			 */
-			Future<ZEUS_RETURN, ZEUS_EVENT>& andElse(std::function<bool(const etk::String&, const etk::String&)> _callback) {
+			Future<ZEUS_RETURN, ZEUS_EVENT>& andElse(etk::Function<bool(const etk::String&, const etk::String&)> _callback) {
 				zeus::FutureBase::andElse(
 				    [=](zeus::FutureBase _fut) {
 				    	return _callback(_fut.getErrorType(), _fut.getErrorHelp());
@@ -170,8 +170,8 @@ namespace zeus {
 			 * @brief Attach callback on activity of the action / signal
 			 * @param[in] _callback Handle on the function to call in progress information
 			 */
-			//template<typename = std::enable_if<std::is_void<ZEUS_EVENT>::value, false>>
-			Future<ZEUS_RETURN, ZEUS_EVENT>& onSignal(std::function<void(const ZEUS_EVENT&)> _callback) {
+			//template<typename = etk::EnableIf<etk::IsVoid<ZEUS_EVENT>::value, false>>
+			Future<ZEUS_RETURN, ZEUS_EVENT>& onSignal(etk::Function<void(const ZEUS_EVENT&)> _callback) {
 				zeus::FutureBase::onEvent(
 				    [=](ememory::SharedPtr<zeus::message::Event> _msg) {
 				    	if (_msg == nullptr) {
@@ -186,8 +186,8 @@ namespace zeus {
 			 * @brief Attach callback on activity of the action / signal
 			 * @param[in] _callback Handle on the function to call in progress information
 			 */
-			//template<typename = std::enable_if<std::is_void<ZEUS_EVENT>::value, false>>
-			Future<ZEUS_RETURN, ZEUS_EVENT>& onSignal(std::function<void(ZEUS_EVENT)> _callback) {
+			//template<typename = etk::EnableIf<etk::IsVoid<ZEUS_EVENT>::value, false>>
+			Future<ZEUS_RETURN, ZEUS_EVENT>& onSignal(etk::Function<void(ZEUS_EVENT)> _callback) {
 				zeus::FutureBase::onEvent(
 				    [=](ememory::SharedPtr<zeus::message::Event> _msg) {
 				    	if (_msg == nullptr) {
@@ -270,7 +270,7 @@ namespace zeus {
 				zeus::FutureBase::waitUntil(_endTime);
 				return *this;
 			}
-			using ObserverFut = std::function<bool(zeus::Future<void, ZEUS_EVENT>)>; //!< Define an Observer: function pointer for the local specific Future
+			using ObserverFut = etk::Function<bool(zeus::Future<void, ZEUS_EVENT>)>; //!< Define an Observer: function pointer for the local specific Future
 			/**
 			 * @brief Attach callback on all return type of value
 			 * @param[in] _callback Handle on the function to call in all case
@@ -299,7 +299,7 @@ namespace zeus {
 			 * @brief Attach callback on a specific return action (SUCESS)
 			 * @param[in] _callback Handle on the function to call in case of sucess on the call (void parameter)
 			 */
-			Future<void, ZEUS_EVENT>& andThen(std::function<bool()> _callback) {
+			Future<void, ZEUS_EVENT>& andThen(etk::Function<bool()> _callback) {
 				zeus::FutureBase::andThen(
 				    [=](zeus::FutureBase _fut) {
 				    	return _callback();
@@ -323,7 +323,7 @@ namespace zeus {
 			 * @brief Attach callback on a specific return action (ERROR)
 			 * @param[in] _callback Handle on the function to call in case of error on the call (with error parameter (ERROR type, Help string)
 			 */
-			Future<void, ZEUS_EVENT>& andElse(std::function<bool(const etk::String&, const etk::String&)> _callback) {
+			Future<void, ZEUS_EVENT>& andElse(etk::Function<bool(const etk::String&, const etk::String&)> _callback) {
 				zeus::FutureBase::andElse(
 				    [=](zeus::FutureBase _fut) {
 				    	return _callback(_fut.getErrorType(), _fut.getErrorHelp());
@@ -335,8 +335,8 @@ namespace zeus {
 			 * @brief Attach callback on activity of the action / signal
 			 * @param[in] _callback Handle on the function to call in progress information
 			 */
-			//template<typename = std::enable_if<std::is_void<ZEUS_EVENT>::value, false>>
-			Future<void, ZEUS_EVENT>& onSignal(std::function<void(const ZEUS_EVENT&)> _callback) {
+			//template<typename = etk::EnableIf<etk::IsVoid<ZEUS_EVENT>::value, false>>
+			Future<void, ZEUS_EVENT>& onSignal(etk::Function<void(const ZEUS_EVENT&)> _callback) {
 				zeus::FutureBase::onEvent(
 				    [=](ememory::SharedPtr<zeus::message::Event> _msg) {
 				    	if (_msg == nullptr) {
@@ -351,8 +351,8 @@ namespace zeus {
 			 * @brief Attach callback on activity of the action / signal
 			 * @param[in] _callback Handle on the function to call in progress information
 			 */
-			//template<typename = std::enable_if<std::is_void<ZEUS_EVENT>::value, false>>
-			Future<void, ZEUS_EVENT>& onSignal(std::function<void(ZEUS_EVENT)> _callback) {
+			//template<typename = etk::EnableIf<etk::IsVoid<ZEUS_EVENT>::value, false>>
+			Future<void, ZEUS_EVENT>& onSignal(etk::Function<void(ZEUS_EVENT)> _callback) {
 				zeus::FutureBase::onEvent(
 				    [=](ememory::SharedPtr<zeus::message::Event> _msg) {
 				    	if (_msg == nullptr) {

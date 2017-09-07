@@ -12,7 +12,7 @@
 namespace zeus {
 	class WebServer;
 	// define basic async call element ...
-	using ActionAsyncClient = std::function<bool(WebServer* _interface, const uint32_t& _clientId, const uint32_t& _serviceId, uint64_t _transactionId, uint64_t _part)>;
+	using ActionAsyncClient = etk::Function<bool(WebServer* _interface, const uint32_t& _clientId, const uint32_t& _serviceId, uint64_t _transactionId, uint64_t _part)>;
 }
 
 

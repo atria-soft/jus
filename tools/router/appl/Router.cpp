@@ -66,7 +66,7 @@ namespace appl {
 	class TcpServerInput {
 		private:
 			enet::TcpServer m_interface;
-			std::thread* m_thread;
+			ethread::Thread* m_thread;
 			bool m_threadRunning;
 			appl::Router* m_router;
 			bool m_service;
@@ -84,7 +84,7 @@ namespace appl {
 				m_interface.setPort(_port);
 				m_interface.link();
 				m_threadRunning = true;
-				m_thread = new std::thread([&](void *){ this->threadCallback();}, nullptr);
+				m_thread = new ethread::Thread([&](void *){ this->threadCallback();}, nullptr);
 				if (m_thread == nullptr) {
 					m_threadRunning = false;
 					ZEUS_ERROR("creating callback thread!");

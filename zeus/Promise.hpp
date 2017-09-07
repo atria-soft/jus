@@ -21,10 +21,10 @@ namespace zeus {
 	 */
 	class Promise : public ememory::EnableSharedFromThis<zeus::Promise> {
 		public:
-			using Observer = std::function<bool(zeus::FutureBase)>; //!< Define an Observer: function pointer
-			using ObserverEvent = std::function<void(ememory::SharedPtr<zeus::message::Event>)>; //!< Define the observer on activity of the action (note that is a string, but it can contain json or other ...)
+			using Observer = etk::Function<bool(zeus::FutureBase)>; //!< Define an Observer: function pointer
+			using ObserverEvent = etk::Function<void(ememory::SharedPtr<zeus::message::Event>)>; //!< Define the observer on activity of the action (note that is a string, but it can contain json or other ...)
 		private:
-			mutable std::mutex m_mutex; //!< local prevention of multiple acess
+			mutable ethread::Mutex m_mutex; //!< local prevention of multiple acess
 			uint32_t m_transactionId; //!< waiting answer data
 			uint32_t m_source; //!< Source of the message.
 			ememory::SharedPtr<zeus::Message> m_message; //!< all buffer concatenate or last buffer if synchronous

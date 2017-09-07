@@ -11,7 +11,7 @@
 #include <zeus/zeus.hpp>
 #include <echrono/Time.hpp>
 
-#include <mutex>
+#include <ethread/Mutex.hpp>
 #include <ejson/ejson.hpp>
 #include <etk/os/FSNode.hpp>
 #include <sstream>
@@ -24,7 +24,7 @@
 #include <zeus/ProxyFile.hpp>
 #include <zeus/zeus-Media.impl.hpp>
 
-static std::mutex g_mutex;
+static ethread::Mutex g_mutex;
 static etk::String g_basePath;
 static etk::String g_baseDBName = etk::String(SERVICE_NAME) + "-database.json";
 
@@ -96,7 +96,7 @@ static void load_db() {
 
 ETK_EXPORT_API bool SERVICE_IO_init(int _argc, const char *_argv[], etk::String _basePath) {
 	g_basePath = _basePath;
-	std::unique_lock<std::mutex> lock(g_mutex);
+	std::unique_lock<ethread::Mutex> lock(g_mutex);
 	APPL_INFO("Load USER: " << g_basePath);
 	load_db();
 	APPL_INFO("new USER: [STOP]");
@@ -104,7 +104,7 @@ ETK_EXPORT_API bool SERVICE_IO_init(int _argc, const char *_argv[], etk::String 
 }
 
 ETK_EXPORT_API bool SERVICE_IO_uninit() {
-	std::unique_lock<std::mutex> lock(g_mutex);
+	std::unique_lock<ethread::Mutex> lock(g_mutex);
 	store_db();
 	APPL_INFO("delete USER [STOP]");
 	return true;

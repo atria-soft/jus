@@ -60,7 +60,7 @@ namespace appl {
 	class StreamBuffering : public ememory::EnableSharedFromThis<StreamBuffering> {
 		public:
 			StreamBuffering();
-			std::mutex                                m_mutex; //!< local Lock Data protection
+			ethread::Mutex                                m_mutex; //!< local Lock Data protection
 			ememory::SharedPtr<appl::ClientProperty>  m_property; //!< Remote interface that must get data
 			uint32_t                                  m_mediaId; //!< remote media ID that need to get data
 			zeus::ProxyFile                           m_fileHandle; //!< Reference on the remote file
@@ -73,11 +73,11 @@ namespace appl {
 			bool addDataCallback(const zeus::Raw& _data, int64_t _positionRequest);
 			void checkIfWeNeedMoreDataFromNetwork();
 			uint64_t getSize() {
-				std::unique_lock<std::mutex> lock(m_mutex);
+				std::unique_lock<ethread::Mutex> lock(m_mutex);
 				return m_buffer.size();
 			}
 			etk::Vector<etk::Pair<uint32_t,uint32_t>> getDownloadPart() {
-				std::unique_lock<std::mutex> lock(m_mutex);
+				std::unique_lock<ethread::Mutex> lock(m_mutex);
 				return m_bufferFillSection;
 			}
 			int32_t sizeReadable();

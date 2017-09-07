@@ -35,7 +35,7 @@ void zeus::message::Call::setCall(const etk::String& _value) {
 }
 
 bool zeus::message::Call::writeOn(enet::WebSocket& _interface) {
-	std::unique_lock<std::mutex> lock = _interface.getScopeLock();
+	std::unique_lock<ethread::Mutex> lock = _interface.getScopeLock();
 	zeus::Message::writeOn(_interface);
 	_interface.writeData((uint8_t*)m_callName.c_str(), m_callName.size() + 1);
 	if (message::Parameter::writeOn(_interface) == false) {
