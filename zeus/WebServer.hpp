@@ -64,7 +64,7 @@ namespace zeus {
 	                 _ARGS&&... _args) {
 		_obj->addParameter<ZEUS_TYPE>(_param);
 		_paramId++;
-		createParam(_paramId, _obj, std::forward<_ARGS>(_args)...);
+		createParam(_paramId, _obj, etk::forward<_ARGS>(_args)...);
 	}
 	/**
 	 * @brief Template specialization in 'const char*' to add a parameter of a function in recursive form
@@ -78,7 +78,7 @@ namespace zeus {
 	                 ememory::SharedPtr<zeus::message::Call> _obj,
 	                 const char* _param,
 	                 _ARGS&&... _args) {
-		createParam(_paramId, _obj, etk::String(_param), std::forward<_ARGS>(_args)...);
+		createParam(_paramId, _obj, etk::String(_param), etk::forward<_ARGS>(_args)...);
 	}
 	/**
 	 * @brieftemplate to create a ZEUS CALL message with all the parameter in arguments
@@ -101,7 +101,7 @@ namespace zeus {
 		if (callElem == nullptr) {
 			return nullptr;
 		}
-		createParam(0, callElem, std::forward<_ARGS>(_args)...);
+		createParam(0, callElem, etk::forward<_ARGS>(_args)...);
 		return callElem;
 	}
 	/**
@@ -138,7 +138,7 @@ namespace zeus {
 			 * @return a new single object ID
 			 */
 			uint16_t getNewObjectId() {
-				std::unique_lock<ethread::Mutex> lock(m_mutex);
+				ethread::UniqueLock lock(m_mutex);
 				return m_localIdObjectIncrement++;
 			}
 		private:
@@ -336,7 +336,7 @@ namespace zeus {
 			template<class... _ARGS>
 			zeus::FutureBase call(const uint32_t& _source, const uint32_t& _destination, const etk::String& _functionName, _ARGS&&... _args) {
 				uint16_t id = getId();
-				ememory::SharedPtr<zeus::message::Call> callElem = zeus::createCall(sharedFromThis(), id, _source, _destination, _functionName, std::forward<_ARGS>(_args)...);
+				ememory::SharedPtr<zeus::message::Call> callElem = zeus::createCall(sharedFromThis(), id, _source, _destination, _functionName, etk::forward<_ARGS>(_args)...);
 				return callBinary(callElem);
 			}
 		public: // Events ...

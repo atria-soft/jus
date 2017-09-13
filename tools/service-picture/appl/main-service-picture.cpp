@@ -14,7 +14,6 @@
 #include <ethread/Mutex.hpp>
 #include <ejson/ejson.hpp>
 #include <etk/os/FSNode.hpp>
-#include <sstream>
 
 #include <etk/stdTools.hpp>
 
@@ -78,13 +77,13 @@ namespace appl {
 			}
 		public:
 			uint32_t mediaIdCount() override {
-				std::unique_lock<ethread::Mutex> lock(g_mutex);
+				ethread::UniqueLock lock(g_mutex);
 				// TODO : Check right ...
 				return m_listFile.size();
 			}
 			
 			etk::Vector<uint32_t> mediaIdGetRange(uint32_t _start, uint32_t _stop) override {
-				std::unique_lock<ethread::Mutex> lock(g_mutex);
+				ethread::UniqueLock lock(g_mutex);
 				// TODO : Check right ...
 				etk::Vector<uint32_t> out;
 				for (size_t iii=_start; iii<m_listFile.size() && iii<_stop; ++iii) {
@@ -94,7 +93,7 @@ namespace appl {
 			}
 			// Return a File Data (might be a picture .tiff/.png/.jpg)
 			ememory::SharedPtr<zeus::File> mediaGet(uint32_t _mediaId) override {
-				std::unique_lock<ethread::Mutex> lock(g_mutex);
+				ethread::UniqueLock lock(g_mutex);
 				// TODO : Check right ...
 				//Check if the file exist:
 				bool find = false;
@@ -112,7 +111,7 @@ namespace appl {
 				return zeus::File::create(g_basePath + property.m_fileName + "." + zeus::getExtention(property.m_mineType), "", property.m_mineType);
 			}
 			uint32_t mediaAdd(zeus::ProxyFile _dataFile) override {
-				std::unique_lock<ethread::Mutex> lock(g_mutex);
+				ethread::UniqueLock lock(g_mutex);
 				// TODO : Check right ...
 				uint64_t id = createUniqueID();
 				
@@ -151,7 +150,7 @@ namespace appl {
 				return id;
 			}
 			void mediaRemove(uint32_t _mediaId) override {
-				std::unique_lock<ethread::Mutex> lock(g_mutex);
+				ethread::UniqueLock lock(g_mutex);
 				// TODO : Check right ...
 				//Check if the file exist:
 				bool find = false;
@@ -229,7 +228,7 @@ namespace appl {
 				throw std::invalid_argument("Wrong Album ID ...");
 			}
 			uint32_t albumCreate(etk::String _albumName) override {
-				std::unique_lock<ethread::Mutex> lock(g_mutex);
+				ethread::UniqueLock lock(g_mutex);
 				// TODO : Check right ...
 				for (auto &it : m_listAlbum) {
 					if (it.m_name == _albumName) {
@@ -245,7 +244,7 @@ namespace appl {
 			
 			
 			void albumRemove(uint32_t _albumId) override {
-				std::unique_lock<ethread::Mutex> lock(g_mutex);
+				ethread::UniqueLock lock(g_mutex);
 				// TODO : Check right ...
 				for (auto it = m_listAlbum.begin();
 				     it != m_listAlbum.end();
@@ -259,7 +258,7 @@ namespace appl {
 				throw std::invalid_argument("Wrong Album ID ...");
 			}
 			etk::Vector<uint32_t> albumGetList() override {
-				std::unique_lock<ethread::Mutex> lock(g_mutex);
+				ethread::UniqueLock lock(g_mutex);
 				etk::Vector<uint32_t> out;
 				for (auto &it : m_listAlbum) {
 					out.pushBack(it.m_id);
@@ -267,7 +266,7 @@ namespace appl {
 				return out;
 			}
 			etk::String albumNameGet(uint32_t _albumId) override {
-				std::unique_lock<ethread::Mutex> lock(g_mutex);
+				ethread::UniqueLock lock(g_mutex);
 				for (auto &it : m_listAlbum) {
 					if (it.m_id == _albumId) {
 						return it.m_name;
@@ -277,7 +276,7 @@ namespace appl {
 				return "";
 			}
 			void albumNameSet(uint32_t _albumId, etk::String _albumName) override {
-				std::unique_lock<ethread::Mutex> lock(g_mutex);
+				ethread::UniqueLock lock(g_mutex);
 				for (auto &it : m_listAlbum) {
 					if (it.m_id == _albumId) {
 						it.m_name = _albumName;
@@ -287,7 +286,7 @@ namespace appl {
 				throw std::invalid_argument("Wrong Album ID ...");
 			}
 			etk::String albumDescriptionGet(uint32_t _albumId) override {
-				std::unique_lock<ethread::Mutex> lock(g_mutex);
+				ethread::UniqueLock lock(g_mutex);
 				for (auto &it : m_listAlbum) {
 					if (it.m_id == _albumId) {
 						return it.m_description;
@@ -297,7 +296,7 @@ namespace appl {
 				return "";
 			}
 			void albumDescriptionSet(uint32_t _albumId, etk::String _desc) override {
-				std::unique_lock<ethread::Mutex> lock(g_mutex);
+				ethread::UniqueLock lock(g_mutex);
 				for (auto &it : m_listAlbum) {
 					if (it.m_id == _albumId) {
 						it.m_description = _desc;
@@ -307,7 +306,7 @@ namespace appl {
 				throw std::invalid_argument("Wrong Album ID ...");
 			}
 			void albumMediaAdd(uint32_t _albumId, uint32_t _mediaId) override {
-				std::unique_lock<ethread::Mutex> lock(g_mutex);
+				ethread::UniqueLock lock(g_mutex);
 				for (auto &it : m_listAlbum) {
 					if (it.m_id == _albumId) {
 						for (auto &elem : it.m_listMedia) {
@@ -323,7 +322,7 @@ namespace appl {
 				throw std::invalid_argument("Wrong Album ID ...");
 			}
 			void albumMediaRemove(uint32_t _albumId, uint32_t _mediaId) override {
-				std::unique_lock<ethread::Mutex> lock(g_mutex);
+				ethread::UniqueLock lock(g_mutex);
 				for (auto &it : m_listAlbum) {
 					if (it.m_id == _albumId) {
 						for (auto elem = it.m_listMedia.begin();
@@ -342,7 +341,7 @@ namespace appl {
 				throw std::invalid_argument("Wrong Album ID ...");
 			}
 			uint32_t albumMediaCount(uint32_t _albumId) override {
-				std::unique_lock<ethread::Mutex> lock(g_mutex);
+				ethread::UniqueLock lock(g_mutex);
 				for (auto &it : m_listAlbum) {
 					if (it.m_id == _albumId) {
 						return it.m_listMedia.size();
@@ -352,7 +351,7 @@ namespace appl {
 				return 0;
 			}
 			etk::Vector<uint32_t> albumMediaIdGet(uint32_t _albumId, uint32_t _start, uint32_t _stop) override {
-				std::unique_lock<ethread::Mutex> lock(g_mutex);
+				ethread::UniqueLock lock(g_mutex);
 				for (auto &it : m_listAlbum) {
 					if (it.m_id == _albumId) {
 						etk::Vector<uint32_t> out;
@@ -368,7 +367,7 @@ namespace appl {
 				throw std::invalid_argument("Wrong Album ID ...");
 			}
 			void albumParentSet(uint32_t _albumId, uint32_t _albumParentId) override {
-				std::unique_lock<ethread::Mutex> lock(g_mutex);
+				ethread::UniqueLock lock(g_mutex);
 				for (auto &it : m_listAlbum) {
 					if (it.m_id == _albumId) {
 						it.m_parentId = _albumParentId;
@@ -378,7 +377,7 @@ namespace appl {
 				throw std::invalid_argument("Wrong Album ID ...");
 			}
 			void albumParentRemove(uint32_t _albumId) override {
-				std::unique_lock<ethread::Mutex> lock(g_mutex);
+				ethread::UniqueLock lock(g_mutex);
 				for (auto &it : m_listAlbum) {
 					if (it.m_id == _albumId) {
 						it.m_parentId = 0;
@@ -388,7 +387,7 @@ namespace appl {
 				throw std::invalid_argument("Wrong Album ID ...");
 			}
 			uint32_t albumParentGet(uint32_t _albumId) override {
-				std::unique_lock<ethread::Mutex> lock(g_mutex);
+				ethread::UniqueLock lock(g_mutex);
 				for (auto &it : m_listAlbum) {
 					if (it.m_id == _albumId) {
 						return it.m_parentId;
@@ -493,7 +492,7 @@ static void load_db() {
 
 ETK_EXPORT_API bool SERVICE_IO_init(int _argc, const char *_argv[], etk::String _basePath) {
 	g_basePath = _basePath;
-	std::unique_lock<ethread::Mutex> lock(g_mutex);
+	ethread::UniqueLock lock(g_mutex);
 	APPL_WARNING("Load USER: " << g_basePath);
 	load_db();
 	APPL_WARNING("new USER: [STOP]");
@@ -501,7 +500,7 @@ ETK_EXPORT_API bool SERVICE_IO_init(int _argc, const char *_argv[], etk::String 
 }
 
 ETK_EXPORT_API bool SERVICE_IO_uninit() {
-	std::unique_lock<ethread::Mutex> lock(g_mutex);
+	ethread::UniqueLock lock(g_mutex);
 	store_db();
 	APPL_WARNING("delete USER [STOP]");
 	return true;

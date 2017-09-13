@@ -475,7 +475,7 @@ int appl::MediaDecoder::readFunc(uint8_t* _buf, int _bufSize) {
 	}
 	while(m_remote->sizeReadable() == 0) {
 		APPL_WARNING("          -------- waiting data --------- ");// << m_remote->sizeReadable());
-		std::this_thread::sleep_for(std::chrono::milliseconds(50));
+		ethread::sleepMilliSeconds((50));
 		if (m_stopRequested == true) {
 			return 0;
 		}
@@ -490,7 +490,7 @@ int appl::MediaDecoder::readFunc(uint8_t* _buf, int _bufSize) {
 	}
 	// Real Load of the data:
 	{
-		std::unique_lock<ethread::Mutex> lock(m_remote->m_mutex);
+		ethread::UniqueLock lock(m_remote->m_mutex);
 		memcpy(_buf, &m_remote->m_buffer[m_remote->m_bufferReadPosition], _bufSize);
 		m_remote->m_bufferReadPosition += _bufSize;
 	}
@@ -499,7 +499,7 @@ int appl::MediaDecoder::readFunc(uint8_t* _buf, int _bufSize) {
 }
 
 int32_t appl::StreamBuffering::sizeReadable() {
-	std::unique_lock<ethread::Mutex> lock(m_mutex);
+	ethread::UniqueLock lock(m_mutex);
 	for (auto &it : m_bufferFillSection) {
 		if (    m_bufferReadPosition >= it.first
 		     && m_bufferReadPosition < it.second) {
@@ -558,10 +558,10 @@ int64_t appl::MediaDecoder::seekFunc(int64_t _offset, int _whence) {
 
 bool appl::StreamBuffering::addDataCallback(const zeus::Raw& _data, int64_t _positionRequest) {
 	#ifdef DEBUG
-		std::this_thread::sleep_for(std::chrono::milliseconds(10));
+		ethread::sleepMilliSeconds((10));
 	#endif
 	{
-		std::unique_lock<ethread::Mutex> lock(m_mutex);
+		ethread::UniqueLock lock(m_mutex);
 		bool find = false;
 		m_callInProgress = false;
 		// TODO : Check buffer size ...
@@ -609,24 +609,24 @@ bool appl::StreamBuffering::addDataCallback(const zeus::Raw& _data, int64_t _pos
 
 
 appl::StreamBuffering::StreamBuffering() {
-	std::unique_lock<ethread::Mutex> lock(m_mutex);
+	ethread::UniqueLock lock(m_mutex);
 	m_callInProgress = false;
 	m_stopRequested = false;
 	m_mediaId = 0;
 	m_bufferReadPosition = 0;
 }
 void appl::StreamBuffering::stopStream() {
-	std::unique_lock<ethread::Mutex> lock(m_mutex);
+	ethread::UniqueLock lock(m_mutex);
 	m_stopRequested = true;
 }
 void appl::StreamBuffering::startStream() {
-	std::unique_lock<ethread::Mutex> lock(m_mutex);
+	ethread::UniqueLock lock(m_mutex);
 	m_stopRequested = false;
 }
 
 // TODO: Add requested section ...
 void appl::StreamBuffering::checkIfWeNeedMoreDataFromNetwork() {
-	std::unique_lock<ethread::Mutex> lock(m_mutex);
+	ethread::UniqueLock lock(m_mutex);
 	// check if enought data:
 	bool find = false;
 	if (m_callInProgress == true) {
@@ -875,7 +875,7 @@ bool appl::MediaDecoder::onThreadCall() {
 	init();
 	if (m_isInit == false) {
 		// take some time to sleep the decoding ...
-		std::this_thread::sleep_for(std::chrono::milliseconds(60/100));
+		ethread::sleepMilliSeconds((60/100));
 		return false;
 	}
 	if (m_seek >= echrono::Duration(0)) {
@@ -888,7 +888,7 @@ bool appl::MediaDecoder::onThreadCall() {
 	// Need to wait at lease 1MB
 	if (m_remote->sizeReadable() < APPL_BUFFER_SIZE_FOR_FFMPEG) {
 		// take some time to sleep the decoding ...
-		std::this_thread::sleep_for(std::chrono::milliseconds(60/100));
+		ethread::sleepMilliSeconds((60/100));
 		return false;
 	}
 	// check if we have space to decode data
@@ -898,7 +898,7 @@ bool appl::MediaDecoder::onThreadCall() {
 	          && audioGetEmptySlot() == -1)
 	   ) {
 		// take some time to sleep the decoding ...
-		std::this_thread::sleep_for(std::chrono::milliseconds(60/25));
+		ethread::sleepMilliSeconds((60/25));
 		return false;
 	}
 	APPL_VERBOSE("Work on decoding");

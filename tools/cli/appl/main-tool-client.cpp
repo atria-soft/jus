@@ -12,7 +12,6 @@
 #include <zeus/zeus.hpp>
 #include <etk/os/FSNode.hpp>
 #include <elog/elog.hpp>
-#include <algorithm>
 
 #include <etk/stdTools.hpp>
 #include <zeus/ProxyFile.hpp>
@@ -52,7 +51,7 @@ void progressCallback(const etk::String& _value) {
 	APPL_PRINT("plop " << _value);
 }
 #if 0
-bool pushVideoFile(zeus::service::ProxyVideo& _srv, etk::String _path, etk::Map<etk::String,etk::String> _basicKey = etk::Map<etk::String,std::string>()) {
+bool pushVideoFile(zeus::service::ProxyVideo& _srv, etk::String _path, etk::Map<etk::String,etk::String> _basicKey = etk::Map<etk::String,etk::String>()) {
 	etk::String extention;
 	if (    _path.rfind('.') != etk::String::npos
 	     && _path.rfind('.') != 0) {
@@ -286,7 +285,7 @@ bool pushVideoFile(zeus::service::ProxyVideo& _srv, etk::String _path, etk::Map<
 	return true;
 }
 
-void installVideoPath(zeus::service::ProxyVideo& _srv, etk::String _path, etk::Map<etk::String,etk::String> _basicKey = etk::Map<etk::String,std::string>()) {
+void installVideoPath(zeus::service::ProxyVideo& _srv, etk::String _path, etk::Map<etk::String,etk::String> _basicKey = etk::Map<etk::String,etk::String>()) {
 	etk::FSNode node(_path);
 	APPL_INFO("Parse : '" << _path << "'");
 	etk::Vector<etk::String> listSubPath = node.folderGetSub(true, false, "*");

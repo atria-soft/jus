@@ -174,11 +174,10 @@ bool appl::Router::userIsConnected(const etk::String& _userName) {
 	return false;
 }
 
-#include <iomanip>
-#include <iostream>
-#include <cstdio>
-#include <unistd.h>
-
+extern "C" {
+	#include <stdio.h>
+	#include <unistd.h>
+}
 
 ememory::SharedPtr<appl::GateWayInterface> appl::Router::get(const etk::String& _userName) {
 	// TODO : Start USer only when needed, not get it all time started...
@@ -254,7 +253,7 @@ ememory::SharedPtr<appl::GateWayInterface> appl::Router::get(const etk::String& 
 			#endif
 			int32_t nbCheckDelayMax = 24;
 			while (nbCheckDelayMax-- > 0) {
-				std::this_thread::sleep_for(std::chrono::milliseconds(25));
+				ethread::sleepMilliSeconds((25));
 				for (auto &it : m_GateWayList) {
 					if (it == nullptr) {
 						continue;

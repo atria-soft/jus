@@ -18,7 +18,7 @@ void zeus::message::Event::generateDisplay(etk::Stream& _os) const {
 }
 
 bool zeus::message::Event::writeOn(enet::WebSocket& _interface) {
-	std::unique_lock<ethread::Mutex> lock = _interface.getScopeLock();
+	ethread::UniqueLock lock = _interface.getScopeLock();
 	zeus::Message::writeOn(_interface);
 	_interface.writeData((uint8_t*)(&m_uid), sizeof(m_uid));
 	if (message::Parameter::writeOn(_interface) == false) {

@@ -58,7 +58,7 @@ int main(int _argc, const char *_argv[]) {
 	APPL_INFO("==================================");
 	basicRouter.start();
 	while (true) {
-		std::this_thread::sleep_for(std::chrono::milliseconds(100));
+		ethread::sleepMilliSeconds((100));
 		basicRouter.cleanIO();
 	}
 	basicRouter.stop();

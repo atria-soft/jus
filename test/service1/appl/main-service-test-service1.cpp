@@ -68,7 +68,7 @@ namespace appl {
 			}
 			void doSomething(zeus::ActionNotification<int32_t>& _notifs, int32_t _value) override {
 				for (int32_t iii=1; iii<=_value; ++iii) {
-					//std::this_thread::sleep_for(std::chrono::milliseconds(500));
+					//ethread::sleepMilliSeconds((500));
 					_notifs.emit(iii);
 				}
 			}
@@ -96,7 +96,7 @@ static void load_db() {
 
 ETK_EXPORT_API bool SERVICE_IO_init(int _argc, const char *_argv[], etk::String _basePath) {
 	g_basePath = _basePath;
-	std::unique_lock<ethread::Mutex> lock(g_mutex);
+	ethread::UniqueLock lock(g_mutex);
 	APPL_INFO("Load USER: " << g_basePath);
 	load_db();
 	APPL_INFO("new USER: [STOP]");
@@ -104,7 +104,7 @@ ETK_EXPORT_API bool SERVICE_IO_init(int _argc, const char *_argv[], etk::String 
 }
 
 ETK_EXPORT_API bool SERVICE_IO_uninit() {
-	std::unique_lock<ethread::Mutex> lock(g_mutex);
+	ethread::UniqueLock lock(g_mutex);
 	store_db();
 	APPL_INFO("delete USER [STOP]");
 	return true;

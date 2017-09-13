@@ -40,7 +40,7 @@ void zeus::message::Answer::addError(const etk::String& _value, const etk::Strin
 }
 
 bool zeus::message::Answer::writeOn(enet::WebSocket& _interface) {
-	std::unique_lock<ethread::Mutex> lock = _interface.getScopeLock();
+	ethread::UniqueLock lock = _interface.getScopeLock();
 	zeus::Message::writeOn(_interface);
 	_interface.writeData((uint8_t*)m_errorType.c_str(), m_errorType.size() + 1);
 	if (m_errorType.size() != 0) {

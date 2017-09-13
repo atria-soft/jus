@@ -73,11 +73,11 @@ namespace appl {
 			bool addDataCallback(const zeus::Raw& _data, int64_t _positionRequest);
 			void checkIfWeNeedMoreDataFromNetwork();
 			uint64_t getSize() {
-				std::unique_lock<ethread::Mutex> lock(m_mutex);
+				ethread::UniqueLock lock(m_mutex);
 				return m_buffer.size();
 			}
 			etk::Vector<etk::Pair<uint32_t,uint32_t>> getDownloadPart() {
-				std::unique_lock<ethread::Mutex> lock(m_mutex);
+				ethread::UniqueLock lock(m_mutex);
 				return m_bufferFillSection;
 			}
 			int32_t sizeReadable();

@@ -246,7 +246,7 @@ int main(int _argc, const char *_argv[]) {
 		bool routerAlive = true;
 	#endif
 		while (routerAlive == true) {
-			std::this_thread::sleep_for(std::chrono::milliseconds(100));
+			ethread::sleepMilliSeconds((100));
 			basicGateway.cleanIO();
 			routerAlive = basicGateway.checkIsAlive(echrono::seconds(routerDisconnectionDelay));
 			if (routerAlive == false) {
@@ -304,7 +304,7 @@ int main(int _argc, const char *_argv[]) {
 				APPL_WARNING("Router is Dead or Timeout");
 			} else {
 				elog::flush();
-				std::this_thread::sleep_for(std::chrono::seconds(1));
+				ethread::sleepMilliSeconds(std::chrono::seconds(1));
 				APPL_INFO("gateway in waiting ... " << iii << "/inf");
 			}
 			iii++;

@@ -67,7 +67,7 @@ void appl::widget::UpBar::onCallbackVolumeRequest(const float& _value) {
 	APPL_DEBUG("volume change value=" << _value << " dB");
 	APPL_DEBUG("===========================================================================");
 	signalChange.emit(_value);
-	etk::String display = etk::toString(int32_t(_value)) + "." + etk::toString(std::abs(int32_t(_value*10.0f)-int32_t(_value)*10));
+	etk::String display = etk::toString(int32_t(_value)) + "." + etk::toString(etk::abs(int32_t(_value*10.0f)-int32_t(_value)*10));
 	propertySetOnWidgetNamed("[" + etk::toString(getId()) + "]appl-upbar-label", "value", display + " dB");
 }
 

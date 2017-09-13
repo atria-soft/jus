@@ -58,7 +58,7 @@ namespace appl {
 					if (data.getConnectionStatus() != enet::Tcp::status::link) {
 						APPL_CRITICAL("New TCP connection (DEAD ....) ==> gateway is dead ...");
 						// TODO: Check interaface: if (m_interface.
-						std::this_thread::sleep_for(std::chrono::milliseconds(300));
+						ethread::sleepMilliSeconds((300));
 					}
 					APPL_VERBOSE("New connection");
 					m_gateway->newDirectInterface(etk::move(data));

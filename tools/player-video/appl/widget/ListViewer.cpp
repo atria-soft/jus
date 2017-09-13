@@ -70,7 +70,7 @@ void appl::widget::ListViewer::searchElements(etk::String _filter) {
 void appl::ElementProperty::loadData() {
 	// Check progression status:
 	{
-		std::unique_lock<ethread::Mutex> lock(m_mutex);
+		ethread::UniqueLock lock(m_mutex);
 		if (m_metadataUpdated != appl::statusLoadingData::noData) {
 			return;
 		}
@@ -83,7 +83,7 @@ void appl::ElementProperty::loadData() {
 	futMedia.andElse([=](const etk::String& _error, const etk::String& _help) mutable {
 	                 	APPL_INFO("    [" << tmpProperty->m_id << "] get media error: " << tmpProperty->m_id);
 	                 	{
-	                 		std::unique_lock<ethread::Mutex> lock(tmpProperty->m_mutex);
+	                 		ethread::UniqueLock lock(tmpProperty->m_mutex);
 	                 		tmpProperty->m_title = "[ERROR] can not get media informations <br/>" + _error + ": " + _help;
 	                 		tmpProperty->m_metadataUpdated = appl::statusLoadingData::done;
 	                 	}
@@ -95,7 +95,7 @@ void appl::ElementProperty::loadData() {
 	                 	if (_media.exist() == false) {
 	                 		APPL_ERROR("get media error");
 	                 		{
-	                 			std::unique_lock<ethread::Mutex> lock(tmpProperty->m_mutex);
+	                 			ethread::UniqueLock lock(tmpProperty->m_mutex);
 	                 			tmpProperty->m_title = "[ERROR] can not get media informations (2)";
 	                 			tmpProperty->m_metadataUpdated = appl::statusLoadingData::done;
 	                 		}
@@ -105,7 +105,7 @@ void appl::ElementProperty::loadData() {
 	                 	_media.getMetadata("title")
 	                 	    .andElse([=](const etk::String& _error, const etk::String& _help) mutable {
 	                 	             	{
-	                 	             		std::unique_lock<ethread::Mutex> lock(tmpProperty->m_mutex);
+	                 	             		ethread::UniqueLock lock(tmpProperty->m_mutex);
 	                 	             		tmpProperty->m_nbElementLoaded++;
 	                 	             		if (tmpProperty->m_nbElementLoaded >= nbCallOfMetaData) {
 	                 	             			tmpProperty->m_metadataUpdated = appl::statusLoadingData::done;
@@ -116,12 +116,12 @@ void appl::ElementProperty::loadData() {
 	                 	    .andThen([=](etk::String _value) mutable {
 	                 	             	APPL_INFO("    [" << tmpProperty->m_id << "] get title: " << _value);
 	                 	             	{
-	                 	             		std::unique_lock<ethread::Mutex> lock(tmpProperty->m_mutex);
+	                 	             		ethread::UniqueLock lock(tmpProperty->m_mutex);
 	                 	             		tmpProperty->m_title = _value;
 	                 	             	}
 	                 	             	m_widget->markToRedraw();
 	                 	             	{
-	                 	             		std::unique_lock<ethread::Mutex> lock(tmpProperty->m_mutex);
+	                 	             		ethread::UniqueLock lock(tmpProperty->m_mutex);
 	                 	             		tmpProperty->m_nbElementLoaded++;
 	                 	             		if (tmpProperty->m_nbElementLoaded >= nbCallOfMetaData) {
 	                 	             			tmpProperty->m_metadataUpdated = appl::statusLoadingData::done;
@@ -132,7 +132,7 @@ void appl::ElementProperty::loadData() {
 	                 	_media.getMetadata("series-name")
 	                 	    .andElse([=](const etk::String& _error, const etk::String& _help) mutable {
 	                 	             	{
-	                 	             		std::unique_lock<ethread::Mutex> lock(tmpProperty->m_mutex);
+	                 	             		ethread::UniqueLock lock(tmpProperty->m_mutex);
 	                 	             		tmpProperty->m_nbElementLoaded++;
 	                 	             		if (tmpProperty->m_nbElementLoaded >= nbCallOfMetaData) {
 	                 	             			tmpProperty->m_metadataUpdated = appl::statusLoadingData::done;
@@ -143,12 +143,12 @@ void appl::ElementProperty::loadData() {
 	                 	    .andThen([=](etk::String _value) mutable {
 	                 	             	APPL_INFO("    [" << tmpProperty->m_id << "] get serie: " << _value);
 	                 	             	{
-	                 	             		std::unique_lock<ethread::Mutex> lock(tmpProperty->m_mutex);
+	                 	             		ethread::UniqueLock lock(tmpProperty->m_mutex);
 	                 	             		tmpProperty->m_serie = _value;
 	                 	             	}
 	                 	             	m_widget->markToRedraw();
 	                 	             	{
-	                 	             		std::unique_lock<ethread::Mutex> lock(tmpProperty->m_mutex);
+	                 	             		ethread::UniqueLock lock(tmpProperty->m_mutex);
 	                 	             		tmpProperty->m_nbElementLoaded++;
 	                 	             		if (tmpProperty->m_nbElementLoaded >= nbCallOfMetaData) {
 	                 	             			tmpProperty->m_metadataUpdated = appl::statusLoadingData::done;
@@ -159,7 +159,7 @@ void appl::ElementProperty::loadData() {
 	                 	_media.getMetadata("saison")
 	                 	    .andElse([=](const etk::String& _error, const etk::String& _help) mutable {
 	                 	             	{
-	                 	             		std::unique_lock<ethread::Mutex> lock(tmpProperty->m_mutex);
+	                 	             		ethread::UniqueLock lock(tmpProperty->m_mutex);
 	                 	             		tmpProperty->m_nbElementLoaded++;
 	                 	             		if (tmpProperty->m_nbElementLoaded >= nbCallOfMetaData) {
 	                 	             			tmpProperty->m_metadataUpdated = appl::statusLoadingData::done;
@@ -170,12 +170,12 @@ void appl::ElementProperty::loadData() {
 	                 	    .andThen([=](etk::String _value) mutable {
 	                 	             	APPL_INFO("    [" << tmpProperty->m_id << "] get saison: " << _value);
 	                 	             	{
-	                 	             		std::unique_lock<ethread::Mutex> lock(tmpProperty->m_mutex);
+	                 	             		ethread::UniqueLock lock(tmpProperty->m_mutex);
 	                 	             		tmpProperty->m_saison = _value;
 	                 	             	}
 	                 	             	m_widget->markToRedraw();
 	                 	             	{
-	                 	             		std::unique_lock<ethread::Mutex> lock(tmpProperty->m_mutex);
+	                 	             		ethread::UniqueLock lock(tmpProperty->m_mutex);
 	                 	             		tmpProperty->m_nbElementLoaded++;
 	                 	             		if (tmpProperty->m_nbElementLoaded >= nbCallOfMetaData) {
 	                 	             			tmpProperty->m_metadataUpdated = appl::statusLoadingData::done;
@@ -186,7 +186,7 @@ void appl::ElementProperty::loadData() {
 	                 	_media.getMetadata("episode")
 	                 	    .andElse([=](const etk::String& _error, const etk::String& _help) mutable {
 	                 	             	{
-	                 	             		std::unique_lock<ethread::Mutex> lock(tmpProperty->m_mutex);
+	                 	             		ethread::UniqueLock lock(tmpProperty->m_mutex);
 	                 	             		tmpProperty->m_nbElementLoaded++;
 	                 	             		if (tmpProperty->m_nbElementLoaded >= nbCallOfMetaData) {
 	                 	             			tmpProperty->m_metadataUpdated = appl::statusLoadingData::done;
@@ -197,12 +197,12 @@ void appl::ElementProperty::loadData() {
 	                 	    .andThen([=](etk::String _value) mutable {
 	                 	             	APPL_INFO("    [" << tmpProperty->m_id << "] get episode: " << _value);
 	                 	             	{
-	                 	             		std::unique_lock<ethread::Mutex> lock(tmpProperty->m_mutex);
+	                 	             		ethread::UniqueLock lock(tmpProperty->m_mutex);
 	                 	             		tmpProperty->m_episode = _value;
 	                 	             	}
 	                 	             	m_widget->markToRedraw();
 	                 	             	{
-	                 	             		std::unique_lock<ethread::Mutex> lock(tmpProperty->m_mutex);
+	                 	             		ethread::UniqueLock lock(tmpProperty->m_mutex);
 	                 	             		tmpProperty->m_nbElementLoaded++;
 	                 	             		if (tmpProperty->m_nbElementLoaded >= nbCallOfMetaData) {
 	                 	             			tmpProperty->m_metadataUpdated = appl::statusLoadingData::done;
@@ -214,7 +214,7 @@ void appl::ElementProperty::loadData() {
 	                 	    .andElse([=](const etk::String& _error, const etk::String& _help) mutable {
 	                 	             	APPL_INFO("Get remot error : " << _error << " " << _help);
 	                 	             	{
-	                 	             		std::unique_lock<ethread::Mutex> lock(tmpProperty->m_mutex);
+	                 	             		ethread::UniqueLock lock(tmpProperty->m_mutex);
 	                 	             		tmpProperty->m_nbElementLoaded++;
 	                 	             		if (tmpProperty->m_nbElementLoaded >= nbCallOfMetaData) {
 	                 	             			tmpProperty->m_metadataUpdated = appl::statusLoadingData::done;
@@ -225,12 +225,12 @@ void appl::ElementProperty::loadData() {
 	                 	    .andThen([=](etk::String _value) mutable {
 	                 	             	APPL_INFO("    [" << tmpProperty->m_id << "] get description: " << _value);
 	                 	             	{
-	                 	             		std::unique_lock<ethread::Mutex> lock(tmpProperty->m_mutex);
+	                 	             		ethread::UniqueLock lock(tmpProperty->m_mutex);
 	                 	             		tmpProperty->m_description = _value;
 	                 	             	}
 	                 	             	m_widget->markToRedraw();
 	                 	             	{
-	                 	             		std::unique_lock<ethread::Mutex> lock(tmpProperty->m_mutex);
+	                 	             		ethread::UniqueLock lock(tmpProperty->m_mutex);
 	                 	             		tmpProperty->m_nbElementLoaded++;
 	                 	             		if (tmpProperty->m_nbElementLoaded >= nbCallOfMetaData) {
 	                 	             			tmpProperty->m_metadataUpdated = appl::statusLoadingData::done;
@@ -241,7 +241,7 @@ void appl::ElementProperty::loadData() {
 	                 	_media.getMetadata("production-methode")
 	                 	    .andElse([=](const etk::String& _error, const etk::String& _help) mutable {
 	                 	             	{
-	                 	             		std::unique_lock<ethread::Mutex> lock(tmpProperty->m_mutex);
+	                 	             		ethread::UniqueLock lock(tmpProperty->m_mutex);
 	                 	             		tmpProperty->m_nbElementLoaded++;
 	                 	             		if (tmpProperty->m_nbElementLoaded >= nbCallOfMetaData) {
 	                 	             			tmpProperty->m_metadataUpdated = appl::statusLoadingData::done;
@@ -252,12 +252,12 @@ void appl::ElementProperty::loadData() {
 	                 	    .andThen([=](etk::String _value) mutable {
 	                 	             	APPL_INFO("    [" << tmpProperty->m_id << "] get production-methode: " << _value);
 	                 	             	{
-	                 	             		std::unique_lock<ethread::Mutex> lock(tmpProperty->m_mutex);
+	                 	             		ethread::UniqueLock lock(tmpProperty->m_mutex);
 	                 	             		tmpProperty->m_productMethode = _value;
 	                 	             	}
 	                 	             	m_widget->markToRedraw();
 	                 	             	{
-	                 	             		std::unique_lock<ethread::Mutex> lock(tmpProperty->m_mutex);
+	                 	             		ethread::UniqueLock lock(tmpProperty->m_mutex);
 	                 	             		tmpProperty->m_nbElementLoaded++;
 	                 	             		if (tmpProperty->m_nbElementLoaded >= nbCallOfMetaData) {
 	                 	             			tmpProperty->m_metadataUpdated = appl::statusLoadingData::done;
@@ -268,7 +268,7 @@ void appl::ElementProperty::loadData() {
 	                 	_media.getMetadata("type")
 	                 	    .andElse([=](const etk::String& _error, const etk::String& _help) mutable {
 	                 	             	{
-	                 	             		std::unique_lock<ethread::Mutex> lock(tmpProperty->m_mutex);
+	                 	             		ethread::UniqueLock lock(tmpProperty->m_mutex);
 	                 	             		tmpProperty->m_nbElementLoaded++;
 	                 	             		if (tmpProperty->m_nbElementLoaded >= nbCallOfMetaData) {
 	                 	             			tmpProperty->m_metadataUpdated = appl::statusLoadingData::done;
@@ -279,12 +279,12 @@ void appl::ElementProperty::loadData() {
 	                 	    .andThen([=](etk::String _value) mutable {
 	                 	             	APPL_INFO("    [" << tmpProperty->m_id << "] get type: " << _value);
 	                 	             	{
-	                 	             		std::unique_lock<ethread::Mutex> lock(tmpProperty->m_mutex);
+	                 	             		ethread::UniqueLock lock(tmpProperty->m_mutex);
 	                 	             		tmpProperty->m_type = _value;
 	                 	             	}
 	                 	             	m_widget->markToRedraw();
 	                 	             	{
-	                 	             		std::unique_lock<ethread::Mutex> lock(tmpProperty->m_mutex);
+	                 	             		ethread::UniqueLock lock(tmpProperty->m_mutex);
 	                 	             		tmpProperty->m_nbElementLoaded++;
 	                 	             		if (tmpProperty->m_nbElementLoaded >= nbCallOfMetaData) {
 	                 	             			tmpProperty->m_metadataUpdated = appl::statusLoadingData::done;
@@ -295,7 +295,7 @@ void appl::ElementProperty::loadData() {
 	                 	_media.getMineType()
 	                 	    .andElse([=](const etk::String& _error, const etk::String& _help) mutable {
 	                 	             	{
-	                 	             		std::unique_lock<ethread::Mutex> lock(tmpProperty->m_mutex);
+	                 	             		ethread::UniqueLock lock(tmpProperty->m_mutex);
 	                 	             		tmpProperty->m_nbElementLoaded++;
 	                 	             		if (tmpProperty->m_nbElementLoaded >= nbCallOfMetaData) {
 	                 	             			tmpProperty->m_metadataUpdated = appl::statusLoadingData::done;
@@ -306,7 +306,7 @@ void appl::ElementProperty::loadData() {
 	                 	    .andThen([=](etk::String _value) mutable {
 	                 	             	APPL_INFO("    [" << tmpProperty->m_id << "] get mine-type: " << _value);
 	                 	             	{
-	                 	             		std::unique_lock<ethread::Mutex> lock(tmpProperty->m_mutex);
+	                 	             		ethread::UniqueLock lock(tmpProperty->m_mutex);
 	                 	             		tmpProperty->m_mineType = _value;
 	                 	             		if (etk::start_with(tmpProperty->m_mineType, "video") == true) {
 	                 	             			// TODO : Optimise this ...
@@ -318,7 +318,7 @@ void appl::ElementProperty::loadData() {
 	                 	             	}
 	                 	             	m_widget->markToRedraw();
 	                 	             	{
-	                 	             		std::unique_lock<ethread::Mutex> lock(tmpProperty->m_mutex);
+	                 	             		ethread::UniqueLock lock(tmpProperty->m_mutex);
 	                 	             		tmpProperty->m_nbElementLoaded++;
 	                 	             		if (tmpProperty->m_nbElementLoaded >= nbCallOfMetaData) {
 	                 	             			tmpProperty->m_metadataUpdated = appl::statusLoadingData::done;
@@ -333,10 +333,10 @@ void appl::ElementProperty::loadData() {
 	futMediaCover.andElse([=](const etk::String& _error, const etk::String& _help) mutable {
 	                      	APPL_INFO("    [" << tmpProperty->m_id << "] get cover error: " << tmpProperty->m_id << ": " << _help);
 	                      	// TODO : Remove this ...
-	                      	std::this_thread::sleep_for(std::chrono::milliseconds(400));
+	                      	ethread::sleepMilliSeconds((400));
 	                      	etk::String serie;
 	                      	{
-	                      		std::unique_lock<ethread::Mutex> lock(tmpProperty->m_mutex);
+	                      		ethread::UniqueLock lock(tmpProperty->m_mutex);
 	                      		serie = tmpProperty->m_serie;
 	                      	}
 	                      	if (serie != "") {
@@ -345,7 +345,7 @@ void appl::ElementProperty::loadData() {
 	                      		                        	APPL_INFO("    [" << tmpProperty->m_id << "] get cover Group error: " << serie << ": " << _help);
 	                      		                        	{
 	                      		                        		m_widget->markToRedraw();
-	                      		                        		std::unique_lock<ethread::Mutex> lock(tmpProperty->m_mutex);
+	                      		                        		ethread::UniqueLock lock(tmpProperty->m_mutex);
 	                      		                        		tmpProperty->m_nbElementLoaded++;
 	                      		                        		if (tmpProperty->m_nbElementLoaded >= nbCallOfMetaData) {
 	                      		                        			tmpProperty->m_metadataUpdated = appl::statusLoadingData::done;
@@ -361,14 +361,14 @@ void appl::ElementProperty::loadData() {
 	                      		                        	etk::String mineType = mineTypeFut.wait().get();
 	                      		                        	APPL_INFO("    [" << tmpProperty->m_id << "] get cover Group on: " << serie << " mineType '" << mineType << "'");
 	                      		                        	{
-	                      		                        		std::unique_lock<ethread::Mutex> lock(tmpProperty->m_mutex);
+	                      		                        		ethread::UniqueLock lock(tmpProperty->m_mutex);
 	                      		                        		tmpProperty->m_thumb = egami::load(mineType, bufferData);
 	                      		                        		tmpProperty->m_thumbPresent = true;
 	                      		                        	}
 	                      		                        	APPL_WARNING("Get the Thumb ... " << tmpProperty->m_title << " ==> " << tmpProperty->m_thumb);
 	                      		                        	m_widget->markToRedraw();
 	                      		                        	{
-	                      		                        		std::unique_lock<ethread::Mutex> lock(tmpProperty->m_mutex);
+	                      		                        		ethread::UniqueLock lock(tmpProperty->m_mutex);
 	                      		                        		tmpProperty->m_nbElementLoaded++;
 	                      		                        		if (tmpProperty->m_nbElementLoaded >= nbCallOfMetaData) {
 	                      		                        			tmpProperty->m_metadataUpdated = appl::statusLoadingData::done;
@@ -378,7 +378,7 @@ void appl::ElementProperty::loadData() {
 	                      		                        });
 	                      	} else {
 	                      		m_widget->markToRedraw();
-	                      		std::unique_lock<ethread::Mutex> lock(tmpProperty->m_mutex);
+	                      		ethread::UniqueLock lock(tmpProperty->m_mutex);
 	                      		tmpProperty->m_nbElementLoaded++;
 	                      		if (tmpProperty->m_nbElementLoaded >= nbCallOfMetaData) {
 	                      			tmpProperty->m_metadataUpdated = appl::statusLoadingData::done;
@@ -394,14 +394,14 @@ void appl::ElementProperty::loadData() {
 	                      	etk::String mineType = mineTypeFut.wait().get();
 	                      	APPL_INFO("    [" << tmpProperty->m_id << "] get cover on: " << tmpProperty->m_id << " mineType '" << mineType << "'");
 	                      	{
-	                      		std::unique_lock<ethread::Mutex> lock(tmpProperty->m_mutex);
+	                      		ethread::UniqueLock lock(tmpProperty->m_mutex);
 	                      		tmpProperty->m_thumb = egami::load(mineType, bufferData);
 	                      		tmpProperty->m_thumbPresent = true;
 	                      	}
 	                      	APPL_WARNING("Get the Thumb ... " << tmpProperty->m_title << " ==> " << tmpProperty->m_thumb);
 	                      	m_widget->markToRedraw();
 	                      	{
-	                      		std::unique_lock<ethread::Mutex> lock(tmpProperty->m_mutex);
+	                      		ethread::UniqueLock lock(tmpProperty->m_mutex);
 	                      		tmpProperty->m_nbElementLoaded++;
 	                      		if (tmpProperty->m_nbElementLoaded >= nbCallOfMetaData) {
 	                      			tmpProperty->m_metadataUpdated = appl::statusLoadingData::done;
@@ -412,13 +412,13 @@ void appl::ElementProperty::loadData() {
 }
 
 bool appl::ElementProperty::LoadDataEnded() {
-	std::unique_lock<ethread::Mutex> lock(m_mutex);
+	ethread::UniqueLock lock(m_mutex);
 	return m_metadataUpdated == appl::statusLoadingData::done;
 }
 void appl::ElementPropertyGroup::loadData() {
 	// Check progression status:
 	{
-		std::unique_lock<ethread::Mutex> lock(m_mutex);
+		ethread::UniqueLock lock(m_mutex);
 		if (m_metadataUpdated != appl::statusLoadingData::noData) {
 			return;
 		}
@@ -430,7 +430,7 @@ void appl::ElementPropertyGroup::loadData() {
 	futMedia.andElse([=](const etk::String& _error, const etk::String& _help) mutable {
 	                 	APPL_INFO("    [" << tmpProperty->m_id << "] get cover error on group: " << tmpProperty->m_title << ": " << _help);
 	                 	{
-	                 		std::unique_lock<ethread::Mutex> lock(tmpProperty->m_mutex);
+	                 		ethread::UniqueLock lock(tmpProperty->m_mutex);
 	                 		tmpProperty->m_metadataUpdated = appl::statusLoadingData::done;
 	                 	}
 	                 	m_widget->markToRedraw();
@@ -444,7 +444,7 @@ void appl::ElementPropertyGroup::loadData() {
 	                 	etk::String mineType = mineTypeFut.wait().get();
 	                 	APPL_INFO("    [" << tmpProperty->m_id << "] get cover on group: " << tmpProperty->m_title << " mineType '" << mineType << "'");
 	                 	{
-	                 		std::unique_lock<ethread::Mutex> lock(tmpProperty->m_mutex);
+	                 		ethread::UniqueLock lock(tmpProperty->m_mutex);
 	                 		tmpProperty->m_thumb = egami::load(mineType, bufferData);
 	                 		tmpProperty->m_thumbPresent = true;
 	                 	}
@@ -456,7 +456,7 @@ void appl::ElementPropertyGroup::loadData() {
 }
 
 bool appl::ElementPropertyGroup::LoadDataEnded() {
-	std::unique_lock<ethread::Mutex> lock(m_mutex);
+	ethread::UniqueLock lock(m_mutex);
 	return m_metadataUpdated == appl::statusLoadingData::done;
 }
 
@@ -775,7 +775,7 @@ void appl::ElementDisplayed::generateDisplay(vec2 _startPos, vec2 _size) {
 		if (m_property->LoadDataEnded() == false) {
 			textToDisplay += "<br/><i>Loading in progress</i> ... " + etk::toString(m_property->m_nbElementLoaded) + "/8";
 		} else {
-			std::unique_lock<ethread::Mutex> lock(m_property->m_mutex);
+			ethread::UniqueLock lock(m_property->m_mutex);
 			//m_text.setClipping(drawClippingPos, drawClippingSize);
 			textToDisplay = "<b>" + m_property->m_title + "</b><br/>";
 			bool newLine = false;
@@ -821,7 +821,7 @@ void appl::ElementDisplayed::generateDisplay(vec2 _startPos, vec2 _size) {
 			haveThumb = false;
 			m_image.setSource("DATA:Home.svg", 128);
 		} else {
-			std::unique_lock<ethread::Mutex> lock(m_property->m_mutex);
+			ethread::UniqueLock lock(m_property->m_mutex);
 			if (m_property->m_thumbPresent == true) {
 				haveThumb = true;
 				m_image.setSource(m_property->m_thumb);
@@ -847,7 +847,7 @@ void appl::ElementDisplayed::generateDisplay(vec2 _startPos, vec2 _size) {
 		if (m_propertyGroup->LoadDataEnded() == false) {
 			haveThumb = false;
 		} else {
-			std::unique_lock<ethread::Mutex> lock(m_propertyGroup->m_mutex);
+			ethread::UniqueLock lock(m_propertyGroup->m_mutex);
 			if (m_propertyGroup->m_thumbPresent == true) {
 				haveThumb = true;
 				m_image.setSource(m_propertyGroup->m_thumb);

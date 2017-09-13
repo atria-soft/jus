@@ -179,7 +179,7 @@ int main(int _argc, const char *_argv[]) {
 		for (auto &it: listElements) {
 			it->peridic_call();
 		}
-		std::this_thread::sleep_for(std::chrono::seconds(1));
+		ethread::sleepMilliSeconds(std::chrono::seconds(1));
 		APPL_INFO("service in waiting ... " << iii << "/inf");
 		iii++;
 	}

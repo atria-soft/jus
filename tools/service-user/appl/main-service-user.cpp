@@ -54,7 +54,7 @@ namespace appl {
 				// TODO: check if basished ...
 				/*
 				if (m_client.getName().get() != "") {
-					std::unique_lock<ethread::Mutex> lock(g_mutex);
+					ethread::UniqueLock lock(g_mutex);
 					etk::Vector<etk::String> out;
 					ejson::Object clients = g_database["client"].toObject();
 					if (clients.exist() == false) {
@@ -83,7 +83,7 @@ namespace appl {
 				return out;
 			}
 			bool checkTocken(etk::String _clientName, etk::String _tocken) {
-				std::unique_lock<ethread::Mutex> lock(g_mutex);
+				ethread::UniqueLock lock(g_mutex);
 				APPL_INFO("Check TOCKEN for : '" << _clientName << "' tocken='" << _clientName << "'");
 				ejson::Object clients = g_database["client"].toObject();
 				if (clients.exist() == false) {
@@ -108,7 +108,7 @@ namespace appl {
 				return false;
 			}
 			bool checkAuth(etk::String _password) {
-				std::unique_lock<ethread::Mutex> lock(g_mutex);
+				ethread::UniqueLock lock(g_mutex);
 				APPL_INFO("Check AUTH for : '" << _password << "'");
 				etk::String pass = g_database["password"].toString().get();
 				if (pass == "") {
@@ -121,7 +121,7 @@ namespace appl {
 				return false;
 			}
 			etk::Vector<etk::String> filterClientServices(etk::String _clientName, etk::Vector<etk::String> _currentList) {
-				std::unique_lock<ethread::Mutex> lock(g_mutex);
+				ethread::UniqueLock lock(g_mutex);
 				APPL_INFO("Filter services : '" << _clientName << "' " << _currentList);
 				// When connected to our session ==> we have no control access ...
 				if (_clientName == m_userName) {
@@ -137,7 +137,7 @@ namespace appl {
 
 ETK_EXPORT_API bool SERVICE_IO_init(int _argc, const char *_argv[], etk::String _basePath) {
 	g_basePath = _basePath;
-	std::unique_lock<ethread::Mutex> lock(g_mutex);
+	ethread::UniqueLock lock(g_mutex);
 	APPL_WARNING("Load USER: " << g_basePath);
 	bool ret = g_database.load(g_basePath + g_baseDBName);
 	if (ret == false) {
@@ -147,7 +147,7 @@ ETK_EXPORT_API bool SERVICE_IO_init(int _argc, const char *_argv[], etk::String 
 }
 
 ETK_EXPORT_API bool SERVICE_IO_uninit() {
-	std::unique_lock<ethread::Mutex> lock(g_mutex);
+	ethread::UniqueLock lock(g_mutex);
 	APPL_DEBUG("Store User Info:");
 	bool ret = g_database.storeSafe(g_basePath + g_baseDBName);
 	if (ret == false) {

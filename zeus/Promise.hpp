@@ -6,7 +6,7 @@
 #pragma once
 
 #include <etk/types.hpp>
-#include <functional>
+#include <etk/Function.hpp>
 #include <zeus/message/Message.hpp>
 #include <zeus/message/Event.hpp>
 #include <ememory/memory.hpp>

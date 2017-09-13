@@ -50,7 +50,7 @@ void zeus::Promise::setAction() {
 
 void zeus::Promise::andAll(zeus::Promise::Observer _callback) {
 	{
-		std::unique_lock<ethread::Mutex> lock(m_mutex);
+		ethread::UniqueLock lock(m_mutex);
 		m_callbackThen = _callback;
 		m_callbackElse = _callback;
 	}
@@ -58,12 +58,12 @@ void zeus::Promise::andAll(zeus::Promise::Observer _callback) {
 		return;
 	}
 	if (hasError() == false) {
-		std::unique_lock<ethread::Mutex> lock(m_mutex);
+		ethread::UniqueLock lock(m_mutex);
 		if (m_callbackThen != nullptr) {
 			m_callbackThen(zeus::FutureBase(sharedFromThis()));
 		}
 	} else {
-		std::unique_lock<ethread::Mutex> lock(m_mutex);
+		ethread::UniqueLock lock(m_mutex);
 		if (m_callbackElse != nullptr) {
 			m_callbackElse(zeus::FutureBase(sharedFromThis()));
 		}
@@ -72,7 +72,7 @@ void zeus::Promise::andAll(zeus::Promise::Observer _callback) {
 
 void zeus::Promise::andThen(zeus::Promise::Observer _callback) {
 	{
-		std::unique_lock<ethread::Mutex> lock(m_mutex);
+		ethread::UniqueLock lock(m_mutex);
 		m_callbackThen = _callback;
 	}
 	if (isFinished() == false) {
@@ -81,7 +81,7 @@ void zeus::Promise::andThen(zeus::Promise::Observer _callback) {
 	if (hasError() == true) {
 		return;
 	}
-	std::unique_lock<ethread::Mutex> lock(m_mutex);
+	ethread::UniqueLock lock(m_mutex);
 	if (m_callbackThen == nullptr) {
 		return;
 	}
@@ -90,7 +90,7 @@ void zeus::Promise::andThen(zeus::Promise::Observer _callback) {
 
 void zeus::Promise::andElse(zeus::Promise::Observer _callback) {
 	{
-		std::unique_lock<ethread::Mutex> lock(m_mutex);
+		ethread::UniqueLock lock(m_mutex);
 		m_callbackElse = _callback;
 	}
 	if (isFinished() == false) {
@@ -99,7 +99,7 @@ void zeus::Promise::andElse(zeus::Promise::Observer _callback) {
 	if (hasError() == false) {
 		return;
 	}
-	std::unique_lock<ethread::Mutex> lock(m_mutex);
+	ethread::UniqueLock lock(m_mutex);
 	if (m_callbackElse == nullptr) {
 		return;
 	}
@@ -107,7 +107,7 @@ void zeus::Promise::andElse(zeus::Promise::Observer _callback) {
 }
 
 void zeus::Promise::onEvent(zeus::Promise::ObserverEvent _callback) {
-	std::unique_lock<ethread::Mutex> lock(m_mutex);
+	ethread::UniqueLock lock(m_mutex);
 	if (m_isAction == false) {
 		ZEUS_ERROR("Request a Event calback on a simple function call");
 	}
@@ -118,22 +118,22 @@ echrono::Duration zeus::Promise::getTransmitionTime() const {
 	if (isFinished() == false) {
 		return echrono::nanoseconds(0);
 	}
-	std::unique_lock<ethread::Mutex> lock(m_mutex);
+	ethread::UniqueLock lock(m_mutex);
 	return m_receiveTime - m_sendTime;
 }
 
 bool zeus::Promise::setMessage(ememory::SharedPtr<zeus::Message> _value) {
 	{
-		std::unique_lock<ethread::Mutex> lock(m_mutex);
+		ethread::UniqueLock lock(m_mutex);
 		m_receiveTime = echrono::Steady::now();
 	}
 	if (_value->getType() == zeus::message::type::event) {
 		ObserverEvent callback;
 		{
-			std::unique_lock<ethread::Mutex> lock(m_mutex);
+			ethread::UniqueLock lock(m_mutex);
 			callback = m_callbackEvent;
 		}
-		std::unique_lock<ethread::Mutex> lock(m_mutex);
+		ethread::UniqueLock lock(m_mutex);
 		// notification of a progresion ...
 		if (callback != nullptr) {
 			if (_value == nullptr) {
@@ -141,7 +141,7 @@ bool zeus::Promise::setMessage(ememory::SharedPtr<zeus::Message> _value) {
 			}
 			callback(ememory::staticPointerCast<zeus::message::Event>(_value));
 			{
-				std::unique_lock<ethread::Mutex> lock(m_mutex);
+				ethread::UniqueLock lock(m_mutex);
 				m_callbackEvent = etk::move(callback);
 			}
 			return false; // no error
@@ -149,7 +149,7 @@ bool zeus::Promise::setMessage(ememory::SharedPtr<zeus::Message> _value) {
 		return false;
 	}
 	{
-		std::unique_lock<ethread::Mutex> lock(m_mutex);
+		ethread::UniqueLock lock(m_mutex);
 		m_message = _value;
 		if (m_message == nullptr) {
 			return true;
@@ -162,13 +162,13 @@ bool zeus::Promise::setMessage(ememory::SharedPtr<zeus::Message> _value) {
 	if (hasError() == false) {
 		Observer callback;
 		{
-			std::unique_lock<ethread::Mutex> lock(m_mutex);
+			ethread::UniqueLock lock(m_mutex);
 			callback = etk::move(m_callbackThen);
 		}
 		if (callback != nullptr) {
 			bool ret = callback(zeus::FutureBase(sharedFromThis()));
 			{
-				std::unique_lock<ethread::Mutex> lock(m_mutex);
+				ethread::UniqueLock lock(m_mutex);
 				m_callbackThen = etk::move(callback);
 			}
 			return ret;
@@ -176,13 +176,13 @@ bool zeus::Promise::setMessage(ememory::SharedPtr<zeus::Message> _value) {
 	} else {
 		Observer callback;
 		{
-			std::unique_lock<ethread::Mutex> lock(m_mutex);
+			ethread::UniqueLock lock(m_mutex);
 			callback = m_callbackElse;
 		}
 		if (callback != nullptr) {
 			bool ret = callback(zeus::FutureBase(sharedFromThis()));
 			{
-				std::unique_lock<ethread::Mutex> lock(m_mutex);
+				ethread::UniqueLock lock(m_mutex);
 				m_callbackElse = etk::move(callback);
 			}
 			return ret;
@@ -200,7 +200,7 @@ uint32_t zeus::Promise::getSource() const {
 }
 
 bool zeus::Promise::hasError() const {
-	std::unique_lock<ethread::Mutex> lock(m_mutex);
+	ethread::UniqueLock lock(m_mutex);
 	if (m_message == nullptr) {
 		return true;
 	}
@@ -211,7 +211,7 @@ bool zeus::Promise::hasError() const {
 }
 
 etk::String zeus::Promise::getErrorType() const {
-	std::unique_lock<ethread::Mutex> lock(m_mutex);
+	ethread::UniqueLock lock(m_mutex);
 	if (m_message == nullptr) {
 		return "NULL_PTR";
 	}
@@ -222,7 +222,7 @@ etk::String zeus::Promise::getErrorType() const {
 }
 
 etk::String zeus::Promise::getErrorHelp() const {
-	std::unique_lock<ethread::Mutex> lock(m_mutex);
+	ethread::UniqueLock lock(m_mutex);
 	if (m_message == nullptr) {
 		return "This is a nullptr future";
 	}
@@ -234,7 +234,7 @@ etk::String zeus::Promise::getErrorHelp() const {
 
 
 bool zeus::Promise::isFinished() const {
-	std::unique_lock<ethread::Mutex> lock(m_mutex);
+	ethread::UniqueLock lock(m_mutex);
 	if (m_message == nullptr) {
 		// in this case, we are waiting for an answer that the first packet is not arrived
 		return false;
@@ -245,7 +245,7 @@ bool zeus::Promise::isFinished() const {
 void zeus::Promise::wait() const {
 	while (isFinished() == false) {
 		// TODO : Do it better ... like messaging/mutex_locked ...
-		std::this_thread::sleep_for(echrono::milliseconds(10));
+		ethread::sleepMilliSeconds(echrono::milliseconds(10));
 	}
 }
 
@@ -254,7 +254,7 @@ void zeus::Promise::waitFor(echrono::Duration _delta) const {
 	while (    echrono::Steady::now() - start < _delta
 	        && isFinished() == false) {
 		// TODO : Do it better ... like messaging/mutex_locked ...
-		std::this_thread::sleep_for(echrono::milliseconds(10));
+		ethread::sleepMilliSeconds(echrono::milliseconds(10));
 	}
 	if (isFinished() == false) {
 		ZEUS_WARNING("Wait timeout ... " << _delta);
@@ -266,7 +266,7 @@ void zeus::Promise::waitUntil(echrono::Steady _endTime) const {
 	while (    echrono::Steady::now() < _endTime
 	        && isFinished() == false) {
 		// TODO : Do it better ... like messaging/mutex_locked ...
-		std::this_thread::sleep_for(echrono::milliseconds(10));
+		ethread::sleepMilliSeconds(echrono::milliseconds(10));
 	}
 	if (isFinished() == false) {
 		ZEUS_WARNING("Wait timeout ..." << _endTime);

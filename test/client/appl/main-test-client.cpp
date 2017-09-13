@@ -122,7 +122,7 @@ int main(int _argc, const char *_argv[]) {
 			    	lastValue = _value;
 			    });
 			while (lasNumberSend != lastValue) {
-				std::this_thread::sleep_for(std::chrono::milliseconds(50));
+				ethread::sleepMilliSeconds((50));
 			}
 			retCall.wait();
 			APPL_INFO("END (receive " << lastValue << " signals");
@@ -130,7 +130,7 @@ int main(int _argc, const char *_argv[]) {
 	}
 	int32_t iii=0;
 	while (iii < 3) {
-		std::this_thread::sleep_for(std::chrono::milliseconds(500));
+		ethread::sleepMilliSeconds((500));
 		APPL_INFO("Appl in waiting ... " << iii << "/3");
 		iii++;
 	}
