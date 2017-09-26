@@ -29,7 +29,7 @@ void zeus::FutureGroup::waitUntil(echrono::Steady _endTime) const {
 				allIsFinished = false;
 			}
 		}
-		ethread::sleepMilliSeconds(echrono::milliseconds(10));
+		ethread::sleepMilliSeconds(10);
 	}
 	if (allIsFinished == false) {
 		ZEUS_WARNING("Group Wait timeout ...");

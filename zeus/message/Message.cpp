@@ -64,7 +64,7 @@ void zeus::Message::clear() {
 	m_header.flags = ZEUS_BUFFER_FLAG_FINISH;
 }
 
-etk::Stream& zeus::operator <<(etk::Stream& _os, ememory::SharedPtr<zeus::Message> _obj) {
+etk::Stream& zeus::operator <<(etk::Stream& _os, const ememory::SharedPtr<zeus::Message>& _obj) {
 	_os << "zeus::Message: ";
 	if (_obj == nullptr) {
 		_os << "nullptr";

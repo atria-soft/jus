@@ -115,11 +115,11 @@ ETK_EXPORT_API void SERVICE_IO_peridic_call() {
 		return;
 	}
 	// try lock mutex:
-	if (g_mutex.try_lock() == false) {
+	if (g_mutex.tryLock() == false) {
 		return;
 	}
 	store_db();
-	g_mutex.unlock();
+	g_mutex.unLock();
 }
 
 

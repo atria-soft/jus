@@ -10,6 +10,7 @@
 #include <zeus/AbstractFunction.hpp>
 #include <zeus/mineType.hpp>
 #include <zeus/ActionNotification.hpp>
+#include <etk/Exception.hpp>
 
 
 namespace zeus {
@@ -227,54 +228,9 @@ namespace zeus {
 				try {
 					// execute cmd:
 					zeus::executeClassCall(_interfaceClient, _obj, tmpClass, m_function);
-				} catch (const std::invalid_argument& eee) {
+				} catch (const etk::Exception& eee) {
 					_interfaceClient->addAsync([=](WebServer* _interface) {
-						    _interface->answerError(_obj->getTransactionId(), _obj->getDestination(), _obj->getSource(), "INVALID-ARGUMENT", eee.what());
-						    return true;
-						});
-				} catch (const std::domain_error& eee) {
-					_interfaceClient->addAsync([=](WebServer* _interface) {
-						    _interface->answerError(_obj->getTransactionId(), _obj->getDestination(), _obj->getSource(), "DOMAIN-ERROR", eee.what());
-						    return true;
-						});
-				} catch (const std::length_error& eee) {
-					_interfaceClient->addAsync([=](WebServer* _interface) {
-						    _interface->answerError(_obj->getTransactionId(), _obj->getDestination(), _obj->getSource(), "LENGTH-ERROR", eee.what());
-						    return true;
-						});
-				} catch (const std::out_of_range& eee) {
-					_interfaceClient->addAsync([=](WebServer* _interface) {
-						    _interface->answerError(_obj->getTransactionId(), _obj->getDestination(), _obj->getSource(), "OUT-OF-RANGE", eee.what());
-						    return true;
-						});
-				} catch (const std::range_error& eee) {
-					_interfaceClient->addAsync([=](WebServer* _interface) {
-						    _interface->answerError(_obj->getTransactionId(), _obj->getDestination(), _obj->getSource(), "RANGE-ERROR", eee.what());
-						    return true;
-						});
-				} catch (const std::overflow_error& eee) {
-					_interfaceClient->addAsync([=](WebServer* _interface) {
-						    _interface->answerError(_obj->getTransactionId(), _obj->getDestination(), _obj->getSource(), "OVERFLOW-ERROR", eee.what());
-						    return true;
-						});
-				} catch (const std::underflow_error& eee) {
-					_interfaceClient->addAsync([=](WebServer* _interface) {
-						    _interface->answerError(_obj->getTransactionId(), _obj->getDestination(), _obj->getSource(), "UNDERFLOW-ERROR", eee.what());
-						    return true;
-						});
-				} catch (const std::logic_error& eee) {
-					_interfaceClient->addAsync([=](WebServer* _interface) {
-						    _interface->answerError(_obj->getTransactionId(), _obj->getDestination(), _obj->getSource(), "LOGIC-ERROR", eee.what());
-						    return true;
-						});
-				} catch (const std::runtime_error& eee) {
-					_interfaceClient->addAsync([=](WebServer* _interface) {
-						    _interface->answerError(_obj->getTransactionId(), _obj->getDestination(), _obj->getSource(), "RUNTIME-ERROR", eee.what());
-						    return true;
-						});
-				} catch ( ... ) {
-					_interfaceClient->addAsync([=](WebServer* _interface) {
-						    _interface->answerError(_obj->getTransactionId(), _obj->getDestination(), _obj->getSource(), "?-ERROR", "catch unknow error");
+						    _interface->answerError(_obj->getTransactionId(), _obj->getDestination(), _obj->getSource(), eee.which(), eee.what());
 						    return true;
 						});
 				}
@@ -361,54 +317,9 @@ namespace zeus {
 				try {
 					// execute cmd:
 					zeus::executeClassCall(_interfaceClient, _obj, tmpClass, m_function);
-				} catch (const std::invalid_argument& eee) {
+				} catch (const etk::Exception& eee) {
 					_interfaceClient->addAsync([=](WebServer* _interface) {
-						    _interface->answerError(_obj->getTransactionId(), _obj->getDestination(), _obj->getSource(), "INVALID-ARGUMENT", eee.what());
-						    return true;
-						});
-				} catch (const std::domain_error& eee) {
-					_interfaceClient->addAsync([=](WebServer* _interface) {
-						    _interface->answerError(_obj->getTransactionId(), _obj->getDestination(), _obj->getSource(), "DOMAIN-ERROR", eee.what());
-						    return true;
-						});
-				} catch (const std::length_error& eee) {
-					_interfaceClient->addAsync([=](WebServer* _interface) {
-						    _interface->answerError(_obj->getTransactionId(), _obj->getDestination(), _obj->getSource(), "LENGTH-ERROR", eee.what());
-						    return true;
-						});
-				} catch (const std::out_of_range& eee) {
-					_interfaceClient->addAsync([=](WebServer* _interface) {
-						    _interface->answerError(_obj->getTransactionId(), _obj->getDestination(), _obj->getSource(), "OUT-OF-RANGE", eee.what());
-						    return true;
-						});
-				} catch (const std::range_error& eee) {
-					_interfaceClient->addAsync([=](WebServer* _interface) {
-						    _interface->answerError(_obj->getTransactionId(), _obj->getDestination(), _obj->getSource(), "RANGE-ERROR", eee.what());
-						    return true;
-						});
-				} catch (const std::overflow_error& eee) {
-					_interfaceClient->addAsync([=](WebServer* _interface) {
-						    _interface->answerError(_obj->getTransactionId(), _obj->getDestination(), _obj->getSource(), "OVERFLOW-ERROR", eee.what());
-						    return true;
-						});
-				} catch (const std::underflow_error& eee) {
-					_interfaceClient->addAsync([=](WebServer* _interface) {
-						    _interface->answerError(_obj->getTransactionId(), _obj->getDestination(), _obj->getSource(), "UNDERFLOW-ERROR", eee.what());
-						    return true;
-						});
-				} catch (const std::logic_error& eee) {
-					_interfaceClient->addAsync([=](WebServer* _interface) {
-						    _interface->answerError(_obj->getTransactionId(), _obj->getDestination(), _obj->getSource(), "LOGIC-ERROR", eee.what());
-						    return true;
-						});
-				} catch (const std::runtime_error& eee) {
-					_interfaceClient->addAsync([=](WebServer* _interface) {
-						    _interface->answerError(_obj->getTransactionId(), _obj->getDestination(), _obj->getSource(), "RUNTIME-ERROR", eee.what());
-						    return true;
-						});
-				} catch ( ... ) {
-					_interfaceClient->addAsync([=](WebServer* _interface) {
-						    _interface->answerError(_obj->getTransactionId(), _obj->getDestination(), _obj->getSource(), "?-ERROR", "catch unknow error");
+						    _interface->answerError(_obj->getTransactionId(), _obj->getDestination(), _obj->getSource(), eee.which(), eee.what());
 						    return true;
 						});
 				}

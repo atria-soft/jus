@@ -6,154 +6,153 @@
 
 #include <zeus/mineType.hpp>
 #include <zeus/debug.hpp>
+#include <etk/Pair.hpp>
 
-
-static etk::Vector<etk::Pair<etk::String, etk::String>> mineList = {
-  /* Video files */
-  { "webm",  "video/webm"},
-  { "asf",   "video/x-ms-asf"},
-  { "avi",   "video/avi"},
-  { "avc",   "video/avi"},
-  { "dv",    "video/x-dv"},
-  { "divx",  "video/avi"},
-  { "wmv",   "video/x-ms-wmv"},
-  { "mjpg",  "video/x-motion-jpeg"},
-  { "mjpeg", "video/x-motion-jpeg"},
-  { "mpeg",  "video/mpeg"},
-  { "mpg",   "video/mpeg"},
-  { "mpe",   "video/mpeg"},
-  { "mp2p",  "video/mp2p"},
-  { "vob",   "video/mp2p"},
-  { "mp2t",  "video/mp2t"},
-  { "m1v",   "video/mpeg"},
-  { "m2v",   "video/mpeg2"},
-  { "mpg2",  "video/mpeg2"},
-  { "mpeg2", "video/mpeg2"},
-  { "m4v",   "video/mp4"},
-  { "m4p",   "video/mp4"},
-  { "mp4ps", "video/x-nerodigital-ps"},
-  { "ts",    "video/mpeg2-ts"},
-  { "ogm",   "video/mpeg"},
-  { "mkv",   "video/x-matroska"},
-  { "rmvb",  "video/mpeg"},
-  { "mov",   "video/quicktime"},
-  { "hdmov", "video/quicktime"},
-  { "qt",    "video/quicktime"},
-
-  /* Audio files */
-  { "weba", "audio/webm"},
-  { "3gp",  "audio/3gpp"},
-  { "aac",  "audio/x-aac"},
-  { "ac3",  "audio/x-ac3"},
-  { "aif",  "audio/aiff"},
-  { "aiff", "audio/aiff"},
-  { "at3p", "audio/x-atrac3"},
-  { "au",   "audio/basic"},
-  { "snd",  "audio/basic"},
-  { "dts",  "audio/x-dts"},
-  { "rmi",  "audio/midi"},
-  { "mid",  "audio/midi"},
-  { "mp1",  "audio/mp1"},
-  { "mp2",  "audio/mp2"},
-  { "mp3",  "audio/mpeg"},
-  { "mp4",  "audio/mp4"},
-  { "m4a",  "audio/mp4"},
-  { "mka",  "audio/x-matroska"},
-  { "ogg",  "audio/x-ogg"},
-  { "wav",  "audio/wav"},
-  { "pcm",  "audio/l16"},
-  { "lpcm", "audio/l16"},
-  { "l16",  "audio/l16"},
-  { "wma",  "audio/x-ms-wma"},
-  { "mka",  "audio/x-matroska"},
-  { "ra",   "audio/x-pn-realaudio"},
-  { "rm",   "audio/x-pn-realaudio"},
-  { "ram",  "audio/x-pn-realaudio"},
-  { "flac", "audio/x-flac"},
-
-  /* Images files */
-  { "webp", "image/webp"},
-  { "bmp",  "image/bmp"},
-  { "ico",  "image/x-icon"},
-  { "gif",  "image/gif"},
-  { "jpg",  "image/jpeg"},
-  { "jpeg", "image/jpeg"},
-  { "jpe",  "image/jpeg"},
-  { "pcd",  "image/x-ms-bmp"},
-  { "png",  "image/png"},
-  { "pnm",  "image/x-portable-anymap"},
-  { "ppm",  "image/x-portable-pixmap"},
-  { "qti",  "image/x-quicktime"},
-  { "qtf",  "image/x-quicktime"},
-  { "qtif", "image/x-quicktime"},
-  { "tif",  "image/tiff"},
-  { "tiff", "image/tiff"},
-
-  /* Playlist files */
-  { "pls", "audio/x-scpls"},
-  { "m3u", "audio/mpegurl"},
-  { "asx", "video/x-ms-asf"},
-
-  /* Subtitle Text files */
-  { "srt", "text/srt"}, /* SubRip */
-  { "ssa", "text/ssa"}, /* SubStation Alpha */
-  { "stl", "text/srt"}, /* Spruce */
-  { "psb", "text/psb"}, /* PowerDivX */
-  { "pjs", "text/pjs"}, /* Phoenix Japanim */
-  { "sub", "text/sub"}, /* MicroDVD */
-  { "idx", "text/idx"}, /* VOBsub */
-  { "dks", "text/dks"}, /* DKS */
-  { "scr", "text/scr"}, /* MACsub */
-  { "tts", "text/tts"}, /* TurboTitler */
-  { "vsf", "text/vsf"}, /* ViPlay */
-  { "zeg", "text/zeg"}, /* ZeroG */
-  { "mpl", "text/mpl"}, /* MPL */
-
-  /* Miscellaneous text files */
-  { "bup", "text/bup"}, /* DVD backup */
-  { "ifo", "text/ifo"}, /* DVD information */
-  
-  /* Some Raw format for images */
-  { "yuv422",  "image/x-raw/yuv422"},
-  { "yuv420",  "image/x-raw/yuv420"},
-  { "yuv411",  "image/x-raw/yuv411"},
-  { "rgb",     "image/x-raw/r8g8b8"},
-  { "rgba",    "image/x-raw/r8g8b8a8"},
-  
-  { "js",      "application/javascript"},
-  { "raw",     "application/octet-stream"},
-  { "ogg",     "application/ogg"},
-  { "pdf",     "application/pdf"},
-  { "xhtml",   "application/xhtml+xml"},
-  { "flw",     "application/x-shockwave-flash"},
-  { "json",    "application/json"},
-  { "xml",     "application/xml"},
-  { "zip",     "application/zip"},
-  { "gz",      "application/gzip"},
-  { "rar",     "application/rar"},
-  
-  { "css",     "text/css"},
-  { "csv",     "text/csv"},
-  { "html",    "text/html"},
-  { "js",      "text/javascript"}, // DEPRECATED application/javascript.
-  { "txt",     "text/plain"},
-  { "xml",     "text/xml"},
-  { "json",    "text/json"},
-  { "yml",     "text/yml"},
-  
-  { "c",       "code/c"},
-  { "h",       "header/c"},
-  { "cpp",     "code/c++"},
-  { "hpp",     "header/c++"},
-  { "c#",      "code/c#"},
-  { "py",      "code/python"},
-  { "java",    "code/java"},
-  { "js",      "code/javascript"},
+static etk::Vector<etk::Pair<etk::String, etk::String>> getMimeList() {
+	static etk::Vector<etk::Pair<etk::String, etk::String>> mineList;
+	if (mineList.size() != 0) {
+		return mineList;
+	}
+	/* Video files */
+	mineList.pushBack(etk::makePair("webm",  "video/webm"));
+	mineList.pushBack(etk::makePair("asf",   "video/x-ms-asf"));
+	mineList.pushBack(etk::makePair("avi",   "video/avi"));
+	mineList.pushBack(etk::makePair("avc",   "video/avi"));
+	mineList.pushBack(etk::makePair("dv",    "video/x-dv"));
+	mineList.pushBack(etk::makePair("divx",  "video/avi"));
+	mineList.pushBack(etk::makePair("wmv",   "video/x-ms-wmv"));
+	mineList.pushBack(etk::makePair("mjpg",  "video/x-motion-jpeg"));
+	mineList.pushBack(etk::makePair("mjpeg", "video/x-motion-jpeg"));
+	mineList.pushBack(etk::makePair("mpeg",  "video/mpeg"));
+	mineList.pushBack(etk::makePair("mpg",   "video/mpeg"));
+	mineList.pushBack(etk::makePair("mpe",   "video/mpeg"));
+	mineList.pushBack(etk::makePair("mp2p",  "video/mp2p"));
+	mineList.pushBack(etk::makePair("vob",   "video/mp2p"));
+	mineList.pushBack(etk::makePair("mp2t",  "video/mp2t"));
+	mineList.pushBack(etk::makePair("m1v",   "video/mpeg"));
+	mineList.pushBack(etk::makePair("m2v",   "video/mpeg2"));
+	mineList.pushBack(etk::makePair("mpg2",  "video/mpeg2"));
+	mineList.pushBack(etk::makePair("mpeg2", "video/mpeg2"));
+	mineList.pushBack(etk::makePair("m4v",   "video/mp4"));
+	mineList.pushBack(etk::makePair("m4p",   "video/mp4"));
+	mineList.pushBack(etk::makePair("mp4ps", "video/x-nerodigital-ps"));
+	mineList.pushBack(etk::makePair("ts",    "video/mpeg2-ts"));
+	mineList.pushBack(etk::makePair("ogm",   "video/mpeg"));
+	mineList.pushBack(etk::makePair("mkv",   "video/x-matroska"));
+	mineList.pushBack(etk::makePair("rmvb",  "video/mpeg"));
+	mineList.pushBack(etk::makePair("mov",   "video/quicktime"));
+	mineList.pushBack(etk::makePair("hdmov", "video/quicktime"));
+	mineList.pushBack(etk::makePair("qt",    "video/quicktime"));
+	/* Audio files */
+	mineList.pushBack(etk::makePair("weba", "audio/webm"));
+	mineList.pushBack(etk::makePair("3gp",  "audio/3gpp"));
+	mineList.pushBack(etk::makePair("aac",  "audio/x-aac"));
+	mineList.pushBack(etk::makePair("ac3",  "audio/x-ac3"));
+	mineList.pushBack(etk::makePair("aif",  "audio/aiff"));
+	mineList.pushBack(etk::makePair("aiff", "audio/aiff"));
+	mineList.pushBack(etk::makePair("at3p", "audio/x-atrac3"));
+	mineList.pushBack(etk::makePair("au",   "audio/basic"));
+	mineList.pushBack(etk::makePair("snd",  "audio/basic"));
+	mineList.pushBack(etk::makePair("dts",  "audio/x-dts"));
+	mineList.pushBack(etk::makePair("rmi",  "audio/midi"));
+	mineList.pushBack(etk::makePair("mid",  "audio/midi"));
+	mineList.pushBack(etk::makePair("mp1",  "audio/mp1"));
+	mineList.pushBack(etk::makePair("mp2",  "audio/mp2"));
+	mineList.pushBack(etk::makePair("mp3",  "audio/mpeg"));
+	mineList.pushBack(etk::makePair("mp4",  "audio/mp4"));
+	mineList.pushBack(etk::makePair("m4a",  "audio/mp4"));
+	mineList.pushBack(etk::makePair("mka",  "audio/x-matroska"));
+	mineList.pushBack(etk::makePair("ogg",  "audio/x-ogg"));
+	mineList.pushBack(etk::makePair("wav",  "audio/wav"));
+	mineList.pushBack(etk::makePair("pcm",  "audio/l16"));
+	mineList.pushBack(etk::makePair("lpcm", "audio/l16"));
+	mineList.pushBack(etk::makePair("l16",  "audio/l16"));
+	mineList.pushBack(etk::makePair("wma",  "audio/x-ms-wma"));
+	mineList.pushBack(etk::makePair("mka",  "audio/x-matroska"));
+	mineList.pushBack(etk::makePair("ra",   "audio/x-pn-realaudio"));
+	mineList.pushBack(etk::makePair("rm",   "audio/x-pn-realaudio"));
+	mineList.pushBack(etk::makePair("ram",  "audio/x-pn-realaudio"));
+	mineList.pushBack(etk::makePair("flac", "audio/x-flac"));
+	/* Images files */
+	mineList.pushBack(etk::makePair("webp", "image/webp"));
+	mineList.pushBack(etk::makePair("bmp",  "image/bmp"));
+	mineList.pushBack(etk::makePair("ico",  "image/x-icon"));
+	mineList.pushBack(etk::makePair("gif",  "image/gif"));
+	mineList.pushBack(etk::makePair("jpg",  "image/jpeg"));
+	mineList.pushBack(etk::makePair("jpeg", "image/jpeg"));
+	mineList.pushBack(etk::makePair("jpe",  "image/jpeg"));
+	mineList.pushBack(etk::makePair("pcd",  "image/x-ms-bmp"));
+	mineList.pushBack(etk::makePair("png",  "image/png"));
+	mineList.pushBack(etk::makePair("pnm",  "image/x-portable-anymap"));
+	mineList.pushBack(etk::makePair("ppm",  "image/x-portable-pixmap"));
+	mineList.pushBack(etk::makePair("qti",  "image/x-quicktime"));
+	mineList.pushBack(etk::makePair("qtf",  "image/x-quicktime"));
+	mineList.pushBack(etk::makePair("qtif", "image/x-quicktime"));
+	mineList.pushBack(etk::makePair("tif",  "image/tiff"));
+	mineList.pushBack(etk::makePair("tiff", "image/tiff"));
+	/* Playlist files */
+	mineList.pushBack(etk::makePair("pls", "audio/x-scpls"));
+	mineList.pushBack(etk::makePair("m3u", "audio/mpegurl"));
+	mineList.pushBack(etk::makePair("asx", "video/x-ms-asf"));
+	/* Subtitle Text files */
+	mineList.pushBack(etk::makePair("srt", "text/srt")); /* SubRip */
+	mineList.pushBack(etk::makePair("ssa", "text/ssa")); /* SubStation Alpha */
+	mineList.pushBack(etk::makePair("stl", "text/srt")); /* Spruce */
+	mineList.pushBack(etk::makePair("psb", "text/psb")); /* PowerDivX */
+	mineList.pushBack(etk::makePair("pjs", "text/pjs")); /* Phoenix Japanim */
+	mineList.pushBack(etk::makePair("sub", "text/sub")); /* MicroDVD */
+	mineList.pushBack(etk::makePair("idx", "text/idx")); /* VOBsub */
+	mineList.pushBack(etk::makePair("dks", "text/dks")); /* DKS */
+	mineList.pushBack(etk::makePair("scr", "text/scr")); /* MACsub */
+	mineList.pushBack(etk::makePair("tts", "text/tts")); /* TurboTitler */
+	mineList.pushBack(etk::makePair("vsf", "text/vsf")); /* ViPlay */
+	mineList.pushBack(etk::makePair("zeg", "text/zeg")); /* ZeroG */
+	mineList.pushBack(etk::makePair("mpl", "text/mpl")); /* MPL */
+	/* Miscellaneous text files */
+	mineList.pushBack(etk::makePair("bup", "text/bup")); /* DVD backup */
+	mineList.pushBack(etk::makePair("ifo", "text/ifo")); /* DVD information */
+	/* Some Raw format for images */
+	mineList.pushBack(etk::makePair("yuv422",  "image/x-raw/yuv422"));
+	mineList.pushBack(etk::makePair("yuv420",  "image/x-raw/yuv420"));
+	mineList.pushBack(etk::makePair("yuv411",  "image/x-raw/yuv411"));
+	mineList.pushBack(etk::makePair("rgb",     "image/x-raw/r8g8b8"));
+	mineList.pushBack(etk::makePair("rgba",    "image/x-raw/r8g8b8a8"));
+	
+	mineList.pushBack(etk::makePair("js",      "application/javascript"));
+	mineList.pushBack(etk::makePair("raw",     "application/octet-stream"));
+	mineList.pushBack(etk::makePair("ogg",     "application/ogg"));
+	mineList.pushBack(etk::makePair("pdf",     "application/pdf"));
+	mineList.pushBack(etk::makePair("xhtml",   "application/xhtml+xml"));
+	mineList.pushBack(etk::makePair("flw",     "application/x-shockwave-flash"));
+	mineList.pushBack(etk::makePair("json",    "application/json"));
+	mineList.pushBack(etk::makePair("xml",     "application/xml"));
+	mineList.pushBack(etk::makePair("zip",     "application/zip"));
+	mineList.pushBack(etk::makePair("gz",      "application/gzip"));
+	mineList.pushBack(etk::makePair("rar",     "application/rar"));
+	
+	mineList.pushBack(etk::makePair("css",     "text/css"));
+	mineList.pushBack(etk::makePair("csv",     "text/csv"));
+	mineList.pushBack(etk::makePair("html",    "text/html"));
+	mineList.pushBack(etk::makePair("js",      "text/javascript")); // DEPRECATED application/javascript.
+	mineList.pushBack(etk::makePair("txt",     "text/plain"));
+	mineList.pushBack(etk::makePair("xml",     "text/xml"));
+	mineList.pushBack(etk::makePair("json",    "text/json"));
+	mineList.pushBack(etk::makePair("yml",     "text/yml"));
+	
+	mineList.pushBack(etk::makePair("c",       "code/c"));
+	mineList.pushBack(etk::makePair("h",       "header/c"));
+	mineList.pushBack(etk::makePair("cpp",     "code/c++"));
+	mineList.pushBack(etk::makePair("hpp",     "header/c++"));
+	mineList.pushBack(etk::makePair("c#",      "code/c#"));
+	mineList.pushBack(etk::makePair("py",      "code/python"));
+	mineList.pushBack(etk::makePair("java",    "code/java"));
+	mineList.pushBack(etk::makePair("js",      "code/javascript"));
+	return mineList;
 };
 
 etk::String zeus::getMineType(etk::String _extention) {
 	_extention = etk::tolower(_extention);
-	for (auto &it : mineList) {
+	for (auto &it : getMimeList()) {
 		if (it.first == _extention) {
 			return it.second;
 		}
@@ -166,7 +165,7 @@ etk::String zeus::getMineType(etk::String _extention) {
 
 etk::String zeus::getExtention(etk::String _mineType) {
 	_mineType = etk::tolower(_mineType);
-	for (auto &it : mineList) {
+	for (auto &it : getMimeList()) {
 		if (it.second == _mineType) {
 			return it.first;
 		}

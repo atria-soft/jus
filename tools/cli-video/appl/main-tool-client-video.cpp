@@ -176,7 +176,7 @@ bool pushVideoFile(zeus::service::ProxyVideo& _srv, etk::String _path, etk::Map<
 				continue;
 			}
 			haveDate = true;
-			_basicKey.insert(etk::Pair<etk::String,etk::String>("date", it));
+			_basicKey.set("date", it);
 		} else {
 			if (haveTitle == true) {
 				APPL_INFO("                '" << fileName << "'");
@@ -185,16 +185,16 @@ bool pushVideoFile(zeus::service::ProxyVideo& _srv, etk::String _path, etk::Map<
 			}
 			haveTitle = true;
 			// Other title
-			_basicKey.insert(etk::Pair<etk::String,etk::String>("title2", it));
+			_basicKey.set("title2", it);
 		}
 	}
 	// remove unneeded date
 	if (haveDate == false) {
-		_basicKey.insert(etk::Pair<etk::String,etk::String>("date", ""));
+		_basicKey.set("date", "");
 	}
 	// remove unneeded title 2
 	if (haveTitle == false) {
-		_basicKey.insert(etk::Pair<etk::String,etk::String>("title2", ""));
+		_basicKey.set("title2", "");
 	}
 	// Remove the actors [XXX YYY][EEE TTT]...
 	etk::Vector<etk::String> acthors;
@@ -208,7 +208,7 @@ bool pushVideoFile(zeus::service::ProxyVideo& _srv, etk::String _path, etk::Map<
 			}
 			actorList += itActor;
 		}
-		_basicKey.insert(etk::Pair<etk::String,etk::String>("acthors", actorList));
+		_basicKey.set("acthors", actorList);
 	}
 	
 	// remove extention
@@ -239,7 +239,7 @@ bool pushVideoFile(zeus::service::ProxyVideo& _srv, etk::String _path, etk::Map<
 	}
 	if (listElement.size() == 1) {
 		// nothing to do , it might be a film ...
-		_basicKey.insert(etk::Pair<etk::String,etk::String>("title", etk::toString(listElement[0])));
+		_basicKey.set("title", etk::toString(listElement[0]));
 	} else {
 		/*
 		for (auto &itt : listElement) {
@@ -254,12 +254,12 @@ bool pushVideoFile(zeus::service::ProxyVideo& _srv, etk::String _path, etk::Map<
 			int32_t episode = -1;
 			etk::String seriesName = listElement[0];
 			
-			_basicKey.insert(etk::Pair<etk::String,etk::String>("series-name", etk::toString(seriesName)));
+			_basicKey.set("series-name", etk::toString(seriesName));
 			etk::String fullEpisodeName = listElement[3];
 			for (int32_t yyy=4; yyy<listElement.size(); ++yyy) {
 				fullEpisodeName += "-" + listElement[yyy];
 			}
-			_basicKey.insert(etk::Pair<etk::String,etk::String>("title", etk::toString(fullEpisodeName)));
+			_basicKey.set("title", etk::toString(fullEpisodeName));
 			if (etk::String(&listElement[1][1]) == "XX") {
 				// saison unknow ... ==> nothing to do ...
 			} else {
@@ -270,7 +270,7 @@ bool pushVideoFile(zeus::service::ProxyVideo& _srv, etk::String _path, etk::Map<
 			} else {
 				episode = etk::string_to_int32_t(&listElement[2][1]);
 				
-				_basicKey.insert(etk::Pair<etk::String,etk::String>("episode", etk::toString(episode)));
+				_basicKey.set("episode", etk::toString(episode));
 			}
 			APPL_INFO("Find a internal mode series: :");
 			APPL_INFO("    origin       : '" << fileName << "'");
@@ -280,19 +280,19 @@ bool pushVideoFile(zeus::service::ProxyVideo& _srv, etk::String _path, etk::Map<
 				// nothing to do
 			} else if(saison < 10) {
 				saisonPrint = "0" + etk::toString(saison);
-				_basicKey.insert(etk::Pair<etk::String,etk::String>("saison", etk::toString(saison)));
+				_basicKey.set("saison", etk::toString(saison));
 			} else {
 				saisonPrint = etk::toString(saison);
-				_basicKey.insert(etk::Pair<etk::String,etk::String>("saison", etk::toString(saison)));
+				_basicKey.set("saison", etk::toString(saison));
 			}
 			if (episode < 0) {
 				// nothing to do
 			} else if(episode < 10) {
 				episodePrint = "0" + etk::toString(episode);
-				_basicKey.insert(etk::Pair<etk::String,etk::String>("episode", etk::toString(episode)));
+				_basicKey.set("episode", etk::toString(episode));
 			} else {
 				episodePrint = etk::toString(episode);
-				_basicKey.insert(etk::Pair<etk::String,etk::String>("episode", etk::toString(episode)));
+				_basicKey.set("episode", etk::toString(episode));
 			}
 			APPL_PRINT("     ==> '" << seriesName << "-s" << saisonPrint << "-e" << episodePrint << "-" << fullEpisodeName << "'");
 		}
@@ -320,87 +320,87 @@ void installVideoPath(zeus::service::ProxyVideo& _srv, etk::String _path, etk::M
 		if (basicKeyTmp.size() == 0) {
 			APPL_INFO("find A '" << lastPathName << "' " << basicKeyTmp.size());
 			if (lastPathName == "film") {
-				basicKeyTmp.insert(etk::Pair<etk::String,etk::String>("type", "film"));
-				basicKeyTmp.insert(etk::Pair<etk::String,etk::String>("production-methode", "picture"));
+				basicKeyTmp.set("type", "film");
+				basicKeyTmp.set("production-methode", "picture");
 			} else if (lastPathName == "film-annimation") {
-				basicKeyTmp.insert(etk::Pair<etk::String,etk::String>("type", "film"));
-				basicKeyTmp.insert(etk::Pair<etk::String,etk::String>("production-methode", "draw"));
+				basicKeyTmp.set("type", "film");
+				basicKeyTmp.set("production-methode", "draw");
 			} else if (lastPathName == "film-short") { // short films
-				basicKeyTmp.insert(etk::Pair<etk::String,etk::String>("type", "film"));
-				basicKeyTmp.insert(etk::Pair<etk::String,etk::String>("production-methode", "short"));
+				basicKeyTmp.set("type", "film");
+				basicKeyTmp.set("production-methode", "short");
 			} else if (lastPathName == "tv-show") {
-				basicKeyTmp.insert(etk::Pair<etk::String,etk::String>("type", "tv-show"));
-				basicKeyTmp.insert(etk::Pair<etk::String,etk::String>("production-methode", "picture"));
+				basicKeyTmp.set("type", "tv-show");
+				basicKeyTmp.set("production-methode", "picture");
 			} else if (lastPathName == "tv-show-annimation") {
-				basicKeyTmp.insert(etk::Pair<etk::String,etk::String>("type", "tv-show"));
-				basicKeyTmp.insert(etk::Pair<etk::String,etk::String>("production-methode", "draw"));
+				basicKeyTmp.set("type", "tv-show");
+				basicKeyTmp.set("production-methode", "draw");
 			} else if (lastPathName == "theater") {
-				basicKeyTmp.insert(etk::Pair<etk::String,etk::String>("type", "theater"));
+				basicKeyTmp.set("type", "theater");
 			} else if (lastPathName == "one-man") {
-				basicKeyTmp.insert(etk::Pair<etk::String,etk::String>("type", "one-man"));
+				basicKeyTmp.set("type", "one-man");
 			}
 		} else {
 			APPL_INFO("find B '" << lastPathName << "' " << basicKeyTmp.size());
 			if (lastPathName == "saison_01") {
-				basicKeyTmp.insert(etk::Pair<etk::String,etk::String>("saison", "1"));
+				basicKeyTmp.set("saison", "1");
 			} else if (lastPathName == "saison_02") {
-				basicKeyTmp.insert(etk::Pair<etk::String,etk::String>("saison", "2"));
+				basicKeyTmp.set("saison", "2");
 			} else if (lastPathName == "saison_03") {
-				basicKeyTmp.insert(etk::Pair<etk::String,etk::String>("saison", "3"));
+				basicKeyTmp.set("saison", "3");
 			} else if (lastPathName == "saison_04") {
-				basicKeyTmp.insert(etk::Pair<etk::String,etk::String>("saison", "4"));
+				basicKeyTmp.set("saison", "4");
 			} else if (lastPathName == "saison_05") {
-				basicKeyTmp.insert(etk::Pair<etk::String,etk::String>("saison", "5"));
+				basicKeyTmp.set("saison", "5");
 			} else if (lastPathName == "saison_06") {
-				basicKeyTmp.insert(etk::Pair<etk::String,etk::String>("saison", "6"));
+				basicKeyTmp.set("saison", "6");
 			} else if (lastPathName == "saison_07") {
-				basicKeyTmp.insert(etk::Pair<etk::String,etk::String>("saison", "7"));
+				basicKeyTmp.set("saison", "7");
 			} else if (lastPathName == "saison_08") {
-				basicKeyTmp.insert(etk::Pair<etk::String,etk::String>("saison", "8"));
+				basicKeyTmp.set("saison", "8");
 			} else if (lastPathName == "saison_09") {
-				basicKeyTmp.insert(etk::Pair<etk::String,etk::String>("saison", "9"));
+				basicKeyTmp.set("saison", "9");
 			} else if (lastPathName == "saison_10") {
-				basicKeyTmp.insert(etk::Pair<etk::String,etk::String>("saison", "10"));
+				basicKeyTmp.set("saison", "10");
 			} else if (lastPathName == "saison_11") {
-				basicKeyTmp.insert(etk::Pair<etk::String,etk::String>("saison", "11"));
+				basicKeyTmp.set("saison", "11");
 			} else if (lastPathName == "saison_12") {
-				basicKeyTmp.insert(etk::Pair<etk::String,etk::String>("saison", "12"));
+				basicKeyTmp.set("saison", "12");
 			} else if (lastPathName == "saison_13") {
-				basicKeyTmp.insert(etk::Pair<etk::String,etk::String>("saison", "13"));
+				basicKeyTmp.set("saison", "13");
 			} else if (lastPathName == "saison_14") {
-				basicKeyTmp.insert(etk::Pair<etk::String,etk::String>("saison", "14"));
+				basicKeyTmp.set("saison", "14");
 			} else if (lastPathName == "saison_15") {
-				basicKeyTmp.insert(etk::Pair<etk::String,etk::String>("saison", "15"));
+				basicKeyTmp.set("saison", "15");
 			} else if (lastPathName == "saison_16") {
-				basicKeyTmp.insert(etk::Pair<etk::String,etk::String>("saison", "16"));
+				basicKeyTmp.set("saison", "16");
 			} else if (lastPathName == "saison_17") {
-				basicKeyTmp.insert(etk::Pair<etk::String,etk::String>("saison", "17"));
+				basicKeyTmp.set("saison", "17");
 			} else if (lastPathName == "saison_18") {
-				basicKeyTmp.insert(etk::Pair<etk::String,etk::String>("saison", "18"));
+				basicKeyTmp.set("saison", "18");
 			} else if (lastPathName == "saison_19") {
-				basicKeyTmp.insert(etk::Pair<etk::String,etk::String>("saison", "19"));
+				basicKeyTmp.set("saison", "19");
 			} else if (lastPathName == "saison_20") {
-				basicKeyTmp.insert(etk::Pair<etk::String,etk::String>("saison", "20"));
+				basicKeyTmp.set("saison", "20");
 			} else if (lastPathName == "saison_21") {
-				basicKeyTmp.insert(etk::Pair<etk::String,etk::String>("saison", "21"));
+				basicKeyTmp.set("saison", "21");
 			} else if (lastPathName == "saison_22") {
-				basicKeyTmp.insert(etk::Pair<etk::String,etk::String>("saison", "22"));
+				basicKeyTmp.set("saison", "22");
 			} else if (lastPathName == "saison_23") {
-				basicKeyTmp.insert(etk::Pair<etk::String,etk::String>("saison", "23"));
+				basicKeyTmp.set("saison", "23");
 			} else if (lastPathName == "saison_24") {
-				basicKeyTmp.insert(etk::Pair<etk::String,etk::String>("saison", "24"));
+				basicKeyTmp.set("saison", "24");
 			} else if (lastPathName == "saison_25") {
-				basicKeyTmp.insert(etk::Pair<etk::String,etk::String>("saison", "25"));
+				basicKeyTmp.set("saison", "25");
 			} else if (lastPathName == "saison_26") {
-				basicKeyTmp.insert(etk::Pair<etk::String,etk::String>("saison", "26"));
+				basicKeyTmp.set("saison", "26");
 			} else if (lastPathName == "saison_27") {
-				basicKeyTmp.insert(etk::Pair<etk::String,etk::String>("saison", "27"));
+				basicKeyTmp.set("saison", "27");
 			} else if (lastPathName == "saison_28") {
-				basicKeyTmp.insert(etk::Pair<etk::String,etk::String>("saison", "28"));
+				basicKeyTmp.set("saison", "28");
 			} else if (lastPathName == "saison_29") {
-				basicKeyTmp.insert(etk::Pair<etk::String,etk::String>("saison", "29"));
+				basicKeyTmp.set("saison", "29");
 			} else {
-				basicKeyTmp.insert(etk::Pair<etk::String,etk::String>("series-name", lastPathName));
+				basicKeyTmp.set("series-name", lastPathName);
 			}
 		}
 		installVideoPath(_srv, itPath, basicKeyTmp);
@@ -549,9 +549,13 @@ int main(int _argc, const char *_argv[]) {
 					APPL_ERROR("get media error");
 					return -1;
 				}
+				APPL_DEBUG("    Get title ...");
 				etk::String name    = media.getMetadata("title").wait().get();
+				APPL_DEBUG("    Get series-name ...");
 				etk::String serie   = media.getMetadata("series-name").wait().get();
+				APPL_DEBUG("    Get episode ...");
 				etk::String episode = media.getMetadata("episode").wait().get();
+				APPL_DEBUG("    Get saison ...");
 				etk::String saison  = media.getMetadata("saison").wait().get();
 				etk::String outputDesc = "";
 				if (serie != "") {
@@ -564,7 +568,7 @@ int main(int _argc, const char *_argv[]) {
 					outputDesc += "e" + episode + "-";
 				}
 				outputDesc += name;
-				APPL_PRINT("[" << it << "] " << outputDesc);
+				APPL_PRINT("[" << it << "] '" << outputDesc << "'");
 			}
 		}
 		APPL_PRINT("============================================");

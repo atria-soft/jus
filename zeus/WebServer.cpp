@@ -177,7 +177,7 @@ bool zeus::WebServer::isActive() const {
 void zeus::WebServer::connect(bool _async){
 	ZEUS_DEBUG("connect [START]");
 	m_threadAsyncRunning = true;
-	m_threadAsync = new ethread::Thread([&](void *){ this->threadAsyncCallback();}, nullptr);
+	m_threadAsync = new ethread::Thread([&](){ threadAsyncCallback();}, "webServerAsync");
 	if (m_threadAsync == nullptr) {
 		m_threadAsyncRunning = false;
 		ZEUS_ERROR("creating async sender thread!");
@@ -228,7 +228,7 @@ class SendAsyncBinary {
 			
 		}
 		// TODO : Use shared ptr instaed of pointer ....
-		bool operator() (zeus::WebServer* _interface){
+		bool operator() (zeus::WebServer* _interface) {
 			auto it = m_async.begin();
 			while (it != m_async.end()) {
 				bool ret = (*it)(_interface, m_source, m_destination, m_transactionId, m_partId);
@@ -273,7 +273,10 @@ int32_t zeus::WebServer::writeBinary(ememory::SharedPtr<zeus::Message> _obj) {
 	ZEUS_LOG_INPUT_OUTPUT("Send    :" << _obj);
 	if (_obj->writeOn(m_connection) == true) {
 		if (_obj->haveAsync() == true) {
-			addAsync(SendAsyncBinary(_obj->getTransactionId(), _obj->getSource(), _obj->getDestination(), etk::move(_obj->moveAsync())));
+			addAsync(SendAsyncBinary(_obj->getTransactionId(),
+			                         _obj->getSource(),
+			                         _obj->getDestination(),
+			                         etk::move(_obj->moveAsync())));
 		}
 		return 1;
 	}
@@ -625,7 +628,7 @@ void zeus::WebServer::threadAsyncCallback() {
 		}
 		auto it = m_threadAsyncList.begin();
 		while (it != m_threadAsyncList.end()) {
-			ZEUS_INFO(" send DATA ... ");
+			ZEUS_VERBOSE(" send DATA ... ");
 			bool ret = (*it)(this);
 			if (ret == true) {
 				// Remove it ...

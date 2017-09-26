@@ -313,7 +313,7 @@ namespace zeus {
 	 * @value[in] _obj Message to display
 	 * @return a reference of the stream
 	 */
-	etk::Stream& operator <<(etk::Stream& _os, ememory::SharedPtr<zeus::Message> _obj);
+	etk::Stream& operator <<(etk::Stream& _os, const ememory::SharedPtr<zeus::Message>& _obj);
 	
 	namespace message {
 		// internal:

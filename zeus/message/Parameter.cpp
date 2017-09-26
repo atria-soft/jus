@@ -57,7 +57,7 @@ void zeus::message::Parameter::composeWith(const uint8_t* _buffer, uint32_t _len
 		data.resize(sizeParam);
 		memcpy(&data[0], &_buffer[offset], data.size() * sizeof(uint8_t));
 		offset += data.size() * sizeof(uint8_t);
-		m_parameter[nbParameters].second = data;
+		etk::swap(m_parameter[nbParameters].second, data);
 		nbParameters++;
 	}
 }

@@ -120,7 +120,7 @@ void zeus::Client::onClientData(ememory::SharedPtr<zeus::Message> _value) {
 				m_interfaceWeb->answerError(transactionId, _value->getDestination(), _value->getSource(), "TRANSFER-OWNERSHIP-ERROR");
 				return;
 			} else if (callFunction == "removeInterface") {
-				ZEUS_VERBOSE("Remove Object : " << callObj);
+				//ZEUS_VERBOSE("Remove Object : " << callObj);
 				m_interfaceWeb->interfaceRemoved(callObj->getParameter<etk::Vector<uint16_t>>(0));
 				return;
 			}
@@ -143,7 +143,7 @@ bool zeus::Client::serviceAdd(const etk::String& _serviceName, factoryService _f
 		ZEUS_ERROR("Can not provide a new sevice ... '" << futValidate.getErrorType() << "' help:" << futValidate.getErrorHelp());
 		return false;
 	}
-	m_listServicesAvaillable.insert(etk::makePair(_serviceName, _factory));
+	m_listServicesAvaillable.add(_serviceName, _factory);
 	return true;
 }
 

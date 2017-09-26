@@ -9,6 +9,7 @@
 #include <enet/TcpServer.hpp>
 #include <appl/DirectInterface.hpp>
 #include <appl/RouterInterface.hpp>
+#include <etk/Exception.hpp>
 
 
 namespace appl {
@@ -32,7 +33,7 @@ namespace appl {
 				m_interface.link();
 				m_threadRunning = true;
 				APPL_INFO("Start waiting on " << _host << " " << _port);
-				m_thread = new ethread::Thread([&](void *){ this->threadCallback();}, nullptr);
+				m_thread = new ethread::Thread([&](){ threadCallback();}, "GatewayListening");
 				if (m_thread == nullptr) {
 					m_threadRunning = false;
 					APPL_ERROR("creating callback thread!");
@@ -125,7 +126,7 @@ void appl::GateWay::start() {
 		m_routerClient = ememory::makeShared<appl::RouterInterface>(*propertyRouterIp, *propertyRouterPort, *propertyUserName, this);
 		if (m_routerClient->isAlive() == false) {
 			APPL_ERROR("Can not connect the Router (if it is the normal case, use option '--no-router'");
-			throw std::runtime_error("Can not connect router");
+			throw etk::exception::RuntimeError("Can not connect router");
 		}
 	}
 	m_interfaceNewService->start(*propertyServiceIp, *propertyServicePort);

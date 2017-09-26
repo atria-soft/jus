@@ -9,6 +9,7 @@
 #include <zeus/mineType.hpp>
 #include <algue/sha512.hpp>
 #include <etk/os/FSNode.hpp>
+#include <etk/Exception.hpp>
 #include "debug.hpp"
 
 
@@ -92,22 +93,22 @@ etk::String zeus::FileImpl::getMineType() {
 zeus::Raw zeus::FileImpl::getPart(uint64_t _start, uint64_t _stop) {
 	if ((_stop - _start) > 25*1024*1024) {
 		ZEUS_ERROR("REQUEST more that 25 Mo in a part file ...");
-		throw std::invalid_argument("REQUEST more that 25 Mo in a part file ..." + etk::toString(_stop - _start) + " Bytes");
+		throw etk::exception::InvalidArgument("REQUEST more that 25 Mo in a part file ..." + etk::toString(_stop - _start) + " Bytes");
 		return zeus::Raw();
 	}
 	if (_start >= m_size) {
-		throw std::invalid_argument("REQUEST start position out of file size" + etk::toString(_start) + " > " + etk::toString(m_size));
+		throw etk::exception::InvalidArgument("REQUEST start position out of file size" + etk::toString(_start) + " > " + etk::toString(m_size));
 	}
 	if (m_node.fileIsOpen() == false) {
 		m_node.fileOpenRead();
 	}
 	m_gettedData += (_stop - _start);
 	//ZEUS_PRINT("Reading file : " << m_gettedData << "/" << m_size << " ==> " << float(m_gettedData)/float(m_size)*100.0f << "%");
-	std::cout << "Reading file : " << m_gettedData << "/" << m_size << " ==> " << float(m_gettedData)/float(m_size)*100.0f << "%                                      \r";
+	printf("Reading file : %d/%d ==> %f                                                                          \r", int(m_gettedData), int(m_size), float(m_gettedData)/float(m_size)*100.0f);
 	zeus::Raw tmp(_stop - _start);
 	if (m_node.fileSeek(_start, etk::seekNode_start) == false) {
 		ZEUS_ERROR("REQUEST seek error ...");
-		throw std::runtime_error("Seek in the file error");
+		throw etk::exception::RuntimeError("Seek in the file error");
 		return zeus::Raw();
 	}
 	int64_t sizeCopy = m_node.fileRead(tmp.writeData(), 1, _stop-_start);
@@ -142,7 +143,7 @@ etk::String zeus::storeInFileNotify(zeus::ProxyFile _file, etk::String _filename
 		auto futData = _file.getPart(offset, offset + nbElement);
 		futData.wait();
 		if (futData.hasError() == true) {
-			throw std::runtime_error("Error when loading data");
+			throw etk::exception::RuntimeError("Error when loading data");
 		}
 		zeus::Raw buffer = futData.get();
 		shaCtx.update(buffer.data(), buffer.size());
@@ -159,7 +160,7 @@ etk::String zeus::storeInFileNotify(zeus::ProxyFile _file, etk::String _filename
 	if (sha512String != futSha.get()) {
 		ZEUS_ERROR("get wrong Sha512 local : '" << sha512String << "'");
 		ZEUS_ERROR("get wrong Sha512 remote: '" << futSha.get() << "'");
-		throw std::runtime_error("SHA-512 error check");
+		throw etk::exception::RuntimeError("SHA-512 error check");
 	}
 	return sha512String;
 }
@@ -184,7 +185,7 @@ etk::Vector<uint8_t> zeus::storeInMemory(zeus::ProxyFile _file) {
 		auto futData = _file.getPart(offset, offset + nbElement);
 		futData.wait();
 		if (futData.hasError() == true) {
-			throw std::runtime_error("Error when loading data");
+			throw etk::exception::RuntimeError("Error when loading data");
 		}
 		zeus::Raw buffer = futData.get();
 		shaCtx.update(buffer.data(), buffer.size());

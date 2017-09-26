@@ -222,7 +222,7 @@ int main(int _argc, const char *_argv[]) {
 				etk::Vector<etk::String> listServices = dataPath.folderGetSub(false, true, ".*\\.srv");
 				for (auto &it2: listServices) {
 					etk::String nameFileSrv = etk::FSNode(it2).getNameFile();
-					etk::Vector<etk::String> spl = etk::split(etk::String(nameFileSrv.begin(), nameFileSrv.end()-4), "-service-");
+					etk::Vector<etk::String> spl = etk::String(nameFileSrv.begin(), nameFileSrv.end()-4).split("-service-");
 					if (spl.size() != 2) {
 						APPL_ERROR("reject service, wrong format ... '" << it2 << "' missing XXX-service-SERVICE-NAME.srv");
 						continue;
@@ -304,7 +304,7 @@ int main(int _argc, const char *_argv[]) {
 				APPL_WARNING("Router is Dead or Timeout");
 			} else {
 				elog::flush();
-				ethread::sleepMilliSeconds(std::chrono::seconds(1));
+				ethread::sleepMilliSeconds(1000);
 				APPL_INFO("gateway in waiting ... " << iii << "/inf");
 			}
 			iii++;

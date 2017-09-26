@@ -245,7 +245,7 @@ bool zeus::Promise::isFinished() const {
 void zeus::Promise::wait() const {
 	while (isFinished() == false) {
 		// TODO : Do it better ... like messaging/mutex_locked ...
-		ethread::sleepMilliSeconds(echrono::milliseconds(10));
+		ethread::sleepMilliSeconds(10);
 	}
 }
 
@@ -254,7 +254,7 @@ void zeus::Promise::waitFor(echrono::Duration _delta) const {
 	while (    echrono::Steady::now() - start < _delta
 	        && isFinished() == false) {
 		// TODO : Do it better ... like messaging/mutex_locked ...
-		ethread::sleepMilliSeconds(echrono::milliseconds(10));
+		ethread::sleepMilliSeconds(10);
 	}
 	if (isFinished() == false) {
 		ZEUS_WARNING("Wait timeout ... " << _delta);
@@ -266,7 +266,7 @@ void zeus::Promise::waitUntil(echrono::Steady _endTime) const {
 	while (    echrono::Steady::now() < _endTime
 	        && isFinished() == false) {
 		// TODO : Do it better ... like messaging/mutex_locked ...
-		ethread::sleepMilliSeconds(echrono::milliseconds(10));
+		ethread::sleepMilliSeconds(10);
 	}
 	if (isFinished() == false) {
 		ZEUS_WARNING("Wait timeout ..." << _endTime);

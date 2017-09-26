@@ -39,7 +39,8 @@ zeus::MediaImpl::MediaImpl(const etk::String& _basePath, ejson::Object _property
 		for (auto itValue = tmpObj.begin();
 		     itValue != tmpObj.end();
 		     ++itValue) {
-			m_metadata.insert(etk::makePair(itValue.getKey(), (*itValue).toString().get()));
+			ZEUS_INFO("    Add metadata: " << itValue.getKey() << ":" << (*itValue).toString().get() << " " << *itValue);
+			m_metadata.add(itValue.getKey(), (*itValue).toString().get());
 		}
 	}
 }
@@ -76,7 +77,7 @@ etk::String zeus::MediaImpl::getMineType() {
 etk::String zeus::MediaImpl::getSha512() {
 	try {
 		return getMetadata("sha512");
-	} catch (std::invalid_argument _eee) {
+	} catch (etk::exception::InvalidArgument _eee) {
 		// Nothing to do ...
 	}
 	etk::String sha512;
@@ -103,7 +104,7 @@ etk::String zeus::MediaImpl::getDecoratedName() {
 		if (out != "") {
 			return out;
 		}
-	} catch (std::invalid_argument _eee) {
+	} catch (etk::exception::InvalidArgument _eee) {
 		// Nothing to do ...
 	}
 	// Store the metadat to not calculated it all the time ...
@@ -124,32 +125,28 @@ ememory::SharedPtr<zeus::File> zeus::MediaImpl::getFile() {
 etk::Vector<etk::String> zeus::MediaImpl::getMetadataKeys() {
 	etk::Vector<etk::String> out;
 	for (auto &it : m_metadata) {
+		// TODO: add filter ...
 		out.pushBack(it.first);
 	}
 	return out;
 }
 
 etk::String zeus::MediaImpl::getMetadata(etk::String _key) {
+	ZEUS_WARNING("Get metadata: " << _key);
 	auto it = m_metadata.find(_key);
 	if (it != m_metadata.end()) {
+		ZEUS_WARNING("    Value='" << it->second << "'");
 		return it->second;
 	}
-	throw std::invalid_argument("KEY '" + _key + "' Does not exist");
+	throw etk::exception::InvalidArgument("KEY '" + _key + "' Does not exist");
 }
 
 void zeus::MediaImpl::setMetadata(etk::String _key, etk::String _value) {
 	ZEUS_INFO("metadataSetKey: '" << _key << "' value='" << _value << "'");
-	auto it = m_metadata.find(_key);
-	if (it != m_metadata.end()) {
-		if (_value == "") {
-			m_metadata.erase(it);
-		} else if (it->second == _value) {
-			return;
-		} else {
-			it->second = _value;
-		}
+	if (_value == "") {
+		m_metadata.erase(_key);
 	} else {
-		m_metadata.insert(etk::makePair(_key, _value));
+		m_metadata.set(_key, _value);
 	}
 	// hook to remove some case that does not call the callback ==> can change many times ...
 	if (    _key == "sha512"

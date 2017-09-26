@@ -84,7 +84,7 @@ namespace appl {
 				m_interface.setPort(_port);
 				m_interface.link();
 				m_threadRunning = true;
-				m_thread = new ethread::Thread([&](void *){ this->threadCallback();}, nullptr);
+				m_thread = new ethread::Thread([&](){ threadCallback();}, "routerListener");
 				if (m_thread == nullptr) {
 					m_threadRunning = false;
 					ZEUS_ERROR("creating callback thread!");

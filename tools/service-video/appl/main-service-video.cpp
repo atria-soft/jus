@@ -159,7 +159,7 @@ namespace appl {
 						return m_listFile[iii]->getUniqueId();
 					}
 				}
-				throw std::invalid_argument("sha512 not find...");
+				throw etk::exception::InvalidArgument("sha512 not find...");
 			}
 			
 			// Return a File Data (might be a video .tiff/.png/.jpg)
@@ -175,7 +175,7 @@ namespace appl {
 						return it;
 					}
 				}
-				throw std::invalid_argument("Wrong file ID ...");
+				throw etk::exception::InvalidArgument("Wrong file ID ...");
 				//
 			}
 			uint32_t add(zeus::ActionNotification<etk::String>& _notifs, zeus::ProxyFile _dataFile) override {
@@ -218,7 +218,7 @@ namespace appl {
 				APPL_DEBUG("move temporay file in : " << g_basePath << sha512String);
 				if (etk::FSNodeGetSize(tmpFileName) == 0) {
 					APPL_ERROR("try to store an empty file");
-					throw std::runtime_error("file size == 0");
+					throw etk::exception::RuntimeError("file size == 0");
 				}
 				if (zeus::getExtention(futType.get()) != "") {
 					ethread::UniqueLock lock(g_mutex);
@@ -264,26 +264,26 @@ namespace appl {
 					g_needToStore = true;
 				}
 				if (find == false) {
-					throw std::invalid_argument("Wrong file name ...");
+					throw etk::exception::InvalidArgument("Wrong file name ...");
 				}
 				// Real Remove definitly the file
 				// TODO : Set it in a trash ... For a while ...
 				if (property->erase() == false) {
-					throw std::runtime_error("Can not remove file ...");
+					throw etk::exception::RuntimeError("Can not remove file ...");
 				}
 			}
 			
 			etk::Vector<etk::Vector<etk::String>> interpreteSQLRequest(const etk::String& _sqlLikeRequest) {
 				etk::Vector<etk::Vector<etk::String>> out;
 				if (_sqlLikeRequest != "*") {
-					etk::Vector<etk::String> listAnd = etk::split(_sqlLikeRequest, "AND");
+					etk::Vector<etk::String> listAnd = _sqlLikeRequest.split("AND");
 					APPL_INFO("Find list AND : ");
 					for (auto &it : listAnd) {
 						it = removeSpaceOutQuote(it);
 						etk::Vector<etk::String> elements = splitAction(it);
 						if (elements.size() != 3) {
 							APPL_ERROR("element : '" + it + "' have wrong spliting " << elements);
-							throw std::invalid_argument("element : \"" + it + "\" have wrong spliting");
+							throw etk::exception::InvalidArgument("element : \"" + it + "\" have wrong spliting");
 						}
 						if (    elements[1] != "=="
 						     && elements[1] != "!="
@@ -291,7 +291,7 @@ namespace appl {
 						     && elements[1] != "<="
 						     && elements[1] != ">"
 						     && elements[1] != "<") {
-							throw std::invalid_argument("action invalid : '" + elements[1] + "' only availlable : [==,!=,<=,>=,<,>]");
+							throw etk::exception::InvalidArgument("action invalid : '" + elements[1] + "' only availlable : [==,!=,<=,>=,<,>]");
 						}
 						APPL_INFO("    - '" << elements[0] << "' action='" << elements[1] << "' with='" << elements[2] << "'");
 						out.pushBack(elements);
@@ -350,7 +350,7 @@ namespace appl {
 			etk::Vector<uint32_t> getSQL(etk::String _sqlLikeRequest) override {
 				etk::Vector<uint32_t> out;
 				if (_sqlLikeRequest == "") {
-					throw std::invalid_argument("empty request");
+					throw etk::exception::InvalidArgument("empty request");
 				}
 				APPL_DEBUG("check : " << _sqlLikeRequest);
 				etk::Vector<etk::Vector<etk::String>> listAndParsed = interpreteSQLRequest(_sqlLikeRequest);
@@ -372,7 +372,7 @@ namespace appl {
 			etk::Vector<etk::String> getMetadataValuesWhere(etk::String _keyName, etk::String _sqlLikeRequest) override {
 				etk::Vector<etk::String> out;
 				if (_sqlLikeRequest == "") {
-					throw std::invalid_argument("empty request");
+					throw etk::exception::InvalidArgument("empty request");
 				}
 				etk::Vector<etk::Vector<etk::String>> listAndParsed = interpreteSQLRequest(_sqlLikeRequest);
 				ethread::UniqueLock lock(g_mutex);
@@ -410,7 +410,7 @@ namespace appl {
 				if (etk::FSNodeExist(_baseName + _mediaString + ".png") == true) {
 					return zeus::File::create(_baseName + _mediaString + ".png");
 				}
-				throw std::runtime_error("No cover availlable");
+				throw etk::exception::RuntimeError("No cover availlable");
 			}
 			
 			void internalSetCover(const etk::String& _baseName, zeus::ActionNotification<etk::String>& _notifs, zeus::ProxyFile _cover, etk::String _mediaString) {
@@ -425,11 +425,11 @@ namespace appl {
 				futType.wait();
 				if (etk::FSNodeGetSize(tmpFileName) == 0) {
 					APPL_ERROR("try to store an empty file");
-					throw std::runtime_error("file size == 0");
+					throw etk::exception::RuntimeError("file size == 0");
 				}
 				if (etk::FSNodeGetSize(tmpFileName) > 1024*1024) {
 					APPL_ERROR("try to store a Bigger file");
-					throw std::runtime_error("file size > 1Mo");
+					throw etk::exception::RuntimeError("file size > 1Mo");
 				}
 				if (futType.get() == "image/png") {
 					ethread::UniqueLock lock(g_mutex);
@@ -441,7 +441,7 @@ namespace appl {
 					etk::FSNodeMove(tmpFileName, _baseName + _mediaString + ".jpg");
 				} else {
 					APPL_ERROR("try to store a file with the wrong format");
-					throw std::runtime_error("wrong foramt :" + futType.get() + " support only image/jpeg, image/png");
+					throw etk::exception::RuntimeError("wrong foramt :" + futType.get() + " support only image/jpeg, image/png");
 				}
 				
 			}
@@ -529,11 +529,11 @@ ETK_EXPORT_API void SERVICE_IO_peridic_call() {
 		return;
 	}
 	// try lock mutex:
-	if (g_mutex.try_lock() == false) {
+	if (g_mutex.tryLock() == false) {
 		return;
 	}
 	store_db();
-	g_mutex.unlock();
+	g_mutex.unLock();
 }
 
 

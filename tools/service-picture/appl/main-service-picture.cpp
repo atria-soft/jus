@@ -106,7 +106,7 @@ namespace appl {
 					}
 				}
 				if (find == false) {
-					throw std::invalid_argument("Wrong file name ...");
+					throw etk::exception::InvalidArgument("Wrong file name ...");
 				}
 				return zeus::File::create(g_basePath + property.m_fileName + "." + zeus::getExtention(property.m_mineType), "", property.m_mineType);
 			}
@@ -135,7 +135,7 @@ namespace appl {
 				APPL_DEBUG("move temporay file in : " << g_basePath << sha512String);
 				if (etk::FSNodeGetSize(tmpFileName) == 0) {
 					APPL_ERROR("try to store an empty file");
-					throw std::runtime_error("file size == 0");
+					throw etk::exception::RuntimeError("file size == 0");
 				}
 				etk::FSNodeMove(tmpFileName, g_basePath + sha512String + "." + zeus::getExtention(futType.get()));
 				FileProperty property;
@@ -167,7 +167,7 @@ namespace appl {
 					}
 				}
 				if (find == false) {
-					throw std::invalid_argument("Wrong file name ...");
+					throw etk::exception::InvalidArgument("Wrong file name ...");
 				}
 				// Remove media in all Album ...
 				for (auto &it : m_listAlbum) {
@@ -184,7 +184,7 @@ namespace appl {
 				// Real Remove definitly the file
 				// TODO : Set it in a trash ... For a while ...
 				if (etk::FSNodeRemove(g_basePath + property.m_fileName + "." + zeus::getExtention(property.m_mineType)) == false) {
-					throw std::runtime_error("Can not remove file ...");
+					throw etk::exception::RuntimeError("Can not remove file ...");
 				}
 			}
 			
@@ -198,7 +198,7 @@ namespace appl {
 						return out;
 					}
 				}
-				throw std::invalid_argument("Wrong Album ID ...");
+				throw etk::exception::InvalidArgument("Wrong Album ID ...");
 			}
 			etk::String mediaMetadataGetKey(uint32_t _mediaId, etk::String _key) override {
 				etk::Vector<etk::String> out;
@@ -211,21 +211,16 @@ namespace appl {
 						return "";
 					}
 				}
-				throw std::invalid_argument("Wrong Album ID ...");
+				throw etk::exception::InvalidArgument("Wrong Album ID ...");
 			}
 			void mediaMetadataSetKey(uint32_t _mediaId, etk::String _key, etk::String _value) override {
 				for (auto &it : m_listFile) {
 					if (it.m_id == _mediaId) {
-						auto itM = it.m_metadata.find(_key);
-						if (itM != it.m_metadata.end()) {
-							itM->second = _value;
-						} else {
-							it.m_metadata.insert(etk::makePair(_key, _value));
-						}
+						it.m_metadata.set(_key, _value);
 						return;
 					}
 				}
-				throw std::invalid_argument("Wrong Album ID ...");
+				throw etk::exception::InvalidArgument("Wrong Album ID ...");
 			}
 			uint32_t albumCreate(etk::String _albumName) override {
 				ethread::UniqueLock lock(g_mutex);
@@ -255,7 +250,7 @@ namespace appl {
 					}
 					++it;
 				}
-				throw std::invalid_argument("Wrong Album ID ...");
+				throw etk::exception::InvalidArgument("Wrong Album ID ...");
 			}
 			etk::Vector<uint32_t> albumGetList() override {
 				ethread::UniqueLock lock(g_mutex);
@@ -272,7 +267,7 @@ namespace appl {
 						return it.m_name;
 					}
 				}
-				throw std::invalid_argument("Wrong Album ID ...");
+				throw etk::exception::InvalidArgument("Wrong Album ID ...");
 				return "";
 			}
 			void albumNameSet(uint32_t _albumId, etk::String _albumName) override {
@@ -283,7 +278,7 @@ namespace appl {
 						return;
 					}
 				}
-				throw std::invalid_argument("Wrong Album ID ...");
+				throw etk::exception::InvalidArgument("Wrong Album ID ...");
 			}
 			etk::String albumDescriptionGet(uint32_t _albumId) override {
 				ethread::UniqueLock lock(g_mutex);
@@ -292,7 +287,7 @@ namespace appl {
 						return it.m_description;
 					}
 				}
-				throw std::invalid_argument("Wrong Album ID ...");
+				throw etk::exception::InvalidArgument("Wrong Album ID ...");
 				return "";
 			}
 			void albumDescriptionSet(uint32_t _albumId, etk::String _desc) override {
@@ -303,7 +298,7 @@ namespace appl {
 						return;
 					}
 				}
-				throw std::invalid_argument("Wrong Album ID ...");
+				throw etk::exception::InvalidArgument("Wrong Album ID ...");
 			}
 			void albumMediaAdd(uint32_t _albumId, uint32_t _mediaId) override {
 				ethread::UniqueLock lock(g_mutex);
@@ -319,7 +314,7 @@ namespace appl {
 						return;
 					}
 				}
-				throw std::invalid_argument("Wrong Album ID ...");
+				throw etk::exception::InvalidArgument("Wrong Album ID ...");
 			}
 			void albumMediaRemove(uint32_t _albumId, uint32_t _mediaId) override {
 				ethread::UniqueLock lock(g_mutex);
@@ -338,7 +333,7 @@ namespace appl {
 						return;
 					}
 				}
-				throw std::invalid_argument("Wrong Album ID ...");
+				throw etk::exception::InvalidArgument("Wrong Album ID ...");
 			}
 			uint32_t albumMediaCount(uint32_t _albumId) override {
 				ethread::UniqueLock lock(g_mutex);
@@ -347,7 +342,7 @@ namespace appl {
 						return it.m_listMedia.size();
 					}
 				}
-				throw std::invalid_argument("Wrong Album ID ...");
+				throw etk::exception::InvalidArgument("Wrong Album ID ...");
 				return 0;
 			}
 			etk::Vector<uint32_t> albumMediaIdGet(uint32_t _albumId, uint32_t _start, uint32_t _stop) override {
@@ -364,7 +359,7 @@ namespace appl {
 						return out;
 					}
 				}
-				throw std::invalid_argument("Wrong Album ID ...");
+				throw etk::exception::InvalidArgument("Wrong Album ID ...");
 			}
 			void albumParentSet(uint32_t _albumId, uint32_t _albumParentId) override {
 				ethread::UniqueLock lock(g_mutex);
@@ -374,7 +369,7 @@ namespace appl {
 						return;
 					}
 				}
-				throw std::invalid_argument("Wrong Album ID ...");
+				throw etk::exception::InvalidArgument("Wrong Album ID ...");
 			}
 			void albumParentRemove(uint32_t _albumId) override {
 				ethread::UniqueLock lock(g_mutex);
@@ -384,7 +379,7 @@ namespace appl {
 						return;
 					}
 				}
-				throw std::invalid_argument("Wrong Album ID ...");
+				throw etk::exception::InvalidArgument("Wrong Album ID ...");
 			}
 			uint32_t albumParentGet(uint32_t _albumId) override {
 				ethread::UniqueLock lock(g_mutex);
@@ -393,7 +388,7 @@ namespace appl {
 						return it.m_parentId;
 					}
 				}
-				throw std::invalid_argument("Wrong Album ID ...");
+				throw etk::exception::InvalidArgument("Wrong Album ID ...");
 			}
 	};
 }
@@ -463,7 +458,7 @@ static void load_db() {
 			for (auto itValue = tmpObj.begin();
 			     itValue != tmpObj.end();
 			     ++itValue) {
-				property.m_metadata.insert(etk::makePair(itValue.getKey(), (*itValue).toString().get()));
+				property.m_metadata.set(itValue.getKey(), (*itValue).toString().get());
 			}
 		}
 		if (property.m_fileName == "") {
@@ -511,11 +506,11 @@ ETK_EXPORT_API void SERVICE_IO_peridic_call() {
 		return;
 	}
 	// try lock mutex:
-	if (g_mutex.try_lock() == false) {
+	if (g_mutex.tryLock() == false) {
 		return;
 	}
 	store_db();
-	g_mutex.unlock();
+	g_mutex.unLock();
 }
 
 
