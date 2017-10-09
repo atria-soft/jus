@@ -28,6 +28,20 @@ ememory::SharedPtr<zeus::File> zeus::File::create(etk::String _fileNameReal, etk
 	return ememory::makeShared<zeus::FileImpl>(_fileNameReal, _fileNameShow, _mineType, _sha512);
 }
 
+ememory::SharedPtr<zeus::File> zeus::File::create(etk::Vector<uint8_t> _fileNameReal, etk::String _virtualName, etk::String _mineType) {
+	return ememory::makeShared<zeus::FileImpl>(_fileNameReal, _virtualName, _mineType);
+}
+
+
+zeus::FileImpl::FileImpl(const etk::Vector<uint8_t>& _value, etk::String _virtualName, etk::String _mineType) :
+  m_filename(_virtualName),
+  m_gettedData(0),
+  m_mineType(_mineType),
+  m_sha512("") {
+	m_dataRaw = true;
+	m_data = _value;
+	m_size = m_data.size();
+}
 zeus::FileImpl::FileImpl(etk::String _fileNameReal, etk::String _sha512) :
   m_filename(_fileNameReal),
   m_node(_fileNameReal),
@@ -80,7 +94,11 @@ etk::String zeus::FileImpl::getName() {
 etk::String zeus::FileImpl::getSha512() {
 	if (m_sha512 == "") {
 		ZEUS_INFO("calculation of sha 512 (start)");
-		m_sha512 = algue::stringConvert(algue::sha512::encodeFromFile(m_node.getFileSystemName()));
+		if (m_dataRaw == false) {
+			m_sha512 = algue::stringConvert(algue::sha512::encodeFromFile(m_node.getFileSystemName()));
+		} else {
+			m_sha512 = algue::stringConvert(algue::sha512::encode(m_data));
+		}
 		ZEUS_INFO("calculation of sha 512 (stop)");
 	}
 	return m_sha512;
@@ -99,24 +117,33 @@ zeus::Raw zeus::FileImpl::getPart(uint64_t _start, uint64_t _stop) {
 	if (_start >= m_size) {
 		throw etk::exception::InvalidArgument("REQUEST start position out of file size" + etk::toString(_start) + " > " + etk::toString(m_size));
 	}
-	if (m_node.fileIsOpen() == false) {
-		m_node.fileOpenRead();
+	if (m_dataRaw == false) {
+		if (m_node.fileIsOpen() == false) {
+			m_node.fileOpenRead();
+		}
+		m_gettedData += (_stop - _start);
+		//ZEUS_PRINT("Reading file : " << m_gettedData << "/" << m_size << " ==> " << float(m_gettedData)/float(m_size)*100.0f << "%");
+		printf("Reading file : %d/%d ==> %f                                                                          \r", int(m_gettedData), int(m_size), float(m_gettedData)/float(m_size)*100.0f);
+		zeus::Raw tmp(_stop - _start);
+		if (m_node.fileSeek(_start, etk::seekNode_start) == false) {
+			ZEUS_ERROR("REQUEST seek error ...");
+			throw etk::exception::RuntimeError("Seek in the file error");
+			return zeus::Raw();
+		}
+		int64_t sizeCopy = m_node.fileRead(tmp.writeData(), 1, _stop-_start);
+		if (m_size <= _stop) {
+			m_node.fileClose();
+		}
+		// TODO : Check if copy is correct ...
+		return etk::move(tmp);
+	} else {
+		m_gettedData += (_stop - _start);
+		//ZEUS_PRINT("Reading file : " << m_gettedData << "/" << m_size << " ==> " << float(m_gettedData)/float(m_size)*100.0f << "%");
+		printf("Reading file : %d/%d ==> %f                                                                          \r", int(m_gettedData), int(m_size), float(m_gettedData)/float(m_size)*100.0f);
+		zeus::Raw tmp(_stop - _start);
+		memcpy(tmp.writeData(), &m_data[_start], _stop-_start);
+		return etk::move(tmp);
 	}
-	m_gettedData += (_stop - _start);
-	//ZEUS_PRINT("Reading file : " << m_gettedData << "/" << m_size << " ==> " << float(m_gettedData)/float(m_size)*100.0f << "%");
-	printf("Reading file : %d/%d ==> %f                                                                          \r", int(m_gettedData), int(m_size), float(m_gettedData)/float(m_size)*100.0f);
-	zeus::Raw tmp(_stop - _start);
-	if (m_node.fileSeek(_start, etk::seekNode_start) == false) {
-		ZEUS_ERROR("REQUEST seek error ...");
-		throw etk::exception::RuntimeError("Seek in the file error");
-		return zeus::Raw();
-	}
-	int64_t sizeCopy = m_node.fileRead(tmp.writeData(), 1, _stop-_start);
-	if (m_size <= _stop) {
-		m_node.fileClose();
-	}
-	// TODO : Check if copy is correct ...
-	return etk::move(tmp);
 }
 
 etk::String zeus::storeInFile(zeus::ProxyFile _file, etk::String _filename) {

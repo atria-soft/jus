@@ -25,6 +25,11 @@
 #param:mineType:Mine-type of the file.
 #param:sha512: Sha-512 string if the file
 [factory] create(string, string, string, string)
+#brief:Factory to create a local object with a buffer with data like a file.
+#param:buffer:Data bueffer of the data.
+#param:virtualName:Virtual name of the file.
+#param:mineType:Mine-type of the file.
+[factory] create(vector:uint8, string, string)
 
 // --------------------------
 // --        Members       --

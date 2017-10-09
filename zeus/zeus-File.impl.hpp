@@ -13,6 +13,8 @@ namespace zeus {
 		private:
 			etk::String m_filename; //!< Name of the file
 			etk::FSNode m_node; //!< File node access
+			etk::Vector<uint8_t> m_data; //!< data of the file to transfer;
+			bool m_dataRaw = false;
 			size_t m_size; //!< Size of the file
 			size_t m_gettedData; //!< Number of byte loaded by the remote client
 			etk::String m_mineType; //!< Mine Type of the file
@@ -20,6 +22,7 @@ namespace zeus {
 		public:
 			FileImpl(etk::String _fileNameReal, etk::String _fileNameShow, etk::String _mineType, etk::String _sha512="");
 			FileImpl(etk::String _fileNameReal, etk::String _sha512="");
+			FileImpl(const etk::Vector<uint8_t>& _value, etk::String _virtualName, etk::String _mineType);
 			~FileImpl();
 			uint64_t getSize() override;
 			etk::String getName() override;
