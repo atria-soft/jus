@@ -17,6 +17,7 @@ static const etk::String protocolError = "PROTOCOL-ERROR";
 appl::GateWayInterface::GateWayInterface(enet::Tcp _connection, appl::Router* _routerInterface) :
   m_routerInterface(_routerInterface),
   m_interfaceClient(etk::move(_connection), true),
+  m_openExternPort(0),
   m_lastSourceID(0x8000) {
 	ZEUS_INFO("-----------------");
 	ZEUS_INFO("-- NEW GateWay --");
@@ -34,31 +35,37 @@ appl::GateWayInterface::~GateWayInterface() {
 bool appl::GateWayInterface::isAlive() {
 	return m_interfaceClient.isActive();
 }
-
-bool appl::GateWayInterface::requestURI(const etk::String& _uri) {
-	ZEUS_INFO("request connect on User - GateWay: '" << _uri << "'");
+etk::String appl::GateWayInterface::requestURI(const etk::String& _uri, const etk::Map<etk::String,etk::String>& _options) {
+	ZEUS_INFO("request connect on User - GateWay: '" << _uri << "' from " << m_interfaceClient.getRemoteAddress());
+	for (auto &it: _options) {
+		ZEUS_INFO("    '" << it.first << "' = '" << it.second << "'");
+	}
 	if(m_routerInterface == nullptr) {
 		ZEUS_ERROR("Can not access to the main GateWay interface (nullptr)");
-		return false;
+		return "CLOSE";
 	}
 	etk::String tmpURI = _uri;
 	if (tmpURI.size() == 0) {
 		ZEUS_ERROR("Empty URI ... not supported ...");
-		return false;
+		return "CLOSE";
 	}
 	if (tmpURI[0] == '/') {
 		tmpURI = etk::String(tmpURI.begin() + 1, tmpURI.end());
 	}
-	// TODO : Remove subParameters xxx?YYY
 	// check if the USER is already connected:
 	bool tmp = m_routerInterface->userIsConnected(tmpURI);
 	if (tmp == true) {
 		ZEUS_ERROR("User is already connected ==> this is a big error ...");
-		return false;
+		return "CLOSE";
 	}
 	m_name = tmpURI;
+	for (auto &it: _options) {
+		if (it.first == "directAccessPort") {
+			m_openExternPort = etk::string_to_uint16_t(it.second);
+		}
+	}
 	ZEUS_WARNING("Connection of user : '" << tmpURI << "'");
-	return true;
+	return "OK";
 }
 
 void appl::GateWayInterface::start() {
@@ -78,6 +85,10 @@ void appl::GateWayInterface::send(ememory::SharedPtr<zeus::Message> _data) {
 }
 
 uint16_t appl::GateWayInterface::addClient(ememory::SharedPtr<appl::ClientInterface> _value) {
+	if (_value == nullptr) {
+		return -1;
+	}
+	APPL_WARNING("Add client on GateWay " << _value->getId());
 	m_clientConnected.pushBack(_value);
 	return m_lastSourceID++;
 }
@@ -87,13 +98,21 @@ void appl::GateWayInterface::rmClient(ememory::SharedPtr<appl::ClientInterface> 
 		return;
 	}
 	uint16_t id = _value->getId();
+	APPL_WARNING("RM client on GateWay : " << id);
+	bool find = false;
 	auto it = m_clientConnected.begin();
 	while (it != m_clientConnected.end()) {
-		if (*it == _value) {
+		if (*it == nullptr) {
 			it = m_clientConnected.erase(it);
+		} else if (*it == _value) {
+			it = m_clientConnected.erase(it);
+			find = true;
 		} else {
 			++it;
 		}
+	}
+	if (find == false) {
+		return;
 	}
 	m_interfaceClient.call(uint32_t(id)<<16, ZEUS_ID_GATEWAY, "removeRouterClient", id);
 }
@@ -114,6 +133,7 @@ void appl::GateWayInterface::onServiceData(ememory::SharedPtr<zeus::Message> _va
 					return;
 				}
 				m_name = callObj->getParameter<etk::String>(0);
+				m_openExternPort = callObj->getParameter<uint16_t>(1);
 				m_interfaceClient.setInterfaceName("srv-" + m_name);
 				m_interfaceClient.answerValue(transactionId, _value->getDestination(), _value->getSource(), true);
 				return;

@@ -16,6 +16,7 @@ class UserAvaillable {
 		etk::String m_name;
 		etk::String m_basePath;
 		bool m_accessMediaCenter;
+		bool m_enableDirectAccess;
 		FILE* m_subProcess;
 };
 etk::Vector<UserAvaillable> g_listUserAvaillable;
@@ -35,6 +36,7 @@ static void store_db() {
 		propObject.add("name", ejson::String(it.m_name));
 		propObject.add("path", ejson::String(it.m_basePath));
 		propObject.add("access-media-center", ejson::Boolean(it.m_accessMediaCenter));
+		propObject.add("access-direct", ejson::Boolean(it.m_enableDirectAccess));
 	}
 	bool retGenerate = database.storeSafe(g_pathDBName);
 	APPL_ERROR("Store database [STOP] : " << g_pathDBName << " ret = " << retGenerate);
@@ -55,6 +57,7 @@ static void load_db() {
 		userProperty.m_name = userElement["name"].toString().get();
 		userProperty.m_basePath = userElement["path"].toString().get();
 		userProperty.m_accessMediaCenter = userElement["access-media-center"].toBoolean().get();
+		userProperty.m_enableDirectAccess = userElement["access-direct"].toBoolean().get();
 		APPL_INFO("find USER: '" << userProperty.m_name << "'");
 		g_listUserAvaillable.pushBack(userProperty);
 	}
@@ -141,7 +144,9 @@ appl::Router::Router() :
   propertyGateWayIp(this, "gw-ip", "127.0.0.1", "Ip to listen Gateway", &appl::Router::onPropertyChangeGateWayIp),
   propertyGateWayPort(this, "gw-port", 1984, "Port to listen Gateway", &appl::Router::onPropertyChangeGateWayPort),
   propertyGateWayMax(this, "gw-max", 8000, "Maximum of Gateway at the same time", &appl::Router::onPropertyChangeGateWayMax),
-  propertyDelayToStop(this, "delay-to-stop", 0, "Delay before the client stop the connection in second (default: 0=automatic set by the gateway; -1=never disconnect; other the time )") {
+  propertyDelayToStop(this, "delay-to-stop", 0, "Delay before the client stop the connection in second (default: 0=automatic set by the gateway; -1=never disconnect; other the time )"),
+  propertyGateWayDirectPortMin(this, "gw-direct-port-min", 12000, "Minimum of Gateway at the same time"),
+  propertyGateWayDirectPortMax(this, "gw-direct-port-max", 13000, "Maximum of Gateway at the same time") {
 	m_interfaceClientServer = ememory::makeShared<appl::TcpServerInput>(this, false);
 	m_interfaceGateWayServer = ememory::makeShared<appl::TcpServerInput>(this, true);
 	load_db();
@@ -234,9 +239,14 @@ ememory::SharedPtr<appl::GateWayInterface> appl::Router::get(const etk::String& 
 						//etk::String logFile = " ";
 						APPL_INFO("New Child log in = " << logFile);
 					}
+					etk::String directAccess;
+					if (it.m_enableDirectAccess == true) {
+						directAccess = "--direct-ip=" + *propertyClientIp;
+						directAccess += " --direct-port=" + etk::toString(*propertyGateWayDirectPortMin);
+					}
 					etk::String delay = "--router-delay=" + etk::toString(*propertyDelayToStop);
 					//etk::String delay = "--router-delay=-1";
-					APPL_INFO("execute: " << binary << " " << userConf << " --srv=all " << delay << " " << basePath << " " << logFile);
+					APPL_INFO("execute: " << binary << " " << userConf << " --srv=all " << delay << " " << basePath << " " << logFile << " " << directAccess);
 					int ret = execlp( binary.c_str(),
 					                  binary.c_str(), // must repeate the binary name to have the name as first argument ...
 					                  userConf.c_str(),
@@ -245,6 +255,7 @@ ememory::SharedPtr<appl::GateWayInterface> appl::Router::get(const etk::String& 
 					                  delay.c_str(),
 					                  basePath.c_str(),
 					                  logFile.c_str(),
+					                  directAccess.c_str(),
 					                  NULL);
 					APPL_ERROR("Child Execution ret = " << ret);
 					exit (-1);
@@ -307,7 +318,9 @@ void appl::Router::cleanIO() {
 		if (*it2 != nullptr) {
 			if ((*it2)->isAlive() == false) {
 				(*it2)->stop();
+				APPL_ERROR("count = " << (*it2).useCount() << " list.size()=" << m_clientList.size());
 				it2 = m_clientList.erase(it2);
+				APPL_ERROR("             list.size()=" << m_clientList.size());
 				APPL_INFO("remove DONE ... ");
 				continue;
 			}

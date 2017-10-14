@@ -17,7 +17,8 @@ namespace appl {
 		private:
 			appl::Router* m_routerInterface;
 			zeus::WebServer m_interfaceClient;
-			bool requestURI(const etk::String& _uri);
+			bool m_interfaceRedirect = false;
+			etk::String requestURI(const etk::String& _uri, const etk::Map<etk::String,etk::String>& _options);
 		public:
 			ememory::SharedPtr<appl::GateWayInterface> m_userGateWay;
 			uint16_t m_uid; //!< gateway unique ID ==> to have an internal routage ...

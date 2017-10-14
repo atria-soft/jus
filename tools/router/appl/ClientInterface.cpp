@@ -32,28 +32,39 @@ appl::ClientInterface::~ClientInterface() {
 	APPL_INFO("-------------------");
 }
 
-bool appl::ClientInterface::requestURI(const etk::String& _uri) {
-	APPL_WARNING("request connect on CLIENT: '" << _uri << "'");
+etk::String appl::ClientInterface::requestURI(const etk::String& _uri, const etk::Map<etk::String,etk::String>& _options) {
+	APPL_INFO("request connect on CLIENT: '" << _uri << "' from " << m_interfaceClient.getRemoteAddress());
 	if(m_routerInterface == nullptr) {
 		APPL_ERROR("Can not access to the main GateWay interface (nullptr)");
-		return false;
+		return "CLOSE";
 	}
 	etk::String tmpURI = _uri;
 	if (tmpURI.size() == 0) {
 		APPL_ERROR("Empty URI ... not supported ...");
-		return false;
+		return "CLOSE";
 	}
 	if (tmpURI[0] == '/') {
 		tmpURI = etk::String(tmpURI.begin() + 1, tmpURI.end());
 	}
-	// TODO : Remove subParameters xxx?YYY
 	m_userGateWay = m_routerInterface->get(tmpURI);
 	APPL_INFO("Connect on client done : '" << tmpURI << "'");
 	if (m_userGateWay == nullptr) {
 		APPL_ERROR("Can not connect on Client ==> it does not exist ...");
-		return false;
+		return "CLOSE";
 	}
-	return true;
+	uint16_t externalPort = m_userGateWay->getOpenExternalPort();
+	if (externalPort != 0) {
+		if (m_interfaceClient.getRemoteAddress().startWith("127.0.0.1:") == true) {
+			// find a local port ==> can redirect stream.
+			APPL_WARNING("Request redirect of the connection, because it is possible");
+			// remove reference on the client befor it was inform of our connection
+			m_userGateWay->rmClient(sharedFromThis());
+			m_userGateWay = nullptr;
+			m_interfaceRedirect = true;
+			return etk::String("REDIRECT:") + m_routerInterface->propertyClientIp.get() + ":" + etk::toString(externalPort);
+		}
+	}
+	return "OK";
 }
 
 void appl::ClientInterface::start() {
@@ -73,6 +84,12 @@ void appl::ClientInterface::stop() {
 }
 
 bool appl::ClientInterface::isAlive() {
+	APPL_ERROR("check if alive");
+	// kill interface in case of redirection
+	if (m_interfaceRedirect == true) {
+		APPL_ERROR(" ===> plop");
+		return false;
+	}
 	//APPL_INFO("is alive : " << m_interfaceClient.isActive());
 	bool ret = m_interfaceClient.isActive();
 	if (ret == true) {
@@ -106,15 +123,15 @@ void appl::ClientInterface::onClientData(ememory::SharedPtr<zeus::Message> _valu
 	}
 	// check correct SourceID
 	if (_value->getSourceId() != m_uid) {
-		answerProtocolError(transactionId, "message with the wrong source ID : " + etk::toString(_value->getSourceId()) + " != " + etk::toString(m_uid));
+		answerProtocolError(transactionId, "message with the wrong source ID: " + etk::toString(_value->getSourceId()) + " != " + etk::toString(m_uid));
 		return;
 	}
 	// Check gateway corectly connected
 	if (m_userGateWay == nullptr) {
-		answerProtocolError(transactionId, "GateWay error");
+		answerProtocolError(transactionId, "GateWay error (not connected)");
 		return;
 	}
-	// TODO: Special hook for the first call that we need to get the curretn ID of the connection, think to set this at an other position ...
+	// TODO: Special hook for the first call that we need to get the current ID of the connection, think to set this at an other position ...
 	if (m_uid == 0) {
 		APPL_INFO("special case, we need to get the ID Of the client:");
 		if (_value->getType() != zeus::message::type::call) {

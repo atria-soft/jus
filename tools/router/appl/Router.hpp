@@ -19,7 +19,6 @@ namespace appl {
 			etk::Vector<ememory::SharedPtr<appl::ClientInterface>> m_clientList; //!< List of all Client interface with their own connection
 			ememory::SharedPtr<appl::TcpServerInput> m_interfaceClientServer;
 			ememory::SharedPtr<appl::TcpServerInput> m_interfaceGateWayServer;
-			ejson::Document m_listUser;
 		public:
 			eproperty::Value<bool> propertyStdOut; //!< not set the log in the stdout or in the local file
 			eproperty::Value<etk::String> propertyClientIp;
@@ -29,6 +28,8 @@ namespace appl {
 			eproperty::Value<uint16_t> propertyGateWayPort;
 			eproperty::Value<uint16_t> propertyGateWayMax;
 			eproperty::Value<int32_t> propertyDelayToStop;
+			eproperty::Value<uint16_t> propertyGateWayDirectPortMin;
+			eproperty::Value<uint16_t> propertyGateWayDirectPortMax;
 		public:
 			Router();
 			virtual ~Router();

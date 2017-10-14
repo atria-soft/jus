@@ -43,13 +43,13 @@ int main(int _argc, const char *_argv[]) {
 			APPL_PRINT(etk::getApplicationName() << " - help : ");
 			APPL_PRINT("    " << _argv[0] << " [options]");
 			APPL_PRINT("        --stdout                stdout log");
-			APPL_PRINT("        --client-ip=XXX         Client connection IP (default: 127.0.0.1)");
-			APPL_PRINT("        --client-port=XXX       Client connection PORT (default: 1983)");
-			APPL_PRINT("        --client-max=XXX        Client Maximum parallele connection (default: 80)");
-			APPL_PRINT("        --gw-ip=XXX             Gateway connection IP (default: 127.0.0.1)");
-			APPL_PRINT("        --gw-port=XXX           Gateway connection PORT (default: 1984)");
-			APPL_PRINT("        --gw-max=XXX            Gateway Maximum IO (default: 15)");
-			APPL_PRINT("        --delay-stop-user=XXX   Delay before the client stop the connection in second (default: 0=automatic set by the gateway; -1=never disconnect; other the time )");
+			APPL_PRINT("        --client-ip=XXX         Client connection IP (default: " << basicRouter.propertyClientIp.get() << ")");
+			APPL_PRINT("        --client-port=XXX       Client connection PORT (default: " << basicRouter.propertyClientPort.get() << ")");
+			APPL_PRINT("        --client-max=XXX        Client Maximum parallele connection (default: " << basicRouter.propertyClientMax.get() << ")");
+			APPL_PRINT("        --gw-ip=XXX             Gateway connection IP (default: " << basicRouter.propertyGateWayIp.get() << ")");
+			APPL_PRINT("        --gw-port=XXX           Gateway connection PORT (default: " << basicRouter.propertyGateWayPort.get() << ")");
+			APPL_PRINT("        --gw-max=XXX            Gateway Maximum IO (default: " << basicRouter.propertyGateWayMax.get() << ")");
+			APPL_PRINT("        --delay-stop-user=XXX   Delay before the client stop the connection in second (default: " << basicRouter.propertyDelayToStop.get() << "0=automatic set by the gateway; -1=never disconnect; other the time )");
 			return -1;
 		}
 	}
