@@ -19,11 +19,13 @@ namespace appl {
 			ethread::Thread* m_thread;
 			bool m_threadRunning;
 			appl::GateWay* m_gateway;
+			bool m_serviceAccess;
 		public:
-			TcpServerInput(appl::GateWay* _gateway) :
+			TcpServerInput(appl::GateWay* _gateway, bool _serviceAccess) :
 			  m_thread(nullptr),
 			  m_threadRunning(false),
-			  m_gateway(_gateway) {
+			  m_gateway(_gateway),
+			  m_serviceAccess(_serviceAccess) {
 				
 			}
 			virtual ~TcpServerInput() {}
@@ -62,15 +64,15 @@ namespace appl {
 						ethread::sleepMilliSeconds((300));
 					}
 					APPL_VERBOSE("New connection");
-					m_gateway->newDirectInterface(etk::move(data));
+					m_gateway->newDirectInterface(etk::move(data), m_serviceAccess);
 				}
 			}
 	};
 }
 
-void appl::GateWay::newDirectInterface(enet::Tcp _connection) {
+void appl::GateWay::newDirectInterface(enet::Tcp _connection, bool _serviceAccess) {
 	APPL_WARNING("New TCP connection (service)");
-	ememory::SharedPtr<appl::DirectInterface> tmp = ememory::makeShared<appl::DirectInterface>(etk::move(_connection));
+	ememory::SharedPtr<appl::DirectInterface> tmp = ememory::makeShared<appl::DirectInterface>(etk::move(_connection), _serviceAccess);
 	tmp->start(this);
 	m_listTemporaryIO.pushBack(tmp);
 }
@@ -81,11 +83,14 @@ appl::GateWay::GateWay() :
   propertyRouterNo(this, "no-router", false, "No connection on the router"),
   propertyRouterIp(this, "router-ip", "127.0.0.1", "Ip to listen client", &appl::GateWay::onPropertyChangeClientIp),
   propertyRouterPort(this, "router-port", 1984, "Port to listen client", &appl::GateWay::onPropertyChangeClientPort),
-  propertyServiceExtern(this, "service-extern", false, "enable extern service"),
+  propertyDirectIp(this, "direct-ip", "127.0.0.1", "Ip to listen client"),
+  propertyDirectPort(this, "direct-port", 0, "Port to listen direct client", &appl::GateWay::onPropertyChangeDirectClientPort),
+  propertyServiceExtern(this, "service-extern", true, "enable extern service"),
   propertyServiceIp(this, "service-ip", "127.0.0.1", "Ip to listen client", &appl::GateWay::onPropertyChangeServiceIp),
   propertyServicePort(this, "service-port", 1985, "Port to listen client", &appl::GateWay::onPropertyChangeServicePort),
   propertyServiceMax(this, "service-max", 80, "Maximum of client at the same time", &appl::GateWay::onPropertyChangeServiceMax) {
-	m_interfaceNewService = ememory::makeShared<appl::TcpServerInput>(this);
+	m_interfaceNewService = ememory::makeShared<appl::TcpServerInput>(this, true);
+	m_interfaceNewClient = ememory::makeShared<appl::TcpServerInput>(this, false);
 }
 
 appl::GateWay::~GateWay() {
@@ -123,13 +128,26 @@ uint16_t appl::GateWay::getId() {
 
 void appl::GateWay::start() {
 	if (*propertyRouterNo == false) {
-		m_routerClient = ememory::makeShared<appl::RouterInterface>(*propertyRouterIp, *propertyRouterPort, *propertyUserName, this);
+		m_routerClient = ememory::makeShared<appl::RouterInterface>(propertyRouterIp.get(), propertyRouterPort.get(), propertyUserName.get(), this, propertyDirectPort.get());
 		if (m_routerClient->isAlive() == false) {
 			APPL_ERROR("Can not connect the Router (if it is the normal case, use option '--no-router'");
 			throw etk::exception::RuntimeError("Can not connect router");
 		}
 	}
-	m_interfaceNewService->start(*propertyServiceIp, *propertyServicePort);
+	// enable access of service connection (external)
+	if (propertyServiceExtern.get() == true) {
+		APPL_WARNING("#################################");
+		APPL_WARNING("## Open interface for Service : " << *propertyServiceIp << ":" << *propertyServicePort);
+		APPL_WARNING("#################################");
+		m_interfaceNewService->start(*propertyServiceIp, *propertyServicePort);
+	}
+	// Ebale access of direct Client
+	if (propertyDirectPort.get() != 0) {
+		APPL_WARNING("#################################");
+		APPL_WARNING("## Open interface for Direct client : " << *propertyDirectIp << ":" << *propertyDirectPort);
+		APPL_WARNING("#################################");
+		m_interfaceNewClient->start(*propertyDirectIp, *propertyDirectPort);
+	}
 }
 
 void appl::GateWay::stop() {
@@ -297,6 +315,10 @@ void appl::GateWay::onPropertyChangeClientPort() {
 }
 
 void appl::GateWay::onPropertyChangeClientMax() {
+	
+}
+
+void appl::GateWay::onPropertyChangeDirectClientPort() {
 	
 }
 

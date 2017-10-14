@@ -15,21 +15,30 @@
 
 static const etk::String protocolError = "PROTOCOL-ERROR";
 
-appl::DirectInterface::DirectInterface(enet::Tcp _connection) :
-  m_interfaceWeb(etk::move(_connection), true) {
+appl::DirectInterface::DirectInterface(enet::Tcp _connection, bool _serviceAccess) :
+  m_interfaceWeb(etk::move(_connection), true),
+  m_serviceAccess(_serviceAccess) {
 	m_uid = 0;
 	m_state = appl::clientState::unconnect;
-	APPL_INFO("-----------------------");
-	APPL_INFO("-- NEW Direct Client --");
-	APPL_INFO("-----------------------");
+	APPL_INFO("------------------------");
+	if (m_serviceAccess == true) {
+		APPL_INFO("-- NEW SERVICE Client --");
+	} else {
+		APPL_INFO("-- NEW Direct Client  --");
+	}
+	APPL_INFO("------------------------");
 }
 
 appl::DirectInterface::~DirectInterface() {
-	APPL_INFO("--------------------------");
-	APPL_INFO("-- DELETE Direct Client --");
-	APPL_INFO("--------------------------");
+	APPL_INFO("---------------------------");
+	if (m_serviceAccess == true) {
+		APPL_INFO("-- DELETE SERVICE Client --");
+	} else {
+		APPL_INFO("-- DELETE Direct  Client --");
+	}
+	APPL_INFO("---------------------------");
 	m_interfaceWeb.disconnect();
-	APPL_INFO("--------------------------");
+	APPL_INFO("---------------------------");
 }
 /*
 void appl::clientSpecificInterface::answerProtocolError(uint32_t _transactionId, const etk::String& _errorHelp) {
@@ -38,12 +47,12 @@ void appl::clientSpecificInterface::answerProtocolError(uint32_t _transactionId,
 	m_state = appl::clientState::disconnect;
 }
 */
-bool appl::DirectInterface::requestURI(const etk::String& _uri) {
+etk::String appl::DirectInterface::requestURI(const etk::String& _uri, const etk::Map<etk::String,etk::String>& _options) {
 	APPL_WARNING("request Direct connection: '" << _uri << "'");
 	etk::String tmpURI = _uri;
 	if (tmpURI.size() == 0) {
 		APPL_ERROR("Empty URI ... not supported ...");
-		return false;
+		return "CLOSE";
 	}
 	if (tmpURI[0] == '/') {
 		tmpURI = etk::String(tmpURI.begin() + 1, tmpURI.end());
@@ -51,18 +60,21 @@ bool appl::DirectInterface::requestURI(const etk::String& _uri) {
 	etk::Vector<etk::String> listValue = etk::split(tmpURI, '?');
 	if (listValue.size() == 0) {
 		APPL_ERROR("can not parse URI ...");
-		return false;
+		return "CLOSE";
 	}
 	tmpURI = listValue[0];
+	if (tmpURI == m_gateway->propertyUserName.get() ) {
+		return "OK";
+	}
 	if (etk::start_with(tmpURI, "directIO") == false ) {
 		APPL_ERROR("Missing 'directIO:' at the start of the URI ...");
-		return false;
+		return "CLOSE";
 	}
-	return true;
+	return "OK";
 }
 
 bool appl::DirectInterface::start(appl::GateWay* _gateway) {
-	appl::IOInterface::start(_gateway, 0);
+	appl::IOInterface::start(_gateway, 0, m_serviceAccess==false);
 	m_interfaceWeb.connect(this, &appl::DirectInterface::receive);
 	m_interfaceWeb.connectUri(this, &appl::DirectInterface::requestURI);
 	m_interfaceWeb.connect();

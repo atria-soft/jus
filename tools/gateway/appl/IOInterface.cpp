@@ -38,13 +38,17 @@ void appl::IOInterface::answerProtocolError(uint32_t _transactionId, const etk::
 	m_state = appl::clientState::disconnect;
 }
 
-bool appl::IOInterface::start(appl::GateWay* _gateway, uint16_t _id) {
+bool appl::IOInterface::start(appl::GateWay* _gateway, uint16_t _id, bool _directClientConnection) {
 	m_gateway = _gateway;
 	m_uid = _id;
 	if (m_uid != 0) {
 		m_state = appl::clientState::connect;
 	} else {
-		m_state = appl::clientState::connectDirect;
+		if (_directClientConnection == true) {
+			m_state = appl::clientState::connect;
+		} else {
+			m_state = appl::clientState::connectDirect;
+		}
 	}
 	//m_interfaceRouterClient->setInterfaceName("cli-" + etk::toString(m_uid));
 	APPL_WARNING("[" << m_uid << "] New IO interface");
@@ -62,7 +66,7 @@ void appl::IOInterface::receive(ememory::SharedPtr<zeus::Message> _value) {
 	APPL_INFO("RECEIVE message " << _value);
 	uint32_t transactionId = _value->getTransactionId();
 	if (transactionId == 0) {
-		APPL_ERROR("Protocol error ==>missing id");
+		APPL_ERROR("Protocol error ==> missing id");
 		answerProtocolError(transactionId, "missing parameter: 'id'");
 		return;
 	}

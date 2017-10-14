@@ -50,7 +50,11 @@ class PlugginAccess {
 		  m_SERVICE_IO_uninit(nullptr),
 		  m_SERVICE_IO_instanciate(nullptr) {
 			etk::String srv = etk::FSNodeGetApplicationPath() + "/../lib/lib" + m_fullName + "-impl.so";
-			APPL_PRINT("Try to open service with name: '" << m_name << "' at position: '" << srv << "' with full name=" << m_fullName);
+			APPL_PRINT("++++++++++++++++++++++++++++++++");
+			APPL_PRINT("++ srv: '" << m_name << "' ");
+			APPL_PRINT("++++++++++++++++++++++++++++++++");
+			APPL_PRINT("At position: '" << srv << "'");
+			APPL_PRINT("with full name=" << m_fullName);
 			m_handle = dlopen(srv.c_str(), RTLD_LAZY);
 			if (!m_handle) {
 				APPL_ERROR("Can not load Lbrary:" << dlerror());
@@ -150,6 +154,10 @@ int main(int _argc, const char *_argv[]) {
 			basicGateway.propertyRouterIp.set(etk::String(&data[12]));
 		} else if (etk::start_with(data, "--router-port=") == true) {
 			basicGateway.propertyRouterPort.set(etk::string_to_uint16_t(etk::String(&data[14])));
+		} else if (etk::start_with(data, "--direct-ip=") == true) {
+			basicGateway.propertyDirectIp.set(etk::String(&data[12]));
+		} else if (etk::start_with(data, "--direct-port=") == true) {
+			basicGateway.propertyDirectPort.set(etk::string_to_uint16_t(etk::String(&data[14])));
 		} else if (etk::start_with(data, "--router-delay=") == true) {
 			int32_t value = etk::string_to_int32_t(etk::String(&data[15]));
 			if (value == -1) {
@@ -195,6 +203,8 @@ int main(int _argc, const char *_argv[]) {
 			APPL_PRINT("        --no-router                  Router connection disable ==> this enable the direct donnection of external client like on the router");
 			APPL_PRINT("        --router-ip=XXX              Router connection IP (default: " << basicGateway.propertyRouterIp.get() << ")");
 			APPL_PRINT("        --router-port=XXX            Router connection PORT (default: " << basicGateway.propertyRouterPort.get() << ")");
+			APPL_PRINT("        --direct-ip=XXX              Direct connection IP (default: " << basicGateway.propertyDirectIp.get() << ")");
+			APPL_PRINT("        --direct-port=XXX            Direct connection PORT (default: " << basicGateway.propertyDirectPort.get() << " if 0 ==> not availlable)");
 			APPL_PRINT("        --service-extern=frue/false  Disable the external service connection ==> remove open port ...(default: " << basicGateway.propertyServiceExtern.get() << ")");
 			APPL_PRINT("        --service-ip=XXX             Service connection IP (default: " << basicGateway.propertyServiceIp.get() << ")");
 			APPL_PRINT("        --service-port=XXX           Service connection PORT (default: " << basicGateway.propertyServicePort.get() << ")");

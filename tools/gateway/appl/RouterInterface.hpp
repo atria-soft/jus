@@ -33,7 +33,7 @@ namespace appl {
 			appl::GateWay* m_gateway;
 			zeus::WebServer m_interfaceWeb;
 		public:
-			RouterInterface(const etk::String& _ip, uint16_t _port, etk::String _userName, appl::GateWay* _gateway);
+			RouterInterface(const etk::String& _ip, uint16_t _port, etk::String _userName, appl::GateWay* _gateway, uint32_t _directPort);
 			virtual ~RouterInterface();
 			void stop();
 			void onClientData(ememory::SharedPtr<zeus::Message> _value);

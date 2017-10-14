@@ -17,11 +17,14 @@ namespace appl {
 		private:
 			ememory::SharedPtr<appl::RouterInterface> m_routerClient; //!< Interface with the Gateway Front End
 			ememory::SharedPtr<appl::TcpServerInput> m_interfaceNewService;
+			ememory::SharedPtr<appl::TcpServerInput> m_interfaceNewClient;
 		public:
 			eproperty::Value<etk::String> propertyUserName;
 			eproperty::Value<bool> propertyRouterNo;
 			eproperty::Value<etk::String> propertyRouterIp;
 			eproperty::Value<uint16_t> propertyRouterPort;
+			eproperty::Value<etk::String> propertyDirectIp;
+			eproperty::Value<uint16_t> propertyDirectPort;
 			eproperty::Value<bool> propertyServiceExtern;
 			eproperty::Value<etk::String> propertyServiceIp;
 			eproperty::Value<uint16_t> propertyServicePort;
@@ -40,12 +43,13 @@ namespace appl {
 			//ememory::SharedPtr<appl::ServiceInterface> get(const etk::String& _serviceName);
 			etk::Vector<etk::String> getAllServiceName();
 			bool send(ememory::SharedPtr<zeus::Message> _data);
-			void newDirectInterface(enet::Tcp _connection);
+			void newDirectInterface(enet::Tcp _connection, bool _serviceAccess);
 			void cleanIO();
 		private:
 			void onPropertyChangeClientIp();
 			void onPropertyChangeClientPort();
 			void onPropertyChangeClientMax();
+			void onPropertyChangeDirectClientPort();
 			void onPropertyChangeServiceIp();
 			void onPropertyChangeServicePort();
 			void onPropertyChangeServiceMax();

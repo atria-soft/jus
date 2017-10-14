@@ -29,7 +29,7 @@ namespace appl {
 			enum clientState m_state; // state machine ...
 			IOInterface();
 			virtual ~IOInterface();
-			bool start(appl::GateWay* _gateway, uint16_t _id);
+			bool start(appl::GateWay* _gateway, uint16_t _id, bool _directClientConnection = false);
 			// Data arrive from the IO
 			virtual void receive(ememory::SharedPtr<zeus::Message> _value);
 			// Data must be send to the IO

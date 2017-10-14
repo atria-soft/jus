@@ -318,7 +318,7 @@ void appl::clientSpecificInterface::receive(ememory::SharedPtr<zeus::Message> _v
 #endif
 
 
-appl::RouterInterface::RouterInterface(const etk::String& _ip, uint16_t _port, etk::String _userName, appl::GateWay* _gateway) :
+appl::RouterInterface::RouterInterface(const etk::String& _ip, uint16_t _port, etk::String _userName, appl::GateWay* _gateway, uint32_t _directPort) :
   m_state(appl::clientState::unconnect),
   m_gateway(_gateway),
   m_interfaceWeb() {
@@ -330,7 +330,11 @@ appl::RouterInterface::RouterInterface(const etk::String& _ip, uint16_t _port, e
 		APPL_ERROR("Can not connect the GateWay-front-end");
 		return;
 	}
-	m_interfaceWeb.setInterface(etk::move(connection), false, _userName);
+	etk::String uri = _userName;
+	if (_directPort != 0) {
+		uri += "?directAccessPort=" + etk::toString(_directPort);
+	}
+	m_interfaceWeb.setInterface(etk::move(connection), false, uri);
 	m_interfaceWeb.connect(this, &appl::RouterInterface::onClientData);
 	m_interfaceWeb.connect(true);
 	m_interfaceWeb.setInterfaceName("cli-GW-to-router");
