@@ -7,6 +7,10 @@
 #include <zeus/FutureGroup.hpp>
 #include <zeus/debug.hpp>
 
+
+#include <etk/typeInfo.hpp>
+ETK_DECLARE_TYPE(zeus::FutureGroup);
+
 void zeus::FutureGroup::add(const zeus::FutureBase& _fut) {
 	m_listFuture.pushBack(_fut);
 }

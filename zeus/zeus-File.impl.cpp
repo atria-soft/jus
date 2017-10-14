@@ -13,6 +13,10 @@
 #include "debug.hpp"
 
 
+#include <etk/typeInfo.hpp>
+ETK_DECLARE_TYPE(zeus::FileImpl);
+
+
 ememory::SharedPtr<zeus::File> zeus::File::create(etk::String _fileNameReal) {
 	return ememory::makeShared<zeus::FileImpl>(_fileNameReal);
 }
@@ -28,16 +32,17 @@ ememory::SharedPtr<zeus::File> zeus::File::create(etk::String _fileNameReal, etk
 	return ememory::makeShared<zeus::FileImpl>(_fileNameReal, _fileNameShow, _mineType, _sha512);
 }
 
-ememory::SharedPtr<zeus::File> zeus::File::create(etk::Vector<uint8_t> _fileNameReal, etk::String _virtualName, etk::String _mineType) {
-	return ememory::makeShared<zeus::FileImpl>(_fileNameReal, _virtualName, _mineType);
+ememory::SharedPtr<zeus::File> zeus::File::create(etk::Vector<uint8_t> _fileData, etk::String _virtualName, etk::String _mineType) {
+	return ememory::makeShared<zeus::FileImpl>(etk::move(_fileData), _virtualName, _mineType);
 }
 
 
-zeus::FileImpl::FileImpl(const etk::Vector<uint8_t>& _value, etk::String _virtualName, etk::String _mineType) :
+zeus::FileImpl::FileImpl(etk::Vector<uint8_t> _value, etk::String _virtualName, etk::String _mineType) :
   m_filename(_virtualName),
   m_gettedData(0),
   m_mineType(_mineType),
   m_sha512("") {
+	ZEUS_ERROR("    ==============>>>>>>>>>>>>>>     CREATE  FILE");
 	m_dataRaw = true;
 	m_data = _value;
 	m_size = m_data.size();
@@ -47,6 +52,7 @@ zeus::FileImpl::FileImpl(etk::String _fileNameReal, etk::String _sha512) :
   m_node(_fileNameReal),
   m_gettedData(0),
   m_sha512(_sha512) {
+	ZEUS_ERROR("    ==============>>>>>>>>>>>>>>     CREATE  FILE");
 	m_size = m_node.fileSize();
 	etk::String extention;
 	if (    _fileNameReal.rfind('.') != etk::String::npos
@@ -69,6 +75,7 @@ zeus::FileImpl::FileImpl(etk::String _fileNameReal, etk::String _fileNameShow, e
   m_gettedData(0),
   m_mineType(_mineType),
   m_sha512(_sha512) {
+	ZEUS_ERROR("    ==============>>>>>>>>>>>>>>     CREATE  FILE");
 	m_size = m_node.fileSize();
 	if (    _sha512.size() > 0
 	     && _sha512.size() != 128) {
@@ -78,6 +85,7 @@ zeus::FileImpl::FileImpl(etk::String _fileNameReal, etk::String _fileNameShow, e
 }
 
 zeus::FileImpl::~FileImpl() {
+	ZEUS_ERROR("    <<<<<<<<<<<<<<==============     DESTROY FILE");
 	if (m_node.fileIsOpen() == true) {
 		m_node.fileClose();
 	}

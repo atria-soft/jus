@@ -10,6 +10,10 @@
 #include <etk/stdTools.hpp>
 #include <zeus/message/Call.hpp>
 
+
+#include <etk/typeInfo.hpp>
+ETK_DECLARE_TYPE(zeus::message::Call);
+
 void zeus::message::Call::generateDisplay(etk::Stream& _os) const {
 	zeus::Message::generateDisplay(_os);
 	_os << " '" + m_callName + "'";

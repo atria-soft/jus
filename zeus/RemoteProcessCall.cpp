@@ -5,6 +5,10 @@
  */
 #include <zeus/RemoteProcessCall.hpp>
 
+
+#include <etk/typeInfo.hpp>
+ETK_DECLARE_TYPE(zeus::RemoteProcessCall);
+
 zeus::RemoteProcessCall::RemoteProcessCall(const ememory::SharedPtr<zeus::WebServer>& _iface, uint16_t _id, uint16_t _objectId) :
   zeus::WebObj(_iface, _id, _objectId),
   m_type("UNKNOW") {

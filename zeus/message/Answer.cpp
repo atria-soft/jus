@@ -10,6 +10,9 @@
 #include <etk/stdTools.hpp>
 #include <zeus/message/Answer.hpp>
 
+#include <etk/typeInfo.hpp>
+ETK_DECLARE_TYPE(zeus::message::Answer);
+
 void zeus::message::Answer::generateDisplay(etk::Stream& _os) const {
 	zeus::Message::generateDisplay(_os);
 	if (getNumberParameter() != 0) {

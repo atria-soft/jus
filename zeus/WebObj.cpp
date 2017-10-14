@@ -7,6 +7,10 @@
 #include <zeus/WebObj.hpp>
 #include <zeus/debug.hpp>
 
+
+#include <etk/typeInfo.hpp>
+ETK_DECLARE_TYPE(zeus::WebObj);
+
 zeus::WebObj::WebObj(const ememory::SharedPtr<zeus::WebServer>& _iface, uint16_t _id, uint16_t _objectId) :
   m_interfaceWeb(_iface),
   m_id(_id),

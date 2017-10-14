@@ -17,6 +17,8 @@
 #include <zeus/message/Event.hpp>
 #include <zeus/WebServer.hpp>
 
+#include <etk/typeInfo.hpp>
+ETK_DECLARE_TYPE(zeus::Message);
 
 zeus::Message::Message(ememory::SharedPtr<zeus::WebServer> _iface):
   m_iface(_iface) {

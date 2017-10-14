@@ -10,6 +10,8 @@
 #include <enet/TcpClient.hpp>
 #include <zeus/Client.hpp>
 
+#include <etk/typeInfo.hpp>
+ETK_DECLARE_TYPE(zeus::Object);
 
 
 zeus::Object::Object(const ememory::SharedPtr<zeus::WebServer>& _iface, uint16_t _objectId) :

@@ -12,6 +12,9 @@
 #include <zeus/message/Parameter.hpp>
 #include <zeus/File.hpp>
 
+#include <etk/typeInfo.hpp>
+ETK_DECLARE_TYPE(zeus::message::Parameter);
+
 zeus::message::Parameter::Parameter(ememory::SharedPtr<zeus::WebServer> _iface):
   Message(_iface) {
 	

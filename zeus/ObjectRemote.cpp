@@ -7,7 +7,8 @@
 #include <zeus/ObjectRemote.hpp>
 #include <zeus/Client.hpp>
 
-
+#include <etk/typeInfo.hpp>
+ETK_DECLARE_TYPE(zeus::ObjectRemoteBase);
 
 zeus::ObjectRemoteBase::ObjectRemoteBase(const ememory::SharedPtr<zeus::WebServer>& _iface, uint16_t _localId, uint16_t _localObjectId, uint32_t _address, const etk::String& _type):
   zeus::WebObj(_iface, _localId, _localObjectId),

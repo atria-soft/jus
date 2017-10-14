@@ -25,6 +25,7 @@ namespace zeus {
 			etk::String m_type; //!< name of the remote object
 			uint32_t m_remoteAddress; //!< remote adress of the object
 			bool m_isLinked; //!< link status of the object
+			ememory::SharedPtr<void> m_adressLocalObject; //!< Pointer on the local object if we are in the same process.
 		public:
 			/**
 			 * @brief Contructor of the remote object

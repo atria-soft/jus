@@ -6,6 +6,10 @@
 
 #include <zeus/ObjectIntrospect.hpp>
 
+
+#include <etk/typeInfo.hpp>
+ETK_DECLARE_TYPE(zeus::ObjectIntrospect);
+
 zeus::ObjectIntrospect::ObjectIntrospect(zeus::ObjectRemote& _obj):
   m_obj(_obj) {
 	

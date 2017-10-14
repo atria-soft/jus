@@ -22,7 +22,7 @@ namespace zeus {
 		public:
 			FileImpl(etk::String _fileNameReal, etk::String _fileNameShow, etk::String _mineType, etk::String _sha512="");
 			FileImpl(etk::String _fileNameReal, etk::String _sha512="");
-			FileImpl(const etk::Vector<uint8_t>& _value, etk::String _virtualName, etk::String _mineType);
+			FileImpl(etk::Vector<uint8_t> _value, etk::String _virtualName, etk::String _mineType);
 			~FileImpl();
 			uint64_t getSize() override;
 			etk::String getName() override;

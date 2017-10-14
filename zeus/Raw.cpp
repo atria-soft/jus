@@ -6,7 +6,8 @@
 
 #include <zeus/Raw.hpp>
 #include "debug.hpp"
-
+#include <etk/typeInfo.hpp>
+ETK_DECLARE_TYPE(zeus::Raw);
 
 zeus::Raw::Raw() :
   m_size(0),

@@ -115,6 +115,7 @@ namespace zeus {
 		private:
 			enet::WebSocket m_connection; //!< Zeus protocol is based on a webSocket to be compatible with Java-script
 			ethread::Pool m_processingPool; //!< Thread pool processing of the input data
+			// access only with the tcp thread only
 			etk::Vector<ememory::SharedPtr<zeus::Message>> m_listPartialMessage; //!< list of all message that data has not finished to arrive.
 			uint16_t m_localAddress; //!< Local client address.
 			uint16_t m_localIdObjectIncrement; //!< attribute an unique ID for an object.
@@ -141,8 +142,18 @@ namespace zeus {
 				ethread::UniqueLock lock(m_mutex);
 				return m_localIdObjectIncrement++;
 			}
+		public:
+			/**
+			 * @brief Get the address of the connection source IP:port or empty string
+			 * @return string with the remote address name.
+			 */
+			const etk::String& getRemoteAddress() const {
+				return m_connection.getRemoteAddress();
+			}
 		private:
+			ethread::Mutex m_listObjectMutex; //!< m_listObject object protection
 			etk::Vector<ememory::SharedPtr<zeus::WebObj>> m_listObject; //!< List of all local object that is reference in the system.
+			ethread::Mutex m_listRemoteObjectMutex; //!< m_listObject object protection
 			etk::Vector<ememory::WeakPtr<zeus::ObjectRemoteBase>> m_listRemoteObject; //!< List of all object that we have a reference in the local interface.
 		public:
 			/**
@@ -165,6 +176,7 @@ namespace zeus {
 			void interfaceRemoved(etk::Vector<uint16_t> _list);
 		private:
 			uint32_t m_interfaceId; //!< local client interface ID
+			// TODO: add a lock here or an atomic get + increment
 			uint16_t m_transmissionId; //!< Unique Id of a transmission (it is != 0)
 			/**
 			 * @brief Get a new transmission ID
@@ -188,7 +200,15 @@ namespace zeus {
 				};
 			}
 		public:
-			using ObserverRequestUri = etk::Function<bool(const etk::String&)>; //!< Define an Observer on the specific URI requested callback: function pointer (return true if the connection is accepted or not)
+			/** 
+			 * @brief Declare callback function for URI requesting
+			 * @param[in] _uri URI connection (GET)
+			 * @param[in] _protocols Protocol requested in the URI (ZEUS:1.0/ZEUS:0.8)
+			 * @return "OK" Connection accepted ==> send header
+			 * @return "CLOSE" Close the current connection: 404
+			 * @return "REDIRECT:IP:port" Redirect at the specific IP and port
+			 */
+			using ObserverRequestUri = etk::Function<etk::String(const etk::String& _uri, const etk::Map<etk::String,etk::String>& _options)>; //!< Define an Observer on the specific URI requested callback: function pointer (return true if the connection is accepted or not)
 		protected:
 			ObserverRequestUri m_observerRequestUri; //!< Observer on a requesting URI connection
 		public:
@@ -198,9 +218,9 @@ namespace zeus {
 			 * @param[in] _func Function to call.
 			 */
 			template<class CLASS_TYPE>
-			void connectUri(CLASS_TYPE* _class, bool (CLASS_TYPE::*_func)(const etk::String&)) {
-				m_observerRequestUri = [=](const etk::String& _value){
-					return (*_class.*_func)(_value);
+			void connectUri(CLASS_TYPE* _class, etk::String (CLASS_TYPE::*_func)(const etk::String& _uri, const etk::Map<etk::String,etk::String>& _options)) {
+				m_observerRequestUri = [=](const etk::String& _uri, const etk::Map<etk::String,etk::String>& _options){
+					return (*_class.*_func)(_uri, _options);
 				};
 			}
 			/**
@@ -268,10 +288,11 @@ namespace zeus {
 			 * @brief Called by the underprotocol for a new URI connection
 			 * @param[in] _uri URI connection (GET)
 			 * @param[in] _protocols Protocol requested in the URI (ZEUS:1.0/ZEUS:0.8)
-			 * @return true the connection is accepted
-			 * @return false the connection is rejected
+			 * @return "OK" Connection accepted ==> send header
+			 * @return "CLOSE" Close the current connection: 404
+			 * @return "REDIRECT:IP:port" Redirect at the specific IP and port
 			 */
-			bool onReceiveUri(const etk::String& _uri, const etk::Vector<etk::String>& _protocols);
+			etk::String onReceiveUri(const etk::String& _uri, const etk::Vector<etk::String>& _protocols);
 			/**
 			 * @brief The Zeus protocol is based on a webSocket, then the connection can send full fragment (it call newMessage when data is parsed
 			 * @param[in] _frame A frame that has been just received

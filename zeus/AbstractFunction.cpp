@@ -7,6 +7,9 @@
 #include <zeus/debug.hpp>
 #include <etk/os/FSNode.hpp>
 
+#include <etk/typeInfo.hpp>
+ETK_DECLARE_TYPE(zeus::AbstractFunction);
+
 static int32_t firstCall(bool& _value) {
 	_value = false;
 	return 51;

@@ -11,6 +11,10 @@
 #include <etk/os/FSNode.hpp>
 #include "debug.hpp"
 
+
+#include <etk/typeInfo.hpp>
+ETK_DECLARE_TYPE(zeus::MediaImpl);
+
 ememory::SharedPtr<zeus::Media> zeus::Media::create(etk::String _fileNameReal) {
 	return ememory::makeShared<zeus::MediaImpl>(0, _fileNameReal);
 }
@@ -31,6 +35,7 @@ ejson::Object zeus::MediaImpl::getJson() {
 
 zeus::MediaImpl::MediaImpl(const etk::String& _basePath, ejson::Object _property) :
   m_basePath(_basePath) {
+	ZEUS_ERROR("    ==============>>>>>>>>>>>>>>     CREATE  MEDIA");
 	m_id = _property["id"].toNumber().getU64();
 	ZEUS_INFO("get ID : " << m_id);
 	m_fileName = _property["file-name"].toString().get();
@@ -53,6 +58,7 @@ zeus::MediaImpl::MediaImpl(uint64_t _id, const etk::String& _fileNameReal, const
   m_id(_id),
   m_basePath(_basePath),
   m_fileName(_fileNameReal) {
+	ZEUS_ERROR("    ==============>>>>>>>>>>>>>>     CREATE  MEDIA");
 	etk::String extention;
 	if (    m_fileName.rfind('.') != etk::String::npos
 	     && m_fileName.rfind('.') != 0) {
@@ -66,6 +72,7 @@ zeus::MediaImpl::MediaImpl(uint64_t _id, const etk::String& _fileNameReal, const
 }
 
 zeus::MediaImpl::~MediaImpl() {
+	ZEUS_ERROR("    <<<<<<<<<<<<<<==============     DESTROY MEDIA");
 	
 }
 

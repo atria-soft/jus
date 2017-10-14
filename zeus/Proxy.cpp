@@ -7,6 +7,10 @@
 #include <zeus/Proxy.hpp>
 #include <zeus/debug.hpp>
 
+
+#include <etk/typeInfo.hpp>
+ETK_DECLARE_TYPE(zeus::Proxy);
+
 const zeus::Proxy& zeus::Proxy::operator= (const zeus::ObjectRemote& _obj) {
 	m_obj = _obj;
 	return *this;

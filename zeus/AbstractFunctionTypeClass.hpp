@@ -41,7 +41,7 @@ namespace zeus {
 			ret = (*_pointer.*_func)(notifs, _obj->getParameter<ZEUS_TYPES>(idParam--)...);
 		}
 		if (_interfaceClient == nullptr) {
-			ZEUS_ERROR("Nullptr for _interfaceWeb");
+			ZEUS_ERROR("Nullptr for _interfaceClient");
 			return;
 		}
 		_interfaceClient->addAsync([=](WebServer* _interface) {
@@ -75,7 +75,7 @@ namespace zeus {
 			ret = (*_pointer.*_func)(_obj->getParameter<ZEUS_TYPES>(idParam--)...);
 		}
 		if (_interfaceClient == nullptr) {
-			ZEUS_ERROR("Nullptr for _interfaceWeb");
+			ZEUS_ERROR("Nullptr for _interfaceClient");
 			return;
 		}
 		_interfaceClient->addAsync([=](WebServer* _interface) {
@@ -109,7 +109,7 @@ namespace zeus {
 			(*_pointer.*_func)(notifs, _obj->getParameter<ZEUS_TYPES>(idParam--)...);
 		}
 		if (_interfaceClient == nullptr) {
-			ZEUS_ERROR("Nullptr for _interfaceWeb");
+			ZEUS_ERROR("Nullptr for _interfaceClient");
 			return;
 		}
 		_interfaceClient->addAsync([=](WebServer* _interface) {
@@ -142,7 +142,7 @@ namespace zeus {
 			(*_pointer.*_func)(_obj->getParameter<ZEUS_TYPES>(idParam--)...);
 		}
 		if (_interfaceClient == nullptr) {
-			ZEUS_ERROR("Nullptr for _interfaceWeb");
+			ZEUS_ERROR("Nullptr for _interfaceClient");
 			return;
 		}
 		_interfaceClient->addAsync([=](WebServer* _interface) {

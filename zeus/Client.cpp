@@ -11,6 +11,10 @@
 static const etk::String protocolError = "PROTOCOL-ERROR";
 
 
+#include <etk/typeInfo.hpp>
+ETK_DECLARE_TYPE(zeus::Client);
+
+
 void zeus::Client::answerProtocolError(uint32_t _transactionId, const etk::String& _errorHelp) {
 	m_interfaceWeb->answerError(_transactionId, 0, ZEUS_ID_SERVICE_ROOT, protocolError, _errorHelp);
 	m_interfaceWeb->disconnect();

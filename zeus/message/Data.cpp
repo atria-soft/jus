@@ -10,6 +10,10 @@
 #include <etk/stdTools.hpp>
 #include <zeus/message/Data.hpp>
 
+
+#include <etk/typeInfo.hpp>
+ETK_DECLARE_TYPE(zeus::message::Data);
+
 void zeus::message::Data::generateDisplay(etk::Stream& _os) const {
 	zeus::Message::generateDisplay(_os);
 	_os << " paramId=" << etk::toString(m_parameterId);

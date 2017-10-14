@@ -7,6 +7,10 @@
 #include <etk/stdTools.hpp>
 #include <zeus/message/type.hpp>
 
+
+#include <etk/typeInfo.hpp>
+ETK_DECLARE_TYPE(zeus::message::type);
+
 namespace etk {
 	template<> etk::String toString<enum zeus::message::type>(const enum zeus::message::type& _value) {
 		switch (_value) {

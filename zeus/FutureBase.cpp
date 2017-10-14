@@ -8,6 +8,10 @@
 #include <zeus/debug.hpp>
 
 
+
+#include <etk/typeInfo.hpp>
+ETK_DECLARE_TYPE(zeus::FutureBase);
+
 zeus::FutureBase::FutureBase(const zeus::FutureBase& _base):
   m_promise(_base.m_promise) {
 	

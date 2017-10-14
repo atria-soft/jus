@@ -10,6 +10,10 @@
 #include <etk/stdTools.hpp>
 #include <zeus/message/Event.hpp>
 
+
+#include <etk/typeInfo.hpp>
+ETK_DECLARE_TYPE(zeus::message::Event);
+
 void zeus::message::Event::generateDisplay(etk::Stream& _os) const {
 	zeus::Message::generateDisplay(_os);
 	if (getNumberParameter() != 0) {

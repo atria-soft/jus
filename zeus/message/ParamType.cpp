@@ -8,6 +8,8 @@
 #include <zeus/debug.hpp>
 #include <zeus/File.hpp>
 
+#include <etk/typeInfo.hpp>
+ETK_DECLARE_TYPE(zeus::message::ParamType);
 
 bool zeus::message::checkCompatibility(const ParamType& _type, const ParamType& _params) {
 	if (_params == _type) {

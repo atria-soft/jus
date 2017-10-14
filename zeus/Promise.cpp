@@ -10,6 +10,9 @@
 #include <zeus/debug.hpp>
 #include <zeus/WebServer.hpp>
 
+#include <etk/typeInfo.hpp>
+ETK_DECLARE_TYPE(zeus::Promise);
+
 
 zeus::Promise::Promise(uint32_t _transactionId, uint32_t _source) {
 	m_sendTime = echrono::Steady::now();

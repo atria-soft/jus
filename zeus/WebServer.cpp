@@ -11,6 +11,10 @@
 #include <zeus/message/Data.hpp>
 
 
+#include <etk/typeInfo.hpp>
+ETK_DECLARE_TYPE(zeus::WebServer);
+
+
 ememory::SharedPtr<zeus::message::Call> zeus::createBaseCall(const ememory::SharedPtr<zeus::WebServer>& _iface,
                                                              uint64_t _transactionId,
                                                              const uint32_t& _source,
@@ -109,18 +113,19 @@ void zeus::WebServer::setInterfaceName(const etk::String& _name) {
 }
 
 void zeus::WebServer::addWebObj(ememory::SharedPtr<zeus::WebObj> _obj) {
-	//ethread::UniqueLock lock(m_mutex);
+	ethread::UniqueLock lock(m_listObjectMutex);
 	m_listObject.pushBack(_obj);
 }
 
 void zeus::WebServer::addWebObjRemote(ememory::SharedPtr<zeus::ObjectRemoteBase> _obj) {
-	//ethread::UniqueLock lock(m_mutex);
+	ethread::UniqueLock lock(m_listRemoteObjectMutex);
 	m_listRemoteObject.pushBack(_obj);
 }
 
 void zeus::WebServer::interfaceRemoved(etk::Vector<uint16_t> _list) {
 	ZEUS_WARNING("Remove interface : " << _list);
 	for (int32_t iii=0; iii < _list.size(); ++iii) {
+		ethread::UniqueLock lock(m_listRemoteObjectMutex);
 		// Call All remote Object object
 		for (auto it=m_listRemoteObject.begin();
 		    it != m_listRemoteObject.end();
@@ -139,6 +144,7 @@ void zeus::WebServer::interfaceRemoved(etk::Vector<uint16_t> _list) {
 		}
 	}
 	for (int32_t iii=0; iii < _list.size(); ++iii) {
+		ethread::UniqueLock lock(m_listObjectMutex);
 		// Call All remote Object object
 		for (auto it=m_listObject.begin();
 		    it != m_listObject.end();
@@ -283,7 +289,7 @@ int32_t zeus::WebServer::writeBinary(ememory::SharedPtr<zeus::Message> _obj) {
 	return -1;
 }
 
-bool zeus::WebServer::onReceiveUri(const etk::String& _uri, const etk::Vector<etk::String>& _protocols) {
+etk::String zeus::WebServer::onReceiveUri(const etk::String& _uri, const etk::Vector<etk::String>& _protocols) {
 	ZEUS_INFO("Receive Header uri: " << _uri);
 	bool findProtocol = false;
 	for (auto &it : _protocols) {
@@ -295,17 +301,35 @@ bool zeus::WebServer::onReceiveUri(const etk::String& _uri, const etk::Vector<et
 	}
 	if (findProtocol == false) {
 		ZEUS_ERROR("Disable connection request URI='" << _uri << "' with wrong protocol:" << _protocols);
-		return false;
+		return "CLOSE";
 	}
 	// TODO : Add better return on specific user ...
 	if (m_observerRequestUri != nullptr) {
-		return m_observerRequestUri(_uri);
+		etk::Map<etk::String,etk::String> options;
+		etk::String uri;
+		size_t pos = _uri.find('?');
+		if (pos == etk::String::npos) {
+			uri = _uri;
+		} else {
+			uri = _uri.extract(0, pos);
+			etk::String opt = _uri.extract(pos+1, _uri.size());
+			etk::Vector<etk::String> listValue = opt.split('&');
+			for (auto &it: listValue) {
+				pos = it.find('=');
+				if (pos == etk::String::npos) {
+					options.set(it, "");
+				} else {
+					options.set(it.extract(0,pos), it.extract(pos+1, it.size()));
+				}
+			}
+		}
+		return m_observerRequestUri(uri, options);
 	}
 	if (_uri == "/") {
-		return true;
+		return "OK";
 	}
 	ZEUS_ERROR("Disable connection all time the uri is not accepted by the server if the URI is not '/' URI='" << _uri << "'");
-	return false;
+	return "CLOSE";
 }
 
 void zeus::WebServer::onReceiveData(etk::Vector<uint8_t>& _frame, bool _isBinary) {
@@ -414,42 +438,47 @@ void zeus::WebServer::newMessage(ememory::SharedPtr<zeus::Message> _buffer) {
 	// Not find a pending call ==> execute it ...
 	if (future.isValid() == false) {
 		uint32_t dest = _buffer->getDestination();
-		// Call local object
-		for (auto &it : m_listObject) {
-			if (it == nullptr) {
-				continue;
-			}
-			if (it->getFullId() == dest) {
-				// send in an other async to syncronize the 
-				m_processingPool.async(
-				    [=](){
-				    	ememory::SharedPtr<zeus::WebObj> tmpObj = it;
-				    	ZEUS_LOG_INPUT_OUTPUT("PROCESS :  " << _buffer);
-				    	tmpObj->receive(_buffer);
-				    },
-				    dest
-				    );
-				return;
+		{
+			ethread::UniqueLock lock(m_listObjectMutex);
+			// Call local object
+			for (auto &it : m_listObject) {
+				if (it == nullptr) {
+					continue;
+				}
+				if (it->getFullId() == dest) {
+					// send in an other async to syncronize the 
+					m_processingPool.async(
+					    [=](){
+					    	ememory::SharedPtr<zeus::WebObj> tmpObj = it;
+					    	ZEUS_LOG_INPUT_OUTPUT("PROCESS :  " << _buffer);
+					    	tmpObj->receive(_buffer);
+					    },
+					    dest
+					    );
+					return;
+				}
 			}
 		}
-		//ethread::UniqueLock lock(m_mutex);
-		// call local map object on remote object
-		for (auto &it : m_listRemoteObject) {
-			ememory::SharedPtr<zeus::ObjectRemoteBase> tmp = it.lock();
-			if (tmp == nullptr) {
-				continue;
-			}
-			if (tmp->getFullId() == dest) {
-				// send in an other async to syncronize the 
-				m_processingPool.async(
-				    [=](){
-				    	ememory::SharedPtr<zeus::WebObj> tmpObj = tmp;
-				    	ZEUS_LOG_INPUT_OUTPUT("PROCESS :  " << _buffer);
-				    	tmpObj->receive(_buffer);
-				    },
-				    dest
-				    );
-				return;
+		{
+			ethread::UniqueLock lock(m_listRemoteObjectMutex);
+			// call local map object on remote object
+			for (auto &it : m_listRemoteObject) {
+				ememory::SharedPtr<zeus::ObjectRemoteBase> tmp = it.lock();
+				if (tmp == nullptr) {
+					continue;
+				}
+				if (tmp->getFullId() == dest) {
+					// send in an other async to syncronize the 
+					m_processingPool.async(
+					    [=](){
+					    	ememory::SharedPtr<zeus::WebObj> tmpObj = tmp;
+					    	ZEUS_LOG_INPUT_OUTPUT("PROCESS :  " << _buffer);
+					    	tmpObj->receive(_buffer);
+					    },
+					    dest
+					    );
+					return;
+				}
 			}
 		}
 		if (m_observerElement != nullptr) {
@@ -496,24 +525,29 @@ void zeus::WebServer::newMessage(ememory::SharedPtr<zeus::Message> _buffer) {
 }
 
 void zeus::WebServer::listObjects() {
-	//ethread::UniqueLock lock(m_mutex);
 	if (    m_listObject.size() == 0
 	     && m_listRemoteObject.size() == 0) {
 		return;
 	}
 	ZEUS_DEBUG("[" << m_interfaceId << "] Interface WebServer:");
-	for (auto &it : m_listObject) {
-		if (it == nullptr) {
-			continue;
+	{
+		ethread::UniqueLock lock(m_listObjectMutex);
+		for (auto &it : m_listObject) {
+			if (it == nullptr) {
+				continue;
+			}
+			it->display();
 		}
-		it->display();
 	}
-	for (auto &it : m_listRemoteObject) {
-		ememory::SharedPtr<zeus::ObjectRemoteBase> tmpp = it.lock();
-		if (tmpp == nullptr) {
-			continue;
+	{
+		ethread::UniqueLock lock(m_listRemoteObjectMutex);
+		for (auto &it : m_listRemoteObject) {
+			ememory::SharedPtr<zeus::ObjectRemoteBase> tmpp = it.lock();
+			if (tmpp == nullptr) {
+				continue;
+			}
+			tmpp->display();
 		}
-		tmpp->display();
 	}
 }
 
@@ -523,27 +557,37 @@ void zeus::WebServer::cleanDeadObject() {
 	     && m_listRemoteObject.size() == 0) {
 		return;
 	}
-	for (auto it=m_listObject.begin();
-	     it!=m_listObject.end();
-	     /* no auto increment*/) {
-		if (*it == nullptr) {
-			it = m_listObject.erase(it);
-			continue;
+	ZEUS_INFO("Clean DEAD object... total=" << m_listObject.size());
+	etk::Vector<ememory::SharedPtr<zeus::WebObj>> tmpToRemoveObjectInAsync;
+	{
+		ethread::UniqueLock lock(m_listObjectMutex);
+		for (auto it=m_listObject.begin();
+		     it!=m_listObject.end();
+		     /* no auto increment*/) {
+			if (*it == nullptr) {
+				it = m_listObject.erase(it);
+				continue;
+			}
+			if ((*it)->haveRemoteConnected() == false) {
+				tmpToRemoveObjectInAsync.pushBack(*it);
+				it = m_listObject.erase(it);
+				continue;
+			}
+			++it;
 		}
-		if ((*it)->haveRemoteConnected() == false) {
-			it = m_listObject.erase(it);
-			continue;
-		}
-		++it;
 	}
-	for (auto it=m_listRemoteObject.begin();
-	     it!=m_listRemoteObject.end();
-	     /* no auto increment*/) {
-		if (it->expired() == true) {
-			it = m_listRemoteObject.erase(it);
-			continue;
+	tmpToRemoveObjectInAsync.clear();
+	{
+		ethread::UniqueLock lock(m_listRemoteObjectMutex);
+		for (auto it=m_listRemoteObject.begin();
+		     it!=m_listRemoteObject.end();
+		     /* no auto increment*/) {
+			if (it->expired() == true) {
+				it = m_listRemoteObject.erase(it);
+				continue;
+			}
+			++it;
 		}
-		++it;
 	}
 }
 
@@ -553,22 +597,28 @@ bool zeus::WebServer::transferRemoteObjectOwnership(uint16_t _objectAddress, uin
 	     && m_listRemoteObject.size() == 0) {
 		return false;
 	}
-	for (auto &it : m_listObject) {
-		if (it == nullptr) {
-			continue;
-		}
-		if (it->getObjectId() == _objectAddress) {
-			return it->transferOwnership(_sourceAddress, _destinataireAddress);
+	{
+		ethread::UniqueLock lock(m_listObjectMutex);
+		for (auto &it : m_listObject) {
+			if (it == nullptr) {
+				continue;
+			}
+			if (it->getObjectId() == _objectAddress) {
+				return it->transferOwnership(_sourceAddress, _destinataireAddress);
+			}
 		}
 	}
-	for (auto &it : m_listRemoteObject) {
-		ememory::SharedPtr<zeus::ObjectRemoteBase> tmp = it.lock();
-		if (tmp == nullptr) {
-			continue;
-		}
-		if (tmp->getObjectId() == _objectAddress) {
-			ZEUS_ERROR("return a remote Object is not permited ... ==> link directly to the original elements");
-			return false;
+	{
+		ethread::UniqueLock lock(m_listRemoteObjectMutex);
+		for (auto &it : m_listRemoteObject) {
+			ememory::SharedPtr<zeus::ObjectRemoteBase> tmp = it.lock();
+			if (tmp == nullptr) {
+				continue;
+			}
+			if (tmp->getObjectId() == _objectAddress) {
+				ZEUS_ERROR("return a remote Object is not permited ... ==> link directly to the original elements");
+				return false;
+			}
 		}
 	}
 	return false;
@@ -580,24 +630,30 @@ bool zeus::WebServer::removeObjectOwnership(uint16_t _objectAddress, uint32_t _s
 	     && m_listRemoteObject.size() == 0) {
 		return false;
 	}
-	for (auto &it : m_listObject) {
-		if (it == nullptr) {
-			continue;
-		}
-		//ZEUS_INFO("1 Remove ownership of " << it->getObjectId() << " == " << _objectAddress);
-		if (it->getObjectId() == _objectAddress) {
-			return it->removeOwnership(_sourceAddress);
+	{
+		ethread::UniqueLock lock(m_listObjectMutex);
+		for (auto &it : m_listObject) {
+			if (it == nullptr) {
+				continue;
+			}
+			ZEUS_INFO("1 Remove ownership of " << it->getObjectId() << " == " << _objectAddress);
+			if (it->getObjectId() == _objectAddress) {
+				return it->removeOwnership(_sourceAddress);
+			}
 		}
 	}
-	for (auto &it : m_listRemoteObject) {
-		ememory::SharedPtr<zeus::ObjectRemoteBase> tmp = it.lock();
-		if (tmp == nullptr) {
-			continue;
-		}
-		//ZEUS_INFO("2 Remove ownership of " << tmp->getObjectId() << " == " << _objectAddress);
-		if (tmp->getObjectId() == _objectAddress) {
-			ZEUS_ERROR("return a remote Object is not permited ... ==> link directly to the original elements");
-			return false;
+	{
+		ethread::UniqueLock lock(m_listRemoteObjectMutex);
+		for (auto &it : m_listRemoteObject) {
+			ememory::SharedPtr<zeus::ObjectRemoteBase> tmp = it.lock();
+			if (tmp == nullptr) {
+				continue;
+			}
+			ZEUS_INFO("2 Remove ownership of " << tmp->getObjectId() << " == " << _objectAddress);
+			if (tmp->getObjectId() == _objectAddress) {
+				ZEUS_ERROR("return a remote Object is not permited ... ==> link directly to the original elements");
+				return false;
+			}
 		}
 	}
 	return false;
@@ -618,6 +674,7 @@ void zeus::WebServer::threadAsyncCallback() {
 		if (m_threadAsyncList2.size() != 0) {
 			ethread::UniqueLock lock(m_threadAsyncMutex);
 			for (auto &it : m_threadAsyncList2) {
+				ZEUS_INFO("Add async");
 				m_threadAsyncList.pushBack(it);
 			}
 			m_threadAsyncList2.clear();
@@ -632,6 +689,7 @@ void zeus::WebServer::threadAsyncCallback() {
 			bool ret = (*it)(this);
 			if (ret == true) {
 				// Remove it ...
+				ZEUS_INFO("Remove async");
 				it = m_threadAsyncList.erase(it);
 			} else {
 				++it;
