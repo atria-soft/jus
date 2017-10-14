@@ -38,6 +38,7 @@ class PlugginAccess {
 		  m_handle(nullptr),
 		  m_SERVICE_IO_init(nullptr),
 		  m_SERVICE_IO_uninit(nullptr),
+		  m_SERVICE_IO_peridic_call(nullptr),
 		  m_SERVICE_IO_instanciate(nullptr) {
 			etk::String srv = etk::FSNodeGetApplicationPath() + "/../lib/libzeus-service-" + m_name + "-impl.so";
 			APPL_PRINT("Try to open service with name: '" << m_name << "' at position: '" << srv << "'");
