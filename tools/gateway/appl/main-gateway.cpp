@@ -8,6 +8,7 @@
 #include <appl/GateWay.hpp>
 #include <etk/etk.hpp>
 #include <zeus/zeus.hpp>
+#include <etk/Allocator.hpp>
 
 
 #include <etk/stdTools.hpp>
@@ -246,7 +247,7 @@ int main(int _argc, const char *_argv[]) {
 		}
 	}
 	#endif
-	
+	int32_t countMemeCheck = 0;
 	APPL_INFO("==================================");
 	APPL_INFO("== ZEUS gateway start            ==");
 	APPL_INFO("==================================");
@@ -258,6 +259,10 @@ int main(int _argc, const char *_argv[]) {
 		while (routerAlive == true) {
 			ethread::sleepMilliSeconds((100));
 			basicGateway.cleanIO();
+			if (countMemeCheck++ >= 200) {
+				countMemeCheck = 0;
+				ETK_MEM_SHOW_LOG(true);
+			}
 			routerAlive = basicGateway.checkIsAlive(echrono::seconds(routerDisconnectionDelay));
 			if (routerAlive == false) {
 				APPL_WARNING("Router is Dead or Timeout");
@@ -315,6 +320,10 @@ int main(int _argc, const char *_argv[]) {
 			} else {
 				elog::flush();
 				ethread::sleepMilliSeconds(1000);
+				if (countMemeCheck++ >= 20) {
+					countMemeCheck = 0;
+					ETK_MEM_SHOW_LOG(true);
+				}
 				APPL_INFO("gateway in waiting ... " << iii << "/inf");
 			}
 			iii++;

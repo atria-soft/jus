@@ -44,6 +44,6 @@ void zeus::message::Event::composeWith(const uint8_t* _buffer, uint32_t _lenght)
 // ------------------------------------------------------------------------------------
 
 ememory::SharedPtr<zeus::message::Event> zeus::message::Event::create(ememory::SharedPtr<zeus::WebServer> _iface) {
-	return ememory::SharedPtr<zeus::message::Event>(new zeus::message::Event(_iface));
+	return ememory::SharedPtr<zeus::message::Event>(ETK_NEW(zeus::message::Event, _iface));
 }
 

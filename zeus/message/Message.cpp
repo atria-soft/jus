@@ -190,7 +190,7 @@ enum zeus::message::type zeus::Message::getType() const {
 // -- Factory
 // ------------------------------------------------------------------------------------
 ememory::SharedPtr<zeus::Message> zeus::Message::create(ememory::SharedPtr<zeus::WebServer> _iface) {
-	return ememory::SharedPtr<zeus::Message>(new zeus::Message(_iface));
+	return ememory::SharedPtr<zeus::Message>(ETK_NEW(zeus::Message, _iface));
 }
 
 ememory::SharedPtr<zeus::Message> zeus::Message::create(ememory::SharedPtr<zeus::WebServer> _iface, const etk::Vector<uint8_t>& _buffer) {

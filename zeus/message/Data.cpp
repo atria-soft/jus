@@ -71,5 +71,5 @@ void zeus::message::Data::composeWith(const uint8_t* _buffer, uint32_t _lenght) 
 // ------------------------------------------------------------------------------------
 
 ememory::SharedPtr<zeus::message::Data> zeus::message::Data::create(ememory::SharedPtr<zeus::WebServer> _iface) {
-	return ememory::SharedPtr<zeus::message::Data>(new zeus::message::Data(_iface));
+	return ememory::SharedPtr<zeus::message::Data>(ETK_NEW(zeus::message::Data, _iface));
 }

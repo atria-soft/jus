@@ -16,7 +16,7 @@
 // ------------------------------------------------------------------------------------
 
 ememory::SharedPtr<zeus::MessageFlow> zeus::MessageFlow::create() {
-	return ememory::SharedPtr<zeus::MessageFlow>(new zeus::MessageFlow);
+	return ememory::SharedPtr<zeus::MessageFlow>(ETK_NEW(zeus::MessageFlow));
 }
 */
 

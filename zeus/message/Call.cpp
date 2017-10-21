@@ -74,5 +74,5 @@ void zeus::message::Call::appendMessageData(ememory::SharedPtr<zeus::message::Da
 
 
 ememory::SharedPtr<zeus::message::Call> zeus::message::Call::create(ememory::SharedPtr<zeus::WebServer> _iface) {
-	return ememory::SharedPtr<zeus::message::Call>(new zeus::message::Call(_iface));
+	return ememory::SharedPtr<zeus::message::Call>(ETK_NEW(zeus::message::Call, _iface));
 }

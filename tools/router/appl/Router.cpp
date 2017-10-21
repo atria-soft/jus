@@ -87,7 +87,7 @@ namespace appl {
 				m_interface.setPort(_port);
 				m_interface.link();
 				m_threadRunning = true;
-				m_thread = new ethread::Thread([&](){ threadCallback();}, "routerListener");
+				m_thread = ETK_NEW(ethread::Thread, [&](){ threadCallback();}, "routerListener");
 				if (m_thread == nullptr) {
 					m_threadRunning = false;
 					ZEUS_ERROR("creating callback thread!");
@@ -101,7 +101,7 @@ namespace appl {
 				m_interface.unlink();
 				if (m_thread != nullptr) {
 					m_thread->join();
-					delete m_thread;
+					ETK_DELETE(ethread::Thread, m_thread);
 					m_thread = nullptr;
 				}
 			}

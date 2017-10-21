@@ -56,6 +56,6 @@ namespace appl {
 int main(int _argc, const char *_argv[]) {
 	audio::river::init();
 	zeus::init(_argc, _argv);
-	return ewol::run(new appl::MainApplication(), _argc, _argv);
+	return ewol::run(ETK_NEW(appl::MainApplication)(), _argc, _argv);
 }
 

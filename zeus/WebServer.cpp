@@ -183,7 +183,7 @@ bool zeus::WebServer::isActive() const {
 void zeus::WebServer::connect(bool _async){
 	ZEUS_DEBUG("connect [START]");
 	m_threadAsyncRunning = true;
-	m_threadAsync = new ethread::Thread([&](){ threadAsyncCallback();}, "webServerAsync");
+	m_threadAsync = ETK_NEW(ethread::Thread, [&](){ threadAsyncCallback();}, "webServerAsync");
 	if (m_threadAsync == nullptr) {
 		m_threadAsyncRunning = false;
 		ZEUS_ERROR("creating async sender thread!");
@@ -211,7 +211,7 @@ void zeus::WebServer::disconnect(bool _inThreadStop){
 	m_connection.stop(_inThreadStop);
 	if (m_threadAsync != nullptr) {
 		m_threadAsync->join();
-		delete m_threadAsync;
+		ETK_DELETE(ethread::Thread, m_threadAsync);
 		m_threadAsync = nullptr;
 	}
 	ZEUS_DEBUG("disconnect [STOP]");

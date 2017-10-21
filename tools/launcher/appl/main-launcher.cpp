@@ -5,6 +5,7 @@
  */
 
 #include <appl/debug.hpp>
+#include <etk/Allocator.hpp>
 #include <etk/etk.hpp>
 
 #include <ethread/Mutex.hpp>
@@ -173,6 +174,7 @@ int main(int _argc, const char *_argv[]) {
 		it->publish(m_client);
 	}
 	uint32_t iii = 0;
+	int32_t countMemeCheck = 0;
 	while(m_client.isAlive() == true) {
 		m_client.pingIsAlive();
 		m_client.displayConnectedObject();
@@ -181,6 +183,10 @@ int main(int _argc, const char *_argv[]) {
 			it->peridic_call();
 		}
 		ethread::sleepMilliSeconds(1000);
+		if (countMemeCheck++ >= 20) {
+			countMemeCheck = 0;
+			ETK_MEM_SHOW_LOG(true);
+		}
 		APPL_INFO("service in waiting ... " << iii << "/inf");
 		iii++;
 	}

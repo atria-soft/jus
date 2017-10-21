@@ -89,6 +89,6 @@ void zeus::message::Answer::appendMessageData(ememory::SharedPtr<zeus::message::
 // ------------------------------------------------------------------------------------
 
 ememory::SharedPtr<zeus::message::Answer> zeus::message::Answer::create(ememory::SharedPtr<zeus::WebServer> _iface) {
-	return ememory::SharedPtr<zeus::message::Answer>(new zeus::message::Answer(_iface));
+	return ememory::SharedPtr<zeus::message::Answer>(ETK_NEW(zeus::message::Answer, _iface));
 }
 

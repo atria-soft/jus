@@ -8,6 +8,7 @@
 #include <appl/Router.hpp>
 #include <etk/etk.hpp>
 #include <zeus/zeus.hpp>
+#include <etk/Allocator.hpp>
 
 
 #include <etk/stdTools.hpp>
@@ -57,9 +58,14 @@ int main(int _argc, const char *_argv[]) {
 	APPL_INFO("== ZEUS router start            ==");
 	APPL_INFO("==================================");
 	basicRouter.start();
+	int32_t countMemeCheck = 0;
 	while (true) {
 		ethread::sleepMilliSeconds((100));
 		basicRouter.cleanIO();
+		if (countMemeCheck++ >= 200) {
+			countMemeCheck = 0;
+			ETK_MEM_SHOW_LOG(true);
+		}
 	}
 	basicRouter.stop();
 	APPL_INFO("==================================");
