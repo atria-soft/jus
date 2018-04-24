@@ -147,6 +147,43 @@ static etk::Vector<etk::Pair<etk::String, etk::String>> getMimeList() {
 	mineList.pushBack(etk::makePair("py",      "code/python"));
 	mineList.pushBack(etk::makePair("java",    "code/java"));
 	mineList.pushBack(etk::makePair("js",      "code/javascript"));
+	
+	// microsoft mime type:
+	mineList.pushBack(etk::makePair("doc",     "application/msword"));
+	mineList.pushBack(etk::makePair("dot",     "application/msword"));
+	
+	mineList.pushBack(etk::makePair("docx",    "application/vnd.openxmlformats-officedocument.wordprocessingml.document"));
+	mineList.pushBack(etk::makePair("dotx",    "application/vnd.openxmlformats-officedocument.wordprocessingml.template"));
+	mineList.pushBack(etk::makePair("docm",    "application/vnd.ms-word.document.macroEnabled.12"));
+	mineList.pushBack(etk::makePair("dotm",    "application/vnd.ms-word.template.macroEnabled.12"));
+	
+	mineList.pushBack(etk::makePair("xls",     "application/vnd.ms-excel"));
+	mineList.pushBack(etk::makePair("xlt",     "application/vnd.ms-excel"));
+	mineList.pushBack(etk::makePair("xla",     "application/vnd.ms-excel"));
+	
+	mineList.pushBack(etk::makePair("xlsx",    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"));
+	mineList.pushBack(etk::makePair("xltx",    "application/vnd.openxmlformats-officedocument.spreadsheetml.template"));
+	mineList.pushBack(etk::makePair("xlsm",    "application/vnd.ms-excel.sheet.macroEnabled.12"));
+	mineList.pushBack(etk::makePair("xltm",    "application/vnd.ms-excel.template.macroEnabled.12"));
+	mineList.pushBack(etk::makePair("xlam",    "application/vnd.ms-excel.addin.macroEnabled.12"));
+	mineList.pushBack(etk::makePair("xlsb",    "application/vnd.ms-excel.sheet.binary.macroEnabled.12"));
+	
+	mineList.pushBack(etk::makePair("ppt",     "application/vnd.ms-powerpoint"));
+	mineList.pushBack(etk::makePair("pot",     "application/vnd.ms-powerpoint"));
+	mineList.pushBack(etk::makePair("pps",     "application/vnd.ms-powerpoint"));
+	mineList.pushBack(etk::makePair("ppa",     "application/vnd.ms-powerpoint"));
+	
+	mineList.pushBack(etk::makePair("pptx",    "application/vnd.openxmlformats-officedocument.presentationml.presentation"));
+	mineList.pushBack(etk::makePair("potx",    "application/vnd.openxmlformats-officedocument.presentationml.template"));
+	mineList.pushBack(etk::makePair("ppsx",    "application/vnd.openxmlformats-officedocument.presentationml.slideshow"));
+	mineList.pushBack(etk::makePair("ppam",    "application/vnd.ms-powerpoint.addin.macroEnabled.12"));
+	mineList.pushBack(etk::makePair("pptm",    "application/vnd.ms-powerpoint.presentation.macroEnabled.12"));
+	mineList.pushBack(etk::makePair("potm",    "application/vnd.ms-powerpoint.template.macroEnabled.12"));
+	mineList.pushBack(etk::makePair("ppsm",    "application/vnd.ms-powerpoint.slideshow.macroEnabled.12"));
+	
+	mineList.pushBack(etk::makePair("mdb",     "application/vnd.ms-access"));
+	
+	
 	return mineList;
 };
 
