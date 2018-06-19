@@ -62,7 +62,7 @@ zeus::MediaImpl::MediaImpl(uint64_t _id, const etk::String& _fileNameReal, const
 	etk::String extention;
 	if (    m_fileName.rfind('.') != etk::String::npos
 	     && m_fileName.rfind('.') != 0) {
-		extention = etk::tolower(etk::String(m_fileName.begin()+m_fileName.rfind('.')+1, m_fileName.end()));
+		extention = etk::toLower(etk::String(m_fileName.begin()+m_fileName.rfind('.')+1, m_fileName.end()));
 		m_fileName = etk::String(m_fileName.begin(), m_fileName.begin()+m_fileName.rfind('.'));
 	}
 	if (extention != "") {

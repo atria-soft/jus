@@ -188,7 +188,7 @@ static etk::Vector<etk::Pair<etk::String, etk::String>> getMimeList() {
 };
 
 etk::String zeus::getMineType(etk::String _extention) {
-	_extention = etk::tolower(_extention);
+	_extention = etk::toLower(_extention);
 	for (auto &it : getMimeList()) {
 		if (it.first == _extention) {
 			return it.second;
@@ -201,7 +201,7 @@ etk::String zeus::getMineType(etk::String _extention) {
 }
 
 etk::String zeus::getExtention(etk::String _mineType) {
-	_mineType = etk::tolower(_mineType);
+	_mineType = etk::toLower(_mineType);
 	for (auto &it : getMimeList()) {
 		if (it.second == _mineType) {
 			return it.first;

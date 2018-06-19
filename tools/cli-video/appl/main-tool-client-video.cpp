@@ -56,7 +56,7 @@ bool pushVideoFile(zeus::service::ProxyVideo& _srv, etk::String _path, etk::Map<
 	etk::String extention;
 	if (    _path.rfind('.') != etk::String::npos
 	     && _path.rfind('.') != 0) {
-		extention = etk::tolower(etk::String(_path.begin()+_path.rfind('.')+1, _path.end()));
+		extention = etk::toLower(etk::String(_path.begin()+_path.rfind('.')+1, _path.end()));
 	}
 	etk::String fileName = etk::split(_path, '/').back();
 	// internal extention ...
