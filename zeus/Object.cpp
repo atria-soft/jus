@@ -20,7 +20,7 @@ zeus::Object::Object(const ememory::SharedPtr<zeus::WebServer>& _iface, uint16_t
 }
 
 void zeus::Object::receive(ememory::SharedPtr<zeus::Message> _value) {
-	if (_value == nullptr) {
+	if (_value == null) {
 		return;
 	}
 	if (_value->getPartFinish() == false) {

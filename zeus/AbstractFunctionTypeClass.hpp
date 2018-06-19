@@ -26,7 +26,7 @@ namespace zeus {
 	                      ememory::SharedPtr<zeus::message::Parameter> _obj,
 	                      ZEUS_CLASS_TYPE* _pointer,
 	                      ZEUS_RETURN (ZEUS_CLASS_TYPE::*_func)(zeus::ActionNotification<ZEUS_EVENT>& _notifs, ZEUS_TYPES...)) {
-		if (_obj == nullptr) {
+		if (_obj == null) {
 			return;
 		}
 		ZEUS_RETURN ret;
@@ -40,7 +40,7 @@ namespace zeus {
 			int32_t idParam = int32_t(sizeof...(ZEUS_TYPES))-1;
 			ret = (*_pointer.*_func)(notifs, _obj->getParameter<ZEUS_TYPES>(idParam--)...);
 		}
-		if (_interfaceClient == nullptr) {
+		if (_interfaceClient == null) {
 			ZEUS_ERROR("Nullptr for _interfaceClient");
 			return;
 		}
@@ -61,7 +61,7 @@ namespace zeus {
 	                      ememory::SharedPtr<zeus::message::Parameter> _obj,
 	                      ZEUS_CLASS_TYPE* _pointer,
 	                      ZEUS_RETURN (ZEUS_CLASS_TYPE::*_func)(ZEUS_TYPES...)) {
-		if (_obj == nullptr) {
+		if (_obj == null) {
 			return;
 		}
 		ZEUS_RETURN ret;
@@ -74,7 +74,7 @@ namespace zeus {
 			int32_t idParam = int32_t(sizeof...(ZEUS_TYPES))-1;
 			ret = (*_pointer.*_func)(_obj->getParameter<ZEUS_TYPES>(idParam--)...);
 		}
-		if (_interfaceClient == nullptr) {
+		if (_interfaceClient == null) {
 			ZEUS_ERROR("Nullptr for _interfaceClient");
 			return;
 		}
@@ -95,7 +95,7 @@ namespace zeus {
 	                      ememory::SharedPtr<zeus::message::Parameter> _obj,
 	                      ZEUS_CLASS_TYPE* _pointer,
 	                      void (ZEUS_CLASS_TYPE::*_func)(zeus::ActionNotification<ZEUS_EVENT>& _notifs, ZEUS_TYPES...)) {
-		if (_obj == nullptr) {
+		if (_obj == null) {
 			return;
 		}
 		zeus::ActionNotification<ZEUS_EVENT> notifs(_interfaceClient, _obj->getTransactionId(), _obj->getDestination(), _obj->getSource());
@@ -108,7 +108,7 @@ namespace zeus {
 			int32_t idParam = int32_t(sizeof...(ZEUS_TYPES))-1;
 			(*_pointer.*_func)(notifs, _obj->getParameter<ZEUS_TYPES>(idParam--)...);
 		}
-		if (_interfaceClient == nullptr) {
+		if (_interfaceClient == null) {
 			ZEUS_ERROR("Nullptr for _interfaceClient");
 			return;
 		}
@@ -129,7 +129,7 @@ namespace zeus {
 	                      ememory::SharedPtr<zeus::message::Parameter> _obj,
 	                      ZEUS_CLASS_TYPE* _pointer,
 	                      void (ZEUS_CLASS_TYPE::*_func)(ZEUS_TYPES...)) {
-		if (_obj == nullptr) {
+		if (_obj == null) {
 			return;
 		}
 		if (zeus::checkOrderFunctionParameter() == true) {
@@ -141,7 +141,7 @@ namespace zeus {
 			int32_t idParam = int32_t(sizeof...(ZEUS_TYPES))-1;
 			(*_pointer.*_func)(_obj->getParameter<ZEUS_TYPES>(idParam--)...);
 		}
-		if (_interfaceClient == nullptr) {
+		if (_interfaceClient == null) {
 			ZEUS_ERROR("Nullptr for _interfaceClient");
 			return;
 		}
@@ -183,15 +183,15 @@ namespace zeus {
 			void execute(ememory::SharedPtr<zeus::WebServer> _interfaceClient,
 			             ememory::SharedPtr<zeus::message::Call> _obj,
 			             void* _class) override {
-				if (_obj == nullptr) {
+				if (_obj == null) {
 					return;
 				}
-				ZEUS_CLASS_TYPE* tmpClass = nullptr;
-				if (_class != nullptr) {
+				ZEUS_CLASS_TYPE* tmpClass = null;
+				if (_class != null) {
 					tmpClass = (ZEUS_CLASS_TYPE*)_class;
 				}
 				
-				if (_interfaceClient == nullptr) {
+				if (_interfaceClient == null) {
 					ZEUS_ERROR("Nullptr for _interfaceWeb");
 					return;
 				}
@@ -272,15 +272,15 @@ namespace zeus {
 			void execute(ememory::SharedPtr<zeus::WebServer> _interfaceClient,
 			             ememory::SharedPtr<zeus::message::Call> _obj,
 			             void* _class) override {
-				if (_obj == nullptr) {
+				if (_obj == null) {
 					return;
 				}
-				ZEUS_CLASS_TYPE* tmpClass = nullptr;
-				if (_class != nullptr) {
+				ZEUS_CLASS_TYPE* tmpClass = null;
+				if (_class != null) {
 					tmpClass = (ZEUS_CLASS_TYPE*)_class;
 				}
 				
-				if (_interfaceClient == nullptr) {
+				if (_interfaceClient == null) {
 					ZEUS_ERROR("Nullptr for _interfaceWeb");
 					return;
 				}

@@ -60,7 +60,7 @@ const etk::Vector<etk::String>& appl::IOInterface::getServiceList() {
 }
 
 void appl::IOInterface::receive(ememory::SharedPtr<zeus::Message> _value) {
-	if (_value == nullptr) {
+	if (_value == null) {
 		return;
 	}
 	APPL_INFO("RECEIVE message " << _value);
@@ -128,7 +128,7 @@ void appl::IOInterface::receive(ememory::SharedPtr<zeus::Message> _value) {
 						if (callFunction == "identify") {
 							etk::String clientName = callObj->getParameter<etk::String>(0);
 							etk::String clientTocken = callObj->getParameter<etk::String>(1);
-							if (m_userService == nullptr) {
+							if (m_userService == null) {
 								answerProtocolError(transactionId, "gateWay internal error 3");
 								return;
 							}
@@ -318,7 +318,7 @@ void appl::IOInterface::receive(ememory::SharedPtr<zeus::Message> _value) {
 		}
 	} else {
 		// TODO: Check here if the user is athorised to send data to a specific client ...
-		if (m_gateway != nullptr) {
+		if (m_gateway != null) {
 			m_gateway->send(_value);
 		}
 	}

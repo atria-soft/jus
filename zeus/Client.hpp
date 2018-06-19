@@ -131,8 +131,8 @@ namespace zeus {
 			                      uint32_t _destination,
 			                      const etk::String& _functionName,
 			                      _ARGS&&... _args) {
-				if (m_interfaceWeb == nullptr) {
-					ememory::SharedPtr<zeus::message::Answer> ret = zeus::message::Answer::create(nullptr); // TODO : This is really a bad case ...
+				if (m_interfaceWeb == null) {
+					ememory::SharedPtr<zeus::message::Answer> ret = zeus::message::Answer::create(null); // TODO : This is really a bad case ...
 					ret->addError("NULLPTR", "call " + _functionName + " with no interface open");
 					return zeus::FutureBase(0, ret);
 				}

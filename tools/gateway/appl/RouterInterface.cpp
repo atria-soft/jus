@@ -34,7 +34,7 @@ zeus::WebServer* appl::clientSpecificInterface::getInterface() {
 }
 
 bool appl::clientSpecificInterface::isConnected() {
-	if (m_interfaceWeb == nullptr) {
+	if (m_interfaceWeb == null) {
 		return false;
 	}
 	if (m_state == appl::clientState::unconnect) {
@@ -56,7 +56,7 @@ void appl::clientSpecificInterface::send(ememory::SharedPtr<zeus::Message> _valu
 
 #if 0
 void appl::clientSpecificInterface::receive(ememory::SharedPtr<zeus::Message> _value) {
-	if (_value == nullptr) {
+	if (_value == null) {
 		return;
 	}
 	//APPL_ERROR("    ==> parse DATA ...");
@@ -82,7 +82,7 @@ void appl::clientSpecificInterface::receive(ememory::SharedPtr<zeus::Message> _v
 			m_interfaceWeb->answerError(transactionId, _value->getClientId(), _value->getServiceId(), "NOT-CONNECTED-SERVICE");
 			return;
 		}
-		if (m_listConnectedService[serviceId] == nullptr) {
+		if (m_listConnectedService[serviceId] == null) {
 			// TODO ...
 			APPL_ERROR("TODO : Manage this case ...");
 			return;
@@ -129,7 +129,7 @@ void appl::clientSpecificInterface::receive(ememory::SharedPtr<zeus::Message> _v
 				if (callFunction == "identify") {
 					etk::String clientName = callObj->getParameter<etk::String>(0);
 					etk::String clientTocken = callObj->getParameter<etk::String>(1);
-					if (m_userService == nullptr) {
+					if (m_userService == null) {
 						answerProtocolError(transactionId, "gateWay internal error 3");
 						return;
 					}
@@ -224,7 +224,7 @@ void appl::clientSpecificInterface::receive(ememory::SharedPtr<zeus::Message> _v
 						// Check if service already link:
 						auto it = m_listConnectedService.begin();
 						while (it != m_listConnectedService.end()) {
-							if (*it == nullptr) {
+							if (*it == null) {
 								++it;
 								continue;
 							}
@@ -241,7 +241,7 @@ void appl::clientSpecificInterface::receive(ememory::SharedPtr<zeus::Message> _v
 								return;
 							}
 							ememory::SharedPtr<appl::ServiceInterface> srv = m_gatewayInterface->get(serviceName);
-							if (srv != nullptr) {
+							if (srv != null) {
 								zeus::Future<bool> futLink = srv->m_interfaceClient.call(m_uid, ZEUS_ID_SERVICE_ROOT, "_new", m_userConnectionName, m_clientName, m_clientgroups);
 								futLink.wait(); // TODO: Set timeout ...
 								if (futLink.hasError() == true) {
@@ -276,7 +276,7 @@ void appl::clientSpecificInterface::receive(ememory::SharedPtr<zeus::Message> _v
 							m_interfaceWeb->answerError(transactionId, _value->getClientId(), _value->getServiceId(), "ERROR-CREATE-SERVICE-INSTANCE");
 							return;
 						}
-						m_listConnectedService[localServiceID] = nullptr;
+						m_listConnectedService[localServiceID] = null;
 						m_interfaceWeb->answerValue(transactionId, _value->getClientId(), _value->getServiceId(), true);
 						return;
 					}
@@ -290,7 +290,7 @@ void appl::clientSpecificInterface::receive(ememory::SharedPtr<zeus::Message> _v
 					m_interfaceWeb->answerError(transactionId, _value->getClientId(), _value->getServiceId(), "NOT-CONNECTED-SERVICE");
 					return;
 				} else {
-					if (m_listConnectedService[serviceId] == nullptr) {
+					if (m_listConnectedService[serviceId] == null) {
 						// TODO ...
 						APPL_ERROR("TODO : Manage this case ...");
 						return;
@@ -298,7 +298,7 @@ void appl::clientSpecificInterface::receive(ememory::SharedPtr<zeus::Message> _v
 					auto fut = m_listConnectedService[serviceId]->m_interfaceClient.callForward(m_uid, _value, (uint64_t(m_uid) << 32) + uint64_t(transactionId));
 					fut.andAll([=](zeus::FutureBase _ret) {
 					           		ememory::SharedPtr<zeus::Message> tmpp = _ret.getRaw();
-					           		if (tmpp == nullptr) {
+					           		if (tmpp == null) {
 					           			return true;
 					           		}
 					           		APPL_DEBUG("    ==> transmit : " << tmpp->getTransactionId() << " -> " << transactionId);
@@ -352,14 +352,14 @@ appl::RouterInterface::~RouterInterface() {
 void appl::RouterInterface::stop() {
 	/* TODO ...
 	for (auto &it : m_listConnectedService) {
-		if (it == nullptr) {
+		if (it == null) {
 			continue;
 		}
 		it->m_interfaceClient.callClient(m_uid, "_delete");
 	}
-	if (m_userService != nullptr) {
+	if (m_userService != null) {
 		m_userService->m_interfaceClient.callClient(m_uid2, "_delete");
-		m_userService = nullptr;
+		m_userService = null;
 	}
 	m_listConnectedService.clear();
 	*/
@@ -373,7 +373,7 @@ bool appl::RouterInterface::isAlive() {
 
 
 void appl::RouterInterface::onClientData(ememory::SharedPtr<zeus::Message> _value) {
-	if (_value == nullptr) {
+	if (_value == null) {
 		return;
 	}
 	// Get client ID:

@@ -47,7 +47,7 @@ namespace appl {
 				APPL_WARNING("call clientGroupsGet : " << _clientName);
 				etk::Vector<etk::String> out;
 				/*
-				if (m_client == nullptr) {
+				if (m_client == null) {
 					return out;
 				}
 				*/

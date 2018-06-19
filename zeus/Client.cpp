@@ -32,7 +32,7 @@ zeus::Client::~Client() {
 }
 
 void zeus::Client::onClientData(ememory::SharedPtr<zeus::Message> _value) {
-	if (_value == nullptr) {
+	if (_value == null) {
 		return;
 	}
 	ZEUS_DEBUG("receive message : " << _value);
@@ -48,7 +48,7 @@ void zeus::Client::onClientData(ememory::SharedPtr<zeus::Message> _value) {
 	*/
 	// TODO: all the basic checks ...
 	
-	if (_value == nullptr) {
+	if (_value == null) {
 		return;
 	}
 	//APPL_ERROR("    ==> parse DATA ...");
@@ -168,7 +168,7 @@ zeus::ObjectRemote zeus::Client::getService(const etk::String& _name) {
 	auto it = m_listConnectedService.begin();
 	while (it != m_listConnectedService.end()) {
 		ememory::SharedPtr<zeus::ObjectRemoteBase> val = it->lock();
-		if (val == nullptr) {
+		if (val == null) {
 			it = m_listConnectedService.erase(it);
 			continue;
 		}
@@ -235,7 +235,7 @@ bool zeus::Client::connectTo(const etk::String& _address, echrono::Duration _tim
 	}
 	ZEUS_INFO("connect Connection TCP is OK");
 	m_interfaceWeb = ememory::makeShared<zeus::WebServer>();
-	if (m_interfaceWeb == nullptr) {
+	if (m_interfaceWeb == null) {
 		ZEUS_ERROR("Allocate connection error");
 		return false;
 	}
@@ -342,7 +342,7 @@ bool zeus::Client::connect(const etk::String& _address, const etk::String& _clie
 
 void zeus::Client::disconnect() {
 	ZEUS_DEBUG("disconnect [START]");
-	if (m_interfaceWeb != nullptr) {
+	if (m_interfaceWeb != null) {
 		m_interfaceWeb->disconnect();
 		m_interfaceWeb.reset();
 	} else {
@@ -352,7 +352,7 @@ void zeus::Client::disconnect() {
 }
 
 bool zeus::Client::isAlive() {
-	if (m_interfaceWeb == nullptr) {
+	if (m_interfaceWeb == null) {
 		return false;
 	}
 	return m_interfaceWeb->isActive();
@@ -365,7 +365,7 @@ void zeus::Client::pingIsAlive() {
 }
 
 void zeus::Client::displayConnectedObject() {
-	if (m_interfaceWeb== nullptr) {
+	if (m_interfaceWeb== null) {
 		return;
 	}
 	m_interfaceWeb->listObjects();
@@ -373,7 +373,7 @@ void zeus::Client::displayConnectedObject() {
 
 
 void zeus::Client::cleanDeadObject() {
-	if (m_interfaceWeb== nullptr) {
+	if (m_interfaceWeb== null) {
 		return;
 	}
 	m_interfaceWeb->cleanDeadObject();

@@ -35,7 +35,7 @@ void appl::widget::VideoDisplay::init() {
 	getObjectManager().periodicCall.connect(sharedFromThis(), &appl::widget::VideoDisplay::periodicEvent);
 	// Create the VBO:
 	m_VBO = gale::resource::VirtualBufferObject::create(NB_VBO);
-	if (m_VBO == nullptr) {
+	if (m_VBO == null) {
 		APPL_ERROR("can not instanciate VBO ...");
 		return;
 	}
@@ -46,9 +46,9 @@ void appl::widget::VideoDisplay::init() {
 	
 	m_useElement = 0;
 	for (int32_t iii=0; iii<ZEUS_VIDEO_PLAYER_MULTIPLE_BUFFER; ++iii) {
-		if (m_resource[iii] == nullptr) {
+		if (m_resource[iii] == null) {
 			m_resource[iii] = ewol::resource::Texture::create();
-			if (m_resource[iii] == nullptr) {
+			if (m_resource[iii] == null) {
 				EWOL_ERROR("Can not CREATE Image resource");
 				return;
 			}
@@ -72,7 +72,7 @@ void appl::widget::VideoDisplay::loadProgram() {
 	m_GLPosition = 0;
 	m_GLprogram.reset();
 	m_GLprogram = gale::resource::Program::create("{ewol}DATA:textured3D.prog");
-	if (m_GLprogram != nullptr) {
+	if (m_GLprogram != null) {
 		m_GLPosition = m_GLprogram->getAttribute("EW_coord3d");
 		m_GLColor    = m_GLprogram->getAttribute("EW_color");
 		m_GLtexture  = m_GLprogram->getAttribute("EW_texture2d");
@@ -88,7 +88,7 @@ void appl::widget::VideoDisplay::setFile(const etk::String& _filename) {
 	m_decoder.reset();
 	// Create a new interface
 	m_decoder = ememory::makeShared<appl::MediaDecoder>();
-	if (m_decoder == nullptr) {
+	if (m_decoder == null) {
 		APPL_ERROR("Can not create sharedPtr on decoder ...");
 		return;
 	}
@@ -100,17 +100,17 @@ void appl::widget::VideoDisplay::setFile(const etk::String& _filename) {
 void appl::widget::VideoDisplay::setZeusMedia(ememory::SharedPtr<ClientProperty> _property, uint32_t _mediaId) {
 	// Stop playing in all case...
 	stop();
-	if (m_decoder != nullptr) {
+	if (m_decoder != null) {
 		m_decoder->uninit();
 	}
 	// Clear the old interface
 	m_decoder.reset();
 	
 	// Create a new interface
-	if (m_decoder == nullptr) {
+	if (m_decoder == null) {
 		m_decoder = ememory::makeShared<appl::MediaDecoder>();
 	}
-	if (m_decoder == nullptr) {
+	if (m_decoder == null) {
 		APPL_ERROR("Can not create sharedPtr on decoder ...");
 		return;
 	}
@@ -124,7 +124,7 @@ bool appl::widget::VideoDisplay::isPlaying() {
 }
 
 void appl::widget::VideoDisplay::play() {
-	if (m_decoder == nullptr) {
+	if (m_decoder == null) {
 		APPL_WARNING("Request play with no associated decoder");
 		return;
 	}
@@ -140,7 +140,7 @@ void appl::widget::VideoDisplay::play() {
 }
 
 void appl::widget::VideoDisplay::changeVolume(const float& _value) {
-	if (m_audioManager != nullptr) {
+	if (m_audioManager != null) {
 		m_audioManager->setVolume("MASTER", _value);
 	}
 }
@@ -158,13 +158,13 @@ void appl::widget::VideoDisplay::pause() {
 
 void appl::widget::VideoDisplay::stop() {
 	m_isPalying = false;
-	if (    m_decoder != nullptr
+	if (    m_decoder != null
 	     && m_decoder->getState() != gale::Thread::state::stop) {
 		APPL_ERROR("Stop Decoder");
 		m_decoder->stop();
 		m_currentTime = 0;
 	}
-	if (m_audioInterface != nullptr) {
+	if (m_audioInterface != null) {
 		APPL_ERROR("Stop audio interface");
 		// Stop audio interface
 		m_audioInterface->stop();
@@ -181,13 +181,13 @@ void appl::widget::VideoDisplay::onDraw() {
 		return;
 	}
 	/*
-	if (    m_resource[iii] == nullptr
-	     || m_resource2 == nullptr) {
+	if (    m_resource[iii] == null
+	     || m_resource2 == null) {
 		// this is a normale case ... the user can choice to have no image ...
 		return;
 	}
 	*/
-	if (m_GLprogram == nullptr) {
+	if (m_GLprogram == null) {
 		APPL_ERROR("No shader ...");
 		return;
 	}
@@ -197,7 +197,7 @@ void appl::widget::VideoDisplay::onDraw() {
 	m_GLprogram->uniformMatrix(m_GLMatrix, tmpMatrix);
 	// TextureID
 	
-	if (m_resource[m_useElement] != nullptr) {
+	if (m_resource[m_useElement] != null) {
 		m_GLprogram->setTexture0(m_GLtexID, m_resource[m_useElement]->getRendererId());
 	}
 	// position:
@@ -266,7 +266,7 @@ void appl::widget::VideoDisplay::onRegenerateDisplay() {
 	// set the somposition properties :
 	m_position = vec3(0,0,0);
 	
-	if (m_decoder != nullptr) {
+	if (m_decoder != null) {
 		ivec2 tmp = m_decoder->getSize();
 		vec2 realSize(tmp.x(), tmp.y());
 		vec2 displaySize = m_size;
@@ -299,7 +299,7 @@ void appl::widget::VideoDisplay::periodicEvent(const ewol::event::Time& _event) 
 		APPL_VERBOSE("tick: " << _event);
 		m_currentTime += _event.getDeltaCallDuration();
 	}
-	if (m_decoder == nullptr) {
+	if (m_decoder == null) {
 		return;
 	}
 	if (m_decoder->m_seekApply > echrono::Duration(-1)) {
@@ -308,7 +308,7 @@ void appl::widget::VideoDisplay::periodicEvent(const ewol::event::Time& _event) 
 		APPL_ERROR("Apply seek position : " << m_currentTime);
 		APPL_ERROR("==========================================================");
 		m_decoder->m_seekApply = echrono::Duration(-1);
-		if (m_audioInterface != nullptr) {
+		if (m_audioInterface != null) {
 			m_audioInterface->clearInternalBuffer();
 		}
 	}
@@ -320,7 +320,7 @@ void appl::widget::VideoDisplay::periodicEvent(const ewol::event::Time& _event) 
 		if (    idSlot != -1
 		     && m_currentTime > m_decoder->m_audioPool[idSlot].m_time) {
 			APPL_VERBOSE("Get Slot AUDIO " << m_currentTime << " > " << m_decoder->m_audioPool[idSlot].m_time);
-			if (m_audioInterface == nullptr) {
+			if (m_audioInterface == null) {
 				// start audio interface the first time we need it
 				APPL_ERROR("==========================================================");
 				APPL_ERROR("==               Presence of Audio: " << m_decoder->haveAudio() << "              ==");
@@ -330,14 +330,14 @@ void appl::widget::VideoDisplay::periodicEvent(const ewol::event::Time& _event) 
 					                                                m_decoder->audioGetChannelMap(),
 					                                                m_decoder->audioGetFormat(),
 					                                                "speaker");
-					if(m_audioInterface == nullptr) {
+					if(m_audioInterface == null) {
 						APPL_ERROR("Can not create Audio interface");
 					}
 					m_audioInterface->setReadwrite();
 					m_audioInterface->start();
 				}
 			}
-			if (m_audioInterface != nullptr) {
+			if (m_audioInterface != null) {
 				int32_t nbSample =   m_decoder->m_audioPool[idSlot].m_buffer.size()
 				                   / audio::getFormatBytes(m_decoder->m_audioPool[idSlot].m_format)
 				                   / m_decoder->m_audioPool[idSlot].m_map.size();
@@ -411,7 +411,7 @@ void appl::widget::VideoDisplay::periodicEvent(const ewol::event::Time& _event) 
 
 void appl::widget::VideoDisplay::seek(const echrono::Duration& _time) {
 	APPL_PRINT("seek request = " << _time);
-	if (m_decoder == nullptr) {
+	if (m_decoder == null) {
 		return;
 	}
 	m_decoder->seek(_time);

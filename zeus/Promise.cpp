@@ -35,8 +35,8 @@ zeus::Promise::Promise(uint32_t _transactionId, ememory::SharedPtr<zeus::Message
 }
 
 void zeus::Promise::remoteObjectDestroyed() {
-	auto answer = zeus::message::Answer::create(nullptr);
-	if (answer == nullptr) {
+	auto answer = zeus::message::Answer::create(null);
+	if (answer == null) {
 		return;
 	}
 	answer->setTransactionId(m_transactionId);
@@ -62,12 +62,12 @@ void zeus::Promise::andAll(zeus::Promise::Observer _callback) {
 	}
 	if (hasError() == false) {
 		ethread::UniqueLock lock(m_mutex);
-		if (m_callbackThen != nullptr) {
+		if (m_callbackThen != null) {
 			m_callbackThen(zeus::FutureBase(sharedFromThis()));
 		}
 	} else {
 		ethread::UniqueLock lock(m_mutex);
-		if (m_callbackElse != nullptr) {
+		if (m_callbackElse != null) {
 			m_callbackElse(zeus::FutureBase(sharedFromThis()));
 		}
 	}
@@ -85,7 +85,7 @@ void zeus::Promise::andThen(zeus::Promise::Observer _callback) {
 		return;
 	}
 	ethread::UniqueLock lock(m_mutex);
-	if (m_callbackThen == nullptr) {
+	if (m_callbackThen == null) {
 		return;
 	}
 	m_callbackThen(zeus::FutureBase(sharedFromThis()));
@@ -103,7 +103,7 @@ void zeus::Promise::andElse(zeus::Promise::Observer _callback) {
 		return;
 	}
 	ethread::UniqueLock lock(m_mutex);
-	if (m_callbackElse == nullptr) {
+	if (m_callbackElse == null) {
 		return;
 	}
 	m_callbackElse(zeus::FutureBase(sharedFromThis()));
@@ -138,8 +138,8 @@ bool zeus::Promise::setMessage(ememory::SharedPtr<zeus::Message> _value) {
 		}
 		ethread::UniqueLock lock(m_mutex);
 		// notification of a progresion ...
-		if (callback != nullptr) {
-			if (_value == nullptr) {
+		if (callback != null) {
+			if (_value == null) {
 				return true;
 			}
 			callback(ememory::staticPointerCast<zeus::message::Event>(_value));
@@ -154,7 +154,7 @@ bool zeus::Promise::setMessage(ememory::SharedPtr<zeus::Message> _value) {
 	{
 		ethread::UniqueLock lock(m_mutex);
 		m_message = _value;
-		if (m_message == nullptr) {
+		if (m_message == null) {
 			return true;
 		}
 		if (m_message->getPartFinish() == false) {
@@ -168,7 +168,7 @@ bool zeus::Promise::setMessage(ememory::SharedPtr<zeus::Message> _value) {
 			ethread::UniqueLock lock(m_mutex);
 			callback = etk::move(m_callbackThen);
 		}
-		if (callback != nullptr) {
+		if (callback != null) {
 			bool ret = callback(zeus::FutureBase(sharedFromThis()));
 			{
 				ethread::UniqueLock lock(m_mutex);
@@ -182,7 +182,7 @@ bool zeus::Promise::setMessage(ememory::SharedPtr<zeus::Message> _value) {
 			ethread::UniqueLock lock(m_mutex);
 			callback = m_callbackElse;
 		}
-		if (callback != nullptr) {
+		if (callback != null) {
 			bool ret = callback(zeus::FutureBase(sharedFromThis()));
 			{
 				ethread::UniqueLock lock(m_mutex);
@@ -204,7 +204,7 @@ uint32_t zeus::Promise::getSource() const {
 
 bool zeus::Promise::hasError() const {
 	ethread::UniqueLock lock(m_mutex);
-	if (m_message == nullptr) {
+	if (m_message == null) {
 		return true;
 	}
 	if (m_message->getType() != zeus::message::type::answer) {
@@ -215,7 +215,7 @@ bool zeus::Promise::hasError() const {
 
 etk::String zeus::Promise::getErrorType() const {
 	ethread::UniqueLock lock(m_mutex);
-	if (m_message == nullptr) {
+	if (m_message == null) {
 		return "NULL_PTR";
 	}
 	if (m_message->getType() != zeus::message::type::answer) {
@@ -226,8 +226,8 @@ etk::String zeus::Promise::getErrorType() const {
 
 etk::String zeus::Promise::getErrorHelp() const {
 	ethread::UniqueLock lock(m_mutex);
-	if (m_message == nullptr) {
-		return "This is a nullptr future";
+	if (m_message == null) {
+		return "This is a null future";
 	}
 	if (m_message->getType() != zeus::message::type::answer) {
 		return "This answer is not a anwser type";
@@ -238,7 +238,7 @@ etk::String zeus::Promise::getErrorHelp() const {
 
 bool zeus::Promise::isFinished() const {
 	ethread::UniqueLock lock(m_mutex);
-	if (m_message == nullptr) {
+	if (m_message == null) {
 		// in this case, we are waiting for an answer that the first packet is not arrived
 		return false;
 	}

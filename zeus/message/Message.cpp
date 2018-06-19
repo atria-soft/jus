@@ -30,7 +30,7 @@ void zeus::Message::appendMessageData(ememory::SharedPtr<zeus::message::Data> _o
 }
 
 void zeus::Message::appendMessage(ememory::SharedPtr<zeus::Message> _obj) {
-	if (_obj == nullptr) {
+	if (_obj == null) {
 		return;
 	}
 	if (_obj->getType() != zeus::message::type::data) {
@@ -68,8 +68,8 @@ void zeus::Message::clear() {
 
 etk::Stream& zeus::operator <<(etk::Stream& _os, const ememory::SharedPtr<zeus::Message>& _obj) {
 	_os << "zeus::Message: ";
-	if (_obj == nullptr) {
-		_os << "nullptr";
+	if (_obj == null) {
+		_os << "null";
 	} else {
 		_obj->generateDisplay(_os);
 	}
@@ -197,17 +197,17 @@ ememory::SharedPtr<zeus::Message> zeus::Message::create(ememory::SharedPtr<zeus:
 	zeus::message::headerBin header;
 	if (_buffer.size() < sizeof(zeus::message::headerBin)) {
 		ZEUS_ERROR("wrong size of the buffer: " << _buffer.size() << " must be " << sizeof(zeus::message::headerBin));
-		return nullptr;
+		return null;
 	}
 	memcpy(reinterpret_cast<char*>(&header), &_buffer[0], sizeof(zeus::message::headerBin));
 	enum zeus::message::type type = zeus::message::getTypeFromInt(uint16_t(header.flags & 0x07));
 	switch (type) {
 		case zeus::message::type::unknow:
-			return nullptr;
+			return null;
 		case zeus::message::type::call: {
 				ememory::SharedPtr<zeus::message::Call> value = zeus::message::Call::create(_iface);
-				if (value == nullptr) {
-					return nullptr;
+				if (value == null) {
+					return null;
 				}
 				value->setTransactionId(header.transactionId);
 				value->setSourceId(header.sourceId);
@@ -222,8 +222,8 @@ ememory::SharedPtr<zeus::Message> zeus::Message::create(ememory::SharedPtr<zeus:
 			break;
 		case zeus::message::type::answer: {
 				ememory::SharedPtr<zeus::message::Answer> value = zeus::message::Answer::create(_iface);
-				if (value == nullptr) {
-					return nullptr;
+				if (value == null) {
+					return null;
 				}
 				value->setTransactionId(header.transactionId);
 				value->setSourceId(header.sourceId);
@@ -238,8 +238,8 @@ ememory::SharedPtr<zeus::Message> zeus::Message::create(ememory::SharedPtr<zeus:
 			break;
 		case zeus::message::type::data: {
 				ememory::SharedPtr<zeus::message::Data> value = zeus::message::Data::create(_iface);
-				if (value == nullptr) {
-					return nullptr;
+				if (value == null) {
+					return null;
 				}
 				value->setTransactionId(header.transactionId);
 				value->setSourceId(header.sourceId);
@@ -254,8 +254,8 @@ ememory::SharedPtr<zeus::Message> zeus::Message::create(ememory::SharedPtr<zeus:
 			break;
 		case zeus::message::type::event: {
 				ememory::SharedPtr<zeus::message::Event> value = zeus::message::Event::create(_iface);
-				if (value == nullptr) {
-					return nullptr;
+				if (value == null) {
+					return null;
 				}
 				value->setTransactionId(header.transactionId);
 				value->setSourceId(header.sourceId);
@@ -269,6 +269,6 @@ ememory::SharedPtr<zeus::Message> zeus::Message::create(ememory::SharedPtr<zeus:
 			}
 			break;
 	}
-	return nullptr;
+	return null;
 }
 

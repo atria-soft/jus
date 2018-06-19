@@ -22,8 +22,8 @@ ememory::SharedPtr<zeus::message::Call> zeus::createBaseCall(const ememory::Shar
                                                              const etk::String& _functionName) {
 	ememory::SharedPtr<zeus::message::Call> obj;
 	obj = zeus::message::Call::create(_iface);
-	if (obj == nullptr) {
-		return nullptr;
+	if (obj == null) {
+		return null;
 	}
 	obj->setSource(_source);
 	obj->setDestination(_destination);
@@ -58,8 +58,8 @@ zeus::WebServer::WebServer() :
   m_localIdObjectIncrement(1),
   m_interfaceId(0),
   m_transmissionId(1),
-  m_observerElement(nullptr),
-  m_threadAsync(nullptr) {
+  m_observerElement(null),
+  m_threadAsync(null) {
 	m_interfaceId = interfaceId++;
 	m_threadAsyncRunning = false;
 	
@@ -72,8 +72,8 @@ zeus::WebServer::WebServer(enet::Tcp _connection, bool _isServer) :
   m_localIdObjectIncrement(1),
   m_interfaceId(0),
   m_transmissionId(1),
-  m_observerElement(nullptr),
-  m_threadAsync(nullptr) {
+  m_observerElement(null),
+  m_threadAsync(null) {
 	m_interfaceId = interfaceId++;
 	m_threadAsyncRunning = false;
 	setInterface(etk::move(_connection), _isServer);
@@ -131,7 +131,7 @@ void zeus::WebServer::interfaceRemoved(etk::Vector<uint16_t> _list) {
 		    it != m_listRemoteObject.end();
 		    /* no increment */) {
 			ememory::SharedPtr<zeus::ObjectRemoteBase> tmp = it->lock();
-			if (tmp == nullptr) {
+			if (tmp == null) {
 				it = m_listRemoteObject.erase(it);
 				continue;
 			}
@@ -149,7 +149,7 @@ void zeus::WebServer::interfaceRemoved(etk::Vector<uint16_t> _list) {
 		for (auto it=m_listObject.begin();
 		    it != m_listObject.end();
 		    /* no increment */) {
-			if (*it == nullptr) {
+			if (*it == null) {
 				it = m_listObject.erase(it);
 				continue;
 			}
@@ -184,7 +184,7 @@ void zeus::WebServer::connect(bool _async){
 	ZEUS_DEBUG("connect [START]");
 	m_threadAsyncRunning = true;
 	m_threadAsync = ETK_NEW(ethread::Thread, [&](){ threadAsyncCallback();}, "webServerAsync");
-	if (m_threadAsync == nullptr) {
+	if (m_threadAsync == null) {
 		m_threadAsyncRunning = false;
 		ZEUS_ERROR("creating async sender thread!");
 		return;
@@ -209,10 +209,10 @@ void zeus::WebServer::disconnect(bool _inThreadStop){
 		m_connection.controlClose();
 	}
 	m_connection.stop(_inThreadStop);
-	if (m_threadAsync != nullptr) {
+	if (m_threadAsync != null) {
 		m_threadAsync->join();
 		ETK_DELETE(ethread::Thread, m_threadAsync);
-		m_threadAsync = nullptr;
+		m_threadAsync = null;
 	}
 	ZEUS_DEBUG("disconnect [STOP]");
 }
@@ -248,7 +248,7 @@ class SendAsyncBinary {
 			}
 			if (m_async.size() == 0) {
 				ememory::SharedPtr<zeus::message::Data> obj = zeus::message::Data::create(_interface->sharedFromThis());
-				if (obj == nullptr) {
+				if (obj == null) {
 					return true;
 				}
 				//obj->setInterfaceId(m_interfaceId);
@@ -304,7 +304,7 @@ etk::String zeus::WebServer::onReceiveUri(const etk::String& _uri, const etk::Ve
 		return "CLOSE";
 	}
 	// TODO : Add better return on specific user ...
-	if (m_observerRequestUri != nullptr) {
+	if (m_observerRequestUri != null) {
 		etk::Map<etk::String,etk::String> options;
 		etk::String uri;
 		size_t pos = _uri.find('?');
@@ -339,7 +339,7 @@ void zeus::WebServer::onReceiveData(etk::Vector<uint8_t>& _frame, bool _isBinary
 		return;
 	}
 	ememory::SharedPtr<zeus::Message> dataRaw = zeus::Message::create(sharedFromThis(), _frame);
-	if (dataRaw == nullptr) {
+	if (dataRaw == null) {
 		ZEUS_ERROR("Message Allocation ERROR ... ");
 		disconnect(true);
 		return;
@@ -365,7 +365,7 @@ void zeus::WebServer::newMessage(ememory::SharedPtr<zeus::Message> _buffer) {
 	// if an adress id different ... just transmit it ... 
 	if (m_localAddress != _buffer->getDestinationId()) {
 		// TODO : Change the callback ...
-		if (m_observerElement != nullptr) {
+		if (m_observerElement != null) {
 			m_processingPool.async(
 			    [=](){
 			    	// not a pending call ==> simple event or call ...
@@ -386,7 +386,7 @@ void zeus::WebServer::newMessage(ememory::SharedPtr<zeus::Message> _buffer) {
 		//ethread::UniqueLock lock(m_mutex);
 		auto it = m_listPartialMessage.begin();
 		while (it != m_listPartialMessage.end()) {
-			if (*it == nullptr) {
+			if (*it == null) {
 				it = m_listPartialMessage.erase(it);
 				continue;
 			}
@@ -442,7 +442,7 @@ void zeus::WebServer::newMessage(ememory::SharedPtr<zeus::Message> _buffer) {
 			ethread::UniqueLock lock(m_listObjectMutex);
 			// Call local object
 			for (auto &it : m_listObject) {
-				if (it == nullptr) {
+				if (it == null) {
 					continue;
 				}
 				if (it->getFullId() == dest) {
@@ -464,7 +464,7 @@ void zeus::WebServer::newMessage(ememory::SharedPtr<zeus::Message> _buffer) {
 			// call local map object on remote object
 			for (auto &it : m_listRemoteObject) {
 				ememory::SharedPtr<zeus::ObjectRemoteBase> tmp = it.lock();
-				if (tmp == nullptr) {
+				if (tmp == null) {
 					continue;
 				}
 				if (tmp->getFullId() == dest) {
@@ -481,7 +481,7 @@ void zeus::WebServer::newMessage(ememory::SharedPtr<zeus::Message> _buffer) {
 				}
 			}
 		}
-		if (m_observerElement != nullptr) {
+		if (m_observerElement != null) {
 			m_processingPool.async(
 			    [=](){
 			    	// not a pending call ==> simple event or call ...
@@ -533,7 +533,7 @@ void zeus::WebServer::listObjects() {
 	{
 		ethread::UniqueLock lock(m_listObjectMutex);
 		for (auto &it : m_listObject) {
-			if (it == nullptr) {
+			if (it == null) {
 				continue;
 			}
 			it->display();
@@ -543,7 +543,7 @@ void zeus::WebServer::listObjects() {
 		ethread::UniqueLock lock(m_listRemoteObjectMutex);
 		for (auto &it : m_listRemoteObject) {
 			ememory::SharedPtr<zeus::ObjectRemoteBase> tmpp = it.lock();
-			if (tmpp == nullptr) {
+			if (tmpp == null) {
 				continue;
 			}
 			tmpp->display();
@@ -564,7 +564,7 @@ void zeus::WebServer::cleanDeadObject() {
 		for (auto it=m_listObject.begin();
 		     it!=m_listObject.end();
 		     /* no auto increment*/) {
-			if (*it == nullptr) {
+			if (*it == null) {
 				it = m_listObject.erase(it);
 				continue;
 			}
@@ -600,7 +600,7 @@ bool zeus::WebServer::transferRemoteObjectOwnership(uint16_t _objectAddress, uin
 	{
 		ethread::UniqueLock lock(m_listObjectMutex);
 		for (auto &it : m_listObject) {
-			if (it == nullptr) {
+			if (it == null) {
 				continue;
 			}
 			if (it->getObjectId() == _objectAddress) {
@@ -612,7 +612,7 @@ bool zeus::WebServer::transferRemoteObjectOwnership(uint16_t _objectAddress, uin
 		ethread::UniqueLock lock(m_listRemoteObjectMutex);
 		for (auto &it : m_listRemoteObject) {
 			ememory::SharedPtr<zeus::ObjectRemoteBase> tmp = it.lock();
-			if (tmp == nullptr) {
+			if (tmp == null) {
 				continue;
 			}
 			if (tmp->getObjectId() == _objectAddress) {
@@ -633,7 +633,7 @@ bool zeus::WebServer::removeObjectOwnership(uint16_t _objectAddress, uint32_t _s
 	{
 		ethread::UniqueLock lock(m_listObjectMutex);
 		for (auto &it : m_listObject) {
-			if (it == nullptr) {
+			if (it == null) {
 				continue;
 			}
 			ZEUS_INFO("1 Remove ownership of " << it->getObjectId() << " == " << _objectAddress);
@@ -646,7 +646,7 @@ bool zeus::WebServer::removeObjectOwnership(uint16_t _objectAddress, uint32_t _s
 		ethread::UniqueLock lock(m_listRemoteObjectMutex);
 		for (auto &it : m_listRemoteObject) {
 			ememory::SharedPtr<zeus::ObjectRemoteBase> tmp = it.lock();
-			if (tmp == nullptr) {
+			if (tmp == null) {
 				continue;
 			}
 			ZEUS_INFO("2 Remove ownership of " << tmp->getObjectId() << " == " << _objectAddress);
@@ -719,7 +719,7 @@ zeus::FutureBase zeus::WebServer::callBinary(ememory::SharedPtr<zeus::Message> _
 
 void zeus::WebServer::answerError(uint32_t _clientTransactionId, uint32_t _source, uint32_t _destination, const etk::String& _errorValue, const etk::String& _errorHelp) {
 	auto answer = zeus::message::Answer::create(sharedFromThis());
-	if (answer == nullptr) {
+	if (answer == null) {
 		return;
 	}
 	answer->setTransactionId(_clientTransactionId);
@@ -731,7 +731,7 @@ void zeus::WebServer::answerError(uint32_t _clientTransactionId, uint32_t _sourc
 
 void zeus::WebServer::answerVoid(uint32_t _clientTransactionId, uint32_t _source, uint32_t _destination) {
 	auto answer = zeus::message::Answer::create(sharedFromThis());
-	if (answer == nullptr) {
+	if (answer == null) {
 		return;
 	}
 	answer->setTransactionId(_clientTransactionId);

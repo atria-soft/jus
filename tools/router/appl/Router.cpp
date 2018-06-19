@@ -75,7 +75,7 @@ namespace appl {
 			bool m_service;
 		public:
 			TcpServerInput(appl::Router* _router, bool _service) :
-			  m_thread(nullptr),
+			  m_thread(null),
 			  m_threadRunning(false),
 			  m_router(_router),
 			  m_service(_service) {
@@ -88,21 +88,21 @@ namespace appl {
 				m_interface.link();
 				m_threadRunning = true;
 				m_thread = ETK_NEW(ethread::Thread, [&](){ threadCallback();}, "routerListener");
-				if (m_thread == nullptr) {
+				if (m_thread == null) {
 					m_threadRunning = false;
 					ZEUS_ERROR("creating callback thread!");
 					return;
 				}
 			}
 			void stop() {
-				if (m_thread != nullptr) {
+				if (m_thread != null) {
 					m_threadRunning = false;
 				}
 				m_interface.unlink();
-				if (m_thread != nullptr) {
+				if (m_thread != null) {
 					m_thread->join();
 					ETK_DELETE(ethread::Thread, m_thread);
-					m_thread = nullptr;
+					m_thread = null;
 				}
 			}
 			void threadCallback() {
@@ -168,7 +168,7 @@ void appl::Router::stop() {
 
 bool appl::Router::userIsConnected(const etk::String& _userName) {
 	for (auto &it : m_GateWayList) {
-		if (it == nullptr) {
+		if (it == null) {
 			continue;
 		}
 		if (it->getName() != _userName) {
@@ -187,7 +187,7 @@ extern "C" {
 ememory::SharedPtr<appl::GateWayInterface> appl::Router::get(const etk::String& _userName) {
 	// TODO : Start USer only when needed, not get it all time started...
 	for (auto &it : m_GateWayList) {
-		if (it == nullptr) {
+		if (it == null) {
 			continue;
 		}
 		if (it->getName() != _userName) {
@@ -210,9 +210,9 @@ ememory::SharedPtr<appl::GateWayInterface> appl::Router::get(const etk::String& 
 				cmd += "&";
 				APPL_ERROR("Start " << cmd);
 				it.m_subProcess = popen(cmd.c_str(), "r");
-				if (it.m_subProcess == nullptr) {
+				if (it.m_subProcess == null) {
 					perror("popen");
-					return nullptr;
+					return null;
 				}
 				// just trash IO ...
 				//pclose(it.m_subProcess);
@@ -266,7 +266,7 @@ ememory::SharedPtr<appl::GateWayInterface> appl::Router::get(const etk::String& 
 			while (nbCheckDelayMax-- > 0) {
 				ethread::sleepMilliSeconds((25));
 				for (auto &it : m_GateWayList) {
-					if (it == nullptr) {
+					if (it == null) {
 						continue;
 					}
 					if (it->getName() != _userName) {
@@ -279,7 +279,7 @@ ememory::SharedPtr<appl::GateWayInterface> appl::Router::get(const etk::String& 
 			break;
 		}
 	}
-	return nullptr;
+	return null;
 }
 
 
@@ -287,7 +287,7 @@ etk::Vector<etk::String> appl::Router::getAllUserName() {
 	etk::Vector<etk::String> out;
 	/*
 	for (auto &it : m_GateWayList) {
-		if (it == nullptr) {
+		if (it == null) {
 			continue;
 		}
 		out.pushBack(it->getName());
@@ -302,7 +302,7 @@ void appl::Router::cleanIO() {
 	store_db();
 	auto it = m_GateWayList.begin();
 	while (it != m_GateWayList.end()) {
-		if (*it != nullptr) {
+		if (*it != null) {
 			if ((*it)->isAlive() == false) {
 				it = m_GateWayList.erase(it);
 				continue;
@@ -315,7 +315,7 @@ void appl::Router::cleanIO() {
 	}
 	auto it2 = m_clientList.begin();
 	while (it2 != m_clientList.end()) {
-		if (*it2 != nullptr) {
+		if (*it2 != null) {
 			if ((*it2)->isAlive() == false) {
 				(*it2)->stop();
 				APPL_ERROR("count = " << (*it2).useCount() << " list.size()=" << m_clientList.size());

@@ -22,7 +22,7 @@ namespace appl {
 			bool m_serviceAccess;
 		public:
 			TcpServerInput(appl::GateWay* _gateway, bool _serviceAccess) :
-			  m_thread(nullptr),
+			  m_thread(null),
 			  m_threadRunning(false),
 			  m_gateway(_gateway),
 			  m_serviceAccess(_serviceAccess) {
@@ -36,21 +36,21 @@ namespace appl {
 				m_threadRunning = true;
 				APPL_INFO("Start waiting on " << _host << " " << _port);
 				m_thread = ETK_NEW(ethread::Thread, [&](){ threadCallback();}, "GatewayListening");
-				if (m_thread == nullptr) {
+				if (m_thread == null) {
 					m_threadRunning = false;
 					APPL_ERROR("creating callback thread!");
 					return;
 				}
 			}
 			void stop() {
-				if (m_thread != nullptr) {
+				if (m_thread != null) {
 					m_threadRunning = false;
 				}
 				m_interface.unlink();
-				if (m_thread != nullptr) {
+				if (m_thread != null) {
 					m_thread->join();
 					ETK_DELETE(ethread::Thread, m_thread);
-					m_thread = nullptr;
+					m_thread = null;
 				}
 			}
 			void threadCallback() {
@@ -158,7 +158,7 @@ void appl::GateWay::stop() {
 
 bool appl::GateWay::serviceExist(const etk::String& _service) {
 	for (auto &it : m_listIO) {
-		if (it == nullptr) {
+		if (it == null) {
 			continue;
 		}
 		if (it->isConnected() == false) {
@@ -175,7 +175,7 @@ bool appl::GateWay::serviceExist(const etk::String& _service) {
 
 uint16_t appl::GateWay::serviceClientIdGet(const etk::String& _service) {
 	for (auto &it : m_listIO) {
-		if (it == nullptr) {
+		if (it == null) {
 			continue;
 		}
 		if (it->isConnected() == false) {
@@ -195,7 +195,7 @@ etk::Vector<etk::String> appl::GateWay::getAllServiceName() {
 	etk::Vector<etk::String> out;
 	// TODO : Change this it is old and deprecated ...
 	for (auto &it : m_listIO) {
-		if (it == nullptr) {
+		if (it == null) {
 			continue;
 		}
 		if (it->isConnected() == false) {
@@ -213,7 +213,7 @@ bool appl::GateWay::send(ememory::SharedPtr<zeus::Message> _data) {
 	auto it = m_listIO.begin();
 	uint16_t id = _data->getDestinationId();
 	while (it != m_listIO.end()) {
-		if (*it == nullptr) {
+		if (*it == null) {
 			continue;
 		}
 		if ((*it)->isConnected() == false) {
@@ -235,7 +235,7 @@ void appl::GateWay::cleanIO() {
 	{
 		auto it = m_listIO.begin();
 		while (it != m_listIO.end()) {
-			if (*it != nullptr) {
+			if (*it != null) {
 				if ((*it)->isConnected() == false) {
 					tmpIDToRemove.pushBack((*it)->getId());
 					it = m_listIO.erase(it);
@@ -252,7 +252,7 @@ void appl::GateWay::cleanIO() {
 	{
 		auto it = m_listTemporaryIO.begin();
 		while (it != m_listTemporaryIO.end()) {
-			if (*it != nullptr) {
+			if (*it != null) {
 				if ((*it)->isConnected() == false) {
 					it = m_listTemporaryIO.erase(it);
 					continue;
@@ -265,13 +265,13 @@ void appl::GateWay::cleanIO() {
 		}
 	}
 	// Clean router IO
-	if (m_routerClient != nullptr) {
+	if (m_routerClient != null) {
 		m_routerClient->clean();
 	}
 	if (tmpIDToRemove.size() != 0) {
 		APPL_TODO("Remove Ids ... " << tmpIDToRemove);
 		for (auto &it : m_listIO) {
-			if (it == nullptr) {
+			if (it == null) {
 				continue;
 			}
 			if (it->isConnected() == false) {
@@ -286,11 +286,11 @@ void appl::GateWay::cleanIO() {
 	}
 	// Simply display All active objkect in all interfaces:
 	for( auto &it : m_listIO) {
-		if (it == nullptr) {
+		if (it == null) {
 			continue;
 		}
 		zeus::WebServer* tmpp = it->getInterface();
-		if (tmpp == nullptr) {
+		if (tmpp == null) {
 			continue;
 		}
 		tmpp->listObjects();
@@ -341,7 +341,7 @@ bool appl::GateWay::checkIsAlive(const echrono::Duration& _timeout) {
 		return true;
 	}
 	// If no router ==> dead
-	if (m_routerClient == nullptr) {
+	if (m_routerClient == null) {
 		return false;
 	}
 	// check only for smallest time-out : 1 second.

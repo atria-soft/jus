@@ -187,7 +187,7 @@ namespace appl {
 			
 			etk::Vector<etk::Pair<float,float>> getDownloadPart() {
 				etk::Vector<etk::Pair<float,float>> out;
-				if (m_remote == nullptr) {
+				if (m_remote == null) {
 					return out;
 				}
 				etk::Vector<etk::Pair<uint32_t,uint32_t>> vals = m_remote->getDownloadPart();

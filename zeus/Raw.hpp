@@ -40,12 +40,12 @@ namespace zeus {
 			uint32_t size() const;
 			/**
 			 * @brief Get a pointer on the data
-			 * @return a pointer on the data (or nullptr)
+			 * @return a pointer on the data (or null)
 			 */
 			const uint8_t* data() const;
 			/**
 			 * @brief Get a writable pointer on the data
-			 * @return a pointer on the data (or nullptr)
+			 * @return a pointer on the data (or null)
 			 */
 			uint8_t* writeData();
 	};

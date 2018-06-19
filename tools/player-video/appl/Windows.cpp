@@ -34,7 +34,7 @@ static etk::String g_baseDBName = "USERDATA:config.json";
 void appl::Windows::store_db() {
 	APPL_DEBUG("Store database [START]");
 	ejson::Document database;
-	if (m_clientProp != nullptr) {
+	if (m_clientProp != null) {
 		database.add("access", m_clientProp->toJson());
 	}
 	bool retGenerate = database.storeSafe(g_baseDBName);
@@ -47,15 +47,15 @@ void appl::Windows::load_db() {
 	if (ret == false) {
 		APPL_WARNING("    ==> LOAD error");
 	}
-	if (m_clientProp == nullptr) {
+	if (m_clientProp == null) {
 		m_clientProp = ememory::makeShared<appl::ClientProperty>();
-		if (m_clientProp == nullptr) {
+		if (m_clientProp == null) {
 			APPL_ERROR(" can not allocate the pointer of data ==> must auto kill");
 			autoDestroy();
 			return;
 		}
 	}
-	if (m_clientProp != nullptr) {
+	if (m_clientProp != null) {
 		m_clientProp->fromJson(database["access"].toObject());
 	}
 }
@@ -72,7 +72,7 @@ void appl::Windows::init() {
 	ewol::widget::Windows::init();
 	load_db();
 	m_composer = ewol::widget::Composer::create();
-	if (m_composer == nullptr) {
+	if (m_composer == null) {
 		APPL_CRITICAL(" An error occured ... in the windows creatrion ...");
 		return;
 	}
@@ -82,7 +82,7 @@ void appl::Windows::init() {
 	drawWidgetTree();
 	
 	m_listViewer = ememory::dynamicPointerCast<appl::widget::ListViewer>(m_composer->getSubObjectNamed("ws-name-list-viewer"));
-	if (m_listViewer != nullptr) {
+	if (m_listViewer != null) {
 		m_listViewer->signalSelect.connect(sharedFromThis(), &appl::Windows::onCallbackSelectMedia);
 	}
 	
@@ -98,21 +98,21 @@ void appl::Windows::init() {
 	shortCutAdd("F11",          "menu:full-screen");
 	signalShortcut.connect(sharedFromThis(), &appl::Windows::onCallbackShortCut);
 	// TODO: try to connect the last connection availlable ...
-	if (m_clientProp == nullptr) {
+	if (m_clientProp == null) {
 		onCallbackMenuEvent("menu:connect");
 	} else {
 		m_clientProp->connect();
 		if (m_clientProp->getConnection().isAlive() == false) {
 			onCallbackMenuEvent("menu:connect");
 		} else {
-			if (m_listViewer != nullptr) {
+			if (m_listViewer != null) {
 				m_listViewer->setClientProperty(m_clientProp);
 				m_listViewer->searchElements();
 			}
 		}
 	}
 	m_player = ememory::dynamicPointerCast<appl::widget::Player>(m_composer->getSubObjectNamed("ws-name-player"));
-	if (m_player != nullptr) {
+	if (m_player != null) {
 		m_player->signalPrevious.connect(sharedFromThis(), &appl::Windows::onCallbackPlayerPrevious);
 		m_player->signalNext.connect(sharedFromThis(), &appl::Windows::onCallbackPlayerNext);
 		m_player->signalFinished.connect(sharedFromThis(), &appl::Windows::onCallbackPlayerFinished);
@@ -127,12 +127,12 @@ void appl::Windows::onCallbackShortCut(const etk::String& _value) {
 
 void appl::Windows::onCallbackMenuEvent(const etk::String& _value) {
 	APPL_WARNING("Event from Menu : " << _value);
-	if (m_player != nullptr) {
+	if (m_player != null) {
 		m_player->stop();
 	}
 	if (_value == "menu:connect") {
 		appl::widget::ConnectionShared tmpWidget = appl::widget::Connection::create();
-		if (tmpWidget == nullptr) {
+		if (tmpWidget == null) {
 			APPL_ERROR("Can not open File chooser !!! ");
 			return;
 		}
@@ -204,20 +204,20 @@ void appl::Windows::onCallbackMenuEvent(const etk::String& _value) {
 
 void appl::Windows::onCallbackConnectionValidate(const ememory::SharedPtr<ClientProperty>& _prop) {
 	m_clientProp = _prop;
-	if (m_clientProp == nullptr) {
+	if (m_clientProp == null) {
 		// TODO: set back in public mode ...
 		return;
 	}
 	store_db();
 	// Update viewer to show all ...
-	if (m_listViewer != nullptr) {
+	if (m_listViewer != null) {
 		m_listViewer->setClientProperty(m_clientProp);
 		m_listViewer->searchElements();
 	}
 }
 void appl::Windows::onCallbackConnectionError(const ememory::SharedPtr<ClientProperty>& _prop) {
 	m_clientProp = _prop;
-	if (m_clientProp == nullptr) {
+	if (m_clientProp == null) {
 		// TODO: set back in public mode ...
 		return;
 	}
@@ -235,7 +235,7 @@ void appl::Windows::onCallbackPrevious() {
 		m_id = m_list.size()-1;
 	}
 	ememory::SharedPtr<appl::widget::VideoDisplay> tmpDisp = ememory::dynamicPointerCast<appl::widget::VideoDisplay>(getSubObjectNamed("displayer"));
-	if (tmpDisp != nullptr) {
+	if (tmpDisp != null) {
 		// stop previous (if needed)
 		tmpDisp->stop();
 		// Set new file:
@@ -261,7 +261,7 @@ void appl::Windows::onCallbackNext() {
 		m_id = 0;
 	}
 	ememory::SharedPtr<appl::widget::VideoDisplay> tmpDisp = ememory::dynamicPointerCast<appl::widget::VideoDisplay>(getSubObjectNamed("displayer"));
-	if (tmpDisp != nullptr) {
+	if (tmpDisp != null) {
 		// stop previous (if needed)
 		tmpDisp->stop();
 		// Set new file:
@@ -282,7 +282,7 @@ void appl::Windows::addFile(const etk::String& _file) {
 	if (m_list.size() == 1) {
 		m_id = 0;
 		ememory::SharedPtr<appl::widget::VideoDisplay> tmpDisp = ememory::dynamicPointerCast<appl::widget::VideoDisplay>(getSubObjectNamed("displayer"));
-		if (tmpDisp != nullptr) {
+		if (tmpDisp != null) {
 			tmpDisp->setFile(m_list[m_id]);
 			echrono::Duration time = tmpDisp->getDuration();
 			APPL_DEBUG("duration = " << time << "  " << etk::toString(time.toSeconds()));
@@ -294,16 +294,16 @@ void appl::Windows::addFile(const etk::String& _file) {
 
 void appl::Windows::onCallbackSelectMedia(const uint32_t& _value) {
 	ewol::propertySetOnObjectNamed("view-selection", "select", "ws-name-player");
-	if (m_player != nullptr) {
+	if (m_player != null) {
 		m_player->playStream(m_clientProp, _value);
 	}
 }
 
 void appl::Windows::onCallbackPlayerPrevious() {
-	if (m_player != nullptr) {
+	if (m_player != null) {
 		m_player->stop();
 	}
-	if (m_listViewer != nullptr) {
+	if (m_listViewer != null) {
 		if (m_listViewer->previous() == false) {
 			ewol::propertySetOnObjectNamed("view-selection", "select", "ws-name-list-viewer");
 		}
@@ -311,10 +311,10 @@ void appl::Windows::onCallbackPlayerPrevious() {
 }
 
 void appl::Windows::onCallbackPlayerNext() {
-	if (m_player != nullptr) {
+	if (m_player != null) {
 		m_player->stop();
 	}
-	if (m_listViewer != nullptr) {
+	if (m_listViewer != null) {
 		if (m_listViewer->next() == false) {
 			ewol::propertySetOnObjectNamed("view-selection", "select", "ws-name-list-viewer");
 		}
@@ -322,7 +322,7 @@ void appl::Windows::onCallbackPlayerNext() {
 }
 
 void appl::Windows::onCallbackPlayerFinished() {
-	if (m_player != nullptr) {
+	if (m_player != null) {
 		m_player->stop();
 	}
 	ewol::propertySetOnObjectNamed("view-selection", "select", "ws-name-list-viewer");

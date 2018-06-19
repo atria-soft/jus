@@ -46,10 +46,10 @@ class PlugginAccess {
 		PlugginAccess(const etk::String& _name, const etk::String& _fullName) :
 		  m_name(_name),
 		  m_fullName(_fullName),
-		  m_handle(nullptr),
-		  m_SERVICE_IO_init(nullptr),
-		  m_SERVICE_IO_uninit(nullptr),
-		  m_SERVICE_IO_instanciate(nullptr) {
+		  m_handle(null),
+		  m_SERVICE_IO_init(null),
+		  m_SERVICE_IO_uninit(null),
+		  m_SERVICE_IO_instanciate(null) {
 			etk::String srv = etk::FSNodeGetApplicationPath() + "/../lib/lib" + m_fullName + "-impl.so";
 			APPL_PRINT("++++++++++++++++++++++++++++++++");
 			APPL_PRINT("++ srv: '" << m_name << "' ");
@@ -61,29 +61,29 @@ class PlugginAccess {
 				APPL_ERROR("Can not load Lbrary:" << dlerror());
 				return;
 			}
-			char *error = nullptr;
+			char *error = null;
 			m_SERVICE_IO_init = (SERVICE_IO_init_t)dlsym(m_handle, "SERVICE_IO_init");
 			error = dlerror();
-			if (error != nullptr) {
-				m_SERVICE_IO_init = nullptr;
+			if (error != null) {
+				m_SERVICE_IO_init = null;
 				APPL_WARNING("Can not function SERVICE_IO_init :" << error);
 			}
 			m_SERVICE_IO_uninit = (SERVICE_IO_uninit_t)dlsym(m_handle, "SERVICE_IO_uninit");
 			error = dlerror();
-			if (error != nullptr) {
-				m_SERVICE_IO_uninit = nullptr;
+			if (error != null) {
+				m_SERVICE_IO_uninit = null;
 				APPL_WARNING("Can not function SERVICE_IO_uninit :" << error);
 			}
 			m_SERVICE_IO_peridic_call = (SERVICE_IO_peridic_call_t)dlsym(m_handle, "SERVICE_IO_peridic_call");
 			error = dlerror();
-			if (error != nullptr) {
-				m_SERVICE_IO_uninit = nullptr;
+			if (error != null) {
+				m_SERVICE_IO_uninit = null;
 				APPL_WARNING("Can not function SERVICE_IO_uninit :" << error);
 			}
 			m_SERVICE_IO_instanciate = (SERVICE_IO_instanciate_t)dlsym(m_handle, "SERVICE_IO_instanciate");
 			error = dlerror();
-			if (error != nullptr) {
-				m_SERVICE_IO_instanciate = nullptr;
+			if (error != null) {
+				m_SERVICE_IO_instanciate = null;
 				APPL_WARNING("Can not function SERVICE_IO_instanciate:" << error);
 			}
 		}
@@ -91,7 +91,7 @@ class PlugginAccess {
 			
 		}
 		bool init(int _argc, const char *_argv[], etk::String _basePath) {
-			if (m_SERVICE_IO_init == nullptr) {
+			if (m_SERVICE_IO_init == null) {
 				return false;
 			}
 			
@@ -104,7 +104,7 @@ class PlugginAccess {
 			return (*m_SERVICE_IO_init)(_argc, _argv, _basePath);
 		}
 		bool publish(zeus::Client& _client) {
-			if (m_SERVICE_IO_instanciate == nullptr) {
+			if (m_SERVICE_IO_instanciate == null) {
 				return false;
 			}
 			_client.serviceAdd(m_name,  [=](uint32_t _transactionId, ememory::SharedPtr<zeus::WebServer>& _iface, uint32_t _destination) {
@@ -117,13 +117,13 @@ class PlugginAccess {
 			return true;
 		}
 		bool uninit() {
-			if (m_SERVICE_IO_uninit == nullptr) {
+			if (m_SERVICE_IO_uninit == null) {
 				return false;
 			}
 			return (*m_SERVICE_IO_uninit)();
 		}
 		void peridic_call() {
-			if (m_SERVICE_IO_peridic_call == nullptr) {
+			if (m_SERVICE_IO_peridic_call == null) {
 				return;
 			}
 			(*m_SERVICE_IO_peridic_call)();

@@ -174,7 +174,7 @@ namespace zeus {
 			Future<ZEUS_RETURN, ZEUS_EVENT>& onSignal(etk::Function<void(const ZEUS_EVENT&)> _callback) {
 				zeus::FutureBase::onEvent(
 				    [=](ememory::SharedPtr<zeus::message::Event> _msg) {
-				    	if (_msg == nullptr) {
+				    	if (_msg == null) {
 				    		return;
 				    	}
 				    	_callback(_msg->getEvent<ZEUS_EVENT>());
@@ -190,7 +190,7 @@ namespace zeus {
 			Future<ZEUS_RETURN, ZEUS_EVENT>& onSignal(etk::Function<void(ZEUS_EVENT)> _callback) {
 				zeus::FutureBase::onEvent(
 				    [=](ememory::SharedPtr<zeus::message::Event> _msg) {
-				    	if (_msg == nullptr) {
+				    	if (_msg == null) {
 				    		return;
 				    	}
 				    	_callback(etk::move(_msg->getEvent<ZEUS_EVENT>()));
@@ -339,7 +339,7 @@ namespace zeus {
 			Future<void, ZEUS_EVENT>& onSignal(etk::Function<void(const ZEUS_EVENT&)> _callback) {
 				zeus::FutureBase::onEvent(
 				    [=](ememory::SharedPtr<zeus::message::Event> _msg) {
-				    	if (_msg == nullptr) {
+				    	if (_msg == null) {
 				    		return;
 				    	}
 				    	_callback(_msg->getEvent<ZEUS_EVENT>());
@@ -355,7 +355,7 @@ namespace zeus {
 			Future<void, ZEUS_EVENT>& onSignal(etk::Function<void(ZEUS_EVENT)> _callback) {
 				zeus::FutureBase::onEvent(
 				    [=](ememory::SharedPtr<zeus::message::Event> _msg) {
-				    	if (_msg == nullptr) {
+				    	if (_msg == null) {
 				    		return;
 				    	}
 				    	_callback(etk::move(_msg->getEvent<ZEUS_EVENT>()));

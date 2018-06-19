@@ -88,14 +88,14 @@ namespace appl {
 				ememory::SharedPtr<audio::river::Interface> m_audioInterface; //!< Play audio interface
 			public:
 				echrono::Duration getDuration() {
-					if (m_decoder != nullptr) {
+					if (m_decoder != null) {
 						return m_decoder->getDuration();
 					}
 					return echrono::Duration(0);
 				}
 				void seek(const echrono::Duration& _time);
 				etk::Vector<etk::Pair<float,float>> getDownloadPart() {
-					if (m_decoder == nullptr) {
+					if (m_decoder == null) {
 						return etk::Vector<etk::Pair<float,float>>();
 					}
 					return m_decoder->getDownloadPart();

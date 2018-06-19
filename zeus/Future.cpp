@@ -13,8 +13,8 @@
 namespace zeus {
 	template<>
 	bool futureGetValue<bool>(ememory::SharedPtr<zeus::Promise>& _promise) {
-		if (    _promise == nullptr
-		     || _promise->getRaw() == nullptr) {
+		if (    _promise == null
+		     || _promise->getRaw() == null) {
 			return false;
 		}
 		if (_promise->getRaw()->getType() != zeus::message::type::answer) {
@@ -25,8 +25,8 @@ namespace zeus {
 	}
 	template<>
 	int64_t futureGetValue<int64_t>(ememory::SharedPtr<zeus::Promise>& _promise) {
-		if (    _promise == nullptr
-		     || _promise->getRaw() == nullptr) {
+		if (    _promise == null
+		     || _promise->getRaw() == null) {
 			return 0;
 		}
 		if (_promise->getRaw()->getType() != zeus::message::type::answer) {
@@ -37,8 +37,8 @@ namespace zeus {
 	}
 	template<>
 	int32_t futureGetValue<int32_t>(ememory::SharedPtr<zeus::Promise>& _promise) {
-		if (    _promise == nullptr
-		     || _promise->getRaw() == nullptr) {
+		if (    _promise == null
+		     || _promise->getRaw() == null) {
 			return 0;
 		}
 		if (_promise->getRaw()->getType() != zeus::message::type::answer) {
@@ -49,8 +49,8 @@ namespace zeus {
 	}
 	template<>
 	int16_t futureGetValue<int16_t>(ememory::SharedPtr<zeus::Promise>& _promise) {
-		if (    _promise == nullptr
-		     || _promise->getRaw() == nullptr) {
+		if (    _promise == null
+		     || _promise->getRaw() == null) {
 			return 0;
 		}
 		if (_promise->getRaw()->getType() != zeus::message::type::answer) {
@@ -61,8 +61,8 @@ namespace zeus {
 	}
 	template<>
 	int8_t futureGetValue<int8_t>(ememory::SharedPtr<zeus::Promise>& _promise) {
-		if (    _promise == nullptr
-		     || _promise->getRaw() == nullptr) {
+		if (    _promise == null
+		     || _promise->getRaw() == null) {
 			return 0;
 		}
 		if (_promise->getRaw()->getType() != zeus::message::type::answer) {
@@ -73,8 +73,8 @@ namespace zeus {
 	}
 	template<>
 	uint64_t futureGetValue<uint64_t>(ememory::SharedPtr<zeus::Promise>& _promise) {
-		if (    _promise == nullptr
-		     || _promise->getRaw() == nullptr) {
+		if (    _promise == null
+		     || _promise->getRaw() == null) {
 			return 0;
 		}
 		if (_promise->getRaw()->getType() != zeus::message::type::answer) {
@@ -85,8 +85,8 @@ namespace zeus {
 	}
 	template<>
 	uint32_t futureGetValue<uint32_t>(ememory::SharedPtr<zeus::Promise>& _promise) {
-		if (    _promise == nullptr
-		     || _promise->getRaw() == nullptr) {
+		if (    _promise == null
+		     || _promise->getRaw() == null) {
 			return 0;
 		}
 		if (_promise->getRaw()->getType() != zeus::message::type::answer) {
@@ -97,8 +97,8 @@ namespace zeus {
 	}
 	template<>
 	uint16_t futureGetValue<uint16_t>(ememory::SharedPtr<zeus::Promise>& _promise) {
-		if (    _promise == nullptr
-		     || _promise->getRaw() == nullptr) {
+		if (    _promise == null
+		     || _promise->getRaw() == null) {
 			return 0;
 		}
 		if (_promise->getRaw()->getType() != zeus::message::type::answer) {
@@ -109,8 +109,8 @@ namespace zeus {
 	}
 	template<>
 	uint8_t futureGetValue<uint8_t>(ememory::SharedPtr<zeus::Promise>& _promise) {
-		if (    _promise == nullptr
-		     || _promise->getRaw() == nullptr) {
+		if (    _promise == null
+		     || _promise->getRaw() == null) {
 			return 0;
 		}
 		if (_promise->getRaw()->getType() != zeus::message::type::answer) {
@@ -121,8 +121,8 @@ namespace zeus {
 	}
 	template<>
 	double futureGetValue<double>(ememory::SharedPtr<zeus::Promise>& _promise) {
-		if (    _promise == nullptr
-		     || _promise->getRaw() == nullptr) {
+		if (    _promise == null
+		     || _promise->getRaw() == null) {
 			return 0;
 		}
 		if (_promise->getRaw()->getType() != zeus::message::type::answer) {
@@ -133,8 +133,8 @@ namespace zeus {
 	}
 	template<>
 	float futureGetValue<float>(ememory::SharedPtr<zeus::Promise>& _promise) {
-		if (    _promise == nullptr
-		     || _promise->getRaw() == nullptr) {
+		if (    _promise == null
+		     || _promise->getRaw() == null) {
 			return 0.0f;
 		}
 		if (_promise->getRaw()->getType() != zeus::message::type::answer) {
@@ -145,8 +145,8 @@ namespace zeus {
 	}
 	template<>
 	etk::String futureGetValue<etk::String>(ememory::SharedPtr<zeus::Promise>& _promise) {
-		if (    _promise == nullptr
-		     || _promise->getRaw() == nullptr) {
+		if (    _promise == null
+		     || _promise->getRaw() == null) {
 			return "";
 		}
 		if (_promise->getRaw()->getType() != zeus::message::type::answer) {
@@ -158,8 +158,8 @@ namespace zeus {
 	template<>
 	etk::Vector<int64_t> futureGetValue<etk::Vector<int64_t>>(ememory::SharedPtr<zeus::Promise>& _promise) {
 		etk::Vector<int64_t> out;
-		if (    _promise == nullptr
-		     || _promise->getRaw() == nullptr) {
+		if (    _promise == null
+		     || _promise->getRaw() == null) {
 			return out;
 		}
 		if (_promise->getRaw()->getType() != zeus::message::type::answer) {
@@ -172,8 +172,8 @@ namespace zeus {
 	template<>
 	etk::Vector<int32_t> futureGetValue<etk::Vector<int32_t>>(ememory::SharedPtr<zeus::Promise>& _promise) {
 		etk::Vector<int32_t> out;
-		if (    _promise == nullptr
-		     || _promise->getRaw() == nullptr) {
+		if (    _promise == null
+		     || _promise->getRaw() == null) {
 			return out;
 		}
 		if (_promise->getRaw()->getType() != zeus::message::type::answer) {
@@ -186,8 +186,8 @@ namespace zeus {
 	template<>
 	etk::Vector<int16_t> futureGetValue<etk::Vector<int16_t>>(ememory::SharedPtr<zeus::Promise>& _promise) {
 		etk::Vector<int16_t> out;
-		if (    _promise == nullptr
-		     || _promise->getRaw() == nullptr) {
+		if (    _promise == null
+		     || _promise->getRaw() == null) {
 			return out;
 		}
 		if (_promise->getRaw()->getType() != zeus::message::type::answer) {
@@ -200,8 +200,8 @@ namespace zeus {
 	template<>
 	etk::Vector<int8_t> futureGetValue<etk::Vector<int8_t>>(ememory::SharedPtr<zeus::Promise>& _promise) {
 		etk::Vector<int8_t> out;
-		if (    _promise == nullptr
-		     || _promise->getRaw() == nullptr) {
+		if (    _promise == null
+		     || _promise->getRaw() == null) {
 			return out;
 		}
 		if (_promise->getRaw()->getType() != zeus::message::type::answer) {
@@ -214,8 +214,8 @@ namespace zeus {
 	template<>
 	etk::Vector<uint64_t> futureGetValue<etk::Vector<uint64_t>>(ememory::SharedPtr<zeus::Promise>& _promise) {
 		etk::Vector<uint64_t> out;
-		if (    _promise == nullptr
-		     || _promise->getRaw() == nullptr) {
+		if (    _promise == null
+		     || _promise->getRaw() == null) {
 			return out;
 		}
 		if (_promise->getRaw()->getType() != zeus::message::type::answer) {
@@ -228,8 +228,8 @@ namespace zeus {
 	template<>
 	etk::Vector<uint32_t> futureGetValue<etk::Vector<uint32_t>>(ememory::SharedPtr<zeus::Promise>& _promise) {
 		etk::Vector<uint32_t> out;
-		if (    _promise == nullptr
-		     || _promise->getRaw() == nullptr) {
+		if (    _promise == null
+		     || _promise->getRaw() == null) {
 			return out;
 		}
 		if (_promise->getRaw()->getType() != zeus::message::type::answer) {
@@ -242,8 +242,8 @@ namespace zeus {
 	template<>
 	etk::Vector<uint16_t> futureGetValue<etk::Vector<uint16_t>>(ememory::SharedPtr<zeus::Promise>& _promise) {
 		etk::Vector<uint16_t> out;
-		if (    _promise == nullptr
-		     || _promise->getRaw() == nullptr) {
+		if (    _promise == null
+		     || _promise->getRaw() == null) {
 			return out;
 		}
 		if (_promise->getRaw()->getType() != zeus::message::type::answer) {
@@ -256,8 +256,8 @@ namespace zeus {
 	template<>
 	etk::Vector<uint8_t> futureGetValue<etk::Vector<uint8_t>>(ememory::SharedPtr<zeus::Promise>& _promise) {
 		etk::Vector<uint8_t> out;
-		if (    _promise == nullptr
-		     || _promise->getRaw() == nullptr) {
+		if (    _promise == null
+		     || _promise->getRaw() == null) {
 			return out;
 		}
 		if (_promise->getRaw()->getType() != zeus::message::type::answer) {
@@ -270,8 +270,8 @@ namespace zeus {
 	template<>
 	etk::Vector<double> futureGetValue<etk::Vector<double>>(ememory::SharedPtr<zeus::Promise>& _promise) {
 		etk::Vector<double> out;
-		if (    _promise == nullptr
-		     || _promise->getRaw() == nullptr) {
+		if (    _promise == null
+		     || _promise->getRaw() == null) {
 			return out;
 		}
 		if (_promise->getRaw()->getType() != zeus::message::type::answer) {
@@ -284,8 +284,8 @@ namespace zeus {
 	template<>
 	etk::Vector<float> futureGetValue<etk::Vector<float>>(ememory::SharedPtr<zeus::Promise>& _promise) {
 		etk::Vector<float> out;
-		if (    _promise == nullptr
-		     || _promise->getRaw() == nullptr) {
+		if (    _promise == null
+		     || _promise->getRaw() == null) {
 			return out;
 		}
 		if (_promise->getRaw()->getType() != zeus::message::type::answer) {
@@ -298,8 +298,8 @@ namespace zeus {
 	template<>
 	etk::Vector<etk::String> futureGetValue<etk::Vector<etk::String>>(ememory::SharedPtr<zeus::Promise>& _promise) {
 		etk::Vector<etk::String> out;
-		if (    _promise == nullptr
-		     || _promise->getRaw() == nullptr) {
+		if (    _promise == null
+		     || _promise->getRaw() == null) {
 			return out;
 		}
 		if (_promise->getRaw()->getType() != zeus::message::type::answer) {
@@ -312,8 +312,8 @@ namespace zeus {
 	template<>
 	etk::Vector<bool> futureGetValue<etk::Vector<bool>>(ememory::SharedPtr<zeus::Promise>& _promise) {
 		etk::Vector<bool> out;
-		if (    _promise == nullptr
-		     || _promise->getRaw() == nullptr) {
+		if (    _promise == null
+		     || _promise->getRaw() == null) {
 			return out;
 		}
 		if (_promise->getRaw()->getType() != zeus::message::type::answer) {
@@ -325,8 +325,8 @@ namespace zeus {
 	}
 	template<>
 	zeus::Raw futureGetValue<zeus::Raw>(ememory::SharedPtr<zeus::Promise>& _promise) {
-		if (    _promise == nullptr
-		     || _promise->getRaw() == nullptr) {
+		if (    _promise == null
+		     || _promise->getRaw() == null) {
 			return zeus::Raw();
 		}
 		if (_promise->getRaw()->getType() != zeus::message::type::answer) {
@@ -338,8 +338,8 @@ namespace zeus {
 	template<>
 	ememory::SharedPtr<zeus::ObjectRemoteBase> futureGetValue<ememory::SharedPtr<zeus::ObjectRemoteBase>>(ememory::SharedPtr<zeus::Promise>& _promise) {
 		ememory::SharedPtr<zeus::ObjectRemoteBase> out;
-		if (    _promise == nullptr
-		     || _promise->getRaw() == nullptr) {
+		if (    _promise == null
+		     || _promise->getRaw() == null) {
 			return out;
 		}
 		if (_promise->getRaw()->getType() != zeus::message::type::answer) {

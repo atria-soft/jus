@@ -21,7 +21,7 @@ namespace zeus {
 	void executeCall(ememory::SharedPtr<zeus::WebServer> _interfaceClient,
 	                 ememory::SharedPtr<zeus::message::Parameter> _obj,
 	                 ZEUS_RETURN (*_func)(ZEUS_TYPES...)) {
-		if (_obj == nullptr) {
+		if (_obj == null) {
 			return;
 		}
 		ZEUS_RETURN ret;
@@ -34,7 +34,7 @@ namespace zeus {
 			int32_t idParam = int32_t(sizeof...(ZEUS_TYPES))-1;
 			ret = _func(_obj->getParameter<ZEUS_TYPES>(idParam--)...);
 		}
-		if (_interfaceClient == nullptr) {
+		if (_interfaceClient == null) {
 			ZEUS_ERROR("Nullptr for _interfaceWeb");
 			return;
 		}
@@ -53,7 +53,7 @@ namespace zeus {
 	void executeCall(ememory::SharedPtr<zeus::WebServer> _interfaceClient,
 	                 ememory::SharedPtr<zeus::message::Parameter> _obj,
 	                 void (*_func)(ZEUS_TYPES...)) {
-		if (_obj == nullptr) {
+		if (_obj == null) {
 			return;
 		}
 		if (zeus::checkOrderFunctionParameter() == true) {
@@ -65,7 +65,7 @@ namespace zeus {
 			int32_t idParam = int32_t(sizeof...(ZEUS_TYPES))-1;
 			_func(_obj->getParameter<ZEUS_TYPES>(idParam--)...);
 		}
-		if (_interfaceClient == nullptr) {
+		if (_interfaceClient == null) {
 			ZEUS_ERROR("Nullptr for _interfaceWeb");
 			return;
 		}
@@ -108,10 +108,10 @@ namespace zeus {
 			void execute(ememory::SharedPtr<zeus::WebServer> _interfaceClient,
 			             ememory::SharedPtr<zeus::message::Call> _obj,
 			             void* _class) override {
-				if (_obj == nullptr) {
+				if (_obj == null) {
 					return;
 				}
-				if (_interfaceClient == nullptr) {
+				if (_interfaceClient == null) {
 					ZEUS_ERROR("Nullptr for _interfaceWeb");
 					return;
 				}

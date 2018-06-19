@@ -11,14 +11,14 @@ ETK_DECLARE_TYPE(zeus::Raw);
 
 zeus::Raw::Raw() :
   m_size(0),
-  m_dataExternal(nullptr),
+  m_dataExternal(null),
   m_dataInternal() {
 	
 }
 
 zeus::Raw::Raw(uint32_t _size) :
   m_size(_size),
-  m_dataExternal(nullptr),
+  m_dataExternal(null),
   m_dataInternal() {
 	m_dataInternal.resize(_size);
 }
@@ -35,16 +35,16 @@ uint32_t zeus::Raw::size() const {
 }
 
 const uint8_t* zeus::Raw::data() const {
-	if (m_dataExternal != nullptr) {
+	if (m_dataExternal != null) {
 		return m_dataExternal;
 	}
 	return &m_dataInternal[0];
 }
 
 uint8_t* zeus::Raw::writeData() {
-	if (m_dataExternal != nullptr) {
+	if (m_dataExternal != null) {
 		ZEUS_ERROR("Try to write on Data that is not allowed ...");
-		return nullptr;
+		return null;
 	}
 	return &m_dataInternal[0];
 }

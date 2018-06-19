@@ -84,7 +84,7 @@ bool appl::DirectInterface::start(appl::GateWay* _gateway) {
 }
 
 void appl::DirectInterface::receive(ememory::SharedPtr<zeus::Message> _value) {
-	if (_value == nullptr) {
+	if (_value == null) {
 		return;
 	}
 	// check transaction ID != 0
@@ -100,7 +100,7 @@ void appl::DirectInterface::receive(ememory::SharedPtr<zeus::Message> _value) {
 		return;
 	}
 	// Check gateway corectly connected
-	if (m_gateway == nullptr) {
+	if (m_gateway == null) {
 		answerProtocolError(transactionId, "GateWay error");
 		return;
 	}

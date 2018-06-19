@@ -34,8 +34,8 @@ appl::ClientInterface::~ClientInterface() {
 
 etk::String appl::ClientInterface::requestURI(const etk::String& _uri, const etk::Map<etk::String,etk::String>& _options) {
 	APPL_INFO("request connect on CLIENT: '" << _uri << "' from " << m_interfaceClient.getRemoteAddress());
-	if(m_routerInterface == nullptr) {
-		APPL_ERROR("Can not access to the main GateWay interface (nullptr)");
+	if(m_routerInterface == null) {
+		APPL_ERROR("Can not access to the main GateWay interface (null)");
 		return "CLOSE";
 	}
 	etk::String tmpURI = _uri;
@@ -48,7 +48,7 @@ etk::String appl::ClientInterface::requestURI(const etk::String& _uri, const etk
 	}
 	m_userGateWay = m_routerInterface->get(tmpURI);
 	APPL_INFO("Connect on client done : '" << tmpURI << "'");
-	if (m_userGateWay == nullptr) {
+	if (m_userGateWay == null) {
 		APPL_ERROR("Can not connect on Client ==> it does not exist ...");
 		return "CLOSE";
 	}
@@ -59,7 +59,7 @@ etk::String appl::ClientInterface::requestURI(const etk::String& _uri, const etk
 			APPL_WARNING("Request redirect of the connection, because it is possible");
 			// remove reference on the client befor it was inform of our connection
 			m_userGateWay->rmClient(sharedFromThis());
-			m_userGateWay = nullptr;
+			m_userGateWay = null;
 			m_interfaceRedirect = true;
 			return etk::String("REDIRECT:") + m_routerInterface->propertyClientIp.get() + ":" + etk::toString(externalPort);
 		}
@@ -78,7 +78,7 @@ void appl::ClientInterface::stop() {
 	if (m_interfaceClient.isActive() == true) {
 		m_interfaceClient.disconnect();
 	}
-	if (m_userGateWay != nullptr) {
+	if (m_userGateWay != null) {
 		m_userGateWay->rmClient(sharedFromThis());
 	}
 }
@@ -93,7 +93,7 @@ bool appl::ClientInterface::isAlive() {
 	//APPL_INFO("is alive : " << m_interfaceClient.isActive());
 	bool ret = m_interfaceClient.isActive();
 	if (ret == true) {
-		if (m_userGateWay == nullptr) {
+		if (m_userGateWay == null) {
 			return false;
 		}
 		m_userGateWay->clientAlivePing();
@@ -111,7 +111,7 @@ void appl::ClientInterface::answerProtocolError(uint32_t _transactionId, const e
 
 
 void appl::ClientInterface::onClientData(ememory::SharedPtr<zeus::Message> _value) {
-	if (_value == nullptr) {
+	if (_value == null) {
 		return;
 	}
 	// check transaction ID != 0
@@ -127,7 +127,7 @@ void appl::ClientInterface::onClientData(ememory::SharedPtr<zeus::Message> _valu
 		return;
 	}
 	// Check gateway corectly connected
-	if (m_userGateWay == nullptr) {
+	if (m_userGateWay == null) {
 		answerProtocolError(transactionId, "GateWay error (not connected)");
 		return;
 	}
@@ -159,7 +159,7 @@ void appl::ClientInterface::onClientData(ememory::SharedPtr<zeus::Message> _valu
 }
 
 void appl::ClientInterface::send(ememory::SharedPtr<zeus::Message> _data) {
-	if (_data == nullptr) {
+	if (_data == null) {
 		return;
 	}
 	m_interfaceClient.writeBinary(_data);

@@ -21,7 +21,7 @@ zeus::message::Parameter::Parameter(ememory::SharedPtr<zeus::WebServer> _iface):
 }
 
 bool zeus::message::Parameter::writeOn(enet::WebSocket& _interface) {
-	uint8_t* data = nullptr;
+	uint8_t* data = null;
 	uint32_t dataSize = 0;
 	uint16_t nbParameters = m_parameter.size();
 	size_t size = _interface.writeData((uint8_t*)&nbParameters, sizeof(uint16_t));
@@ -126,7 +126,7 @@ zeus::message::ParamType zeus::message::Parameter::getParameterType(int32_t _id)
 }
 
 const uint8_t* zeus::message::Parameter::getParameterPointer(int32_t _id) const {
-	const uint8_t* out = nullptr;
+	const uint8_t* out = null;
 	if (    m_parameter.size() <= _id
 	     || _id < 0) {
 		ZEUS_ERROR("out of range Id for parameter ... " << _id << " have " << m_parameter.size());

@@ -37,16 +37,16 @@ void appl::widget::Connection::init() {
 	subBind(ewol::widget::Entry, "[" + etk::toString(getId()) + "]connect-password", signalModify, sharedFromThis(), &appl::widget::Connection::onCallbackEntryPasswordChangeValue);
 	subBind(ewol::widget::Button, "[" + etk::toString(getId()) + "]connect-bt", signalPressed, sharedFromThis(), &appl::widget::Connection::onCallbackButtonValidate);
 	subBind(ewol::widget::Button, "[" + etk::toString(getId()) + "]cancel-bt", signalPressed, sharedFromThis(), &appl::widget::Connection::onCallbackButtonCancel);
-	setProperty(nullptr);
+	setProperty(null);
 	propertyCanFocus.set(true);
 }
 
 
 void appl::widget::Connection::setProperty(ememory::SharedPtr<appl::ClientProperty> _baseProperty) {
 	m_baseProperty = _baseProperty;
-	if (m_baseProperty == nullptr) {
+	if (m_baseProperty == null) {
 		m_baseProperty = ememory::makeShared<appl::ClientProperty>();
-		if (m_baseProperty == nullptr) {
+		if (m_baseProperty == null) {
 			APPL_ERROR(" can not allocate the pointer of data ==> must auto kill");
 			autoDestroy();
 			return;

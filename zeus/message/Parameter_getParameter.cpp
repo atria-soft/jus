@@ -1554,7 +1554,7 @@ namespace zeus {
 				
 				// get new local ID:
 				ememory::SharedPtr<zeus::WebServer> iface = m_iface;
-				if (iface != nullptr) {
+				if (iface != null) {
 					uint16_t id    = iface->getAddress();
 					uint16_t idObj = iface->getNewObjectId();
 					// Sent to the interface the change of links from the curent interface to the real object remote ... (the client interface can control that the user calle r is athorised to do it ...

@@ -150,18 +150,18 @@ namespace zeus {
 			zeus::AbstractFunction* advertise(const etk::String& _name,
 			                                  ZEUS_RETURN_VALUE (*_func)(ZEUS_FUNC_ARGS_TYPE... _args)) {
 				for (auto &it : m_listFunction) {
-					if (it == nullptr) {
+					if (it == null) {
 						continue;
 					}
 					if (it->getName() == _name) {
 						ZEUS_ERROR("Advertise function already bind .. ==> can not be done...: '" << _name << "'");
-						return nullptr;
+						return null;
 					}
 				}
 				zeus::AbstractFunction* tmp = createAbstractFunctionDirect(_name, _func);
-				if (tmp == nullptr) {
+				if (tmp == null) {
 					ZEUS_ERROR("can not create abstract function ... '" << _name << "'");
-					return nullptr;
+					return null;
 				}
 				tmp->setType(zeus::AbstractFunction::type::global);
 				ZEUS_VERBOSE("Add function '" << _name << "' in global mode");
@@ -182,18 +182,18 @@ namespace zeus {
 			                                  ZEUS_RETURN_VALUE (ZEUS_CLASS_TYPE::*_func)(ZEUS_FUNC_ARGS_TYPE... _args)) {
 				_name = "sys." + _name;
 				for (auto &it : m_listFunction) {
-					if (it == nullptr) {
+					if (it == null) {
 						continue;
 					}
 					if (it->getName() == _name) {
 						ZEUS_ERROR("Advertise function already bind .. ==> can not be done...: '" << _name << "'");
-						return nullptr;
+						return null;
 					}
 				}
 				zeus::AbstractFunction* tmp = createAbstractFunctionClass(_name, _func);
-				if (tmp == nullptr) {
+				if (tmp == null) {
 					ZEUS_ERROR("can not create abstract function ... '" << _name << "'");
-					return nullptr;
+					return null;
 				}
 				tmp->setType(zeus::AbstractFunction::type::local);
 				ZEUS_VERBOSE("Add function '" << _name << "' in local mode");

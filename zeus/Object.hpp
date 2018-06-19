@@ -69,18 +69,18 @@ namespace zeus {
 			                                  ZEUS_RETURN_VALUE (ZEUS_CLASS_TYPE::*_func)(ZEUS_FUNC_ARGS_TYPE... _args)) {
 				_name = "obj." + _name;
 				for (auto &it : m_listFunction) {
-					if (it == nullptr) {
+					if (it == null) {
 						continue;
 					}
 					if (it->getName() == _name) {
 						ZEUS_ERROR("Advertise function already bind .. ==> can not be done...: '" << _name << "'");
-						return nullptr;
+						return null;
 					}
 				}
 				AbstractFunction* tmp = createAbstractFunctionClass(_name, _func);
-				if (tmp == nullptr) {
+				if (tmp == null) {
 					ZEUS_ERROR("can not create abstract function ... '" << _name << "'");
-					return nullptr;
+					return null;
 				}
 				tmp->setType(zeus::AbstractFunction::type::service);
 				ZEUS_VERBOSE("Add function '" << _name << "' in local mode");
@@ -118,21 +118,21 @@ namespace zeus {
 			                                  ZEUS_RETURN_VALUE (ZEUS_CLASS_TYPE::*_func)(zeus::ActionNotification<ZEUS_ACTION_TYPE>& _notifs, ZEUS_FUNC_ARGS_TYPE... _args)) {
 				if (etk::start_with(_name, "srv.") == true) {
 					ZEUS_ERROR("Advertise function start with 'srv.' is not permited ==> only allow for internal service: '" << _name << "'");
-					return nullptr;
+					return null;
 				}
 				for (auto &it : m_listFunction) {
-					if (it == nullptr) {
+					if (it == null) {
 						continue;
 					}
 					if (it->getName() == _name) {
 						ZEUS_ERROR("Advertise function already bind .. ==> can not be done...: '" << _name << "'");
-						return nullptr;
+						return null;
 					}
 				}
 				zeus::AbstractFunction* tmp = createAbstractFunctionClass(_name, _func);
-				if (tmp == nullptr) {
+				if (tmp == null) {
 					ZEUS_ERROR("can not create abstract function ... '" << _name << "'");
-					return nullptr;
+					return null;
 				}
 				tmp->setType(zeus::AbstractFunction::type::object);
 				ZEUS_VERBOSE("Add function '" << _name << "' in object mode");
@@ -153,21 +153,21 @@ namespace zeus {
 			                                  ZEUS_RETURN_VALUE (ZEUS_CLASS_TYPE::*_func)(ZEUS_FUNC_ARGS_TYPE... _args)) {
 				if (etk::start_with(_name, "srv.") == true) {
 					ZEUS_ERROR("Advertise function start with 'srv.' is not permited ==> only allow for internal service: '" << _name << "'");
-					return nullptr;
+					return null;
 				}
 				for (auto &it : m_listFunction) {
-					if (it == nullptr) {
+					if (it == null) {
 						continue;
 					}
 					if (it->getName() == _name) {
 						ZEUS_ERROR("Advertise function already bind .. ==> can not be done...: '" << _name << "'");
-						return nullptr;
+						return null;
 					}
 				}
 				zeus::AbstractFunction* tmp = createAbstractFunctionClass(_name, _func);
-				if (tmp == nullptr) {
+				if (tmp == null) {
 					ZEUS_ERROR("can not create abstract function ... '" << _name << "'");
-					return nullptr;
+					return null;
 				}
 				tmp->setType(zeus::AbstractFunction::type::object);
 				ZEUS_VERBOSE("Add function '" << _name << "' in object mode");
@@ -187,7 +187,7 @@ namespace zeus {
 			}
 			void callBinary(const etk::String& _call, ememory::SharedPtr<zeus::message::Call> _value) override {
 				for (auto &it2 : m_listFunction) {
-					if (it2 == nullptr) {
+					if (it2 == null) {
 						continue;
 					}
 					if (it2->getName() != _call) {
@@ -210,7 +210,7 @@ namespace zeus {
 							return;
 						}
 						case zeus::AbstractFunction::type::global: {
-							it2->execute(m_interfaceWeb, _value, nullptr);
+							it2->execute(m_interfaceWeb, _value, null);
 							return;
 						}
 						case zeus::AbstractFunction::type::unknow:

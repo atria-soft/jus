@@ -68,7 +68,7 @@ appl::widget::Player::~Player() {
 }
 
 void appl::widget::Player::playStream(ememory::SharedPtr<appl::ClientProperty> _property, uint32_t _mediaId) {
-	if (m_display == nullptr) {
+	if (m_display == null) {
 		return;
 	}
 	// stop previous (if needed)
@@ -112,7 +112,7 @@ static etk::String timeToStaticString(const echrono::Duration& _time) {
 }
 
 void appl::widget::Player::onCallbackFinished() {
-	if (m_progress != nullptr) {
+	if (m_progress != null) {
 		etk::Vector<etk::Pair<float,float>> tmp;
 		m_progress->setRangeAvaillable(tmp);
 		m_progress->propertyValue.set(0);
@@ -126,7 +126,7 @@ void appl::widget::Player::onCallbackFinished() {
 
 void appl::widget::Player::onCallbackDuration(const echrono::Duration& _time) {
 	//APPL_ERROR("duration = " << _time);
-	if (m_progress != nullptr) {
+	if (m_progress != null) {
 		m_progress->propertyValue.set(0);
 		m_progress->propertyMaximum.set(_time.toSeconds());
 	}
@@ -136,12 +136,12 @@ void appl::widget::Player::onCallbackDuration(const echrono::Duration& _time) {
 void appl::widget::Player::onCallbackPosition(const echrono::Duration& _time) {
 	//APPL_ERROR("time = " << _time);
 	propertySetOnWidgetNamed("[" + etk::toString(getId()) + "]appl-player-label-time", "value", "<font color='black'>" + timeToStaticString(_time) + "</font>");
-	if (m_progress != nullptr) {
+	if (m_progress != null) {
 		m_progress->propertyValue.set(_time.toSeconds());
 	}
-	if (m_display != nullptr) {
+	if (m_display != null) {
 		etk::Vector<etk::Pair<float,float>> tmp = m_display->getDownloadPart();
-		if (m_progress != nullptr) {
+		if (m_progress != null) {
 			m_progress->setRangeAvaillable(tmp);
 		}
 	}
@@ -151,7 +151,7 @@ void appl::widget::Player::onCallbackSeekRequest(const float& _value) {
 	APPL_DEBUG("===========================================================================");
 	APPL_DEBUG("seek at = " << echrono::Duration(_value) << "  from value=" << _value);
 	APPL_DEBUG("===========================================================================");
-	if (m_display != nullptr) {
+	if (m_display != null) {
 		m_display->seek(echrono::Duration(_value));
 	}
 }
@@ -160,7 +160,7 @@ void appl::widget::Player::onCallbackVolumeRequest(const float& _value) {
 	APPL_DEBUG("===========================================================================");
 	APPL_DEBUG("volume change value=" << _value << " dB");
 	APPL_DEBUG("===========================================================================");
-	if (m_display != nullptr) {
+	if (m_display != null) {
 		m_display->changeVolume(_value);
 	}
 }
@@ -169,7 +169,7 @@ void appl::widget::Player::onCallbackLightRequest(const float& _value) {
 	APPL_DEBUG("===========================================================================");
 	APPL_DEBUG("volume change value=" << _value << " %");
 	APPL_DEBUG("===========================================================================");
-	if (m_display != nullptr) {
+	if (m_display != null) {
 		m_display->changeLight(_value);
 	}
 }
@@ -188,7 +188,7 @@ void appl::widget::Player::onCallbackFPS(const int32_t& _fps) {
 
 void appl::widget::Player::stop() {
 	propertySetOnWidgetNamed("[" + etk::toString(getId()) + "]appl-player-bt-play", "value", "false");
-	if (m_display == nullptr) {
+	if (m_display == null) {
 		return;
 	}
 	m_display->stop();
@@ -196,7 +196,7 @@ void appl::widget::Player::stop() {
 
 void appl::widget::Player::suspend() {
 	propertySetOnWidgetNamed("[" + etk::toString(getId()) + "]appl-player-bt-play", "value", "false");
-	if (m_display == nullptr) {
+	if (m_display == null) {
 		return;
 	}
 	m_display->pause();
@@ -208,7 +208,7 @@ void appl::widget::Player::onCallbackButtonPrevious() {
 }
 
 void appl::widget::Player::onCallbackButtonPlay(const bool& _value) {
-	if (m_display == nullptr) {
+	if (m_display == null) {
 		return;
 	}
 	if (_value == true) {

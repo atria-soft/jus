@@ -96,7 +96,7 @@ static etk::Vector<etk::String> splitAction(const etk::String& _in) {
 static void metadataChange(zeus::MediaImpl* _element, const etk::String& _key) {
 	g_needToStore = true;
 	// meta_data have chage ==> we need to upfdate the path of the file where the data is stored ...
-	if (_element == nullptr) {
+	if (_element == null) {
 		return;
 	}
 	_element->forceUpdateDecoratedName();
@@ -140,7 +140,7 @@ namespace appl {
 				// TODO : Check right ...
 				etk::Vector<uint32_t> out;
 				for (size_t iii=_start; iii<m_listFile.size() && iii<_stop; ++iii) {
-					if (m_listFile[iii] == nullptr) {
+					if (m_listFile[iii] == null) {
 						continue;
 					}
 					out.pushBack(m_listFile[iii]->getUniqueId());
@@ -152,7 +152,7 @@ namespace appl {
 				// TODO : Check right ...
 				uint32_t out;
 				for (size_t iii=0; iii<m_listFile.size(); ++iii) {
-					if (m_listFile[iii] == nullptr) {
+					if (m_listFile[iii] == null) {
 						continue;
 					}
 					if (m_listFile[iii]->getSha512() == _sha512) {
@@ -168,7 +168,7 @@ namespace appl {
 				// TODO : Check right ...
 				ememory::SharedPtr<zeus::MediaImpl> property;
 				for (auto &it : m_listFile) {
-					if (it == nullptr) {
+					if (it == null) {
 						continue;
 					}
 					if (it->getUniqueId() == _mediaId) {
@@ -199,7 +199,7 @@ namespace appl {
 				{
 					ethread::UniqueLock lock(g_mutex);
 					for (auto &it : m_listFile) {
-						if (it == nullptr) {
+						if (it == null) {
 							continue;
 						}
 						if (it->getSha512() == sha512StringRemote) {
@@ -250,7 +250,7 @@ namespace appl {
 				for (auto it = m_listFile.begin();
 				     it != m_listFile.end();
 				     /* No increment */) {
-					if (*it == nullptr) {
+					if (*it == null) {
 						it = m_listFile.erase(it);
 						continue;
 					}
@@ -356,7 +356,7 @@ namespace appl {
 				etk::Vector<etk::Vector<etk::String>> listAndParsed = interpreteSQLRequest(_sqlLikeRequest);
 				ethread::UniqueLock lock(g_mutex);
 				for (auto &it : m_listFile) {
-					if (it == nullptr) {
+					if (it == null) {
 						continue;
 					}
 					APPL_DEBUG("    [" << it->getUniqueId() << "   list=" << mapToString(it->getMetadataDirect()));
@@ -377,7 +377,7 @@ namespace appl {
 				etk::Vector<etk::Vector<etk::String>> listAndParsed = interpreteSQLRequest(_sqlLikeRequest);
 				ethread::UniqueLock lock(g_mutex);
 				for (auto &it : m_listFile) {
-					if (it == nullptr) {
+					if (it == null) {
 						continue;
 					}
 					bool isCorrectElement = isValid(listAndParsed, it->getMetadataDirect());
@@ -471,7 +471,7 @@ static void store_db() {
 	ejson::Array listFilesArray;
 	database.add("list-files", listFilesArray);
 	for (auto &it : m_listFile) {
-		if (it != nullptr) {
+		if (it != null) {
 			listFilesArray.add(it->getJson());
 		}
 	}
@@ -489,7 +489,7 @@ static void load_db() {
 	ejson::Array listFilesArray = database["list-files"].toArray();
 	for (const auto itArray: listFilesArray) {
 		auto property = ememory::makeShared<zeus::MediaImpl>(g_basePath, itArray.toObject());
-		if (property == nullptr) {
+		if (property == null) {
 			APPL_ERROR("can not allocate element ...");
 			continue;
 		}

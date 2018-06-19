@@ -33,7 +33,7 @@ static etk::String g_baseDBName = "USERDATA:config.json";
 void appl::Windows::store_db() {
 	APPL_DEBUG("Store database [START]");
 	ejson::Document database;
-	if (m_clientProp != nullptr) {
+	if (m_clientProp != null) {
 		database.add("access", m_clientProp->toJson());
 	}
 	bool retGenerate = database.storeSafe(g_baseDBName);
@@ -46,15 +46,15 @@ void appl::Windows::load_db() {
 	if (ret == false) {
 		APPL_WARNING("    ==> LOAD error");
 	}
-	if (m_clientProp == nullptr) {
+	if (m_clientProp == null) {
 		m_clientProp = ememory::makeShared<appl::ClientProperty>();
-		if (m_clientProp == nullptr) {
+		if (m_clientProp == null) {
 			APPL_ERROR(" can not allocate the pointer of data ==> must auto kill");
 			autoDestroy();
 			return;
 		}
 	}
-	if (m_clientProp != nullptr) {
+	if (m_clientProp != null) {
 		m_clientProp->fromJson(database["access"].toObject());
 	}
 }
@@ -69,7 +69,7 @@ void appl::Windows::init() {
 	ewol::widget::Windows::init();
 	load_db();
 	m_composer = ewol::widget::Composer::create();
-	if (m_composer == nullptr) {
+	if (m_composer == null) {
 		APPL_CRITICAL(" An error occured ... in the windows creatrion ...");
 		return;
 	}
@@ -87,7 +87,7 @@ void appl::Windows::init() {
 	shortCutAdd("F11",          "menu:connect");
 	signalShortcut.connect(sharedFromThis(), &appl::Windows::onCallbackShortCut);
 	// TODO: try to connect the last connection availlable ...
-	if (m_clientProp == nullptr) {
+	if (m_clientProp == null) {
 		onCallbackMenuEvent("menu:connect");
 	} else {
 		m_clientProp->connect();
@@ -107,7 +107,7 @@ void appl::Windows::onCallbackMenuEvent(const etk::String& _value) {
 	APPL_WARNING("Event from Menu : " << _value);
 	if (_value == "menu:connect") {
 		appl::widget::ConnectionShared tmpWidget = appl::widget::Connection::create();
-		if (tmpWidget == nullptr) {
+		if (tmpWidget == null) {
 			APPL_ERROR("Can not open File chooser !!! ");
 			return;
 		}
@@ -130,7 +130,7 @@ void appl::Windows::onCallbackMenuEvent(const etk::String& _value) {
 
 void appl::Windows::onCallbackConnectionValidate(const ememory::SharedPtr<ClientProperty>& _prop) {
 	m_clientProp = _prop;
-	if (m_clientProp == nullptr) {
+	if (m_clientProp == null) {
 		// TODO: set back in public mode ...
 		return;
 	}
@@ -143,7 +143,7 @@ void appl::Windows::onCallbackConnectionCancel() {
 }
 
 void appl::Windows::onCallbackReboot() {
-	if (m_clientProp == nullptr) {
+	if (m_clientProp == null) {
 		onCallbackMenuEvent("menu:connect");
 		return;
 	}
@@ -173,7 +173,7 @@ void appl::Windows::onCallbackReboot() {
 }
 
 void appl::Windows::onCallbackShutdown() {
-	if (m_clientProp == nullptr) {
+	if (m_clientProp == null) {
 		onCallbackMenuEvent("menu:connect");
 		return;
 	}

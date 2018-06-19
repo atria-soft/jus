@@ -133,7 +133,7 @@ namespace zeus {
 			 */
 			virtual void execute(ememory::SharedPtr<zeus::WebServer> _interfaceClient,
 			                     ememory::SharedPtr<zeus::message::Call> _obj,
-			                     void* _class=nullptr) = 0;
+			                     void* _class=null) = 0;
 	};
 }
 

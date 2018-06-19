@@ -18,7 +18,7 @@ namespace zeus {
 			uint32_t m_source;
 			uint32_t m_destination;
 		public:
-			ActionNotification(ememory::SharedPtr<zeus::WebServer> _interface = nullptr,
+			ActionNotification(ememory::SharedPtr<zeus::WebServer> _interface = null,
 			                   uint32_t _transactionId = 0,
 			                   uint32_t _source = 0,
 			                   uint32_t _destination = 0):
@@ -31,7 +31,7 @@ namespace zeus {
 				emit(_value);
 			}
 			void emit(const ZEUS_TYPE_EVENT& _value) {
-				if (m_interface == nullptr) {
+				if (m_interface == null) {
 					return;
 				}
 				m_interface->eventValue(m_transactionId, m_source, m_destination, _value);

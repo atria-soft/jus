@@ -475,7 +475,7 @@ void appl::widget::ListViewer::searchElementsInternal(const etk::String& _filter
 	m_listElementGroup.clear();
 	m_listDisplay.clear();
 	resetScrollOrigin();
-	if (m_clientProp == nullptr) {
+	if (m_clientProp == null) {
 		APPL_ERROR("No client Availlable ...");
 		return;
 	}
@@ -518,7 +518,7 @@ void appl::widget::ListViewer::searchElementsInternal(const etk::String& _filter
 		}
 		for (auto &it : returnValues) {
 			auto elem = ememory::makeShared<ElementPropertyGroup>(remoteServiceVideo, ememory::staticPointerCast<ewol::Widget>(sharedFromThis()));
-			if (elem == nullptr) {
+			if (elem == null) {
 				APPL_ERROR("Can not allocate element... " << it);
 				continue;
 			}
@@ -542,7 +542,7 @@ void appl::widget::ListViewer::searchElementsInternal(const etk::String& _filter
 		APPL_INFO("Get some Values: " << returnValues << "");
 		for (auto &it : returnValues) {
 			auto elem = ememory::makeShared<ElementProperty>(remoteServiceVideo, ememory::staticPointerCast<ewol::Widget>(sharedFromThis()));
-			if (elem == nullptr) {
+			if (elem == null) {
 				APPL_ERROR("Can not allocate element... " << it);
 				continue;
 			}
@@ -557,7 +557,7 @@ void appl::widget::ListViewer::searchElementsInternal(const etk::String& _filter
 void appl::widget::ListViewer::onDraw() {
 	m_text.draw();
 	for (auto &it : m_listDisplay) {
-		if (it == nullptr) {
+		if (it == null) {
 			continue;
 		}
 		it->draw();
@@ -650,11 +650,11 @@ void appl::widget::ListViewer::onRegenerateDisplay() {
 	APPL_VERBOSE("origin scrolled : " << m_originScrooled << " nb Pixel/element = " << realPixelSize.y() << " offset=" << offset);
 	for (size_t iii=0; iii<m_listDisplay.size(); ++iii) {
 		auto elem = m_listDisplay[iii];
-		if (elem != nullptr) {
+		if (elem != null) {
 			elem->m_idCurentElement = offset + iii;
 			if (offset + iii < m_listElement.size()) {
 				elem->m_property = m_listElement[offset + iii];
-				if (elem->m_property != nullptr) {
+				if (elem->m_property != null) {
 					elem->m_property->loadData();
 				}
 			} else {
@@ -662,7 +662,7 @@ void appl::widget::ListViewer::onRegenerateDisplay() {
 			}
 			if (offset + iii < m_listElementGroup.size()) {
 				elem->m_propertyGroup = m_listElementGroup[offset + iii];
-				if (elem->m_propertyGroup != nullptr) {
+				if (elem->m_propertyGroup != null) {
 					elem->m_propertyGroup->loadData();
 				}
 			} else {
@@ -693,7 +693,7 @@ void appl::widget::ListViewer::onRegenerateDisplay() {
 					break;
 			}
 		} else {
-			APPL_ERROR("create nullptr");
+			APPL_ERROR("create null");
 		}
 	}
 	
@@ -703,7 +703,7 @@ void appl::widget::ListViewer::onRegenerateDisplay() {
 	vec2 elementSize = vec2(m_size.x(), int32_t(realPixelSize.y()));
 	vec2 startPos = vec2(-m_originScrooled.x(), m_size.y()) - vec2(0, elementSize.y()-(m_originScrooled.y()-realOffset));
 	for (auto &it : m_listDisplay) {
-		if (it == nullptr) {
+		if (it == null) {
 			startPos -= vec2(0, elementSize.y());
 			continue;
 		}
@@ -735,8 +735,8 @@ void appl::ElementDisplayed::generateDisplay(vec2 _startPos, vec2 _size) {
 	m_image.clear();
 	m_text.clear();
 	m_draw.clear();
-	if (    m_property == nullptr
-	     && m_propertyGroup == nullptr) {
+	if (    m_property == null
+	     && m_propertyGroup == null) {
 		return;
 	}
 	//APPL_INFO("Regenrate size :  " << _startPos << " " << _size);
@@ -771,7 +771,7 @@ void appl::ElementDisplayed::generateDisplay(vec2 _startPos, vec2 _size) {
 	m_text.setTextAlignement(originText.x(), originText.x()+_size.x()-_size.y(), ewol::compositing::alignDisable);
 	// TODO: m_text.setClipping(originText, vec2(originText.x()+_size.x()-_size.y(), _size.y()));
 	etk::String textToDisplay;
-	if (m_property != nullptr) {
+	if (m_property != null) {
 		if (m_property->LoadDataEnded() == false) {
 			textToDisplay += "<br/><i>Loading in progress</i> ... " + etk::toString(m_property->m_nbElementLoaded) + "/8";
 		} else {
@@ -815,7 +815,7 @@ void appl::ElementDisplayed::generateDisplay(vec2 _startPos, vec2 _size) {
 	// --------------------------------------------
 	// -- Display Image...
 	// --------------------------------------------
-	if (m_property != nullptr) {
+	if (m_property != null) {
 		bool haveThumb = false;
 		if (m_property->LoadDataEnded() == false) {
 			haveThumb = false;
@@ -873,7 +873,7 @@ bool appl::widget::ListViewer::onEventInput(const ewol::event::Input& _event) {
 	vec2 relativePos = relativePosition(_event.getPos());
 	int32_t findId = -1;
 	for (size_t iii=0; iii<m_listDisplay.size(); ++iii) {
-		if (m_listDisplay[iii] == nullptr) {
+		if (m_listDisplay[iii] == null) {
 			continue;
 		}
 		if(    relativePos.x() < m_listDisplay[iii]->m_pos.x()
@@ -891,9 +891,9 @@ bool appl::widget::ListViewer::onEventInput(const ewol::event::Input& _event) {
 	if (_event.getId() == 1) {
 		if(_event.getStatus() == gale::key::status::pressSingle) {
 			APPL_DEBUG("Select element : " << findId << "  " << m_listDisplay[findId]->m_idCurentElement);
-			if (m_listDisplay[findId]->m_property != nullptr) {
+			if (m_listDisplay[findId]->m_property != null) {
 				ememory::SharedPtr<appl::ElementProperty> prop = m_listDisplay[findId]->m_property;
-				if (prop == nullptr) {
+				if (prop == null) {
 					return true;
 				}
 				etk::String fullTitle;
@@ -910,9 +910,9 @@ bool appl::widget::ListViewer::onEventInput(const ewol::event::Input& _event) {
 				APPL_DEBUG("info element : " << prop->m_id << " title: " << fullTitle);
 				m_currentPayed = prop->m_id;
 				signalSelect.emit(prop->m_id);
-			} else if (m_listDisplay[findId]->m_propertyGroup != nullptr) {
+			} else if (m_listDisplay[findId]->m_propertyGroup != null) {
 				ememory::SharedPtr<appl::ElementPropertyGroup> prop = m_listDisplay[findId]->m_propertyGroup;
-				if (prop == nullptr) {
+				if (prop == null) {
 					return true;
 				}
 				etk::String newGroup = "";
@@ -945,14 +945,14 @@ bool appl::widget::ListViewer::onEventInput(const ewol::event::Input& _event) {
 
 bool appl::widget::ListViewer::previous() {
 	for (int64_t iii=0; iii<int64_t(m_listElement.size()); ++iii) {
-		if (m_listElement[iii] == nullptr) {
+		if (m_listElement[iii] == null) {
 			continue;
 		}
 		if (m_listElement[iii]->m_id == m_currentPayed) {
 			// Start search ...
 			--iii;
 			while(iii>=0) {
-				if (m_listElement[iii] == nullptr) {
+				if (m_listElement[iii] == null) {
 					--iii;
 					continue;
 				}
@@ -968,14 +968,14 @@ bool appl::widget::ListViewer::previous() {
 
 bool appl::widget::ListViewer::next() {
 	for (size_t iii=0; iii<m_listElement.size(); ++iii) {
-		if (m_listElement[iii] == nullptr) {
+		if (m_listElement[iii] == null) {
 			continue;
 		}
 		if (m_listElement[iii]->m_id == m_currentPayed) {
 			// Start search ...
 			++iii;
 			while(iii<m_listElement.size()) {
-				if (m_listElement[iii] == nullptr) {
+				if (m_listElement[iii] == null) {
 					++iii;
 					continue;
 				}

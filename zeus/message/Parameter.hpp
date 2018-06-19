@@ -35,7 +35,7 @@ namespace zeus {
 				/**
 				 * @brief Get the start pointer of the parameter
 				 * @param[in] _id Number of the parameter
-				 * @return pointer of the parameter or nullptr
+				 * @return pointer of the parameter or null
 				 */
 				const uint8_t* getParameterPointer(int32_t _id) const;
 				/**

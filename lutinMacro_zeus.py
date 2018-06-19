@@ -550,7 +550,7 @@ class ServiceDefinition:
 		out += "			data.resize(data.size()+4);\n"
 		out += "			uint32_t fullId = 0;\n"
 		# convert the object in a real System Object ....
-		out += "			if (m_iface != nullptr) {\n"
+		out += "			if (m_iface != null) {\n"
 		out += "				uint16_t id    = m_iface->getAddress();\n"
 		out += "				uint16_t idObj = m_iface->getNewObjectId();\n"
 		out += "				ememory::SharedPtr<zeus::ObjectType<" + self.prop["name_class"] + ">> obj = ememory::makeShared<zeus::ObjectType<" + self.prop["name_class"] + ">>(m_iface, idObj, _value);\n"
@@ -575,8 +575,8 @@ class ServiceDefinition:
 		out += "	\n"
 		out += "	template<> " + self.prop["name_class_proxy"] + " futureGetValue<" + self.prop["name_class_proxy"] + ">(ememory::SharedPtr<zeus::Promise>& _promise) {\n"
 		out += "		ememory::SharedPtr<zeus::ObjectRemoteBase> out;\n"
-		out += "		if (    _promise == nullptr\n"
-		out += "		     || _promise->getRaw() == nullptr) {\n"
+		out += "		if (    _promise == null\n"
+		out += "		     || _promise->getRaw() == null) {\n"
 		out += "			return zeus::ObjectRemote(out);\n"
 		out += "		}\n"
 		out += "		if (_promise->getRaw()->getType() != zeus::message::type::answer) {\n"
@@ -661,21 +661,21 @@ class ServiceDefinition:
 			out += space + '_interface.addAuthor("' + elem.split("<")[0] + '", "' + elem.split("<")[1].replace(">","") + '");\n';
 		if    len(self.functions) != 0 \
 		   or len(self.attributes) != 0:
-			out += space + "zeus::AbstractFunction* func = nullptr;\n"
+			out += space + "zeus::AbstractFunction* func = null;\n"
 		for elem in self.attributes:
 			out += space + 'func = _interface.advertise("' + elem.name + '.set", &' + self.prop["name_class"] + '::_internalWrapperProperty_set' + capital_first(elem.name) + ');\n'
-			out += space + 'if (func != nullptr) {\n'
+			out += space + 'if (func != null) {\n'
 			if elem.brief != "":
 				out += space + '	func->setDescription("Set parameter ' + elem.brief + '");\n'
 			out += space + '}\n'
 			out += space + 'func = _interface.advertise("' + elem.name + '.get", &' + self.prop["name_class"] + '::_internalWrapperProperty_get' + capital_first(elem.name) + ');\n'
-			out += space + 'if (func != nullptr) {\n'
+			out += space + 'if (func != null) {\n'
 			if elem.brief != "":
 				out += space + '	func->setDescription("Get parameter ' + elem.brief + '");\n'
 			out += space + '}\n'
 		for elem in self.functions:
 			out += space + 'func = _interface.advertise("' + elem.name + '", &' + self.prop["name_class"] + '::' + elem.name + ');\n'
-			out += space + 'if (func != nullptr) {\n'
+			out += space + 'if (func != null) {\n'
 			space += "	"
 			if elem.brief != "":
 				out += space + 'func->setDescription("' + elem.brief + '");\n'

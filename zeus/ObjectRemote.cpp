@@ -50,13 +50,13 @@ const etk::String& zeus::ObjectRemoteBase::getName() const {
 
 zeus::ObjectRemote::ObjectRemote(ememory::SharedPtr<zeus::ObjectRemoteBase> _interface):
   m_interface(_interface) {
-	if (m_interface == nullptr) {
+	if (m_interface == null) {
 		return;
 	}
 }
 
 bool zeus::ObjectRemote::exist() const {
-	if (m_interface == nullptr) {
+	if (m_interface == null) {
 		return false;
 	}
 	return m_interface->m_isLinked;

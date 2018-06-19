@@ -161,7 +161,7 @@ void zeus::MediaImpl::setMetadata(etk::String _key, etk::String _value) {
 	     || _key == "decorated-name") {
 		return;
 	}
-	if (m_callback != nullptr) {
+	if (m_callback != null) {
 		m_callback(this, _key);
 	}
 }

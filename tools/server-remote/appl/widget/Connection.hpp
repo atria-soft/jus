@@ -29,7 +29,7 @@ namespace appl {
 		 *  The first step is to create the file chooser pop-up : (never in the constructor!!!)
 		 *  [code style=c++]
 		 *  appl::widget::ConnectionShared tmpWidget = appl::widget::Connection::create();
-		 *  if (tmpWidget == nullptr) {
+		 *  if (tmpWidget == null) {
 		 *  	APPL_ERROR("Can not open File chooser !!! ");
 		 *  	return -1;
 		 *  }
@@ -39,7 +39,7 @@ namespace appl {
 		 *  tmpWidget->signalCancel.connect(sharedFromThis(), &****::onCallbackConnectionCancel);
 		 *  // add the widget as windows pop-up ...
 		 *  ewol::widget::WindowsShared tmpWindows = getWindows();
-		 *  if (tmpWindows == nullptr) {
+		 *  if (tmpWindows == null) {
 		 *  	APPL_ERROR("Can not get the current windows !!! ");
 		 *  	return -1;
 		 *  }
@@ -71,7 +71,7 @@ namespace appl {
 			public:
 				DECLARE_WIDGET_FACTORY(Connection, "Connection");
 				virtual ~Connection();
-				void setProperty(ememory::SharedPtr<appl::ClientProperty> _baseProperty=nullptr);
+				void setProperty(ememory::SharedPtr<appl::ClientProperty> _baseProperty=null);
 			private:
 				etk::String getCompleateFileName();
 				void updateCurrentFolder();

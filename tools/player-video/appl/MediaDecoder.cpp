@@ -23,21 +23,21 @@
 
 
 static int g_readFunc(void* _opaque, uint8_t* _buf, int _bufSize) {
-	if (_opaque == nullptr) {
+	if (_opaque == null) {
 		return 0;
 	}
 	return static_cast<appl::MediaDecoder*>(_opaque)->readFunc(_buf, _bufSize);
 }
 
 static int g_writeFunc(void* _opaque, uint8_t* _buf, int _bufSize) {
-	if (_opaque == nullptr) {
+	if (_opaque == null) {
 		return 0;
 	}
 	return static_cast<appl::MediaDecoder*>(_opaque)->writeFunc(_buf, _bufSize);
 }
 
 static int64_t g_seekFunc(void* _opaque, int64_t _offset, int _whence) {
-	if (_opaque == nullptr) {
+	if (_opaque == null) {
 		return 0;
 	}
 	return static_cast<appl::MediaDecoder*>(_opaque)->seekFunc(_offset, _whence);
@@ -150,22 +150,22 @@ void appl::MessageElementAudio::configure(audio::format _format, uint32_t _sampl
 appl::MediaDecoder::MediaDecoder() :
   m_seekApply(-1) {
 	init_ffmpeg();
-	m_IOContext = nullptr;
-	m_formatContext = nullptr;
-	m_videoDecoderContext = nullptr;
-	m_audioDecoderContext = nullptr;
+	m_IOContext = null;
+	m_formatContext = null;
+	m_videoDecoderContext = null;
+	m_audioDecoderContext = null;
 	m_size = ivec2(0,0);
-	m_videoStream = nullptr;
-	m_audioStream = nullptr;
+	m_videoStream = null;
+	m_audioStream = null;
 	
 	m_videoStream_idx = -1;
 	m_audioStream_idx = -1;
-	m_frame = nullptr;
+	m_frame = null;
 	m_videoFrameCount = 0;
 	m_audioFrameCount = 0;
 	m_seek = -1;
 	// output format convertion:
-	m_convertContext = nullptr;
+	m_convertContext = null;
 	m_audioPresent = false;
 	m_audioFormat = audio::format_unknow;
 	m_isInit = false;
@@ -379,11 +379,11 @@ int appl::MediaDecoder::decode_packet(int *_gotFrame, int _cached) {
 int appl::MediaDecoder::open_codec_context(int *_streamId, AVFormatContext *_formatContext, enum AVMediaType _type) {
 	int ret = 0;
 	int stream_index = 0;
-	AVStream *st = nullptr;
-	AVCodecContext *dec_ctx = nullptr;
-	AVCodec *dec = nullptr;
-	AVDictionary *opts = nullptr;
-	ret = av_find_best_stream(_formatContext, _type, -1, -1, nullptr, 0);
+	AVStream *st = null;
+	AVCodecContext *dec_ctx = null;
+	AVCodec *dec = null;
+	AVDictionary *opts = null;
+	ret = av_find_best_stream(_formatContext, _type, -1, -1, null, 0);
 	if (ret < 0) {
 		APPL_ERROR("Could not find " << av_get_media_type_string(_type) << " stream in input file '" << m_sourceFilename << "'");
 		return ret;
@@ -418,8 +418,8 @@ void appl::MediaDecoder::init(ememory::SharedPtr<ClientProperty> _property, uint
 	// TODO : Correct this later ... We first download the media and after we play it
 	// TODO : We need to download only a small part ...
 	// get the requested node:
-	if (_property == nullptr) {
-		APPL_ERROR("Request play of not handle property ==> nullptr");
+	if (_property == null) {
+		APPL_ERROR("Request play of not handle property ==> null");
 		return;
 	}
 	if (_property->getConnection().isAlive() == false) {
@@ -728,7 +728,7 @@ void appl::StreamBuffering::checkIfWeNeedMoreDataFromNetwork() {
 
 void appl::MediaDecoder::init() {
 	if (    m_isInit == true
-	     || m_remote == nullptr
+	     || m_remote == null
 	     || m_remote->sizeReadable() < 1024*1024) {// Need to wait at lease 1MB
 		
 		return;
@@ -739,7 +739,7 @@ void appl::MediaDecoder::init() {
 	ethread::setName("ffmpegThread");
 	// open input file, and allocate format context
 	#ifdef APPL_USE_GENERIC_FFMPEG
-		if (avformat_open_input(&m_formatContext, m_sourceFilename.c_str(), nullptr, nullptr) < 0) {
+		if (avformat_open_input(&m_formatContext, m_sourceFilename.c_str(), null, null) < 0) {
 			APPL_ERROR("Could not open source file " << m_sourceFilename);
 			return;
 		}
@@ -750,19 +750,19 @@ void appl::MediaDecoder::init() {
 		}
 		uint8_t* ploooooo = (uint8_t*)av_malloc(APPL_BUFFER_SIZE_FOR_FFMPEG);
 		m_IOContext = avio_alloc_context(ploooooo, APPL_BUFFER_SIZE_FOR_FFMPEG, 0 /* can not write */, this, g_readFunc, g_writeFunc, g_seekFunc);
-		if (m_IOContext == nullptr) {
+		if (m_IOContext == null) {
 			APPL_ERROR("Could not create IO stream");
 			return;
 		}
 		// set IO read and write interface
 		m_formatContext->pb = m_IOContext;
-		if (avformat_open_input(&m_formatContext, nullptr, nullptr, nullptr) < 0) {
+		if (avformat_open_input(&m_formatContext, null, null, null) < 0) {
 			APPL_ERROR("Could not open source file " << m_sourceFilename);
 			return;
 		}
 	#endif
 	// retrieve stream information
-	if (avformat_find_stream_info(m_formatContext, nullptr) < 0) {
+	if (avformat_find_stream_info(m_formatContext, null) < 0) {
 		APPL_ERROR("Could not find stream information");
 		// TODO : check this, this will create a memeory leak
 		return;
@@ -849,8 +849,8 @@ void appl::MediaDecoder::init() {
 	// dump input information to stderr
 	// For test only: av_dump_format(m_formatContext, 0, m_sourceFilename.c_str(), 0);
 	
-	if (    m_audioStream == nullptr
-	     && m_videoStream == nullptr) {
+	if (    m_audioStream == null
+	     && m_videoStream == null) {
 		APPL_ERROR("Could not find audio or video stream in the input, aborting");
 		return; // TODO : An error occured ... !!!!!
 	}
@@ -861,9 +861,9 @@ void appl::MediaDecoder::init() {
 		return; // TODO : An error occured ... !!!!!
 	}
 	APPL_ERROR("ZZZZZZZ");
-	// initialize packet, set data to nullptr, let the demuxer fill it
+	// initialize packet, set data to null, let the demuxer fill it
 	av_init_packet(&m_packet);
-	m_packet.data = nullptr;
+	m_packet.data = null;
 	m_packet.size = 0;
 	m_isInit = true;
 }
@@ -927,23 +927,23 @@ void appl::MediaDecoder::uninit() {
 	flushMessage();
 	avcodec_close(m_videoDecoderContext);
 	avcodec_close(m_audioDecoderContext);
-	m_formatContext->pb = nullptr;
+	m_formatContext->pb = null;
 	avformat_close_input(&m_formatContext);
 	av_frame_free(&m_frame);
 	av_free(m_IOContext);
-	m_IOContext = nullptr;
+	m_IOContext = null;
 	m_audioPool.clear();
 	m_videoPool.clear();
 	m_updateVideoTimeStampAfterSeek = false;
-	m_videoStream = nullptr;
-	m_audioStream = nullptr;
+	m_videoStream = null;
+	m_audioStream = null;
 	m_sourceFilename = "";
 	m_videoStream_idx = 0;
 	m_audioStream_idx = 0;
 	m_videoFrameCount = 0;
 	m_audioFrameCount = 0;
 	// output format convertion:
-	m_convertContext = nullptr;
+	m_convertContext = null;
 	m_remote.reset();
 	m_isInit = false;
 	APPL_PRINT("Demuxing & Decoding succeeded... (DONE)");
@@ -951,7 +951,7 @@ void appl::MediaDecoder::uninit() {
 
 void appl::MediaDecoder::stop() {
 	m_stopRequested = true;
-	if (m_remote != nullptr) {
+	if (m_remote != null) {
 		m_remote->stopStream();
 	}
 	gale::Thread::stop();

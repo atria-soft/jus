@@ -31,7 +31,7 @@ namespace zeus {
 			 * @brief Contructor of the remote object
 			 */
 			ObjectRemoteBase():
-			  zeus::WebObj(nullptr, 0, 0) {
+			  zeus::WebObj(null, 0, 0) {
 				ZEUS_INFO("[XX/YY] Create");
 			}
 			/**
@@ -95,7 +95,7 @@ namespace zeus {
 			 * @brief Contructor of a remote Object
 			 * @param[in] _interface Interface of the object
 			 */
-			ObjectRemote(ememory::SharedPtr<zeus::ObjectRemoteBase> _interface = nullptr);
+			ObjectRemote(ememory::SharedPtr<zeus::ObjectRemoteBase> _interface = null);
 			/**
 			 * @brief permit to check if the remote hs been corectly created
 			 * @return true The object exist
@@ -111,10 +111,10 @@ namespace zeus {
 			 */
 			template<class... _ARGS>
 			zeus::FutureBase call(const etk::String& _functionName, _ARGS&&... _args) const {
-				if (    m_interface == nullptr
-				     || m_interface->m_interfaceWeb == nullptr) {
-					ememory::SharedPtr<zeus::message::Answer> ret = zeus::message::Answer::create(nullptr); // TODO : This is a real bad case ...
-					if (ret != nullptr) {
+				if (    m_interface == null
+				     || m_interface->m_interfaceWeb == null) {
+					ememory::SharedPtr<zeus::message::Answer> ret = zeus::message::Answer::create(null); // TODO : This is a real bad case ...
+					if (ret != null) {
 						ret->addError("NULLPTR", "call " + _functionName + " with no interface open");
 					}
 					return zeus::FutureBase(0, ret);

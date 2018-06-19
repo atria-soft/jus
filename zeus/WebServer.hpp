@@ -98,8 +98,8 @@ namespace zeus {
 	                                                   const etk::String& _functionName,
 	                                                   _ARGS&&... _args) {
 		ememory::SharedPtr<zeus::message::Call> callElem = createBaseCall(_iface, _transactionId, _source, _destination, _functionName);
-		if (callElem == nullptr) {
-			return nullptr;
+		if (callElem == null) {
+			return null;
 		}
 		createParam(0, callElem, etk::forward<_ARGS>(_args)...);
 		return callElem;

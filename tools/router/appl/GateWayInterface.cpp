@@ -40,8 +40,8 @@ etk::String appl::GateWayInterface::requestURI(const etk::String& _uri, const et
 	for (auto &it: _options) {
 		ZEUS_INFO("    '" << it.first << "' = '" << it.second << "'");
 	}
-	if(m_routerInterface == nullptr) {
-		ZEUS_ERROR("Can not access to the main GateWay interface (nullptr)");
+	if(m_routerInterface == null) {
+		ZEUS_ERROR("Can not access to the main GateWay interface (null)");
 		return "CLOSE";
 	}
 	etk::String tmpURI = _uri;
@@ -85,7 +85,7 @@ void appl::GateWayInterface::send(ememory::SharedPtr<zeus::Message> _data) {
 }
 
 uint16_t appl::GateWayInterface::addClient(ememory::SharedPtr<appl::ClientInterface> _value) {
-	if (_value == nullptr) {
+	if (_value == null) {
 		return -1;
 	}
 	APPL_WARNING("Add client on GateWay " << _value->getId());
@@ -94,7 +94,7 @@ uint16_t appl::GateWayInterface::addClient(ememory::SharedPtr<appl::ClientInterf
 }
 
 void appl::GateWayInterface::rmClient(ememory::SharedPtr<appl::ClientInterface> _value) {
-	if (_value == nullptr) {
+	if (_value == null) {
 		return;
 	}
 	uint16_t id = _value->getId();
@@ -102,7 +102,7 @@ void appl::GateWayInterface::rmClient(ememory::SharedPtr<appl::ClientInterface> 
 	bool find = false;
 	auto it = m_clientConnected.begin();
 	while (it != m_clientConnected.end()) {
-		if (*it == nullptr) {
+		if (*it == null) {
 			it = m_clientConnected.erase(it);
 		} else if (*it == _value) {
 			it = m_clientConnected.erase(it);
@@ -118,7 +118,7 @@ void appl::GateWayInterface::rmClient(ememory::SharedPtr<appl::ClientInterface> 
 }
 
 void appl::GateWayInterface::onServiceData(ememory::SharedPtr<zeus::Message> _value) {
-	if (_value == nullptr) {
+	if (_value == null) {
 		return;
 	}
 	if (m_name == "") {
