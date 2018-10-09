@@ -42,9 +42,9 @@ void appl::widget::UpBar::init() {
 	ewol::widget::Composer::init();
 	if (*propertySubFile == "") {
 		if (*propertyType == "volume") {
-			propertySubFile.set("DATA:gui-volume.xml");
+			propertySubFile.set("DATA:///gui-volume.xml");
 		} else if (*propertyType == "light") {
-			propertySubFile.set("DATA:gui-light.xml");
+			propertySubFile.set("DATA:///gui-light.xml");
 		} else {
 			APPL_ERROR("can not set the mode of upBar");
 		}

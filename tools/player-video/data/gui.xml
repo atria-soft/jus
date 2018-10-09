@@ -15,10 +15,10 @@
 	</wslider>
 	<sizer mode="hori" fill="true,false" expand="true,false" lock="true">
 		<menu name="menu-bar">
-			<elem title="" image="DATA:List.svg" event="">
-				<elem title="_T{Connect}" image="DATA:Connect.svg" event="menu:connect"/>
-				<elem title="_T{Home}"    image="DATA:Home.svg"    event="menu:home"/>
-				<elem title="_T{Group}"   image="DATA:Group.svg"   event="menu:group">
+			<elem title="" image="DATA:///List.svg" event="">
+				<elem title="_T{Connect}" image="DATA:///Connect.svg" event="menu:connect"/>
+				<elem title="_T{Home}"    image="DATA:///Home.svg"    event="menu:home"/>
+				<elem title="_T{Group}"   image="DATA:///Group.svg"   event="menu:group">
 					<elem title="_T{Films}"              image=""   event="menu:films"/>
 					<elem title="_T{Annimated films}"    image=""   event="menu:animation-films"/>
 					<elem title="_T{TV Show}"            image=""   event="menu:tv-show"/>
@@ -27,48 +27,48 @@
 					<elem title="_T{One-man show}"       image=""   event="menu:one-man-show"/>
 					<elem title="_T{Courses}"            image=""   event="menu:courses"/>
 				</elem>
-				<elem title="_T{TV}"      image="DATA:Tv.svg"      event="menu:tv">
+				<elem title="_T{TV}"      image="DATA:///Tv.svg"      event="menu:tv">
 					<elem title="_T{Child TV}"            image=""   event="menu:TV-child"/>
 					<elem title="_T{Adult TV}"            image=""   event="menu:TV-adult"/>
 				</elem>
 				<!--
 				<separator/>
-				<elem title="_T{Child Adult Switch}"   image="DATA:ChildAdult.svg"    event="menu:child-adult-switch"/>
+				<elem title="_T{Child Adult Switch}"   image="DATA:///ChildAdult.svg"    event="menu:child-adult-switch"/>
 				-->
 				<separator/>
-				<elem title="_T{Full screen}"          image="DATA:FullScreen.svg"    event="menu:full-screen"/>
+				<elem title="_T{Full screen}"          image="DATA:///FullScreen.svg"    event="menu:full-screen"/>
 				<separator/>
-				<elem title="_T{Exit}"                 image="DATA:Exit.svg"          event="menu:exit"/>
+				<elem title="_T{Exit}"                 image="DATA:///Exit.svg"          event="menu:exit"/>
 			</elem>
 		</menu>
 		<spacer expand="true,false"/>
 		<button name="access-fast-back" shape="">
-			<image src="DATA:Back.svg" size="8,8mm" />
+			<image src="DATA:///Back.svg" size="8,8mm" />
 		</button>
 		<spacer expand="true,false"/>
 		<button name="access-fast-home" shape="">
-			<image src="DATA:Home.svg" size="8,8mm" />
+			<image src="DATA:///Home.svg" size="8,8mm" />
 		</button>
 		<spacer expand="true,false"/>
 		<button name="access-fast-group" shape="">
-			<image src="DATA:Group.svg" size="8,8mm" />
+			<image src="DATA:///Group.svg" size="8,8mm" />
 		</button>
 		<spacer expand="true,false"/>
 		<!--
 		<button name="access-fast-tv">
-			<image src="DATA:Tv.svg" size="8,8mm" />
+			<image src="DATA:///Tv.svg" size="8,8mm" />
 		</button>
 		<spacer expand="true,false"/>
 		<button name="access-fast-page-previous">
-			<image src="DATA:Previous.svg" size="8,8mm" />
+			<image src="DATA:///Previous.svg" size="8,8mm" />
 		</button>
 		<spacer expand="true,false"/>
 		<button name="access-fast-page-next">
-			<image src="DATA:Next.svg" size="8,8mm" />
+			<image src="DATA:///Next.svg" size="8,8mm" />
 		</button>
 		<spacer expand="true,false"/>
 		<button name="search-bt" shape="">
-			<image src="DATA:Search.svg" size='8,8mm' />
+			<image src="DATA:///Search.svg" size='8,8mm' />
 		</button>
 		-->
 	</sizer>

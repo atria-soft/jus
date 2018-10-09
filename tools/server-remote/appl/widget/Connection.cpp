@@ -32,7 +32,7 @@ appl::widget::Connection::Connection() :
 
 void appl::widget::Connection::init() {
 	ewol::widget::Composer::init();
-	loadFromFile("DATA:gui-connection.xml", getId());
+	loadFromFile("DATA:///gui-connection.xml", getId());
 	subBind(ewol::widget::Entry, "[" + etk::toString(getId()) + "]connect-login", signalModify, sharedFromThis(), &appl::widget::Connection::onCallbackEntryLoginChangeValue);
 	subBind(ewol::widget::Entry, "[" + etk::toString(getId()) + "]connect-password", signalModify, sharedFromThis(), &appl::widget::Connection::onCallbackEntryPasswordChangeValue);
 	subBind(ewol::widget::Button, "[" + etk::toString(getId()) + "]connect-bt", signalPressed, sharedFromThis(), &appl::widget::Connection::onCallbackButtonValidate);

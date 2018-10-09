@@ -6,19 +6,19 @@
 			<spacer expand="true,false" fill="true"/>
 			<button name="[{ID}]appl-player-bt-previous" shape="">
 				<!--<label>_T{Previous}</label>-->
-				<image src="DATA:Previous.svg" size="8,8mm"/>
+				<image src="DATA:///Previous.svg" size="8,8mm"/>
 			</button>
 			<spacer expand="true,false" fill="true"/>
 			<button name="[{ID}]appl-player-bt-play" toggle="true" shape="">
 				<!--<label>_T{Play}</label>-->
-				<image src="DATA:Play.svg" size="8,8mm"/>
+				<image src="DATA:///Play.svg" size="8,8mm"/>
 				<!--<label>_T{Pause}</label>-->
-				<image src="DATA:Suspend.svg" size="8,8mm"/>
+				<image src="DATA:///Suspend.svg" size="8,8mm"/>
 			</button>
 			<spacer expand="true,false" fill="true"/>
 			<button name="[{ID}]appl-player-bt-next" shape="">
 				<!--<label>_T{Next}</label>-->
-				<image src="DATA:Next.svg" size="8,8mm" />
+				<image src="DATA:///Next.svg" size="8,8mm" />
 			</button>
 			<spacer expand="true,false" fill="true"/>
 			<spacer expand="true,false" fill="true"/>

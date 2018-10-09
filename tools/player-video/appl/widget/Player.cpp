@@ -35,7 +35,7 @@ appl::widget::Player::Player() :
 void appl::widget::Player::init() {
 	ewol::widget::Composer::init();
 	if (*propertySubFile == "") {
-		propertySubFile.set("DATA:gui-player.xml");
+		propertySubFile.set("DATA:///gui-player.xml");
 	}
 	subBind(ewol::widget::Button, "[" + etk::toString(getId()) + "]appl-player-bt-previous", signalPressed, sharedFromThis(), &appl::widget::Player::onCallbackButtonPrevious);
 	subBind(ewol::widget::Button, "[" + etk::toString(getId()) + "]appl-player-bt-play", signalValue, sharedFromThis(), &appl::widget::Player::onCallbackButtonPlay);

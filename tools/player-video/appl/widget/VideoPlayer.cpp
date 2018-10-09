@@ -71,7 +71,7 @@ void appl::widget::VideoDisplay::loadProgram() {
 	// get the shader resource:
 	m_GLPosition = 0;
 	m_GLprogram.reset();
-	m_GLprogram = gale::resource::Program::create("{ewol}DATA:textured3D.prog");
+	m_GLprogram = gale::resource::Program::create("DATA:///textured3D.prog?lib=ewol");
 	if (m_GLprogram != null) {
 		m_GLPosition = m_GLprogram->getAttribute("EW_coord3d");
 		m_GLColor    = m_GLprogram->getAttribute("EW_color");

@@ -37,8 +37,8 @@ appl::widget::ListViewer::ListViewer() :
 void appl::widget::ListViewer::init() {
 	ewol::Widget::init();
 	markToRedraw();
-	//m_compImageVideo.setSource("DATA:Video.svg", 128);
-	//m_compImageAudio.setSource("DATA:MusicNote.svg", 128);
+	//m_compImageVideo.setSource("DATA:///Video.svg", 128);
+	//m_compImageAudio.setSource("DATA:///MusicNote.svg", 128);
 }
 
 appl::widget::ListViewer::~ListViewer() {
@@ -310,10 +310,10 @@ void appl::ElementProperty::loadData() {
 	                 	             		tmpProperty->m_mineType = _value;
 	                 	             		if (etk::start_with(tmpProperty->m_mineType, "video") == true) {
 	                 	             			// TODO : Optimise this ...
-	                 	             			tmpProperty->m_thumb = egami::load("DATA:Video.svg", ivec2(128,128));
+	                 	             			tmpProperty->m_thumb = egami::load("DATA:///Video.svg", ivec2(128,128));
 	                 	             		} else if (etk::start_with(tmpProperty->m_mineType, "audio") == true) {
 	                 	             			// TODO : Optimise this ...
-	                 	             			tmpProperty->m_thumb = egami::load("DATA:MusicNote.svg", ivec2(128,128));
+	                 	             			tmpProperty->m_thumb = egami::load("DATA:///MusicNote.svg", ivec2(128,128));
 	                 	             		}
 	                 	             	}
 	                 	             	m_widget->markToRedraw();
@@ -819,7 +819,7 @@ void appl::ElementDisplayed::generateDisplay(vec2 _startPos, vec2 _size) {
 		bool haveThumb = false;
 		if (m_property->LoadDataEnded() == false) {
 			haveThumb = false;
-			m_image.setSource("DATA:Home.svg", 128);
+			m_image.setSource("DATA:///Home.svg", 128);
 		} else {
 			ethread::UniqueLock lock(m_property->m_mutex);
 			if (m_property->m_thumbPresent == true) {
@@ -829,12 +829,12 @@ void appl::ElementDisplayed::generateDisplay(vec2 _startPos, vec2 _size) {
 				m_image.print(vec2(_size.y(), _size.y()));
 			} else {
 				if (etk::start_with(m_property->m_mineType, "video") == true) {
-					m_image.setSource("DATA:Video.svg", 128);
+					m_image.setSource("DATA:///Video.svg", 128);
 				} else if (etk::start_with(m_property->m_mineType, "audio") == true) {
-					m_image.setSource("DATA:MusicNote.svg", 128);
+					m_image.setSource("DATA:///MusicNote.svg", 128);
 				} else {
 					APPL_DEBUG("Set image: Unknow type '" << m_property->m_mineType << "'");
-					m_image.setSource("DATA:Home.svg", 128);
+					m_image.setSource("DATA:///Home.svg", 128);
 				}
 			}
 		}
@@ -856,7 +856,7 @@ void appl::ElementDisplayed::generateDisplay(vec2 _startPos, vec2 _size) {
 			}
 		}
 		if (haveThumb == false) {
-			m_image.setSource("DATA:Home.svg", 128);
+			m_image.setSource("DATA:///Home.svg", 128);
 			m_image.setPos(_startPos+vec2(10,10));
 			m_image.print(vec2(_size.y(), _size.y())-vec2(20,20));
 		}

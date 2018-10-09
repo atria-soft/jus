@@ -73,7 +73,7 @@ void appl::Windows::init() {
 		APPL_CRITICAL(" An error occured ... in the windows creatrion ...");
 		return;
 	}
-	m_composer->loadFromFile("DATA:gui.xml");
+	m_composer->loadFromFile("DATA:///gui.xml");
 	setSubWidget(m_composer);
 	
 	subBind(ewol::widget::Button, "appl-shutdown", signalPressed, sharedFromThis(), &appl::Windows::onCallbackShutdown);

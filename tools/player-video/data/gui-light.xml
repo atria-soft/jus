@@ -1,5 +1,5 @@
 <sizer mode="vert" fill="true" expand="false,true" gravity="left">
-	<image name="[{ID}]appl-upbar-image" src="DATA:Light.svg" size="8,8mm"/>
+	<image name="[{ID}]appl-upbar-image" src="DATA:///Light.svg" size="8,8mm"/>
 	<appl_VolumeBar name="[{ID}]appl-upbar-range" expand="false,true" fill="true" step="5" min="0" max="200" danger="101" value="100" mode="vert"/>
 	<label name="[{ID}]appl-upbar-label">100%</label>
 </sizer>
