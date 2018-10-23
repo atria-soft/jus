@@ -13,7 +13,6 @@
 
 #include <ethread/Mutex.hpp>
 #include <ejson/ejson.hpp>
-#include <etk/os/FSNode.hpp>
 #include <sstream>
 
 #include <etk/stdTools.hpp>
@@ -26,9 +25,10 @@
 #include <zeus/zeus-Media.impl.hpp>
 
 static ethread::Mutex g_mutex;
-static etk::String g_basePath;
-static etk::String g_basePathCover;
-static etk::String g_basePathCoverGroup;
+static etk::Uri g_basePath;
+static etk::Uri g_basePathCover;
+static etk::Uri g_basePathCoverGroup;
+static etk::Uri g_basePathBDD;
 static etk::String g_baseDBName = etk::String(SERVICE_NAME) + "-database.json";
 
 static etk::Vector<ememory::SharedPtr<zeus::MediaImpl>> m_listFile;
@@ -210,20 +210,20 @@ namespace appl {
 						}
 					}
 				}
-				etk::String tmpFileName = g_basePath + "tmpImport_" + etk::toString(importId);
+				etk::Uri tmpFileName = g_basePath / ("tmpImport_" + etk::toString(importId));
 				etk::String sha512String = zeus::storeInFile(_dataFile, tmpFileName);
 				futType.wait();
 				futName.wait();
 				// move the file at the good position:
 				APPL_DEBUG("move temporay file in : " << g_basePath << sha512String);
-				if (etk::FSNodeGetSize(tmpFileName) == 0) {
+				if (etk::uri::fileSize(tmpFileName) == 0) {
 					APPL_ERROR("try to store an empty file");
 					throw etk::exception::RuntimeError("file size == 0");
 				}
 				if (zeus::getExtention(futType.get()) != "") {
 					ethread::UniqueLock lock(g_mutex);
-					etk::FSNodeMove(tmpFileName, g_basePath + sha512String + "." + zeus::getExtention(futType.get()));
-					ememory::SharedPtr<zeus::MediaImpl> property = ememory::makeShared<zeus::MediaImpl>(id, sha512String + "." + zeus::getExtention(futType.get()), g_basePath);
+					etk::uri::move(tmpFileName, g_basePath / (sha512String + "." + zeus::getExtention(futType.get())));
+					ememory::SharedPtr<zeus::MediaImpl> property = ememory::makeShared<zeus::MediaImpl>(id, g_basePath / sha512String + "." + zeus::getExtention(futType.get()));
 					property->setMetadata("sha512", sha512String);
 					property->setMetadata("mime-type", futType.get());
 					property->setCallbackMetadataChange(&metadataChange);
@@ -231,8 +231,8 @@ namespace appl {
 					g_needToStore = true;
 				} else {
 					ethread::UniqueLock lock(g_mutex);
-					etk::FSNodeMove(tmpFileName, g_basePath + sha512String);
-					ememory::SharedPtr<zeus::MediaImpl> property = ememory::makeShared<zeus::MediaImpl>(id, sha512String, g_basePath);
+					etk::uri::move(tmpFileName, g_basePath / sha512String);
+					ememory::SharedPtr<zeus::MediaImpl> property = ememory::makeShared<zeus::MediaImpl>(id, g_basePath / sha512String);
 					property->setMetadata("sha512", sha512String);
 					property->setCallbackMetadataChange(&metadataChange);
 					m_listFile.pushBack(property);
@@ -403,42 +403,42 @@ namespace appl {
 				return out;
 			}
 			
-			ememory::SharedPtr<zeus::File> internalGetCover(const etk::String& _baseName, const etk::String& _mediaString, uint32_t _maxSize) {
-				if (etk::FSNodeExist(_baseName + _mediaString + ".jpg") == true) {
-					return zeus::File::create(_baseName + _mediaString + ".jpg");
+			ememory::SharedPtr<zeus::File> internalGetCover(const etk::Uri& _baseName, const etk::String& _mediaString, uint32_t _maxSize) {
+				if (etk::uri::exist(_baseName / (_mediaString + ".jpg")) == true) {
+					return zeus::File::create(_baseName / (_mediaString + ".jpg"));
 				}
-				if (etk::FSNodeExist(_baseName + _mediaString + ".png") == true) {
-					return zeus::File::create(_baseName + _mediaString + ".png");
+				if (etk::uri::exist(_baseName / (_mediaString + ".png")) == true) {
+					return zeus::File::create(_baseName / (_mediaString + ".png"));
 				}
 				throw etk::exception::RuntimeError("No cover availlable");
 			}
 			
-			void internalSetCover(const etk::String& _baseName, zeus::ActionNotification<etk::String>& _notifs, zeus::ProxyFile _cover, etk::String _mediaString) {
+			void internalSetCover(const etk::Uri& _baseName, zeus::ActionNotification<etk::String>& _notifs, zeus::ProxyFile _cover, etk::String _mediaString) {
 				uint64_t importId = 0;
 				{
 					ethread::UniqueLock lock(g_mutex);
 					importId = createUniqueImportID();
 				}
 				auto futType = _cover.getMineType();
-				etk::String tmpFileName = g_basePath + "tmpImport_" + etk::toString(importId);
+				etk::Uri tmpFileName = g_basePath / ("tmpImport_" + etk::toString(importId));
 				etk::String sha512String = zeus::storeInFile(_cover, tmpFileName);
 				futType.wait();
-				if (etk::FSNodeGetSize(tmpFileName) == 0) {
+				if (etk::uri::fileSize(tmpFileName) == 0) {
 					APPL_ERROR("try to store an empty file");
 					throw etk::exception::RuntimeError("file size == 0");
 				}
-				if (etk::FSNodeGetSize(tmpFileName) > 1024*1024) {
+				if (etk::uri::fileSize(tmpFileName) > 1024*1024) {
 					APPL_ERROR("try to store a Bigger file");
 					throw etk::exception::RuntimeError("file size > 1Mo");
 				}
 				if (futType.get() == "image/png") {
 					ethread::UniqueLock lock(g_mutex);
-					etk::FSNodeRemove(_baseName + _mediaString + ".jpg");
-					etk::FSNodeMove(tmpFileName, _baseName + _mediaString + ".png");
+					etk::uri::remove(_baseName / (_mediaString + ".jpg"));
+					etk::uri::move(tmpFileName, _baseName / (_mediaString + ".png"));
 				} else if (futType.get() == "image/jpeg") {
 					ethread::UniqueLock lock(g_mutex);
-					etk::FSNodeRemove(_baseName + _mediaString + ".png");
-					etk::FSNodeMove(tmpFileName, _baseName + _mediaString + ".jpg");
+					etk::uri::remove(_baseName / (_mediaString + ".png"));
+					etk::uri::move(tmpFileName, _baseName / (_mediaString + ".jpg"));
 				} else {
 					APPL_ERROR("try to store a file with the wrong format");
 					throw etk::exception::RuntimeError("wrong foramt :" + futType.get() + " support only image/jpeg, image/png");
@@ -475,14 +475,14 @@ static void store_db() {
 			listFilesArray.add(it->getJson());
 		}
 	}
-	bool retGenerate = database.storeSafe(g_basePath + g_baseDBName);
-	APPL_ERROR("Store database [STOP] : " << (g_basePath + g_baseDBName) << " ret = " << retGenerate);
+	bool retGenerate = database.storeSafe(g_basePathBDD);
+	APPL_ERROR("Store database [STOP] : " << g_basePathBDD << " ret = " << retGenerate);
 	g_needToStore = false;
 }
 
 static void load_db() {
 	ejson::Document database;
-	bool ret = database.load(g_basePath + g_baseDBName);
+	bool ret = database.load(g_basePathBDD);
 	if (ret == false) {
 		APPL_WARNING("    ==> LOAD error");
 	}
@@ -506,10 +506,11 @@ static void load_db() {
 	g_needToStore = false;
 }
 
-ETK_EXPORT_API bool SERVICE_IO_init(int _argc, const char *_argv[], etk::String _basePath) {
+ETK_EXPORT_API bool SERVICE_IO_init(int _argc, const char *_argv[], etk::Uri _basePath) {
 	g_basePath = _basePath;
-	g_basePathCover = _basePath + "/AAAASDGDFGQN4352SCVdfgBSXDFGFCVQDSGFQSfd_cover/";
-	g_basePathCoverGroup = _basePath + "/AAAASDGDFGQN4352SCVdfgBSXDFGFCVQDSGFQSfd_cover_group/";
+	g_basePathCover = g_basePath / "AAAASDGDFGQN4352SCVdfgBSXDFGFCVQDSGFQSfd_cover";
+	g_basePathCoverGroup = g_basePath / "AAAASDGDFGQN4352SCVdfgBSXDFGFCVQDSGFQSfd_cover_group";
+	g_basePathBDD = g_basePath / g_baseDBName;
 	ethread::UniqueLock lock(g_mutex);
 	APPL_WARNING("Load USER: " << g_basePath);
 	load_db();

@@ -8,6 +8,8 @@ list_of_known_type = [
     ["void", "void"],
     ["bool", "bool"],
     ["string", "etk::String"],
+    ["uri", "etk::Uri"],
+    ["path", "etk::Path"],
     ["int8", "int8_t"],
     ["int16", "int16_t"],
     ["int32", "int32_t"],
@@ -439,6 +441,7 @@ class ServiceDefinition:
 		out += "#include <etk/types.hpp>\n"
 		out += "#include <eproperty/Value.hpp>\n"
 		out += "#include <zeus/Raw.hpp>\n"
+		out += "#include <etk/uri/uri.hpp>\n"
 		out += "#include <etk/String.hpp>\n"
 		out += "#include <etk/Vector.hpp>\n"
 		out += "#include <ememory/memory.hpp>\n"
@@ -520,7 +523,7 @@ class ServiceDefinition:
 		out += "#include <etk/stdTools.hpp>\n"
 		out += "#include <zeus/AbstractFunction.hpp>\n"
 		out += "#include <climits>\n"
-		out += "#include <etk/os/FSNode.hpp>\n"
+		out += "#include <etk/path/fileSystem.hpp>\n"
 		out += "#include <zeus/WebServer.hpp>\n"
 		out += "#include <zeus/Object.hpp>\n"
 		out += "\n"

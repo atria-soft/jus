@@ -9,24 +9,24 @@
 
 #brief:Factory to create a local object.
 #param:fileName:Name of the local file to instanciate.
-[factory] create(string)
+[factory] create(uri)
 #brief:Factory to create a local object.
 #param:fileName:Name of the local file to instanciate.
 #param:sha512: Sha-512 string if the file
-[factory] create(string, string)
+[factory] create(uri, string)
 #brief:Factory to create a local object.
 #param:fileNameReal:Name of the local file to instanciate.
 #param:fileNameShow:Name of the file like the remote user will se it.
 #param:mineType:Mine-type of the file.
-[factory] create(string, string, string)
+[factory] create(uri, string, string)
 #brief:Factory to create a local object.
 #param:fileNameReal:Name of the local file to instanciate.
 #param:fileNameShow:Name of the file like the remote user will se it.
 #param:mineType:Mine-type of the file.
 #param:sha512: Sha-512 string if the file
-[factory] create(string, string, string, string)
+[factory] create(uri, string, string, string)
 #brief:Factory to create a local object with a buffer with data like a file.
-#param:buffer:Data bueffer of the data.
+#param:buffer:Data buffer of the data.
 #param:virtualName:Virtual name of the file.
 #param:mineType:Mine-type of the file.
 [factory] create(vector:uint8, string, string)
@@ -65,7 +65,7 @@ raw getPart(uint64, uint64)
 #param:file:Handle on the file.
 #param:filename:Local filename.
 #return:the sha512 of the file (calculated with the input stream.
-[tool-remote] string storeInFile(obj:zeus-File, string)
+[tool-remote] string storeInFile(obj:zeus-File, uri)
 
 #brief:Store all the data in a specific vector of data.
 #param:file:Handle on the file.
@@ -77,5 +77,5 @@ raw getPart(uint64, uint64)
 #param:filename:Local filename.
 #param:notif:Local filename.
 #return:the sha512 of the file (calculated with the input stream.
-[tool-remote] string storeInFileNotify(obj:zeus-File, string, ActionNotif)
+[tool-remote] string storeInFileNotify(obj:zeus-File, uri, ActionNotif)
 

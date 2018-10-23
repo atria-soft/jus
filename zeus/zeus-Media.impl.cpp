@@ -8,17 +8,24 @@
 #include <zeus/ProxyFile.hpp>
 #include <zeus/mineType.hpp>
 #include <algue/sha512.hpp>
-#include <etk/os/FSNode.hpp>
+#include <etk/path/fileSystem.hpp>
 #include "debug.hpp"
 
 
 #include <etk/typeInfo.hpp>
 ETK_DECLARE_TYPE(zeus::MediaImpl);
 
-ememory::SharedPtr<zeus::Media> zeus::Media::create(etk::String _fileNameReal) {
-	return ememory::makeShared<zeus::MediaImpl>(0, _fileNameReal);
+ememory::SharedPtr<zeus::Media> zeus::Media::create(etk::String _fileName) {
+	return zeus::Media::create(etk::Uri("file:///" + _fileName));
 }
 
+ememory::SharedPtr<zeus::Media> zeus::Media::create(etk::Path _path) {
+	return zeus::Media::create(etk::Uri("file:///" + _path.getString()));
+}
+
+ememory::SharedPtr<zeus::Media> zeus::Media::create(etk::Uri _uri) {
+	return ememory::makeShared<zeus::MediaImpl>(0, _uri);
+}
 ejson::Object zeus::MediaImpl::getJson() {
 	ejson::Object out;
 	out.add("id", ejson::Number(m_id));
@@ -33,7 +40,7 @@ ejson::Object zeus::MediaImpl::getJson() {
 	return out;
 }
 
-zeus::MediaImpl::MediaImpl(const etk::String& _basePath, ejson::Object _property) :
+zeus::MediaImpl::MediaImpl(const etk::Uri& _basePath, ejson::Object _property) :
   m_basePath(_basePath) {
 	ZEUS_ERROR("    ==============>>>>>>>>>>>>>>     CREATE  MEDIA");
 	m_id = _property["id"].toNumber().getU64();
@@ -54,17 +61,13 @@ uint64_t zeus::MediaImpl::getUniqueId() {
 	return m_id;
 }
 
-zeus::MediaImpl::MediaImpl(uint64_t _id, const etk::String& _fileNameReal, const etk::String& _basePath):
+zeus::MediaImpl::MediaImpl(uint64_t _id, const etk::Uri& _basePath, const etk::String& _fileNameReal):
   m_id(_id),
   m_basePath(_basePath),
   m_fileName(_fileNameReal) {
 	ZEUS_ERROR("    ==============>>>>>>>>>>>>>>     CREATE  MEDIA");
-	etk::String extention;
-	if (    m_fileName.rfind('.') != etk::String::npos
-	     && m_fileName.rfind('.') != 0) {
-		extention = etk::toLower(etk::String(m_fileName.begin()+m_fileName.rfind('.')+1, m_fileName.end()));
-		m_fileName = etk::String(m_fileName.begin(), m_fileName.begin()+m_fileName.rfind('.'));
-	}
+	etk::String extention = etk::toLower(m_basePath.getPath().getExtention());
+	m_fileName = m_basePath.getPath().getFileName();
 	if (extention != "") {
 		setMetadata("mime-type", zeus::getMineType(extention));
 		//m_creationData = echrono::Time::now();
@@ -73,7 +76,7 @@ zeus::MediaImpl::MediaImpl(uint64_t _id, const etk::String& _fileNameReal, const
 
 zeus::MediaImpl::~MediaImpl() {
 	ZEUS_ERROR("    <<<<<<<<<<<<<<==============     DESTROY MEDIA");
-	
+
 }
 
 etk::String zeus::MediaImpl::getMineType() {
@@ -90,9 +93,9 @@ etk::String zeus::MediaImpl::getSha512() {
 	etk::String sha512;
 	auto it = m_metadata.find("mime-type");
 	if (it != m_metadata.end()) {
-		sha512 = algue::stringConvert(algue::sha512::encodeFromFile(m_basePath + m_fileName + "." + zeus::getExtention(it->second)));
+		sha512 = algue::stringConvert(algue::sha512::encodeFromFile(m_basePath / (m_fileName + "." + zeus::getExtention(it->second))));
 	} else {
-		sha512 = algue::stringConvert(algue::sha512::encodeFromFile(m_basePath + m_fileName));
+		sha512 = algue::stringConvert(algue::sha512::encodeFromFile(m_basePath / m_fileName));
 	}
 	setMetadata("sha512", sha512);
 	return sha512;
@@ -123,10 +126,10 @@ etk::String zeus::MediaImpl::getDecoratedName() {
 ememory::SharedPtr<zeus::File> zeus::MediaImpl::getFile() {
 	auto it = m_metadata.find("mime-type");
 	if (it != m_metadata.end()) {
-		return zeus::File::create(m_basePath + m_fileName + "." + zeus::getExtention(it->second), "", it->second, getSha512());
+		return zeus::File::create(m_basePath / (m_fileName + "." + zeus::getExtention(it->second)), "", it->second, getSha512());
 	}
 	// no mimetype specify ... ==> theoric impossible case ...
-	return zeus::File::create(m_basePath + m_fileName, "", "");
+	return zeus::File::create(m_basePath / m_fileName, "", "");
 }
 
 etk::Vector<etk::String> zeus::MediaImpl::getMetadataKeys() {
@@ -170,26 +173,26 @@ void zeus::MediaImpl::setMetadata(etk::String _key, etk::String _value) {
 bool zeus::MediaImpl::erase() {
 	auto it = m_metadata.find("mime-type");
 	if (it != m_metadata.end()) {
-		return etk::FSNodeRemove(m_basePath + m_fileName + "." + zeus::getExtention(it->second));
+		return etk::uri::remove(m_basePath / (m_fileName + "." + zeus::getExtention(it->second)));
 	}
-	return etk::FSNodeRemove(m_basePath + m_fileName);
+	return etk::uri::remove(m_basePath / m_fileName);
 }
 
 bool zeus::MediaImpl::move(const etk::String& _newOffsetFile) {
-	ZEUS_INFO("move file : '" << m_basePath + m_fileName << "' ==> " << m_basePath + _newOffsetFile << "'");
+	ZEUS_INFO("move file : '" << m_basePath / m_fileName << "' ==> " << m_basePath / _newOffsetFile << "'");
 	if (_newOffsetFile == m_fileName) {
 		// nothing to do ...
 		return true;
 	}
 	auto it = m_metadata.find("mime-type");
 	if (it != m_metadata.end()) {
-		bool ret = etk::FSNodeMove(m_basePath + m_fileName + "." + zeus::getExtention(it->second), m_basePath + _newOffsetFile + "." + zeus::getExtention(it->second));
+		bool ret = etk::uri::move(m_basePath / m_fileName + "." + zeus::getExtention(it->second), m_basePath / (_newOffsetFile + "." + zeus::getExtention(it->second)));
 		if (ret == true) {
 			m_fileName = _newOffsetFile;
 		}
 		return ret;
 	}
-	bool ret = etk::FSNodeMove(m_basePath + m_fileName, m_basePath + _newOffsetFile);
+	bool ret = etk::uri::move(m_basePath / m_fileName, m_basePath / _newOffsetFile);
 	if (ret == true) {
 		m_fileName = _newOffsetFile;
 	}

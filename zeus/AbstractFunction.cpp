@@ -5,7 +5,6 @@
  */
 #include <zeus/AbstractFunction.hpp>
 #include <zeus/debug.hpp>
-#include <etk/os/FSNode.hpp>
 
 #include <etk/typeInfo.hpp>
 ETK_DECLARE_TYPE(zeus::AbstractFunction);

@@ -6,10 +6,10 @@
 
 #include <appl/Router.hpp>
 #include <appl/debug.hpp>
+#include <etk/path/fileSystem.hpp>
 #include <enet/TcpServer.hpp>
-#include <etk/os/FSNode.hpp>
 
-static etk::String g_pathDBName = "USERDATA:router-database.json";
+static etk::Path g_pathDBName = "USER_DATA:///router-database.json";
 
 class UserAvaillable {
 	public:
@@ -224,17 +224,17 @@ ememory::SharedPtr<appl::GateWayInterface> appl::Router::get(const etk::String& 
 				} else {
 					// We're in the child here.
 					APPL_ERROR("Child Execution ...");
-					etk::String binary = etk::FSNodeGetApplicationPath() + "/zeus-gateway";
+					etk::Path binary = etk::path::getBinaryPath() / "zeus-gateway";
 					etk::String userConf = "--user=" + it.m_name;
 					etk::String basePath = "--base-path=" + it.m_basePath;
 					etk::String logFile;
 					if (*propertyStdOut == false) {
-						logFile = it.m_basePath + "/log/gateway.log";
-						if (    logFile.size() != 0
-						     && logFile[0] == '~') {
-							logFile = etk::FSNodeGetHomePath() + &logFile[1];
+						etk::Path tmp = etk::Path(it.m_basePath) / "log" / "gateway.log";
+						if (    tmp.isEmpty() == false
+						     && tmp.getString()[0] == '~') {
+							tmp = etk::path::getHomePath() / &logFile[1];
 						}
-						logFile = "--elog-file=" + logFile;
+						logFile = "--elog-file=" + tmp.getString();
 						//etk::String logFile = "--elog-file=/home/heero/.local/share/zeus-DATA/SDFGHTHBSDFGSQDHZSRDFGSDFGSDFGSDFG/log/gateway.log";
 						//etk::String logFile = " ";
 						APPL_INFO("New Child log in = " << logFile);
@@ -247,8 +247,8 @@ ememory::SharedPtr<appl::GateWayInterface> appl::Router::get(const etk::String& 
 					etk::String delay = "--router-delay=" + etk::toString(*propertyDelayToStop);
 					//etk::String delay = "--router-delay=-1";
 					APPL_INFO("execute: " << binary << " " << userConf << " --srv=all " << delay << " " << basePath << " " << logFile << " " << directAccess);
-					int ret = execlp( binary.c_str(),
-					                  binary.c_str(), // must repeate the binary name to have the name as first argument ...
+					int ret = execlp( binary.getNative().c_str(),
+					                  binary.getNative().c_str(), // must repeate the binary name to have the name as first argument ...
 					                  userConf.c_str(),
 					                  "--srv=all",
 					                  "--service-extern=false",

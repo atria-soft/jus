@@ -6,13 +6,14 @@
 #pragma once
 
 #include <zeus/File.hpp>
-#include <etk/os/FSNode.hpp>
+#include <etk/path/fileSystem.hpp>
+#include <etk/io/File.hpp>
 
 namespace zeus {
 	class FileImpl : public zeus::File {
 		private:
 			etk::String m_filename; //!< Name of the file
-			etk::FSNode m_node; //!< File node access
+			ememory::SharedPtr<etk::io::Interface> m_file; //!< File node access
 			etk::Vector<uint8_t> m_data; //!< data of the file to transfer;
 			bool m_dataRaw = false;
 			size_t m_size; //!< Size of the file
@@ -20,8 +21,8 @@ namespace zeus {
 			etk::String m_mineType; //!< Mine Type of the file
 			etk::String m_sha512; //!< Global file sha-512
 		public:
-			FileImpl(etk::String _fileNameReal, etk::String _fileNameShow, etk::String _mineType, etk::String _sha512="");
-			FileImpl(etk::String _fileNameReal, etk::String _sha512="");
+			FileImpl(etk::Uri _fileNameReal, etk::String _fileNameShow, etk::String _mineType, etk::String _sha512="");
+			FileImpl(etk::Uri _fileNameReal, etk::String _sha512="");
 			FileImpl(etk::Vector<uint8_t> _value, etk::String _virtualName, etk::String _mineType);
 			~FileImpl();
 			uint64_t getSize() override;

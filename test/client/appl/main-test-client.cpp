@@ -10,7 +10,7 @@
 #include <zeus/mineType.hpp>
 #include <etk/etk.hpp>
 #include <zeus/zeus.hpp>
-#include <etk/os/FSNode.hpp>
+#include <etk/uri/uri.hpp>
 #include <elog/elog.hpp>
 
 
@@ -23,7 +23,6 @@
 
 int main(int _argc, const char *_argv[]) {
 	etk::init(_argc, _argv);
-	elog::init(_argc, _argv);
 	zeus::init(_argc, _argv);
 	zeus::Client client1;
 	etk::String fromUser = "test1";

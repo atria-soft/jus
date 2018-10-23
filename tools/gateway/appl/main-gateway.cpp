@@ -7,6 +7,7 @@
 #include <appl/debug.hpp>
 #include <appl/GateWay.hpp>
 #include <etk/etk.hpp>
+#include <etk/path/fileSystem.hpp>
 #include <zeus/zeus.hpp>
 #include <etk/Allocator.hpp>
 
@@ -17,7 +18,6 @@
 
 #ifdef GATEWAY_ENABLE_LAUNCHER
 #include <ethread/Mutex.hpp>
-#include <etk/os/FSNode.hpp>
 #include <sstream>
 #include <stdlib.h>
 #include <stdio.h>
@@ -50,13 +50,13 @@ class PlugginAccess {
 		  m_SERVICE_IO_init(null),
 		  m_SERVICE_IO_uninit(null),
 		  m_SERVICE_IO_instanciate(null) {
-			etk::String srv = etk::FSNodeGetApplicationPath() + "/../lib/lib" + m_fullName + "-impl.so";
+			etk::Path srv = etk::path::getBinaryPath() / ".." / "lib" / "lib" / m_fullName + "-impl.so";
 			APPL_PRINT("++++++++++++++++++++++++++++++++");
 			APPL_PRINT("++ srv: '" << m_name << "' ");
 			APPL_PRINT("++++++++++++++++++++++++++++++++");
 			APPL_PRINT("At position: '" << srv << "'");
 			APPL_PRINT("with full name=" << m_fullName);
-			m_handle = dlopen(srv.c_str(), RTLD_LAZY);
+			m_handle = dlopen(srv.getNative().c_str(), RTLD_LAZY);
 			if (!m_handle) {
 				APPL_ERROR("Can not load Lbrary:" << dlerror());
 				return;
@@ -223,16 +223,19 @@ int main(int _argc, const char *_argv[]) {
 	etk::Vector<etk::Pair<etk::String,etk::String>> listAvaillableServices;
 	if (services.size() != 0) {
 		// find all services:
-		etk::FSNode dataPath(etk::FSNodeGetApplicationPath() + "/../share");
-		etk::Vector<etk::String> listSubPath = dataPath.folderGetSub(true, false, ".*");
-		APPL_DEBUG(" Base data path: " << dataPath.getName());
+		etk::Path dataPath(etk::path::getBinaryPath() / ".." / "share");
+		etk::Vector<etk::Path> listSubPath = etk::path::list(dataPath, etk::path::LIST_FOLDER);
+		APPL_DEBUG(" Base data path: " << dataPath);
 		APPL_DEBUG(" SubPath: " << listSubPath);
 		for (auto &it: listSubPath) {
-			if (etk::FSNodeExist(it + "/zeus/") == true) {
-				etk::FSNode dataPath(it + "/zeus/");
-				etk::Vector<etk::String> listServices = dataPath.folderGetSub(false, true, ".*\\.srv");
+			if (etk::path::exist(it / "zeus") == true) {
+				etk::Path dataPath(it / "zeus");
+				etk::Vector<etk::Path> listServices = etk::path::list(dataPath, etk::path::LIST_FILE);
 				for (auto &it2: listServices) {
-					etk::String nameFileSrv = etk::FSNode(it2).getNameFile();
+					if (it2.getExtention() != "srv") {
+						continue;
+					}
+					etk::String nameFileSrv = it2.getFileName();
 					etk::Vector<etk::String> spl = etk::String(nameFileSrv.begin(), nameFileSrv.end()-4).split("-service-");
 					if (spl.size() != 2) {
 						APPL_ERROR("reject service, wrong format ... '" << it2 << "' missing XXX-service-SERVICE-NAME.srv");

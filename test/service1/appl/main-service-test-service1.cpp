@@ -13,7 +13,6 @@
 
 #include <ethread/Mutex.hpp>
 #include <ejson/ejson.hpp>
-#include <etk/os/FSNode.hpp>
 #include <sstream>
 
 #include <etk/stdTools.hpp>
@@ -25,7 +24,7 @@
 #include <zeus/zeus-Media.impl.hpp>
 
 static ethread::Mutex g_mutex;
-static etk::String g_basePath;
+static etk::Uri g_basePath;
 static etk::String g_baseDBName = etk::String(SERVICE_NAME) + "-database.json";
 
 static etk::Vector<ememory::SharedPtr<zeus::MediaImpl>> m_listFile;
@@ -80,21 +79,21 @@ static void store_db() {
 	ejson::Document database;
 	ejson::Array listFilesArray;
 	database.add("baseValue", ejson::String("plop"));
-	bool retGenerate = database.storeSafe(g_basePath + g_baseDBName);
-	APPL_INFO("Store database [STOP] : " << (g_basePath + g_baseDBName) << " ret = " << retGenerate);
+	bool retGenerate = database.storeSafe(g_basePath / g_baseDBName);
+	APPL_INFO("Store database [STOP] : " << (g_basePath / g_baseDBName) << " ret = " << retGenerate);
 	g_needToStore = false;
 }
 
 static void load_db() {
 	ejson::Document database;
-	bool ret = database.load(g_basePath + g_baseDBName);
+	bool ret = database.load(g_basePath / g_baseDBName);
 	if (ret == false) {
 		APPL_WARNING("    ==> LOAD error");
 	}
 	g_needToStore = false;
 }
 
-ETK_EXPORT_API bool SERVICE_IO_init(int _argc, const char *_argv[], etk::String _basePath) {
+ETK_EXPORT_API bool SERVICE_IO_init(int _argc, const char *_argv[], etk::Uri _basePath) {
 	g_basePath = _basePath;
 	ethread::UniqueLock lock(g_mutex);
 	APPL_INFO("Load USER: " << g_basePath);

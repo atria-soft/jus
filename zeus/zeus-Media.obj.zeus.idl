@@ -13,6 +13,14 @@ import zeus-File
 #param:fileName:Name of the local file to instanciate.
 [factory] create(string)
 
+#brief:Factory to create a local object.
+#param:path:Name of the file path to instanciate.
+[factory] create(path)
+
+#brief:Factory to create a local object.
+#param:uri:Name of the file uri to instanciate.
+[factory] create(uri)
+
 #brief:Get the book unique Id of the server+user
 #return:The UID requested
 uint64 getUniqueId()

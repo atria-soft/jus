@@ -8,12 +8,13 @@
 #include <zeus/Object.hpp>
 #include <zeus/File.hpp>
 #include <etk/etk.hpp>
+#include <etk/uri/uri.hpp>
 #include <zeus/zeus.hpp>
 #include <echrono/Time.hpp>
 
 #include <ethread/Mutex.hpp>
 #include <ejson/ejson.hpp>
-#include <etk/os/FSNode.hpp>
+#include <etk/path/fileSystem.hpp>
 
 #include <etk/stdTools.hpp>
 
@@ -24,7 +25,7 @@
 #include <zeus/ProxyFile.hpp>
 
 static ethread::Mutex g_mutex;
-static etk::String g_basePath;
+static etk::Uri g_basePath;
 static etk::String g_baseDBName = etk::String(SERVICE_NAME) + "-database.json";
 class FileProperty {
 	public:
@@ -108,7 +109,9 @@ namespace appl {
 				if (find == false) {
 					throw etk::exception::InvalidArgument("Wrong file name ...");
 				}
-				return zeus::File::create(g_basePath + property.m_fileName + "." + zeus::getExtention(property.m_mineType), "", property.m_mineType);
+				etk::Uri tmpp = g_basePath;
+				tmpp.setPath(g_basePath.getPath() / property.m_fileName + "." + zeus::getExtention(property.m_mineType));
+				return zeus::File::create(tmpp.getString(), property.m_mineType);
 			}
 			uint32_t mediaAdd(zeus::ProxyFile _dataFile) override {
 				ethread::UniqueLock lock(g_mutex);
@@ -117,8 +120,9 @@ namespace appl {
 				
 				auto futType = _dataFile.getMineType();
 				auto futName = _dataFile.getName();
-				etk::String tmpFileName = g_basePath + "tmpImport_" + etk::toString(id);
-				etk::String sha512String = zeus::storeInFile(_dataFile, tmpFileName);
+				etk::Uri tmpFileName = g_basePath;
+				tmpFileName.setPath(g_basePath.getPath() / "tmpImport_" + etk::toString(id));
+				etk::String sha512String = zeus::storeInFile(_dataFile, tmpFileName.getString());
 				futType.wait();
 				futName.wait();
 				// TODO : Get internal data of the file and remove all the meta-data ==> proper files ...
@@ -127,17 +131,19 @@ namespace appl {
 						APPL_INFO("File already registered at " << it.m_creationData);
 						// TODO : Check if data is identical ...
 						// remove temporary file
-						etk::FSNodeRemove(tmpFileName);
+						etk::uri::remove(tmpFileName);
 						return it.m_id;
 					}
 				}
 				// move the file at the good position:
 				APPL_DEBUG("move temporay file in : " << g_basePath << sha512String);
-				if (etk::FSNodeGetSize(tmpFileName) == 0) {
+				if (etk::uri::fileSize(tmpFileName) == 0) {
 					APPL_ERROR("try to store an empty file");
 					throw etk::exception::RuntimeError("file size == 0");
 				}
-				etk::FSNodeMove(tmpFileName, g_basePath + sha512String + "." + zeus::getExtention(futType.get()));
+				etk::Uri tmpFileNameDest = g_basePath;
+				tmpFileNameDest.setPath(g_basePath.getPath() / sha512String + "." + zeus::getExtention(futType.get()));
+				etk::uri::move(tmpFileName, tmpFileNameDest);
 				FileProperty property;
 				property.m_id = id;
 				property.m_fileName = sha512String;
@@ -183,7 +189,10 @@ namespace appl {
 				}
 				// Real Remove definitly the file
 				// TODO : Set it in a trash ... For a while ...
-				if (etk::FSNodeRemove(g_basePath + property.m_fileName + "." + zeus::getExtention(property.m_mineType)) == false) {
+				
+				etk::Uri tmpFileName = g_basePath;
+				tmpFileName.setPath(g_basePath.getPath() / property.m_fileName + "." + zeus::getExtention(property.m_mineType));
+				if (etk::uri::remove(tmpFileName) == false) {
 					throw etk::exception::RuntimeError("Can not remove file ...");
 				}
 			}
@@ -429,14 +438,18 @@ static void store_db() {
 			listMediaArray.add(ejson::Number(it2));
 		}
 	}
-	bool retGenerate = database.storeSafe(g_basePath + g_baseDBName);
-	APPL_ERROR("Store database [STOP] : " << (g_basePath + g_baseDBName) << " ret = " << retGenerate);
+	etk::Uri dbFileName = g_basePath;
+	dbFileName.setPath(g_basePath.getPath() / g_baseDBName);
+	bool retGenerate = database.storeSafe(dbFileName);
+	APPL_ERROR("Store database [STOP] : " << dbFileName << " ret = " << retGenerate);
 	g_needToStore = false;
 }
 
 static void load_db() {
 	ejson::Document database;
-	bool ret = database.load(g_basePath + g_baseDBName);
+	etk::Uri dbFileName = g_basePath;
+	dbFileName.setPath(g_basePath.getPath() / g_baseDBName);
+	bool ret = database.load(dbFileName);
 	if (ret == false) {
 		APPL_WARNING("    ==> LOAD error");
 	}
@@ -485,7 +498,7 @@ static void load_db() {
 	g_needToStore = false;
 }
 
-ETK_EXPORT_API bool SERVICE_IO_init(int _argc, const char *_argv[], etk::String _basePath) {
+ETK_EXPORT_API bool SERVICE_IO_init(int _argc, const char *_argv[], etk::Uri _basePath) {
 	g_basePath = _basePath;
 	ethread::UniqueLock lock(g_mutex);
 	APPL_WARNING("Load USER: " << g_basePath);

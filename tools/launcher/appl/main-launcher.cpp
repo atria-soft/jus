@@ -9,7 +9,6 @@
 #include <etk/etk.hpp>
 
 #include <ethread/Mutex.hpp>
-#include <etk/os/FSNode.hpp>
 #include <sstream>
 #include <stdlib.h>
 #include <stdio.h>
@@ -19,8 +18,10 @@
 #include <zeus/Object.hpp>
 #include <zeus/Client.hpp>
 #include <zeus/zeus.hpp>
+#include <etk/uri/uri.hpp>
+#include <etk/path/fileSystem.hpp>
 
-typedef bool (*SERVICE_IO_init_t)(int _argc, const char *_argv[], etk::String _basePath);
+typedef bool (*SERVICE_IO_init_t)(int _argc, const char *_argv[], etk::Uri _basePath);
 typedef bool (*SERVICE_IO_uninit_t)();
 typedef void (*SERVICE_IO_peridic_call_t)();
 typedef zeus::Object* (*SERVICE_IO_instanciate_t)(uint32_t, ememory::SharedPtr<zeus::WebServer>&, uint32_t);
@@ -41,9 +42,9 @@ class PlugginAccess {
 		  m_SERVICE_IO_uninit(null),
 		  m_SERVICE_IO_peridic_call(null),
 		  m_SERVICE_IO_instanciate(null) {
-			etk::String srv = etk::FSNodeGetApplicationPath() + "/../lib/libzeus-service-" + m_name + "-impl.so";
+			etk::Path srv = etk::path::getBinaryPath() / ".." / "lib" / "libzeus-service-" + m_name + "-impl.so";
 			APPL_PRINT("Try to open service with name: '" << m_name << "' at position: '" << srv << "'");
-			m_handle = dlopen(srv.c_str(), RTLD_LAZY);
+			m_handle = dlopen(srv.getNative().c_str(), RTLD_LAZY);
 			if (!m_handle) {
 				APPL_ERROR("Can not load Lbrary:" << dlerror());
 				return;
@@ -77,16 +78,16 @@ class PlugginAccess {
 		~PlugginAccess() {
 			
 		}
-		bool init(int _argc, const char *_argv[], etk::String _basePath) {
+		bool init(int _argc, const char *_argv[], etk::Uri _basePath) {
 			if (m_SERVICE_IO_init == null) {
 				return false;
 			}
 			
-			if (_basePath.size() == 0) {
-				_basePath = "USERDATA:" + m_name + "/";
+			if (_basePath.isEmpty() == true) {
+				_basePath = "USER_DATA:///" + m_name + "/";
 				APPL_PRINT("Use base path: " << _basePath);
 			} else {
-				_basePath += m_name + "/";
+				_basePath.setPath(_basePath.getPath() / m_name);
 			}
 			return (*m_SERVICE_IO_init)(_argc, _argv, _basePath);
 		}

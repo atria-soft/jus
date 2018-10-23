@@ -19,7 +19,7 @@
 #include <zeus/ProxyClientProperty.hpp>
 
 static ethread::Mutex g_mutex;
-static etk::String g_basePath;
+static etk::Uri g_basePath;
 static etk::String g_baseDBName = etk::String(SERVICE_NAME) + "-database.json";
 static ejson::Document g_database;
 
@@ -135,11 +135,13 @@ namespace appl {
 	};
 }
 
-ETK_EXPORT_API bool SERVICE_IO_init(int _argc, const char *_argv[], etk::String _basePath) {
+ETK_EXPORT_API bool SERVICE_IO_init(int _argc, const char *_argv[], etk::Uri _basePath) {
 	g_basePath = _basePath;
 	ethread::UniqueLock lock(g_mutex);
 	APPL_WARNING("Load USER: " << g_basePath);
-	bool ret = g_database.load(g_basePath + g_baseDBName);
+	etk::Uri db = g_basePath;
+	db.setPath(g_basePath.getPath() / g_baseDBName);
+	bool ret = g_database.load(db);
 	if (ret == false) {
 		APPL_WARNING("    ==> LOAD error");
 	}
@@ -149,7 +151,9 @@ ETK_EXPORT_API bool SERVICE_IO_init(int _argc, const char *_argv[], etk::String 
 ETK_EXPORT_API bool SERVICE_IO_uninit() {
 	ethread::UniqueLock lock(g_mutex);
 	APPL_DEBUG("Store User Info:");
-	bool ret = g_database.storeSafe(g_basePath + g_baseDBName);
+	etk::Uri db = g_basePath;
+	db.setPath(g_basePath.getPath() / g_baseDBName);
+	bool ret = g_database.storeSafe(db);
 	if (ret == false) {
 		APPL_WARNING("    ==> Store error");
 		return false;

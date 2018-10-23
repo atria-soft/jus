@@ -29,7 +29,7 @@
 #include <appl/widget/Player.hpp>
 
 
-static etk::String g_baseDBName = "USERDATA:config.json";
+static etk::Uri g_baseDBName = "CONFIG:///config.json";
 
 void appl::Windows::store_db() {
 	APPL_DEBUG("Store database [START]");

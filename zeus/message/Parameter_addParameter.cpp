@@ -11,7 +11,6 @@
 #include <etk/stdTools.hpp>
 #include <zeus/AbstractFunction.hpp>
 #include <climits>
-#include <etk/os/FSNode.hpp>
 #include <zeus/mineType.hpp>
 #include <zeus/WebServer.hpp>
 

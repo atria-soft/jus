@@ -10,7 +10,9 @@
 #include <zeus/mineType.hpp>
 #include <etk/etk.hpp>
 #include <zeus/zeus.hpp>
-#include <etk/os/FSNode.hpp>
+#include <etk/path/fileSystem.hpp>
+#include <etk/io/File.hpp>
+
 #include <elog/elog.hpp>
 #include <algorithm>
 
@@ -52,13 +54,9 @@ bool progressCall(const etk::String& _value) {
 void progressCallback(const etk::String& _value) {
 	APPL_PRINT("plop " << _value);
 }
-bool pushVideoFile(zeus::service::ProxyVideo& _srv, etk::String _path, etk::Map<etk::String,etk::String> _basicKey = etk::Map<etk::String,etk::String>()) {
-	etk::String extention;
-	if (    _path.rfind('.') != etk::String::npos
-	     && _path.rfind('.') != 0) {
-		extention = etk::toLower(etk::String(_path.begin()+_path.rfind('.')+1, _path.end()));
-	}
-	etk::String fileName = etk::split(_path, '/').back();
+bool pushVideoFile(zeus::service::ProxyVideo& _srv, etk::Path _path, etk::Map<etk::String,etk::String> _basicKey = etk::Map<etk::String,etk::String>()) {
+	etk::String extention = _path.getExtention().toLower();
+	etk::String fileName = _path.getFileName();
 	// internal extention ...
 	if (extention == "sha512") {
 		return true;
@@ -92,16 +90,19 @@ bool pushVideoFile(zeus::service::ProxyVideo& _srv, etk::String _path, etk::Map<
 		if (_basicKey["saison"] != "") {
 			groupName += ":" + _basicKey["saison"];
 		}
-		auto sending = _srv.setGroupCover(zeus::File::create(_path, ""), groupName);
+		auto sending = _srv.setGroupCover(zeus::File::create(_path.getString(), ""), groupName);
 		sending.onSignal(progressCallback);
 		sending.waitFor(echrono::seconds(20000));
 		return true;
 	}
 	etk::String storedSha512;
-	if (etk::FSNodeExist(_path + ".sha512") == true) {
-		uint64_t time_sha512 = etk::FSNodeGetTimeModified(_path + ".sha512");
-		uint64_t time_elem = etk::FSNodeGetTimeModified(_path);
-		etk::String storedSha512_file = etk::FSNodeReadAllData(_path + ".sha512");
+	if (etk::path::exist(_path + ".sha512") == true) {
+		uint64_t time_sha512 = etk::path::getModifyTime(_path + ".sha512");
+		uint64_t time_elem = etk::path::getModifyTime(_path);
+		etk::io::File file(_path + ".sha512");
+		file.open(etk::io::OpenMode::Read);
+		etk::String storedSha512_file = file.readAllString();
+		file.close();
 		if (time_elem > time_sha512) {
 			// check the current sha512 
 			storedSha512 = algue::stringConvert(algue::sha512::encodeFromFile(_path));
@@ -117,14 +118,22 @@ bool pushVideoFile(zeus::service::ProxyVideo& _srv, etk::String _path, etk::Map<
 				}
 			}
 			// store new sha512 ==> this update tile too ...
-			etk::FSNodeWriteAllData(_path + ".sha512", storedSha512);
+			file.open(etk::io::OpenMode::Write);
+			file.writeAll(storedSha512);
+			file.close();
 		} else {
 			// store new sha512
-			storedSha512 = etk::FSNodeReadAllData(_path + ".sha512");
+			storedSha512 = file.readAllString();
+			file.open(etk::io::OpenMode::Read);
+			file.writeAll(storedSha512);
+			file.close();
 		}
 	} else {
 		storedSha512 = algue::stringConvert(algue::sha512::encodeFromFile(_path));
-		etk::FSNodeWriteAllData(_path + ".sha512", storedSha512);
+		etk::io::File file(_path + ".sha512");
+		file.open(etk::io::OpenMode::Write);
+		file.writeAll(storedSha512);
+		file.close();
 	}
 	// push only if the file exist
 	// TODO : Check the metadata updating ...
@@ -134,7 +143,7 @@ bool pushVideoFile(zeus::service::ProxyVideo& _srv, etk::String _path, etk::Map<
 		return true;
 	}
 	// TODO: Do it better ==> add the calback to know the push progression ...
-	auto sending = _srv.add(zeus::File::create(_path, storedSha512));
+	auto sending = _srv.add(zeus::File::create(_path.getString(), storedSha512));
 	sending.onSignal(progressCallback);
 	uint32_t mediaId = sending.waitFor(echrono::seconds(20000)).get();
 	if (mediaId == 0) {
@@ -309,14 +318,13 @@ bool pushVideoFile(zeus::service::ProxyVideo& _srv, etk::String _path, etk::Map<
 	return true;
 }
 
-void installVideoPath(zeus::service::ProxyVideo& _srv, etk::String _path, etk::Map<etk::String,etk::String> _basicKey = etk::Map<etk::String,etk::String>()) {
-	etk::FSNode node(_path);
+void installVideoPath(zeus::service::ProxyVideo& _srv, etk::Path _path, etk::Map<etk::String,etk::String> _basicKey = etk::Map<etk::String,etk::String>()) {
 	APPL_INFO("Parse : '" << _path << "'");
-	etk::Vector<etk::String> listSubPath = node.folderGetSub(true, false, "*");
+	etk::Vector<etk::Path> listSubPath = etk::path::list(_path, etk::path::LIST_FOLDER);
 	for (auto &itPath : listSubPath) {
 		etk::Map<etk::String,etk::String> basicKeyTmp = _basicKey;
 		APPL_INFO("Add Sub path: '" << itPath << "'");
-		etk::String lastPathName = etk::split(itPath, '/').back();
+		etk::String lastPathName = itPath.getFileName();
 		if (basicKeyTmp.size() == 0) {
 			APPL_INFO("find A '" << lastPathName << "' " << basicKeyTmp.size());
 			if (lastPathName == "film") {
@@ -406,9 +414,8 @@ void installVideoPath(zeus::service::ProxyVideo& _srv, etk::String _path, etk::M
 		installVideoPath(_srv, itPath, basicKeyTmp);
 	}
 	// Add files :
-	etk::Vector<etk::String> listSubFile = node.folderGetSub(false, true, "*");
+	etk::Vector<etk::Path> listSubFile = etk::path::list(_path, etk::path::LIST_FILE);
 	for (auto &itFile : listSubFile) {
-		
 		etk::Map<etk::String,etk::String> basicKeyTmp = _basicKey;
 		pushVideoFile(_srv, itFile, _basicKey);
 		
@@ -417,7 +424,6 @@ void installVideoPath(zeus::service::ProxyVideo& _srv, etk::String _path, etk::M
 
 int main(int _argc, const char *_argv[]) {
 	etk::init(_argc, _argv);
-	elog::init(_argc, _argv);
 	zeus::init(_argc, _argv);
 	zeus::Client client1;
 	etk::String login = "test1";
