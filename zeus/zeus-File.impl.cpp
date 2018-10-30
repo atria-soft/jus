@@ -42,7 +42,7 @@ zeus::FileImpl::FileImpl(etk::Vector<uint8_t> _value, etk::String _virtualName, 
   m_gettedData(0),
   m_mineType(_mineType),
   m_sha512("") {
-	ZEUS_ERROR("    ==============>>>>>>>>>>>>>>     CREATE  FILE");
+	ZEUS_ERROR("    ==============>>>>>>>>>>>>>>     CREATE  FILE 1 " << _virtualName);
 	m_dataRaw = true;
 	m_data = _value;
 	m_size = m_data.size();
@@ -52,7 +52,7 @@ zeus::FileImpl::FileImpl(etk::Uri _fileNameReal, etk::String _sha512) :
   m_file(etk::uri::get(_fileNameReal)),
   m_gettedData(0),
   m_sha512(_sha512) {
-	ZEUS_ERROR("    ==============>>>>>>>>>>>>>>     CREATE  FILE");
+	ZEUS_ERROR("    ==============>>>>>>>>>>>>>>     CREATE  FILE 3 " << _fileNameReal << "  '" << _sha512 << "' size=" << m_file->size());
 	m_size = m_file->size();
 	etk::String extention = _fileNameReal.getPath().getExtention();
 	m_mineType = zeus::getMineType(extention);
@@ -71,7 +71,7 @@ zeus::FileImpl::FileImpl(etk::Uri _fileNameReal, etk::String _fileNameShow, etk:
   m_gettedData(0),
   m_mineType(_mineType),
   m_sha512(_sha512) {
-	ZEUS_ERROR("    ==============>>>>>>>>>>>>>>     CREATE  FILE");
+	ZEUS_ERROR("    ==============>>>>>>>>>>>>>>     CREATE  FILE 2 " << _fileNameReal);
 	m_size = m_file->size();
 	if (    _sha512.size() > 0
 	     && _sha512.size() != 128) {
@@ -96,6 +96,7 @@ etk::String zeus::FileImpl::getName() {
 }
 
 etk::String zeus::FileImpl::getSha512() {
+	ZEUS_VERBOSE("Get SHA 512 ... " << m_sha512.size() << "  '" << m_sha512 << "'");
 	if (m_sha512 == "") {
 		ZEUS_INFO("calculation of sha 512 (start)");
 		if (m_dataRaw == false) {
@@ -105,6 +106,7 @@ etk::String zeus::FileImpl::getSha512() {
 		}
 		ZEUS_INFO("calculation of sha 512 (stop)");
 	}
+	ZEUS_VERBOSE("return sha512 : '" << m_sha512 << "'");
 	return m_sha512;
 }
 
@@ -113,6 +115,7 @@ etk::String zeus::FileImpl::getMineType() {
 }
 
 zeus::Raw zeus::FileImpl::getPart(uint64_t _start, uint64_t _stop) {
+	ZEUS_VERBOSE("REQUEST Get part ... " << _start << "   " << _stop);
 	if ((_stop - _start) > 25*1024*1024) {
 		ZEUS_ERROR("REQUEST more that 25 Mo in a part file ...");
 		throw etk::exception::InvalidArgument("REQUEST more that 25 Mo in a part file ..." + etk::toString(_stop - _start) + " Bytes");
@@ -172,8 +175,10 @@ etk::String zeus::storeInFileNotify(zeus::ProxyFile _file, etk::Uri _uri, zeus::
 			nbElement = retSize;
 		}
 		auto futData = _file.getPart(offset, offset + nbElement);
+		// TODO: set a timeout
 		futData.wait();
 		if (futData.hasError() == true) {
+			ZEUS_DEBUG("read: ==> exception when read data ...");
 			throw etk::exception::RuntimeError("Error when loading data");
 		}
 		zeus::Raw buffer = futData.get();

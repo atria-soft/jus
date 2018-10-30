@@ -10,6 +10,7 @@
 #include <etk/path/fileSystem.hpp>
 #include <zeus/zeus.hpp>
 #include <etk/Allocator.hpp>
+#include <etk/uri/uri.hpp>
 
 
 #include <etk/stdTools.hpp>
@@ -28,7 +29,7 @@
 #include <zeus/Client.hpp>
 #include <zeus/zeus.hpp>
 
-typedef bool (*SERVICE_IO_init_t)(int _argc, const char *_argv[], etk::String _basePath);
+typedef bool (*SERVICE_IO_init_t)(int _argc, const char *_argv[], etk::Uri _basePath);
 typedef bool (*SERVICE_IO_uninit_t)();
 typedef void (*SERVICE_IO_peridic_call_t)();
 typedef zeus::Object* (*SERVICE_IO_instanciate_t)(uint32_t, ememory::SharedPtr<zeus::WebServer>&, uint32_t);
@@ -50,7 +51,7 @@ class PlugginAccess {
 		  m_SERVICE_IO_init(null),
 		  m_SERVICE_IO_uninit(null),
 		  m_SERVICE_IO_instanciate(null) {
-			etk::Path srv = etk::path::getBinaryPath() / ".." / "lib" / "lib" / m_fullName + "-impl.so";
+			etk::Path srv = etk::path::getBinaryDirectory() / ".." / "lib" / "lib" + m_fullName + "-impl.so";
 			APPL_PRINT("++++++++++++++++++++++++++++++++");
 			APPL_PRINT("++ srv: '" << m_name << "' ");
 			APPL_PRINT("++++++++++++++++++++++++++++++++");
@@ -90,16 +91,15 @@ class PlugginAccess {
 		~PlugginAccess() {
 			
 		}
-		bool init(int _argc, const char *_argv[], etk::String _basePath) {
+		bool init(int _argc, const char *_argv[], etk::Uri _basePath) {
 			if (m_SERVICE_IO_init == null) {
 				return false;
 			}
-			
-			if (_basePath.size() == 0) {
-				_basePath = "USERDATA:" + m_name + "/";
+			if (_basePath.isEmpty() == true) {
+				_basePath = "USER_DATA:///" + m_name;
 				APPL_PRINT("Use base path: " << _basePath);
 			} else {
-				_basePath += m_name + "/";
+				_basePath /= m_name;
 			}
 			return (*m_SERVICE_IO_init)(_argc, _argv, _basePath);
 		}
@@ -137,7 +137,7 @@ int main(int _argc, const char *_argv[]) {
 	zeus::init(_argc, _argv);
 	appl::GateWay basicGateway;
 	#ifdef GATEWAY_ENABLE_LAUNCHER
-	etk::String basePath;
+	etk::Uri basePath;
 	etk::Vector<etk::String> services;
 	zeus::Client m_client;
 	// The default service port is 1985
@@ -188,11 +188,7 @@ int main(int _argc, const char *_argv[]) {
 			basicGateway.propertyServiceMax.set(etk::string_to_uint16_t(etk::String(&data[14])));
 		#ifdef GATEWAY_ENABLE_LAUNCHER
 		} else if (etk::start_with(data, "--base-path=") == true) {
-			basePath = etk::String(&data[12]);
-			if (    basePath.size() != 0
-			     && basePath[basePath.size()-1] != '/') {
-				basePath += '/';
-			}
+			basePath = etk::Path(etk::String(&data[12]));
 		} else if (etk::start_with(data, "--srv=") == true) {
 			services.pushBack(etk::String(&data[6]));
 		#endif
@@ -223,7 +219,7 @@ int main(int _argc, const char *_argv[]) {
 	etk::Vector<etk::Pair<etk::String,etk::String>> listAvaillableServices;
 	if (services.size() != 0) {
 		// find all services:
-		etk::Path dataPath(etk::path::getBinaryPath() / ".." / "share");
+		etk::Path dataPath(etk::path::getBinaryDirectory() / ".." / "share");
 		etk::Vector<etk::Path> listSubPath = etk::path::list(dataPath, etk::path::LIST_FOLDER);
 		APPL_DEBUG(" Base data path: " << dataPath);
 		APPL_DEBUG(" SubPath: " << listSubPath);

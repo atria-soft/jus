@@ -97,15 +97,19 @@ bool pushVideoFile(zeus::service::ProxyVideo& _srv, etk::Path _path, etk::Map<et
 	}
 	etk::String storedSha512;
 	if (etk::path::exist(_path + ".sha512") == true) {
+		APPL_VERBOSE("file sha exist ==> read it");
 		uint64_t time_sha512 = etk::path::getModifyTime(_path + ".sha512");
 		uint64_t time_elem = etk::path::getModifyTime(_path);
 		etk::io::File file(_path + ".sha512");
 		file.open(etk::io::OpenMode::Read);
 		etk::String storedSha512_file = file.readAllString();
 		file.close();
+		APPL_VERBOSE("file sha == " << storedSha512_file);
 		if (time_elem > time_sha512) {
+			APPL_VERBOSE("file time > sha time ==> regenerate new one ...");
 			// check the current sha512 
 			storedSha512 = algue::stringConvert(algue::sha512::encodeFromFile(_path));
+			APPL_VERBOSE("calculated new sha'" << storedSha512 << "'");
 			if (storedSha512_file != storedSha512) {
 				//need to remove the old sha file
 				auto idFileToRemove_fut = _srv.getId(storedSha512_file).waitFor(echrono::seconds(2));
@@ -123,10 +127,14 @@ bool pushVideoFile(zeus::service::ProxyVideo& _srv, etk::Path _path, etk::Map<et
 			file.close();
 		} else {
 			// store new sha512
+			/*
 			storedSha512 = file.readAllString();
 			file.open(etk::io::OpenMode::Read);
 			file.writeAll(storedSha512);
 			file.close();
+			*/
+			storedSha512 = storedSha512_file;
+			APPL_VERBOSE("read all sha from the file'" << storedSha512 << "'");
 		}
 	} else {
 		storedSha512 = algue::stringConvert(algue::sha512::encodeFromFile(_path));
@@ -134,7 +142,9 @@ bool pushVideoFile(zeus::service::ProxyVideo& _srv, etk::Path _path, etk::Map<et
 		file.open(etk::io::OpenMode::Write);
 		file.writeAll(storedSha512);
 		file.close();
+		APPL_VERBOSE("calculate and store sha '" << storedSha512 << "'");
 	}
+	APPL_VERBOSE("check file existance: sha='" << storedSha512 << "'");
 	// push only if the file exist
 	// TODO : Check the metadata updating ...
 	auto idFile_fut = _srv.getId(storedSha512).waitFor(echrono::seconds(2));
@@ -143,9 +153,12 @@ bool pushVideoFile(zeus::service::ProxyVideo& _srv, etk::Path _path, etk::Map<et
 		return true;
 	}
 	// TODO: Do it better ==> add the calback to know the push progression ...
-	auto sending = _srv.add(zeus::File::create(_path.getString(), storedSha512));
+	APPL_VERBOSE("Add File : " << _path << "    sha='" << storedSha512 << "'");
+	auto sending = _srv.add(zeus::File::create(_path, storedSha512));
 	sending.onSignal(progressCallback);
+	APPL_VERBOSE("Add done ... now waiting  ... ");
 	uint32_t mediaId = sending.waitFor(echrono::seconds(20000)).get();
+	APPL_VERBOSE("END WAITING ... ");
 	if (mediaId == 0) {
 		APPL_ERROR("Get media ID = 0 With no error");
 		return false;

@@ -9,7 +9,7 @@
 #include <etk/path/fileSystem.hpp>
 #include <enet/TcpServer.hpp>
 
-static etk::Path g_pathDBName = "USER_DATA:///router-database.json";
+static etk::Uri g_pathDBName = "USER_DATA:///router-database.json";
 
 class UserAvaillable {
 	public:
@@ -186,6 +186,7 @@ extern "C" {
 
 ememory::SharedPtr<appl::GateWayInterface> appl::Router::get(const etk::String& _userName) {
 	// TODO : Start USer only when needed, not get it all time started...
+	APPL_ERROR("Get user : " << _userName);
 	for (auto &it : m_GateWayList) {
 		if (it == null) {
 			continue;
@@ -193,91 +194,96 @@ ememory::SharedPtr<appl::GateWayInterface> appl::Router::get(const etk::String& 
 		if (it->getName() != _userName) {
 			continue;
 		}
+		APPL_ERROR("    ==> find IT ... already started...");
 		return it;
 	}
+	APPL_ERROR("    ==> Not found ==> start it ...");
 	// we not find the user ==> check if it is availlable ...
 	for (auto &it : g_listUserAvaillable) {
-		if (it.m_name == _userName) {
-			#if 0
-				// start interface:
-				etk::String cmd = "~/dev/perso/out/Linux_x86_64/debug/staging/clang/zeus-package-base/zeus-package-base.app/bin/zeus-gateway";
-				cmd += " --user=" + it.m_name + " ";
-				cmd += " --srv=user";
-				cmd += " --srv=picture";
-				cmd += " --srv=video";
-				cmd += " --base-path=" + it.m_basePath;
-				cmd += " --elog-file=\"/tmp/zeus.gateway." + it.m_name + ".log\"";
-				cmd += "&";
-				APPL_ERROR("Start " << cmd);
-				it.m_subProcess = popen(cmd.c_str(), "r");
-				if (it.m_subProcess == null) {
-					perror("popen");
-					return null;
-				}
-				// just trash IO ...
-				//pclose(it.m_subProcess);
-			#else
-				if (fork()) {
-					// We're in the parent here.
-					// nothing to do ...
-					APPL_ERROR("Parent Execution ...");
-				} else {
-					// We're in the child here.
-					APPL_ERROR("Child Execution ...");
-					etk::Path binary = etk::path::getBinaryPath() / "zeus-gateway";
-					etk::String userConf = "--user=" + it.m_name;
-					etk::String basePath = "--base-path=" + it.m_basePath;
-					etk::String logFile;
-					if (*propertyStdOut == false) {
-						etk::Path tmp = etk::Path(it.m_basePath) / "log" / "gateway.log";
-						if (    tmp.isEmpty() == false
-						     && tmp.getString()[0] == '~') {
-							tmp = etk::path::getHomePath() / &logFile[1];
-						}
-						logFile = "--elog-file=" + tmp.getString();
-						//etk::String logFile = "--elog-file=/home/heero/.local/share/zeus-DATA/SDFGHTHBSDFGSQDHZSRDFGSDFGSDFGSDFG/log/gateway.log";
-						//etk::String logFile = " ";
-						APPL_INFO("New Child log in = " << logFile);
-					}
-					etk::String directAccess;
-					if (it.m_enableDirectAccess == true) {
-						directAccess = "--direct-ip=" + *propertyClientIp;
-						directAccess += " --direct-port=" + etk::toString(*propertyGateWayDirectPortMin);
-					}
-					etk::String delay = "--router-delay=" + etk::toString(*propertyDelayToStop);
-					//etk::String delay = "--router-delay=-1";
-					APPL_INFO("execute: " << binary << " " << userConf << " --srv=all " << delay << " " << basePath << " " << logFile << " " << directAccess);
-					int ret = execlp( binary.getNative().c_str(),
-					                  binary.getNative().c_str(), // must repeate the binary name to have the name as first argument ...
-					                  userConf.c_str(),
-					                  "--srv=all",
-					                  "--service-extern=false",
-					                  delay.c_str(),
-					                  basePath.c_str(),
-					                  logFile.c_str(),
-					                  directAccess.c_str(),
-					                  NULL);
-					APPL_ERROR("Child Execution ret = " << ret);
-					exit (-1);
-					APPL_ERROR("Must never appear ... child of fork killed ...");
-				}
-			#endif
-			int32_t nbCheckDelayMax = 24;
-			while (nbCheckDelayMax-- > 0) {
-				ethread::sleepMilliSeconds((25));
-				for (auto &it : m_GateWayList) {
-					if (it == null) {
-						continue;
-					}
-					if (it->getName() != _userName) {
-						continue;
-					}
-					return it;
-				}
-			}
-			APPL_ERROR("must be connected ==> and it is not ...");
-			break;
+		APPL_ERROR("    Check: " << it.m_name << " != " << _userName);
+		if (it.m_name != _userName) {
+			continue;
 		}
+		APPL_ERROR("        ==> find ...");
+		#if 0
+			// start interface:
+			etk::String cmd = "~/dev/perso/out/Linux_x86_64/debug/staging/clang/zeus-package-base/zeus-package-base.app/bin/zeus-gateway";
+			cmd += " --user=" + it.m_name + " ";
+			cmd += " --srv=user";
+			cmd += " --srv=picture";
+			cmd += " --srv=video";
+			cmd += " --base-path=" + it.m_basePath;
+			cmd += " --elog-file=\"/tmp/zeus.gateway." + it.m_name + ".log\"";
+			cmd += "&";
+			APPL_ERROR("Start " << cmd);
+			it.m_subProcess = popen(cmd.c_str(), "r");
+			if (it.m_subProcess == null) {
+				perror("popen");
+				return null;
+			}
+			// just trash IO ...
+			//pclose(it.m_subProcess);
+		#else
+			if (fork()) {
+				// We're in the parent here.
+				// nothing to do ...
+				APPL_ERROR("Parent Execution ...");
+			} else {
+				// We're in the child here.
+				APPL_ERROR("Child Execution ...");
+				etk::Path binary = etk::path::getBinaryDirectory() / "zeus-gateway";
+				etk::String userConf = "--user=" + it.m_name;
+				etk::String basePath = "--base-path=" + it.m_basePath;
+				etk::String logFile;
+				if (*propertyStdOut == false) {
+					etk::Path tmp = etk::Path(it.m_basePath) / "log" / "gateway.log";
+					if (    tmp.isEmpty() == false
+					     && tmp.getString()[0] == '~') {
+						tmp = etk::path::getHomePath() / &logFile[1];
+					}
+					logFile = "--elog-file=" + tmp.getString();
+					//etk::String logFile = "--elog-file=/home/heero/.local/share/zeus-DATA/SDFGHTHBSDFGSQDHZSRDFGSDFGSDFGSDFG/log/gateway.log";
+					//etk::String logFile = " ";
+					APPL_INFO("New Child log in = " << logFile);
+				}
+				etk::String directAccess;
+				if (it.m_enableDirectAccess == true) {
+					directAccess = "--direct-ip=" + *propertyClientIp;
+					directAccess += " --direct-port=" + etk::toString(*propertyGateWayDirectPortMin);
+				}
+				etk::String delay = "--router-delay=" + etk::toString(*propertyDelayToStop);
+				//etk::String delay = "--router-delay=-1";
+				APPL_INFO("execute: " << binary << " " << userConf << " --srv=all " << delay << " " << basePath << " " << logFile << " " << directAccess);
+				int ret = execlp( binary.getNative().c_str(),
+				                  binary.getNative().c_str(), // must repeate the binary name to have the name as first argument ...
+				                  userConf.c_str(),
+				                  "--srv=all",
+				                  "--service-extern=false",
+				                  delay.c_str(),
+				                  basePath.c_str(),
+				                  logFile.c_str(),
+				                  directAccess.c_str(),
+				                  NULL);
+				APPL_ERROR("Child Execution ret = " << ret);
+				exit (-1);
+				APPL_ERROR("Must never appear ... child of fork killed ...");
+			}
+		#endif
+		int32_t nbCheckDelayMax = 24;
+		while (nbCheckDelayMax-- > 0) {
+			ethread::sleepMilliSeconds((25));
+			for (auto &it : m_GateWayList) {
+				if (it == null) {
+					continue;
+				}
+				if (it->getName() != _userName) {
+					continue;
+				}
+				return it;
+			}
+		}
+		APPL_ERROR("must be connected ==> and it is not ...");
+		break;
 	}
 	return null;
 }
