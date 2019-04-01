@@ -80,6 +80,7 @@ void appl::widget::VideoDisplay::loadProgram() {
 		m_GLtexID    = m_GLprogram->getUniform("EW_texID");
 	}
 }
+
 void appl::widget::VideoDisplay::setFile(const etk::String& _filename) {
 	/*
 	// Stop playing in all case...
@@ -357,7 +358,7 @@ void appl::widget::VideoDisplay::periodicEvent(const ewol::event::Time& _event) 
 		// check the slot is valid and check display time of the element:
 		if (    idSlot != -1
 		     && m_currentTime > m_decoder->m_videoPool[idSlot].m_time) {
-			APPL_WARNING("Get Slot VIDEO " << m_currentTime << " > " << m_decoder->m_audioPool[idSlot].m_time);
+			APPL_WARNING("Get Slot VIDEO " << m_currentTime << " > " << m_decoder->m_videoPool[idSlot].m_time);
 			m_resource[m_useElement]->get().swap(m_decoder->m_videoPool[idSlot].m_image);
 			m_resource[m_useElement]->flush();
 			m_useElement++;

@@ -60,7 +60,7 @@ namespace appl {
 	class StreamBuffering : public ememory::EnableSharedFromThis<StreamBuffering> {
 		public:
 			StreamBuffering();
-			ethread::Mutex                                m_mutex; //!< local Lock Data protection
+			ethread::Mutex                            m_mutex; //!< local Lock Data protection
 			ememory::SharedPtr<appl::ClientProperty>  m_property; //!< Remote interface that must get data
 			uint32_t                                  m_mediaId; //!< remote media ID that need to get data
 			zeus::ProxyFile                           m_fileHandle; //!< Reference on the remote file

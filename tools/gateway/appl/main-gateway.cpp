@@ -128,6 +128,9 @@ class PlugginAccess {
 			}
 			(*m_SERVICE_IO_peridic_call)();
 		}
+		const etk::String getName() const {
+			return m_name;
+		}
 };
 #endif
 
@@ -147,6 +150,7 @@ int main(int _argc, const char *_argv[]) {
 	uint32_t routerDisconnectionDelay = 30;
 	for (int32_t iii=0; iii<_argc ; ++iii) {
 		etk::String data = _argv[iii];
+		APPL_PRINT("parameter:  [" << iii << "] '" << data << "'");
 		if (etk::start_with(data, "--user=") == true) {
 			basicGateway.propertyUserName.set(etk::String(&data[7]));
 		} else if (data == "--no-router") {
@@ -294,13 +298,25 @@ int main(int _argc, const char *_argv[]) {
 				}
 			}
 		}
+		APPL_WARNING("=================================================");
+		APPL_WARNING("== INIT All service");
+		APPL_WARNING("=================================================");
 		for (auto &it: listElements) {
+			APPL_WARNING("    init: " << it->getName());
 			it->init(_argc, _argv, basePath);
 		}
+		APPL_WARNING("=================================================");
+		APPL_WARNING("== check client connected:");
+		APPL_WARNING("=================================================");
 		if (m_client.connect() == false) {
+			APPL_WARNING("    ==> not connected");
 			return -1;
 		}
+		APPL_WARNING("=================================================");
+		APPL_WARNING("== Publish all service");
+		APPL_WARNING("=================================================");
 		for (auto &it: listElements) {
+			APPL_WARNING("    publish: " << it->getName());
 			it->publish(m_client);
 		}
 		uint32_t iii = 0;

@@ -224,11 +224,12 @@ ememory::SharedPtr<appl::GateWayInterface> appl::Router::get(const etk::String& 
 			// just trash IO ...
 			//pclose(it.m_subProcess);
 		#else
-			if (fork()) {
+			pid_t pid = fork();
+			if (pid > 0) {
 				// We're in the parent here.
 				// nothing to do ...
 				APPL_ERROR("Parent Execution ...");
-			} else {
+			} else if (pid == 0) {
 				// We're in the child here.
 				APPL_ERROR("Child Execution ...");
 				etk::Path binary = etk::path::getBinaryDirectory() / "zeus-gateway";
@@ -258,7 +259,7 @@ ememory::SharedPtr<appl::GateWayInterface> appl::Router::get(const etk::String& 
 				                  binary.getNative().c_str(), // must repeate the binary name to have the name as first argument ...
 				                  userConf.c_str(),
 				                  "--srv=all",
-				                  "--service-extern=false",
+				                  /*"--service-extern=false",*/
 				                  delay.c_str(),
 				                  basePath.c_str(),
 				                  logFile.c_str(),
@@ -267,6 +268,9 @@ ememory::SharedPtr<appl::GateWayInterface> appl::Router::get(const etk::String& 
 				APPL_ERROR("Child Execution ret = " << ret);
 				exit (-1);
 				APPL_ERROR("Must never appear ... child of fork killed ...");
+			} else {
+				// fork failed
+				APPL_ERROR("fork() failed!\n");
 			}
 		#endif
 		int32_t nbCheckDelayMax = 24;

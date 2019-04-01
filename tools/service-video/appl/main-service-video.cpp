@@ -223,7 +223,7 @@ namespace appl {
 				if (zeus::getExtention(futType.get()) != "") {
 					ethread::UniqueLock lock(g_mutex);
 					etk::uri::move(tmpFileName, g_basePath / (sha512String + "." + zeus::getExtention(futType.get())));
-					ememory::SharedPtr<zeus::MediaImpl> property = ememory::makeShared<zeus::MediaImpl>(id, g_basePath / sha512String + "." + zeus::getExtention(futType.get()));
+					ememory::SharedPtr<zeus::MediaImpl> property = ememory::makeShared<zeus::MediaImpl>(id, g_basePath / (sha512String + "." + zeus::getExtention(futType.get())));
 					property->setMetadata("sha512", sha512String);
 					property->setMetadata("mime-type", futType.get());
 					property->setCallbackMetadataChange(&metadataChange);

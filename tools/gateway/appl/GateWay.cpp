@@ -127,6 +127,7 @@ uint16_t appl::GateWay::getId() {
 }
 
 void appl::GateWay::start() {
+	APPL_WARNING("start      [START]");
 	if (*propertyRouterNo == false) {
 		m_routerClient = ememory::makeShared<appl::RouterInterface>(propertyRouterIp.get(), propertyRouterPort.get(), propertyUserName.get(), this, propertyDirectPort.get());
 		if (m_routerClient->isAlive() == false) {
@@ -141,13 +142,14 @@ void appl::GateWay::start() {
 		APPL_WARNING("#################################");
 		m_interfaceNewService->start(*propertyServiceIp, *propertyServicePort);
 	}
-	// Ebale access of direct Client
+	// Enable access of direct Client
 	if (propertyDirectPort.get() != 0) {
 		APPL_WARNING("#################################");
 		APPL_WARNING("## Open interface for Direct client : " << *propertyDirectIp << ":" << *propertyDirectPort);
 		APPL_WARNING("#################################");
 		m_interfaceNewClient->start(*propertyDirectIp, *propertyDirectPort);
 	}
+	APPL_WARNING("start      [ END ]");
 }
 
 void appl::GateWay::stop() {

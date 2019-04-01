@@ -68,7 +68,13 @@ Start the service:
 
 	systemctl start zeus-router.service
 
+Run some command tools:
+=======================
 
+Access to the video backend:
+```
+lutin -cclang -mdebug zeus-package-base?run%zeus-cli-video:--login=HeeroYui:--pass=plop:list
+```
 
 
 License (MPL v2.0)

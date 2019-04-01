@@ -674,7 +674,7 @@ void zeus::WebServer::threadAsyncCallback() {
 		if (m_threadAsyncList2.size() != 0) {
 			ethread::UniqueLock lock(m_threadAsyncMutex);
 			for (auto &it : m_threadAsyncList2) {
-				ZEUS_INFO("Add async");
+				ZEUS_DEBUG("Add async");
 				m_threadAsyncList.pushBack(it);
 			}
 			m_threadAsyncList2.clear();
@@ -689,7 +689,7 @@ void zeus::WebServer::threadAsyncCallback() {
 			bool ret = (*it)(this);
 			if (ret == true) {
 				// Remove it ...
-				ZEUS_INFO("Remove async");
+				ZEUS_DEBUG("Remove async");
 				it = m_threadAsyncList.erase(it);
 			} else {
 				++it;
